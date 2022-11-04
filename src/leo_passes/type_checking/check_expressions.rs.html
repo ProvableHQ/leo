@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>check_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>check_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -696,703 +696,703 @@
 <span id="696">696</span>
 <span id="697">697</span>
 <span id="698">698</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
-<span class="kw">use</span> <span class="ident">leo_errors::TypeCheckerError</span>;
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Span</span>};
-<span class="kw">use</span> <span class="ident">std::str::FromStr</span>;
+</span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::emitter::Handler;
+<span class="kw">use </span>leo_errors::TypeCheckerError;
+<span class="kw">use </span>leo_span::{sym, Span};
+<span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::TypeChecker</span>;
+<span class="kw">use </span><span class="kw">crate</span>::TypeChecker;
 
-<span class="kw">fn</span> <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">t2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">t1</span>), <span class="prelude-val">Some</span>(<span class="ident">t2</span>)) <span class="kw">if</span> <span class="ident">t1</span> <span class="op">==</span> <span class="ident">t2</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">t1</span>),
-        (<span class="prelude-val">Some</span>(<span class="ident">t1</span>), <span class="prelude-val">Some</span>(<span class="ident">t2</span>)) =&gt; {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expected</span>) <span class="op">=</span> <span class="ident">expected</span> {
-                <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">t1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">t1</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">t2</span>)
+<span class="kw">fn </span>return_incorrect_type(t1: <span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Type&gt; {
+    <span class="kw">match </span>(t1, t2) {
+        (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) <span class="kw">if </span>t1 == t2 =&gt; <span class="prelude-val">Some</span>(t1),
+        (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
+                <span class="kw">if </span><span class="kw-2">&amp;</span>t1 != expected {
+                    <span class="prelude-val">Some</span>(t1)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(t2)
                 }
-            } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">t1</span>)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(t1)
             }
         }
-        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">|</span> (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">|</span> (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">None</span>,
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) | (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExpressionVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypeChecker</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">AdditionalInput</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>AdditionalInput = <span class="prelude-ty">Option</span>&lt;Type&gt;;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;Type&gt;;
 
-    <span class="kw">fn</span> <span class="ident">visit_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AccessExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">access</span>) =&gt; {
-                <span class="comment">// Check core struct name and function.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">core_instruction</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_core_function_call</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">ty</span>, <span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">name</span>) {
-                    <span class="comment">// Check num input arguments.</span>
-                    <span class="kw">if</span> <span class="ident">core_instruction</span>.<span class="ident">num_args</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">len</span>() {
-                        <span class="comment">// TODO: Better error messages.</span>
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_num_args_to_call</span>(
-                            <span class="ident">core_instruction</span>.<span class="ident">num_args</span>(),
-                            <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">len</span>(),
-                            <span class="ident">input</span>.<span class="ident">span</span>(),
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span>input {
+            AccessExpression::AssociatedFunction(access) =&gt; {
+                <span class="comment">// Check core struct name and function.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.check_core_function_call(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
+                    <span class="comment">// Check num input arguments.
+                    </span><span class="kw">if </span>core_instruction.num_args() != access.args.len() {
+                        <span class="comment">// TODO: Better error messages.
+                        </span><span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            core_instruction.num_args(),
+                            access.args.len(),
+                            input.span(),
                         ));
                     }
 
-                    <span class="comment">// Check first argument type.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first_arg</span>) <span class="op">=</span> <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">get</span>(<span class="number">0usize</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">first_arg_type</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">first_arg</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">core_instruction</span>.<span class="ident">first_arg_is_allowed_type</span>(<span class="kw-2">&amp;</span><span class="ident">first_arg_type</span>) {
-                                <span class="comment">// TODO: Better error messages.</span>
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_type</span>(
-                                    <span class="kw-2">&amp;</span><span class="ident">first_arg_type</span>,
-                                    <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">span</span>(),
+                    <span class="comment">// Check first argument type.
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(first_arg) = access.args.get(<span class="number">0usize</span>) {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(first_arg_type) = <span class="self">self</span>.visit_expression(first_arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                            <span class="kw">if </span>!core_instruction.first_arg_is_allowed_type(<span class="kw-2">&amp;</span>first_arg_type) {
+                                <span class="comment">// TODO: Better error messages.
+                                </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_type(
+                                    <span class="kw-2">&amp;</span>first_arg_type,
+                                    access.args.get(<span class="number">0</span>).unwrap().span(),
                                 ));
                             }
                         }
                     }
 
-                    <span class="comment">// Check second argument type.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">second_arg</span>) <span class="op">=</span> <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">get</span>(<span class="number">1usize</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">second_arg_type</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">second_arg</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">core_instruction</span>.<span class="ident">second_arg_is_allowed_type</span>(<span class="kw-2">&amp;</span><span class="ident">second_arg_type</span>) {
-                                <span class="comment">// TODO: Better error messages.</span>
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_type</span>(
-                                    <span class="kw-2">&amp;</span><span class="ident">second_arg_type</span>,
-                                    <span class="ident">access</span>.<span class="ident">args</span>.<span class="ident">get</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">span</span>(),
+                    <span class="comment">// Check second argument type.
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(second_arg) = access.args.get(<span class="number">1usize</span>) {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(second_arg_type) = <span class="self">self</span>.visit_expression(second_arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                            <span class="kw">if </span>!core_instruction.second_arg_is_allowed_type(<span class="kw-2">&amp;</span>second_arg_type) {
+                                <span class="comment">// TODO: Better error messages.
+                                </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_type(
+                                    <span class="kw-2">&amp;</span>second_arg_type,
+                                    access.args.get(<span class="number">1</span>).unwrap().span(),
                                 ));
                             }
                         }
                     }
 
-                    <span class="comment">// Check return type.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">core_instruction</span>.<span class="ident">return_type</span>(), <span class="ident">expected</span>, <span class="ident">access</span>.<span class="ident">span</span>()));
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_core_function_call</span>(<span class="ident">access</span>, <span class="ident">access</span>.<span class="ident">span</span>()));
+                    <span class="comment">// Check return type.
+                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
-            <span class="ident">AccessExpression::Tuple</span>(<span class="ident">access</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">type_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">tuple</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                    <span class="kw">match</span> <span class="ident">type_</span> {
-                        <span class="ident">Type::Tuple</span>(<span class="ident">tuple</span>) =&gt; {
-                            <span class="comment">// Check out of range access.</span>
-                            <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">access</span>.<span class="ident">index</span>.<span class="ident">to_usize</span>();
-                            <span class="kw">if</span> <span class="ident">index</span> <span class="op">&gt;</span> <span class="ident">tuple</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::tuple_out_of_range</span>(<span class="ident">index</span>, <span class="ident">tuple</span>.<span class="ident">len</span>(), <span class="ident">access</span>.<span class="ident">span</span>()));
-                            } <span class="kw">else</span> {
-                                <span class="comment">// Lookup type of tuple index.</span>
-                                <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">tuple</span>.<span class="ident">get</span>(<span class="ident">index</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to get tuple index&quot;</span>).<span class="ident">clone</span>();
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expected</span>) <span class="op">=</span> <span class="ident">expected</span> {
-                                    <span class="comment">// Emit error for mismatched types.</span>
-                                    <span class="kw">if</span> <span class="op">!</span><span class="ident">actual</span>.<span class="ident">eq_flat</span>(<span class="ident">expected</span>) {
-                                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(
-                                            <span class="kw-2">&amp;</span><span class="ident">actual</span>,
-                                            <span class="ident">expected</span>,
-                                            <span class="ident">access</span>.<span class="ident">span</span>(),
+            AccessExpression::Tuple(access) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(type_) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.tuple, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                    <span class="kw">match </span>type_ {
+                        Type::Tuple(tuple) =&gt; {
+                            <span class="comment">// Check out of range access.
+                            </span><span class="kw">let </span>index = access.index.to_usize();
+                            <span class="kw">if </span>index &gt; tuple.len() - <span class="number">1 </span>{
+                                <span class="self">self</span>.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                            } <span class="kw">else </span>{
+                                <span class="comment">// Lookup type of tuple index.
+                                </span><span class="kw">let </span>actual = tuple.get(index).expect(<span class="string">&quot;failed to get tuple index&quot;</span>).clone();
+                                <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
+                                    <span class="comment">// Emit error for mismatched types.
+                                    </span><span class="kw">if </span>!actual.eq_flat(expected) {
+                                        <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(
+                                            <span class="kw-2">&amp;</span>actual,
+                                            expected,
+                                            access.span(),
                                         ))
                                     }
                                 }
 
-                                <span class="comment">// Return type of tuple index.</span>
-                                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">actual</span>);
+                                <span class="comment">// Return type of tuple index.
+                                </span><span class="kw">return </span><span class="prelude-val">Some</span>(actual);
                             }
                         }
-                        <span class="ident">type_</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">type_</span>, <span class="string">&quot;tuple&quot;</span>, <span class="ident">access</span>.<span class="ident">span</span>()));
+                        type_ =&gt; {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">&quot;tuple&quot;</span>, access.span()));
                         }
                     }
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_core_function_call</span>(<span class="ident">access</span>, <span class="ident">access</span>.<span class="ident">span</span>()));
+                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
-            <span class="ident">AccessExpression::Member</span>(<span class="ident">access</span>) =&gt; {
-                <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">access</span>.<span class="ident">inner</span> {
-                    <span class="comment">// If the access expression is of the form `self.&lt;name&gt;`, then check the &lt;name&gt; is valid.</span>
-                    <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) <span class="kw">if</span> <span class="ident">identifier</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::SelfLower</span> =&gt; <span class="kw">match</span> <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">name</span> {
-                        <span class="ident">sym::caller</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Address</span>),
-                        <span class="kw">_</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_self_access</span>(<span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">span</span>()));
+            AccessExpression::Member(access) =&gt; {
+                <span class="kw">match </span><span class="kw-2">*</span>access.inner {
+                    <span class="comment">// If the access expression is of the form `self.&lt;name&gt;`, then check the &lt;name&gt; is valid.
+                    </span>Expression::Identifier(identifier) <span class="kw">if </span>identifier.name == sym::SelfLower =&gt; <span class="kw">match </span>access.name.name {
+                        sym::caller =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Address),
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
                         }
                     },
-                    <span class="kw">_</span> =&gt; {
-                        <span class="comment">// Check that the type of `inner` in `inner.name` is a struct.</span>
-                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="prelude-val">Some</span>(<span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>)) =&gt; {
-                                <span class="comment">// Retrieve the struct definition associated with `identifier`.</span>
-                                <span class="kw">let</span> <span class="ident">struct_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_struct</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">struct_</span>) <span class="op">=</span> <span class="ident">struct_</span> {
-                                    <span class="comment">// Check that `access.name` is a member of the struct.</span>
-                                    <span class="kw">match</span> <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">member</span><span class="op">|</span> <span class="ident">member</span>.<span class="ident">name</span>() <span class="op">==</span> <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">name</span>) {
-                                        <span class="comment">// Case where `access.name` is a member of the struct.</span>
-                                        <span class="prelude-val">Some</span>(<span class="ident">Member</span> { <span class="ident">type_</span>, .. }) =&gt; <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">type_</span>.<span class="ident">clone</span>()),
-                                        <span class="comment">// Case where `access.name` is not a member of the struct.</span>
-                                        <span class="prelude-val">None</span> =&gt; {
-                                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_struct_variable</span>(
-                                                <span class="ident">access</span>.<span class="ident">name</span>,
-                                                <span class="kw-2">&amp;</span><span class="ident">struct_</span>,
-                                                <span class="ident">access</span>.<span class="ident">name</span>.<span class="ident">span</span>(),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="comment">// Check that the type of `inner` in `inner.name` is a struct.
+                        </span><span class="kw">match </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
+                            <span class="prelude-val">Some</span>(Type::Identifier(identifier)) =&gt; {
+                                <span class="comment">// Retrieve the struct definition associated with `identifier`.
+                                </span><span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
+                                    <span class="comment">// Check that `access.name` is a member of the struct.
+                                    </span><span class="kw">match </span>struct_.members.iter().find(|member| member.name() == access.name.name) {
+                                        <span class="comment">// Case where `access.name` is a member of the struct.
+                                        </span><span class="prelude-val">Some</span>(Member { type_, .. }) =&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(type_.clone()),
+                                        <span class="comment">// Case where `access.name` is not a member of the struct.
+                                        </span><span class="prelude-val">None </span>=&gt; {
+                                            <span class="self">self</span>.emit_err(TypeCheckerError::invalid_struct_variable(
+                                                access.name,
+                                                <span class="kw-2">&amp;</span>struct_,
+                                                access.name.span(),
                                             ));
                                         }
                                     }
-                                } <span class="kw">else</span> {
-                                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::undefined_type</span>(<span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
+                                } <span class="kw">else </span>{
+                                    <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(<span class="kw-2">&amp;</span>access.inner, access.inner.span()));
                                 }
                             }
-                            <span class="prelude-val">Some</span>(<span class="ident">type_</span>) =&gt; {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(<span class="ident">type_</span>, <span class="string">&quot;struct&quot;</span>, <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>()));
+                            <span class="prelude-val">Some</span>(type_) =&gt; {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">&quot;struct&quot;</span>, access.inner.span()));
                             }
-                            <span class="prelude-val">None</span> =&gt; {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
-                                    <span class="kw-2">&amp;</span><span class="ident">access</span>.<span class="ident">inner</span>,
-                                    <span class="ident">access</span>.<span class="ident">inner</span>.<span class="ident">span</span>(),
+                            <span class="prelude-val">None </span>=&gt; {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(
+                                    <span class="kw-2">&amp;</span>access.inner,
+                                    access.inner.span(),
                                 ));
                             }
                         }
                     }
                 }
             }
-            <span class="ident">AccessExpression::AssociatedConstant</span>(..) =&gt; {} <span class="comment">// todo: Add support for associated constants (u8::MAX).</span>
-        }
-        <span class="prelude-val">None</span>
-    }
+            AccessExpression::AssociatedConstant(..) =&gt; {} <span class="comment">// todo: Add support for associated constants (u8::MAX).
+        </span>}
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">visit_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BinaryExpression</span>, <span class="ident">destination</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">op</span> {
-            <span class="ident">BinaryOperation::And</span> <span class="op">|</span> <span class="ident">BinaryOperation::Or</span> <span class="op">|</span> <span class="ident">BinaryOperation::Nand</span> <span class="op">|</span> <span class="ident">BinaryOperation::Nor</span> =&gt; {
-                <span class="comment">// Only boolean types.</span>
-                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span>input.op {
+            BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor =&gt; {
+                <span class="comment">// Only boolean types.
+                </span><span class="self">self</span>.assert_bool_type(destination, input.span());
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::BitwiseAnd</span> <span class="op">|</span> <span class="ident">BinaryOperation::BitwiseOr</span> <span class="op">|</span> <span class="ident">BinaryOperation::Xor</span> =&gt; {
-                <span class="comment">//  Only boolean or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_bool_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+            BinaryOperation::BitwiseAnd | BinaryOperation::BitwiseOr | BinaryOperation::Xor =&gt; {
+                <span class="comment">//  Only boolean or integer types.
+                </span><span class="self">self</span>.assert_bool_int_type(destination, input.span());
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Add</span> =&gt; {
-                <span class="comment">// Only field, group, scalar, or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_scalar_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+            BinaryOperation::Add =&gt; {
+                <span class="comment">// Only field, group, scalar, or integer types.
+                </span><span class="self">self</span>.assert_field_group_scalar_int_type(destination, input.span());
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Sub</span> =&gt; {
-                <span class="comment">// Only field, group, or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+            BinaryOperation::Sub =&gt; {
+                <span class="comment">// Only field, group, or integer types.
+                </span><span class="self">self</span>.assert_field_group_int_type(destination, input.span());
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Mul</span> =&gt; {
-                <span class="comment">// Operation returns field, group or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            BinaryOperation::Mul =&gt; {
+                <span class="comment">// Operation returns field, group or integer types.
+                </span><span class="self">self</span>.assert_field_group_int_type(destination, input.span());
 
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Allow group * scalar multiplication.</span>
-                <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>(), <span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>()) {
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>) <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>), <span class="kw">_</span>) =&gt; {
-                        <span class="comment">// Other type must be scalar.</span>
-                        <span class="self">self</span>.<span class="ident">assert_scalar_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="ident">other_span</span>);
+                <span class="comment">// Allow group * scalar multiplication.
+                </span><span class="kw">match </span>(t1, input.left.span(), t2, input.right.span()) {
+                    (<span class="prelude-val">Some</span>(Type::Group), <span class="kw">_</span>, other, other_span) | (other, other_span, <span class="prelude-val">Some</span>(Type::Group), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be scalar.
+                        </span><span class="self">self</span>.assert_scalar_type(<span class="kw-2">&amp;</span>other, other_span);
 
-                        <span class="comment">// Operation returns group.</span>
-                        <span class="self">self</span>.<span class="ident">assert_group_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns group.
+                        </span><span class="self">self</span>.assert_group_type(destination, input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Group</span>)
+                        <span class="prelude-val">Some</span>(Type::Group)
                     }
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>) <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="kw">_</span>) =&gt; {
-                        <span class="comment">// Other type must be field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="ident">other_span</span>);
+                    (<span class="prelude-val">Some</span>(Type::Field), <span class="kw">_</span>, other, other_span) | (other, other_span, <span class="prelude-val">Some</span>(Type::Field), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be field.
+                        </span><span class="self">self</span>.assert_field_type(<span class="kw-2">&amp;</span>other, other_span);
 
-                        <span class="comment">// Operation returns field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns field.
+                        </span><span class="self">self</span>.assert_field_type(destination, input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)
+                        <span class="prelude-val">Some</span>(Type::Field)
                     }
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>)), <span class="kw">_</span>, <span class="ident">other</span>, <span class="ident">other_span</span>)
-                    <span class="op">|</span> (<span class="ident">other</span>, <span class="ident">other_span</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>)), <span class="kw">_</span>) =&gt; {
-                        <span class="comment">// Other type must be the same integer type.</span>
-                        <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>, <span class="kw-2">&amp;</span><span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">other_span</span>);
+                    (<span class="prelude-val">Some</span>(Type::Integer(integer_type)), <span class="kw">_</span>, other, other_span)
+                    | (other, other_span, <span class="prelude-val">Some</span>(Type::Integer(integer_type)), <span class="kw">_</span>) =&gt; {
+                        <span class="comment">// Other type must be the same integer type.
+                        </span><span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>other, <span class="kw-2">&amp;</span>Type::Integer(integer_type), other_span);
 
-                        <span class="comment">// Operation returns the same integer type.</span>
-                        <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="ident">destination</span>, <span class="kw-2">&amp;</span><span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>), <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns the same integer type.
+                        </span><span class="self">self</span>.assert_type(destination, <span class="kw-2">&amp;</span>Type::Integer(integer_type), input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Integer</span>(<span class="ident">integer_type</span>))
+                        <span class="prelude-val">Some</span>(Type::Integer(integer_type))
                     }
-                    (<span class="ident">left_type</span>, <span class="ident">left_span</span>, <span class="ident">right_type</span>, <span class="ident">right_span</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">check_type</span> <span class="op">=</span> <span class="op">|</span><span class="ident">type_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">expression</span>: <span class="kw-2">&amp;</span><span class="ident">Expression</span>, <span class="ident">span</span>: <span class="ident">Span</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">type_</span> {
-                            <span class="prelude-val">None</span> =&gt; {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(<span class="ident">expression</span>, <span class="ident">span</span>));
+                    (left_type, left_span, right_type, right_span) =&gt; {
+                        <span class="kw">let </span>check_type = |type_: <span class="prelude-ty">Option</span>&lt;Type&gt;, expression: <span class="kw-2">&amp;</span>Expression, span: Span| <span class="kw">match </span>type_ {
+                            <span class="prelude-val">None </span>=&gt; {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(expression, span));
                             }
-                            <span class="prelude-val">Some</span>(<span class="ident">type_</span>) =&gt; {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::type_should_be</span>(
-                                    <span class="ident">type_</span>,
+                            <span class="prelude-val">Some</span>(type_) =&gt; {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(
+                                    type_,
                                     <span class="string">&quot;field, group, integer, or scalar&quot;</span>,
-                                    <span class="ident">span</span>,
+                                    span,
                                 ));
                             }
                         };
-                        <span class="ident">check_type</span>(<span class="ident">left_type</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">left_span</span>);
-                        <span class="ident">check_type</span>(<span class="ident">right_type</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">right_span</span>);
-                        <span class="ident">destination</span>.<span class="ident">clone</span>()
+                        check_type(left_type, <span class="kw-2">&amp;</span>input.left, left_span);
+                        check_type(right_type, <span class="kw-2">&amp;</span>input.right, right_span);
+                        destination.clone()
                     }
                 }
             }
-            <span class="ident">BinaryOperation::Div</span> =&gt; {
-                <span class="comment">// Only field or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            BinaryOperation::Div =&gt; {
+                <span class="comment">// Only field or integer types.
+                </span><span class="self">self</span>.assert_field_int_type(destination, input.span());
 
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Rem</span> <span class="op">|</span> <span class="ident">BinaryOperation::RemWrapped</span> =&gt; {
-                <span class="comment">// Only integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            BinaryOperation::Rem | BinaryOperation::RemWrapped =&gt; {
+                <span class="comment">// Only integer types.
+                </span><span class="self">self</span>.assert_int_type(destination, input.span());
 
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Mod</span> =&gt; {
-                <span class="comment">// Only unsigned integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_unsigned_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            BinaryOperation::Mod =&gt; {
+                <span class="comment">// Only unsigned integer types.
+                </span><span class="self">self</span>.assert_unsigned_int_type(destination, input.span());
 
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                return_incorrect_type(t1, t2, destination)
             }
-            <span class="ident">BinaryOperation::Pow</span> =&gt; {
-                <span class="comment">// Operation returns field or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+            BinaryOperation::Pow =&gt; {
+                <span class="comment">// Operation returns field or integer types.
+                </span><span class="self">self</span>.assert_field_int_type(destination, input.span());
 
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Allow field ^ field.</span>
-                <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>), <span class="ident">right</span>) =&gt; {
-                        <span class="comment">// Right must be field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                <span class="comment">// Allow field ^ field.
+                </span><span class="kw">match </span>(t1, t2) {
+                    (<span class="prelude-val">Some</span>(Type::Field), right) =&gt; {
+                        <span class="comment">// Right must be field.
+                        </span><span class="self">self</span>.assert_field_type(<span class="kw-2">&amp;</span>right, input.right.span());
 
-                        <span class="comment">// Operation returns field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns field.
+                        </span><span class="self">self</span>.assert_field_type(destination, input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)
+                        <span class="prelude-val">Some</span>(Type::Field)
                     }
-                    (<span class="ident">left</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)) =&gt; {
-                        <span class="comment">// Left must be field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="kw-2">&amp;</span><span class="ident">left</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>());
+                    (left, <span class="prelude-val">Some</span>(Type::Field)) =&gt; {
+                        <span class="comment">// Left must be field.
+                        </span><span class="self">self</span>.assert_field_type(<span class="kw-2">&amp;</span>left, input.left.span());
 
-                        <span class="comment">// Operation returns field.</span>
-                        <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns field.
+                        </span><span class="self">self</span>.assert_field_type(destination, input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">Type::Field</span>)
+                        <span class="prelude-val">Some</span>(Type::Field)
                     }
-                    (<span class="prelude-val">Some</span>(<span class="ident">left</span>), <span class="ident">right</span>) =&gt; {
-                        <span class="comment">// Left type is checked to be an integer by above.</span>
-                        <span class="comment">// Right type must be magnitude (u8, u16, u32).</span>
-                        <span class="self">self</span>.<span class="ident">assert_magnitude_type</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                    (<span class="prelude-val">Some</span>(left), right) =&gt; {
+                        <span class="comment">// Left type is checked to be an integer by above.
+                        // Right type must be magnitude (u8, u16, u32).
+                        </span><span class="self">self</span>.assert_magnitude_type(<span class="kw-2">&amp;</span>right, input.right.span());
 
-                        <span class="comment">// Operation returns left type.</span>
-                        <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="ident">destination</span>, <span class="kw-2">&amp;</span><span class="ident">left</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                        <span class="comment">// Operation returns left type.
+                        </span><span class="self">self</span>.assert_type(destination, <span class="kw-2">&amp;</span>left, input.span());
 
-                        <span class="prelude-val">Some</span>(<span class="ident">left</span>)
+                        <span class="prelude-val">Some</span>(left)
                     }
-                    (<span class="prelude-val">None</span>, <span class="ident">right</span>) =&gt; {
-                        <span class="comment">// Lhs type is checked to be an integer by above.</span>
-                        <span class="comment">// Rhs type must be magnitude (u8, u16, u32).</span>
-                        <span class="self">self</span>.<span class="ident">assert_magnitude_type</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
-                        <span class="ident">destination</span>.<span class="ident">clone</span>()
-                    }
-                }
-            }
-            <span class="ident">BinaryOperation::Eq</span> <span class="op">|</span> <span class="ident">BinaryOperation::Neq</span> =&gt; {
-                <span class="comment">// Assert first and second address, boolean, field, group, scalar, or integer types.</span>
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-
-                <span class="comment">// Check that the types of the operands are equal.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-
-                <span class="comment">// Operation returns a boolean.</span>
-                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-
-                <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>)
-            }
-            <span class="ident">BinaryOperation::Lt</span> <span class="op">|</span> <span class="ident">BinaryOperation::Gt</span> <span class="op">|</span> <span class="ident">BinaryOperation::Lte</span> <span class="op">|</span> <span class="ident">BinaryOperation::Gte</span> =&gt; {
-                <span class="comment">// Assert left and right are equal field, scalar, or integer types.</span>
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-
-                <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>) {
-                    (<span class="prelude-val">Some</span>(<span class="ident">Type::Address</span>), <span class="kw">_</span>) <span class="op">|</span> (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">Type::Address</span>)) =&gt; {
-                        <span class="comment">// Emit an error for address comparison.</span>
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::compare_address</span>(<span class="ident">input</span>.<span class="ident">op</span>, <span class="ident">input</span>.<span class="ident">span</span>()));
-                    }
-                    (<span class="ident">t1</span>, <span class="ident">t2</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">assert_field_scalar_int_type</span>(<span class="ident">t1</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>());
-                        <span class="self">self</span>.<span class="ident">assert_field_scalar_int_type</span>(<span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                    (<span class="prelude-val">None</span>, right) =&gt; {
+                        <span class="comment">// Lhs type is checked to be an integer by above.
+                        // Rhs type must be magnitude (u8, u16, u32).
+                        </span><span class="self">self</span>.assert_magnitude_type(<span class="kw-2">&amp;</span>right, input.right.span());
+                        destination.clone()
                     }
                 }
-
-                <span class="comment">// Check that the types of the operands are equal.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-
-                <span class="comment">// Operation returns a boolean.</span>
-                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-
-                <span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>)
             }
-            <span class="ident">BinaryOperation::AddWrapped</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::SubWrapped</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::DivWrapped</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::MulWrapped</span> =&gt; {
-                <span class="comment">// Only integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>);
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="ident">destination</span>);
+            BinaryOperation::Eq | BinaryOperation::Neq =&gt; {
+                <span class="comment">// Assert first and second address, boolean, field, group, scalar, or integer types.
+                </span><span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Check that both operands have the same type.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the types of the operands are equal.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                <span class="comment">// Operation returns a boolean.
+                </span><span class="self">self</span>.assert_bool_type(destination, input.span());
+
+                <span class="prelude-val">Some</span>(Type::Boolean)
             }
-            <span class="ident">BinaryOperation::Shl</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::ShlWrapped</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::Shr</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::ShrWrapped</span>
-            <span class="op">|</span> <span class="ident">BinaryOperation::PowWrapped</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>, <span class="ident">destination</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+            BinaryOperation::Lt | BinaryOperation::Gt | BinaryOperation::Lte | BinaryOperation::Gte =&gt; {
+                <span class="comment">// Assert left and right are equal field, scalar, or integer types.
+                </span><span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Assert left and destination are equal integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="ident">input</span>.<span class="ident">left</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>);
+                <span class="kw">match </span>(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2) {
+                    (<span class="prelude-val">Some</span>(Type::Address), <span class="kw">_</span>) | (<span class="kw">_</span>, <span class="prelude-val">Some</span>(Type::Address)) =&gt; {
+                        <span class="comment">// Emit an error for address comparison.
+                        </span><span class="self">self</span>.emit_err(TypeCheckerError::compare_address(input.op, input.span()));
+                    }
+                    (t1, t2) =&gt; {
+                        <span class="self">self</span>.assert_field_scalar_int_type(t1, input.left.span());
+                        <span class="self">self</span>.assert_field_scalar_int_type(t2, input.right.span());
+                    }
+                }
 
-                <span class="comment">// Assert right type is a magnitude (u8, u16, u32).</span>
-                <span class="self">self</span>.<span class="ident">assert_magnitude_type</span>(<span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">right</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the types of the operands are equal.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
 
-                <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">destination</span>)
+                <span class="comment">// Operation returns a boolean.
+                </span><span class="self">self</span>.assert_bool_type(destination, input.span());
+
+                <span class="prelude-val">Some</span>(Type::Boolean)
+            }
+            BinaryOperation::AddWrapped
+            | BinaryOperation::SubWrapped
+            | BinaryOperation::DivWrapped
+            | BinaryOperation::MulWrapped =&gt; {
+                <span class="comment">// Only integer types.
+                </span><span class="self">self</span>.assert_int_type(destination, input.span);
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, destination);
+
+                <span class="comment">// Check that both operands have the same type.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
+
+                return_incorrect_type(t1, t2, destination)
+            }
+            BinaryOperation::Shl
+            | BinaryOperation::ShlWrapped
+            | BinaryOperation::Shr
+            | BinaryOperation::ShrWrapped
+            | BinaryOperation::PowWrapped =&gt; {
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left, destination);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+
+                <span class="comment">// Assert left and destination are equal integer types.
+                </span><span class="self">self</span>.assert_int_type(<span class="kw-2">&amp;</span>t1, input.left.span());
+                <span class="self">self</span>.assert_int_type(destination, input.span);
+
+                <span class="comment">// Assert right type is a magnitude (u8, u16, u32).
+                </span><span class="self">self</span>.assert_magnitude_type(<span class="kw-2">&amp;</span>t2, input.right.span());
+
+                return_incorrect_type(t1, t2, destination)
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CallExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="comment">// Note that the parser guarantees that `input.function` is always an identifier.</span>
-            <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>) =&gt; {
-                <span class="comment">// Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.</span>
-                <span class="comment">// Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!</span>
-                <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_fn_symbol</span>(<span class="ident">ident</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span><span class="kw-2">&amp;*</span>input.function {
+            <span class="comment">// Note that the parser guarantees that `input.function` is always an identifier.
+            </span>Expression::Identifier(ident) =&gt; {
+                <span class="comment">// Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
+                </span><span class="kw">let </span>func = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">func</span>) <span class="op">=</span> <span class="ident">func</span> {
-                    <span class="comment">// Check that the call is valid.</span>
-                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
-                        <span class="comment">// If the function is not a transition function, it cannot call any other functions.</span>
-                        <span class="bool-val">false</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_invoke_call_from_standard_function</span>(<span class="ident">input</span>.<span class="ident">span</span>));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = func {
+                    <span class="comment">// Check that the call is valid.
+                    </span><span class="kw">match </span><span class="self">self</span>.is_transition_function {
+                        <span class="comment">// If the function is not a transition function, it cannot call any other functions.
+                        </span><span class="bool-val">false </span>=&gt; {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::cannot_invoke_call_from_standard_function(input.span));
                         }
-                        <span class="comment">// If the function is a transition function, then check that the call is not to another local transition function.</span>
-                        <span class="bool-val">true</span> =&gt; {
-                            <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">func</span>.<span class="ident">call_type</span>, <span class="ident">CallType::Transition</span>) <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">external</span>.<span class="ident">is_none</span>() {
-                                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_invoke_call_to_local_transition_function</span>(
-                                    <span class="ident">input</span>.<span class="ident">span</span>,
+                        <span class="comment">// If the function is a transition function, then check that the call is not to another local transition function.
+                        </span><span class="bool-val">true </span>=&gt; {
+                            <span class="kw">if </span><span class="macro">matches!</span>(func.call_type, CallType::Transition) &amp;&amp; input.external.is_none() {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
+                                    input.span,
                                 ));
                             }
                         }
                     }
 
-                    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">func</span>.<span class="ident">output_type</span>, <span class="ident">expected</span>, <span class="ident">func</span>.<span class="ident">span</span>);
+                    <span class="kw">let </span>ret = <span class="self">self</span>.assert_and_return_type(func.output_type, expected, func.span);
 
-                    <span class="comment">// Check number of function arguments.</span>
-                    <span class="kw">if</span> <span class="ident">func</span>.<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_num_args_to_call</span>(
-                            <span class="ident">func</span>.<span class="ident">input</span>.<span class="ident">len</span>(),
-                            <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>(),
-                            <span class="ident">input</span>.<span class="ident">span</span>(),
+                    <span class="comment">// Check number of function arguments.
+                    </span><span class="kw">if </span>func.input.len() != input.arguments.len() {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            input.arguments.len(),
+                            input.span(),
                         ));
                     }
 
-                    <span class="comment">// Check function argument types.</span>
-                    <span class="ident">func</span>.<span class="ident">input</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>())
-                        .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">argument</span>)<span class="op">|</span> {
-                            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">type_</span>()));
+                    <span class="comment">// Check function argument types.
+                    </span>func.input
+                        .iter()
+                        .zip(input.arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
                         });
 
-                    <span class="prelude-val">Some</span>(<span class="ident">ret</span>)
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;function&quot;</span>, <span class="ident">ident</span>.<span class="ident">name</span>, <span class="ident">ident</span>.<span class="ident">span</span>()));
-                    <span class="prelude-val">None</span>
-                }
+                    <span class="prelude-val">Some</span>(ret)
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;function&quot;</span>, ident.name, ident.span()));
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parser guarantees that `input.function` is always an identifier.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parser guarantees that `input.function` is always an identifier.&quot;</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StructExpression</span>, <span class="ident">additional</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="ident">struct_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_struct</span>(<span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">name</span>).<span class="ident">cloned</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">struct_</span>) <span class="op">=</span> <span class="ident">struct_</span> {
-            <span class="comment">// Check struct type name.</span>
-            <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_expected_struct</span>(<span class="ident">struct_</span>.<span class="ident">identifier</span>, <span class="ident">additional</span>, <span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">span</span>());
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(input.name.name).cloned();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
+            <span class="comment">// Check struct type name.
+            </span><span class="kw">let </span>ret = <span class="self">self</span>.check_expected_struct(struct_.identifier, additional, input.name.span());
 
-            <span class="comment">// Check number of struct members.</span>
-            <span class="kw">if</span> <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">len</span>() {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_num_struct_members</span>(
-                    <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">len</span>(),
-                    <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">len</span>(),
-                    <span class="ident">input</span>.<span class="ident">span</span>(),
+            <span class="comment">// Check number of struct members.
+            </span><span class="kw">if </span>struct_.members.len() != input.members.len() {
+                <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_struct_members(
+                    struct_.members.len(),
+                    input.members.len(),
+                    input.span(),
                 ));
             }
 
-            <span class="comment">// Check struct member types.</span>
-            <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">Member</span> { <span class="ident">identifier</span>, <span class="ident">type_</span> }<span class="op">|</span> {
-                <span class="comment">// Lookup struct variable name.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">actual</span>) <span class="op">=</span> <span class="ident">input</span>
-                    .<span class="ident">members</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">member</span><span class="op">|</span> <span class="ident">member</span>.<span class="ident">identifier</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">identifier</span>.<span class="ident">name</span>)
+            <span class="comment">// Check struct member types.
+            </span>struct_.members.iter().for_each(|Member { identifier, type_ }| {
+                <span class="comment">// Lookup struct variable name.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(actual) = input
+                    .members
+                    .iter()
+                    .find(|member| member.identifier.name == identifier.name)
                 {
-                    <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">expression</span> {
-                        <span class="comment">// If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`</span>
-                        <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">actual</span>.<span class="ident">identifier</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">type_</span>.<span class="ident">clone</span>())),
-                        <span class="comment">// Otherwise, visit the associated expression.</span>
-                        <span class="prelude-val">Some</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">type_</span>.<span class="ident">clone</span>())),
+                    <span class="kw">match </span><span class="kw-2">&amp;</span>actual.expression {
+                        <span class="comment">// If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
+                        </span><span class="prelude-val">None </span>=&gt; <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>actual.identifier, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(type_.clone())),
+                        <span class="comment">// Otherwise, visit the associated expression.
+                        </span><span class="prelude-val">Some</span>(expr) =&gt; <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(type_.clone())),
                     };
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::missing_struct_member</span>(
-                        <span class="ident">struct_</span>.<span class="ident">identifier</span>,
-                        <span class="ident">identifier</span>,
-                        <span class="ident">input</span>.<span class="ident">span</span>(),
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::missing_struct_member(
+                        struct_.identifier,
+                        identifier,
+                        input.span(),
                     ));
                 };
             });
 
-            <span class="prelude-val">Some</span>(<span class="ident">ret</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(
+            <span class="prelude-val">Some</span>(ret)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(
                 <span class="string">&quot;struct&quot;</span>,
-                <span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">name</span>,
-                <span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">span</span>(),
+                input.name.name,
+                input.name.span(),
             ));
-            <span class="prelude-val">None</span>
-        }
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="comment">// We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.</span>
-    <span class="kw">fn</span> <span class="ident">visit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ErrExpression</span>, <span class="ident">_additional</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">Default::default</span>()
+    <span class="comment">// We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
+    </span><span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        Default::default()
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">var</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Identifier</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_variable</span>(<span class="ident">var</span>.<span class="ident">name</span>) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">var</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(), <span class="ident">expected</span>, <span class="ident">var</span>.<span class="ident">span</span>))
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;variable&quot;</span>, <span class="ident">var</span>.<span class="ident">name</span>, <span class="ident">var</span>.<span class="ident">span</span>()));
-            <span class="prelude-val">None</span>
-        }
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, var: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(var.name) {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, var.span))
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, var.name, var.span()));
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Literal</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">fn</span> <span class="ident">parse_integer_literal</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">FromStr</span><span class="op">&gt;</span>(<span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>, <span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>, <span class="ident">span</span>: <span class="ident">Span</span>, <span class="ident">type_string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-            <span class="kw">if</span> <span class="ident">string</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
-                <span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_int_value</span>(<span class="ident">string</span>, <span class="ident">type_string</span>, <span class="ident">span</span>));
+    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">fn </span>parse_integer_literal&lt;I: FromStr&gt;(handler: <span class="kw-2">&amp;</span>Handler, string: <span class="kw-2">&amp;</span>String, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
+            <span class="kw">if </span>string.parse::&lt;I&gt;().is_err() {
+                handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
             }
         }
 
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Literal::Address</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Address</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
-            <span class="ident">Literal::Boolean</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Boolean</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
-            <span class="ident">Literal::Field</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Field</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
-            <span class="ident">Literal::Integer</span>(<span class="ident">integer_type</span>, <span class="ident">string</span>, <span class="kw">_</span>) =&gt; <span class="kw">match</span> <span class="ident">integer_type</span> {
-                <span class="ident">IntegerType::U8</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;u8&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+        <span class="prelude-val">Some</span>(<span class="kw">match </span>input {
+            Literal::Address(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(integer_type, string, <span class="kw">_</span>) =&gt; <span class="kw">match </span>integer_type {
+                IntegerType::U8 =&gt; {
+                    parse_integer_literal::&lt;u8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u8&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U8), expected, input.span())
                 }
-                <span class="ident">IntegerType::U16</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;u16&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::U16 =&gt; {
+                    parse_integer_literal::&lt;u16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u16&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U16), expected, input.span())
                 }
-                <span class="ident">IntegerType::U32</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;u32&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::U32 =&gt; {
+                    parse_integer_literal::&lt;u32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u32&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U32), expected, input.span())
                 }
-                <span class="ident">IntegerType::U64</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;u64&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::U64 =&gt; {
+                    parse_integer_literal::&lt;u64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u64&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U64), expected, input.span())
                 }
-                <span class="ident">IntegerType::U128</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;u128&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::U128 =&gt; {
+                    parse_integer_literal::&lt;u128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u128&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U128), expected, input.span())
                 }
-                <span class="ident">IntegerType::I8</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">i8</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;i8&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::I8 =&gt; {
+                    parse_integer_literal::&lt;i8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i8&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I8), expected, input.span())
                 }
-                <span class="ident">IntegerType::I16</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;i16&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::I16 =&gt; {
+                    parse_integer_literal::&lt;i16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i16&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I16), expected, input.span())
                 }
-                <span class="ident">IntegerType::I32</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;i32&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::I32 =&gt; {
+                    parse_integer_literal::&lt;i32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i32&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I32), expected, input.span())
                 }
-                <span class="ident">IntegerType::I64</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;i64&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::I64 =&gt; {
+                    parse_integer_literal::&lt;i64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i64&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I64), expected, input.span())
                 }
-                <span class="ident">IntegerType::I128</span> =&gt; {
-                    <span class="ident">parse_integer_literal</span>::<span class="op">&lt;</span><span class="ident">i128</span><span class="op">&gt;</span>(<span class="self">self</span>.<span class="ident">handler</span>, <span class="ident">string</span>, <span class="ident">input</span>.<span class="ident">span</span>(), <span class="string">&quot;i128&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>), <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())
+                IntegerType::I128 =&gt; {
+                    parse_integer_literal::&lt;i128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i128&quot;</span>);
+                    <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I128), expected, input.span())
                 }
             },
-            <span class="ident">Literal::Group</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Group</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
-            <span class="ident">Literal::Scalar</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Scalar</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
-            <span class="ident">Literal::String</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::String</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>()),
+            Literal::Group(<span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Group, expected, input.span()),
+            Literal::Scalar(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::String, expected, input.span()),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_ternary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TernaryExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
-        <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">if_true</span>, <span class="ident">expected</span>);
-        <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">if_false</span>, <span class="ident">expected</span>);
+        <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, expected);
+        <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false, expected);
 
-        <span class="ident">return_incorrect_type</span>(<span class="ident">t1</span>, <span class="ident">t2</span>, <span class="ident">expected</span>)
+        return_incorrect_type(t1, t2, expected)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TupleExpression</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>() {
-            <span class="number">0</span> =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">assert_and_return_type</span>(<span class="ident">Type::Unit</span>, <span class="ident">expected</span>, <span class="ident">input</span>.<span class="ident">span</span>())),
-            <span class="number">1</span> =&gt; <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">elements</span>[<span class="number">0</span>], <span class="ident">expected</span>),
-            <span class="kw">_</span> =&gt; {
-                <span class="comment">// Check the expected tuple types if they are known.</span>
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span>input.elements.len() {
+            <span class="number">0 </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(Type::Unit, expected, input.span())),
+            <span class="number">1 </span>=&gt; <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.elements[<span class="number">0</span>], expected),
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Check the expected tuple types if they are known.
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>)) <span class="op">=</span> <span class="ident">expected</span> {
-                    <span class="comment">// Check actual length is equal to expected length.</span>
-                    <span class="kw">if</span> <span class="ident">expected_types</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>() {
-                        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_tuple_length</span>(
-                            <span class="ident">expected_types</span>.<span class="ident">len</span>(),
-                            <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>(),
-                            <span class="ident">input</span>.<span class="ident">span</span>(),
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Tuple(expected_types)) = expected {
+                    <span class="comment">// Check actual length is equal to expected length.
+                    </span><span class="kw">if </span>expected_types.len() != input.elements.len() {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_tuple_length(
+                            expected_types.len(),
+                            input.elements.len(),
+                            input.span(),
                         ));
                     }
 
-                    <span class="ident">expected_types</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">iter</span>())
-                        .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">expr</span>)<span class="op">|</span> {
-                            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">clone</span>()));
+                    expected_types
+                        .iter()
+                        .zip(input.elements.iter())
+                        .for_each(|(expected, expr)| {
+                            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()));
                         });
 
-                    <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">expected_types</span>.<span class="ident">clone</span>()))
-                } <span class="kw">else</span> {
-                    <span class="comment">// Tuples must be explicitly typed in testnet3.</span>
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_tuple</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+                    <span class="prelude-val">Some</span>(Type::Tuple(expected_types.clone()))
+                } <span class="kw">else </span>{
+                    <span class="comment">// Tuples must be explicitly typed in testnet3.
+                    </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_tuple(input.span()));
 
-                    <span class="prelude-val">None</span>
-                }
+                    <span class="prelude-val">None
+                </span>}
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_unary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">UnaryExpression</span>, <span class="ident">destination</span>: <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::AdditionalInput</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">op</span> {
-            <span class="ident">UnaryOperation::Abs</span> =&gt; {
-                <span class="comment">// Only signed integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_signed_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">match </span>input.op {
+            UnaryOperation::Abs =&gt; {
+                <span class="comment">// Only signed integer types.
+                </span><span class="self">self</span>.assert_signed_int_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::AbsWrapped</span> =&gt; {
-                <span class="comment">// Only signed integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_signed_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::AbsWrapped =&gt; {
+                <span class="comment">// Only signed integer types.
+                </span><span class="self">self</span>.assert_signed_int_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::Double</span> =&gt; {
-                <span class="comment">// Only field or group types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::Double =&gt; {
+                <span class="comment">// Only field or group types.
+                </span><span class="self">self</span>.assert_field_group_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::Inverse</span> =&gt; {
-                <span class="comment">// Only field types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::Inverse =&gt; {
+                <span class="comment">// Only field types.
+                </span><span class="self">self</span>.assert_field_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::Negate</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>);
+            UnaryOperation::Negate =&gt; {
+                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination);
 
-                <span class="comment">// Only field, group, or signed integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_signed_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">type_</span>, <span class="ident">input</span>.<span class="ident">receiver</span>.<span class="ident">span</span>());
-                <span class="ident">type_</span>
+                <span class="comment">// Only field, group, or signed integer types.
+                </span><span class="self">self</span>.assert_field_group_signed_int_type(<span class="kw-2">&amp;</span>type_, input.receiver.span());
+                type_
             }
-            <span class="ident">UnaryOperation::Not</span> =&gt; {
-                <span class="comment">// Only boolean or integer types.</span>
-                <span class="self">self</span>.<span class="ident">assert_bool_int_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::Not =&gt; {
+                <span class="comment">// Only boolean or integer types.
+                </span><span class="self">self</span>.assert_bool_int_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::Square</span> =&gt; {
-                <span class="comment">// Only field type.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::Square =&gt; {
+                <span class="comment">// Only field type.
+                </span><span class="self">self</span>.assert_field_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
-            <span class="ident">UnaryOperation::SquareRoot</span> =&gt; {
-                <span class="comment">// Only field type.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_type</span>(<span class="ident">destination</span>, <span class="ident">input</span>.<span class="ident">span</span>());
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>, <span class="ident">destination</span>)
+            UnaryOperation::SquareRoot =&gt; {
+                <span class="comment">// Only field type.
+                </span><span class="self">self</span>.assert_field_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

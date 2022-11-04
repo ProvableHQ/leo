@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/core/src/algorithms/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/core/src/algorithms/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_core/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_core/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -179,186 +179,186 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
-<span class="kw">mod</span> <span class="ident">bhp</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">bhp</span>::<span class="kw-2">*</span>;
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
+</span><span class="kw">mod </span>bhp;
+<span class="kw">pub use </span>bhp::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">pedersen</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pedersen</span>::<span class="kw-2">*</span>;
+<span class="kw">mod </span>pedersen;
+<span class="kw">pub use </span>pedersen::<span class="kw-2">*</span>;
 
-<span class="kw">mod</span> <span class="ident">poseidon</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">poseidon</span>::<span class="kw-2">*</span>;
+<span class="kw">mod </span>poseidon;
+<span class="kw">pub use </span>poseidon::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">leo_ast::Type</span>;
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
+<span class="kw">use </span>leo_ast::Type;
+<span class="kw">use </span>leo_span::{sym, Symbol};
 
-<span class="doccomment">/// A core instruction that maps directly to an AVM bytecode instruction.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CoreInstruction</span> {
-    <span class="ident">BHP256Commit</span>,
-    <span class="ident">BHP256Hash</span>,
-    <span class="ident">BHP512Commit</span>,
-    <span class="ident">BHP512Hash</span>,
-    <span class="ident">BHP768Commit</span>,
-    <span class="ident">BHP768Hash</span>,
-    <span class="ident">BHP1024Commit</span>,
-    <span class="ident">BHP1024Hash</span>,
+<span class="doccomment">/// A core instruction that maps directly to an AVM bytecode instruction.
+</span><span class="attribute">#[derive(Clone, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>CoreInstruction {
+    BHP256Commit,
+    BHP256Hash,
+    BHP512Commit,
+    BHP512Hash,
+    BHP768Commit,
+    BHP768Hash,
+    BHP1024Commit,
+    BHP1024Hash,
 
-    <span class="ident">Pedersen64Commit</span>,
-    <span class="ident">Pedersen64Hash</span>,
-    <span class="ident">Pedersen128Commit</span>,
-    <span class="ident">Pedersen128Hash</span>,
+    Pedersen64Commit,
+    Pedersen64Hash,
+    Pedersen128Commit,
+    Pedersen128Hash,
 
-    <span class="ident">Poseidon2Hash</span>,
-    <span class="ident">Poseidon4Hash</span>,
-    <span class="ident">Poseidon8Hash</span>,
+    Poseidon2Hash,
+    Poseidon4Hash,
+    Poseidon8Hash,
 }
 
-<span class="kw">impl</span> <span class="ident">CoreInstruction</span> {
-    <span class="doccomment">/// Returns a `CoreInstruction` from the given module and method symbols.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_symbols</span>(<span class="ident">module</span>: <span class="ident">Symbol</span>, <span class="ident">function</span>: <span class="ident">Symbol</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> (<span class="ident">module</span>, <span class="ident">function</span>) {
-            (<span class="ident">sym::BHP256</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP256Commit</span>,
-            (<span class="ident">sym::BHP256</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP256Hash</span>,
-            (<span class="ident">sym::BHP512</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP512Commit</span>,
-            (<span class="ident">sym::BHP512</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP512Hash</span>,
-            (<span class="ident">sym::BHP768</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP768Commit</span>,
-            (<span class="ident">sym::BHP768</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP768Hash</span>,
-            (<span class="ident">sym::BHP1024</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP1024Commit</span>,
-            (<span class="ident">sym::BHP1024</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::BHP1024Hash</span>,
+<span class="kw">impl </span>CoreInstruction {
+    <span class="doccomment">/// Returns a `CoreInstruction` from the given module and method symbols.
+    </span><span class="kw">pub fn </span>from_symbols(module: Symbol, function: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw">match </span>(module, function) {
+            (sym::BHP256, sym::commit) =&gt; <span class="self">Self</span>::BHP256Commit,
+            (sym::BHP256, sym::hash) =&gt; <span class="self">Self</span>::BHP256Hash,
+            (sym::BHP512, sym::commit) =&gt; <span class="self">Self</span>::BHP512Commit,
+            (sym::BHP512, sym::hash) =&gt; <span class="self">Self</span>::BHP512Hash,
+            (sym::BHP768, sym::commit) =&gt; <span class="self">Self</span>::BHP768Commit,
+            (sym::BHP768, sym::hash) =&gt; <span class="self">Self</span>::BHP768Hash,
+            (sym::BHP1024, sym::commit) =&gt; <span class="self">Self</span>::BHP1024Commit,
+            (sym::BHP1024, sym::hash) =&gt; <span class="self">Self</span>::BHP1024Hash,
 
-            (<span class="ident">sym::Pedersen64</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span>,
-            (<span class="ident">sym::Pedersen64</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span>,
-            (<span class="ident">sym::Pedersen128</span>, <span class="ident">sym::commit</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span>,
-            (<span class="ident">sym::Pedersen128</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span>,
+            (sym::Pedersen64, sym::commit) =&gt; <span class="self">Self</span>::Pedersen64Commit,
+            (sym::Pedersen64, sym::hash) =&gt; <span class="self">Self</span>::Pedersen64Hash,
+            (sym::Pedersen128, sym::commit) =&gt; <span class="self">Self</span>::Pedersen128Commit,
+            (sym::Pedersen128, sym::hash) =&gt; <span class="self">Self</span>::Pedersen128Hash,
 
-            (<span class="ident">sym::Poseidon2</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span>,
-            (<span class="ident">sym::Poseidon4</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Poseidon4Hash</span>,
-            (<span class="ident">sym::Poseidon8</span>, <span class="ident">sym::hash</span>) =&gt; <span class="ident"><span class="self">Self</span>::Poseidon8Hash</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+            (sym::Poseidon2, sym::hash) =&gt; <span class="self">Self</span>::Poseidon2Hash,
+            (sym::Poseidon4, sym::hash) =&gt; <span class="self">Self</span>::Poseidon4Hash,
+            (sym::Poseidon8, sym::hash) =&gt; <span class="self">Self</span>::Poseidon8Hash,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
 
-    <span class="doccomment">/// Returns the number of arguments required by the instruction.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_args</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::BHP256Commit</span> =&gt; <span class="ident">BHP256Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP256Hash</span> =&gt; <span class="ident">BHP256Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP512Commit</span> =&gt; <span class="ident">BHP512Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP512Hash</span> =&gt; <span class="ident">BHP512Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP768Commit</span> =&gt; <span class="ident">BHP768Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP768Hash</span> =&gt; <span class="ident">BHP768Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::NUM_ARGS</span>,
+    <span class="doccomment">/// Returns the number of arguments required by the instruction.
+    </span><span class="kw">pub fn </span>num_args(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::BHP256Commit =&gt; BHP256Commit::NUM_ARGS,
+            <span class="self">Self</span>::BHP256Hash =&gt; BHP256Hash::NUM_ARGS,
+            <span class="self">Self</span>::BHP512Commit =&gt; BHP512Commit::NUM_ARGS,
+            <span class="self">Self</span>::BHP512Hash =&gt; BHP512Hash::NUM_ARGS,
+            <span class="self">Self</span>::BHP768Commit =&gt; BHP768Commit::NUM_ARGS,
+            <span class="self">Self</span>::BHP768Hash =&gt; BHP768Hash::NUM_ARGS,
+            <span class="self">Self</span>::BHP1024Commit =&gt; BHP1024Commit::NUM_ARGS,
+            <span class="self">Self</span>::BHP1024Hash =&gt; BHP1024Hash::NUM_ARGS,
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::NUM_ARGS</span>,
+            <span class="self">Self</span>::Pedersen64Commit =&gt; Pedersen64Commit::NUM_ARGS,
+            <span class="self">Self</span>::Pedersen64Hash =&gt; Pedersen64Hash::NUM_ARGS,
+            <span class="self">Self</span>::Pedersen128Commit =&gt; Pedersen128Commit::NUM_ARGS,
+            <span class="self">Self</span>::Pedersen128Hash =&gt; Pedersen128Hash::NUM_ARGS,
 
-            <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Poseidon4Hash</span> =&gt; <span class="ident">Poseidon4Hash::NUM_ARGS</span>,
-            <span class="ident"><span class="self">Self</span>::Poseidon8Hash</span> =&gt; <span class="ident">Poseidon8Hash::NUM_ARGS</span>,
+            <span class="self">Self</span>::Poseidon2Hash =&gt; Poseidon2Hash::NUM_ARGS,
+            <span class="self">Self</span>::Poseidon4Hash =&gt; Poseidon4Hash::NUM_ARGS,
+            <span class="self">Self</span>::Poseidon8Hash =&gt; Poseidon8Hash::NUM_ARGS,
         }
     }
 
-    <span class="doccomment">/// Returns whether or not the first argument is an allowed type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_arg_is_allowed_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CoreInstruction::BHP256Commit</span> =&gt; <span class="ident">BHP256Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP256Hash</span> =&gt; <span class="ident">BHP256Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP512Commit</span> =&gt; <span class="ident">BHP512Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP512Hash</span> =&gt; <span class="ident">BHP512Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP768Commit</span> =&gt; <span class="ident">BHP768Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP768Hash</span> =&gt; <span class="ident">BHP768Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon4Hash</span> =&gt; <span class="ident">Poseidon4Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon8Hash</span> =&gt; <span class="ident">Poseidon8Hash::first_arg_is_allowed_type</span>(<span class="ident">type_</span>),
+    <span class="doccomment">/// Returns whether or not the first argument is an allowed type.
+    </span><span class="kw">pub fn </span>first_arg_is_allowed_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            CoreInstruction::BHP256Commit =&gt; BHP256Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP256Hash =&gt; BHP256Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Commit =&gt; BHP512Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Hash =&gt; BHP512Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Commit =&gt; BHP768Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Hash =&gt; BHP768Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Commit =&gt; BHP1024Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Hash =&gt; BHP1024Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Commit =&gt; Pedersen64Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Hash =&gt; Pedersen64Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Commit =&gt; Pedersen128Commit::first_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Hash =&gt; Pedersen128Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon2Hash =&gt; Poseidon2Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon4Hash =&gt; Poseidon4Hash::first_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon8Hash =&gt; Poseidon8Hash::first_arg_is_allowed_type(type_),
         }
     }
 
-    <span class="doccomment">/// Returns whether or not the second argument is an allowed type.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">second_arg_is_allowed_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CoreInstruction::BHP256Commit</span> =&gt; <span class="ident">BHP256Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP256Hash</span> =&gt; <span class="ident">BHP256Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP512Commit</span> =&gt; <span class="ident">BHP512Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP512Hash</span> =&gt; <span class="ident">BHP512Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP768Commit</span> =&gt; <span class="ident">BHP768Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP768Hash</span> =&gt; <span class="ident">BHP768Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon4Hash</span> =&gt; <span class="ident">Poseidon4Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
-            <span class="ident">CoreInstruction::Poseidon8Hash</span> =&gt; <span class="ident">Poseidon8Hash::second_arg_is_allowed_type</span>(<span class="ident">type_</span>),
+    <span class="doccomment">/// Returns whether or not the second argument is an allowed type.
+    </span><span class="kw">pub fn </span>second_arg_is_allowed_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            CoreInstruction::BHP256Commit =&gt; BHP256Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP256Hash =&gt; BHP256Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Commit =&gt; BHP512Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP512Hash =&gt; BHP512Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Commit =&gt; BHP768Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP768Hash =&gt; BHP768Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Commit =&gt; BHP1024Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::BHP1024Hash =&gt; BHP1024Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Commit =&gt; Pedersen64Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen64Hash =&gt; Pedersen64Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Commit =&gt; Pedersen128Commit::second_arg_is_allowed_type(type_),
+            CoreInstruction::Pedersen128Hash =&gt; Pedersen128Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon2Hash =&gt; Poseidon2Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon4Hash =&gt; Poseidon4Hash::second_arg_is_allowed_type(type_),
+            CoreInstruction::Poseidon8Hash =&gt; Poseidon8Hash::second_arg_is_allowed_type(type_),
         }
     }
 
-    <span class="doccomment">/// The type of the instruction output.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">return_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Type</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::BHP256Commit</span> =&gt; <span class="ident">BHP256Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP256Hash</span> =&gt; <span class="ident">BHP256Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP512Commit</span> =&gt; <span class="ident">BHP512Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP512Hash</span> =&gt; <span class="ident">BHP512Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP768Commit</span> =&gt; <span class="ident">BHP768Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP768Hash</span> =&gt; <span class="ident">BHP768Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP1024Commit</span> =&gt; <span class="ident">BHP1024Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::BHP1024Hash</span> =&gt; <span class="ident">BHP1024Hash::return_type</span>(),
+    <span class="doccomment">/// The type of the instruction output.
+    </span><span class="kw">pub fn </span>return_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Type {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::BHP256Commit =&gt; BHP256Commit::return_type(),
+            <span class="self">Self</span>::BHP256Hash =&gt; BHP256Hash::return_type(),
+            <span class="self">Self</span>::BHP512Commit =&gt; BHP512Commit::return_type(),
+            <span class="self">Self</span>::BHP512Hash =&gt; BHP512Hash::return_type(),
+            <span class="self">Self</span>::BHP768Commit =&gt; BHP768Commit::return_type(),
+            <span class="self">Self</span>::BHP768Hash =&gt; BHP768Hash::return_type(),
+            <span class="self">Self</span>::BHP1024Commit =&gt; BHP1024Commit::return_type(),
+            <span class="self">Self</span>::BHP1024Hash =&gt; BHP1024Hash::return_type(),
 
-            <span class="ident"><span class="self">Self</span>::Pedersen64Commit</span> =&gt; <span class="ident">Pedersen64Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen64Hash</span> =&gt; <span class="ident">Pedersen64Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen128Commit</span> =&gt; <span class="ident">Pedersen128Commit::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Pedersen128Hash</span> =&gt; <span class="ident">Pedersen128Hash::return_type</span>(),
+            <span class="self">Self</span>::Pedersen64Commit =&gt; Pedersen64Commit::return_type(),
+            <span class="self">Self</span>::Pedersen64Hash =&gt; Pedersen64Hash::return_type(),
+            <span class="self">Self</span>::Pedersen128Commit =&gt; Pedersen128Commit::return_type(),
+            <span class="self">Self</span>::Pedersen128Hash =&gt; Pedersen128Hash::return_type(),
 
-            <span class="ident"><span class="self">Self</span>::Poseidon2Hash</span> =&gt; <span class="ident">Poseidon2Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Poseidon4Hash</span> =&gt; <span class="ident">Poseidon4Hash::return_type</span>(),
-            <span class="ident"><span class="self">Self</span>::Poseidon8Hash</span> =&gt; <span class="ident">Poseidon8Hash::return_type</span>(),
+            <span class="self">Self</span>::Poseidon2Hash =&gt; Poseidon2Hash::return_type(),
+            <span class="self">Self</span>::Poseidon4Hash =&gt; Poseidon4Hash::return_type(),
+            <span class="self">Self</span>::Poseidon8Hash =&gt; Poseidon8Hash::return_type(),
         }
     }
 }
 
-<span class="doccomment">/// A core function of a core struct, e.g. `hash` or `commit`</span>
-<span class="doccomment">/// Provides required type information to the type checker.</span>
-<span class="kw">trait</span> <span class="ident">CoreFunction</span> {
-    <span class="kw">const</span> <span class="ident">NUM_ARGS</span>: <span class="ident">usize</span>;
+<span class="doccomment">/// A core function of a core struct, e.g. `hash` or `commit`
+/// Provides required type information to the type checker.
+</span><span class="kw">trait </span>CoreFunction {
+    <span class="kw">const </span>NUM_ARGS: usize;
 
-    <span class="doccomment">/// Returns whether or not the first argument is an allowed type.</span>
-    <span class="kw">fn</span> <span class="ident">first_arg_is_allowed_type</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">false</span>
-    }
+    <span class="doccomment">/// Returns whether or not the first argument is an allowed type.
+    </span><span class="kw">fn </span>first_arg_is_allowed_type(<span class="kw">_</span>: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 
-    <span class="doccomment">/// Returns whether or not the second argument is an allowed type.</span>
-    <span class="kw">fn</span> <span class="ident">second_arg_is_allowed_type</span>(<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">false</span>
-    }
+    <span class="doccomment">/// Returns whether or not the second argument is an allowed type.
+    </span><span class="kw">fn </span>second_arg_is_allowed_type(<span class="kw">_</span>: <span class="kw-2">&amp;</span>Type) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 
-    <span class="doccomment">/// The return type of the core function.</span>
-    <span class="kw">fn</span> <span class="ident">return_type</span>() -&gt; <span class="ident">Type</span>;
+    <span class="doccomment">/// The return type of the core function.
+    </span><span class="kw">fn </span>return_type() -&gt; Type;
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_core" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

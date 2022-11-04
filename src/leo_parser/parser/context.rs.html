@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/context.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/context.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -249,256 +249,256 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">tokenizer</span>::<span class="kw-2">*</span>, <span class="ident">Token</span>};
+</span><span class="kw">use crate</span>::{tokenizer::<span class="kw-2">*</span>, Token};
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">ParserError</span>, <span class="ident">ParserWarning</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">Span</span>, <span class="ident">Symbol</span>};
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::emitter::Handler;
+<span class="kw">use </span>leo_errors::{ParserError, ParserWarning, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
-<span class="kw">use</span> <span class="ident">std::mem</span>;
+<span class="kw">use </span>std::fmt::Display;
+<span class="kw">use </span>std::mem;
 
-<span class="doccomment">/// Stores a program in tokenized format plus additional context.</span>
-<span class="doccomment">/// May be converted into a [`Program`] AST by parsing all tokens.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">ParserContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Handler used to side-channel emit errors from the parser.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>,
-    <span class="doccomment">/// All un-bumped tokens.</span>
-    <span class="ident">tokens</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpannedToken</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The current token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,</span>
-    <span class="doccomment">/// then after a `p.bump()`, we&#39;ll have `p.token = &#39;3&#39;`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">token</span>: <span class="ident">SpannedToken</span>,
-    <span class="doccomment">/// The previous token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,</span>
-    <span class="doccomment">/// then after two `p.bump()`s, we&#39;ll have `p.token = &#39;*&#39;` and `p.prev_token = &#39;3&#39;`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">prev_token</span>: <span class="ident">SpannedToken</span>,
-    <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">disallow_struct_construction</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// true if parsing an identifier inside an input file.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">allow_identifier_underscores</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Stores a program in tokenized format plus additional context.
+/// May be converted into a [`Program`] AST by parsing all tokens.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Handler used to side-channel emit errors from the parser.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+    <span class="doccomment">/// All un-bumped tokens.
+    </span>tokens: Vec&lt;SpannedToken&gt;,
+    <span class="doccomment">/// The current token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,
+    /// then after a `p.bump()`, we&#39;ll have `p.token = &#39;3&#39;`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) token: SpannedToken,
+    <span class="doccomment">/// The previous token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,
+    /// then after two `p.bump()`s, we&#39;ll have `p.token = &#39;*&#39;` and `p.prev_token = &#39;3&#39;`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) prev_token: SpannedToken,
+    <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) disallow_struct_construction: bool,
+    <span class="doccomment">/// true if parsing an identifier inside an input file.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) allow_identifier_underscores: bool,
 }
 
-<span class="doccomment">/// Dummy span used to appease borrow checker.</span>
-<span class="kw">const</span> <span class="ident">DUMMY_EOF</span>: <span class="ident">SpannedToken</span> <span class="op">=</span> <span class="ident">SpannedToken</span> {
-    <span class="ident">token</span>: <span class="ident">Token::Eof</span>,
-    <span class="ident">span</span>: <span class="ident">Span::dummy</span>(),
+<span class="doccomment">/// Dummy span used to appease borrow checker.
+</span><span class="kw">const </span>DUMMY_EOF: SpannedToken = SpannedToken {
+    token: Token::Eof,
+    span: Span::dummy(),
 };
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ParserContext</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>, <span class="kw-2">mut</span> <span class="ident">tokens</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpannedToken</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// Strip out comments.</span>
-        <span class="ident">tokens</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">x</span>.<span class="ident">token</span>, <span class="ident">Token::CommentLine</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Token::CommentBlock</span>(<span class="kw">_</span>)));
-        <span class="comment">// For performance we reverse so that we get cheap `.pop()`s.</span>
-        <span class="ident">tokens</span>.<span class="ident">reverse</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
+    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// Strip out comments.
+        </span>tokens.retain(|x| !<span class="macro">matches!</span>(x.token, Token::CommentLine(<span class="kw">_</span>) | Token::CommentBlock(<span class="kw">_</span>)));
+        <span class="comment">// For performance we reverse so that we get cheap `.pop()`s.
+        </span>tokens.reverse();
 
-        <span class="kw">let</span> <span class="ident">token</span> <span class="op">=</span> <span class="ident">SpannedToken::dummy</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">handler</span>,
-            <span class="ident">disallow_struct_construction</span>: <span class="bool-val">false</span>,
-            <span class="ident">allow_identifier_underscores</span>: <span class="bool-val">false</span>,
-            <span class="ident">prev_token</span>: <span class="ident">token</span>.<span class="ident">clone</span>(),
-            <span class="ident">token</span>,
-            <span class="ident">tokens</span>,
+        <span class="kw">let </span>token = SpannedToken::dummy();
+        <span class="kw">let </span><span class="kw-2">mut </span>p = <span class="self">Self </span>{
+            handler,
+            disallow_struct_construction: <span class="bool-val">false</span>,
+            allow_identifier_underscores: <span class="bool-val">false</span>,
+            prev_token: token.clone(),
+            token,
+            tokens,
         };
-        <span class="ident">p</span>.<span class="ident">bump</span>();
-        <span class="ident">p</span>
+        p.bump();
+        p
     }
 
-    <span class="doccomment">/// Advances the parser cursor by one token.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// So e.g., if we had `previous = A`, `current = B`, and `tokens = [C, D, E]`,</span>
-    <span class="doccomment">/// then after `p.bump()`, the state will be `previous = B`, `current = C`, and `tokens = [D, E]`.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">bump</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// Probably a bug (infinite loop), as the previous token was already EOF.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Eof</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
+    <span class="doccomment">/// Advances the parser cursor by one token.
+    ///
+    /// So e.g., if we had `previous = A`, `current = B`, and `tokens = [C, D, E]`,
+    /// then after `p.bump()`, the state will be `previous = B`, `current = C`, and `tokens = [D, E]`.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>bump(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// Probably a bug (infinite loop), as the previous token was already EOF.
+        </span><span class="kw">if let </span>Token::Eof = <span class="self">self</span>.prev_token.token {
             <span class="macro">panic!</span>(<span class="string">&quot;attempted to bump the parser past EOF (may be stuck in a loop)&quot;</span>);
         }
 
-        <span class="comment">// Extract next token, or `Eof` if there was none.</span>
-        <span class="kw">let</span> <span class="ident">next_token</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tokens</span>.<span class="ident">pop</span>().<span class="ident">unwrap_or</span>(<span class="ident">SpannedToken</span> {
-            <span class="ident">token</span>: <span class="ident">Token::Eof</span>,
-            <span class="ident">span</span>: <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>,
+        <span class="comment">// Extract next token, or `Eof` if there was none.
+        </span><span class="kw">let </span>next_token = <span class="self">self</span>.tokens.pop().unwrap_or(SpannedToken {
+            token: Token::Eof,
+            span: <span class="self">self</span>.token.span,
         });
 
-        <span class="comment">// Set the new token.</span>
-        <span class="self">self</span>.<span class="ident">prev_token</span> <span class="op">=</span> <span class="ident">mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">token</span>, <span class="ident">next_token</span>);
+        <span class="comment">// Set the new token.
+        </span><span class="self">self</span>.prev_token = mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.token, next_token);
     }
 
-    <span class="doccomment">/// Checks whether the current token is `tok`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">tok</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> <span class="op">==</span> <span class="ident">tok</span>
+    <span class="doccomment">/// Checks whether the current token is `tok`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check(<span class="kw-2">&amp;</span><span class="self">self</span>, tok: <span class="kw-2">&amp;</span>Token) -&gt; bool {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.token.token == tok
     }
 
-    <span class="doccomment">/// Checks whether the current token is a `Token::Int(_)`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">check_int</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">Token::Integer</span>(<span class="kw">_</span>))
+    <span class="doccomment">/// Checks whether the current token is a `Token::Int(_)`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>check_int(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, Token::Integer(<span class="kw">_</span>))
     }
 
-    <span class="doccomment">/// Returns `true` if the next token is equal to the given token.</span>
-    <span class="doccomment">/// Advances the parser to the next token.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">eat</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">check</span>(<span class="ident">token</span>).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">bump</span>()).<span class="ident">is_some</span>()
+    <span class="doccomment">/// Returns `true` if the next token is equal to the given token.
+    /// Advances the parser to the next token.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>eat(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token) -&gt; bool {
+        <span class="self">self</span>.check(token).then(|| <span class="self">self</span>.bump()).is_some()
     }
 
-    <span class="doccomment">/// Look-ahead `dist` tokens of `self.token` and get access to that token there.</span>
-    <span class="doccomment">/// When `dist == 0` then the current token is looked at.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">look_ahead</span><span class="op">&lt;</span><span class="lifetime">&#39;s</span>, <span class="ident">R</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="self">self</span>, <span class="ident">dist</span>: <span class="ident">usize</span>, <span class="ident">looker</span>: <span class="kw">impl</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s</span> <span class="ident">SpannedToken</span>) -&gt; <span class="ident">R</span>) -&gt; <span class="ident">R</span> {
-        <span class="kw">if</span> <span class="ident">dist</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">looker</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>);
+    <span class="doccomment">/// Look-ahead `dist` tokens of `self.token` and get access to that token there.
+    /// When `dist == 0` then the current token is looked at.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>look_ahead&lt;<span class="lifetime">&#39;s</span>, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, dist: usize, looker: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>SpannedToken) -&gt; R) -&gt; R {
+        <span class="kw">if </span>dist == <span class="number">0 </span>{
+            <span class="kw">return </span>looker(<span class="kw-2">&amp;</span><span class="self">self</span>.token);
         }
 
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">tokens</span>.<span class="ident">len</span>().<span class="ident">checked_sub</span>(<span class="ident">dist</span>) {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="ident">looker</span>(<span class="kw-2">&amp;</span><span class="ident">DUMMY_EOF</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="ident">idx</span>,
+        <span class="kw">let </span>idx = <span class="kw">match </span><span class="self">self</span>.tokens.len().checked_sub(dist) {
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>looker(<span class="kw-2">&amp;</span>DUMMY_EOF),
+            <span class="prelude-val">Some</span>(idx) =&gt; idx,
         };
 
-        <span class="ident">looker</span>(<span class="self">self</span>.<span class="ident">tokens</span>.<span class="ident">get</span>(<span class="ident">idx</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">DUMMY_EOF</span>))
+        looker(<span class="self">self</span>.tokens.get(idx).unwrap_or(<span class="kw-2">&amp;</span>DUMMY_EOF))
     }
 
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">err</span>: <span class="ident">ParserError</span>) {
-        <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: ParserError) {
+        <span class="self">self</span>.handler.emit_err(err);
     }
 
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">ParserWarning</span>) {
-        <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_warning</span>(<span class="ident">warning</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: ParserWarning) {
+        <span class="self">self</span>.handler.emit_warning(warning.into());
     }
 
-    <span class="doccomment">/// Returns true if the next token exists.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">has_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">Token::Eof</span>)
+    <span class="doccomment">/// Returns true if the next token exists.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>has_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        !<span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::Eof)
     }
 
-    <span class="doccomment">/// At the previous token, return and make an identifier with `name`.</span>
-    <span class="kw">fn</span> <span class="ident">mk_ident_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="ident">Symbol</span>) -&gt; <span class="ident">Identifier</span> {
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>;
-        <span class="ident">Identifier</span> { <span class="ident">name</span>, <span class="ident">span</span> }
+    <span class="doccomment">/// At the previous token, return and make an identifier with `name`.
+    </span><span class="kw">fn </span>mk_ident_prev(<span class="kw-2">&amp;</span><span class="self">self</span>, name: Symbol) -&gt; Identifier {
+        <span class="kw">let </span>span = <span class="self">self</span>.prev_token.span;
+        Identifier { name, span }
     }
 
-    <span class="doccomment">/// Eats the next token if its an identifier and returns it.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">eat_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Identifier</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
-            <span class="self">self</span>.<span class="ident">bump</span>();
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">mk_ident_prev</span>(<span class="ident">name</span>));
+    <span class="doccomment">/// Eats the next token if its an identifier and returns it.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>eat_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Identifier&gt; {
+        <span class="kw">if let </span>Token::Identifier(name) = <span class="self">self</span>.token.token {
+            <span class="self">self</span>.bump();
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.mk_ident_prev(name));
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Expects an [`Identifier`], or errors.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>expect_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Identifier&gt; {
+        <span class="self">self</span>.eat_identifier()
+            .ok_or_else(|| ParserError::unexpected_str(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;identifier&quot;</span>, <span class="self">self</span>.token.span).into())
     }
 
-    <span class="doccomment">/// Expects an [`Identifier`], or errors.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">expect_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">eat_identifier</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ParserError::unexpected_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="string">&quot;identifier&quot;</span>, <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>())
-    }
-
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if</span>
-    <span class="doccomment">/// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.</span>
-    <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eat_integer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PositiveNumber</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::Integer</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">clone</span>();
-            <span class="self">self</span>.<span class="ident">bump</span>();
-            <span class="prelude-val">Ok</span>((<span class="ident">PositiveNumber</span> { <span class="ident">value</span> }, <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="string">&quot;integer literal&quot;</span>, <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>())
-        }
-    }
-
-    <span class="doccomment">/// Eats any of the given `tokens`, returning `true` if anything was eaten.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">eat_any</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>]) -&gt; <span class="ident">bool</span> {
-        <span class="ident">tokens</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="ident">x</span>)).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">bump</span>()).<span class="ident">is_some</span>()
-    }
-
-    <span class="doccomment">/// Returns an unexpected error at the current token.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">unexpected</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">expected</span>, <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>())
-    }
-
-    <span class="doccomment">/// Eats the expected `token`, or errors.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">expect</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="ident">Token</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">token</span>) {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">unexpected</span>(<span class="ident">token</span>)
+    <span class="doccomment">///
+    /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
+    /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
+    ///
+    </span><span class="kw">pub fn </span>eat_integer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(PositiveNumber, Span)&gt; {
+        <span class="kw">if let </span>Token::Integer(value) = <span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
+            <span class="kw">let </span>value = value.clone();
+            <span class="self">self</span>.bump();
+            <span class="prelude-val">Ok</span>((PositiveNumber { value }, <span class="self">self</span>.prev_token.span))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;integer literal&quot;</span>, <span class="self">self</span>.token.span).into())
         }
     }
 
-    <span class="doccomment">/// Eats one of the expected `tokens`, or errors.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">expect_any</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">tokens</span>) {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">unexpected</span>(<span class="ident">tokens</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>)).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>))
+    <span class="doccomment">/// Eats any of the given `tokens`, returning `true` if anything was eaten.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>eat_any(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tokens: <span class="kw-2">&amp;</span>[Token]) -&gt; bool {
+        tokens.iter().any(|x| <span class="self">self</span>.check(x)).then(|| <span class="self">self</span>.bump()).is_some()
+    }
+
+    <span class="doccomment">/// Returns an unexpected error at the current token.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>unexpected&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, expected: <span class="kw">impl </span>Display) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+        <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, expected, <span class="self">self</span>.token.span).into())
+    }
+
+    <span class="doccomment">/// Eats the expected `token`, or errors.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token) -&gt; <span class="prelude-ty">Result</span>&lt;Span&gt; {
+        <span class="kw">if </span><span class="self">self</span>.eat(token) {
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.prev_token.span)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.unexpected(token)
         }
     }
 
-    <span class="doccomment">/// Parses a list of `T`s using `inner`</span>
-    <span class="doccomment">/// The opening and closing delimiters are `bra` and `ket`,</span>
-    <span class="doccomment">/// and elements in the list are optionally separated by `sep`.</span>
-    <span class="doccomment">/// When `(list, true)` is returned, `sep` was a terminator.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_list</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">delimiter</span>: <span class="ident">Delimiter</span>,
-        <span class="ident">sep</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Token</span><span class="op">&gt;</span>,
-        <span class="kw-2">mut</span> <span class="ident">inner</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">bool</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">open</span>, <span class="ident">close</span>) <span class="op">=</span> <span class="ident">delimiter</span>.<span class="ident">open_close_pair</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trailing</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// Eats one of the expected `tokens`, or errors.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>expect_any(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tokens: <span class="kw-2">&amp;</span>[Token]) -&gt; <span class="prelude-ty">Result</span>&lt;Span&gt; {
+        <span class="kw">if </span><span class="self">self</span>.eat_any(tokens) {
+            <span class="prelude-val">Ok</span>(<span class="self">self</span>.prev_token.span)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.unexpected(tokens.iter().map(|x| <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>)).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot;, &quot;</span>))
+        }
+    }
 
-        <span class="comment">// Parse opening delimiter.</span>
-        <span class="kw">let</span> <span class="ident">open_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">open</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Parses a list of `T`s using `inner`
+    /// The opening and closing delimiters are `bra` and `ket`,
+    /// and elements in the list are optionally separated by `sep`.
+    /// When `(list, true)` is returned, `sep` was a terminator.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_list&lt;T&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        delimiter: Delimiter,
+        sep: <span class="prelude-ty">Option</span>&lt;Token&gt;,
+        <span class="kw-2">mut </span>inner: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;T&gt;, bool, Span)&gt; {
+        <span class="kw">let </span>(open, close) = delimiter.open_close_pair();
+        <span class="kw">let </span><span class="kw-2">mut </span>list = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>trailing = <span class="bool-val">false</span>;
 
-        <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">close</span>) {
-            <span class="comment">// Parse the element. We allow inner parser recovery through the `Option`.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">elem</span>) <span class="op">=</span> <span class="ident">inner</span>(<span class="self">self</span>)<span class="question-mark">?</span> {
-                <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">elem</span>);
+        <span class="comment">// Parse opening delimiter.
+        </span><span class="kw">let </span>open_span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>open)<span class="question-mark">?</span>;
+
+        <span class="kw">while </span>!<span class="self">self</span>.check(<span class="kw-2">&amp;</span>close) {
+            <span class="comment">// Parse the element. We allow inner parser recovery through the `Option`.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(elem) = inner(<span class="self">self</span>)<span class="question-mark">? </span>{
+                list.push(elem);
             }
-            <span class="comment">// Parse the separator, if any.</span>
-            <span class="kw">if</span> <span class="ident">sep</span>.<span class="ident">as_ref</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">sep</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">sep</span>)).<span class="ident">is_some</span>() {
-                <span class="ident">trailing</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="comment">// Parse the separator, if any.
+            </span><span class="kw">if </span>sep.as_ref().filter(|sep| !<span class="self">self</span>.eat(sep)).is_some() {
+                trailing = <span class="bool-val">false</span>;
                 <span class="kw">break</span>;
             }
 
-            <span class="ident">trailing</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            trailing = <span class="bool-val">true</span>;
         }
 
-        <span class="comment">// Parse closing delimiter.</span>
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">open_span</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">close</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Parse closing delimiter.
+        </span><span class="kw">let </span>span = open_span + <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>close)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((<span class="ident">list</span>, <span class="ident">trailing</span>, <span class="ident">span</span>))
+        <span class="prelude-val">Ok</span>((list, trailing, span))
     }
 
-    <span class="doccomment">/// Parse a list separated by `,` and delimited by parens.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_paren_comma_list</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">bool</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_list</span>(<span class="ident">Delimiter::Parenthesis</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>), <span class="ident">f</span>)
+    <span class="doccomment">/// Parse a list separated by `,` and delimited by parens.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_paren_comma_list&lt;T&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;T&gt;, bool, Span)&gt; {
+        <span class="self">self</span>.parse_list(Delimiter::Parenthesis, <span class="prelude-val">Some</span>(Token::Comma), f)
     }
 
-    <span class="doccomment">/// Returns true if the current token is `(`.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">peek_is_left_par</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">Token::LeftParen</span>)
+    <span class="doccomment">/// Returns true if the current token is `(`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>peek_is_left_par(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::LeftParen)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

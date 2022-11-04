@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/loop_unrolling/unroller.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unroller.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/loop_unrolling/unroller.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unroller.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -214,221 +214,221 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">Block</span>, <span class="ident">DeclarationType</span>, <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">IntegerType</span>, <span class="ident">IterationStatement</span>, <span class="ident">Literal</span>, <span class="ident">Statement</span>,
-    <span class="ident">StatementReconstructor</span>, <span class="ident">Type</span>, <span class="ident">Value</span>,
+</span><span class="kw">use </span>leo_ast::{
+    Block, DeclarationType, DefinitionStatement, Expression, IntegerType, IterationStatement, Literal, Statement,
+    StatementReconstructor, Type, Value,
 };
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
+<span class="kw">use </span>leo_errors::emitter::Handler;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Clusivity</span>, <span class="ident">LoopBound</span>, <span class="ident">RangeIterator</span>, <span class="ident">SymbolTable</span>};
+<span class="kw">use crate</span>::{Clusivity, LoopBound, RangeIterator, SymbolTable};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Unroller</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// The symbol table for the function being processed.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">symbol_table</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">SymbolTable</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The index of the current scope.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scope_index</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// An error handler used for any errors found during unrolling.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>,
-    <span class="doccomment">/// Are we in the midst of unrolling a loop?</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">is_unrolling</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// The symbol table for the function being processed.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    <span class="doccomment">/// The index of the current scope.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) scope_index: usize,
+    <span class="doccomment">/// An error handler used for any errors found during unrolling.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+    <span class="doccomment">/// Are we in the midst of unrolling a loop?
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_unrolling: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Unroller</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">symbol_table</span>: <span class="ident">SymbolTable</span>, <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">symbol_table</span>: <span class="ident">RefCell::new</span>(<span class="ident">symbol_table</span>),
-            <span class="ident">scope_index</span>: <span class="number">0</span>,
-            <span class="ident">handler</span>,
-            <span class="ident">is_unrolling</span>: <span class="bool-val">false</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(symbol_table: SymbolTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            symbol_table: RefCell::new(symbol_table),
+            scope_index: <span class="number">0</span>,
+            handler,
+            is_unrolling: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Returns the index of the current scope.</span>
-    <span class="doccomment">/// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">current_scope_index</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_unrolling</span> {
-            <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_block</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">scope_index</span>
+    <span class="doccomment">/// Returns the index of the current scope.
+    /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current_scope_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">if </span><span class="self">self</span>.is_unrolling {
+            <span class="self">self</span>.symbol_table.borrow_mut().insert_block()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.scope_index
         }
     }
 
-    <span class="doccomment">/// Enters a child scope.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">enter_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">previous_symbol_table</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">symbol_table</span>);
-        <span class="self">self</span>.<span class="ident">symbol_table</span>
-            .<span class="ident">swap</span>(<span class="ident">previous_symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">lookup_scope_by_index</span>(<span class="ident">index</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">previous_symbol_table</span>.<span class="ident">into_inner</span>()));
-        <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">scope_index</span>, <span class="number">0</span>)
+    <span class="doccomment">/// Enters a child scope.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; usize {
+        <span class="kw">let </span>previous_symbol_table = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.symbol_table);
+        <span class="self">self</span>.symbol_table
+            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        <span class="self">self</span>.symbol_table.borrow_mut().parent = <span class="prelude-val">Some</span>(Box::new(previous_symbol_table.into_inner()));
+        core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_index, <span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Exits the current block scope.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">exit_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="ident">prev_st</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">parent</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">swap</span>(<span class="ident">prev_st</span>.<span class="ident">lookup_scope_by_index</span>(<span class="ident">index</span>).<span class="ident">unwrap</span>());
-        <span class="self">self</span>.<span class="ident">symbol_table</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">prev_st</span>);
-        <span class="self">self</span>.<span class="ident">scope_index</span> <span class="op">=</span> <span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>;
+    <span class="doccomment">/// Exits the current block scope.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>exit_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) {
+        <span class="kw">let </span>prev_st = <span class="kw-2">*</span><span class="self">self</span>.symbol_table.borrow_mut().parent.take().unwrap();
+        <span class="self">self</span>.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
+        <span class="self">self</span>.symbol_table = RefCell::new(prev_st);
+        <span class="self">self</span>.scope_index = index + <span class="number">1</span>;
     }
 
-    <span class="doccomment">/// Unrolls an IterationStatement.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unroll_iteration_statement</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">LoopBound</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">input</span>: <span class="ident">IterationStatement</span>,
-        <span class="ident">start</span>: <span class="ident">Value</span>,
-        <span class="ident">stop</span>: <span class="ident">Value</span>,
-    ) -&gt; <span class="ident">Statement</span> {
-        <span class="comment">// Closure to check that the constant values are valid u128.</span>
-        <span class="comment">// We already know these are integers since loop unrolling occurs after type checking.</span>
-        <span class="kw">let</span> <span class="ident">cast_to_number</span> <span class="op">=</span> <span class="op">|</span><span class="ident">v</span>: <span class="ident">Value</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">I</span>, <span class="ident">Statement</span><span class="op">&gt;</span> {
-            <span class="kw">match</span> <span class="ident">v</span>.<span class="ident">try_into</span>() {
-                <span class="prelude-val">Ok</span>(<span class="ident">val_as_u128</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">val_as_u128</span>),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
-                    <span class="prelude-val">Err</span>(<span class="ident">Statement::dummy</span>(<span class="ident">input</span>.<span class="ident">span</span>))
+    <span class="doccomment">/// Unrolls an IterationStatement.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unroll_iteration_statement&lt;I: LoopBound&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        input: IterationStatement,
+        start: Value,
+        stop: Value,
+    ) -&gt; Statement {
+        <span class="comment">// Closure to check that the constant values are valid u128.
+        // We already know these are integers since loop unrolling occurs after type checking.
+        </span><span class="kw">let </span>cast_to_number = |v: Value| -&gt; <span class="prelude-ty">Result</span>&lt;I, Statement&gt; {
+            <span class="kw">match </span>v.try_into() {
+                <span class="prelude-val">Ok</span>(val_as_u128) =&gt; <span class="prelude-val">Ok</span>(val_as_u128),
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="self">self</span>.handler.emit_err(err);
+                    <span class="prelude-val">Err</span>(Statement::dummy(input.span))
                 }
             }
         };
 
-        <span class="comment">// Cast `start` to `I`.</span>
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cast_to_number</span>(<span class="ident">start</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">s</span>) =&gt; <span class="kw">return</span> <span class="ident">s</span>,
+        <span class="comment">// Cast `start` to `I`.
+        </span><span class="kw">let </span>start = <span class="kw">match </span>cast_to_number(start) {
+            <span class="prelude-val">Ok</span>(v) =&gt; v,
+            <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
         };
-        <span class="comment">// Cast `stop` to `I`.</span>
-        <span class="kw">let</span> <span class="ident">stop</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cast_to_number</span>(<span class="ident">stop</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">s</span>) =&gt; <span class="kw">return</span> <span class="ident">s</span>,
+        <span class="comment">// Cast `stop` to `I`.
+        </span><span class="kw">let </span>stop = <span class="kw">match </span>cast_to_number(stop) {
+            <span class="prelude-val">Ok</span>(v) =&gt; v,
+            <span class="prelude-val">Err</span>(s) =&gt; <span class="kw">return </span>s,
         };
 
-        <span class="comment">// Get the index of the current scope.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_scope_index</span>();
+        <span class="comment">// Get the index of the current scope.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.current_scope_index();
 
-        <span class="comment">// Enter the scope of the loop body.</span>
-        <span class="kw">let</span> <span class="ident">previous_scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="ident">scope_index</span>);
+        <span class="comment">// Enter the scope of the loop body.
+        </span><span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
 
-        <span class="comment">// Clear the symbol table for the loop body.</span>
-        <span class="comment">// This is necessary because loop unrolling transforms the program, which requires reconstructing the symbol table.</span>
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">variables</span>.<span class="ident">clear</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">scopes</span>.<span class="ident">clear</span>();
-        <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">scope_index</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="comment">// Clear the symbol table for the loop body.
+        // This is necessary because loop unrolling transforms the program, which requires reconstructing the symbol table.
+        </span><span class="self">self</span>.symbol_table.borrow_mut().variables.clear();
+        <span class="self">self</span>.symbol_table.borrow_mut().scopes.clear();
+        <span class="self">self</span>.symbol_table.borrow_mut().scope_index = <span class="number">0</span>;
 
-        <span class="comment">// Create a block statement to replace the iteration statement.</span>
-        <span class="comment">// Creates a new block per iteration inside the outer block statement.</span>
-        <span class="kw">let</span> <span class="ident">iter_blocks</span> <span class="op">=</span> <span class="ident">Statement::Block</span>(<span class="ident">Block</span> {
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-            <span class="ident">statements</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">inclusive</span> {
-                <span class="bool-val">true</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">RangeIterator::new</span>(<span class="ident">start</span>, <span class="ident">stop</span>, <span class="ident">Clusivity::Inclusive</span>);
-                    <span class="ident">iter</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">iteration_count</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">unroll_single_iteration</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">iteration_count</span>))
-                        .<span class="ident">collect</span>()
+        <span class="comment">// Create a block statement to replace the iteration statement.
+        // Creates a new block per iteration inside the outer block statement.
+        </span><span class="kw">let </span>iter_blocks = Statement::Block(Block {
+            span: input.span,
+            statements: <span class="kw">match </span>input.inclusive {
+                <span class="bool-val">true </span>=&gt; {
+                    <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
+                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count))
+                        .collect()
                 }
-                <span class="bool-val">false</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">RangeIterator::new</span>(<span class="ident">start</span>, <span class="ident">stop</span>, <span class="ident">Clusivity::Exclusive</span>);
-                    <span class="ident">iter</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">iteration_count</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">unroll_single_iteration</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">iteration_count</span>))
-                        .<span class="ident">collect</span>()
+                <span class="bool-val">false </span>=&gt; {
+                    <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
+                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count))
+                        .collect()
                 }
             },
         });
 
-        <span class="comment">// Exit the scope of the loop body.</span>
-        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_scope_index</span>);
+        <span class="comment">// Exit the scope of the loop body.
+        </span><span class="self">self</span>.exit_scope(previous_scope_index);
 
-        <span class="ident">iter_blocks</span>
+        iter_blocks
     }
 
-    <span class="doccomment">/// A helper function to unroll a single iteration an IterationStatement.</span>
-    <span class="kw">fn</span> <span class="ident">unroll_single_iteration</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">LoopBound</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">IterationStatement</span>, <span class="ident">iteration_count</span>: <span class="ident">I</span>) -&gt; <span class="ident">Statement</span> {
-        <span class="comment">// Create a scope for a single unrolling of the `IterationStatement`.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_block</span>();
-        <span class="kw">let</span> <span class="ident">previous_scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">enter_scope</span>(<span class="ident">scope_index</span>);
+    <span class="doccomment">/// A helper function to unroll a single iteration an IterationStatement.
+    </span><span class="kw">fn </span>unroll_single_iteration&lt;I: LoopBound&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span>IterationStatement, iteration_count: I) -&gt; Statement {
+        <span class="comment">// Create a scope for a single unrolling of the `IterationStatement`.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.symbol_table.borrow_mut().insert_block();
+        <span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
 
-        <span class="kw">let</span> <span class="ident">prior_is_unrolling</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">is_unrolling</span>;
-        <span class="self">self</span>.<span class="ident">is_unrolling</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let </span>prior_is_unrolling = <span class="self">self</span>.is_unrolling;
+        <span class="self">self</span>.is_unrolling = <span class="bool-val">true</span>;
 
-        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.</span>
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">type_</span> {
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I8</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+        <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
+        </span><span class="kw">let </span>value = <span class="kw">match </span>input.type_ {
+            Type::Integer(IntegerType::I8) =&gt; {
+                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I16</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::I16) =&gt; {
+                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I32</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::I32) =&gt; {
+                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I64</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::I64) =&gt; {
+                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I128</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::I128) =&gt; {
+                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U8</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::U8) =&gt; {
+                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U16</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::U16) =&gt; {
+                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U32</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::U32) =&gt; {
+                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U64</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::U64) =&gt; {
+                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default())
             }
-            <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>) =&gt; {
-                <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U128</span>, <span class="ident">iteration_count</span>.<span class="ident">to_string</span>(), <span class="ident">Default::default</span>())
+            Type::Integer(IntegerType::U128) =&gt; {
+                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default())
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(
-                <span class="string">&quot;The iteration variable must be an integer type. This should be enforced by type checking.&quot;</span>
-            ),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                <span class="string">&quot;The iteration variable must be an integer type. This should be enforced by type checking.&quot;
+            </span>),
         };
 
-        <span class="comment">// The first statement in the block is the assignment of the loop variable to the current iteration count.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="self">self</span>.<span class="ident">reconstruct_definition</span>(<span class="ident">DefinitionStatement</span> {
-                <span class="ident">declaration_type</span>: <span class="ident">DeclarationType::Const</span>,
-                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(),
-                <span class="ident">value</span>: <span class="ident">Expression::Literal</span>(<span class="ident">value</span>),
-                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                <span class="ident">variable_name</span>: <span class="ident">input</span>.<span class="ident">variable</span>,
+        <span class="comment">// The first statement in the block is the assignment of the loop variable to the current iteration count.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>statements = <span class="macro">vec!</span>[
+            <span class="self">self</span>.reconstruct_definition(DefinitionStatement {
+                declaration_type: DeclarationType::Const,
+                type_: input.type_.clone(),
+                value: Expression::Literal(value),
+                span: Default::default(),
+                variable_name: input.variable,
             })
             .<span class="number">0</span>,
         ];
 
-        <span class="comment">// Reconstruct the statements in the loop body.</span>
-        <span class="ident">input</span>.<span class="ident">block</span>.<span class="ident">statements</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
-            <span class="ident">statements</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>).<span class="number">0</span>);
+        <span class="comment">// Reconstruct the statements in the loop body.
+        </span>input.block.statements.clone().into_iter().for_each(|s| {
+            statements.push(<span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>);
         });
 
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">Statement::Block</span>(<span class="ident">Block</span> {
-            <span class="ident">statements</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">block</span>.<span class="ident">span</span>,
+        <span class="kw">let </span>block = Statement::Block(Block {
+            statements,
+            span: input.block.span,
         });
 
-        <span class="self">self</span>.<span class="ident">is_unrolling</span> <span class="op">=</span> <span class="ident">prior_is_unrolling</span>;
+        <span class="self">self</span>.is_unrolling = prior_is_unrolling;
 
-        <span class="comment">// Exit the scope.</span>
-        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">previous_scope_index</span>);
+        <span class="comment">// Exit the scope.
+        </span><span class="self">self</span>.exit_scope(previous_scope_index);
 
-        <span class="ident">block</span>
+        block
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

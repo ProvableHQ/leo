@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/commands/build.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_lang/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/commands/build.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>build.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_lang/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -261,268 +261,268 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::commands::ALEO_CLI_COMMAND</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">commands::Command</span>, <span class="ident">context::Context</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::commands::ALEO_CLI_COMMAND;
+<span class="kw">use crate</span>::{commands::Command, context::Context};
 
-<span class="kw">use</span> <span class="ident">leo_ast::Struct</span>;
-<span class="kw">use</span> <span class="ident">leo_compiler</span>::{<span class="ident">Compiler</span>, <span class="ident">InputAst</span>, <span class="ident">OutputOptions</span>};
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CliError</span>, <span class="ident">CompilerError</span>, <span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">leo_package::source::SourceDirectory</span>;
-<span class="kw">use</span> <span class="ident">leo_package</span>::{<span class="ident">inputs::InputFile</span>, <span class="ident">outputs::OutputsDirectory</span>};
-<span class="kw">use</span> <span class="ident">leo_span::symbol::with_session_globals</span>;
+<span class="kw">use </span>leo_ast::Struct;
+<span class="kw">use </span>leo_compiler::{Compiler, InputAst, OutputOptions};
+<span class="kw">use </span>leo_errors::{CliError, CompilerError, PackageError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_package::source::SourceDirectory;
+<span class="kw">use </span>leo_package::{inputs::InputFile, outputs::OutputsDirectory};
+<span class="kw">use </span>leo_span::symbol::with_session_globals;
 
-<span class="kw">use</span> <span class="ident">aleo::commands::Build</span> <span class="kw">as</span> <span class="ident">AleoBuild</span>;
+<span class="kw">use </span>aleo::commands::Build <span class="kw">as </span>AleoBuild;
 
-<span class="kw">use</span> <span class="ident">clap::StructOpt</span>;
-<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
-<span class="kw">use</span> <span class="ident">snarkvm::prelude</span>::{<span class="ident">ProgramID</span>, <span class="ident">Testnet3</span>};
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">std::path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>};
+<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>snarkvm::prelude::{ProgramID, Testnet3};
+<span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>std::path::{Path, PathBuf};
 
-<span class="kw">use</span> <span class="ident">leo_errors::emitter::Handler</span>;
-<span class="kw">use</span> <span class="ident">leo_package::build::BuildDirectory</span>;
-<span class="kw">use</span> <span class="ident">leo_package::imports::ImportsDirectory</span>;
-<span class="kw">use</span> <span class="ident">leo_span::Symbol</span>;
-<span class="kw">use</span> <span class="ident">tracing::span::Span</span>;
+<span class="kw">use </span>leo_errors::emitter::Handler;
+<span class="kw">use </span>leo_package::build::BuildDirectory;
+<span class="kw">use </span>leo_package::imports::ImportsDirectory;
+<span class="kw">use </span>leo_span::Symbol;
+<span class="kw">use </span>tracing::span::Span;
 
-<span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which</span>
-<span class="doccomment">/// require Build command output as their input.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuildOptions</span> {
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Enables offline mode.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">offline</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_spans</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_all_ast_snapshots</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_initial_input_ast_snapshot</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_initial_ast_snapshot</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the unrolled AST.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_unrolled_ast_snapshot</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_ssa_ast_snapshot</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">enable_flattened_ast_snapshot</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
+</span><span class="attribute">#[derive(StructOpt, Clone, Debug, Default)]
+</span><span class="kw">pub struct </span>BuildOptions {
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Enables offline mode.&quot;</span>)]
+    </span><span class="kw">pub </span>offline: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_spans: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_initial_input_ast_snapshot: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_initial_ast_snapshot: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the unrolled AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_unrolled_ast_snapshot: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_ssa_ast_snapshot: bool,
+    <span class="attribute">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_flattened_ast_snapshot: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OutputOptions</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out_options</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">spans_enabled</span>: <span class="ident">options</span>.<span class="ident">enable_spans</span>,
-            <span class="ident">initial_input_ast</span>: <span class="ident">options</span>.<span class="ident">enable_initial_input_ast_snapshot</span>,
-            <span class="ident">initial_ast</span>: <span class="ident">options</span>.<span class="ident">enable_initial_ast_snapshot</span>,
-            <span class="ident">unrolled_ast</span>: <span class="ident">options</span>.<span class="ident">enable_unrolled_ast_snapshot</span>,
-            <span class="ident">ssa_ast</span>: <span class="ident">options</span>.<span class="ident">enable_ssa_ast_snapshot</span>,
-            <span class="ident">flattened_ast</span>: <span class="ident">options</span>.<span class="ident">enable_flattened_ast_snapshot</span>,
+<span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>OutputOptions {
+    <span class="kw">fn </span>from(options: BuildOptions) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>out_options = <span class="self">Self </span>{
+            spans_enabled: options.enable_spans,
+            initial_input_ast: options.enable_initial_input_ast_snapshot,
+            initial_ast: options.enable_initial_ast_snapshot,
+            unrolled_ast: options.enable_unrolled_ast_snapshot,
+            ssa_ast: options.enable_ssa_ast_snapshot,
+            flattened_ast: options.enable_flattened_ast_snapshot,
         };
-        <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">enable_all_ast_snapshots</span> {
-            <span class="ident">out_options</span>.<span class="ident">initial_input_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">out_options</span>.<span class="ident">initial_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">out_options</span>.<span class="ident">unrolled_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">out_options</span>.<span class="ident">ssa_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">out_options</span>.<span class="ident">flattened_ast</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>options.enable_all_ast_snapshots {
+            out_options.initial_input_ast = <span class="bool-val">true</span>;
+            out_options.initial_ast = <span class="bool-val">true</span>;
+            out_options.unrolled_ast = <span class="bool-val">true</span>;
+            out_options.ssa_ast = <span class="bool-val">true</span>;
+            out_options.flattened_ast = <span class="bool-val">true</span>;
         }
 
-        <span class="ident">out_options</span>
+        out_options
     }
 }
 
-<span class="doccomment">/// Compile and build program command.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Build</span> {
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">compiler_options</span>: <span class="ident">BuildOptions</span>,
+<span class="doccomment">/// Compile and build program command.
+</span><span class="attribute">#[derive(StructOpt, Debug)]
+</span><span class="kw">pub struct </span>Build {
+    <span class="attribute">#[structopt(flatten)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,
 }
 
-<span class="kw">impl</span> <span class="ident">Command</span> <span class="kw">for</span> <span class="ident">Build</span> {
-    <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> ();
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">InputAst</span><span class="op">&gt;</span>, <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Struct</span><span class="op">&gt;</span>);
+<span class="kw">impl </span>Command <span class="kw">for </span>Build {
+    <span class="kw">type </span>Input = ();
+    <span class="kw">type </span>Output = (<span class="prelude-ty">Option</span>&lt;InputAst&gt;, IndexMap&lt;Symbol, Struct&gt;);
 
-    <span class="kw">fn</span> <span class="ident">log_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="macro">tracing::span!</span>(<span class="ident">tracing::Level::INFO</span>, <span class="string">&quot;Leo&quot;</span>)
+    <span class="kw">fn </span>log_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+        <span class="macro">tracing::span!</span>(tracing::Level::INFO, <span class="string">&quot;Leo&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">prelude</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">Context</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Input</span><span class="op">&gt;</span> {
+    <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="self">self</span>, <span class="ident">context</span>: <span class="ident">Context</span>, <span class="kw">_</span>: <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Output</span><span class="op">&gt;</span> {
-        <span class="comment">// Get the package path.</span>
-        <span class="kw">let</span> <span class="ident">package_path</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>;
+    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Get the package path.
+        </span><span class="kw">let </span>package_path = context.dir()<span class="question-mark">?</span>;
 
-        <span class="comment">// Get the program id.</span>
-        <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">context</span>.<span class="ident">open_manifest</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">program_id</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">program_id</span>();
+        <span class="comment">// Get the program id.
+        </span><span class="kw">let </span>manifest = context.open_manifest()<span class="question-mark">?</span>;
+        <span class="kw">let </span>program_id = manifest.program_id();
 
-        <span class="comment">// Create the outputs directory.</span>
-        <span class="kw">let</span> <span class="ident">outputs_directory</span> <span class="op">=</span> <span class="ident">OutputsDirectory::create</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Create the outputs directory.
+        </span><span class="kw">let </span>outputs_directory = OutputsDirectory::create(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Open the build directory.</span>
-        <span class="kw">let</span> <span class="ident">build_directory</span> <span class="op">=</span> <span class="ident">BuildDirectory::open</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Open the build directory.
+        </span><span class="kw">let </span>build_directory = BuildDirectory::open(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Initialize error handler</span>
-        <span class="kw">let</span> <span class="ident">handler</span> <span class="op">=</span> <span class="ident">Handler::default</span>();
+        <span class="comment">// Initialize error handler
+        </span><span class="kw">let </span>handler = Handler::default();
 
-        <span class="comment">// Fetch paths to all .leo files in the source directory.</span>
-        <span class="kw">let</span> <span class="ident">source_files</span> <span class="op">=</span> <span class="ident">SourceDirectory::files</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Fetch paths to all .leo files in the source directory.
+        </span><span class="kw">let </span>source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Check the source files.</span>
-        <span class="ident">SourceDirectory::check_files</span>(<span class="kw-2">&amp;</span><span class="ident">source_files</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Check the source files.
+        </span>SourceDirectory::check_files(<span class="kw-2">&amp;</span>source_files)<span class="question-mark">?</span>;
 
-        <span class="comment">// Store all struct declarations made in the source files.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">structs</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
+        <span class="comment">// Store all struct declarations made in the source files.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>structs = IndexMap::new();
 
-        <span class="comment">// Compile all .leo files into .aleo files.</span>
-        <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">source_files</span>.<span class="ident">into_iter</span>() {
-            <span class="ident">structs</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
-                <span class="ident">file_path</span>,
-                <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
-                <span class="ident">program_id</span>,
-                <span class="kw-2">&amp;</span><span class="ident">outputs_directory</span>,
-                <span class="kw-2">&amp;</span><span class="ident">build_directory</span>,
-                <span class="kw-2">&amp;</span><span class="ident">handler</span>,
-                <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
+        <span class="comment">// Compile all .leo files into .aleo files.
+        </span><span class="kw">for </span>file_path <span class="kw">in </span>source_files.into_iter() {
+            structs.extend(compile_leo_file(
+                file_path,
+                <span class="kw-2">&amp;</span>package_path,
+                program_id,
+                <span class="kw-2">&amp;</span>outputs_directory,
+                <span class="kw-2">&amp;</span>build_directory,
+                <span class="kw-2">&amp;</span>handler,
+                <span class="self">self</span>.compiler_options.clone(),
                 <span class="bool-val">false</span>,
             )<span class="question-mark">?</span>);
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ImportsDirectory::is_empty</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span> {
-            <span class="comment">// Create Aleo build/imports/ directory.</span>
-            <span class="kw">let</span> <span class="ident">build_imports_directory</span> <span class="op">=</span> <span class="ident">ImportsDirectory::create</span>(<span class="kw-2">&amp;</span><span class="ident">build_directory</span>)<span class="question-mark">?</span>;
+        <span class="kw">if </span>!ImportsDirectory::is_empty(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">? </span>{
+            <span class="comment">// Create Aleo build/imports/ directory.
+            </span><span class="kw">let </span>build_imports_directory = ImportsDirectory::create(<span class="kw-2">&amp;</span>build_directory)<span class="question-mark">?</span>;
 
-            <span class="comment">// Fetch paths to all .leo files in the imports directory.</span>
-            <span class="kw">let</span> <span class="ident">import_files</span> <span class="op">=</span> <span class="ident">ImportsDirectory::files</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>)<span class="question-mark">?</span>;
+            <span class="comment">// Fetch paths to all .leo files in the imports directory.
+            </span><span class="kw">let </span>import_files = ImportsDirectory::files(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
-            <span class="comment">// Compile all .leo files into .aleo files.</span>
-            <span class="kw">for</span> <span class="ident">file_path</span> <span class="kw">in</span> <span class="ident">import_files</span>.<span class="ident">into_iter</span>() {
-                <span class="ident">structs</span>.<span class="ident">extend</span>(<span class="ident">compile_leo_file</span>(
-                    <span class="ident">file_path</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">package_path</span>,
-                    <span class="ident">program_id</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">outputs_directory</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">build_imports_directory</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">handler</span>,
-                    <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>(),
+            <span class="comment">// Compile all .leo files into .aleo files.
+            </span><span class="kw">for </span>file_path <span class="kw">in </span>import_files.into_iter() {
+                structs.extend(compile_leo_file(
+                    file_path,
+                    <span class="kw-2">&amp;</span>package_path,
+                    program_id,
+                    <span class="kw-2">&amp;</span>outputs_directory,
+                    <span class="kw-2">&amp;</span>build_imports_directory,
+                    <span class="kw-2">&amp;</span>handler,
+                    <span class="self">self</span>.compiler_options.clone(),
                     <span class="bool-val">true</span>,
                 )<span class="question-mark">?</span>);
             }
         }
 
-        <span class="comment">// Load the input file at `package_name.in`</span>
-        <span class="kw">let</span> <span class="ident">input_file_path</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="kw-2">&amp;</span><span class="ident">manifest</span>.<span class="ident">program_id</span>().<span class="ident">name</span>().<span class="ident">to_string</span>()).<span class="ident">setup_file_path</span>(<span class="kw-2">&amp;</span><span class="ident">package_path</span>);
+        <span class="comment">// Load the input file at `package_name.in`
+        </span><span class="kw">let </span>input_file_path = InputFile::new(<span class="kw-2">&amp;</span>manifest.program_id().name().to_string()).setup_file_path(<span class="kw-2">&amp;</span>package_path);
 
-        <span class="comment">// Parse the input file.</span>
-        <span class="kw">let</span> <span class="ident">input_ast</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_file_path</span>.<span class="ident">exists</span>() {
-            <span class="comment">// Load the input file into the source map.</span>
-            <span class="kw">let</span> <span class="ident">input_sf</span> <span class="op">=</span> <span class="ident">with_session_globals</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">source_map</span>.<span class="ident">load_file</span>(<span class="kw-2">&amp;</span><span class="ident">input_file_path</span>))
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">CompilerError::file_read_error</span>(<span class="kw-2">&amp;</span><span class="ident">input_file_path</span>, <span class="ident">e</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Parse the input file.
+        </span><span class="kw">let </span>input_ast = <span class="kw">if </span>input_file_path.exists() {
+            <span class="comment">// Load the input file into the source map.
+            </span><span class="kw">let </span>input_sf = with_session_globals(|s| s.source_map.load_file(<span class="kw-2">&amp;</span>input_file_path))
+                .map_err(|e| CompilerError::file_read_error(<span class="kw-2">&amp;</span>input_file_path, e))<span class="question-mark">?</span>;
 
-            <span class="comment">// TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.</span>
-            <span class="ident">leo_parser::parse_input</span>(<span class="kw-2">&amp;</span><span class="ident">handler</span>, <span class="kw-2">&amp;</span><span class="ident">input_sf</span>.<span class="ident">src</span>, <span class="ident">input_sf</span>.<span class="ident">start_pos</span>)
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">_e</span><span class="op">|</span> <span class="macro">println!</span>(<span class="string">&quot;Warning: Failed to parse input file&quot;</span>))
-                .<span class="ident">ok</span>()
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+            <span class="comment">// TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
+            </span>leo_parser::parse_input(<span class="kw-2">&amp;</span>handler, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)
+                .map_err(|_e| <span class="macro">println!</span>(<span class="string">&quot;Warning: Failed to parse input file&quot;</span>))
+                .ok()
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="comment">// Change the cwd to the build directory to compile aleo files.</span>
-        <span class="ident">std::env::set_current_dir</span>(<span class="kw-2">&amp;</span><span class="ident">build_directory</span>)
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">PackageError::failed_to_set_cwd</span>(<span class="ident">build_directory</span>.<span class="ident">display</span>(), <span class="ident">err</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Change the cwd to the build directory to compile aleo files.
+        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
 
-        <span class="comment">// Call the `aleo build` command with the appropriate from the Aleo SDK.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ALEO_CLI_COMMAND</span>];
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">offline</span> {
-            <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--offline&quot;</span>);
+        <span class="comment">// Call the `aleo build` command with the appropriate from the Aleo SDK.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[ALEO_CLI_COMMAND];
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
+            args.push(<span class="string">&quot;--offline&quot;</span>);
         }
-        <span class="kw">let</span> <span class="ident">command</span> <span class="op">=</span> <span class="ident">AleoBuild::try_parse_from</span>(<span class="kw-2">&amp;</span><span class="ident">args</span>).<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">command</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_execute_aleo_build</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>command = AleoBuild::try_parse_from(<span class="kw-2">&amp;</span>args).map_err(CliError::failed_to_execute_aleo_build)<span class="question-mark">?</span>;
+        <span class="kw">let </span>result = command.parse().map_err(CliError::failed_to_execute_aleo_build)<span class="question-mark">?</span>;
 
-        <span class="comment">// Log the result of the build</span>
-        <span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">result</span>);
+        <span class="comment">// Log the result of the build
+        </span><span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, result);
 
-        <span class="prelude-val">Ok</span>((<span class="ident">input_ast</span>, <span class="ident">structs</span>))
+        <span class="prelude-val">Ok</span>((input_ast, structs))
     }
 }
 
-<span class="doccomment">/// Compiles a Leo file in the `src/` directory.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">fn</span> <span class="ident">compile_leo_file</span>(
-    <span class="ident">file_path</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">_package_path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    <span class="ident">program_id</span>: <span class="kw-2">&amp;</span><span class="ident">ProgramID</span><span class="op">&lt;</span><span class="ident">Testnet3</span><span class="op">&gt;</span>,
-    <span class="ident">outputs</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    <span class="ident">build</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>,
-    <span class="ident">handler</span>: <span class="kw-2">&amp;</span><span class="ident">Handler</span>,
-    <span class="ident">options</span>: <span class="ident">BuildOptions</span>,
-    <span class="ident">is_import</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Struct</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="comment">// Construct the Leo file name with extension `foo.leo`.</span>
-    <span class="kw">let</span> <span class="ident">file_name</span> <span class="op">=</span> <span class="ident">file_path</span>
-        .<span class="ident">file_name</span>()
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">to_str</span>())
-        .<span class="ident">ok_or_else</span>(<span class="ident">PackageError::failed_to_get_file_name</span>)<span class="question-mark">?</span>;
+<span class="doccomment">/// Compiles a Leo file in the `src/` directory.
+</span><span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">fn </span>compile_leo_file(
+    file_path: PathBuf,
+    _package_path: <span class="kw-2">&amp;</span>Path,
+    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;Testnet3&gt;,
+    outputs: <span class="kw-2">&amp;</span>Path,
+    build: <span class="kw-2">&amp;</span>Path,
+    handler: <span class="kw-2">&amp;</span>Handler,
+    options: BuildOptions,
+    is_import: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;IndexMap&lt;Symbol, Struct&gt;&gt; {
+    <span class="comment">// Construct the Leo file name with extension `foo.leo`.
+    </span><span class="kw">let </span>file_name = file_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .ok_or_else(PackageError::failed_to_get_file_name)<span class="question-mark">?</span>;
 
-    <span class="comment">// If the program is an import, construct program name from file_path</span>
-    <span class="comment">// Otherwise, use the program_id found in `package.json`.</span>
-    <span class="kw">let</span> <span class="ident">program_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">is_import</span> {
-        <span class="bool-val">false</span> =&gt; <span class="ident">program_id</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(),
-        <span class="bool-val">true</span> =&gt; <span class="ident">file_name</span>
-            .<span class="ident">strip_suffix</span>(<span class="string">&quot;.leo&quot;</span>)
-            .<span class="ident">ok_or_else</span>(<span class="ident">PackageError::failed_to_get_file_name</span>)<span class="question-mark">?</span>
-            .<span class="ident">to_string</span>(),
+    <span class="comment">// If the program is an import, construct program name from file_path
+    // Otherwise, use the program_id found in `package.json`.
+    </span><span class="kw">let </span>program_name = <span class="kw">match </span>is_import {
+        <span class="bool-val">false </span>=&gt; program_id.name().to_string(),
+        <span class="bool-val">true </span>=&gt; file_name
+            .strip_suffix(<span class="string">&quot;.leo&quot;</span>)
+            .ok_or_else(PackageError::failed_to_get_file_name)<span class="question-mark">?
+            </span>.to_string(),
     };
 
-    <span class="comment">// Create the path to the Aleo file.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">aleo_file_path</span> <span class="op">=</span> <span class="ident">build</span>.<span class="ident">to_path_buf</span>();
-    <span class="ident">aleo_file_path</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">is_import</span> {
-        <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{program_name}.{}&quot;</span>, <span class="ident">program_id</span>.<span class="ident">network</span>()),
-        <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;main.{}&quot;</span>, <span class="ident">program_id</span>.<span class="ident">network</span>()),
+    <span class="comment">// Create the path to the Aleo file.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>aleo_file_path = build.to_path_buf();
+    aleo_file_path.push(<span class="kw">match </span>is_import {
+        <span class="bool-val">true </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{program_name}.{}&quot;</span>, program_id.network()),
+        <span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;main.{}&quot;</span>, program_id.network()),
     });
 
-    <span class="comment">// Create a new instance of the Leo compiler.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">compiler</span> <span class="op">=</span> <span class="ident">Compiler::new</span>(
-        <span class="ident">program_name</span>,
-        <span class="ident">program_id</span>.<span class="ident">network</span>().<span class="ident">to_string</span>(),
-        <span class="ident">handler</span>,
-        <span class="ident">file_path</span>.<span class="ident">clone</span>(),
-        <span class="ident">outputs</span>.<span class="ident">to_path_buf</span>(),
-        <span class="prelude-val">Some</span>(<span class="ident">options</span>.<span class="ident">into</span>()),
+    <span class="comment">// Create a new instance of the Leo compiler.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::new(
+        program_name,
+        program_id.network().to_string(),
+        handler,
+        file_path.clone(),
+        outputs.to_path_buf(),
+        <span class="prelude-val">Some</span>(options.into()),
     );
 
-    <span class="comment">// Compile the Leo program into Aleo instructions.</span>
-    <span class="kw">let</span> (<span class="ident">symbol_table</span>, <span class="ident">instructions</span>) <span class="op">=</span> <span class="ident">compiler</span>.<span class="ident">compile_and_generate_instructions</span>()<span class="question-mark">?</span>;
+    <span class="comment">// Compile the Leo program into Aleo instructions.
+    </span><span class="kw">let </span>(symbol_table, instructions) = compiler.compile_and_generate_instructions()<span class="question-mark">?</span>;
 
-    <span class="comment">// Write the instructions.</span>
-    <span class="ident">std::fs::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">aleo_file_path</span>)
-        .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>
-        .<span class="ident">write_all</span>(<span class="ident">instructions</span>.<span class="ident">as_bytes</span>())
-        .<span class="ident">map_err</span>(<span class="ident">CliError::failed_to_load_instructions</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Write the instructions.
+    </span>std::fs::File::create(<span class="kw-2">&amp;</span>aleo_file_path)
+        .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?
+        </span>.write_all(instructions.as_bytes())
+        .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
-    <span class="comment">// Prepare the path string.</span>
-    <span class="kw">let</span> <span class="ident">_path_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, <span class="ident">aleo_file_path</span>.<span class="ident">display</span>());
+    <span class="comment">// Prepare the path string.
+    </span><span class="kw">let </span>_path_string = <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, aleo_file_path.display());
 
-    <span class="comment">// Log the build as successful.</span>
-    <span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, <span class="ident">file_name</span>,);
+    <span class="comment">// Log the build as successful.
+    </span><span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name,);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">symbol_table</span>.<span class="ident">structs</span>)
+    <span class="prelude-val">Ok</span>(symbol_table.structs)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

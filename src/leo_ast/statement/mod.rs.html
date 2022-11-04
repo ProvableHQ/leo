@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/statement/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/statement/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -136,143 +136,143 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">assign</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">assign</span>::<span class="kw-2">*</span>;
+</span><span class="kw">pub mod </span>assign;
+<span class="kw">pub use </span>assign::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">block</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">block</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>block;
+<span class="kw">pub use </span>block::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">conditional</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conditional</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>conditional;
+<span class="kw">pub use </span>conditional::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">console</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">console</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>console;
+<span class="kw">pub use </span>console::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">decrement</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">decrement</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>decrement;
+<span class="kw">pub use </span>decrement::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">definition</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">definition</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>definition;
+<span class="kw">pub use </span>definition::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">finalize</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">finalize</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>finalize;
+<span class="kw">pub use </span>finalize::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">increment</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">increment</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>increment;
+<span class="kw">pub use </span>increment::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">iteration</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">iteration</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>iteration;
+<span class="kw">pub use </span>iteration::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">return_</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">return_</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>return_;
+<span class="kw">pub use </span>return_::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Node</span>;
+<span class="kw">use </span><span class="kw">crate</span>::Node;
 
-<span class="kw">use</span> <span class="ident">leo_span::Span</span>;
+<span class="kw">use </span>leo_span::Span;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::fmt;
 
-<span class="doccomment">/// Program statement that defines some action (or expression) to be carried out.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Statement</span> {
-    <span class="doccomment">/// An assignment statement.</span>
-    <span class="ident">Assign</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">AssignStatement</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// A block statement.</span>
-    <span class="ident">Block</span>(<span class="ident">Block</span>),
-    <span class="doccomment">/// An `if` statement.</span>
-    <span class="ident">Conditional</span>(<span class="ident">ConditionalStatement</span>),
-    <span class="doccomment">/// A console logging statement.</span>
-    <span class="ident">Console</span>(<span class="ident">ConsoleStatement</span>),
-    <span class="doccomment">/// A decrement statement.</span>
-    <span class="ident">Decrement</span>(<span class="ident">DecrementStatement</span>),
-    <span class="doccomment">/// A binding or set of bindings / variables to declare.</span>
-    <span class="ident">Definition</span>(<span class="ident">DefinitionStatement</span>),
-    <span class="doccomment">/// A finalize statement.</span>
-    <span class="ident">Finalize</span>(<span class="ident">FinalizeStatement</span>),
-    <span class="doccomment">/// An increment statement.</span>
-    <span class="ident">Increment</span>(<span class="ident">IncrementStatement</span>),
-    <span class="doccomment">/// A `for` statement.</span>
-    <span class="ident">Iteration</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">IterationStatement</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// A return statement `return expr;`.</span>
-    <span class="ident">Return</span>(<span class="ident">ReturnStatement</span>),
+<span class="doccomment">/// Program statement that defines some action (or expression) to be carried out.
+</span><span class="attribute">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub enum </span>Statement {
+    <span class="doccomment">/// An assignment statement.
+    </span>Assign(Box&lt;AssignStatement&gt;),
+    <span class="doccomment">/// A block statement.
+    </span>Block(Block),
+    <span class="doccomment">/// An `if` statement.
+    </span>Conditional(ConditionalStatement),
+    <span class="doccomment">/// A console logging statement.
+    </span>Console(ConsoleStatement),
+    <span class="doccomment">/// A decrement statement.
+    </span>Decrement(DecrementStatement),
+    <span class="doccomment">/// A binding or set of bindings / variables to declare.
+    </span>Definition(DefinitionStatement),
+    <span class="doccomment">/// A finalize statement.
+    </span>Finalize(FinalizeStatement),
+    <span class="doccomment">/// An increment statement.
+    </span>Increment(IncrementStatement),
+    <span class="doccomment">/// A `for` statement.
+    </span>Iteration(Box&lt;IterationStatement&gt;),
+    <span class="doccomment">/// A return statement `return expr;`.
+    </span>Return(ReturnStatement),
 }
 
-<span class="kw">impl</span> <span class="ident">Statement</span> {
-    <span class="doccomment">/// Returns a dummy statement made from an empty block `{}`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>(<span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Block</span>(<span class="ident">Block</span> {
-            <span class="ident">statements</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">span</span>,
+<span class="kw">impl </span>Statement {
+    <span class="doccomment">/// Returns a dummy statement made from an empty block `{}`.
+    </span><span class="kw">pub fn </span>dummy(span: Span) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Block(Block {
+            statements: Vec::new(),
+            span,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Statement</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Statement::Assign</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Block</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Conditional</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Console</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Decrement</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Finalize</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Increment</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident">Statement::Return</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Statement {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            Statement::Assign(x) =&gt; x.fmt(f),
+            Statement::Block(x) =&gt; x.fmt(f),
+            Statement::Conditional(x) =&gt; x.fmt(f),
+            Statement::Console(x) =&gt; x.fmt(f),
+            Statement::Decrement(x) =&gt; x.fmt(f),
+            Statement::Definition(x) =&gt; x.fmt(f),
+            Statement::Finalize(x) =&gt; x.fmt(f),
+            Statement::Increment(x) =&gt; x.fmt(f),
+            Statement::Iteration(x) =&gt; x.fmt(f),
+            Statement::Return(x) =&gt; x.fmt(f),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Node</span> <span class="kw">for</span> <span class="ident">Statement</span> {
-    <span class="kw">fn</span> <span class="ident">span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Span</span> {
-        <span class="kw">use</span> <span class="ident">Statement</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Assign</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Block</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Conditional</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Console</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Decrement</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Definition</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Finalize</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Increment</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Iteration</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
-            <span class="ident">Return</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">span</span>(),
+<span class="kw">impl </span>Node <span class="kw">for </span>Statement {
+    <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
+        <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Assign(n) =&gt; n.span(),
+            Block(n) =&gt; n.span(),
+            Conditional(n) =&gt; n.span(),
+            Console(n) =&gt; n.span(),
+            Decrement(n) =&gt; n.span(),
+            Definition(n) =&gt; n.span(),
+            Finalize(n) =&gt; n.span(),
+            Increment(n) =&gt; n.span(),
+            Iteration(n) =&gt; n.span(),
+            Return(n) =&gt; n.span(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">set_span</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) {
-        <span class="kw">use</span> <span class="ident">Statement</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Assign</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Block</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Conditional</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Console</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Decrement</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Definition</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Finalize</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Increment</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Iteration</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
-            <span class="ident">Return</span>(<span class="ident">n</span>) =&gt; <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
+    <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) {
+        <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Assign(n) =&gt; n.set_span(span),
+            Block(n) =&gt; n.set_span(span),
+            Conditional(n) =&gt; n.set_span(span),
+            Console(n) =&gt; n.set_span(span),
+            Decrement(n) =&gt; n.set_span(span),
+            Definition(n) =&gt; n.set_span(span),
+            Finalize(n) =&gt; n.set_span(span),
+            Increment(n) =&gt; n.set_span(span),
+            Iteration(n) =&gt; n.set_span(span),
+            Return(n) =&gt; n.set_span(span),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

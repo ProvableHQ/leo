@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flatten_statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flatten_statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -238,245 +238,245 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Flattener</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">BinaryExpression</span>, <span class="ident">BinaryOperation</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>,
-    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Node</span>,
-    <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementReconstructor</span>, <span class="ident">UnaryExpression</span>, <span class="ident">UnaryOperation</span>,
+<span class="kw">use </span>leo_ast::{
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
 };
 
-<span class="kw">impl</span> <span class="ident">StatementReconstructor</span> <span class="kw">for</span> <span class="ident">Flattener</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Flattens an assign statement, if necessary.</span>
-    <span class="doccomment">/// Marks variables as structs as necessary.</span>
-    <span class="doccomment">/// Note that new statements are only produced if the right hand side is a ternary expression over structs.</span>
-    <span class="doccomment">/// Otherwise, the statement is returned as is.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">let</span> <span class="ident">lhs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">assign</span>.<span class="ident">place</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="ident">identifier</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`AssignStatement`s can only have `Identifier`s on the left hand side.&quot;</span>),
+<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Flattens an assign statement, if necessary.
+    /// Marks variables as structs as necessary.
+    /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
+    /// Otherwise, the statement is returned as is.
+    </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, assign: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span>lhs = <span class="kw">match </span>assign.place {
+            Expression::Identifier(identifier) =&gt; identifier,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`AssignStatement`s can only have `Identifier`s on the left hand side.&quot;</span>),
         };
 
-        <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">assign</span>.<span class="ident">value</span> {
-            <span class="comment">// If the rhs of the assignment is ternary expression, reconstruct it.</span>
-            <span class="ident">Expression::Ternary</span>(<span class="ident">ternary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">ternary</span>),
-            <span class="comment">// Otherwise return the original statement.</span>
-            <span class="ident">value</span> =&gt; (<span class="ident">value</span>, <span class="ident">Default::default</span>()),
+        <span class="kw">let </span>(value, statements) = <span class="kw">match </span>assign.value {
+            <span class="comment">// If the rhs of the assignment is ternary expression, reconstruct it.
+            </span>Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(ternary),
+            <span class="comment">// Otherwise return the original statement.
+            </span>value =&gt; (value, Default::default()),
         };
 
-        <span class="comment">// Update the `self.structs` if the rhs is a struct.</span>
-        <span class="self">self</span>.<span class="ident">update_structs</span>(<span class="kw-2">&amp;</span><span class="ident">lhs</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>);
+        <span class="comment">// Update the `self.structs` if the rhs is a struct.
+        </span><span class="self">self</span>.update_structs(<span class="kw-2">&amp;</span>lhs, <span class="kw-2">&amp;</span>value);
 
         (
-            <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
-                <span class="ident">place</span>: <span class="ident">Expression::Identifier</span>(<span class="ident">lhs</span>),
-                <span class="ident">value</span>,
-                <span class="ident">span</span>: <span class="ident">assign</span>.<span class="ident">span</span>,
+            Statement::Assign(Box::new(AssignStatement {
+                place: Expression::Identifier(lhs),
+                value,
+                span: assign.span,
             })),
-            <span class="ident">statements</span>,
+            statements,
         )
     }
 
-    <span class="comment">// TODO: Do we want to flatten nested blocks? They do not affect code generation but it would regularize the AST structure.</span>
-    <span class="doccomment">/// Flattens the statements inside a basic block.</span>
-    <span class="doccomment">/// The resulting block does not contain any conditional statements.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; (<span class="ident">Block</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">block</span>.<span class="ident">statements</span>.<span class="ident">len</span>());
+    <span class="comment">// TODO: Do we want to flatten nested blocks? They do not affect code generation but it would regularize the AST structure.
+    </span><span class="doccomment">/// Flattens the statements inside a basic block.
+    /// The resulting block does not contain any conditional statements.
+    </span><span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(block.statements.len());
 
-        <span class="comment">// Flatten each statement, accumulating any new statements produced.</span>
-        <span class="kw">for</span> <span class="ident">statement</span> <span class="kw">in</span> <span class="ident">block</span>.<span class="ident">statements</span> {
-            <span class="kw">let</span> (<span class="ident">reconstructed_statement</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">statement</span>);
-            <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-            <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">reconstructed_statement</span>);
+        <span class="comment">// Flatten each statement, accumulating any new statements produced.
+        </span><span class="kw">for </span>statement <span class="kw">in </span>block.statements {
+            <span class="kw">let </span>(reconstructed_statement, additional_statements) = <span class="self">self</span>.reconstruct_statement(statement);
+            statements.extend(additional_statements);
+            statements.push(reconstructed_statement);
         }
 
         (
-            <span class="ident">Block</span> {
-                <span class="ident">span</span>: <span class="ident">block</span>.<span class="ident">span</span>,
-                <span class="ident">statements</span>,
+            Block {
+                span: block.span,
+                statements,
             },
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="doccomment">/// Flatten a conditional statement into a list of statements.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">conditional</span>: <span class="ident">ConditionalStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">conditional</span>.<span class="ident">then</span>.<span class="ident">statements</span>.<span class="ident">len</span>());
+    <span class="doccomment">/// Flatten a conditional statement into a list of statements.
+    </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, conditional: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(conditional.then.statements.len());
 
-        <span class="comment">// Add condition to the condition stack.</span>
-        <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">push</span>(<span class="ident">conditional</span>.<span class="ident">condition</span>.<span class="ident">clone</span>());
+        <span class="comment">// Add condition to the condition stack.
+        </span><span class="self">self</span>.condition_stack.push(conditional.condition.clone());
 
-        <span class="comment">// Reconstruct the then-block and accumulate it constituent statements.</span>
-        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">conditional</span>.<span class="ident">then</span>).<span class="number">0</span>.<span class="ident">statements</span>);
+        <span class="comment">// Reconstruct the then-block and accumulate it constituent statements.
+        </span>statements.extend(<span class="self">self</span>.reconstruct_block(conditional.then).<span class="number">0</span>.statements);
 
-        <span class="comment">// Remove condition from the condition stack.</span>
-        <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">pop</span>();
+        <span class="comment">// Remove condition from the condition stack.
+        </span><span class="self">self</span>.condition_stack.pop();
 
-        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">statement</span>) <span class="op">=</span> <span class="ident">conditional</span>.<span class="ident">otherwise</span> {
-            <span class="comment">// Add the negated condition to the condition stack.</span>
-            <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">push</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                <span class="ident">op</span>: <span class="ident">UnaryOperation::Not</span>,
-                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">conditional</span>.<span class="ident">condition</span>.<span class="ident">clone</span>()),
-                <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">condition</span>.<span class="ident">span</span>(),
+        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(statement) = conditional.otherwise {
+            <span class="comment">// Add the negated condition to the condition stack.
+            </span><span class="self">self</span>.condition_stack.push(Expression::Unary(UnaryExpression {
+                op: UnaryOperation::Not,
+                receiver: Box::new(conditional.condition.clone()),
+                span: conditional.condition.span(),
             }));
 
-            <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.</span>
-            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">statement</span> {
-                <span class="ident">Statement::Block</span>(<span class="ident">block</span>) =&gt; <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">block</span>).<span class="number">0</span>.<span class="ident">statements</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;SSA guarantees that the `otherwise` is always a `Block`&quot;</span>),
+            <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.
+            </span><span class="kw">match </span><span class="kw-2">*</span>statement {
+                Statement::Block(block) =&gt; statements.extend(<span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>.statements),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;SSA guarantees that the `otherwise` is always a `Block`&quot;</span>),
             }
 
-            <span class="comment">// Remove the negated condition from the condition stack.</span>
-            <span class="self">self</span>.<span class="ident">condition_stack</span>.<span class="ident">pop</span>();
+            <span class="comment">// Remove the negated condition from the condition stack.
+            </span><span class="self">self</span>.condition_stack.pop();
         };
 
-        (<span class="ident">Statement::dummy</span>(<span class="ident">Default::default</span>()), <span class="ident">statements</span>)
+        (Statement::dummy(Default::default()), statements)
     }
 
-    <span class="doccomment">/// Rewrites a console statement into a flattened form.</span>
-    <span class="doccomment">/// Console statements at the top level only have their arguments flattened.</span>
-    <span class="doccomment">/// Console statements inside a conditional statement are flattened to such that the check is conditional on</span>
-    <span class="doccomment">/// the execution path being valid.</span>
-    <span class="doccomment">/// For example, the following snippet:</span>
-    <span class="doccomment">/// ```leo</span>
-    <span class="doccomment">/// if condition1 {</span>
-    <span class="doccomment">///    if condition2 {</span>
-    <span class="doccomment">///        console.assert(foo);</span>
-    <span class="doccomment">///    }</span>
-    <span class="doccomment">/// }</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// is flattened to:</span>
-    <span class="doccomment">/// ```leo</span>
-    <span class="doccomment">/// console.assert(!(condition1 &amp;&amp; condition2) || foo);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Rewrites a console statement into a flattened form.
+    /// Console statements at the top level only have their arguments flattened.
+    /// Console statements inside a conditional statement are flattened to such that the check is conditional on
+    /// the execution path being valid.
+    /// For example, the following snippet:
+    /// ```leo
+    /// if condition1 {
+    ///    if condition2 {
+    ///        console.assert(foo);
+    ///    }
+    /// }
+    /// ```
+    /// is flattened to:
+    /// ```leo
+    /// console.assert(!(condition1 &amp;&amp; condition2) || foo);
+    /// ```
+    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.
+    </span><span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Flatten the arguments of the console statement.</span>
-        <span class="kw">let</span> <span class="ident">console</span> <span class="op">=</span> <span class="ident">ConsoleStatement</span> {
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-            <span class="ident">function</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
-                <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">expression</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">expression</span>);
-                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-                    <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>)
+        <span class="comment">// Flatten the arguments of the console statement.
+        </span><span class="kw">let </span>console = ConsoleStatement {
+            span: input.span,
+            function: <span class="kw">match </span>input.function {
+                ConsoleFunction::Assert(expression) =&gt; {
+                    <span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(expression);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::Assert(expression)
                 }
-                <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>);
-                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-                    <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>);
-                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-                    <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>)
+                ConsoleFunction::AssertEq(left, right) =&gt; {
+                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertEq(left, right)
                 }
-                <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                    <span class="kw">let</span> (<span class="ident">left</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>);
-                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-                    <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">additional_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>);
-                    <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">additional_statements</span>);
-                    <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>)
+                ConsoleFunction::AssertNeq(left, right) =&gt; {
+                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    ConsoleFunction::AssertNeq(left, right)
                 }
             },
         };
 
-        <span class="comment">// Add the appropriate guards.</span>
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">construct_guard</span>() {
-            <span class="comment">// If the condition stack is empty, we can return the flattened console statement.</span>
-            <span class="prelude-val">None</span> =&gt; (<span class="ident">Statement::Console</span>(<span class="ident">console</span>), <span class="ident">statements</span>),
-            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened console statement.</span>
-            <span class="comment">// Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,</span>
-            <span class="comment">// which is equivalent to `!guard || expression`.</span>
-            <span class="prelude-val">Some</span>(<span class="ident">guard</span>) =&gt; (
-                <span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
-                    <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-                    <span class="ident">function</span>: <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                        <span class="comment">// Take the logical negation of the guard.</span>
-                        <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                            <span class="ident">op</span>: <span class="ident">UnaryOperation::Not</span>,
-                            <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">guard</span>),
-                            <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+        <span class="comment">// Add the appropriate guards.
+        </span><span class="kw">match </span><span class="self">self</span>.construct_guard() {
+            <span class="comment">// If the condition stack is empty, we can return the flattened console statement.
+            </span><span class="prelude-val">None </span>=&gt; (Statement::Console(console), statements),
+            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened console statement.
+            // Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,
+            // which is equivalent to `!guard || expression`.
+            </span><span class="prelude-val">Some</span>(guard) =&gt; (
+                Statement::Console(ConsoleStatement {
+                    span: input.span,
+                    function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
+                        <span class="comment">// Take the logical negation of the guard.
+                        </span>left: Box::new(Expression::Unary(UnaryExpression {
+                            op: UnaryOperation::Not,
+                            receiver: Box::new(guard),
+                            span: Default::default(),
                         })),
-                        <span class="ident">op</span>: <span class="ident">BinaryOperation::Or</span>,
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
-                        <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="kw">match</span> <span class="ident">console</span>.<span class="ident">function</span> {
-                            <span class="comment">// If the console statement is an `assert`, use the expression as is.</span>
-                            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expression</span>) =&gt; <span class="ident">expression</span>,
-                            <span class="comment">// If the console statement is an `assert_eq`, construct a new equality expression.</span>
-                            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left</span>),
-                                <span class="ident">op</span>: <span class="ident">BinaryOperation::Eq</span>,
-                                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
-                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        op: BinaryOperation::Or,
+                        span: Default::default(),
+                        right: Box::new(<span class="kw">match </span>console.function {
+                            <span class="comment">// If the console statement is an `assert`, use the expression as is.
+                            </span>ConsoleFunction::Assert(expression) =&gt; expression,
+                            <span class="comment">// If the console statement is an `assert_eq`, construct a new equality expression.
+                            </span>ConsoleFunction::AssertEq(left, right) =&gt; Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Eq,
+                                right: Box::new(right),
+                                span: Default::default(),
                             }),
-                            <span class="comment">// If the console statement is an `assert_ne`, construct a new inequality expression.</span>
-                            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left</span>),
-                                <span class="ident">op</span>: <span class="ident">BinaryOperation::Neq</span>,
-                                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
-                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                            <span class="comment">// If the console statement is an `assert_ne`, construct a new inequality expression.
+                            </span>ConsoleFunction::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Neq,
+                                right: Box::new(right),
+                                span: Default::default(),
                             }),
                         }),
                     })),
                 }),
-                <span class="ident">statements</span>,
+                statements,
             ),
         }
     }
 
-    <span class="doccomment">/// Static single assignment converts definition statements into assignment statements.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_definition</span>: <span class="ident">DefinitionStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="doccomment">/// Static single assignment converts definition statements into assignment statements.
+    </span><span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _definition: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`DefinitionStatement`s should not exist in the AST at this phase of compilation.&quot;</span>)
     }
 
-    <span class="doccomment">/// Replaces a finalize statement with an empty block statement.</span>
-    <span class="doccomment">/// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="comment">// Construct the associated guard.</span>
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">construct_guard</span>();
+    <span class="doccomment">/// Replaces a finalize statement with an empty block statement.
+    /// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.
+    </span><span class="kw">fn </span>reconstruct_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Construct the associated guard.
+        </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
 
-        <span class="comment">// For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.</span>
-        <span class="comment">// Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.</span>
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">argument</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="comment">// Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.</span>
-            <span class="self">self</span>.<span class="ident">finalizes</span>.<span class="ident">get_mut</span>(<span class="ident">i</span>).<span class="ident">unwrap</span>().<span class="ident">push</span>((<span class="ident">guard</span>.<span class="ident">clone</span>(), <span class="ident">argument</span>));
+        <span class="comment">// For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
+        // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
+        </span><span class="kw">for </span>(i, argument) <span class="kw">in </span>input.arguments.into_iter().enumerate() {
+            <span class="comment">// Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
+            </span><span class="self">self</span>.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
         }
 
-        (<span class="ident">Statement::dummy</span>(<span class="ident">Default::default</span>()), <span class="ident">Default::default</span>())
+        (Statement::dummy(Default::default()), Default::default())
     }
 
-    <span class="comment">// TODO: Error message requesting the user to enable loop-unrolling.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">IterationStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="comment">// TODO: Error message requesting the user to enable loop-unrolling.
+    </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="doccomment">/// Transforms a return statement into an empty block statement.</span>
-    <span class="doccomment">/// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="comment">// Construct the associated guard.</span>
-        <span class="kw">let</span> <span class="ident">guard</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">construct_guard</span>();
+    <span class="doccomment">/// Transforms a return statement into an empty block statement.
+    /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
+    </span><span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Construct the associated guard.
+        </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
 
-        <span class="comment">// Add it to the list of return statements.</span>
-        <span class="self">self</span>.<span class="ident">returns</span>.<span class="ident">push</span>((<span class="ident">guard</span>, <span class="ident">input</span>.<span class="ident">expression</span>));
+        <span class="comment">// Add it to the list of return statements.
+        </span><span class="self">self</span>.returns.push((guard, input.expression));
 
-        (<span class="ident">Statement::dummy</span>(<span class="ident">Default::default</span>()), <span class="ident">Default::default</span>())
+        (Statement::dummy(Default::default()), Default::default())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

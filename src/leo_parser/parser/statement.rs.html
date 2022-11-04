@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -306,313 +306,313 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">ParserError</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">leo_span::sym</span>;
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_span::sym;
 
-<span class="kw">const</span> <span class="ident">ASSIGN_TOKENS</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
-    <span class="ident">Token::Assign</span>,
-    <span class="ident">Token::AddAssign</span>,
-    <span class="ident">Token::SubAssign</span>,
-    <span class="ident">Token::MulAssign</span>,
-    <span class="ident">Token::DivAssign</span>,
-    <span class="ident">Token::RemAssign</span>,
-    <span class="ident">Token::PowAssign</span>,
-    <span class="ident">Token::OrAssign</span>,
-    <span class="ident">Token::AndAssign</span>,
-    <span class="ident">Token::BitAndAssign</span>,
-    <span class="ident">Token::BitOrAssign</span>,
-    <span class="ident">Token::ShrAssign</span>,
-    <span class="ident">Token::ShlAssign</span>,
-    <span class="ident">Token::BitXorAssign</span>,
+<span class="kw">const </span>ASSIGN_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
+    Token::Assign,
+    Token::AddAssign,
+    Token::SubAssign,
+    Token::MulAssign,
+    Token::DivAssign,
+    Token::RemAssign,
+    Token::PowAssign,
+    Token::OrAssign,
+    Token::AndAssign,
+    Token::BitAndAssign,
+    Token::BitOrAssign,
+    Token::ShrAssign,
+    Token::ShlAssign,
+    Token::BitXorAssign,
 ];
 
-<span class="kw">impl</span> <span class="ident">ParserContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns a [`Statement`] AST node if the next tokens represent a statement.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
-            <span class="ident">Token::Return</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Return</span>(<span class="self">self</span>.<span class="ident">parse_return_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::Async</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Finalize</span>(<span class="self">self</span>.<span class="ident">parse_finalize_statement</span>()<span class="question-mark">?</span>)),
-            <span class="comment">// If a finalize token is found without a preceding async token, return an error.</span>
-            <span class="ident">Token::Finalize</span> =&gt; <span class="prelude-val">Err</span>(<span class="ident">ParserError::finalize_without_async</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>).<span class="ident">into</span>()),
-            <span class="ident">Token::Increment</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Increment</span>(<span class="self">self</span>.<span class="ident">parse_increment_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::Decrement</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Decrement</span>(<span class="self">self</span>.<span class="ident">parse_decrement_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::If</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Conditional</span>(<span class="self">self</span>.<span class="ident">parse_conditional_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::For</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Iteration</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">parse_loop_statement</span>()<span class="question-mark">?</span>))),
-            <span class="ident">Token::Console</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Console</span>(<span class="self">self</span>.<span class="ident">parse_console_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::Let</span> <span class="op">|</span> <span class="ident">Token::Const</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Definition</span>(<span class="self">self</span>.<span class="ident">parse_definition_statement</span>()<span class="question-mark">?</span>)),
-            <span class="ident">Token::LeftCurly</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Statement::Block</span>(<span class="self">self</span>.<span class="ident">parse_block</span>()<span class="question-mark">?</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">parse_assign_statement</span>()<span class="question-mark">?</span>),
+<span class="kw">impl </span>ParserContext&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Returns a [`Statement`] AST node if the next tokens represent a statement.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
+            Token::Return =&gt; <span class="prelude-val">Ok</span>(Statement::Return(<span class="self">self</span>.parse_return_statement()<span class="question-mark">?</span>)),
+            Token::Async =&gt; <span class="prelude-val">Ok</span>(Statement::Finalize(<span class="self">self</span>.parse_finalize_statement()<span class="question-mark">?</span>)),
+            <span class="comment">// If a finalize token is found without a preceding async token, return an error.
+            </span>Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_without_async(<span class="self">self</span>.token.span).into()),
+            Token::Increment =&gt; <span class="prelude-val">Ok</span>(Statement::Increment(<span class="self">self</span>.parse_increment_statement()<span class="question-mark">?</span>)),
+            Token::Decrement =&gt; <span class="prelude-val">Ok</span>(Statement::Decrement(<span class="self">self</span>.parse_decrement_statement()<span class="question-mark">?</span>)),
+            Token::If =&gt; <span class="prelude-val">Ok</span>(Statement::Conditional(<span class="self">self</span>.parse_conditional_statement()<span class="question-mark">?</span>)),
+            Token::For =&gt; <span class="prelude-val">Ok</span>(Statement::Iteration(Box::new(<span class="self">self</span>.parse_loop_statement()<span class="question-mark">?</span>))),
+            Token::Console =&gt; <span class="prelude-val">Ok</span>(Statement::Console(<span class="self">self</span>.parse_console_statement()<span class="question-mark">?</span>)),
+            Token::Let | Token::Const =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
+            Token::LeftCurly =&gt; <span class="prelude-val">Ok</span>(Statement::Block(<span class="self">self</span>.parse_block()<span class="question-mark">?</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assign_statement()<span class="question-mark">?</span>),
         }
     }
 
-    <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_assign_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    </span><span class="kw">fn </span>parse_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
+        <span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">ASSIGN_TOKENS</span>) {
-            <span class="comment">// Determine the corresponding binary operation for each token, if it exists.</span>
-            <span class="kw">let</span> <span class="ident">operation</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Assign</span> =&gt; <span class="prelude-val">None</span>,
-                <span class="ident">Token::AddAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Add</span>),
-                <span class="ident">Token::SubAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Sub</span>),
-                <span class="ident">Token::MulAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Mul</span>),
-                <span class="ident">Token::DivAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Div</span>),
-                <span class="ident">Token::RemAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Rem</span>),
-                <span class="ident">Token::PowAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Pow</span>),
-                <span class="ident">Token::OrAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Or</span>),
-                <span class="ident">Token::AndAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::And</span>),
-                <span class="ident">Token::BitAndAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseAnd</span>),
-                <span class="ident">Token::BitOrAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::BitwiseOr</span>),
-                <span class="ident">Token::BitXorAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Xor</span>),
-                <span class="ident">Token::ShrAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shr</span>),
-                <span class="ident">Token::ShlAssign</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">BinaryOperation::Shl</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`parse_assign_statement` shouldn&#39;t produce this&quot;</span>),
+        <span class="kw">if </span><span class="self">self</span>.eat_any(ASSIGN_TOKENS) {
+            <span class="comment">// Determine the corresponding binary operation for each token, if it exists.
+            </span><span class="kw">let </span>operation = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
+                Token::Assign =&gt; <span class="prelude-val">None</span>,
+                Token::AddAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Add),
+                Token::SubAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Sub),
+                Token::MulAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Mul),
+                Token::DivAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Div),
+                Token::RemAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Rem),
+                Token::PowAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Pow),
+                Token::OrAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Or),
+                Token::AndAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::And),
+                Token::BitAndAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::BitwiseAnd),
+                Token::BitOrAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::BitwiseOr),
+                Token::BitXorAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Xor),
+                Token::ShrAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Shr),
+                Token::ShlAssign =&gt; <span class="prelude-val">Some</span>(BinaryOperation::Shl),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`parse_assign_statement` shouldn&#39;t produce this&quot;</span>),
             };
 
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+            <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+            <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-            <span class="comment">// Construct the span for the statement.</span>
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">place</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">value</span>.<span class="ident">span</span>();
+            <span class="comment">// Construct the span for the statement.
+            </span><span class="kw">let </span>span = place.span() + value.span();
 
-            <span class="comment">// Simplify complex assignments into simple assignments.</span>
-            <span class="comment">// For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.</span>
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">operation</span> {
-                <span class="prelude-val">None</span> =&gt; <span class="ident">value</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">op</span>) =&gt; <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                    <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">place</span>.<span class="ident">clone</span>()),
-                    <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">value</span>),
-                    <span class="ident">op</span>,
-                    <span class="ident">span</span>,
+            <span class="comment">// Simplify complex assignments into simple assignments.
+            // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
+            </span><span class="kw">let </span>value = <span class="kw">match </span>operation {
+                <span class="prelude-val">None </span>=&gt; value,
+                <span class="prelude-val">Some</span>(op) =&gt; Expression::Binary(BinaryExpression {
+                    left: Box::new(place.clone()),
+                    right: Box::new(value),
+                    op,
+                    span,
                 }),
             };
 
-            <span class="prelude-val">Ok</span>(<span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> { <span class="ident">span</span>, <span class="ident">place</span>, <span class="ident">value</span> })))
-        } <span class="kw">else</span> {
-            <span class="comment">// Error on `expr;` but recover as an empty block `{}`.</span>
-            <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">place</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>;
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::expr_stmts_disallowed</span>(<span class="ident">span</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">Statement::dummy</span>(<span class="ident">span</span>))
+            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value })))
+        } <span class="kw">else </span>{
+            <span class="comment">// Error on `expr;` but recover as an empty block `{}`.
+            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+            <span class="kw">let </span>span = place.span() + <span class="self">self</span>.prev_token.span;
+            <span class="self">self</span>.emit_err(ParserError::expr_stmts_disallowed(span));
+            <span class="prelude-val">Ok</span>(Statement::dummy(span))
         }
     }
 
-    <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a block of statements.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_list</span>(<span class="ident">Delimiter::Brace</span>, <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_statement</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">statements</span>, <span class="kw">_</span>, <span class="ident">span</span>)<span class="op">|</span> <span class="ident">Block</span> { <span class="ident">statements</span>, <span class="ident">span</span> })
+    <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a block of statements.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Block&gt; {
+        <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">None</span>, |p| p.parse_statement().map(<span class="prelude-val">Some</span>))
+            .map(|(statements, <span class="kw">_</span>, span)| Block { statements, span })
     }
 
-    <span class="doccomment">/// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_return_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ReturnStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Return</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">expression</span>.<span class="ident">span</span>();
-        <span class="prelude-val">Ok</span>(<span class="ident">ReturnStatement</span> { <span class="ident">span</span>, <span class="ident">expression</span> })
+    <span class="doccomment">/// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
+    </span><span class="kw">fn </span>parse_return_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReturnStatement&gt; {
+        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Return)<span class="question-mark">?</span>;
+        <span class="kw">let </span>expression = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = start + expression.span();
+        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression })
     }
 
-    <span class="doccomment">/// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_finalize_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">FinalizeStatement</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Async</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Finalize</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">arguments</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">span</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">FinalizeStatement</span> { <span class="ident">span</span>, <span class="ident">arguments</span> })
+    <span class="doccomment">/// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
+    </span><span class="kw">fn </span>parse_finalize_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FinalizeStatement&gt; {
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Async)<span class="question-mark">?</span>;
+        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Finalize)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = start + span;
+        <span class="prelude-val">Ok</span>(FinalizeStatement { span, arguments })
     }
 
-    <span class="doccomment">/// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_decrement_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DecrementStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Decrement</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">mapping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">amount</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>);
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">DecrementStatement</span> {
-            <span class="ident">mapping</span>,
-            <span class="ident">index</span>,
-            <span class="ident">amount</span>,
-            <span class="ident">span</span>,
+    <span class="doccomment">/// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.
+    </span><span class="kw">fn </span>parse_decrement_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DecrementStatement&gt; {
+        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Decrement)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+        <span class="kw">let </span>mapping = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+        <span class="kw">let </span>index = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+        <span class="kw">let </span>amount = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Comma);
+        <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = start + end;
+        <span class="prelude-val">Ok</span>(DecrementStatement {
+            mapping,
+            index,
+            amount,
+            span,
         })
     }
 
-    <span class="doccomment">/// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_increment_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IncrementStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Increment</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">mapping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">amount</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>);
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">end</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">IncrementStatement</span> {
-            <span class="ident">mapping</span>,
-            <span class="ident">index</span>,
-            <span class="ident">amount</span>,
-            <span class="ident">span</span>,
+    <span class="doccomment">/// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.
+    </span><span class="kw">fn </span>parse_increment_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IncrementStatement&gt; {
+        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Increment)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+        <span class="kw">let </span>mapping = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+        <span class="kw">let </span>index = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+        <span class="kw">let </span>amount = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Comma);
+        <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = start + end;
+        <span class="prelude-val">Ok</span>(IncrementStatement {
+            mapping,
+            index,
+            amount,
+            span,
         })
     }
 
-    <span class="doccomment">/// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_conditional_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConditionalStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::If</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conditional_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_block</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Else</span>) {
-            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_statement</span>()<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">s</span>, <span class="ident">Statement::Block</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Statement::Conditional</span>(<span class="kw">_</span>)) {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::unexpected_statement</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="string">&quot;Block or Conditional&quot;</span>, <span class="ident">s</span>.<span class="ident">span</span>()));
+    <span class="doccomment">/// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
+    </span><span class="kw">fn </span>parse_conditional_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ConditionalStatement&gt; {
+        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::If)<span class="question-mark">?</span>;
+        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">true</span>;
+        <span class="kw">let </span>expr = <span class="self">self</span>.parse_conditional_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">false</span>;
+        <span class="kw">let </span>body = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
+        <span class="kw">let </span>next = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Else) {
+            <span class="kw">let </span>s = <span class="self">self</span>.parse_statement()<span class="question-mark">?</span>;
+            <span class="kw">if </span>!<span class="macro">matches!</span>(s, Statement::Block(<span class="kw">_</span>) | Statement::Conditional(<span class="kw">_</span>)) {
+                <span class="self">self</span>.emit_err(ParserError::unexpected_statement(<span class="kw-2">&amp;</span>s, <span class="string">&quot;Block or Conditional&quot;</span>, s.span()));
             }
-            <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">s</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+            <span class="prelude-val">Some</span>(Box::new(s))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ConditionalStatement</span> {
-            <span class="ident">span</span>: <span class="ident">start</span> <span class="op">+</span> <span class="ident">next</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">span</span>()).<span class="ident">unwrap_or</span>(<span class="ident">body</span>.<span class="ident">span</span>),
-            <span class="ident">condition</span>: <span class="ident">expr</span>,
-            <span class="ident">then</span>: <span class="ident">body</span>,
-            <span class="ident">otherwise</span>: <span class="ident">next</span>,
+        <span class="prelude-val">Ok</span>(ConditionalStatement {
+            span: start + next.as_ref().map(|x| x.span()).unwrap_or(body.span),
+            condition: expr,
+            then: body,
+            otherwise: next,
         })
     }
 
-    <span class="doccomment">/// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_loop_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IterationStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::For</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Colon</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_type</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::In</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
+    </span><span class="kw">fn </span>parse_loop_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IterationStatement&gt; {
+        <span class="kw">let </span>start_span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::For)<span class="question-mark">?</span>;
+        <span class="kw">let </span>ident = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::In)<span class="question-mark">?</span>;
 
-        <span class="comment">// Parse iteration range.</span>
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::DotDot</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">stop</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conditional_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Parse iteration range.
+        </span><span class="kw">let </span>start = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::DotDot)<span class="question-mark">?</span>;
+        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">true</span>;
+        <span class="kw">let </span>stop = <span class="self">self</span>.parse_conditional_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">false</span>;
 
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_block</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">IterationStatement</span> {
-            <span class="ident">span</span>: <span class="ident">start_span</span> <span class="op">+</span> <span class="ident">block</span>.<span class="ident">span</span>,
-            <span class="ident">variable</span>: <span class="ident">ident</span>,
-            <span class="ident">type_</span>: <span class="ident">type_</span>.<span class="number">0</span>,
-            <span class="ident">start</span>,
-            <span class="ident">start_value</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">stop</span>,
-            <span class="ident">stop_value</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">inclusive</span>: <span class="bool-val">false</span>,
-            <span class="ident">block</span>,
+        <span class="prelude-val">Ok</span>(IterationStatement {
+            span: start_span + block.span,
+            variable: ident,
+            type_: type_.<span class="number">0</span>,
+            start,
+            start_value: Default::default(),
+            stop,
+            stop_value: Default::default(),
+            inclusive: <span class="bool-val">false</span>,
+            block,
         })
     }
 
-    <span class="doccomment">/// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.</span>
-    <span class="kw">fn</span> <span class="ident">parse_console_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConsoleStatement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">keyword</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Console</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Dot</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">span</span>, <span class="ident">function</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">identifier</span>.<span class="ident">name</span> {
-            <span class="ident">sym::assert</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-                (<span class="ident">keyword</span> <span class="op">+</span> <span class="ident">expr</span>.<span class="ident">span</span>(), <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>))
+    <span class="doccomment">/// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
+    </span><span class="kw">fn </span>parse_console_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ConsoleStatement&gt; {
+        <span class="kw">let </span>keyword = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Console)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
+        <span class="kw">let </span>identifier = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(span, function) = <span class="kw">match </span>identifier.name {
+            sym::assert =&gt; {
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+                <span class="kw">let </span>expr = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+                (keyword + expr.span(), ConsoleFunction::Assert(expr))
             }
-            <span class="ident">sym::assert_eq</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-                (<span class="ident">left</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(), <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>))
+            sym::assert_eq =&gt; {
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+                <span class="kw">let </span>left = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+                <span class="kw">let </span>right = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+                (left.span() + right.span(), ConsoleFunction::AssertEq(left, right))
             }
-            <span class="ident">sym::assert_neq</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-                (<span class="ident">left</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(), <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>))
+            sym::assert_neq =&gt; {
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+                <span class="kw">let </span>left = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+                <span class="kw">let </span>right = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+                (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
             }
-            <span class="ident">symbol</span> =&gt; {
-                <span class="comment">// Not sure what it is, assume it&#39;s `log`.</span>
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::unexpected_ident</span>(
-                    <span class="ident">symbol</span>,
+            symbol =&gt; {
+                <span class="comment">// Not sure what it is, assume it&#39;s `log`.
+                </span><span class="self">self</span>.emit_err(ParserError::unexpected_ident(
+                    symbol,
                     <span class="kw-2">&amp;</span>[<span class="string">&quot;assert&quot;</span>, <span class="string">&quot;assert_eq&quot;</span>, <span class="string">&quot;assert_neq&quot;</span>],
-                    <span class="ident">identifier</span>.<span class="ident">span</span>,
+                    identifier.span,
                 ));
                 (
-                    <span class="ident">Default::default</span>(),
-                    <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">Expression::Err</span>(<span class="ident">ErrExpression</span> {
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                    Default::default(),
+                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
+                        span: Default::default(),
                     })),
                 )
             }
         };
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ConsoleStatement</span> {
-            <span class="ident">span</span>: <span class="ident">keyword</span> <span class="op">+</span> <span class="ident">span</span>,
-            <span class="ident">function</span>,
+        <span class="prelude-val">Ok</span>(ConsoleStatement {
+            span: keyword + span,
+            function,
         })
     }
 
-    <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_definition_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DefinitionStatement</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">expect_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Let</span>, <span class="ident">Token::Const</span>])<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">decl_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>;
-        <span class="kw">let</span> <span class="ident">decl_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
-            <span class="ident">Token::Let</span> =&gt; <span class="ident">DeclarationType::Let</span>,
-            <span class="ident">Token::Const</span> =&gt; <span class="ident">DeclarationType::Const</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_definition_statement_ shouldn&#39;t produce this&quot;</span>),
+    <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_definition_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DefinitionStatement&gt; {
+        <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Let, Token::Const])<span class="question-mark">?</span>;
+        <span class="kw">let </span>decl_span = <span class="self">self</span>.prev_token.span;
+        <span class="kw">let </span>decl_type = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
+            Token::Let =&gt; DeclarationType::Let,
+            Token::Const =&gt; DeclarationType::Const,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_definition_statement_ shouldn&#39;t produce this&quot;</span>),
         };
 
-        <span class="comment">// Parse variable name and type.</span>
-        <span class="kw">let</span> (<span class="ident">variable_name</span>, <span class="ident">type_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_typed_ident</span>()<span class="question-mark">?</span>;
+        <span class="comment">// Parse variable name and type.
+        </span><span class="kw">let </span>(variable_name, type_) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Assign</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Semicolon</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Assign)<span class="question-mark">?</span>;
+        <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">DefinitionStatement</span> {
-            <span class="ident">span</span>: <span class="ident">decl_span</span> <span class="op">+</span> <span class="ident">value</span>.<span class="ident">span</span>(),
-            <span class="ident">declaration_type</span>: <span class="ident">decl_type</span>,
-            <span class="ident">variable_name</span>,
-            <span class="ident">type_</span>,
-            <span class="ident">value</span>,
+        <span class="prelude-val">Ok</span>(DefinitionStatement {
+            span: decl_span + value.span(),
+            declaration_type: decl_type,
+            variable_name,
+            type_,
+            value,
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

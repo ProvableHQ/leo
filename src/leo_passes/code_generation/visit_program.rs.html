@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -283,290 +283,290 @@
 <span id="283">283</span>
 <span id="284">284</span>
 <span id="285">285</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">functions</span>, <span class="ident">CallType</span>, <span class="ident">Function</span>, <span class="ident">Identifier</span>, <span class="ident">Mapping</span>, <span class="ident">Mode</span>, <span class="ident">Program</span>, <span class="ident">ProgramScope</span>, <span class="ident">Struct</span>, <span class="ident">Type</span>};
+<span class="kw">use </span>leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
-<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
-<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
-<span class="kw">use</span> <span class="ident">leo_span::sym</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>leo_span::sym;
+<span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Program</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Accumulate instructions into a program string.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">program_string</span> <span class="op">=</span> <span class="ident">String::new</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) -&gt; String {
+        <span class="comment">// Accumulate instructions into a program string.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>program_string = String::new();
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">input</span>.<span class="ident">imports</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// Visit each import statement and produce a Aleo import instruction.</span>
-            <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-                <span class="kw-2">&amp;</span><span class="ident">input</span>
-                    .<span class="ident">imports</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">identifier</span>, <span class="ident">imported_program</span>)<span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_import</span>(<span class="ident">identifier</span>, <span class="ident">imported_program</span>))
-                    .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
+        <span class="kw">if </span>!input.imports.is_empty() {
+            <span class="comment">// Visit each import statement and produce a Aleo import instruction.
+            </span>program_string.push_str(
+                <span class="kw-2">&amp;</span>input
+                    .imports
+                    .iter()
+                    .map(|(identifier, (imported_program, <span class="kw">_</span>))| <span class="self">self</span>.visit_import(identifier, imported_program))
+                    .join(<span class="string">&quot;\n&quot;</span>),
             );
 
-            <span class="comment">// Newline separator.</span>
-            <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+            <span class="comment">// Newline separator.
+            </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
         }
 
-        <span class="comment">// Retrieve the program scope.</span>
-        <span class="comment">// Note that type checking guarantees that there is exactly one program scope.</span>
-        <span class="kw">let</span> <span class="ident">program_scope</span>: <span class="kw-2">&amp;</span><span class="ident">ProgramScope</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">program_scopes</span>.<span class="ident">values</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// Retrieve the program scope.
+        // Note that type checking guarantees that there is exactly one program scope.
+        </span><span class="kw">let </span>program_scope: <span class="kw-2">&amp;</span>ProgramScope = input.program_scopes.values().next().unwrap();
 
-        <span class="comment">// Print the program id.</span>
-        <span class="macro">writeln!</span>(<span class="ident">program_string</span>, <span class="string">&quot;program {};&quot;</span>, <span class="ident">program_scope</span>.<span class="ident">program_id</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;Failed to write program id to string.&quot;</span>);
+        <span class="comment">// Print the program id.
+        </span><span class="macro">writeln!</span>(program_string, <span class="string">&quot;program {};&quot;</span>, program_scope.program_id)
+            .expect(<span class="string">&quot;Failed to write program id to string.&quot;</span>);
 
-        <span class="comment">// Newline separator.</span>
-        <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+        <span class="comment">// Newline separator.
+        </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.</span>
-        <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-            <span class="kw-2">&amp;</span><span class="ident">program_scope</span>
-                .<span class="ident">structs</span>
-                .<span class="ident">values</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">struct_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_struct_or_record</span>(<span class="ident">struct_</span>))
-                .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
+        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.
+        </span>program_string.push_str(
+            <span class="kw-2">&amp;</span>program_scope
+                .structs
+                .values()
+                .map(|struct_| <span class="self">self</span>.visit_struct_or_record(struct_))
+                .join(<span class="string">&quot;\n&quot;</span>),
         );
 
-        <span class="comment">// Newline separator.</span>
-        <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+        <span class="comment">// Newline separator.
+        </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.</span>
-        <span class="ident">program_string</span>.<span class="ident">push_str</span>(
-            <span class="kw-2">&amp;</span><span class="ident">program_scope</span>
-                .<span class="ident">mappings</span>
-                .<span class="ident">values</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mapping</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_mapping</span>(<span class="ident">mapping</span>))
-                .<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>),
+        <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
+        </span>program_string.push_str(
+            <span class="kw-2">&amp;</span>program_scope
+                .mappings
+                .values()
+                .map(|mapping| <span class="self">self</span>.visit_mapping(mapping))
+                .join(<span class="string">&quot;\n&quot;</span>),
         );
 
-        <span class="comment">// Store closures and functions in separate strings.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closures</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="comment">// Store closures and functions in separate strings.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>closures = String::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>functions = String::new();
 
-        <span class="comment">// Visit each `Function` in the Leo AST and produce Aleo instructions.</span>
-        <span class="ident">program_scope</span>.<span class="ident">functions</span>.<span class="ident">values</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">function</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">is_transition_function</span> <span class="op">=</span> <span class="macro">matches!</span>(<span class="ident">function</span>.<span class="ident">call_type</span>, <span class="ident">CallType::Transition</span>);
+        <span class="comment">// Visit each `Function` in the Leo AST and produce Aleo instructions.
+        </span>program_scope.functions.values().for_each(|function| {
+            <span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
 
-            <span class="kw">let</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>);
+            <span class="kw">let </span>function_string = <span class="self">self</span>.visit_function(function);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
-                <span class="ident">functions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">function_string</span>);
-                <span class="ident">functions</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">closures</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">function_string</span>);
-                <span class="ident">closures</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
+            <span class="kw">if </span><span class="self">self</span>.is_transition_function {
+                functions.push_str(<span class="kw-2">&amp;</span>function_string);
+                functions.push(<span class="string">&#39;\n&#39;</span>);
+            } <span class="kw">else </span>{
+                closures.push_str(<span class="kw-2">&amp;</span>function_string);
+                closures.push(<span class="string">&#39;\n&#39;</span>);
             }
 
-            <span class="comment">// Unset the `is_transition_function` flag.</span>
-            <span class="self">self</span>.<span class="ident">is_transition_function</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="comment">// Unset the `is_transition_function` flag.
+            </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
         });
 
-        <span class="comment">// Closures must precede functions in the Aleo program.</span>
-        <span class="ident">program_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">closures</span>);
-        <span class="ident">program_string</span>.<span class="ident">push</span>(<span class="string">&#39;\n&#39;</span>);
-        <span class="ident">program_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">functions</span>);
+        <span class="comment">// Closures must precede functions in the Aleo program.
+        </span>program_string.push_str(<span class="kw-2">&amp;</span>closures);
+        program_string.push(<span class="string">&#39;\n&#39;</span>);
+        program_string.push_str(<span class="kw-2">&amp;</span>functions);
 
-        <span class="ident">program_string</span>
+        program_string
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">import_name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Identifier</span>, <span class="ident">import_program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Program</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Load symbols into composite mapping.</span>
-        <span class="kw">let</span> <span class="ident">_import_program_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_program</span>(<span class="ident">import_program</span>);
-        <span class="comment">// todo: We do not need the import program string because we generate instructions for imports separately during leo build.</span>
+    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, import_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, import_program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) -&gt; String {
+        <span class="comment">// Load symbols into composite mapping.
+        </span><span class="kw">let </span>_import_program_string = <span class="self">self</span>.visit_program(import_program);
+        <span class="comment">// todo: We do not need the import program string because we generate instructions for imports separately during leo build.
 
-        <span class="comment">// Generate string for import statement.</span>
-        <span class="macro">format!</span>(<span class="string">&quot;import {import_name}.aleo;&quot;</span>)
+        // Generate string for import statement.
+        </span><span class="macro">format!</span>(<span class="string">&quot;import {import_name}.aleo;&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_struct_or_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">struct_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="ident">struct_</span>.<span class="ident">is_record</span> {
-            <span class="self">self</span>.<span class="ident">visit_record</span>(<span class="ident">struct_</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">visit_struct</span>(<span class="ident">struct_</span>)
+    <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+        <span class="kw">if </span>struct_.is_record {
+            <span class="self">self</span>.visit_record(struct_)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.visit_struct(struct_)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">struct_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Add private symbol to composite types.</span>
-        <span class="self">self</span>.<span class="ident">composite_mapping</span>
-            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">struct_</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">false</span>, <span class="ident">String::from</span>(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.</span>
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+        <span class="comment">// Add private symbol to composite types.
+        </span><span class="self">self</span>.composite_mapping
+            .insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, <span class="ident">struct_</span>.<span class="ident">identifier</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
 
-        <span class="comment">// Construct and append the record variables.</span>
-        <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">struct_</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
-            <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot;    {} as {};&quot;</span>, <span class="ident">var</span>.<span class="ident">identifier</span>, <span class="ident">var</span>.<span class="ident">type_</span>,).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+        // Construct and append the record variables.
+        </span><span class="kw">for </span>var <span class="kw">in </span>struct_.members.iter() {
+            <span class="macro">writeln!</span>(output_string, <span class="string">&quot;    {} as {};&quot;</span>, var.identifier, var.type_,).expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
-        <span class="ident">output_string</span>
+        output_string
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">record</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Struct</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Add record symbol to composite types.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_string</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;record&quot;</span>);
-        <span class="self">self</span>.<span class="ident">composite_mapping</span>
-            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">record</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, (<span class="bool-val">true</span>, <span class="ident">output_string</span>.<span class="ident">clone</span>()));
-        <span class="macro">writeln!</span>(<span class="ident">output_string</span>, <span class="string">&quot; {}:&quot;</span>, <span class="ident">record</span>.<span class="ident">identifier</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.</span>
+    <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+        <span class="comment">// Add record symbol to composite types.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = String::from(<span class="string">&quot;record&quot;</span>);
+        <span class="self">self</span>.composite_mapping
+            .insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));
+        <span class="macro">writeln!</span>(output_string, <span class="string">&quot; {}:&quot;</span>, record.identifier).expect(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.
 
-        <span class="comment">// Construct and append the record variables.</span>
-        <span class="kw">for</span> <span class="ident">var</span> <span class="kw">in</span> <span class="ident">record</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
+        // Construct and append the record variables.
+        </span><span class="kw">for </span>var <span class="kw">in </span>record.members.iter() {
             <span class="macro">writeln!</span>(
-                <span class="ident">output_string</span>,
-                <span class="string">&quot;    {} as {}.private;&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.</span>
-                <span class="ident">var</span>.<span class="ident">identifier</span>, <span class="ident">var</span>.<span class="ident">type_</span>,
+                output_string,
+                <span class="string">&quot;    {} as {}.private;&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.
+                </span>var.identifier, var.type_,
             )
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            .expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
-        <span class="ident">output_string</span>
+        output_string
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">variable_mapping</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
-        <span class="comment">// TODO: Figure out a better way to initialize.</span>
-        <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">sym::SelfLower</span>, <span class="string">&quot;self&quot;</span>.<span class="ident">to_string</span>());
-        <span class="self">self</span>.<span class="ident">current_function</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">function</span>);
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Function) -&gt; String {
+        <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.
+        </span><span class="self">self</span>.next_register = <span class="number">0</span>;
+        <span class="self">self</span>.variable_mapping = IndexMap::new();
+        <span class="comment">// TODO: Figure out a better way to initialize.
+        </span><span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">&quot;self&quot;</span>.to_string());
+        <span class="self">self</span>.current_function = <span class="prelude-val">Some</span>(function);
 
-        <span class="comment">// Construct the header of the function.</span>
-        <span class="comment">// If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
-            <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
-            <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, <span class="ident">function</span>.<span class="ident">identifier</span>),
+        <span class="comment">// Construct the header of the function.
+        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span><span class="self">self</span>.is_transition_function {
+            <span class="bool-val">true </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, function.identifier),
+            <span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, function.identifier),
         };
 
-        <span class="comment">// Construct and append the input declarations of the function.</span>
-        <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">function</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">register_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-            <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Construct and append the input declarations of the function.
+        </span><span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
+            <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            <span class="self">self</span>.next_register += <span class="number">1</span>;
 
-            <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span> {
-                <span class="ident">functions::Input::Internal</span>(<span class="ident">input</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">variable_mapping</span>
-                        .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
-                    <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_transition_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
-                        (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Private</span>,
-                        <span class="kw">_</span> =&gt; <span class="ident">input</span>.<span class="ident">mode</span>,
+            <span class="kw">let </span>type_string = <span class="kw">match </span>input {
+                functions::Input::Internal(input) =&gt; {
+                    <span class="self">self</span>.variable_mapping
+                        .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                    <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
+                        (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
+                        <span class="kw">_ </span>=&gt; input.mode,
                     };
-                    <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>)
+                    <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
                 }
-                <span class="ident">functions::Input::External</span>(<span class="ident">input</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">variable_mapping</span>
-                        .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
-                    <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, <span class="ident">input</span>.<span class="ident">program_name</span>, <span class="ident">input</span>.<span class="ident">record</span>)
+                functions::Input::External(input) =&gt; {
+                    <span class="self">self</span>.variable_mapping
+                        .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                    <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
                 }
             };
 
-            <span class="macro">writeln!</span>(<span class="ident">function_string</span>, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
-                .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
+                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
-        <span class="comment">//  Construct and append the function body.</span>
-        <span class="kw">let</span> <span class="ident">block_string</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">block</span>);
-        <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">block_string</span>);
+        <span class="comment">//  Construct and append the function body.
+        </span><span class="kw">let </span>block_string = <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
+        function_string.push_str(<span class="kw-2">&amp;</span>block_string);
 
-        <span class="comment">// If the finalize block exists, generate the appropriate bytecode.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">finalize</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">function</span>.<span class="ident">finalize</span> {
-            <span class="comment">// Clear the register count.</span>
-            <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="self">self</span>.<span class="ident">in_finalize</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="comment">// If the finalize block exists, generate the appropriate bytecode.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
+            <span class="comment">// Clear the register count.
+            </span><span class="self">self</span>.next_register = <span class="number">0</span>;
+            <span class="self">self</span>.in_finalize = <span class="bool-val">true</span>;
 
-            <span class="comment">// Clear the variable mapping.</span>
-            <span class="comment">// TODO: Figure out a better way to initialize.</span>
-            <span class="self">self</span>.<span class="ident">variable_mapping</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
-            <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">sym::SelfLower</span>, <span class="string">&quot;self&quot;</span>.<span class="ident">to_string</span>());
+            <span class="comment">// Clear the variable mapping.
+            // TODO: Figure out a better way to initialize.
+            </span><span class="self">self</span>.variable_mapping = IndexMap::new();
+            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">&quot;self&quot;</span>.to_string());
 
-            <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nfinalize {}:\n&quot;</span>, <span class="ident">finalize</span>.<span class="ident">identifier</span>));
+            function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nfinalize {}:\n&quot;</span>, finalize.identifier));
 
-            <span class="comment">// Construct and append the input declarations of the finalize block.</span>
-            <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">iter</span>() {
-                <span class="kw">let</span> <span class="ident">register_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-                <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="comment">// Construct and append the input declarations of the finalize block.
+            </span><span class="kw">for </span>input <span class="kw">in </span>finalize.input.iter() {
+                <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                <span class="self">self</span>.next_register += <span class="number">1</span>;
 
-                <span class="comment">// TODO: Dedup code.</span>
-                <span class="kw">let</span> <span class="ident">type_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span> {
-                    <span class="ident">functions::Input::Internal</span>(<span class="ident">input</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">variable_mapping</span>
-                            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
+                <span class="comment">// TODO: Dedup code.
+                </span><span class="kw">let </span>type_string = <span class="kw">match </span>input {
+                    functions::Input::Internal(input) =&gt; {
+                        <span class="self">self</span>.variable_mapping
+                            .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
 
-                        <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">is_transition_function</span>, <span class="ident">input</span>.<span class="ident">mode</span>) {
-                            (<span class="bool-val">true</span>, <span class="ident">Mode::None</span>) =&gt; <span class="ident">Mode::Public</span>,
-                            <span class="kw">_</span> =&gt; <span class="ident">input</span>.<span class="ident">mode</span>,
+                        <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
+                            (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Public,
+                            <span class="kw">_ </span>=&gt; input.mode,
                         };
-                        <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>)
+                        <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
                     }
-                    <span class="ident">functions::Input::External</span>(<span class="ident">input</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">variable_mapping</span>
-                            .<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">program_name</span>.<span class="ident">name</span>, <span class="ident">register_string</span>.<span class="ident">clone</span>());
-                        <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, <span class="ident">input</span>.<span class="ident">program_name</span>, <span class="ident">input</span>.<span class="ident">record</span>)
+                    functions::Input::External(input) =&gt; {
+                        <span class="self">self</span>.variable_mapping
+                            .insert(<span class="kw-2">&amp;</span>input.program_name.name, register_string.clone());
+                        <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
                     }
                 };
 
-                <span class="macro">writeln!</span>(<span class="ident">function_string</span>, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
-                    .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
+                    .expect(<span class="string">&quot;failed to write to string&quot;</span>);
             }
 
-            <span class="comment">// Construct and append the finalize block body.</span>
-            <span class="ident">function_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">finalize</span>.<span class="ident">block</span>));
+            <span class="comment">// Construct and append the finalize block body.
+            </span>function_string.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block));
 
-            <span class="self">self</span>.<span class="ident">in_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="self">self</span>.in_finalize = <span class="bool-val">false</span>;
         }
 
-        <span class="ident">function_string</span>
+        function_string
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">mapping</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Mapping</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping_string</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;mapping {}:\n&quot;</span>, <span class="ident">mapping</span>.<span class="ident">identifier</span>);
+    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) -&gt; String {
+        <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">&quot;mapping {}:\n&quot;</span>, mapping.identifier);
 
-        <span class="comment">// Helper to construct the string associated with the type.</span>
-        <span class="kw">let</span> <span class="ident">create_type</span> <span class="op">=</span> <span class="op">|</span><span class="ident">type_</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span><span class="op">|</span> {
-            <span class="kw">match</span> <span class="ident">type_</span> {
-                <span class="ident">Type::Mapping</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Type::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Mappings cannot contain mappings or tuples.&quot;</span>),
-                <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) =&gt; {
-                    <span class="comment">// Lookup the type in the composite mapping.</span>
-                    <span class="comment">// Note that this unwrap is safe since all struct and records have been added to the composite mapping.</span>
-                    <span class="kw">let</span> (<span class="ident">is_record</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>();
-                    <span class="kw">match</span> <span class="ident">is_record</span> {
-                        <span class="comment">// If the type is a record, then declare the type as is.</span>
-                        <span class="bool-val">true</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.record&quot;</span>),
-                        <span class="comment">// If the type is a struct, then add the public modifier.</span>
-                        <span class="bool-val">false</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.public&quot;</span>),
+        <span class="comment">// Helper to construct the string associated with the type.
+        </span><span class="kw">let </span>create_type = |type_: <span class="kw-2">&amp;</span>Type| {
+            <span class="kw">match </span>type_ {
+                Type::Mapping(<span class="kw">_</span>) | Type::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Mappings cannot contain mappings or tuples.&quot;</span>),
+                Type::Identifier(identifier) =&gt; {
+                    <span class="comment">// Lookup the type in the composite mapping.
+                    // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
+                    </span><span class="kw">let </span>(is_record, <span class="kw">_</span>) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>identifier.name).unwrap();
+                    <span class="kw">match </span>is_record {
+                        <span class="comment">// If the type is a record, then declare the type as is.
+                        </span><span class="bool-val">true </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.record&quot;</span>),
+                        <span class="comment">// If the type is a struct, then add the public modifier.
+                        </span><span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.public&quot;</span>),
                     }
                 }
-                <span class="ident">type_</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;{type_}.public&quot;</span>),
+                type_ =&gt; <span class="macro">format!</span>(<span class="string">&quot;{type_}.public&quot;</span>),
             }
         };
 
-        <span class="comment">// Create the key string, e.g. `    key as address.public`.</span>
-        <span class="ident">mapping_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey left as {};\n&quot;</span>, <span class="ident">create_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping</span>.<span class="ident">key_type</span>)));
+        <span class="comment">// Create the key string, e.g. `    key as address.public`.
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey left as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)));
 
-        <span class="comment">// Create the value string, e.g. `    value as address.public`.</span>
-        <span class="ident">mapping_string</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue right as {};\n&quot;</span>, <span class="ident">create_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping</span>.<span class="ident">value_type</span>)));
+        <span class="comment">// Create the value string, e.g. `    value as address.public`.
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue right as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
 
-        <span class="ident">mapping_string</span>
+        mapping_string
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/bin/errcov.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errcov.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../errcov/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../errcov/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../errcov/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/bin/errcov.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>errcov.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../errcov/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../errcov/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../errcov/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -239,246 +239,246 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
-</pre><pre class="rust"><code><span class="comment">// // Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// // This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// // Copyright (C) 2019-2022 Aleo Systems Inc.
+// // This file is part of the Leo library.
 
-<span class="comment">// // The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// // it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// // the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// // (at your option) any later version.</span>
+// // The Leo library is free software: you can redistribute it and/or modify
+// // it under the terms of the GNU General Public License as published by
+// // the Free Software Foundation, either version 3 of the License, or
+// // (at your option) any later version.
 
-<span class="comment">// // The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// // but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// // GNU General Public License for more details.</span>
+// // The Leo library is distributed in the hope that it will be useful,
+// // but WITHOUT ANY WARRANTY; without even the implied warranty of
+// // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// // GNU General Public License for more details.
 
-<span class="comment">// // You should have received a copy of the GNU General Public License</span>
-<span class="comment">// // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// // You should have received a copy of the GNU General Public License
+// // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="comment">// use leo_errors::{AstError, InputError, LeoMessageCode, PackageError, ParserError};</span>
-<span class="comment">// use leo_test_framework::{</span>
-<span class="comment">//     fetch::find_tests,</span>
-<span class="comment">//     output::TestExpectation,</span>
-<span class="comment">//     test::{extract_test_config, TestExpectationMode as Expectation},</span>
-<span class="comment">// };</span>
+// use leo_errors::{AstError, InputError, LeoMessageCode, PackageError, ParserError};
+// use leo_test_framework::{
+//     fetch::find_tests,
+//     output::TestExpectation,
+//     test::{extract_test_config, TestExpectationMode as Expectation},
+// };
 
-<span class="comment">// use regex::Regex;</span>
-<span class="comment">// use serde_yaml::Value;</span>
-<span class="comment">// use std::collections::{BTreeMap, HashSet};</span>
-<span class="comment">// use std::{error::Error, fs, io, path::PathBuf};</span>
-<span class="comment">// use structopt::{clap::AppSettings, StructOpt};</span>
+// use regex::Regex;
+// use serde_yaml::Value;
+// use std::collections::{BTreeMap, HashSet};
+// use std::{error::Error, fs, io, path::PathBuf};
+// use structopt::{clap::AppSettings, StructOpt};
 
-<span class="comment">// #[derive(StructOpt)]</span>
-<span class="comment">// #[structopt(name = &quot;error-coverage&quot;, author = &quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;, setting = AppSettings::ColoredHelp)]</span>
-<span class="comment">// struct Opt {</span>
-<span class="comment">//     #[structopt(</span>
-<span class="comment">//         short,</span>
-<span class="comment">//         long,</span>
-<span class="comment">//         help = &quot;Path to the output file, defaults to stdout.&quot;,</span>
-<span class="comment">//         parse(from_os_str)</span>
-<span class="comment">//     )]</span>
-<span class="comment">//     output: Option&lt;PathBuf&gt;,</span>
-<span class="comment">// }</span>
+// #[derive(StructOpt)]
+// #[structopt(name = &quot;error-coverage&quot;, author = &quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;, setting = AppSettings::ColoredHelp)]
+// struct Opt {
+//     #[structopt(
+//         short,
+//         long,
+//         help = &quot;Path to the output file, defaults to stdout.&quot;,
+//         parse(from_os_str)
+//     )]
+//     output: Option&lt;PathBuf&gt;,
+// }
 
-<span class="comment">// fn main() {</span>
-<span class="comment">//     handle_error(run_with_args(Opt::from_args()));</span>
-<span class="comment">// }</span>
+// fn main() {
+//     handle_error(run_with_args(Opt::from_args()));
+// }
 
-<span class="comment">// fn run_with_args(opt: Opt) -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
-<span class="comment">//     // Variable that stores all the tests.</span>
-<span class="comment">//     let mut tests = Vec::new();</span>
-<span class="comment">//     let mut test_dir = PathBuf::from(env!(&quot;CARGO_MANIFEST_DIR&quot;));</span>
-<span class="comment">//     test_dir.push(&quot;../&quot;);</span>
+// fn run_with_args(opt: Opt) -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
+//     // Variable that stores all the tests.
+//     let mut tests = Vec::new();
+//     let mut test_dir = PathBuf::from(env!(&quot;CARGO_MANIFEST_DIR&quot;));
+//     test_dir.push(&quot;../&quot;);
 
-<span class="comment">//     let mut expectation_dir = test_dir.clone();</span>
-<span class="comment">//     expectation_dir.push(&quot;expectations&quot;);</span>
+//     let mut expectation_dir = test_dir.clone();
+//     expectation_dir.push(&quot;expectations&quot;);
 
-<span class="comment">//     find_tests(&amp;test_dir, &amp;mut tests);</span>
+//     find_tests(&amp;test_dir, &amp;mut tests);
 
-<span class="comment">//     // Store all covered error codes</span>
-<span class="comment">//     let mut found_codes = BTreeMap::new();</span>
-<span class="comment">//     let re = Regex::new(r&quot;Error \[(?P&lt;code&gt;.*)\]:.*&quot;).unwrap();</span>
+//     // Store all covered error codes
+//     let mut found_codes = BTreeMap::new();
+//     let re = Regex::new(r&quot;Error \[(?P&lt;code&gt;.*)\]:.*&quot;).unwrap();
 
-<span class="comment">//     for (path, content) in tests.into_iter() {</span>
-<span class="comment">//         if let Some(config) = extract_test_config(&amp;content) {</span>
-<span class="comment">//             // Skip passing tests.</span>
-<span class="comment">//             if config.expectation == Expectation::Pass {</span>
-<span class="comment">//                 continue;</span>
-<span class="comment">//             }</span>
+//     for (path, content) in tests.into_iter() {
+//         if let Some(config) = extract_test_config(&amp;content) {
+//             // Skip passing tests.
+//             if config.expectation == Expectation::Pass {
+//                 continue;
+//             }
 
-<span class="comment">//             let mut expectation_path = expectation_dir.clone();</span>
+//             let mut expectation_path = expectation_dir.clone();
 
-<span class="comment">//             let path = PathBuf::from(path);</span>
-<span class="comment">//             let relative_path = path.strip_prefix(&amp;test_dir).expect(&quot;path error for test&quot;);</span>
+//             let path = PathBuf::from(path);
+//             let relative_path = path.strip_prefix(&amp;test_dir).expect(&quot;path error for test&quot;);
 
-<span class="comment">//             let mut relative_expectation_path = relative_path.to_str().unwrap().to_string();</span>
-<span class="comment">//             relative_expectation_path += &quot;.out&quot;;</span>
+//             let mut relative_expectation_path = relative_path.to_str().unwrap().to_string();
+//             relative_expectation_path += &quot;.out&quot;;
 
-<span class="comment">//             // Add expectation category</span>
-<span class="comment">//             if relative_expectation_path.starts_with(&quot;compiler&quot;) {</span>
-<span class="comment">//                 expectation_path.push(&quot;compiler&quot;);</span>
-<span class="comment">//             } else {</span>
-<span class="comment">//                 expectation_path.push(&quot;parser&quot;);</span>
-<span class="comment">//             }</span>
-<span class="comment">//             expectation_path.push(&amp;relative_expectation_path);</span>
+//             // Add expectation category
+//             if relative_expectation_path.starts_with(&quot;compiler&quot;) {
+//                 expectation_path.push(&quot;compiler&quot;);
+//             } else {
+//                 expectation_path.push(&quot;parser&quot;);
+//             }
+//             expectation_path.push(&amp;relative_expectation_path);
 
-<span class="comment">//             if expectation_path.exists() {</span>
-<span class="comment">//                 let raw = std::fs::read_to_string(&amp;expectation_path).expect(&quot;failed to read expectations file&quot;);</span>
-<span class="comment">//                 let expectation: TestExpectation =</span>
-<span class="comment">//                     serde_yaml::from_str(&amp;raw).expect(&quot;invalid yaml in expectations file&quot;);</span>
+//             if expectation_path.exists() {
+//                 let raw = std::fs::read_to_string(&amp;expectation_path).expect(&quot;failed to read expectations file&quot;);
+//                 let expectation: TestExpectation =
+//                     serde_yaml::from_str(&amp;raw).expect(&quot;invalid yaml in expectations file&quot;);
 
-<span class="comment">//                 for value in expectation.outputs {</span>
-<span class="comment">//                     if let serde_yaml::Value::String(message) = value {</span>
-<span class="comment">//                         if let Some(caps) = re.captures(&amp;message) {</span>
-<span class="comment">//                             if let Some(code) = caps.name(&quot;code&quot;) {</span>
-<span class="comment">//                                 let files = found_codes</span>
-<span class="comment">//                                     .entry(code.as_str().to_string())</span>
-<span class="comment">//                                     .or_insert_with(HashSet::new);</span>
-<span class="comment">//                                 let path = expectation_path</span>
-<span class="comment">//                                     .strip_prefix(test_dir.clone())</span>
-<span class="comment">//                                     .expect(&quot;invalid prefix for expectation path&quot;);</span>
-<span class="comment">//                                 files.insert(PathBuf::from(path));</span>
-<span class="comment">//                             }</span>
-<span class="comment">//                         }</span>
-<span class="comment">//                     }</span>
-<span class="comment">//                 }</span>
-<span class="comment">//             }</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
+//                 for value in expectation.outputs {
+//                     if let serde_yaml::Value::String(message) = value {
+//                         if let Some(caps) = re.captures(&amp;message) {
+//                             if let Some(code) = caps.name(&quot;code&quot;) {
+//                                 let files = found_codes
+//                                     .entry(code.as_str().to_string())
+//                                     .or_insert_with(HashSet::new);
+//                                 let path = expectation_path
+//                                     .strip_prefix(test_dir.clone())
+//                                     .expect(&quot;invalid prefix for expectation path&quot;);
+//                                 files.insert(PathBuf::from(path));
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-<span class="comment">//     // Collect all defined error codes.</span>
-<span class="comment">//     let mut all_codes = HashSet::new();</span>
-<span class="comment">//     collect_error_codes(</span>
-<span class="comment">//         &amp;mut all_codes,</span>
-<span class="comment">//         AstError::message_type(),</span>
-<span class="comment">//         AstError::code_identifier(),</span>
-<span class="comment">//         AstError::code_mask(),</span>
-<span class="comment">//         AstError::num_exit_codes(),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     collect_error_codes(</span>
-<span class="comment">//         &amp;mut all_codes,</span>
-<span class="comment">//         InputError::message_type(),</span>
-<span class="comment">//         InputError::code_identifier(),</span>
-<span class="comment">//         InputError::code_mask(),</span>
-<span class="comment">//         InputError::num_exit_codes(),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     collect_error_codes(</span>
-<span class="comment">//         &amp;mut all_codes,</span>
-<span class="comment">//         PackageError::message_type(),</span>
-<span class="comment">//         PackageError::code_identifier(),</span>
-<span class="comment">//         PackageError::code_mask(),</span>
-<span class="comment">//         PackageError::num_exit_codes(),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     collect_error_codes(</span>
-<span class="comment">//         &amp;mut all_codes,</span>
-<span class="comment">//         ParserError::message_type(),</span>
-<span class="comment">//         ParserError::code_identifier(),</span>
-<span class="comment">//         ParserError::code_mask(),</span>
-<span class="comment">//         ParserError::num_exit_codes(),</span>
-<span class="comment">//     );</span>
+//     // Collect all defined error codes.
+//     let mut all_codes = HashSet::new();
+//     collect_error_codes(
+//         &amp;mut all_codes,
+//         AstError::message_type(),
+//         AstError::code_identifier(),
+//         AstError::code_mask(),
+//         AstError::num_exit_codes(),
+//     );
+//     collect_error_codes(
+//         &amp;mut all_codes,
+//         InputError::message_type(),
+//         InputError::code_identifier(),
+//         InputError::code_mask(),
+//         InputError::num_exit_codes(),
+//     );
+//     collect_error_codes(
+//         &amp;mut all_codes,
+//         PackageError::message_type(),
+//         PackageError::code_identifier(),
+//         PackageError::code_mask(),
+//         PackageError::num_exit_codes(),
+//     );
+//     collect_error_codes(
+//         &amp;mut all_codes,
+//         ParserError::message_type(),
+//         ParserError::code_identifier(),
+//         ParserError::code_mask(),
+//         ParserError::num_exit_codes(),
+//     );
 
-<span class="comment">//     // Repackage data into values compatible with serde_yaml</span>
-<span class="comment">//     let mut covered_errors = serde_yaml::Mapping::new();</span>
-<span class="comment">//     let mut unknown_errors = serde_yaml::Mapping::new();</span>
+//     // Repackage data into values compatible with serde_yaml
+//     let mut covered_errors = serde_yaml::Mapping::new();
+//     let mut unknown_errors = serde_yaml::Mapping::new();
 
-<span class="comment">//     for (code, paths) in found_codes.iter() {</span>
-<span class="comment">//         let mut yaml_paths = Vec::with_capacity(paths.len());</span>
-<span class="comment">//         for path in paths {</span>
-<span class="comment">//             yaml_paths.push(path.to_str().unwrap());</span>
-<span class="comment">//         }</span>
-<span class="comment">//         yaml_paths.sort_unstable();</span>
-<span class="comment">//         let yaml_paths = yaml_paths.iter().map(|s| Value::String(s.to_string())).collect();</span>
+//     for (code, paths) in found_codes.iter() {
+//         let mut yaml_paths = Vec::with_capacity(paths.len());
+//         for path in paths {
+//             yaml_paths.push(path.to_str().unwrap());
+//         }
+//         yaml_paths.sort_unstable();
+//         let yaml_paths = yaml_paths.iter().map(|s| Value::String(s.to_string())).collect();
 
-<span class="comment">//         if all_codes.contains(code) {</span>
-<span class="comment">//             covered_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));</span>
-<span class="comment">//         } else {</span>
-<span class="comment">//             unknown_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));</span>
-<span class="comment">//         }</span>
-<span class="comment">//         all_codes.remove(code);</span>
-<span class="comment">//     }</span>
+//         if all_codes.contains(code) {
+//             covered_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
+//         } else {
+//             unknown_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
+//         }
+//         all_codes.remove(code);
+//     }
 
-<span class="comment">//     let mut codes: Vec&lt;String&gt; = all_codes.drain().collect();</span>
-<span class="comment">//     codes.sort();</span>
+//     let mut codes: Vec&lt;String&gt; = all_codes.drain().collect();
+//     codes.sort();
 
-<span class="comment">//     let mut uncovered_errors = Vec::new();</span>
-<span class="comment">//     for code in codes {</span>
-<span class="comment">//         uncovered_errors.push(Value::String(code))</span>
-<span class="comment">//     }</span>
+//     let mut uncovered_errors = Vec::new();
+//     for code in codes {
+//         uncovered_errors.push(Value::String(code))
+//     }
 
-<span class="comment">//     let mut uncovered_information = serde_yaml::Mapping::new();</span>
-<span class="comment">//     uncovered_information.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;count&quot;)),</span>
-<span class="comment">//         Value::Number(serde_yaml::Number::from(uncovered_errors.len())),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     uncovered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Sequence(uncovered_errors));</span>
+//     let mut uncovered_information = serde_yaml::Mapping::new();
+//     uncovered_information.insert(
+//         Value::String(String::from(&quot;count&quot;)),
+//         Value::Number(serde_yaml::Number::from(uncovered_errors.len())),
+//     );
+//     uncovered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Sequence(uncovered_errors));
 
-<span class="comment">//     let mut covered_information = serde_yaml::Mapping::new();</span>
-<span class="comment">//     covered_information.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;count&quot;)),</span>
-<span class="comment">//         Value::Number(serde_yaml::Number::from(covered_errors.len())),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     covered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(covered_errors));</span>
+//     let mut covered_information = serde_yaml::Mapping::new();
+//     covered_information.insert(
+//         Value::String(String::from(&quot;count&quot;)),
+//         Value::Number(serde_yaml::Number::from(covered_errors.len())),
+//     );
+//     covered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(covered_errors));
 
-<span class="comment">//     let mut unknown_information = serde_yaml::Mapping::new();</span>
-<span class="comment">//     unknown_information.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;count&quot;)),</span>
-<span class="comment">//         Value::Number(serde_yaml::Number::from(unknown_errors.len())),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     unknown_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(unknown_errors));</span>
+//     let mut unknown_information = serde_yaml::Mapping::new();
+//     unknown_information.insert(
+//         Value::String(String::from(&quot;count&quot;)),
+//         Value::Number(serde_yaml::Number::from(unknown_errors.len())),
+//     );
+//     unknown_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(unknown_errors));
 
-<span class="comment">//     let mut results = serde_yaml::Mapping::new();</span>
-<span class="comment">//     results.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;uncovered&quot;)),</span>
-<span class="comment">//         Value::Mapping(uncovered_information),</span>
-<span class="comment">//     );</span>
+//     let mut results = serde_yaml::Mapping::new();
+//     results.insert(
+//         Value::String(String::from(&quot;uncovered&quot;)),
+//         Value::Mapping(uncovered_information),
+//     );
 
-<span class="comment">//     results.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;covered&quot;)),</span>
-<span class="comment">//         Value::Mapping(covered_information),</span>
-<span class="comment">//     );</span>
-<span class="comment">//     results.insert(</span>
-<span class="comment">//         Value::String(String::from(&quot;unknown&quot;)),</span>
-<span class="comment">//         Value::Mapping(unknown_information),</span>
-<span class="comment">//     );</span>
+//     results.insert(
+//         Value::String(String::from(&quot;covered&quot;)),
+//         Value::Mapping(covered_information),
+//     );
+//     results.insert(
+//         Value::String(String::from(&quot;unknown&quot;)),
+//         Value::Mapping(unknown_information),
+//     );
 
-<span class="comment">//     // Output error coverage results</span>
-<span class="comment">//     if let Some(pathbuf) = opt.output {</span>
-<span class="comment">//         let file = fs::File::create(pathbuf).expect(&quot;error creating output file&quot;);</span>
-<span class="comment">//         serde_yaml::to_writer(file, &amp;results).expect(&quot;serialization failed for error coverage report&quot;);</span>
-<span class="comment">//     } else {</span>
-<span class="comment">//         serde_yaml::to_writer(io::stdout(), &amp;results).expect(&quot;serialization failed for error coverage report&quot;);</span>
-<span class="comment">//     }</span>
+//     // Output error coverage results
+//     if let Some(pathbuf) = opt.output {
+//         let file = fs::File::create(pathbuf).expect(&quot;error creating output file&quot;);
+//         serde_yaml::to_writer(file, &amp;results).expect(&quot;serialization failed for error coverage report&quot;);
+//     } else {
+//         serde_yaml::to_writer(io::stdout(), &amp;results).expect(&quot;serialization failed for error coverage report&quot;);
+//     }
 
-<span class="comment">//     Ok(())</span>
-<span class="comment">// }</span>
+//     Ok(())
+// }
 
-<span class="comment">// fn collect_error_codes(</span>
-<span class="comment">//     codes: &amp;mut HashSet&lt;String&gt;,</span>
-<span class="comment">//     error_type: String,</span>
-<span class="comment">//     code_identifier: i8,</span>
-<span class="comment">//     exit_code_mask: i32,</span>
-<span class="comment">//     num_exit_codes: i32,</span>
-<span class="comment">// ) {</span>
-<span class="comment">//     for exit_code in 0..num_exit_codes {</span>
-<span class="comment">//         codes.insert(format!(</span>
-<span class="comment">//             &quot;E{}{:0&gt;3}{:0&gt;4}&quot;,</span>
-<span class="comment">//             error_type,</span>
-<span class="comment">//             code_identifier,</span>
-<span class="comment">//             exit_code_mask + exit_code,</span>
-<span class="comment">//         ));</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
+// fn collect_error_codes(
+//     codes: &amp;mut HashSet&lt;String&gt;,
+//     error_type: String,
+//     code_identifier: i8,
+//     exit_code_mask: i32,
+//     num_exit_codes: i32,
+// ) {
+//     for exit_code in 0..num_exit_codes {
+//         codes.insert(format!(
+//             &quot;E{}{:0&gt;3}{:0&gt;4}&quot;,
+//             error_type,
+//             code_identifier,
+//             exit_code_mask + exit_code,
+//         ));
+//     }
+// }
 
-<span class="comment">// fn handle_error(res: Result&lt;(), Box&lt;dyn Error&gt;&gt;) {</span>
-<span class="comment">//     match res {</span>
-<span class="comment">//         Ok(_) =&gt; (),</span>
-<span class="comment">//         Err(err) =&gt; {</span>
-<span class="comment">//             eprintln!(&quot;Error: {}&quot;, err);</span>
-<span class="comment">//             std::process::exit(1);</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
+// fn handle_error(res: Result&lt;(), Box&lt;dyn Error&gt;&gt;) {
+//     match res {
+//         Ok(_) =&gt; (),
+//         Err(err) =&gt; {
+//             eprintln!(&quot;Error: {}&quot;, err);
+//             std::process::exit(1);
+//         }
+//     }
+// }
 
-<span class="kw">fn</span> <span class="ident">main</span>() {}
+</span><span class="kw">fn </span>main() {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="errcov" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="errcov" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

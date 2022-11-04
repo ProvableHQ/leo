@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -376,383 +376,383 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
+</span><span class="kw">use </span>leo_span::{sym, Symbol};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::fmt;
 
-<span class="doccomment">/// Represents all valid Leo syntax tokens.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Token</span> {
-    <span class="comment">// Lexical Grammar</span>
-    <span class="comment">// Literals</span>
-    <span class="ident">CommentLine</span>(<span class="ident">String</span>),
-    <span class="ident">CommentBlock</span>(<span class="ident">String</span>),
-    <span class="ident">StaticString</span>(<span class="ident">String</span>),
-    <span class="ident">Identifier</span>(<span class="ident">Symbol</span>),
-    <span class="ident">Integer</span>(<span class="ident">String</span>),
-    <span class="ident">True</span>,
-    <span class="ident">False</span>,
-    <span class="ident">AddressLit</span>(<span class="ident">String</span>),
-    <span class="ident">WhiteSpace</span>,
+<span class="doccomment">/// Represents all valid Leo syntax tokens.
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Token {
+    <span class="comment">// Lexical Grammar
+    // Literals
+    </span>CommentLine(String),
+    CommentBlock(String),
+    StaticString(String),
+    Identifier(Symbol),
+    Integer(String),
+    True,
+    False,
+    AddressLit(String),
+    WhiteSpace,
 
-    <span class="comment">// Symbols</span>
-    <span class="ident">Not</span>,
-    <span class="ident">And</span>,
-    <span class="ident">AndAssign</span>,
-    <span class="ident">Or</span>,
-    <span class="ident">OrAssign</span>,
-    <span class="ident">BitAnd</span>,
-    <span class="ident">BitAndAssign</span>,
-    <span class="ident">BitOr</span>,
-    <span class="ident">BitOrAssign</span>,
-    <span class="ident">Eq</span>,
-    <span class="ident">NotEq</span>,
-    <span class="ident">Lt</span>,
-    <span class="ident">LtEq</span>,
-    <span class="ident">Gt</span>,
-    <span class="ident">GtEq</span>,
-    <span class="ident">Add</span>,
-    <span class="ident">AddAssign</span>,
-    <span class="ident">Sub</span>,
-    <span class="ident">SubAssign</span>,
-    <span class="ident">Mul</span>,
-    <span class="ident">MulAssign</span>,
-    <span class="ident">Div</span>,
-    <span class="ident">DivAssign</span>,
-    <span class="ident">Pow</span>,
-    <span class="ident">PowAssign</span>,
-    <span class="ident">Rem</span>,
-    <span class="ident">RemAssign</span>,
-    <span class="ident">Assign</span>,
-    <span class="ident">LeftParen</span>,
-    <span class="ident">RightParen</span>,
-    <span class="ident">LeftSquare</span>,
-    <span class="ident">RightSquare</span>,
-    <span class="ident">LeftCurly</span>,
-    <span class="ident">RightCurly</span>,
-    <span class="ident">Comma</span>,
-    <span class="ident">Dot</span>,
-    <span class="ident">DotDot</span>,
-    <span class="ident">Semicolon</span>,
-    <span class="ident">Colon</span>,
-    <span class="ident">DoubleColon</span>,
-    <span class="ident">Question</span>,
-    <span class="ident">Arrow</span>,
-    <span class="ident">BigArrow</span>,
-    <span class="ident">Shl</span>,
-    <span class="ident">ShlAssign</span>,
-    <span class="ident">Shr</span>,
-    <span class="ident">ShrAssign</span>,
-    <span class="ident">Underscore</span>,
-    <span class="ident">BitXor</span>,
-    <span class="ident">BitXorAssign</span>,
-    <span class="ident">At</span>,
+    <span class="comment">// Symbols
+    </span>Not,
+    And,
+    AndAssign,
+    Or,
+    OrAssign,
+    BitAnd,
+    BitAndAssign,
+    BitOr,
+    BitOrAssign,
+    Eq,
+    NotEq,
+    Lt,
+    LtEq,
+    Gt,
+    GtEq,
+    Add,
+    AddAssign,
+    Sub,
+    SubAssign,
+    Mul,
+    MulAssign,
+    Div,
+    DivAssign,
+    Pow,
+    PowAssign,
+    Rem,
+    RemAssign,
+    Assign,
+    LeftParen,
+    RightParen,
+    LeftSquare,
+    RightSquare,
+    LeftCurly,
+    RightCurly,
+    Comma,
+    Dot,
+    DotDot,
+    Semicolon,
+    Colon,
+    DoubleColon,
+    Question,
+    Arrow,
+    BigArrow,
+    Shl,
+    ShlAssign,
+    Shr,
+    ShrAssign,
+    Underscore,
+    BitXor,
+    BitXorAssign,
+    At,
 
-    <span class="comment">// Syntactic Grammar</span>
-    <span class="comment">// Types</span>
-    <span class="ident">Address</span>,
-    <span class="ident">Bool</span>,
-    <span class="ident">Field</span>,
-    <span class="ident">Group</span>,
-    <span class="ident">Scalar</span>,
-    <span class="ident">String</span>,
-    <span class="ident">I8</span>,
-    <span class="ident">I16</span>,
-    <span class="ident">I32</span>,
-    <span class="ident">I64</span>,
-    <span class="ident">I128</span>,
-    <span class="ident">U8</span>,
-    <span class="ident">U16</span>,
-    <span class="ident">U32</span>,
-    <span class="ident">U64</span>,
-    <span class="ident">U128</span>,
-    <span class="ident">Record</span>,
+    <span class="comment">// Syntactic Grammar
+    // Types
+    </span>Address,
+    Bool,
+    Field,
+    Group,
+    Scalar,
+    String,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+    Record,
 
-    <span class="comment">// Regular Keywords</span>
-    <span class="ident">Async</span>,
-    <span class="ident">Circuit</span>,
-    <span class="ident">Console</span>,
-    <span class="comment">// Const variable and a const function.</span>
-    <span class="ident">Const</span>,
-    <span class="comment">// Constant parameter</span>
-    <span class="ident">Constant</span>,
-    <span class="ident">Decrement</span>,
-    <span class="ident">Else</span>,
-    <span class="ident">Finalize</span>,
-    <span class="ident">For</span>,
-    <span class="ident">Function</span>,
-    <span class="ident">If</span>,
-    <span class="ident">Import</span>,
-    <span class="ident">In</span>,
-    <span class="ident">Increment</span>,
-    <span class="ident">Let</span>,
-    <span class="ident">Mapping</span>,
-    <span class="ident">Program</span>,
-    <span class="comment">// For public inputs.</span>
-    <span class="ident">Public</span>,
-    <span class="ident">Return</span>,
-    <span class="ident">SelfLower</span>,
-    <span class="ident">Static</span>,
-    <span class="ident">Struct</span>,
-    <span class="ident">Transition</span>,
-    <span class="comment">// For imports.</span>
-    <span class="ident">Leo</span>,
+    <span class="comment">// Regular Keywords
+    </span>Async,
+    Circuit,
+    Console,
+    <span class="comment">// Const variable and a const function.
+    </span>Const,
+    <span class="comment">// Constant parameter
+    </span>Constant,
+    Decrement,
+    Else,
+    Finalize,
+    For,
+    Function,
+    If,
+    Import,
+    In,
+    Increment,
+    Let,
+    Mapping,
+    Program,
+    <span class="comment">// For public inputs.
+    </span>Public,
+    Return,
+    SelfLower,
+    Static,
+    Struct,
+    Transition,
+    <span class="comment">// For imports.
+    </span>Leo,
 
-    <span class="comment">// Meta Tokens</span>
-    <span class="ident">Eof</span>,
+    <span class="comment">// Meta Tokens
+    </span>Eof,
 }
 
-<span class="doccomment">/// Represents all valid Leo keyword tokens.</span>
-<span class="doccomment">/// This defers from the ABNF for the following reasons:</span>
-<span class="doccomment">/// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,</span>
-<span class="doccomment">/// because true and false are also boolean literals, which are different tokens from keywords</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">KEYWORD_TOKENS</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
-    <span class="ident">Token::Address</span>,
-    <span class="ident">Token::Async</span>,
-    <span class="ident">Token::Bool</span>,
-    <span class="ident">Token::Console</span>,
-    <span class="ident">Token::Const</span>,
-    <span class="ident">Token::Constant</span>,
-    <span class="ident">Token::Decrement</span>,
-    <span class="ident">Token::Else</span>,
-    <span class="ident">Token::False</span>,
-    <span class="ident">Token::Field</span>,
-    <span class="ident">Token::Finalize</span>,
-    <span class="ident">Token::For</span>,
-    <span class="ident">Token::Function</span>,
-    <span class="ident">Token::Group</span>,
-    <span class="ident">Token::I8</span>,
-    <span class="ident">Token::I16</span>,
-    <span class="ident">Token::I32</span>,
-    <span class="ident">Token::I64</span>,
-    <span class="ident">Token::I128</span>,
-    <span class="ident">Token::If</span>,
-    <span class="ident">Token::Import</span>,
-    <span class="ident">Token::In</span>,
-    <span class="ident">Token::Increment</span>,
-    <span class="ident">Token::Let</span>,
-    <span class="ident">Token::Mapping</span>,
-    <span class="ident">Token::Program</span>,
-    <span class="ident">Token::Public</span>,
-    <span class="ident">Token::Record</span>,
-    <span class="ident">Token::Return</span>,
-    <span class="ident">Token::SelfLower</span>,
-    <span class="ident">Token::Scalar</span>,
-    <span class="ident">Token::Static</span>,
-    <span class="ident">Token::String</span>,
-    <span class="ident">Token::Struct</span>,
-    <span class="ident">Token::Transition</span>,
-    <span class="ident">Token::True</span>,
-    <span class="ident">Token::U8</span>,
-    <span class="ident">Token::U16</span>,
-    <span class="ident">Token::U32</span>,
-    <span class="ident">Token::U64</span>,
-    <span class="ident">Token::U128</span>,
+<span class="doccomment">/// Represents all valid Leo keyword tokens.
+/// This defers from the ABNF for the following reasons:
+/// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,
+/// because true and false are also boolean literals, which are different tokens from keywords
+</span><span class="kw">pub const </span>KEYWORD_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
+    Token::Address,
+    Token::Async,
+    Token::Bool,
+    Token::Console,
+    Token::Const,
+    Token::Constant,
+    Token::Decrement,
+    Token::Else,
+    Token::False,
+    Token::Field,
+    Token::Finalize,
+    Token::For,
+    Token::Function,
+    Token::Group,
+    Token::I8,
+    Token::I16,
+    Token::I32,
+    Token::I64,
+    Token::I128,
+    Token::If,
+    Token::Import,
+    Token::In,
+    Token::Increment,
+    Token::Let,
+    Token::Mapping,
+    Token::Program,
+    Token::Public,
+    Token::Record,
+    Token::Return,
+    Token::SelfLower,
+    Token::Scalar,
+    Token::Static,
+    Token::String,
+    Token::Struct,
+    Token::Transition,
+    Token::True,
+    Token::U8,
+    Token::U16,
+    Token::U32,
+    Token::U64,
+    Token::U128,
 ];
 
-<span class="kw">impl</span> <span class="ident">Token</span> {
-    <span class="doccomment">/// Returns `true` if the `self` token equals a Leo keyword.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_keyword</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">KEYWORD_TOKENS</span>.<span class="ident">contains</span>(<span class="self">self</span>)
+<span class="kw">impl </span>Token {
+    <span class="doccomment">/// Returns `true` if the `self` token equals a Leo keyword.
+    </span><span class="kw">pub fn </span>is_keyword(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        KEYWORD_TOKENS.contains(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Converts `self` to the corresponding `Symbol` if it `is_keyword`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keyword_to_symbol</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Symbol</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Token::Address</span> =&gt; <span class="ident">sym::address</span>,
-            <span class="ident">Token::Async</span> =&gt; <span class="ident">sym::Async</span>,
-            <span class="ident">Token::Bool</span> =&gt; <span class="ident">sym::bool</span>,
-            <span class="ident">Token::Console</span> =&gt; <span class="ident">sym::console</span>,
-            <span class="ident">Token::Const</span> =&gt; <span class="ident">sym::Const</span>,
-            <span class="ident">Token::Constant</span> =&gt; <span class="ident">sym::Constant</span>,
-            <span class="ident">Token::Decrement</span> =&gt; <span class="ident">sym::decrement</span>,
-            <span class="ident">Token::Else</span> =&gt; <span class="ident">sym::Else</span>,
-            <span class="ident">Token::False</span> =&gt; <span class="ident">sym::False</span>,
-            <span class="ident">Token::Field</span> =&gt; <span class="ident">sym::field</span>,
-            <span class="ident">Token::Finalize</span> =&gt; <span class="ident">sym::finalize</span>,
-            <span class="ident">Token::For</span> =&gt; <span class="ident">sym::For</span>,
-            <span class="ident">Token::Function</span> =&gt; <span class="ident">sym::function</span>,
-            <span class="ident">Token::Group</span> =&gt; <span class="ident">sym::group</span>,
-            <span class="ident">Token::I8</span> =&gt; <span class="ident">sym::i8</span>,
-            <span class="ident">Token::I16</span> =&gt; <span class="ident">sym::i16</span>,
-            <span class="ident">Token::I32</span> =&gt; <span class="ident">sym::i32</span>,
-            <span class="ident">Token::I64</span> =&gt; <span class="ident">sym::i64</span>,
-            <span class="ident">Token::I128</span> =&gt; <span class="ident">sym::i128</span>,
-            <span class="ident">Token::If</span> =&gt; <span class="ident">sym::If</span>,
-            <span class="ident">Token::In</span> =&gt; <span class="ident">sym::In</span>,
-            <span class="ident">Token::Increment</span> =&gt; <span class="ident">sym::increment</span>,
-            <span class="ident">Token::Import</span> =&gt; <span class="ident">sym::import</span>,
-            <span class="ident">Token::Let</span> =&gt; <span class="ident">sym::Let</span>,
-            <span class="ident">Token::Leo</span> =&gt; <span class="ident">sym::leo</span>,
-            <span class="ident">Token::Mapping</span> =&gt; <span class="ident">sym::mapping</span>,
-            <span class="ident">Token::Program</span> =&gt; <span class="ident">sym::program</span>,
-            <span class="ident">Token::Public</span> =&gt; <span class="ident">sym::Public</span>,
-            <span class="ident">Token::Record</span> =&gt; <span class="ident">sym::record</span>,
-            <span class="ident">Token::Return</span> =&gt; <span class="ident">sym::Return</span>,
-            <span class="ident">Token::Scalar</span> =&gt; <span class="ident">sym::scalar</span>,
-            <span class="ident">Token::SelfLower</span> =&gt; <span class="ident">sym::SelfLower</span>,
-            <span class="ident">Token::Static</span> =&gt; <span class="ident">sym::Static</span>,
-            <span class="ident">Token::String</span> =&gt; <span class="ident">sym::string</span>,
-            <span class="ident">Token::Struct</span> =&gt; <span class="ident">sym::Struct</span>,
-            <span class="ident">Token::Transition</span> =&gt; <span class="ident">sym::transition</span>,
-            <span class="ident">Token::True</span> =&gt; <span class="ident">sym::True</span>,
-            <span class="ident">Token::U8</span> =&gt; <span class="ident">sym::u8</span>,
-            <span class="ident">Token::U16</span> =&gt; <span class="ident">sym::u16</span>,
-            <span class="ident">Token::U32</span> =&gt; <span class="ident">sym::u32</span>,
-            <span class="ident">Token::U64</span> =&gt; <span class="ident">sym::u64</span>,
-            <span class="ident">Token::U128</span> =&gt; <span class="ident">sym::u128</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
+    </span><span class="kw">pub fn </span>keyword_to_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Symbol&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self </span>{
+            Token::Address =&gt; sym::address,
+            Token::Async =&gt; sym::Async,
+            Token::Bool =&gt; sym::bool,
+            Token::Console =&gt; sym::console,
+            Token::Const =&gt; sym::Const,
+            Token::Constant =&gt; sym::Constant,
+            Token::Decrement =&gt; sym::decrement,
+            Token::Else =&gt; sym::Else,
+            Token::False =&gt; sym::False,
+            Token::Field =&gt; sym::field,
+            Token::Finalize =&gt; sym::finalize,
+            Token::For =&gt; sym::For,
+            Token::Function =&gt; sym::function,
+            Token::Group =&gt; sym::group,
+            Token::I8 =&gt; sym::i8,
+            Token::I16 =&gt; sym::i16,
+            Token::I32 =&gt; sym::i32,
+            Token::I64 =&gt; sym::i64,
+            Token::I128 =&gt; sym::i128,
+            Token::If =&gt; sym::If,
+            Token::In =&gt; sym::In,
+            Token::Increment =&gt; sym::increment,
+            Token::Import =&gt; sym::import,
+            Token::Let =&gt; sym::Let,
+            Token::Leo =&gt; sym::leo,
+            Token::Mapping =&gt; sym::mapping,
+            Token::Program =&gt; sym::program,
+            Token::Public =&gt; sym::Public,
+            Token::Record =&gt; sym::record,
+            Token::Return =&gt; sym::Return,
+            Token::Scalar =&gt; sym::scalar,
+            Token::SelfLower =&gt; sym::SelfLower,
+            Token::Static =&gt; sym::Static,
+            Token::String =&gt; sym::string,
+            Token::Struct =&gt; sym::Struct,
+            Token::Transition =&gt; sym::transition,
+            Token::True =&gt; sym::True,
+            Token::U8 =&gt; sym::u8,
+            Token::U16 =&gt; sym::u16,
+            Token::U32 =&gt; sym::u32,
+            Token::U64 =&gt; sym::u64,
+            Token::U128 =&gt; sym::u128,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Token</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">use</span> <span class="ident">Token</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CommentLine</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{s}&quot;</span>),
-            <span class="ident">CommentBlock</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{s}&quot;</span>),
-            <span class="ident">StaticString</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{s}\&quot;&quot;</span>),
-            <span class="ident">Identifier</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{s}&quot;</span>),
-            <span class="ident">Integer</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{s}&quot;</span>),
-            <span class="ident">True</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;true&quot;</span>),
-            <span class="ident">False</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;false&quot;</span>),
-            <span class="ident">AddressLit</span>(<span class="ident">s</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{s}&quot;</span>),
-            <span class="ident">WhiteSpace</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;whitespace&quot;</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Token {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">use </span>Token::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            CommentLine(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>),
+            CommentBlock(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>),
+            StaticString(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{s}\&quot;&quot;</span>),
+            Identifier(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>),
+            Integer(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>),
+            True =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;true&quot;</span>),
+            False =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;false&quot;</span>),
+            AddressLit(s) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{s}&quot;</span>),
+            WhiteSpace =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;whitespace&quot;</span>),
 
-            <span class="ident">Not</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!&quot;</span>),
-            <span class="ident">And</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;&quot;</span>),
-            <span class="ident">AndAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&amp;=&quot;</span>),
-            <span class="ident">Or</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||&quot;</span>),
-            <span class="ident">OrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;||=&quot;</span>),
-            <span class="ident">BitAnd</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;&quot;</span>),
-            <span class="ident">BitAndAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&amp;=&quot;</span>),
-            <span class="ident">BitOr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;|&quot;</span>),
-            <span class="ident">BitOrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;|=&quot;</span>),
-            <span class="ident">Eq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;==&quot;</span>),
-            <span class="ident">NotEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;!=&quot;</span>),
-            <span class="ident">Lt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&quot;</span>),
-            <span class="ident">LtEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;=&quot;</span>),
-            <span class="ident">Gt</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&quot;</span>),
-            <span class="ident">GtEq</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;=&quot;</span>),
-            <span class="ident">Add</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+&quot;</span>),
-            <span class="ident">AddAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;+=&quot;</span>),
-            <span class="ident">Sub</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&quot;</span>),
-            <span class="ident">SubAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-=&quot;</span>),
-            <span class="ident">Mul</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*&quot;</span>),
-            <span class="ident">MulAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;*=&quot;</span>),
-            <span class="ident">Div</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/&quot;</span>),
-            <span class="ident">DivAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;/=&quot;</span>),
-            <span class="ident">Pow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**&quot;</span>),
-            <span class="ident">PowAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;**=&quot;</span>),
-            <span class="ident">Rem</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;%&quot;</span>),
-            <span class="ident">RemAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;%=&quot;</span>),
-            <span class="ident">Assign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&quot;</span>),
-            <span class="ident">LeftParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(&quot;</span>),
-            <span class="ident">RightParen</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;)&quot;</span>),
-            <span class="ident">LeftSquare</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>),
-            <span class="ident">RightSquare</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>),
-            <span class="ident">LeftCurly</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{{&quot;</span>),
-            <span class="ident">RightCurly</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;}}&quot;</span>),
-            <span class="ident">Comma</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>),
-            <span class="ident">Dot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;.&quot;</span>),
-            <span class="ident">DotDot</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;..&quot;</span>),
-            <span class="ident">Semicolon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;;&quot;</span>),
-            <span class="ident">Colon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;:&quot;</span>),
-            <span class="ident">DoubleColon</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;::&quot;</span>),
-            <span class="ident">Question</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;?&quot;</span>),
-            <span class="ident">Arrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;-&gt;&quot;</span>),
-            <span class="ident">BigArrow</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;=&gt;&quot;</span>),
-            <span class="ident">Shl</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;&quot;</span>),
-            <span class="ident">ShlAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;&lt;=&quot;</span>),
-            <span class="ident">Shr</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&gt;&quot;</span>),
-            <span class="ident">ShrAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&gt;&gt;=&quot;</span>),
-            <span class="ident">Underscore</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;_&quot;</span>),
-            <span class="ident">BitXor</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^&quot;</span>),
-            <span class="ident">BitXorAssign</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;^=&quot;</span>),
-            <span class="ident">At</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;@&quot;</span>),
+            Not =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;!&quot;</span>),
+            And =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&amp;&amp;&quot;</span>),
+            AndAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&amp;&amp;=&quot;</span>),
+            Or =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;||&quot;</span>),
+            OrAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;||=&quot;</span>),
+            BitAnd =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&amp;&quot;</span>),
+            BitAndAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&amp;=&quot;</span>),
+            BitOr =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;|&quot;</span>),
+            BitOrAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;|=&quot;</span>),
+            Eq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;==&quot;</span>),
+            NotEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;!=&quot;</span>),
+            Lt =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;&quot;</span>),
+            LtEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;=&quot;</span>),
+            Gt =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&gt;&quot;</span>),
+            GtEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&gt;=&quot;</span>),
+            Add =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;+&quot;</span>),
+            AddAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;+=&quot;</span>),
+            Sub =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;-&quot;</span>),
+            SubAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;-=&quot;</span>),
+            Mul =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*&quot;</span>),
+            MulAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;*=&quot;</span>),
+            Div =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;/&quot;</span>),
+            DivAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;/=&quot;</span>),
+            Pow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;**&quot;</span>),
+            PowAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;**=&quot;</span>),
+            Rem =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;%&quot;</span>),
+            RemAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;%=&quot;</span>),
+            Assign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;=&quot;</span>),
+            LeftParen =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;(&quot;</span>),
+            RightParen =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>),
+            LeftSquare =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;[&quot;</span>),
+            RightSquare =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;]&quot;</span>),
+            LeftCurly =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{{&quot;</span>),
+            RightCurly =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;}}&quot;</span>),
+            Comma =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;,&quot;</span>),
+            Dot =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;.&quot;</span>),
+            DotDot =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;..&quot;</span>),
+            Semicolon =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;;&quot;</span>),
+            Colon =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;:&quot;</span>),
+            DoubleColon =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;::&quot;</span>),
+            Question =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;?&quot;</span>),
+            Arrow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;-&gt;&quot;</span>),
+            BigArrow =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;=&gt;&quot;</span>),
+            Shl =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;&lt;&quot;</span>),
+            ShlAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;&lt;=&quot;</span>),
+            Shr =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&gt;&gt;&quot;</span>),
+            ShrAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&gt;&gt;=&quot;</span>),
+            Underscore =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;_&quot;</span>),
+            BitXor =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;^&quot;</span>),
+            BitXorAssign =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;^=&quot;</span>),
+            At =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;@&quot;</span>),
 
-            <span class="ident">Address</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;address&quot;</span>),
-            <span class="ident">Bool</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bool&quot;</span>),
-            <span class="ident">Field</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
-            <span class="ident">Group</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
-            <span class="ident">Scalar</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;scalar&quot;</span>),
-            <span class="ident">String</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;string&quot;</span>),
-            <span class="ident">I8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i8&quot;</span>),
-            <span class="ident">I16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i16&quot;</span>),
-            <span class="ident">I32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i32&quot;</span>),
-            <span class="ident">I64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i64&quot;</span>),
-            <span class="ident">I128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;i128&quot;</span>),
-            <span class="ident">U8</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u8&quot;</span>),
-            <span class="ident">U16</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u16&quot;</span>),
-            <span class="ident">U32</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u32&quot;</span>),
-            <span class="ident">U64</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u64&quot;</span>),
-            <span class="ident">U128</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;u128&quot;</span>),
-            <span class="ident">Record</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;record&quot;</span>),
+            Address =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;address&quot;</span>),
+            Bool =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;bool&quot;</span>),
+            Field =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;field&quot;</span>),
+            Group =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group&quot;</span>),
+            Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;scalar&quot;</span>),
+            String =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;string&quot;</span>),
+            I8 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i8&quot;</span>),
+            I16 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i16&quot;</span>),
+            I32 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i32&quot;</span>),
+            I64 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i64&quot;</span>),
+            I128 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i128&quot;</span>),
+            U8 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u8&quot;</span>),
+            U16 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u16&quot;</span>),
+            U32 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u32&quot;</span>),
+            U64 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u64&quot;</span>),
+            U128 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u128&quot;</span>),
+            Record =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;record&quot;</span>),
 
-            <span class="ident">Async</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;async&quot;</span>),
-            <span class="ident">Circuit</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit&quot;</span>),
-            <span class="ident">Console</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;console&quot;</span>),
-            <span class="ident">Const</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;const&quot;</span>),
-            <span class="ident">Constant</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;constant&quot;</span>),
-            <span class="ident">Decrement</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;decrement&quot;</span>),
-            <span class="ident">Else</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;else&quot;</span>),
-            <span class="ident">Finalize</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;finalize&quot;</span>),
-            <span class="ident">For</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;for&quot;</span>),
-            <span class="ident">Function</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;function&quot;</span>),
-            <span class="ident">If</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;if&quot;</span>),
-            <span class="ident">Import</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;import&quot;</span>),
-            <span class="ident">In</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;in&quot;</span>),
-            <span class="ident">Increment</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;increment&quot;</span>),
-            <span class="ident">Let</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;let&quot;</span>),
-            <span class="ident">Mapping</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;mapping&quot;</span>),
-            <span class="ident">Program</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;program&quot;</span>),
-            <span class="ident">Public</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;public&quot;</span>),
-            <span class="ident">Return</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
-            <span class="ident">SelfLower</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;self&quot;</span>),
-            <span class="ident">Static</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
-            <span class="ident">Struct</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;struct&quot;</span>),
-            <span class="ident">Transition</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;transition&quot;</span>),
-            <span class="ident">Leo</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;leo&quot;</span>),
-            <span class="ident">Eof</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;eof&gt;&quot;</span>),
+            Async =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;async&quot;</span>),
+            Circuit =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;circuit&quot;</span>),
+            Console =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;console&quot;</span>),
+            Const =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;const&quot;</span>),
+            Constant =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constant&quot;</span>),
+            Decrement =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;decrement&quot;</span>),
+            Else =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;else&quot;</span>),
+            Finalize =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;finalize&quot;</span>),
+            For =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;for&quot;</span>),
+            Function =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;function&quot;</span>),
+            If =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;if&quot;</span>),
+            Import =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;import&quot;</span>),
+            In =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;in&quot;</span>),
+            Increment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;increment&quot;</span>),
+            Let =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;let&quot;</span>),
+            Mapping =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;mapping&quot;</span>),
+            Program =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;program&quot;</span>),
+            Public =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;public&quot;</span>),
+            Return =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;return&quot;</span>),
+            SelfLower =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;self&quot;</span>),
+            Static =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;static&quot;</span>),
+            Struct =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;struct&quot;</span>),
+            Transition =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;transition&quot;</span>),
+            Leo =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;leo&quot;</span>),
+            Eof =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;eof&gt;&quot;</span>),
         }
     }
 }
 
-<span class="doccomment">/// Describes delimiters of a token sequence.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Delimiter</span> {
-    <span class="doccomment">/// `( ... )`</span>
-    <span class="ident">Parenthesis</span>,
-    <span class="doccomment">/// `{ ... }`</span>
-    <span class="ident">Brace</span>,
+<span class="doccomment">/// Describes delimiters of a token sequence.
+</span><span class="attribute">#[derive(Copy, Clone)]
+</span><span class="kw">pub enum </span>Delimiter {
+    <span class="doccomment">/// `( ... )`
+    </span>Parenthesis,
+    <span class="doccomment">/// `{ ... }`
+    </span>Brace,
 }
 
-<span class="kw">impl</span> <span class="ident">Delimiter</span> {
-    <span class="doccomment">/// Returns the open/close tokens that the delimiter corresponds to.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_close_pair</span>(<span class="self">self</span>) -&gt; (<span class="ident">Token</span>, <span class="ident">Token</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Parenthesis</span> =&gt; (<span class="ident">Token::LeftParen</span>, <span class="ident">Token::RightParen</span>),
-            <span class="ident"><span class="self">Self</span>::Brace</span> =&gt; (<span class="ident">Token::LeftCurly</span>, <span class="ident">Token::RightCurly</span>),
+<span class="kw">impl </span>Delimiter {
+    <span class="doccomment">/// Returns the open/close tokens that the delimiter corresponds to.
+    </span><span class="kw">pub fn </span>open_close_pair(<span class="self">self</span>) -&gt; (Token, Token) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Parenthesis =&gt; (Token::LeftParen, Token::RightParen),
+            <span class="self">Self</span>::Brace =&gt; (Token::LeftCurly, Token::RightCurly),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

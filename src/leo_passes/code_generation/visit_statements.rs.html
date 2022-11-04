@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_statements.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_statements.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -196,203 +196,203 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DecrementStatement</span>,
-    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">IncrementStatement</span>, <span class="ident">IterationStatement</span>, <span class="ident">Mode</span>, <span class="ident">Output</span>,
-    <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>,
+<span class="kw">use </span>leo_ast::{
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, Output,
+    ReturnStatement, Statement,
 };
 
-<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">visit_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Statement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Statement::Assign</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_assign</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_console</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Decrement</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_decrement</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_definition</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Finalize</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_finalize</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Increment</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_increment</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_iteration</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_return</span>(<span class="ident">stmt</span>),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statement) -&gt; String {
+        <span class="kw">match </span>input {
+            Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
+            Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
+            Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
+            Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
+            Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
+            Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
+            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
+            Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
+            Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
+            Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ReturnStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">expression</span> {
-            <span class="comment">// Skip empty return statements.</span>
-            <span class="ident">Expression::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) <span class="kw">if</span> <span class="ident">tuple</span>.<span class="ident">elements</span>.<span class="ident">is_empty</span>() =&gt; <span class="ident">String::new</span>(),
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>);
-                <span class="comment">// Get the output type of the function.</span>
-                <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
-                    <span class="comment">// Note that the first unwrap is safe, since `current_function` is set in `visit_function`.</span>
-                    <span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">finalize</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>()
-                } <span class="kw">else</span> {
-                    <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.</span>
-                    <span class="self">self</span>.<span class="ident">current_function</span>.<span class="ident">unwrap</span>().<span class="ident">output</span>.<span class="ident">iter</span>()
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) -&gt; String {
+        <span class="kw">match </span>input.expression {
+            <span class="comment">// Skip empty return statements.
+            </span>Expression::Tuple(<span class="kw-2">ref </span>tuple) <span class="kw">if </span>tuple.elements.is_empty() =&gt; String::new(),
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">let </span>(operand, <span class="kw-2">mut </span>expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
+                <span class="comment">// Get the output type of the function.
+                </span><span class="kw">let </span>output = <span class="kw">if </span><span class="self">self</span>.in_finalize {
+                    <span class="comment">// Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
+                    </span><span class="self">self</span>.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
+                } <span class="kw">else </span>{
+                    <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+                    </span><span class="self">self</span>.current_function.unwrap().output.iter()
                 };
-                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">operand</span>
-                    .<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>)
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">zip_eq</span>(<span class="ident">output</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">operand</span>, <span class="ident">output</span>)<span class="op">|</span> {
-                        <span class="kw">match</span> <span class="ident">output</span> {
-                            <span class="ident">Output::Internal</span>(<span class="ident">output</span>) =&gt; {
-                                <span class="kw">let</span> <span class="ident">visibility</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_transition_function</span> {
-                                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">in_finalize</span> {
-                                        <span class="comment">// If in finalize block, the default visibility is public.</span>
-                                        <span class="bool-val">true</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
-                                            <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Public</span>,
-                                            <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
+                <span class="kw">let </span>instructions = operand
+                    .split(<span class="string">&#39;\n&#39;</span>)
+                    .into_iter()
+                    .zip_eq(output)
+                    .map(|(operand, output)| {
+                        <span class="kw">match </span>output {
+                            Output::Internal(output) =&gt; {
+                                <span class="kw">let </span>visibility = <span class="kw">if </span><span class="self">self</span>.is_transition_function {
+                                    <span class="kw">match </span><span class="self">self</span>.in_finalize {
+                                        <span class="comment">// If in finalize block, the default visibility is public.
+                                        </span><span class="bool-val">true </span>=&gt; <span class="kw">match </span>output.mode {
+                                            Mode::None =&gt; Mode::Public,
+                                            mode =&gt; mode,
                                         },
-                                        <span class="comment">// If not in finalize block, the default visibility is private.</span>
-                                        <span class="bool-val">false</span> =&gt; <span class="kw">match</span> <span class="ident">output</span>.<span class="ident">mode</span> {
-                                            <span class="ident">Mode::None</span> =&gt; <span class="ident">Mode::Private</span>,
-                                            <span class="ident">mode</span> =&gt; <span class="ident">mode</span>,
+                                        <span class="comment">// If not in finalize block, the default visibility is private.
+                                        </span><span class="bool-val">false </span>=&gt; <span class="kw">match </span>output.mode {
+                                            Mode::None =&gt; Mode::Private,
+                                            mode =&gt; mode,
                                         },
                                     }
-                                } <span class="kw">else</span> {
-                                    <span class="comment">// Only program functions have visibilities associated with their outputs.</span>
-                                    <span class="ident">Mode::None</span>
+                                } <span class="kw">else </span>{
+                                    <span class="comment">// Only program functions have visibilities associated with their outputs.
+                                    </span>Mode::None
                                 };
                                 <span class="macro">format!</span>(
                                     <span class="string">&quot;    output {} as {};\n&quot;</span>,
-                                    <span class="ident">operand</span>,
-                                    <span class="self">self</span>.<span class="ident">visit_type_with_visibility</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>.<span class="ident">type_</span>, <span class="ident">visibility</span>)
+                                    operand,
+                                    <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
                                 )
                             }
-                            <span class="ident">Output::External</span>(<span class="ident">output</span>) =&gt; {
+                            Output::External(output) =&gt; {
                                 <span class="macro">format!</span>(
                                     <span class="string">&quot;    output {} as {}.aleo/{}.record;\n&quot;</span>,
-                                    <span class="ident">operand</span>, <span class="ident">output</span>.<span class="ident">program_name</span>, <span class="ident">output</span>.<span class="ident">record</span>,
+                                    operand, output.program_name, output.record,
                                 )
                             }
                         }
                     })
-                    .<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
+                    .join(<span class="string">&quot;&quot;</span>);
 
-                <span class="ident">expression_instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">instructions</span>);
+                expression_instructions.push_str(<span class="kw-2">&amp;</span>instructions);
 
-                <span class="ident">expression_instructions</span>
+                expression_instructions
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement</span>
-        <span class="comment">// let (operand, expression_instructions) = self.visit_expression(&amp;input.value);</span>
-        <span class="comment">// self.variable_mapping.insert(&amp;input.variable_name.name, operand);</span>
-        <span class="comment">// expression_instructions</span>
-        <span class="macro">unreachable!</span>(<span class="string">&quot;DefinitionStatement&#39;s should not exist in SSA form.&quot;</span>)
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) -&gt; String {
+        <span class="comment">// TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
+        // let (operand, expression_instructions) = self.visit_expression(&amp;input.value);
+        // self.variable_mapping.insert(&amp;input.variable_name.name, operand);
+        // expression_instructions
+        </span><span class="macro">unreachable!</span>(<span class="string">&quot;DefinitionStatement&#39;s should not exist in SSA form.&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IncrementStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> (<span class="ident">index</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>);
-        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="ident">amount_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">amount_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    increment {}[{index}] by {amount};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>));
+    <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) -&gt; String {
+        <span class="kw">let </span>(index, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index);
+        <span class="kw">let </span>(amount, amount_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount);
+        instructions.push_str(<span class="kw-2">&amp;</span>amount_instructions);
+        instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    increment {}[{index}] by {amount};\n&quot;</span>, input.mapping));
 
-        <span class="ident">instructions</span>
+        instructions
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DecrementStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> (<span class="ident">index</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>);
-        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="ident">amount_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">amount_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    decrement {}[{index}] by {amount};\n&quot;</span>, <span class="ident">input</span>.<span class="ident">mapping</span>));
+    <span class="kw">fn </span>visit_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DecrementStatement) -&gt; String {
+        <span class="kw">let </span>(index, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index);
+        <span class="kw">let </span>(amount, amount_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount);
+        instructions.push_str(<span class="kw-2">&amp;</span>amount_instructions);
+        instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    decrement {}[{index}] by {amount};\n&quot;</span>, input.mapping));
 
-        <span class="ident">instructions</span>
+        instructions
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FinalizeStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finalize_instruction</span> <span class="op">=</span> <span class="string">&quot;    finalize&quot;</span>.<span class="ident">to_string</span>();
+    <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>finalize_instruction = <span class="string">&quot;    finalize&quot;</span>.to_string();
 
-        <span class="kw">for</span> <span class="ident">argument</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">argument_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>);
-            <span class="macro">write!</span>(<span class="ident">finalize_instruction</span>, <span class="string">&quot; {argument}&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">argument_instructions</span>);
+        <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
+            <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
+            <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
-        <span class="macro">writeln!</span>(<span class="ident">finalize_instruction</span>, <span class="string">&quot;;&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+        <span class="macro">writeln!</span>(finalize_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
 
-        <span class="ident">finalize_instruction</span>
+        finalize_instruction
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssignStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">place</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">operand</span>, <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>);
-                <span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">operand</span>);
-                <span class="ident">expression_instructions</span>
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) -&gt; String {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
+            Expression::Identifier(identifier) =&gt; {
+                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
+                <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand);
+                expression_instructions
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unimplemented!</span>(
-                <span class="string">&quot;Code generation for the left-hand side of an assignment is only implemented for `Identifier`s.&quot;</span>
-            ),
+            <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
+                <span class="string">&quot;Code generation for the left-hand side of an assignment is only implemented for `Identifier`s.&quot;
+            </span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConditionalStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.</span>
-        <span class="macro">unreachable!</span>(<span class="string">&quot;`ConditionalStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConditionalStatement) -&gt; String {
+        <span class="comment">// TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
+        </span><span class="macro">unreachable!</span>(<span class="string">&quot;`ConditionalStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IterationStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..</span>
-        <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IterationStatement) -&gt; String {
+        <span class="comment">// TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
+        </span><span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">generate_assert_instruction</span> <span class="op">=</span> <span class="op">|</span><span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span><span class="op">|</span> {
-            <span class="kw">let</span> (<span class="ident">left_operand</span>, <span class="ident">left_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>);
-            <span class="kw">let</span> (<span class="ident">right_operand</span>, <span class="ident">right_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>);
-            <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>generate_assert_instruction = |name: <span class="kw-2">&amp;</span>str, left: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression, right: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression| {
+            <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(left);
+            <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(right);
+            <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
 
-            <span class="comment">// Concatenate the instructions.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">left_instructions</span>;
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">right_instructions</span>);
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
+            <span class="comment">// Concatenate the instructions.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = left_instructions;
+            instructions.push_str(<span class="kw-2">&amp;</span>right_instructions);
+            instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
 
-            <span class="ident">instructions</span>
+            instructions
         };
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">operand</span>, <span class="kw-2">mut</span> <span class="ident">instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>);
-                <span class="kw">let</span> <span class="ident">assert_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
+        <span class="kw">match </span><span class="kw-2">&amp;</span>input.function {
+            ConsoleFunction::Assert(expr) =&gt; {
+                <span class="kw">let </span>(operand, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(expr);
+                <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
 
-                <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">assert_instruction</span>);
-                <span class="ident">instructions</span>
+                instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
+                instructions
             }
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">generate_assert_instruction</span>(<span class="string">&quot;assert.eq&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
-            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">generate_assert_instruction</span>(<span class="string">&quot;assert.neq&quot;</span>, <span class="ident">left</span>, <span class="ident">right</span>),
+            ConsoleFunction::AssertEq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.eq&quot;</span>, left, right),
+            ConsoleFunction::AssertNeq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.neq&quot;</span>, left, right),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// For each statement in the block, visit it and add its instructions to the list.</span>
-        <span class="ident">input</span>.<span class="ident">statements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">stmt</span>)).<span class="ident">join</span>(<span class="string">&quot;&quot;</span>)
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Block) -&gt; String {
+        <span class="comment">// For each statement in the block, visit it and add its instructions to the list.
+        </span>input.statements.iter().map(|stmt| <span class="self">self</span>.visit_statement(stmt)).join(<span class="string">&quot;&quot;</span>)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

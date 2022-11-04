@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["leo_span"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.64.0/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.64.0/std/primitive.str.html\">str</a>&gt; for <a class=\"enum\" href=\"leo_span/symbol/enum.InternedStr.html\" title=\"enum leo_span::symbol::InternedStr\">InternedStr</a>","synthetic":false,"types":["leo_span::symbol::InternedStr"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"leo_span":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.65.0/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.65.0/std/primitive.str.html\">str</a>&gt; for <a class=\"enum\" href=\"leo_span/symbol/enum.InternedStr.html\" title=\"enum leo_span::symbol::InternedStr\">InternedStr</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

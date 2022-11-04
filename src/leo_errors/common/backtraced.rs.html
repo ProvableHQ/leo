@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/common/backtraced.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backtraced.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_errors/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/common/backtraced.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backtraced.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_errors/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -171,178 +171,178 @@
 <span id="171">171</span>
 <span id="172">172</span>
 <span id="173">173</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</span><span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">backtrace::Backtrace</span>;
-<span class="kw">use</span> <span class="ident">color_backtrace</span>::{<span class="ident">BacktracePrinter</span>, <span class="ident">Verbosity</span>};
-<span class="kw">use</span> <span class="ident">colored::Colorize</span>;
-<span class="kw">use</span> <span class="ident">derivative::Derivative</span>;
-<span class="kw">use</span> <span class="ident">leo_span::source_map::is_not_test_framework</span>;
+<span class="kw">use </span>backtrace::Backtrace;
+<span class="kw">use </span>color_backtrace::{BacktracePrinter, Verbosity};
+<span class="kw">use </span>colored::Colorize;
+<span class="kw">use </span>derivative::Derivative;
+<span class="kw">use </span>leo_span::source_map::is_not_test_framework;
 
-<span class="doccomment">/// The indent for an error message.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">INDENT</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;    &quot;</span>;
+<span class="doccomment">/// The indent for an error message.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>INDENT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;    &quot;</span>;
 
-<span class="doccomment">/// Backtraced compiler ouput type</span>
-<span class="doccomment">///     undefined value `x`</span>
-<span class="doccomment">///     --&gt; file.leo: 2:8</span>
-<span class="doccomment">///      = help: Initialize a variable `x` first.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Derivative</span>)]</span>
-<span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Backtraced</span> {
-    <span class="doccomment">/// The error message.</span>
-    <span class="kw">pub</span> <span class="ident">message</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The error help message if it exists.</span>
-    <span class="kw">pub</span> <span class="ident">help</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The error exit code.</span>
-    <span class="kw">pub</span> <span class="ident">code</span>: <span class="ident">i32</span>,
-    <span class="doccomment">/// The error leading digits identifier.</span>
-    <span class="kw">pub</span> <span class="ident">code_identifier</span>: <span class="ident">i8</span>,
-    <span class="doccomment">/// The characters representing the type of error.</span>
-    <span class="kw">pub</span> <span class="ident">type_</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Is this Backtrace a warning or error?</span>
-    <span class="kw">pub</span> <span class="ident">error</span>: <span class="ident">bool</span>,
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">PartialEq</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
-    <span class="attribute">#[<span class="ident">derivative</span>(<span class="ident">Hash</span> <span class="op">=</span> <span class="string">&quot;ignore&quot;</span>)]</span>
-    <span class="doccomment">/// The backtrace representing where the error occured in Leo.</span>
-    <span class="kw">pub</span> <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
+<span class="doccomment">/// Backtraced compiler ouput type
+///     undefined value `x`
+///     --&gt; file.leo: 2:8
+///      = help: Initialize a variable `x` first.
+</span><span class="attribute">#[derive(Derivative)]
+#[derivative(Clone, Debug, Default, Hash, PartialEq)]
+</span><span class="kw">pub struct </span>Backtraced {
+    <span class="doccomment">/// The error message.
+    </span><span class="kw">pub </span>message: String,
+    <span class="doccomment">/// The error help message if it exists.
+    </span><span class="kw">pub </span>help: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The error exit code.
+    </span><span class="kw">pub </span>code: i32,
+    <span class="doccomment">/// The error leading digits identifier.
+    </span><span class="kw">pub </span>code_identifier: i8,
+    <span class="doccomment">/// The characters representing the type of error.
+    </span><span class="kw">pub </span>type_: String,
+    <span class="doccomment">/// Is this Backtrace a warning or error?
+    </span><span class="kw">pub </span>error: bool,
+    <span class="attribute">#[derivative(PartialEq = <span class="string">&quot;ignore&quot;</span>)]
+    #[derivative(Hash = <span class="string">&quot;ignore&quot;</span>)]
+    </span><span class="doccomment">/// The backtrace representing where the error occured in Leo.
+    </span><span class="kw">pub </span>backtrace: Backtrace,
 }
 
-<span class="kw">impl</span> <span class="ident">Backtraced</span> {
-    <span class="doccomment">/// Creates a backtraced error from a backtrace.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_backtrace</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(
-        <span class="ident">message</span>: <span class="ident">S</span>,
-        <span class="ident">help</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">code</span>: <span class="ident">i32</span>,
-        <span class="ident">code_identifier</span>: <span class="ident">i8</span>,
-        <span class="ident">type_</span>: <span class="ident">String</span>,
-        <span class="ident">error</span>: <span class="ident">bool</span>,
-        <span class="ident">backtrace</span>: <span class="ident">Backtrace</span>,
-    ) -&gt; <span class="self">Self</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">ToString</span>,
+<span class="kw">impl </span>Backtraced {
+    <span class="doccomment">/// Creates a backtraced error from a backtrace.
+    </span><span class="kw">pub fn </span>new_from_backtrace&lt;S&gt;(
+        message: S,
+        help: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        code: i32,
+        code_identifier: i8,
+        type_: String,
+        error: bool,
+        backtrace: Backtrace,
+    ) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>S: ToString,
     {
-        <span class="self">Self</span> {
-            <span class="ident">message</span>: <span class="ident">message</span>.<span class="ident">to_string</span>(),
-            <span class="ident">help</span>,
-            <span class="ident">code</span>,
-            <span class="ident">code_identifier</span>,
-            <span class="ident">type_</span>,
-            <span class="ident">error</span>,
-            <span class="ident">backtrace</span>,
+        <span class="self">Self </span>{
+            message: message.to_string(),
+            help,
+            code,
+            code_identifier,
+            type_,
+            error,
+            backtrace,
         }
     }
 
-    <span class="doccomment">/// Gets the backtraced error exit code.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">code</span>: <span class="ident">i32</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="op">&gt;</span> <span class="number">99</span> {
-            <span class="ident">code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">*</span> <span class="number">100_000</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">&gt;</span> <span class="number">9</span> {
-            <span class="ident">code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">*</span> <span class="number">10_000</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">*</span> <span class="number">1_000</span>;
+    <span class="doccomment">/// Gets the backtraced error exit code.
+    </span><span class="kw">pub fn </span>exit_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
+        <span class="kw">let </span><span class="kw-2">mut </span>code: i32;
+        <span class="kw">if </span><span class="self">self</span>.code_identifier &gt; <span class="number">99 </span>{
+            code = <span class="self">self</span>.code_identifier <span class="kw">as </span>i32 * <span class="number">100_000</span>;
+        } <span class="kw">else if </span><span class="self">self</span>.code_identifier <span class="kw">as </span>i32 &gt; <span class="number">9 </span>{
+            code = <span class="self">self</span>.code_identifier <span class="kw">as </span>i32 * <span class="number">10_000</span>;
+        } <span class="kw">else </span>{
+            code = <span class="self">self</span>.code_identifier <span class="kw">as </span>i32 * <span class="number">1_000</span>;
         }
-        <span class="ident">code</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>;
+        code += <span class="self">self</span>.code;
 
-        <span class="ident">code</span>
+        code
     }
 
-    <span class="doccomment">/// Gets a unique error identifier.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+    <span class="doccomment">/// Gets a unique error identifier.
+    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">&quot;E{error_type}{code_identifier:0&gt;3}{exit_code:0&gt;4}&quot;</span>,
-            <span class="ident">error_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_</span>,
-            <span class="ident">code_identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span>,
-            <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>,
+            error_type = <span class="self">self</span>.type_,
+            code_identifier = <span class="self">self</span>.code_identifier,
+            exit_code = <span class="self">self</span>.code,
         )
     }
 
-    <span class="doccomment">/// Gets a unique warning identifier.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warning_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+    <span class="doccomment">/// Gets a unique warning identifier.
+    </span><span class="kw">pub fn </span>warning_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">&quot;W{error_type}{code_identifier:0&gt;3}{exit_code:0&gt;4}&quot;</span>,
-            <span class="ident">error_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">type_</span>,
-            <span class="ident">code_identifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code_identifier</span>,
-            <span class="ident">exit_code</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">code</span>,
+            error_type = <span class="self">self</span>.type_,
+            code_identifier = <span class="self">self</span>.code_identifier,
+            exit_code = <span class="self">self</span>.code,
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Backtraced</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> (<span class="ident">kind</span>, <span class="ident">code</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span> {
-            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.<span class="ident">error_code</span>())
-        } <span class="kw">else</span> {
-            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.<span class="ident">warning_code</span>())
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Backtraced {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">let </span>(kind, code) = <span class="kw">if </span><span class="self">self</span>.error {
+            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.error_code())
+        } <span class="kw">else </span>{
+            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.warning_code())
         };
-        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, <span class="ident">message</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">message</span>,);
+        <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, message = <span class="self">self</span>.message,);
 
-        <span class="comment">// To avoid the color enabling characters for comparison with test expectations.</span>
-        <span class="kw">if</span> <span class="ident">is_not_test_framework</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">error</span> {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">red</span>())<span class="question-mark">?</span>;
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">message</span>.<span class="ident">bold</span>().<span class="ident">yellow</span>())<span class="question-mark">?</span>;
+        <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
+        </span><span class="kw">if </span>is_not_test_framework() {
+            <span class="kw">if </span><span class="self">self</span>.error {
+                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, message.bold().red())<span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, message.bold().yellow())<span class="question-mark">?</span>;
             }
-        } <span class="kw">else</span> {
-            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{message}&quot;</span>)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="macro">write!</span>(f, <span class="string">&quot;{message}&quot;</span>)<span class="question-mark">?</span>;
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">help</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">help</span> {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(help) = <span class="kw-2">&amp;</span><span class="self">self</span>.help {
             <span class="macro">write!</span>(
-                <span class="ident">f</span>,
+                f,
                 <span class="string">&quot;\n{indent     } |\n\
             {indent     } = {help}&quot;</span>,
-                <span class="ident">indent</span> <span class="op">=</span> <span class="ident">INDENT</span>,
-                <span class="ident">help</span> <span class="op">=</span> <span class="ident">help</span>
+                indent = INDENT,
+                help = help
             )<span class="question-mark">?</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">leo_backtrace</span> <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_BACKTRACE&quot;</span>).<span class="ident">unwrap_or_default</span>().<span class="ident">trim</span>().<span class="ident">to_owned</span>();
-        <span class="kw">match</span> <span class="ident">leo_backtrace</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;1&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">printer</span> <span class="op">=</span> <span class="ident">BacktracePrinter::default</span>();
-                <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">lib_verbosity</span>(<span class="ident">Verbosity::Medium</span>);
-                <span class="kw">let</span> <span class="ident">trace</span> <span class="op">=</span> <span class="ident">printer</span>
-                    .<span class="ident">format_trace_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>leo_backtrace = std::env::var(<span class="string">&quot;LEO_BACKTRACE&quot;</span>).unwrap_or_default().trim().to_owned();
+        <span class="kw">match </span>leo_backtrace.as_ref() {
+            <span class="string">&quot;1&quot; </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
+                printer = printer.lib_verbosity(Verbosity::Medium);
+                <span class="kw">let </span>trace = printer
+                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace)
+                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="string">&quot;full&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">printer</span> <span class="op">=</span> <span class="ident">BacktracePrinter::default</span>();
-                <span class="ident">printer</span> <span class="op">=</span> <span class="ident">printer</span>.<span class="ident">lib_verbosity</span>(<span class="ident">Verbosity::Full</span>);
-                <span class="kw">let</span> <span class="ident">trace</span> <span class="op">=</span> <span class="ident">printer</span>
-                    .<span class="ident">format_trace_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">backtrace</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">fmt::Error</span>)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
+            <span class="string">&quot;full&quot; </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
+                printer = printer.lib_verbosity(Verbosity::Full);
+                <span class="kw">let </span>trace = printer
+                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace)
+                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::error::Error</span> <span class="kw">for</span> <span class="ident">Backtraced</span> {
-    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">message</span>
+<span class="kw">impl </span>std::error::Error <span class="kw">for </span>Backtraced {
+    <span class="kw">fn </span>description(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.message
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

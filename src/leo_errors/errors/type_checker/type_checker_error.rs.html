@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/type_checker/type_checker_error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type_checker_error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../leo_errors/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/type_checker/type_checker_error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>type_checker_error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../leo_errors/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -431,438 +431,452 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::create_messages</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Display</span>};
+</span><span class="kw">use </span><span class="kw">crate</span>::create_messages;
+<span class="kw">use </span>std::fmt::{Debug, Display};
 
 <span class="macro">create_messages!</span>(
-    <span class="doccomment">/// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.</span>
-    <span class="ident">TypeCheckerError</span>,
-    <span class="ident">code_mask</span>: <span class="number">2000i32</span>,
-    <span class="ident">code_prefix</span>: <span class="string">&quot;TYC&quot;</span>,
+    <span class="doccomment">/// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
+    </span>TypeCheckerError,
+    code_mask: <span class="number">2000i32</span>,
+    code_prefix: <span class="string">&quot;TYC&quot;</span>,
 
-    <span class="doccomment">/// For when the parser encountered an invalid assignment target.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_assignment_target</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;invalid assignment target&quot;</span>,
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the parser encountered an invalid assignment target.
+    </span>@formatted
+    invalid_assignment_target {
+        args: (),
+        msg: <span class="string">&quot;invalid assignment target&quot;</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries to assign to a const input.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">cannot_assign_to_const_input</span> {
-        <span class="ident">args</span>: (<span class="ident">input</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries to assign to a const input.
+    </span>@formatted
+    cannot_assign_to_const_input {
+        args: (input: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Cannot assign to const input `{input}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries to assign to a const input.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">cannot_assign_to_const_var</span> {
-        <span class="ident">args</span>: (<span class="ident">var</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries to assign to a const input.
+    </span>@formatted
+    cannot_assign_to_const_var {
+        args: (var: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Cannot assign to const variable `{var}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries to assign to a const input.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">type_should_be</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries to assign to a const input.
+    </span>@formatted
+    type_should_be {
+        args: (type_: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Expected type `{expected}` but type `{type_}` was found&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the type checker cannot determine the type of an expression.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">could_not_determine_type</span> {
-        <span class="ident">args</span>: (<span class="ident">expr</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the type checker cannot determine the type of an expression.
+    </span>@formatted
+    could_not_determine_type {
+        args: (expr: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Could not determine the type of `{expr}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries to return a unknown variable.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">unknown_sym</span> {
-        <span class="ident">args</span>: (<span class="ident">kind</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">sym</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries to return a unknown variable.
+    </span>@formatted
+    unknown_sym {
+        args: (kind: <span class="kw">impl </span>Display, sym: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Unknown {kind} `{sym}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries calls a function with the incorrect number of args.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_num_args_to_call</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries calls a function with the incorrect number of args.
+    </span>@formatted
+    incorrect_num_args_to_call {
+        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Call expected `{expected}` args, but got `{received}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when one of the following types was expected.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">expected_one_type_of</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when one of the following types was expected.
+    </span>@formatted
+    expected_one_type_of {
+        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Expected one type from `{expected}`, but got `{received}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when an integer is not in a valid range.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_int_value</span> {
-        <span class="ident">args</span>: (<span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when an integer is not in a valid range.
+    </span>@formatted
+    invalid_int_value {
+        args: (value: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;The value {value} is not a valid `{type_}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when an invalid core function is used.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_core_function</span> {
-        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">function</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when an invalid core function is used.
+    </span>@formatted
+    invalid_core_function {
+        args: (struct_: <span class="kw">impl </span>Display, function: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;The instruction {struct_}::{function} is not a valid core function.&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a struct is created with the same name as a core type.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">core_type_name_conflict</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when a struct is created with the same name as a core type.
+    </span>@formatted
+    core_type_name_conflict {
+        args: (type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;The type {type_} is a reserved core type name.&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a function doesn&#39;t have a return statement.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">function_has_no_return</span> {
-        <span class="ident">args</span>: (<span class="ident">func</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when a function doesn&#39;t have a return statement.
+    </span>@formatted
+    function_has_no_return {
+        args: (func: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;The function {func} has no return statement.&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user tries initialize a struct with the incorrect number of args.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_num_struct_members</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user tries initialize a struct with the incorrect number of args.
+    </span>@formatted
+    incorrect_num_struct_members {
+        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Struct expected `{expected}` members, but got `{received}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the user is missing a struct member during initialization.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">missing_struct_member</span> {
-        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">member</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    <span class="doccomment">/// For when the user is missing a struct member during initialization.
+    </span>@formatted
+    missing_struct_member {
+        args: (struct_: <span class="kw">impl </span>Display, member: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;Struct initialization expression for `{struct_}` is missing member `{member}`.&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// An invalid access call is made e.g., `bool::MAX`</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_core_function_call</span> {
-        <span class="ident">args</span>: (<span class="ident">expr</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;{expr} is not a valid core function call.&quot;</span>
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// An invalid access call is made e.g., `bool::MAX`
+    </span>@formatted
+    invalid_core_function_call {
+        args: (expr: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;{expr} is not a valid core function call.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to define more that one struct member with the same name.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">duplicate_struct_member</span> {
-        <span class="ident">args</span>: (<span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Struct {struct_} defined with more than one member with the same name.&quot;</span>
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempted to define more that one struct member with the same name.
+    </span>@formatted
+    duplicate_struct_member {
+        args: (struct_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;Struct {struct_} defined with more than one member with the same name.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to define more that one record variable with the same name.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">duplicate_record_variable</span> {
-        <span class="ident">args</span>: (<span class="ident">record</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Record {record} defined with more than one variable with the same name.&quot;</span>
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempted to define more that one record variable with the same name.
+    </span>@formatted
+    duplicate_record_variable {
+        args: (record: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;Record {record} defined with more than one variable with the same name.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to access an invalid struct.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">undefined_type</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;The type `{type_}` is not found in the current scope.&quot;</span>
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempted to access an invalid struct.
+    </span>@formatted
+    undefined_type {
+        args: (type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;The type `{type_}` is not found in the current scope.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Attempted to access an invalid struct variable.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_struct_variable</span> {
-        <span class="ident">args</span>: (<span class="ident">variable</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">struct_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
-            <span class="string">&quot;Variable {variable} is not a member of struct {struct_}.&quot;</span>
-        ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Attempted to access an invalid struct variable.
+    </span>@formatted
+    invalid_struct_variable {
+        args: (variable: <span class="kw">impl </span>Display, struct_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;Variable {variable} is not a member of struct {struct_}.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">required_record_variable</span> {
-        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;The `record` type requires the variable `{name}: {type_}`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    required_record_variable {
+        args: (name: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The `record` type requires the variable `{name}: {type_}`.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">record_var_wrong_type</span> {
-        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;The field `{name}` in a `record` must have type `{type_}`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    record_var_wrong_type {
+        args: (name: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The field `{name}` in a `record` must have type `{type_}`.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">compare_address</span> {
-        <span class="ident">args</span>: (<span class="ident">operator</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Comparison `{operator}` is not supported for the address type.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    compare_address {
+        args: (operator: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Comparison `{operator}` is not supported for the address type.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_tuple_length</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">actual</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Expected a tuple of length `{expected}` found length `{actual}`&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    incorrect_tuple_length {
+        args: (expected: <span class="kw">impl </span>Display, actual: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Expected a tuple of length `{expected}` found length `{actual}`&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_tuple</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;Tuples must be explicitly typed in Leo&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;The function definition must match the function return statement&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    invalid_tuple {
+        args: (),
+        msg: <span class="string">&quot;Tuples must be explicitly typed in Leo&quot;</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;The function definition must match the function return statement&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">tuple_out_of_range</span> {
-        <span class="ident">args</span>: (<span class="ident">index</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">length</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Tuple index `{index}` out of range for a tuple with length `{length}`&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    tuple_out_of_range {
+        args: (index: <span class="kw">impl </span>Display, length: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Tuple index `{index}` out of range for a tuple with length `{length}`&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">tuple_not_allowed</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Tuples are only allowed as function return types.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    tuple_not_allowed {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Tuples are only allowed as function return types.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">unreachable_code_after_return</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot reach the following statement.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the unreachable code.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    unreachable_code_after_return {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot reach the following statement.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the unreachable code.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">loop_body_contains_return</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a return statement or always returns.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the code in the loop body that always returns.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    loop_body_contains_return {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a return statement or always returns.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the code in the loop body that always returns.&quot;</span>.to_string()),
     }
 
-    <span class="comment">// TODO: Consider emitting a warning instead of an error.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">unknown_annotation</span> {
-        <span class="ident">args</span>: (<span class="ident">annotation</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Unknown annotation: `{annotation}`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="comment">// TODO: Consider emitting a warning instead of an error.
+    </span>@formatted
+    unknown_annotation {
+        args: (annotation: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Unknown annotation: `{annotation}`.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">regular_function_inputs_cannot_have_modes</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Standard functions cannot have modes associated with their inputs.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider removing the mode or using the keyword `transition` instead of `function`.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    regular_function_inputs_cannot_have_modes {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Standard functions cannot have modes associated with their inputs.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider removing the mode or using the keyword `transition` instead of `function`.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">struct_or_record_cannot_contain_record</span> {
-        <span class="ident">args</span>: (<span class="ident">parent</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">child</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A struct or record cannot contain another record.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Remove the record `{child}` from `{parent}`.&quot;</span>)),
+    @formatted
+    struct_or_record_cannot_contain_record {
+        args: (parent: <span class="kw">impl </span>Display, child: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A struct or record cannot contain another record.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Remove the record `{child}` from `{parent}`.&quot;</span>)),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_mapping_type</span> {
-        <span class="ident">args</span>: (<span class="ident">component</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A mapping&#39;s {component} cannot be a {type_}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    invalid_mapping_type {
+        args: (component: <span class="kw">impl </span>Display, type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A mapping&#39;s {component} cannot be a {type_}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">only_transition_functions_can_have_finalize</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Only transition functions can have a `finalize` block.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the `finalize` block or use the keyword `transition` instead of `function`.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    only_transition_functions_can_have_finalize {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Only transition functions can have a `finalize` block.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the `finalize` block or use the keyword `transition` instead of `function`.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">finalize_input_mode_must_be_public</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;An input to a finalize block must be public.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    finalize_input_mode_must_be_public {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;An input to a finalize block must be public.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">finalize_in_finalize</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot contain a finalize statement.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    finalize_in_finalize {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot contain a finalize statement.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">increment_or_decrement_outside_finalize</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;`increment` or `decrement` statements must be inside a finalize block.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    increment_or_decrement_outside_finalize {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;`increment` or `decrement` statements must be inside a finalize block.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">finalize_without_finalize_block</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot use a `finalize` statement without a `finalize` block.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    finalize_without_finalize_block {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot use a `finalize` statement without a `finalize` block.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">loop_body_contains_finalize</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a finalize statement.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the finalize statement.&quot;</span>.<span class="ident">to_string</span>()),
+    @formatted
+    loop_body_contains_finalize {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Loop body contains a finalize statement.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove the finalize statement.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">missing_return</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Function must return a value.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    missing_return {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Function must return a value.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">finalize_block_must_not_be_empty</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot be empty.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    finalize_block_must_not_be_empty {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot be empty.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">cannot_have_constant_output_mode</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;A returned value cannot be a constant.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    cannot_have_constant_output_mode {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A returned value cannot be a constant.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">transition_function_inputs_cannot_be_const</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Transition functions cannot have constant inputs.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    transition_function_inputs_cannot_be_const {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Transition functions cannot have constant inputs.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">incorrect_num_args_to_finalize</span> {
-        <span class="ident">args</span>: (<span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(
+    @formatted
+    incorrect_num_args_to_finalize {
+        args: (expected: <span class="kw">impl </span>Display, received: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
             <span class="string">&quot;`finalize` expected `{expected}` args, but got `{received}`&quot;</span>,
         ),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_self_access</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;The allowed accesses to `self` are `self.caller`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    invalid_self_access {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The allowed accesses to `self` are `self.caller`.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">missing_finalize</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Function must contain a `finalize` statement on all execution paths.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    missing_finalize {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Function must contain a `finalize` statement on all execution paths.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">finalize_name_mismatch</span> {
-        <span class="ident">args</span>: (<span class="ident">finalize_name</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">function_name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;`finalize` name `{finalize_name}` does not match function name `{function_name}`&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    finalize_name_mismatch {
+        args: (finalize_name: <span class="kw">impl </span>Display, function_name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;`finalize` name `{finalize_name}` does not match function name `{function_name}`&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">invalid_type</span> {
-        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Invalid type `{type_}`&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    invalid_type {
+        args: (type_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Invalid type `{type_}`&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">cannot_invoke_call_from_standard_function</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot call another function from a standard function.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    cannot_invoke_call_from_standard_function {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot call another function from a standard function.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">cannot_invoke_call_to_local_transition_function</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot call a local transition function from a transition function.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    cannot_invoke_call_to_local_transition_function {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot call a local transition function from a transition function.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">formatted</span>
-    <span class="ident">loop_bound_must_be_a_literal</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Loop bound must be a literal.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @formatted
+    loop_bound_must_be_a_literal {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Loop bound must be a literal.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    imported_program_cannot_import_program {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;An imported program cannot import another program.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

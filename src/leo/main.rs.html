@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -162,110 +162,110 @@
 <span id="162">162</span>
 <span id="163">163</span>
 <span id="164">164</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">commands</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">context</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">logger</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">updater</span>;
+</span><span class="kw">pub mod </span>commands;
+<span class="kw">pub mod </span>context;
+<span class="kw">pub mod </span>logger;
+<span class="kw">pub mod </span>updater;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::commands</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::context</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_errors::Result</span>;
-<span class="kw">use</span> <span class="ident">leo_span::symbol::create_session_if_not_set_then</span>;
+<span class="kw">use </span><span class="kw">crate</span>::commands::<span class="kw-2">*</span>;
+<span class="kw">use </span><span class="kw">crate</span>::context::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::Result;
+<span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
 
-<span class="kw">use</span> <span class="ident">clap::StructOpt</span>;
-<span class="kw">use</span> <span class="ident">std::path::PathBuf</span>;
-<span class="kw">use</span> <span class="ident">std::process::exit</span>;
+<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::process::exit;
 
-<span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Debug</span>)]</span>
-<span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;leo&quot;</span>, <span class="ident">author</span> <span class="op">=</span> <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CLI</span> {
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">short</span>, <span class="ident">global</span> <span class="op">=</span> <span class="bool-val">true</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Print additional information for debugging&quot;</span>)]</span>
-    <span class="ident">debug</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
+</span><span class="attribute">#[derive(StructOpt, Debug)]
+#[structopt(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>)]
+</span><span class="kw">pub struct </span>CLI {
+    <span class="attribute">#[structopt(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Print additional information for debugging&quot;</span>)]
+    </span>debug: bool,
 
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">short</span>, <span class="ident">global</span> <span class="op">=</span> <span class="bool-val">true</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Suppress CLI output&quot;</span>)]</span>
-    <span class="ident">quiet</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[structopt(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Suppress CLI output&quot;</span>)]
+    </span>quiet: bool,
 
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">subcommand</span>)]</span>
-    <span class="ident">command</span>: <span class="ident">Commands</span>,
+    <span class="attribute">#[structopt(subcommand)]
+    </span>command: Commands,
 
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, <span class="ident">env</span> <span class="op">=</span> <span class="string">&quot;APM_URL&quot;</span>)]</span>
-    <span class="ident">api</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[structopt(help = <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, env = <span class="string">&quot;APM_URL&quot;</span>)]
+    </span>api: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="attribute">#[<span class="ident">structopt</span>(
-        <span class="ident">long</span>,
-        <span class="ident">global</span> <span class="op">=</span> <span class="bool-val">true</span>,
-        <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Optional path to Leo program root folder&quot;</span>,
-        <span class="ident">parse</span>(<span class="ident">from_os_str</span>)
-    )]</span>
-    <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
+    <span class="attribute">#[structopt(
+        long,
+        global = <span class="bool-val">true</span>,
+        help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>,
+        parse(from_os_str)
+    )]
+    </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
-<span class="doccomment">///Leo compiler and package manager</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Commands</span> {
-    <span class="comment">// #[structopt(about = &quot;Create a new Leo package in an existing directory&quot;)]</span>
-    <span class="comment">// Init {</span>
-    <span class="comment">//     #[structopt(flatten)]</span>
-    <span class="comment">//     command: Init,</span>
-    <span class="comment">// },</span>
-    <span class="comment">//</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Create a new Leo package in a new directory&quot;</span>)]</span>
-    <span class="ident">New</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">command</span>: <span class="ident">New</span>,
+<span class="doccomment">///Leo compiler and package manager
+</span><span class="attribute">#[derive(StructOpt, Debug)]
+</span><span class="kw">enum </span>Commands {
+    <span class="comment">// #[structopt(about = &quot;Create a new Leo package in an existing directory&quot;)]
+    // Init {
+    //     #[structopt(flatten)]
+    //     command: Init,
+    // },
+    //
+    </span><span class="attribute">#[structopt(about = <span class="string">&quot;Create a new Leo package in a new directory&quot;</span>)]
+    </span>New {
+        <span class="attribute">#[structopt(flatten)]
+        </span>command: New,
     },
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Compile the current package as a program&quot;</span>)]</span>
-    <span class="ident">Build</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">command</span>: <span class="ident">Build</span>,
+    <span class="attribute">#[structopt(about = <span class="string">&quot;Compile the current package as a program&quot;</span>)]
+    </span>Build {
+        <span class="attribute">#[structopt(flatten)]
+        </span>command: Build,
     },
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Clean the output directory&quot;</span>)]</span>
-    <span class="ident">Clean</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">command</span>: <span class="ident">Clean</span>,
+    <span class="attribute">#[structopt(about = <span class="string">&quot;Clean the output directory&quot;</span>)]
+    </span>Clean {
+        <span class="attribute">#[structopt(flatten)]
+        </span>command: Clean,
     },
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Run a program with input variables&quot;</span>)]</span>
-    <span class="ident">Run</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">command</span>: <span class="ident">Run</span>,
+    <span class="attribute">#[structopt(about = <span class="string">&quot;Run a program with input variables&quot;</span>)]
+    </span>Run {
+        <span class="attribute">#[structopt(flatten)]
+        </span>command: Run,
     },
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">subcommand</span>)]</span>
-    <span class="ident">Node</span>(<span class="ident">Node</span>),
+    <span class="attribute">#[structopt(subcommand)]
+    </span>Node(Node),
 
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Deploy a program&quot;</span>)]</span>
-    <span class="ident">Deploy</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">command</span>: <span class="ident">Deploy</span>,
+    <span class="attribute">#[structopt(about = <span class="string">&quot;Deploy a program&quot;</span>)]
+    </span>Deploy {
+        <span class="attribute">#[structopt(flatten)]
+        </span>command: Deploy,
     },
 }
 
-<span class="kw">fn</span> <span class="ident">set_panic_hook</span>() {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">debug_assertions</span>))]</span>
-    <span class="ident">std::panic::set_hook</span>({
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+<span class="kw">fn </span>set_panic_hook() {
+    <span class="attribute">#[cfg(not(debug_assertions))]
+    </span>std::panic::set_hook({
+        Box::new(<span class="kw">move </span>|e| {
             <span class="macro">eprintln!</span>(
                 <span class="string">&quot;thread `{}` {}&quot;</span>,
-                <span class="ident">std::thread::current</span>().<span class="ident">name</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&lt;unnamed&gt;&quot;</span>),
-                <span class="ident">e</span>
+                std::thread::current().name().unwrap_or(<span class="string">&quot;&lt;unnamed&gt;&quot;</span>),
+                e
             );
-            <span class="macro">eprintln!</span>(<span class="string">&quot;stack backtrace: \n{:?}&quot;</span>, <span class="ident">backtrace::Backtrace::new</span>());
+            <span class="macro">eprintln!</span>(<span class="string">&quot;stack backtrace: \n{:?}&quot;</span>, backtrace::Backtrace::new());
             <span class="macro">eprintln!</span>(<span class="string">&quot;error: internal compiler error: unexpected panic\n&quot;</span>);
             <span class="macro">eprintln!</span>(<span class="string">&quot;note: the compiler unexpectedly panicked. this is a bug.\n&quot;</span>);
             <span class="macro">eprintln!</span>(<span class="string">&quot;note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&amp;template=bug.md&amp;title=[Bug]\n&quot;</span>);
@@ -273,58 +273,58 @@
                 <span class="string">&quot;note: {} {} running on {} {}\n&quot;</span>,
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>),
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>),
-                <span class="ident">sys_info::os_type</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">to_string</span>()),
-                <span class="ident">sys_info::os_release</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">to_string</span>()),
+                sys_info::os_type().unwrap_or_else(|e| e.to_string()),
+                sys_info::os_release().unwrap_or_else(|e| e.to_string()),
             );
             <span class="macro">eprintln!</span>(
                 <span class="string">&quot;note: compiler args: {}\n&quot;</span>,
-                <span class="ident">std::env::args</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+                std::env::args().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot; &quot;</span>)
             );
-            <span class="macro">eprintln!</span>(<span class="string">&quot;note: compiler flags: {:?}\n&quot;</span>, <span class="ident">CLI::parse</span>());
+            <span class="macro">eprintln!</span>(<span class="string">&quot;note: compiler flags: {:?}\n&quot;</span>, CLI::parse());
         })
     });
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">match</span> <span class="ident">res</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+<span class="kw">pub fn </span>handle_error&lt;T&gt;(res: <span class="prelude-ty">Result</span>&lt;T&gt;) -&gt; T {
+    <span class="kw">match </span>res {
+        <span class="prelude-val">Ok</span>(t) =&gt; t,
+        <span class="prelude-val">Err</span>(err) =&gt; {
             <span class="macro">eprintln!</span>(<span class="string">&quot;{err}&quot;</span>);
-            <span class="ident">exit</span>(<span class="ident">err</span>.<span class="ident">exit_code</span>());
+            exit(err.exit_code());
         }
     }
 }
 
-<span class="doccomment">/// Run command with custom build arguments.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_with_args</span>(<span class="ident">cli</span>: <span class="ident">CLI</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">cli</span>.<span class="ident">quiet</span> {
-        <span class="comment">// Init logger with optional debug flag.</span>
-        <span class="ident">logger::init_logger</span>(
+<span class="doccomment">/// Run command with custom build arguments.
+</span><span class="kw">pub fn </span>run_with_args(cli: CLI) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">if </span>!cli.quiet {
+        <span class="comment">// Init logger with optional debug flag.
+        </span>logger::init_logger(
             <span class="string">&quot;leo&quot;</span>,
-            <span class="kw">match</span> <span class="ident">cli</span>.<span class="ident">debug</span> {
-                <span class="bool-val">false</span> =&gt; <span class="number">1</span>,
-                <span class="bool-val">true</span> =&gt; <span class="number">2</span>,
+            <span class="kw">match </span>cli.debug {
+                <span class="bool-val">false </span>=&gt; <span class="number">1</span>,
+                <span class="bool-val">true </span>=&gt; <span class="number">2</span>,
             },
         )<span class="question-mark">?</span>;
     }
 
-    <span class="comment">// Get custom root folder and create context for it.</span>
-    <span class="comment">// If not specified, default context will be created in cwd.</span>
-    <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">handle_error</span>(<span class="ident">Context::new</span>(<span class="ident">cli</span>.<span class="ident">path</span>));
+    <span class="comment">// Get custom root folder and create context for it.
+    // If not specified, default context will be created in cwd.
+    </span><span class="kw">let </span>context = handle_error(Context::new(cli.path));
 
-    <span class="kw">match</span> <span class="ident">cli</span>.<span class="ident">command</span> {
-        <span class="ident">Commands::New</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">Commands::Build</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">Commands::Clean</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">Commands::Run</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">Commands::Node</span>(<span class="ident">command</span>) =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
-        <span class="ident">Commands::Deploy</span> { <span class="ident">command</span> } =&gt; <span class="ident">command</span>.<span class="ident">try_execute</span>(<span class="ident">context</span>),
+    <span class="kw">match </span>cli.command {
+        Commands::New { command } =&gt; command.try_execute(context),
+        Commands::Build { command } =&gt; command.try_execute(context),
+        Commands::Clean { command } =&gt; command.try_execute(context),
+        Commands::Run { command } =&gt; command.try_execute(context),
+        Commands::Node(command) =&gt; command.try_execute(context),
+        Commands::Deploy { command } =&gt; command.try_execute(context),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="ident">set_panic_hook</span>();
-    <span class="ident">create_session_if_not_set_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">handle_error</span>(<span class="ident">run_with_args</span>(<span class="ident">CLI::parse</span>())));
+<span class="kw">fn </span>main() {
+    set_panic_hook();
+    create_session_if_not_set_then(|<span class="kw">_</span>| handle_error(run_with_args(CLI::parse())));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

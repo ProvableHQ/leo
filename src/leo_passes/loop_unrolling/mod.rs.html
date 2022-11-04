@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/loop_unrolling/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/loop_unrolling/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -47,54 +47,54 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">mod</span> <span class="ident">range_iterator</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">range_iterator</span>::<span class="kw-2">*</span>;
+</span><span class="kw">mod </span>range_iterator;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>range_iterator::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unroller</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unroller</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>unroller;
+<span class="kw">pub use </span>unroller::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unroll_expression</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unroll_expression</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>unroll_expression;
+<span class="kw">pub use </span>unroll_expression::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unroll_program</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unroll_program</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>unroll_program;
+<span class="kw">pub use </span>unroll_program::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unroll_statement</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unroll_statement</span>::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>unroll_statement;
+<span class="kw">pub use </span>unroll_statement::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Pass</span>, <span class="ident">SymbolTable</span>};
+<span class="kw">use crate</span>::{Pass, SymbolTable};
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Ast</span>, <span class="ident">ProgramReconstructor</span>};
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">emitter::Handler</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_ast::{Ast, ProgramReconstructor};
+<span class="kw">use </span>leo_errors::{emitter::Handler, <span class="prelude-ty">Result</span>};
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Pass</span> <span class="kw">for</span> <span class="ident">Unroller</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Input</span> <span class="op">=</span> (<span class="ident">Ast</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>, <span class="ident">SymbolTable</span>);
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Ast</span>, <span class="ident">SymbolTable</span>)<span class="op">&gt;</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Pass <span class="kw">for </span>Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, SymbolTable);
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(Ast, SymbolTable)&gt;;
 
-    <span class="kw">fn</span> <span class="ident">do_pass</span>((<span class="ident">ast</span>, <span class="ident">handler</span>, <span class="ident">st</span>): <span class="ident"><span class="self">Self</span>::Input</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Reconstructs the AST based off any flattening work that is done.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reconstructor</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">st</span>, <span class="ident">handler</span>);
-        <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">reconstructor</span>.<span class="ident">reconstruct_program</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>());
-        <span class="ident">handler</span>.<span class="ident">last_err</span>()<span class="question-mark">?</span>;
+    <span class="kw">fn </span>do_pass((ast, handler, st): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Reconstructs the AST based off any flattening work that is done.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>reconstructor = <span class="self">Self</span>::new(st, handler);
+        <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
+        handler.last_err()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((<span class="ident">Ast::new</span>(<span class="ident">program</span>), <span class="ident">reconstructor</span>.<span class="ident">symbol_table</span>.<span class="ident">take</span>()))
+        <span class="prelude-val">Ok</span>((Ast::new(program), reconstructor.symbol_table.take()))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/passes/reconstructor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>reconstructor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/passes/reconstructor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>reconstructor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -380,387 +380,387 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="doccomment">//! This module contains a Reconstructor trait for the AST.</span>
-<span class="doccomment">//! It implements default methods for each node to be made</span>
-<span class="doccomment">//! given the information of the old node.</span>
+</span><span class="doccomment">//! This module contains a Reconstructor trait for the AST.
+//! It implements default methods for each node to be made
+//! given the information of the old node.
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="kw-2">*</span>;
+</span><span class="kw">use crate</span>::<span class="kw-2">*</span>;
 
-<span class="doccomment">/// A Reconstructor trait for expressions in the AST.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ExpressionReconstructor</span> {
-    <span class="kw">type</span> <span class="ident">AdditionalOutput</span>: <span class="ident">Default</span>;
+<span class="doccomment">/// A Reconstructor trait for expressions in the AST.
+</span><span class="kw">pub trait </span>ExpressionReconstructor {
+    <span class="kw">type </span>AdditionalOutput: Default;
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Expression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Expression::Access</span>(<span class="ident">access</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_access</span>(<span class="ident">access</span>),
-            <span class="ident">Expression::Binary</span>(<span class="ident">binary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_binary</span>(<span class="ident">binary</span>),
-            <span class="ident">Expression::Call</span>(<span class="ident">call</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_call</span>(<span class="ident">call</span>),
-            <span class="ident">Expression::Struct</span>(<span class="ident">struct_</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_struct_init</span>(<span class="ident">struct_</span>),
-            <span class="ident">Expression::Err</span>(<span class="ident">err</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_err</span>(<span class="ident">err</span>),
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_identifier</span>(<span class="ident">identifier</span>),
-            <span class="ident">Expression::Literal</span>(<span class="ident">value</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_literal</span>(<span class="ident">value</span>),
-            <span class="ident">Expression::Ternary</span>(<span class="ident">ternary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">ternary</span>),
-            <span class="ident">Expression::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_tuple</span>(<span class="ident">tuple</span>),
-            <span class="ident">Expression::Unary</span>(<span class="ident">unary</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_unary</span>(<span class="ident">unary</span>),
+    <span class="kw">fn </span>reconstruct_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Expression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">match </span>input {
+            Expression::Access(access) =&gt; <span class="self">self</span>.reconstruct_access(access),
+            Expression::Binary(binary) =&gt; <span class="self">self</span>.reconstruct_binary(binary),
+            Expression::Call(call) =&gt; <span class="self">self</span>.reconstruct_call(call),
+            Expression::Struct(struct_) =&gt; <span class="self">self</span>.reconstruct_struct_init(struct_),
+            Expression::Err(err) =&gt; <span class="self">self</span>.reconstruct_err(err),
+            Expression::Identifier(identifier) =&gt; <span class="self">self</span>.reconstruct_identifier(identifier),
+            Expression::Literal(value) =&gt; <span class="self">self</span>.reconstruct_literal(value),
+            Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(ternary),
+            Expression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple(tuple),
+            Expression::Unary(unary) =&gt; <span class="self">self</span>.reconstruct_unary(unary),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AccessExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Access</span>(<span class="kw">match</span> <span class="ident">input</span> {
-                <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">function</span>) =&gt; {
-                    <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">AssociatedFunction</span> {
-                        <span class="ident">ty</span>: <span class="ident">function</span>.<span class="ident">ty</span>,
-                        <span class="ident">name</span>: <span class="ident">function</span>.<span class="ident">name</span>,
-                        <span class="ident">args</span>: <span class="ident">function</span>
-                            .<span class="ident">args</span>
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">arg</span>).<span class="number">0</span>)
-                            .<span class="ident">collect</span>(),
-                        <span class="ident">span</span>: <span class="ident">function</span>.<span class="ident">span</span>,
+            Expression::Access(<span class="kw">match </span>input {
+                AccessExpression::AssociatedFunction(function) =&gt; {
+                    AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
+                            .collect(),
+                        span: function.span,
                     })
                 }
-                <span class="ident">AccessExpression::Member</span>(<span class="ident">member</span>) =&gt; <span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                    <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">member</span>.<span class="ident">inner</span>).<span class="number">0</span>),
-                    <span class="ident">name</span>: <span class="ident">member</span>.<span class="ident">name</span>,
-                    <span class="ident">span</span>: <span class="ident">member</span>.<span class="ident">span</span>,
+                AccessExpression::Member(member) =&gt; AccessExpression::Member(MemberAccess {
+                    inner: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>member.inner).<span class="number">0</span>),
+                    name: member.name,
+                    span: member.span,
                 }),
-                <span class="ident">AccessExpression::Tuple</span>(<span class="ident">tuple</span>) =&gt; <span class="ident">AccessExpression::Tuple</span>(<span class="ident">TupleAccess</span> {
-                    <span class="ident">tuple</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">tuple</span>.<span class="ident">tuple</span>).<span class="number">0</span>),
-                    <span class="ident">index</span>: <span class="ident">tuple</span>.<span class="ident">index</span>,
-                    <span class="ident">span</span>: <span class="ident">tuple</span>.<span class="ident">span</span>,
+                AccessExpression::Tuple(tuple) =&gt; AccessExpression::Tuple(TupleAccess {
+                    tuple: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>tuple.tuple).<span class="number">0</span>),
+                    index: tuple.index,
+                    span: tuple.span,
                 }),
-                <span class="ident">expr</span> =&gt; <span class="ident">expr</span>,
+                expr =&gt; expr,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">BinaryExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: BinaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">left</span>).<span class="number">0</span>),
-                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">right</span>).<span class="number">0</span>),
-                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Expression::Binary(BinaryExpression {
+                left: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.left).<span class="number">0</span>),
+                right: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.right).<span class="number">0</span>),
+                op: input.op,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">CallExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CallExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
-                <span class="ident">function</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">function</span>).<span class="number">0</span>),
-                <span class="ident">arguments</span>: <span class="ident">input</span>
-                    .<span class="ident">arguments</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">arg</span>).<span class="number">0</span>)
-                    .<span class="ident">collect</span>(),
-                <span class="ident">external</span>: <span class="ident">input</span>.<span class="ident">external</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Expression::Call(CallExpression {
+                function: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.function).<span class="number">0</span>),
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
+                    .collect(),
+                external: input.external,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">StructExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        (<span class="ident">Expression::Struct</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="kw">fn </span>reconstruct_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: StructExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        (Expression::Struct(input), Default::default())
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">ErrExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: ErrExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Identifier</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="kw">fn </span>reconstruct_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Identifier) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        (Expression::Identifier(input), Default::default())
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Literal</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        (<span class="ident">Expression::Literal</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="kw">fn </span>reconstruct_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Literal) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        (Expression::Literal(input), Default::default())
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_ternary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">TernaryExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TernaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">condition</span>).<span class="number">0</span>),
-                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_true</span>).<span class="number">0</span>),
-                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_false</span>).<span class="number">0</span>),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Expression::Ternary(TernaryExpression {
+                condition: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.condition).<span class="number">0</span>),
+                if_true: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.if_true).<span class="number">0</span>),
+                if_false: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.if_false).<span class="number">0</span>),
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">TupleExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TupleExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> {
-                <span class="ident">elements</span>: <span class="ident">input</span>
-                    .<span class="ident">elements</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">element</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">element</span>).<span class="number">0</span>)
-                    .<span class="ident">collect</span>(),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Expression::Tuple(TupleExpression {
+                elements: input
+                    .elements
+                    .into_iter()
+                    .map(|element| <span class="self">self</span>.reconstruct_expression(element).<span class="number">0</span>)
+                    .collect(),
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_unary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">UnaryExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">receiver</span>).<span class="number">0</span>),
-                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Expression::Unary(UnaryExpression {
+                receiver: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.receiver).<span class="number">0</span>),
+                op: input.op,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 }
 
-<span class="doccomment">/// A Reconstructor trait for statements in the AST.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">StatementReconstructor</span>: <span class="ident">ExpressionReconstructor</span> {
-    <span class="kw">fn</span> <span class="ident">reconstruct_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Statement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Statement::Assign</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_assign</span>(<span class="kw-2">*</span><span class="ident">stmt</span>),
-            <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">stmt</span>, <span class="ident">output</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">stmt</span>);
-                (<span class="ident">Statement::Block</span>(<span class="ident">stmt</span>), <span class="ident">output</span>)
+<span class="doccomment">/// A Reconstructor trait for statements in the AST.
+</span><span class="kw">pub trait </span>StatementReconstructor: ExpressionReconstructor {
+    <span class="kw">fn </span>reconstruct_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Statement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">match </span>input {
+            Statement::Assign(stmt) =&gt; <span class="self">self</span>.reconstruct_assign(<span class="kw-2">*</span>stmt),
+            Statement::Block(stmt) =&gt; {
+                <span class="kw">let </span>(stmt, output) = <span class="self">self</span>.reconstruct_block(stmt);
+                (Statement::Block(stmt), output)
             }
-            <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_conditional</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_console</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Decrement</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_decrement</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_definition</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Finalize</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_finalize</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Increment</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_increment</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_iteration</span>(<span class="kw-2">*</span><span class="ident">stmt</span>),
-            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">reconstruct_return</span>(<span class="ident">stmt</span>),
+            Statement::Conditional(stmt) =&gt; <span class="self">self</span>.reconstruct_conditional(stmt),
+            Statement::Console(stmt) =&gt; <span class="self">self</span>.reconstruct_console(stmt),
+            Statement::Decrement(stmt) =&gt; <span class="self">self</span>.reconstruct_decrement(stmt),
+            Statement::Definition(stmt) =&gt; <span class="self">self</span>.reconstruct_definition(stmt),
+            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.reconstruct_finalize(stmt),
+            Statement::Increment(stmt) =&gt; <span class="self">self</span>.reconstruct_increment(stmt),
+            Statement::Iteration(stmt) =&gt; <span class="self">self</span>.reconstruct_iteration(<span class="kw-2">*</span>stmt),
+            Statement::Return(stmt) =&gt; <span class="self">self</span>.reconstruct_return(stmt),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AssignStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Assign</span>(<span class="ident">Box::new</span>(<span class="ident">AssignStatement</span> {
-                <span class="ident">place</span>: <span class="ident">input</span>.<span class="ident">place</span>,
-                <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Assign(Box::new(AssignStatement {
+                place: input.place,
+                value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
+                span: input.span,
             })),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Block</span>) -&gt; (<span class="ident">Block</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Block</span> {
-                <span class="ident">statements</span>: <span class="ident">input</span>
-                    .<span class="ident">statements</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="ident">s</span>).<span class="number">0</span>)
-                    .<span class="ident">collect</span>(),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Block {
+                statements: input
+                    .statements
+                    .into_iter()
+                    .map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>)
+                    .collect(),
+                span: input.span,
             },
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConditionalStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Conditional</span>(<span class="ident">ConditionalStatement</span> {
-                <span class="ident">condition</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">condition</span>).<span class="number">0</span>,
-                <span class="ident">then</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">then</span>).<span class="number">0</span>,
-                <span class="ident">otherwise</span>: <span class="ident">input</span>.<span class="ident">otherwise</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reconstruct_statement</span>(<span class="kw-2">*</span><span class="ident">n</span>).<span class="number">0</span>)),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Conditional(ConditionalStatement {
+                condition: <span class="self">self</span>.reconstruct_expression(input.condition).<span class="number">0</span>,
+                then: <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>,
+                otherwise: input.otherwise.map(|n| Box::new(<span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>n).<span class="number">0</span>)),
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
-                <span class="ident">function</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
-                    <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; <span class="ident">ConsoleFunction::Assert</span>(<span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">expr</span>).<span class="number">0</span>),
-                    <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertEq</span>(
-                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
-                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
+            Statement::Console(ConsoleStatement {
+                function: <span class="kw">match </span>input.function {
+                    ConsoleFunction::Assert(expr) =&gt; ConsoleFunction::Assert(<span class="self">self</span>.reconstruct_expression(expr).<span class="number">0</span>),
+                    ConsoleFunction::AssertEq(left, right) =&gt; ConsoleFunction::AssertEq(
+                        <span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>,
+                        <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>,
                     ),
-                    <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; <span class="ident">ConsoleFunction::AssertNeq</span>(
-                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">left</span>).<span class="number">0</span>,
-                        <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">right</span>).<span class="number">0</span>,
+                    ConsoleFunction::AssertNeq(left, right) =&gt; ConsoleFunction::AssertNeq(
+                        <span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>,
+                        <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>,
                     ),
                 },
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DecrementStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Decrement</span>(<span class="ident">DecrementStatement</span> {
-                <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
-                <span class="ident">index</span>: <span class="ident">input</span>.<span class="ident">index</span>,
-                <span class="ident">amount</span>: <span class="ident">input</span>.<span class="ident">amount</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Decrement(DecrementStatement {
+                mapping: input.mapping,
+                index: input.index,
+                amount: input.amount,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DefinitionStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Definition</span>(<span class="ident">DefinitionStatement</span> {
-                <span class="ident">declaration_type</span>: <span class="ident">input</span>.<span class="ident">declaration_type</span>,
-                <span class="ident">variable_name</span>: <span class="ident">input</span>.<span class="ident">variable_name</span>,
-                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
-                <span class="ident">value</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">value</span>).<span class="number">0</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Definition(DefinitionStatement {
+                declaration_type: input.declaration_type,
+                variable_name: input.variable_name,
+                type_: input.type_,
+                value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Finalize</span>(<span class="ident">FinalizeStatement</span> {
-                <span class="ident">arguments</span>: <span class="ident">input</span>
-                    .<span class="ident">arguments</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">arg</span>).<span class="number">0</span>)
-                    .<span class="ident">collect</span>(),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Finalize(FinalizeStatement {
+                arguments: input
+                    .arguments
+                    .into_iter()
+                    .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
+                    .collect(),
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IncrementStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Increment</span>(<span class="ident">IncrementStatement</span> {
-                <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
-                <span class="ident">index</span>: <span class="ident">input</span>.<span class="ident">index</span>,
-                <span class="ident">amount</span>: <span class="ident">input</span>.<span class="ident">amount</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Increment(IncrementStatement {
+                mapping: input.mapping,
+                index: input.index,
+                amount: input.amount,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IterationStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Iteration</span>(<span class="ident">Box::new</span>(<span class="ident">IterationStatement</span> {
-                <span class="ident">variable</span>: <span class="ident">input</span>.<span class="ident">variable</span>,
-                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>,
-                <span class="ident">start</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">start</span>).<span class="number">0</span>,
-                <span class="ident">start_value</span>: <span class="ident">input</span>.<span class="ident">start_value</span>,
-                <span class="ident">stop</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">stop</span>).<span class="number">0</span>,
-                <span class="ident">stop_value</span>: <span class="ident">input</span>.<span class="ident">stop_value</span>,
-                <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>).<span class="number">0</span>,
-                <span class="ident">inclusive</span>: <span class="ident">input</span>.<span class="ident">inclusive</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Iteration(Box::new(IterationStatement {
+                variable: input.variable,
+                type_: input.type_,
+                start: <span class="self">self</span>.reconstruct_expression(input.start).<span class="number">0</span>,
+                start_value: input.start_value,
+                stop: <span class="self">self</span>.reconstruct_expression(input.stop).<span class="number">0</span>,
+                stop_value: input.stop_value,
+                block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
+                inclusive: input.inclusive,
+                span: input.span,
             })),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; (<span class="ident">Statement</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
+    <span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
-            <span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
-                <span class="ident">expression</span>: <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>).<span class="number">0</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            Statement::Return(ReturnStatement {
+                expression: <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>,
+                span: input.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 }
 
-<span class="doccomment">/// A Reconstructor trait for the program represented by the AST.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ProgramReconstructor</span>: <span class="ident">StatementReconstructor</span> {
-    <span class="kw">fn</span> <span class="ident">reconstruct_program</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident">Program</span> {
-        <span class="ident">Program</span> {
-            <span class="ident">imports</span>: <span class="ident">input</span>
-                .<span class="ident">imports</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_import</span>(<span class="ident">import</span>)))
-                .<span class="ident">collect</span>(),
-            <span class="ident">program_scopes</span>: <span class="ident">input</span>
-                .<span class="ident">program_scopes</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">scope</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_program_scope</span>(<span class="ident">scope</span>)))
-                .<span class="ident">collect</span>(),
+<span class="doccomment">/// A Reconstructor trait for the program represented by the AST.
+</span><span class="kw">pub trait </span>ProgramReconstructor: StatementReconstructor {
+    <span class="kw">fn </span>reconstruct_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Program) -&gt; Program {
+        Program {
+            imports: input
+                .imports
+                .into_iter()
+                .map(|(id, import)| (id, (<span class="self">self</span>.reconstruct_import(import.<span class="number">0</span>), import.<span class="number">1</span>)))
+                .collect(),
+            program_scopes: input
+                .program_scopes
+                .into_iter()
+                .map(|(id, scope)| (id, <span class="self">self</span>.reconstruct_program_scope(scope)))
+                .collect(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_program_scope</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ProgramScope</span>) -&gt; <span class="ident">ProgramScope</span> {
-        <span class="ident">ProgramScope</span> {
-            <span class="ident">program_id</span>: <span class="ident">input</span>.<span class="ident">program_id</span>,
-            <span class="ident">structs</span>: <span class="ident">input</span>
-                .<span class="ident">structs</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">c</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">reconstruct_struct</span>(<span class="ident">c</span>)))
-                .<span class="ident">collect</span>(),
-            <span class="ident">mappings</span>: <span class="ident">input</span>
-                .<span class="ident">mappings</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">mapping</span>)<span class="op">|</span> (<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">reconstruct_mapping</span>(<span class="ident">mapping</span>)))
-                .<span class="ident">collect</span>(),
-            <span class="ident">functions</span>: <span class="ident">input</span>
-                .<span class="ident">functions</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">f</span>)<span class="op">|</span> (<span class="ident">i</span>, <span class="self">self</span>.<span class="ident">reconstruct_function</span>(<span class="ident">f</span>)))
-                .<span class="ident">collect</span>(),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+    <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; ProgramScope {
+        ProgramScope {
+            program_id: input.program_id,
+            structs: input
+                .structs
+                .into_iter()
+                .map(|(i, c)| (i, <span class="self">self</span>.reconstruct_struct(c)))
+                .collect(),
+            mappings: input
+                .mappings
+                .into_iter()
+                .map(|(id, mapping)| (id, <span class="self">self</span>.reconstruct_mapping(mapping)))
+                .collect(),
+            functions: input
+                .functions
+                .into_iter()
+                .map(|(i, f)| (i, <span class="self">self</span>.reconstruct_function(f)))
+                .collect(),
+            span: input.span,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Function</span>) -&gt; <span class="ident">Function</span> {
-        <span class="ident">Function</span> {
-            <span class="ident">annotations</span>: <span class="ident">input</span>.<span class="ident">annotations</span>,
-            <span class="ident">call_type</span>: <span class="ident">input</span>.<span class="ident">call_type</span>,
-            <span class="ident">identifier</span>: <span class="ident">input</span>.<span class="ident">identifier</span>,
-            <span class="ident">input</span>: <span class="ident">input</span>.<span class="ident">input</span>,
-            <span class="ident">output</span>: <span class="ident">input</span>.<span class="ident">output</span>,
-            <span class="ident">output_type</span>: <span class="ident">input</span>.<span class="ident">output_type</span>,
-            <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">input</span>.<span class="ident">block</span>).<span class="number">0</span>,
-            <span class="ident">finalize</span>: <span class="ident">input</span>.<span class="ident">finalize</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">finalize</span><span class="op">|</span> <span class="ident">Finalize</span> {
-                <span class="ident">identifier</span>: <span class="ident">finalize</span>.<span class="ident">identifier</span>,
-                <span class="ident">input</span>: <span class="ident">finalize</span>.<span class="ident">input</span>,
-                <span class="ident">output</span>: <span class="ident">finalize</span>.<span class="ident">output</span>,
-                <span class="ident">output_type</span>: <span class="ident">finalize</span>.<span class="ident">output_type</span>,
-                <span class="ident">block</span>: <span class="self">self</span>.<span class="ident">reconstruct_block</span>(<span class="ident">finalize</span>.<span class="ident">block</span>).<span class="number">0</span>,
-                <span class="ident">span</span>: <span class="ident">finalize</span>.<span class="ident">span</span>,
+    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
+        Function {
+            annotations: input.annotations,
+            call_type: input.call_type,
+            identifier: input.identifier,
+            input: input.input,
+            output: input.output,
+            output_type: input.output_type,
+            block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
+            finalize: input.finalize.map(|finalize| Finalize {
+                identifier: finalize.identifier,
+                input: finalize.input,
+                output: finalize.output,
+                output_type: finalize.output_type,
+                block: <span class="self">self</span>.reconstruct_block(finalize.block).<span class="number">0</span>,
+                span: finalize.span,
             }),
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+            span: input.span,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_struct</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Struct</span>) -&gt; <span class="ident">Struct</span> {
-        <span class="ident">input</span>
+    <span class="kw">fn </span>reconstruct_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Struct) -&gt; Struct {
+        input
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_import</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Program</span>) -&gt; <span class="ident">Program</span> {
-        <span class="self">self</span>.<span class="ident">reconstruct_program</span>(<span class="ident">input</span>)
+    <span class="kw">fn </span>reconstruct_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Program) -&gt; Program {
+        <span class="self">self</span>.reconstruct_program(input)
     }
 
-    <span class="kw">fn</span> <span class="ident">reconstruct_mapping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Mapping</span>) -&gt; <span class="ident">Mapping</span> {
-        <span class="ident">input</span>
+    <span class="kw">fn </span>reconstruct_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Mapping) -&gt; Mapping {
+        input
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

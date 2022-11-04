@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/expressions/binary.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>binary.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/expressions/binary.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>binary.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -184,191 +184,191 @@
 <span id="184">184</span>
 <span id="185">185</span>
 <span id="186">186</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_span::{sym, Symbol};
 
-<span class="doccomment">/// A binary operator.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Precedence is defined in the parser.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BinaryOperation</span> {
-    <span class="doccomment">/// Addition, i.e. `+`, `.add()`.</span>
-    <span class="ident">Add</span>,
-    <span class="doccomment">/// Wrapping addition, i.e. `.add_wrapped()`.</span>
-    <span class="ident">AddWrapped</span>,
-    <span class="doccomment">/// Logical AND, i.e. `&amp;&amp;`.</span>
-    <span class="ident">And</span>,
-    <span class="doccomment">/// Bitwise AND, i.e. `&amp;`, `.and()`.</span>
-    <span class="ident">BitwiseAnd</span>,
-    <span class="doccomment">/// Division, i.e. `/`, `.div()`.</span>
-    <span class="ident">Div</span>,
-    <span class="doccomment">/// Wrapping division, i.e. `.div_wrapped()`.</span>
-    <span class="ident">DivWrapped</span>,
-    <span class="doccomment">/// Equality relation, i.e. `==`, `.eq()`.</span>
-    <span class="ident">Eq</span>,
-    <span class="doccomment">/// Greater-or-equal relation, i.e. `&gt;=`, `.gte()`.</span>
-    <span class="ident">Gte</span>,
-    <span class="doccomment">/// Greater-than relation, i.e. `&gt;`, `.gt()`.</span>
-    <span class="ident">Gt</span>,
-    <span class="doccomment">/// Lesser-or-equal relation, i.e. `&lt;=`, `.lte()`.</span>
-    <span class="ident">Lte</span>,
-    <span class="doccomment">/// Lesser-than relation, i.e. `&lt;`, `.lt()`.</span>
-    <span class="ident">Lt</span>,
-    <span class="doccomment">/// Arithmetic modulo, i.e. `.mod()`</span>
-    <span class="ident">Mod</span>,
-    <span class="doccomment">/// Multiplication, i.e. `*`, `.mul()`.</span>
-    <span class="ident">Mul</span>,
-    <span class="doccomment">/// Wrapping multiplication, i.e. `.mul_wrapped()`.</span>
-    <span class="ident">MulWrapped</span>,
-    <span class="doccomment">/// Boolean NAND, i.e. `.nand()`.</span>
-    <span class="ident">Nand</span>,
-    <span class="doccomment">/// In-equality relation, i.e. `!=`, `.neq()`.</span>
-    <span class="ident">Neq</span>,
-    <span class="doccomment">/// Boolean NOR, i.e. `.nor()`.</span>
-    <span class="ident">Nor</span>,
-    <span class="doccomment">/// Logical OR, i.e. `||`.</span>
-    <span class="ident">Or</span>,
-    <span class="doccomment">/// Bitwise OR, i.e. `|`, `.or()`.</span>
-    <span class="ident">BitwiseOr</span>,
-    <span class="doccomment">/// Exponentiation, i.e. `**` in `a ** b`, `.pow()`.</span>
-    <span class="ident">Pow</span>,
-    <span class="doccomment">/// Wrapping exponentiation, i.e. `.pow_wrapped()`.</span>
-    <span class="ident">PowWrapped</span>,
-    <span class="doccomment">/// Remainder, i.e. `%`, `.rem()`.</span>
-    <span class="ident">Rem</span>,
-    <span class="doccomment">/// Wrapping remainder, i.e. `.rem_wrapped()`.</span>
-    <span class="ident">RemWrapped</span>,
-    <span class="doccomment">/// Shift left operation, i.e. `&lt;&lt;`, `.shl()`.</span>
-    <span class="ident">Shl</span>,
-    <span class="doccomment">/// Wrapping shift left operation, i.e. `.shl_wrapped()`.</span>
-    <span class="ident">ShlWrapped</span>,
-    <span class="doccomment">/// Shift right operation, i.e. &gt;&gt;, `.shr()`.</span>
-    <span class="ident">Shr</span>,
-    <span class="doccomment">/// Wrapping shift right operation, i.e. `.shr_wrapped()`.</span>
-    <span class="ident">ShrWrapped</span>,
-    <span class="doccomment">/// Subtraction, i.e. `-`, `.sub()`.</span>
-    <span class="ident">Sub</span>,
-    <span class="doccomment">/// Wrapped subtraction, i.e. `.sub_wrapped()`.</span>
-    <span class="ident">SubWrapped</span>,
-    <span class="doccomment">/// Bitwise XOR, i.e. `.xor()`.</span>
-    <span class="ident">Xor</span>,
+<span class="doccomment">/// A binary operator.
+///
+/// Precedence is defined in the parser.
+</span><span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>BinaryOperation {
+    <span class="doccomment">/// Addition, i.e. `+`, `.add()`.
+    </span>Add,
+    <span class="doccomment">/// Wrapping addition, i.e. `.add_wrapped()`.
+    </span>AddWrapped,
+    <span class="doccomment">/// Logical AND, i.e. `&amp;&amp;`.
+    </span>And,
+    <span class="doccomment">/// Bitwise AND, i.e. `&amp;`, `.and()`.
+    </span>BitwiseAnd,
+    <span class="doccomment">/// Division, i.e. `/`, `.div()`.
+    </span>Div,
+    <span class="doccomment">/// Wrapping division, i.e. `.div_wrapped()`.
+    </span>DivWrapped,
+    <span class="doccomment">/// Equality relation, i.e. `==`, `.eq()`.
+    </span>Eq,
+    <span class="doccomment">/// Greater-or-equal relation, i.e. `&gt;=`, `.gte()`.
+    </span>Gte,
+    <span class="doccomment">/// Greater-than relation, i.e. `&gt;`, `.gt()`.
+    </span>Gt,
+    <span class="doccomment">/// Lesser-or-equal relation, i.e. `&lt;=`, `.lte()`.
+    </span>Lte,
+    <span class="doccomment">/// Lesser-than relation, i.e. `&lt;`, `.lt()`.
+    </span>Lt,
+    <span class="doccomment">/// Arithmetic modulo, i.e. `.mod()`
+    </span>Mod,
+    <span class="doccomment">/// Multiplication, i.e. `*`, `.mul()`.
+    </span>Mul,
+    <span class="doccomment">/// Wrapping multiplication, i.e. `.mul_wrapped()`.
+    </span>MulWrapped,
+    <span class="doccomment">/// Boolean NAND, i.e. `.nand()`.
+    </span>Nand,
+    <span class="doccomment">/// In-equality relation, i.e. `!=`, `.neq()`.
+    </span>Neq,
+    <span class="doccomment">/// Boolean NOR, i.e. `.nor()`.
+    </span>Nor,
+    <span class="doccomment">/// Logical OR, i.e. `||`.
+    </span>Or,
+    <span class="doccomment">/// Bitwise OR, i.e. `|`, `.or()`.
+    </span>BitwiseOr,
+    <span class="doccomment">/// Exponentiation, i.e. `**` in `a ** b`, `.pow()`.
+    </span>Pow,
+    <span class="doccomment">/// Wrapping exponentiation, i.e. `.pow_wrapped()`.
+    </span>PowWrapped,
+    <span class="doccomment">/// Remainder, i.e. `%`, `.rem()`.
+    </span>Rem,
+    <span class="doccomment">/// Wrapping remainder, i.e. `.rem_wrapped()`.
+    </span>RemWrapped,
+    <span class="doccomment">/// Shift left operation, i.e. `&lt;&lt;`, `.shl()`.
+    </span>Shl,
+    <span class="doccomment">/// Wrapping shift left operation, i.e. `.shl_wrapped()`.
+    </span>ShlWrapped,
+    <span class="doccomment">/// Shift right operation, i.e. &gt;&gt;, `.shr()`.
+    </span>Shr,
+    <span class="doccomment">/// Wrapping shift right operation, i.e. `.shr_wrapped()`.
+    </span>ShrWrapped,
+    <span class="doccomment">/// Subtraction, i.e. `-`, `.sub()`.
+    </span>Sub,
+    <span class="doccomment">/// Wrapped subtraction, i.e. `.sub_wrapped()`.
+    </span>SubWrapped,
+    <span class="doccomment">/// Bitwise XOR, i.e. `.xor()`.
+    </span>Xor,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">BinaryOperation</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>BinaryOperation {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident"><span class="self">Self</span>::Add</span> =&gt; <span class="string">&quot;+&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::AddWrapped</span> =&gt; <span class="string">&quot;add_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::And</span> =&gt; <span class="string">&quot;&amp;&amp;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::BitwiseAnd</span> =&gt; <span class="string">&quot;&amp;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Div</span> =&gt; <span class="string">&quot;/&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::DivWrapped</span> =&gt; <span class="string">&quot;div_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Eq</span> =&gt; <span class="string">&quot;==&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Gte</span> =&gt; <span class="string">&quot;&gt;=&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Gt</span> =&gt; <span class="string">&quot;&gt;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Lte</span> =&gt; <span class="string">&quot;&lt;=&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Lt</span> =&gt; <span class="string">&quot;&lt;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Mod</span> =&gt; <span class="string">&quot;mod&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Mul</span> =&gt; <span class="string">&quot;*&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::MulWrapped</span> =&gt; <span class="string">&quot;mul_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Nand</span> =&gt; <span class="string">&quot;NAND&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Neq</span> =&gt; <span class="string">&quot;!=&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Nor</span> =&gt; <span class="string">&quot;NOR&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Or</span> =&gt; <span class="string">&quot;||&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::BitwiseOr</span> =&gt; <span class="string">&quot;|&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Pow</span> =&gt; <span class="string">&quot;**&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::PowWrapped</span> =&gt; <span class="string">&quot;pow_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Rem</span> =&gt; <span class="string">&quot;%&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::RemWrapped</span> =&gt; <span class="string">&quot;rem_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Shl</span> =&gt; <span class="string">&quot;&lt;&lt;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::ShlWrapped</span> =&gt; <span class="string">&quot;shl_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Shr</span> =&gt; <span class="string">&quot;&gt;&gt;&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::ShrWrapped</span> =&gt; <span class="string">&quot;shr_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Sub</span> =&gt; <span class="string">&quot;-&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::SubWrapped</span> =&gt; <span class="string">&quot;sub_wrapped&quot;</span>,
-                <span class="ident"><span class="self">Self</span>::Xor</span> =&gt; <span class="string">&quot;^&quot;</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Add =&gt; <span class="string">&quot;+&quot;</span>,
+                <span class="self">Self</span>::AddWrapped =&gt; <span class="string">&quot;add_wrapped&quot;</span>,
+                <span class="self">Self</span>::And =&gt; <span class="string">&quot;&amp;&amp;&quot;</span>,
+                <span class="self">Self</span>::BitwiseAnd =&gt; <span class="string">&quot;&amp;&quot;</span>,
+                <span class="self">Self</span>::Div =&gt; <span class="string">&quot;/&quot;</span>,
+                <span class="self">Self</span>::DivWrapped =&gt; <span class="string">&quot;div_wrapped&quot;</span>,
+                <span class="self">Self</span>::Eq =&gt; <span class="string">&quot;==&quot;</span>,
+                <span class="self">Self</span>::Gte =&gt; <span class="string">&quot;&gt;=&quot;</span>,
+                <span class="self">Self</span>::Gt =&gt; <span class="string">&quot;&gt;&quot;</span>,
+                <span class="self">Self</span>::Lte =&gt; <span class="string">&quot;&lt;=&quot;</span>,
+                <span class="self">Self</span>::Lt =&gt; <span class="string">&quot;&lt;&quot;</span>,
+                <span class="self">Self</span>::Mod =&gt; <span class="string">&quot;mod&quot;</span>,
+                <span class="self">Self</span>::Mul =&gt; <span class="string">&quot;*&quot;</span>,
+                <span class="self">Self</span>::MulWrapped =&gt; <span class="string">&quot;mul_wrapped&quot;</span>,
+                <span class="self">Self</span>::Nand =&gt; <span class="string">&quot;NAND&quot;</span>,
+                <span class="self">Self</span>::Neq =&gt; <span class="string">&quot;!=&quot;</span>,
+                <span class="self">Self</span>::Nor =&gt; <span class="string">&quot;NOR&quot;</span>,
+                <span class="self">Self</span>::Or =&gt; <span class="string">&quot;||&quot;</span>,
+                <span class="self">Self</span>::BitwiseOr =&gt; <span class="string">&quot;|&quot;</span>,
+                <span class="self">Self</span>::Pow =&gt; <span class="string">&quot;**&quot;</span>,
+                <span class="self">Self</span>::PowWrapped =&gt; <span class="string">&quot;pow_wrapped&quot;</span>,
+                <span class="self">Self</span>::Rem =&gt; <span class="string">&quot;%&quot;</span>,
+                <span class="self">Self</span>::RemWrapped =&gt; <span class="string">&quot;rem_wrapped&quot;</span>,
+                <span class="self">Self</span>::Shl =&gt; <span class="string">&quot;&lt;&lt;&quot;</span>,
+                <span class="self">Self</span>::ShlWrapped =&gt; <span class="string">&quot;shl_wrapped&quot;</span>,
+                <span class="self">Self</span>::Shr =&gt; <span class="string">&quot;&gt;&gt;&quot;</span>,
+                <span class="self">Self</span>::ShrWrapped =&gt; <span class="string">&quot;shr_wrapped&quot;</span>,
+                <span class="self">Self</span>::Sub =&gt; <span class="string">&quot;-&quot;</span>,
+                <span class="self">Self</span>::SubWrapped =&gt; <span class="string">&quot;sub_wrapped&quot;</span>,
+                <span class="self">Self</span>::Xor =&gt; <span class="string">&quot;^&quot;</span>,
             }
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BinaryOperation</span> {
-    <span class="doccomment">/// Returns a `BinaryOperation` from the given `Symbol`.</span>
-    <span class="doccomment">/// This is used to resolve native operators invoked as method calls, e.g. `a.add_wrapped(b)`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_symbol</span>(<span class="ident">symbol</span>: <span class="ident">Symbol</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">symbol</span> {
-            <span class="ident">sym::add</span> =&gt; <span class="ident"><span class="self">Self</span>::Add</span>,
-            <span class="ident">sym::add_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::AddWrapped</span>,
-            <span class="ident">sym::and</span> =&gt; <span class="ident"><span class="self">Self</span>::BitwiseAnd</span>,
-            <span class="ident">sym::div</span> =&gt; <span class="ident"><span class="self">Self</span>::Div</span>,
-            <span class="ident">sym::div_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::DivWrapped</span>,
-            <span class="ident">sym::eq</span> =&gt; <span class="ident"><span class="self">Self</span>::Eq</span>,
-            <span class="ident">sym::gte</span> =&gt; <span class="ident"><span class="self">Self</span>::Gte</span>,
-            <span class="ident">sym::gt</span> =&gt; <span class="ident"><span class="self">Self</span>::Gt</span>,
-            <span class="ident">sym::lte</span> =&gt; <span class="ident"><span class="self">Self</span>::Lte</span>,
-            <span class="ident">sym::lt</span> =&gt; <span class="ident"><span class="self">Self</span>::Lt</span>,
-            <span class="ident">sym::Mod</span> =&gt; <span class="ident"><span class="self">Self</span>::Mod</span>,
-            <span class="ident">sym::mul</span> =&gt; <span class="ident"><span class="self">Self</span>::Mul</span>,
-            <span class="ident">sym::mul_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::MulWrapped</span>,
-            <span class="ident">sym::nand</span> =&gt; <span class="ident"><span class="self">Self</span>::Nand</span>,
-            <span class="ident">sym::neq</span> =&gt; <span class="ident"><span class="self">Self</span>::Neq</span>,
-            <span class="ident">sym::nor</span> =&gt; <span class="ident"><span class="self">Self</span>::Nor</span>,
-            <span class="ident">sym::or</span> =&gt; <span class="ident"><span class="self">Self</span>::BitwiseOr</span>,
-            <span class="ident">sym::pow</span> =&gt; <span class="ident"><span class="self">Self</span>::Pow</span>,
-            <span class="ident">sym::pow_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::PowWrapped</span>,
-            <span class="ident">sym::rem</span> =&gt; <span class="ident"><span class="self">Self</span>::Rem</span>,
-            <span class="ident">sym::rem_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::RemWrapped</span>,
-            <span class="ident">sym::shl</span> =&gt; <span class="ident"><span class="self">Self</span>::Shl</span>,
-            <span class="ident">sym::shl_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::ShlWrapped</span>,
-            <span class="ident">sym::shr</span> =&gt; <span class="ident"><span class="self">Self</span>::Shr</span>,
-            <span class="ident">sym::shr_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::ShrWrapped</span>,
-            <span class="ident">sym::sub</span> =&gt; <span class="ident"><span class="self">Self</span>::Sub</span>,
-            <span class="ident">sym::sub_wrapped</span> =&gt; <span class="ident"><span class="self">Self</span>::SubWrapped</span>,
-            <span class="ident">sym::xor</span> =&gt; <span class="ident"><span class="self">Self</span>::Xor</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">None</span>,
+<span class="kw">impl </span>BinaryOperation {
+    <span class="doccomment">/// Returns a `BinaryOperation` from the given `Symbol`.
+    /// This is used to resolve native operators invoked as method calls, e.g. `a.add_wrapped(b)`.
+    </span><span class="kw">pub fn </span>from_symbol(symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw">match </span>symbol {
+            sym::add =&gt; <span class="self">Self</span>::Add,
+            sym::add_wrapped =&gt; <span class="self">Self</span>::AddWrapped,
+            sym::and =&gt; <span class="self">Self</span>::BitwiseAnd,
+            sym::div =&gt; <span class="self">Self</span>::Div,
+            sym::div_wrapped =&gt; <span class="self">Self</span>::DivWrapped,
+            sym::eq =&gt; <span class="self">Self</span>::Eq,
+            sym::gte =&gt; <span class="self">Self</span>::Gte,
+            sym::gt =&gt; <span class="self">Self</span>::Gt,
+            sym::lte =&gt; <span class="self">Self</span>::Lte,
+            sym::lt =&gt; <span class="self">Self</span>::Lt,
+            sym::Mod =&gt; <span class="self">Self</span>::Mod,
+            sym::mul =&gt; <span class="self">Self</span>::Mul,
+            sym::mul_wrapped =&gt; <span class="self">Self</span>::MulWrapped,
+            sym::nand =&gt; <span class="self">Self</span>::Nand,
+            sym::neq =&gt; <span class="self">Self</span>::Neq,
+            sym::nor =&gt; <span class="self">Self</span>::Nor,
+            sym::or =&gt; <span class="self">Self</span>::BitwiseOr,
+            sym::pow =&gt; <span class="self">Self</span>::Pow,
+            sym::pow_wrapped =&gt; <span class="self">Self</span>::PowWrapped,
+            sym::rem =&gt; <span class="self">Self</span>::Rem,
+            sym::rem_wrapped =&gt; <span class="self">Self</span>::RemWrapped,
+            sym::shl =&gt; <span class="self">Self</span>::Shl,
+            sym::shl_wrapped =&gt; <span class="self">Self</span>::ShlWrapped,
+            sym::shr =&gt; <span class="self">Self</span>::Shr,
+            sym::shr_wrapped =&gt; <span class="self">Self</span>::ShrWrapped,
+            sym::sub =&gt; <span class="self">Self</span>::Sub,
+            sym::sub_wrapped =&gt; <span class="self">Self</span>::SubWrapped,
+            sym::xor =&gt; <span class="self">Self</span>::Xor,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="doccomment">/// A binary expression `left op right` of two operands separated by some operator.</span>
-<span class="doccomment">/// For example, `foo + bar`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BinaryExpression</span> {
-    <span class="doccomment">/// The left operand of the expression.</span>
-    <span class="kw">pub</span> <span class="ident">left</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The right operand of the expression.</span>
-    <span class="kw">pub</span> <span class="ident">right</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The operand defining the meaning of the resulting binary expression.</span>
-    <span class="kw">pub</span> <span class="ident">op</span>: <span class="ident">BinaryOperation</span>,
-    <span class="doccomment">/// The span from `left` to `right`.</span>
-    <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
+<span class="doccomment">/// A binary expression `left op right` of two operands separated by some operator.
+/// For example, `foo + bar`.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>BinaryExpression {
+    <span class="doccomment">/// The left operand of the expression.
+    </span><span class="kw">pub </span>left: Box&lt;Expression&gt;,
+    <span class="doccomment">/// The right operand of the expression.
+    </span><span class="kw">pub </span>right: Box&lt;Expression&gt;,
+    <span class="doccomment">/// The operand defining the meaning of the resulting binary expression.
+    </span><span class="kw">pub </span>op: BinaryOperation,
+    <span class="doccomment">/// The span from `left` to `right`.
+    </span><span class="kw">pub </span>span: Span,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">BinaryExpression</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} {} {}&quot;</span>, <span class="self">self</span>.<span class="ident">left</span>, <span class="self">self</span>.<span class="ident">op</span>, <span class="self">self</span>.<span class="ident">right</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>BinaryExpression {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{} {} {}&quot;</span>, <span class="self">self</span>.left, <span class="self">self</span>.op, <span class="self">self</span>.right)
     }
 }
 
-<span class="macro">crate::simple_node_impl!</span>(<span class="ident">BinaryExpression</span>);
+<span class="macro">crate::simple_node_impl!</span>(BinaryExpression);
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

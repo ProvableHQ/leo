@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/value/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/value/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -917,924 +917,924 @@
 <span id="917">917</span>
 <span id="918">918</span>
 <span id="919">919</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">GroupLiteral</span>, <span class="ident">Identifier</span>, <span class="ident">IntegerType</span>, <span class="ident">Literal</span>, <span class="ident">Type</span>};
+</span><span class="kw">use crate</span>::{GroupLiteral, Identifier, IntegerType, Literal, Type};
 
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">type_name</span>, <span class="ident">FlattenError</span>, <span class="ident">LeoError</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">Span</span>, <span class="ident">Symbol</span>};
+<span class="kw">use </span>leo_errors::{type_name, FlattenError, LeoError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">fmt::Display</span>,
-    <span class="ident">ops</span>::{<span class="ident">BitAnd</span>, <span class="ident">BitOr</span>, <span class="ident">BitXor</span>, <span class="ident">Not</span>},
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>std::{
+    fmt::Display,
+    ops::{BitAnd, BitOr, BitXor, Not},
 };
 
-<span class="comment">// TODO: Consider refactoring this module to use the console implementations from snarkVM.</span>
+<span class="comment">// TODO: Consider refactoring this module to use the console implementations from snarkVM.
 
-<span class="comment">// This is temporary since the currently unused code is used in constant folding.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+// This is temporary since the currently unused code is used in constant folding.
+</span><span class="attribute">#[allow(dead_code)]
 
-<span class="comment">// Macro for making implementing unary operations over appropriate types easier.</span>
-<span class="macro">macro_rules!</span> <span class="ident">implement_const_unary</span> {
+</span><span class="comment">// Macro for making implementing unary operations over appropriate types easier.
+</span><span class="macro">macro_rules! </span>implement_const_unary {
     (
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">method</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>,
-        <span class="ident">string</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">str</span>:<span class="ident">expr</span>,
-        <span class="ident">patterns</span>: [$([<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_type</span>:<span class="ident">ty</span>]),<span class="op">+</span>]
+        @overflowing
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        method: <span class="macro-nonterminal">$method</span>:ident,
+        string: <span class="macro-nonterminal">$str</span>:expr,
+        patterns: [$([<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$m_type</span>:ty]),+]
     ) =&gt; {
         <span class="macro">implement_const_unary!</span>{
-            <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="ident">patterns</span>: [$([
-                <span class="ident">t</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-                <span class="macro-nonterminal">l</span>: <span class="op">|</span><span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_type</span>, <span class="ident">span</span><span class="op">|</span> <span class="ident">l</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">FlattenError::unary_overflow</span>(<span class="ident">l</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">str</span>, <span class="ident">span</span>))
-            ]),<span class="op">+</span>]
+            name: <span class="macro-nonterminal">$name</span>,
+            patterns: [$([
+                t: <span class="macro-nonterminal">$</span><span class="kw">type</span>,
+                <span class="macro-nonterminal">l</span>: |l: <span class="macro-nonterminal">$m_type</span>, span| l.<span class="macro-nonterminal">$method</span>().ok_or_else(|| FlattenError::unary_overflow(l, <span class="macro-nonterminal">$str</span>, span))
+            ]),+]
         }
     };
 
     (
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">method</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>,
-        <span class="ident">patterns</span>: [$([<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_type</span>:<span class="ident">ty</span>]),<span class="op">+</span>]
+        @non-overflowing
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        method: <span class="macro-nonterminal">$method</span>:ident,
+        patterns: [$([<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>, <span class="macro-nonterminal">$m_type</span>:ty]),+]
     ) =&gt; {
         <span class="macro">implement_const_unary!</span>{
-            <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="ident">patterns</span>: [$([
-                <span class="ident">t</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>,
-                <span class="macro-nonterminal">l</span>: <span class="op">|</span><span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_type</span>, <span class="kw">_</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_type</span><span class="op">&gt;</span> { <span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>()) }
-            ]),<span class="op">+</span>]
+            name: <span class="macro-nonterminal">$name</span>,
+            patterns: [$([
+                t: <span class="macro-nonterminal">$</span><span class="kw">type</span>,
+                <span class="macro-nonterminal">l</span>: |l: <span class="macro-nonterminal">$m_type</span>, <span class="kw">_</span>| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$m_type</span>&gt; { <span class="prelude-val">Ok</span>(l.<span class="macro-nonterminal">$method</span>()) }
+            ]),+]
         }
     };
 
     (
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">patterns</span>: [$([
-            <span class="ident">t</span>: <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
-            <span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">logic</span>:<span class="ident">expr</span>
-        ]),<span class="op">+</span>]
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        patterns: [$([
+            t: <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ident</span>,
+            l: <span class="macro-nonterminal">$logic</span>:expr
+        ]),+]
     ) =&gt; {
-        <span class="comment">// TODO: This is temporary since the currently unused code is used in constant folding.</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
+        <span class="comment">// TODO: This is temporary since the currently unused code is used in constant folding.
+        </span><span class="attribute">#[allow(dead_code)]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self</span>, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">use </span>Value::<span class="kw-2">*</span>;
 
-            <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw">match </span><span class="self">self </span>{
                 $(
                     <span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">v</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">logic</span>(<span class="ident">v</span>.<span class="ident">into</span>(), <span class="ident">span</span>)<span class="question-mark">?</span>, <span class="ident">span</span>))
+                        <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>(<span class="macro-nonterminal">$logic</span>(v.into(), span)<span class="question-mark">?</span>, span))
                     },
-                )<span class="op">+</span>
-                <span class="comment">// Unreachable because type checking should have already caught this and errored out.</span>
-                <span class="ident">s</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}()&quot;</span>, <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>))
+                )+
+                <span class="comment">// Unreachable because type checking should have already caught this and errored out.
+                </span>s =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}()&quot;</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
             }
         }
     };
 }
 
-<span class="comment">// Macro for making implementing binary operations over appropriate types easier.</span>
-<span class="macro">macro_rules!</span> <span class="ident">implement_const_binary</span> {
-    <span class="comment">// for overflowing operations that can overflow</span>
-    (
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">method</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>,
-        <span class="ident">string</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">str</span>:<span class="ident">expr</span>,
-        <span class="ident">patterns</span>: [$(
-            <span class="comment">// lhs, rhs, out, method left, method right</span>
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ident</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ident</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>:<span class="ident">ty</span>]
-        ),<span class="op">+</span>]
+<span class="comment">// Macro for making implementing binary operations over appropriate types easier.
+</span><span class="macro">macro_rules! </span>implement_const_binary {
+    <span class="comment">// for overflowing operations that can overflow
+    </span>(
+        @overflowing
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        method: <span class="macro-nonterminal">$method</span>:ident,
+        string: <span class="macro-nonterminal">$str</span>:expr,
+        patterns: [$(
+            <span class="comment">// lhs, rhs, out, method left, method right
+            </span>[<span class="macro-nonterminal">$lhs</span>:ident, [$(<span class="macro-nonterminal">$rhs</span>:ident),+], <span class="macro-nonterminal">$out</span>:ident, <span class="macro-nonterminal">$m_lhs</span>:ty, <span class="macro-nonterminal">$m_rhs</span>:ty]
+        ),+]
     ) =&gt; {
         <span class="macro">implement_const_binary!</span>{
-            <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="ident">patterns</span>: [$([
-                <span class="ident">types</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>,
-                <span class="ident">logic</span>: <span class="op">|</span><span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>, <span class="ident">r</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>, <span class="ident">t</span>, <span class="ident">span</span><span class="op">|</span> <span class="ident">l</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>(<span class="ident">r</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">FlattenError::binary_overflow</span>(<span class="ident">l</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">str</span>, <span class="ident">r</span>, <span class="ident">t</span>, <span class="ident">span</span>))
-            ]),<span class="op">+</span>]
+            name: <span class="macro-nonterminal">$name</span>,
+            patterns: [$([
+                types: <span class="macro-nonterminal">$lhs</span>, [$(<span class="macro-nonterminal">$rhs</span>),+], <span class="macro-nonterminal">$out</span>,
+                logic: |l: <span class="macro-nonterminal">$m_lhs</span>, r: <span class="macro-nonterminal">$m_rhs</span>, t, span| l.<span class="macro-nonterminal">$method</span>(r).ok_or_else(|| FlattenError::binary_overflow(l, <span class="macro-nonterminal">$str</span>, r, t, span))
+            ]),+]
         }
     };
 
-    <span class="comment">// for wrapping math operations</span>
-    (
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">method</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>,
-        <span class="ident">patterns</span>: [$(
-            <span class="comment">// lhs, rhs, out, method left, method right, method output</span>
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ident</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ident</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>:<span class="ident">ty</span>]
-        ),<span class="op">+</span>]
+    <span class="comment">// for wrapping math operations
+    </span>(
+        @non-overflowing
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        method: <span class="macro-nonterminal">$method</span>:ident,
+        patterns: [$(
+            <span class="comment">// lhs, rhs, out, method left, method right, method output
+            </span>[<span class="macro-nonterminal">$lhs</span>:ident, [$(<span class="macro-nonterminal">$rhs</span>:ident),+], <span class="macro-nonterminal">$out</span>:ident, <span class="macro-nonterminal">$m_lhs</span>:ty, <span class="macro-nonterminal">$m_rhs</span>:ty]
+        ),+]
     ) =&gt; {
         <span class="macro">implement_const_binary!</span>{
-            <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="ident">patterns</span>: [$([
-                <span class="ident">types</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>,
-                <span class="ident">logic</span>: <span class="op">|</span><span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>, <span class="ident">r</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span><span class="op">&gt;</span> {<span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>(<span class="ident">r</span>))}
-            ]),<span class="op">+</span>]
+            name: <span class="macro-nonterminal">$name</span>,
+            patterns: [$([
+                types: <span class="macro-nonterminal">$lhs</span>, [$(<span class="macro-nonterminal">$rhs</span>),+], <span class="macro-nonterminal">$out</span>,
+                logic: |l: <span class="macro-nonterminal">$m_lhs</span>, r: <span class="macro-nonterminal">$m_rhs</span>, <span class="kw">_</span>, <span class="kw">_</span>| -&gt; <span class="prelude-ty">Result</span>&lt;<span class="macro-nonterminal">$m_lhs</span>&gt; {<span class="prelude-val">Ok</span>(l.<span class="macro-nonterminal">$method</span>(r))}
+            ]),+]
         }
     };
 
-    <span class="comment">// for cmp operations</span>
-    (
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">method</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>:<span class="ident">ident</span>,
-        <span class="ident">string</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">str</span>:<span class="ident">expr</span>,
-        <span class="ident">patterns</span>: [$(
-            <span class="comment">// lhs, rhs, out, method left, method right, method output</span>
-            [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ident</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ident</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>:<span class="ident">ty</span>]
-        ),<span class="op">+</span>]
+    <span class="comment">// for cmp operations
+    </span>(
+        @cmp
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        method: <span class="macro-nonterminal">$method</span>:ident,
+        string: <span class="macro-nonterminal">$str</span>:expr,
+        patterns: [$(
+            <span class="comment">// lhs, rhs, out, method left, method right, method output
+            </span>[<span class="macro-nonterminal">$lhs</span>:ident, [$(<span class="macro-nonterminal">$rhs</span>:ident),+], <span class="macro-nonterminal">$out</span>:ident, <span class="macro-nonterminal">$m_lhs</span>:ty, <span class="macro-nonterminal">$m_rhs</span>:ty]
+        ),+]
     ) =&gt; {
         <span class="macro">implement_const_binary!</span>{
-            <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>,
-            <span class="ident">patterns</span>: [$([
-                <span class="ident">types</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>,
-                <span class="ident">logic</span>: <span class="op">|</span><span class="ident">l</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_lhs</span>, <span class="ident">r</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">m_rhs</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {<span class="prelude-val">Ok</span>(<span class="ident">l</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>))}
-            ]),<span class="op">+</span>]
+            name: <span class="macro-nonterminal">$name</span>,
+            patterns: [$([
+                types: <span class="macro-nonterminal">$lhs</span>, [$(<span class="macro-nonterminal">$rhs</span>),+], <span class="macro-nonterminal">$out</span>,
+                logic: |l: <span class="macro-nonterminal">$m_lhs</span>, r: <span class="macro-nonterminal">$m_rhs</span>, <span class="kw">_</span>, <span class="kw">_</span>| -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {<span class="prelude-val">Ok</span>(l.<span class="macro-nonterminal">$method</span>(<span class="kw-2">&amp;</span>r))}
+            ]),+]
         }
     };
 
     (
-        <span class="ident">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>,
-        <span class="ident">patterns</span>: [$([
-            <span class="ident">types</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>:<span class="ident">ident</span>, [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>:<span class="ident">ident</span>),<span class="op">+</span>], <span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>:<span class="ident">ident</span>,
-            <span class="ident">logic</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">logic</span>:<span class="ident">expr</span>
-        ]),<span class="op">+</span>]
+        name: <span class="macro-nonterminal">$name</span>:ident,
+        patterns: [$([
+            types: <span class="macro-nonterminal">$lhs</span>:ident, [$(<span class="macro-nonterminal">$rhs</span>:ident),+], <span class="macro-nonterminal">$out</span>:ident,
+            logic: <span class="macro-nonterminal">$logic</span>:expr
+        ]),+]
     ) =&gt; {
-        <span class="comment">// This is temporary since the currently unused code is used in constant folding.</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-        <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-            <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
+        <span class="comment">// This is temporary since the currently unused code is used in constant folding.
+        </span><span class="attribute">#[allow(dead_code)]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self</span>, other: <span class="self">Self</span>, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+            <span class="kw">use </span>Value::<span class="kw-2">*</span>;
 
-            <span class="kw">match</span> (<span class="self">self</span>, <span class="ident">other</span>) {
+            <span class="kw">match </span>(<span class="self">self</span>, other) {
                 $(
                     $(
-                        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">lhs</span>(<span class="ident">types</span>, <span class="kw">_</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">rhs</span>(<span class="ident">rhs</span>, <span class="kw">_</span>)) =&gt; {
-                            <span class="kw">let</span> <span class="ident">rhs_type</span> <span class="op">=</span> <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="ident">rhs</span>);
-                            <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">logic</span>(<span class="ident">types</span>, <span class="ident">rhs</span>.<span class="ident">into</span>(), <span class="ident">rhs_type</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
-                            <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">out</span>(<span class="ident">out</span>, <span class="ident">span</span>))
+                        (<span class="macro-nonterminal">$lhs</span>(types, <span class="kw">_</span>), <span class="macro-nonterminal">$rhs</span>(rhs, <span class="kw">_</span>)) =&gt; {
+                            <span class="kw">let </span>rhs_type = type_name(<span class="kw-2">&amp;</span>rhs);
+                            <span class="kw">let </span>out = <span class="macro-nonterminal">$logic</span>(types, rhs.into(), rhs_type, span)<span class="question-mark">?</span>;
+                            <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$out</span>(out, span))
                         },
-                    )<span class="op">+</span>
-                )<span class="op">+</span>
-                <span class="comment">// Unreachable because type checking should have already caught this and errored out.</span>
-                (<span class="ident">s</span>, <span class="ident">o</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}({})&quot;</span>, <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>), <span class="ident">type_name</span>(<span class="kw-2">&amp;</span><span class="ident">o</span>))
+                    )+
+                )+
+                <span class="comment">// Unreachable because type checking should have already caught this and errored out.
+                </span>(s, o) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}({})&quot;</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), type_name(<span class="kw-2">&amp;</span>o))
             }
         }
     };
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Value</span> {
-    <span class="ident">Input</span>(<span class="ident">Type</span>, <span class="ident">Identifier</span>),
-    <span class="ident">Address</span>(<span class="ident">String</span>, <span class="ident">Span</span>),
-    <span class="ident">Boolean</span>(<span class="ident">bool</span>, <span class="ident">Span</span>),
-    <span class="ident">Struct</span>(<span class="ident">Identifier</span>, <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">Value</span><span class="op">&gt;</span>),
-    <span class="ident">Field</span>(<span class="ident">String</span>, <span class="ident">Span</span>),
-    <span class="ident">Group</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">GroupLiteral</span><span class="op">&gt;</span>),
-    <span class="ident">I8</span>(<span class="ident">i8</span>, <span class="ident">Span</span>),
-    <span class="ident">I16</span>(<span class="ident">i16</span>, <span class="ident">Span</span>),
-    <span class="ident">I32</span>(<span class="ident">i32</span>, <span class="ident">Span</span>),
-    <span class="ident">I64</span>(<span class="ident">i64</span>, <span class="ident">Span</span>),
-    <span class="ident">I128</span>(<span class="ident">i128</span>, <span class="ident">Span</span>),
-    <span class="ident">U8</span>(<span class="ident">u8</span>, <span class="ident">Span</span>),
-    <span class="ident">U16</span>(<span class="ident">u16</span>, <span class="ident">Span</span>),
-    <span class="ident">U32</span>(<span class="ident">u32</span>, <span class="ident">Span</span>),
-    <span class="ident">U64</span>(<span class="ident">u64</span>, <span class="ident">Span</span>),
-    <span class="ident">U128</span>(<span class="ident">u128</span>, <span class="ident">Span</span>),
-    <span class="ident">Scalar</span>(<span class="ident">String</span>, <span class="ident">Span</span>),
-    <span class="ident">String</span>(<span class="ident">String</span>, <span class="ident">Span</span>),
+<span class="attribute">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="kw">pub enum </span>Value {
+    Input(Type, Identifier),
+    Address(String, Span),
+    Boolean(bool, Span),
+    Struct(Identifier, IndexMap&lt;Symbol, Value&gt;),
+    Field(String, Span),
+    Group(Box&lt;GroupLiteral&gt;),
+    I8(i8, Span),
+    I16(i16, Span),
+    I32(i32, Span),
+    I64(i64, Span),
+    I128(i128, Span),
+    U8(u8, Span),
+    U16(u16, Span),
+    U32(u32, Span),
+    U64(u64, Span),
+    U128(u128, Span),
+    Scalar(String, Span),
+    String(String, Span),
 }
 
-<span class="kw">impl</span> <span class="ident">Value</span> {
-    <span class="comment">// TODO: This is temporary since the currently unused code is used in constant folding.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_supported_const_fold_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
+<span class="kw">impl </span>Value {
+    <span class="comment">// TODO: This is temporary since the currently unused code is used in constant folding.
+    </span><span class="attribute">#[allow(dead_code)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_supported_const_fold_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
-            <span class="ident">Boolean</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">I8</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">I16</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">I32</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">I64</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">I128</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">U8</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">U16</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">U32</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">U64</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">U128</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            Boolean(<span class="kw">_</span>, <span class="kw">_</span>)
+                | I8(<span class="kw">_</span>, <span class="kw">_</span>)
+                | I16(<span class="kw">_</span>, <span class="kw">_</span>)
+                | I32(<span class="kw">_</span>, <span class="kw">_</span>)
+                | I64(<span class="kw">_</span>, <span class="kw">_</span>)
+                | I128(<span class="kw">_</span>, <span class="kw">_</span>)
+                | U8(<span class="kw">_</span>, <span class="kw">_</span>)
+                | U16(<span class="kw">_</span>, <span class="kw">_</span>)
+                | U32(<span class="kw">_</span>, <span class="kw">_</span>)
+                | U64(<span class="kw">_</span>, <span class="kw">_</span>)
+                | U128(<span class="kw">_</span>, <span class="kw">_</span>)
         )
     }
 
     <span class="macro">implement_const_unary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">abs</span>,
-        <span class="ident">method</span>: <span class="ident">checked_abs</span>,
-        <span class="ident">string</span>: <span class="string">&quot;abs&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, <span class="ident">i128</span>]
+        @overflowing
+        name: abs,
+        method: checked_abs,
+        string: <span class="string">&quot;abs&quot;</span>,
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
         ]
     );
 
     <span class="macro">implement_const_unary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">abs_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_abs</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, <span class="ident">i128</span>]
+        @non-overflowing
+        name: abs_wrapped,
+        method: wrapping_abs,
+        patterns: [
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
         ]
     );
 
     <span class="macro">implement_const_unary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">neg</span>,
-        <span class="ident">method</span>: <span class="ident">checked_neg</span>,
-        <span class="ident">string</span>: <span class="string">&quot;neg&quot;</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, Field],</span>
-            <span class="comment">// [Group, Group],</span>
-            [<span class="ident">I8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, <span class="ident">i128</span>]
+        @overflowing
+        name: neg,
+        method: checked_neg,
+        string: <span class="string">&quot;neg&quot;</span>,
+        patterns: [
+            <span class="comment">// [Field, Field],
+            // [Group, Group],
+            </span>[I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128]
         ]
     );
 
     <span class="macro">implement_const_unary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">not</span>,
-        <span class="ident">method</span>: <span class="ident">not</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">Boolean</span>, <span class="ident">bool</span>],
-            [<span class="ident">I8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, <span class="ident">u128</span>]
+        @non-overflowing
+        name: not,
+        method: not,
+        patterns: [
+            [Boolean, bool],
+            [I8, i8],
+            [I16, i16],
+            [I32, i32],
+            [I64, i64],
+            [I128, i128],
+            [U8, u8],
+            [U16, u16],
+            [U32, u32],
+            [U64, u64],
+            [U128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">add</span>,
-        <span class="ident">method</span>: <span class="ident">checked_add</span>,
-        <span class="ident">string</span>: <span class="string">&quot;+&quot;</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @overflowing
+        name: add,
+        method: checked_add,
+        string: <span class="string">&quot;+&quot;</span>,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
 
+        </span>]
+    );
+
+    <span class="macro">implement_const_binary!</span>(
+        @non-overflowing
+        name: add_wrapped,
+        method: wrapping_add,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+
+        </span>]
+    );
+
+    <span class="macro">implement_const_binary!</span>(
+        @non-overflowing
+        name: bitand,
+        method: bitand,
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">add_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_add</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @overflowing
+        name: div,
+        method: checked_div,
+        string: <span class="string">&quot;/&quot;</span>,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
+    );
 
+    <span class="macro">implement_const_binary!</span>(
+        @non-overflowing
+        name: div_wrapped,
+        method: wrapping_div,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
+    );
+
+    <span class="macro">implement_const_binary!</span>(
+        @cmp
+        name: eq,
+        method: eq,
+        string: <span class="string">&quot;==&quot;</span>,
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">bitand</span>,
-        <span class="ident">method</span>: <span class="ident">bitand</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">Boolean</span>, [<span class="ident">Boolean</span>], <span class="ident">Boolean</span>, <span class="ident">bool</span>, <span class="ident">bool</span>],
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @cmp
+        name: ge,
+        method: ge,
+        string: <span class="string">&quot;&gt;=&quot;</span>,
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">div</span>,
-        <span class="ident">method</span>: <span class="ident">checked_div</span>,
-        <span class="ident">string</span>: <span class="string">&quot;/&quot;</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @cmp
+        name: gt,
+        method: gt,
+        string: <span class="string">&quot;&gt;&quot;</span>,
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">div_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_div</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @cmp
+        name: le,
+        method: le,
+        string: <span class="string">&quot;&lt;=&quot;</span>,
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="ident">eq</span>,
-        <span class="ident">method</span>: <span class="ident">eq</span>,
-        <span class="ident">string</span>: <span class="string">&quot;==&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">Boolean</span>, [<span class="ident">Boolean</span>], <span class="ident">Boolean</span>, <span class="ident">bool</span>, <span class="ident">bool</span>],
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">Boolean</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">Boolean</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">Boolean</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">Boolean</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">Boolean</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">Boolean</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">Boolean</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">Boolean</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">Boolean</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">Boolean</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @cmp
+        name: lt,
+        method: lt,
+        string: <span class="string">&quot;&lt;&quot;</span>,
+        patterns: [
+            [I8, [I8], Boolean, i8, i8],
+            [I16, [I16], Boolean, i16, i16],
+            [I32, [I32], Boolean, i32, i32],
+            [I64, [I64], Boolean, i64, i64],
+            [I128, [I128], Boolean, i128, i128],
+            [U8, [U8], Boolean, u8, u8],
+            [U16, [U16], Boolean, u16, u16],
+            [U32, [U32], Boolean, u32, u32],
+            [U64, [U64], Boolean, u64, u64],
+            [U128, [U128], Boolean, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="ident">ge</span>,
-        <span class="ident">method</span>: <span class="ident">ge</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&gt;=&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">Boolean</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">Boolean</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">Boolean</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">Boolean</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">Boolean</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">Boolean</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">Boolean</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">Boolean</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">Boolean</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">Boolean</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @overflowing
+        name: mul,
+        method: checked_mul,
+        string: <span class="string">&quot;*&quot;</span>,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
+    );
+
+    <span class="macro">implement_const_binary!</span>(
+        @non-overflowing
+        name: mul_wrapped,
+        method: wrapping_mul,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
+    );
+
+    <span class="macro">implement_const_binary!</span>(
+        @non-overflowing
+        name: bitor,
+        method: bitor,
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="ident">gt</span>,
-        <span class="ident">method</span>: <span class="ident">gt</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&gt;&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">Boolean</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">Boolean</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">Boolean</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">Boolean</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">Boolean</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">Boolean</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">Boolean</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">Boolean</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">Boolean</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">Boolean</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @overflowing
+        name: pow,
+        method: checked_pow,
+        string: <span class="string">&quot;**&quot;</span>,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="ident">le</span>,
-        <span class="ident">method</span>: <span class="ident">le</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&lt;=&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">Boolean</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">Boolean</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">Boolean</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">Boolean</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">Boolean</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">Boolean</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">Boolean</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">Boolean</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">Boolean</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">Boolean</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @non-overflowing
+        name: pow_wrapped,
+        method: wrapping_pow,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">cmp</span>
-        <span class="ident">name</span>: <span class="ident">lt</span>,
-        <span class="ident">method</span>: <span class="ident">lt</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&lt;&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">Boolean</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">Boolean</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">Boolean</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">Boolean</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">Boolean</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">Boolean</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">Boolean</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">Boolean</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">Boolean</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">Boolean</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @overflowing
+        name: shl,
+        method: checked_shl,
+        string: <span class="string">&quot;&lt;&lt;&quot;</span>,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">mul</span>,
-        <span class="ident">method</span>: <span class="ident">checked_mul</span>,
-        <span class="ident">string</span>: <span class="string">&quot;*&quot;</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @non-overflowing
+        name: shl_wrapped,
+        method: wrapping_shl,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">mul_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_mul</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
+        @overflowing
+        name: shr,
+        method: checked_shr,
+        string: <span class="string">&quot;&gt;&gt;&quot;</span>,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">bitor</span>,
-        <span class="ident">method</span>: <span class="ident">bitor</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">Boolean</span>, [<span class="ident">Boolean</span>], <span class="ident">Boolean</span>, <span class="ident">bool</span>, <span class="ident">bool</span>],
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @non-overflowing
+        name: shr_wrapped,
+        method: wrapping_shr,
+        patterns: [
+            [I8, [U8, U16, U32], I8, i8, u32],
+            [I16, [U8, U16, U32], I16, i16, u32],
+            [I32, [U8, U16, U32], I32, i32, u32],
+            [I64, [U8, U16, U32], I64, i64, u32],
+            [I128, [U8, U16, U32], I128, i128, u32],
+            [U8, [U8, U16, U32], U8, u8, u32],
+            [U16, [U8, U16, U32], U16, u16, u32],
+            [U32, [U8, U16, U32], U32, u32, u32],
+            [U64, [U8, U16, U32], U64, u64, u32],
+            [U128, [U8, U16, U32], U128, u128, u32]
         ]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">pow</span>,
-        <span class="ident">method</span>: <span class="ident">checked_pow</span>,
-        <span class="ident">string</span>: <span class="string">&quot;**&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
+        @overflowing
+        name: sub,
+        method: checked_sub,
+        string: <span class="string">&quot;-&quot;</span>,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">pow_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_pow</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
+        @non-overflowing
+        name: sub_wrapped,
+        method: wrapping_sub,
+        patterns: [
+            <span class="comment">// [Field, [Field], Field, _, _],
+            // [Group, [Group], Group, _, _],
+            </span>[I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
+            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],
+        </span>]
     );
 
     <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">shl</span>,
-        <span class="ident">method</span>: <span class="ident">checked_shl</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&lt;&lt;&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">shl_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_shl</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">shr</span>,
-        <span class="ident">method</span>: <span class="ident">checked_shr</span>,
-        <span class="ident">string</span>: <span class="string">&quot;&gt;&gt;&quot;</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">shr_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_shr</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">I8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">u32</span>],
-            [<span class="ident">I16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">u32</span>],
-            [<span class="ident">I32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">u32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">u32</span>],
-            [<span class="ident">I128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">u32</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u32</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u32</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u32</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U8</span>, <span class="ident">U16</span>, <span class="ident">U32</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u32</span>]
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">sub</span>,
-        <span class="ident">method</span>: <span class="ident">checked_sub</span>,
-        <span class="ident">string</span>: <span class="string">&quot;-&quot;</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">sub_wrapped</span>,
-        <span class="ident">method</span>: <span class="ident">wrapping_sub</span>,
-        <span class="ident">patterns</span>: [
-            <span class="comment">// [Field, [Field], Field, _, _],</span>
-            <span class="comment">// [Group, [Group], Group, _, _],</span>
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
-            <span class="comment">//[Scalar, [Scalar], Scalar, _, _],</span>
-        ]
-    );
-
-    <span class="macro">implement_const_binary!</span>(
-        @<span class="ident">non</span><span class="op">-</span><span class="ident">overflowing</span>
-        <span class="ident">name</span>: <span class="ident">xor</span>,
-        <span class="ident">method</span>: <span class="ident">bitxor</span>,
-        <span class="ident">patterns</span>: [
-            [<span class="ident">Boolean</span>, [<span class="ident">Boolean</span>], <span class="ident">Boolean</span>, <span class="ident">bool</span>, <span class="ident">bool</span>],
-            [<span class="ident">I8</span>, [<span class="ident">I8</span>], <span class="ident">I8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>],
-            [<span class="ident">I16</span>, [<span class="ident">I16</span>], <span class="ident">I16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>],
-            [<span class="ident">I32</span>, [<span class="ident">I32</span>], <span class="ident">I32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>],
-            [<span class="ident">I64</span>, [<span class="ident">I64</span>], <span class="ident">I64</span>, <span class="ident">i64</span>, <span class="ident">i64</span>],
-            [<span class="ident">I128</span>, [<span class="ident">I128</span>], <span class="ident">I128</span>, <span class="ident">i128</span>, <span class="ident">i128</span>],
-            [<span class="ident">U8</span>, [<span class="ident">U8</span>], <span class="ident">U8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>],
-            [<span class="ident">U16</span>, [<span class="ident">U16</span>], <span class="ident">U16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>],
-            [<span class="ident">U32</span>, [<span class="ident">U32</span>], <span class="ident">U32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>],
-            [<span class="ident">U64</span>, [<span class="ident">U64</span>], <span class="ident">U64</span>, <span class="ident">u64</span>, <span class="ident">u64</span>],
-            [<span class="ident">U128</span>, [<span class="ident">U128</span>], <span class="ident">U128</span>, <span class="ident">u128</span>, <span class="ident">u128</span>]
+        @non-overflowing
+        name: xor,
+        method: bitxor,
+        patterns: [
+            [Boolean, [Boolean], Boolean, bool, bool],
+            [I8, [I8], I8, i8, i8],
+            [I16, [I16], I16, i16, i16],
+            [I32, [I32], I32, i32, i32],
+            [I64, [I64], I64, i64, i64],
+            [I128, [I128], I128, i128, i128],
+            [U8, [U8], U8, u8, u8],
+            [U16, [U16], U16, u16, u16],
+            [U32, [U32], U32, u32, u32],
+            [U64, [U64], U64, u64, u64],
+            [U128, [U128], U128, u128, u128]
         ]
     );
 }
 
-<span class="kw">impl</span> <span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Input</span>(<span class="ident">type_</span>, <span class="ident">ident</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;input var {}: {type_}&quot;</span>, <span class="ident">ident</span>.<span class="ident">name</span>),
-            <span class="ident">Address</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">Struct</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>.<span class="ident">name</span>),
-            <span class="ident">Boolean</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">Field</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">Group</span>(<span class="ident">val</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">I8</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">I16</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">I32</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">I64</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">I128</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">U8</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">U16</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">U32</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">U64</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">U128</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">Scalar</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
-            <span class="ident">String</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{val}&quot;</span>),
+<span class="kw">impl </span>Display <span class="kw">for </span>Value {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Input(type_, ident) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;input var {}: {type_}&quot;</span>, ident.name),
+            Address(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            Struct(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, val.name),
+            Boolean(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            Field(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            Group(val) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            I8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            I16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            I32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            I64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            I128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            U8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            U16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            U32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            U64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            U128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            Scalar(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            String(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">i128</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">LeoError</span>;
+<span class="kw">impl </span>TryFrom&lt;Value&gt; <span class="kw">for </span>i128 {
+    <span class="kw">type </span>Error = LeoError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">Value</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">try_into</span>()
+    <span class="kw">fn </span>try_from(value: Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        value.as_ref().try_into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">i128</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">LeoError</span>;
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>Value&gt; <span class="kw">for </span>i128 {
+    <span class="kw">type </span>Error = LeoError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">U8</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">i128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
+        <span class="kw">match </span>value {
+            U8(val, span) =&gt; {
+                i128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">U16</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">i128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            U16(val, span) =&gt; {
+                i128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">U32</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">i128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            U32(val, span) =&gt; {
+                i128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">U64</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">i128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            U64(val, span) =&gt; {
+                i128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">U128</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">i128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            U128(val, span) =&gt; {
+                i128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">I8</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">i128</span>),
-            <span class="ident">I16</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">i128</span>),
-            <span class="ident">I32</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">i128</span>),
-            <span class="ident">I64</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">i128</span>),
-            <span class="ident">I128</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            I8(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>i128),
+            I16(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>i128),
+            I32(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>i128),
+            I64(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>i128),
+            I128(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">u128</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">LeoError</span>;
+<span class="kw">impl </span>TryFrom&lt;Value&gt; <span class="kw">for </span>u128 {
+    <span class="kw">type </span>Error = LeoError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">Value</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">try_into</span>()
+    <span class="kw">fn </span>try_from(value: Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        value.as_ref().try_into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">u128</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">LeoError</span>;
+<span class="kw">impl </span>TryFrom&lt;<span class="kw-2">&amp;</span>Value&gt; <span class="kw">for </span>u128 {
+    <span class="kw">type </span>Error = LeoError;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">I8</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">u128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+    <span class="kw">fn </span>try_from(value: <span class="kw-2">&amp;</span>Value) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
+        <span class="kw">match </span>value {
+            I8(val, span) =&gt; {
+                u128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">I16</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">u128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            I16(val, span) =&gt; {
+                u128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">I32</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">u128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            I32(val, span) =&gt; {
+                u128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">I64</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">u128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            I64(val, span) =&gt; {
+                u128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">I128</span>(<span class="ident">val</span>, <span class="ident">span</span>) =&gt; {
-                <span class="ident">u128::try_from</span>(<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">FlattenError::loop_has_neg_value</span>(<span class="ident">Type::from</span>(<span class="ident">value</span>), <span class="kw-2">*</span><span class="ident">span</span>).<span class="ident">into</span>())
+            I128(val, span) =&gt; {
+                u128::try_from(<span class="kw-2">*</span>val).map_err(|<span class="kw">_</span>| FlattenError::loop_has_neg_value(Type::from(value), <span class="kw-2">*</span>span).into())
             }
-            <span class="ident">U8</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">u128</span>),
-            <span class="ident">U16</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">u128</span>),
-            <span class="ident">U32</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">u128</span>),
-            <span class="ident">U64</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span> <span class="kw">as</span> <span class="ident">u128</span>),
-            <span class="ident">U128</span>(<span class="ident">val</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">val</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            U8(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>u128),
+            U16(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>u128),
+            U32(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>u128),
+            U64(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val <span class="kw">as </span>u128),
+            U128(val, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>val),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span> {
-        <span class="self">self</span>
+<span class="kw">impl </span>AsRef&lt;Value&gt; <span class="kw">for </span>Value {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self </span>{
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>From&lt;Value&gt; <span class="kw">for </span>Type {
+    <span class="kw">fn </span>from(v: Value) -&gt; <span class="self">Self </span>{
+        v.as_ref().into()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Value</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">v</span>.<span class="ident">as_ref</span>().<span class="ident">into</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Type</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="ident">v</span> {
-            <span class="ident">Input</span>(<span class="ident">type_</span>, <span class="kw">_</span>) =&gt; <span class="ident">type_</span>.<span class="ident">clone</span>(),
-            <span class="ident">Address</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Address</span>,
-            <span class="ident">Boolean</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Boolean</span>,
-            <span class="ident">Struct</span>(<span class="ident">ident</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Identifier</span>(<span class="kw-2">*</span><span class="ident">ident</span>),
-            <span class="ident">Field</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Field</span>,
-            <span class="ident">Group</span>(<span class="kw">_</span>) =&gt; <span class="ident">Type::Group</span>,
-            <span class="ident">I8</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I8</span>),
-            <span class="ident">I16</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I16</span>),
-            <span class="ident">I32</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I32</span>),
-            <span class="ident">I64</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I64</span>),
-            <span class="ident">I128</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::I128</span>),
-            <span class="ident">U8</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U8</span>),
-            <span class="ident">U16</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U16</span>),
-            <span class="ident">U32</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U32</span>),
-            <span class="ident">U64</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U64</span>),
-            <span class="ident">U128</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Integer</span>(<span class="ident">IntegerType::U128</span>),
-            <span class="ident">Scalar</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::Scalar</span>,
-            <span class="ident">String</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Type::String</span>,
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>Value&gt; <span class="kw">for </span>Type {
+    <span class="kw">fn </span>from(v: <span class="kw-2">&amp;</span>Value) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
+        <span class="kw">match </span>v {
+            Input(type_, <span class="kw">_</span>) =&gt; type_.clone(),
+            Address(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Address,
+            Boolean(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Boolean,
+            Struct(ident, <span class="kw">_</span>) =&gt; Type::Identifier(<span class="kw-2">*</span>ident),
+            Field(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Field,
+            Group(<span class="kw">_</span>) =&gt; Type::Group,
+            I8(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I8),
+            I16(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I16),
+            I32(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I32),
+            I64(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I64),
+            I128(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::I128),
+            U8(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::U8),
+            U16(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::U16),
+            U32(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::U32),
+            U64(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::U64),
+            U128(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Integer(IntegerType::U128),
+            Scalar(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::Scalar,
+            String(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Type::String,
         }
     }
 }
 
-<span class="comment">// TODO: Consider making this `Option&lt;Value&gt;` instead of `Value`.</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Literal</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="doccomment">/// Converts a literal to a value.</span>
-    <span class="doccomment">/// This should only be invoked on literals that are known to be valid.</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">literal</span>: <span class="kw-2">&amp;</span><span class="ident">Literal</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">literal</span> {
-            <span class="ident">Literal::Address</span>(<span class="ident">string</span>, <span class="ident">span</span>) =&gt; <span class="ident"><span class="self">Self</span>::Address</span>(<span class="ident">string</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-            <span class="ident">Literal::Boolean</span>(<span class="ident">bool</span>, <span class="ident">span</span>) =&gt; <span class="ident"><span class="self">Self</span>::Boolean</span>(<span class="kw-2">*</span><span class="ident">bool</span>, <span class="kw-2">*</span><span class="ident">span</span>),
-            <span class="ident">Literal::Field</span>(<span class="ident">string</span>, <span class="ident">span</span>) =&gt; <span class="ident"><span class="self">Self</span>::Field</span>(<span class="ident">string</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-            <span class="ident">Literal::Group</span>(<span class="ident">group_literal</span>) =&gt; <span class="ident"><span class="self">Self</span>::Group</span>(<span class="ident">group_literal</span>.<span class="ident">clone</span>()),
-            <span class="ident">Literal::Scalar</span>(<span class="ident">string</span>, <span class="ident">span</span>) =&gt; <span class="ident"><span class="self">Self</span>::Scalar</span>(<span class="ident">string</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-            <span class="ident">Literal::String</span>(<span class="ident">string</span>, <span class="ident">span</span>) =&gt; <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">string</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-            <span class="ident">Literal::Integer</span>(<span class="ident">integer_type</span>, <span class="ident">string</span>, <span class="ident">span</span>) =&gt; <span class="kw">match</span> <span class="ident">integer_type</span> {
-                <span class="ident">IntegerType::U8</span> =&gt; <span class="ident"><span class="self">Self</span>::U8</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::U16</span> =&gt; <span class="ident"><span class="self">Self</span>::U16</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::U32</span> =&gt; <span class="ident"><span class="self">Self</span>::U32</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::U64</span> =&gt; <span class="ident"><span class="self">Self</span>::U64</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::U128</span> =&gt; <span class="ident"><span class="self">Self</span>::U128</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::I8</span> =&gt; <span class="ident"><span class="self">Self</span>::I8</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::I16</span> =&gt; <span class="ident"><span class="self">Self</span>::I16</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::I32</span> =&gt; <span class="ident"><span class="self">Self</span>::I32</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::I64</span> =&gt; <span class="ident"><span class="self">Self</span>::I64</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
-                <span class="ident">IntegerType::I128</span> =&gt; <span class="ident"><span class="self">Self</span>::I128</span>(<span class="ident">string</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(), <span class="kw-2">*</span><span class="ident">span</span>),
+<span class="comment">// TODO: Consider making this `Option&lt;Value&gt;` instead of `Value`.
+</span><span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>Literal&gt; <span class="kw">for </span>Value {
+    <span class="doccomment">/// Converts a literal to a value.
+    /// This should only be invoked on literals that are known to be valid.
+    </span><span class="kw">fn </span>from(literal: <span class="kw-2">&amp;</span>Literal) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>literal {
+            Literal::Address(string, span) =&gt; <span class="self">Self</span>::Address(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Boolean(bool, span) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, <span class="kw-2">*</span>span),
+            Literal::Field(string, span) =&gt; <span class="self">Self</span>::Field(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Group(group_literal) =&gt; <span class="self">Self</span>::Group(group_literal.clone()),
+            Literal::Scalar(string, span) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
+            Literal::String(string, span) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Integer(integer_type, string, span) =&gt; <span class="kw">match </span>integer_type {
+                IntegerType::U8 =&gt; <span class="self">Self</span>::U8(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::U16 =&gt; <span class="self">Self</span>::U16(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::U32 =&gt; <span class="self">Self</span>::U32(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::U64 =&gt; <span class="self">Self</span>::U64(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::U128 =&gt; <span class="self">Self</span>::U128(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::I8 =&gt; <span class="self">Self</span>::I8(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::I16 =&gt; <span class="self">Self</span>::I16(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::I32 =&gt; <span class="self">Self</span>::I32(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::I64 =&gt; <span class="self">Self</span>::I64(string.parse().unwrap(), <span class="kw-2">*</span>span),
+                IntegerType::I128 =&gt; <span class="self">Self</span>::I128(string.parse().unwrap(), <span class="kw-2">*</span>span),
             },
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Literal</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Value</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">Value</span>::<span class="kw-2">*</span>;
-        <span class="kw">match</span> <span class="ident">v</span> {
-            <span class="ident">Input</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            <span class="ident">Address</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Address</span>(<span class="ident">v</span>, <span class="ident">span</span>),
-            <span class="ident">Boolean</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Boolean</span>(<span class="ident">v</span>, <span class="ident">span</span>),
-            <span class="ident">Struct</span>(<span class="ident">_ident</span>, <span class="ident">_values</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            <span class="ident">Field</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Field</span>(<span class="ident">v</span>, <span class="ident">span</span>),
-            <span class="ident">Group</span>(<span class="ident">v</span>) =&gt; <span class="ident">Literal::Group</span>(<span class="ident">v</span>),
-            <span class="ident">I8</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I8</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">I16</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I16</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">I32</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I32</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">I64</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I64</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">I128</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::I128</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">U8</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U8</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">U16</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U16</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">U32</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U32</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">U64</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U64</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">U128</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Integer</span>(<span class="ident">IntegerType::U128</span>, <span class="ident">v</span>.<span class="ident">to_string</span>(), <span class="ident">span</span>),
-            <span class="ident">Scalar</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::Scalar</span>(<span class="ident">v</span>, <span class="ident">span</span>),
-            <span class="ident">String</span>(<span class="ident">v</span>, <span class="ident">span</span>) =&gt; <span class="ident">Literal::String</span>(<span class="ident">v</span>, <span class="ident">span</span>),
+<span class="kw">impl </span>From&lt;Value&gt; <span class="kw">for </span>Literal {
+    <span class="kw">fn </span>from(v: Value) -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>Value::<span class="kw-2">*</span>;
+        <span class="kw">match </span>v {
+            Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
+            Address(v, span) =&gt; Literal::Address(v, span),
+            Boolean(v, span) =&gt; Literal::Boolean(v, span),
+            Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
+            Field(v, span) =&gt; Literal::Field(v, span),
+            Group(v) =&gt; Literal::Group(v),
+            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span),
+            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span),
+            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span),
+            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span),
+            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span),
+            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span),
+            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span),
+            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span),
+            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span),
+            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span),
+            Scalar(v, span) =&gt; Literal::Scalar(v, span),
+            String(v, span) =&gt; Literal::String(v, span),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

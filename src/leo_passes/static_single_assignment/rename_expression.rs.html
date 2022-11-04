@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/static_single_assignment/rename_expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rename_expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/static_single_assignment/rename_expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rename_expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -321,328 +321,328 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::StaticSingleAssigner</span>;
-<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
-<span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::StaticSingleAssigner;
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>std::borrow::Borrow;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AccessExpression</span>, <span class="ident">AssociatedFunction</span>, <span class="ident">BinaryExpression</span>, <span class="ident">CallExpression</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">Identifier</span>,
-    <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>, <span class="ident">Statement</span>, <span class="ident">Struct</span>, <span class="ident">StructExpression</span>, <span class="ident">StructVariableInitializer</span>, <span class="ident">TernaryExpression</span>,
-    <span class="ident">TupleAccess</span>, <span class="ident">TupleExpression</span>, <span class="ident">UnaryExpression</span>,
+<span class="kw">use </span>leo_ast::{
+    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
+    Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression,
 };
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
+<span class="kw">use </span>leo_span::{sym, Symbol};
 
-<span class="kw">impl</span> <span class="ident">ExpressionConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> (<span class="ident">Expression</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>);
+<span class="kw">impl </span>ExpressionConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">type </span>Output = (Expression, Vec&lt;Statement&gt;);
 
-    <span class="doccomment">/// Consumes an access expression, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">AccessExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> (<span class="ident">expr</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">function</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Consumes an access expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>(expr, <span class="kw-2">mut </span>statements) = <span class="kw">match </span>input {
+            AccessExpression::AssociatedFunction(function) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
                 (
-                    <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">AssociatedFunction</span> {
-                        <span class="ident">ty</span>: <span class="ident">function</span>.<span class="ident">ty</span>,
-                        <span class="ident">name</span>: <span class="ident">function</span>.<span class="ident">name</span>,
-                        <span class="ident">args</span>: <span class="ident">function</span>
-                            .<span class="ident">args</span>
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                                <span class="kw">let</span> (<span class="ident">arg</span>, <span class="kw-2">mut</span> <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">arg</span>);
-                                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmts</span>);
-                                <span class="ident">arg</span>
+                    AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| {
+                                <span class="kw">let </span>(arg, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(arg);
+                                statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                                arg
                             })
-                            .<span class="ident">collect</span>(),
-                        <span class="ident">span</span>: <span class="ident">function</span>.<span class="ident">span</span>,
+                            .collect(),
+                        span: function.span,
                     }),
-                    <span class="ident">statements</span>,
+                    statements,
                 )
             }
-            <span class="ident">AccessExpression::Member</span>(<span class="ident">member</span>) =&gt; {
-                <span class="comment">// TODO: Create AST node for native access expressions?</span>
-                <span class="comment">// If the access expression is of the form `self.&lt;name&gt;`, then don&#39;t rename it.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>, .. }) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">member</span>.<span class="ident">inner</span> {
-                    <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">sym::SelfLower</span> {
-                        <span class="kw">return</span> (<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">member</span>)), <span class="ident">Vec::new</span>());
+            AccessExpression::Member(member) =&gt; {
+                <span class="comment">// TODO: Create AST node for native access expressions?
+                // If the access expression is of the form `self.&lt;name&gt;`, then don&#39;t rename it.
+                </span><span class="kw">if let </span>Expression::Identifier(Identifier { name, .. }) = <span class="kw-2">*</span>member.inner {
+                    <span class="kw">if </span>name == sym::SelfLower {
+                        <span class="kw">return </span>(Expression::Access(AccessExpression::Member(member)), Vec::new());
                     }
                 }
 
-                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">member</span>.<span class="ident">inner</span>);
+                <span class="kw">let </span>(expr, statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>member.inner);
                 (
-                    <span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                        <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                        <span class="ident">name</span>: <span class="ident">member</span>.<span class="ident">name</span>,
-                        <span class="ident">span</span>: <span class="ident">member</span>.<span class="ident">span</span>,
+                    AccessExpression::Member(MemberAccess {
+                        inner: Box::new(expr),
+                        name: member.name,
+                        span: member.span,
                     }),
-                    <span class="ident">statements</span>,
+                    statements,
                 )
             }
-            <span class="ident">AccessExpression::Tuple</span>(<span class="ident">tuple</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">tuple</span>.<span class="ident">tuple</span>);
+            AccessExpression::Tuple(tuple) =&gt; {
+                <span class="kw">let </span>(expr, statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>tuple.tuple);
                 (
-                    <span class="ident">AccessExpression::Tuple</span>(<span class="ident">TupleAccess</span> {
-                        <span class="ident">tuple</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                        <span class="ident">index</span>: <span class="ident">tuple</span>.<span class="ident">index</span>,
-                        <span class="ident">span</span>: <span class="ident">tuple</span>.<span class="ident">span</span>,
+                    AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(expr),
+                        index: tuple.index,
+                        span: tuple.span,
                     }),
-                    <span class="ident">statements</span>,
+                    statements,
                 )
             }
-            <span class="ident">expr</span> =&gt; (<span class="ident">expr</span>, <span class="ident">Vec::new</span>()),
+            expr =&gt; (expr, Vec::new()),
         };
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Access</span>(<span class="ident">expr</span>));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Access(expr));
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Consumes a binary expression, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">BinaryExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Reconstruct the lhs of the binary expression.</span>
-        <span class="kw">let</span> (<span class="ident">left_expression</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">left</span>);
-        <span class="comment">// Reconstruct the rhs of the binary expression.</span>
-        <span class="kw">let</span> (<span class="ident">right_expression</span>, <span class="kw-2">mut</span> <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">right</span>);
-        <span class="comment">// Accumulate any statements produced.</span>
-        <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">right_statements</span>);
+    <span class="doccomment">/// Consumes a binary expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: BinaryExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Reconstruct the lhs of the binary expression.
+        </span><span class="kw">let </span>(left_expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.left);
+        <span class="comment">// Reconstruct the rhs of the binary expression.
+        </span><span class="kw">let </span>(right_expression, <span class="kw-2">mut </span>right_statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.right);
+        <span class="comment">// Accumulate any statements produced.
+        </span>statements.append(<span class="kw-2">&amp;mut </span>right_statements);
 
-        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left_expression</span>),
-                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right_expression</span>),
-                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+                left: Box::new(left_expression),
+                right: Box::new(right_expression),
+                op: input.op,
+                span: input.span,
             }));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Consumes a call expression without visiting the function name, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">CallExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Consumes a call expression without visiting the function name, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CallExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Process the arguments, accumulating any statements produced.</span>
-        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">input</span>
-            .<span class="ident">arguments</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">argument</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">argument</span>, <span class="kw-2">mut</span> <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">argument</span>);
-                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmts</span>);
-                <span class="ident">argument</span>
+        <span class="comment">// Process the arguments, accumulating any statements produced.
+        </span><span class="kw">let </span>arguments = input
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                <span class="kw">let </span>(argument, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(argument);
+                statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                argument
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the call expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
-                <span class="comment">// Note that we do not rename the function name.</span>
-                <span class="ident">function</span>: <span class="ident">input</span>.<span class="ident">function</span>,
-                <span class="comment">// Consume the arguments.</span>
-                <span class="ident">arguments</span>,
-                <span class="ident">external</span>: <span class="ident">input</span>.<span class="ident">external</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Construct and accumulate a new assignment statement for the call expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Call(CallExpression {
+                <span class="comment">// Note that we do not rename the function name.
+                </span>function: input.function,
+                <span class="comment">// Consume the arguments.
+                </span>arguments,
+                external: input.external,
+                span: input.span,
             }));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">StructExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: StructExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Process the members, accumulating any statements produced.</span>
-        <span class="kw">let</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">StructVariableInitializer</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>
-            .<span class="ident">members</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">arg</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">expression</span>, <span class="kw-2">mut</span> <span class="ident">stmts</span>) <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">arg</span>.<span class="ident">expression</span>.<span class="ident">is_some</span>() {
-                    <span class="comment">// If the expression is None, then `arg` is a `StructVariableInitializer` of the form `&lt;id&gt;,`.</span>
-                    <span class="comment">// In this case, we must consume the identifier and produce an initializer of the form `&lt;id&gt;: &lt;renamed_id&gt;`.</span>
-                    <span class="bool-val">false</span> =&gt; <span class="self">self</span>.<span class="ident">consume_identifier</span>(<span class="ident">arg</span>.<span class="ident">identifier</span>),
-                    <span class="comment">// If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `&lt;id&gt;: &lt;expr&gt;,`.</span>
-                    <span class="comment">// In this case, we must consume the expression.</span>
-                    <span class="bool-val">true</span> =&gt; <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">arg</span>.<span class="ident">expression</span>.<span class="ident">unwrap</span>()),
+        <span class="comment">// Process the members, accumulating any statements produced.
+        </span><span class="kw">let </span>members: Vec&lt;StructVariableInitializer&gt; = input
+            .members
+            .into_iter()
+            .map(|arg| {
+                <span class="kw">let </span>(expression, <span class="kw-2">mut </span>stmts) = <span class="kw">match </span><span class="kw-2">&amp;</span>arg.expression.is_some() {
+                    <span class="comment">// If the expression is None, then `arg` is a `StructVariableInitializer` of the form `&lt;id&gt;,`.
+                    // In this case, we must consume the identifier and produce an initializer of the form `&lt;id&gt;: &lt;renamed_id&gt;`.
+                    </span><span class="bool-val">false </span>=&gt; <span class="self">self</span>.consume_identifier(arg.identifier),
+                    <span class="comment">// If expression is `Some(..)`, then `arg is a `StructVariableInitializer` of the form `&lt;id&gt;: &lt;expr&gt;,`.
+                    // In this case, we must consume the expression.
+                    </span><span class="bool-val">true </span>=&gt; <span class="self">self</span>.consume_expression(arg.expression.unwrap()),
                 };
-                <span class="comment">// Accumulate any statements produced.</span>
-                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmts</span>);
+                <span class="comment">// Accumulate any statements produced.
+                </span>statements.append(<span class="kw-2">&amp;mut </span>stmts);
 
-                <span class="comment">// Return the new member.</span>
-                <span class="ident">StructVariableInitializer</span> {
-                    <span class="ident">identifier</span>: <span class="ident">arg</span>.<span class="ident">identifier</span>,
-                    <span class="ident">expression</span>: <span class="prelude-val">Some</span>(<span class="ident">expression</span>),
+                <span class="comment">// Return the new member.
+                </span>StructVariableInitializer {
+                    identifier: arg.identifier,
+                    expression: <span class="prelude-val">Some</span>(expression),
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// Reorder the members to match that of the struct definition.</span>
+        <span class="comment">// Reorder the members to match that of the struct definition.
 
-        <span class="comment">// Lookup the struct definition.</span>
-        <span class="comment">// Note that type checking guarantees that the correct struct definition exists.</span>
-        <span class="kw">let</span> <span class="ident">struct_definition</span>: <span class="kw-2">&amp;</span><span class="ident">Struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow</span>().<span class="ident">structs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>();
+        // Lookup the struct definition.
+        // Note that type checking guarantees that the correct struct definition exists.
+        </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Struct = <span class="self">self</span>.symbol_table.borrow().structs.get(<span class="kw-2">&amp;</span>input.name.name).unwrap();
 
-        <span class="comment">// Initialize the list of reordered members.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reordered_members</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">members</span>.<span class="ident">len</span>());
+        <span class="comment">// Initialize the list of reordered members.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());
 
-        <span class="comment">// Collect the members of the init expression into a map.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">member_map</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Symbol</span>, <span class="ident">StructVariableInitializer</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">members</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">member</span><span class="op">|</span> (<span class="ident">member</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">member</span>))
-            .<span class="ident">collect</span>();
+        <span class="comment">// Collect the members of the init expression into a map.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, StructVariableInitializer&gt; = members
+            .into_iter()
+            .map(|member| (member.identifier.name, member))
+            .collect();
 
-        <span class="comment">// If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.</span>
-        <span class="comment">// Note that type checking guarantees that the above fields exist.</span>
-        <span class="kw">if</span> <span class="ident">struct_definition</span>.<span class="ident">is_record</span> {
-            <span class="comment">// Add the `owner` field.</span>
-            <span class="comment">// Note that the `unwrap` is safe, since type checking guarantees that the member exists.</span>
-            <span class="ident">reordered_members</span>.<span class="ident">push</span>(<span class="ident">member_map</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">sym::owner</span>).<span class="ident">unwrap</span>());
-            <span class="comment">// Add the `gates` field.</span>
-            <span class="comment">// Note that the `unwrap` is safe, since type checking guarantees that the member exists.</span>
-            <span class="ident">reordered_members</span>.<span class="ident">push</span>(<span class="ident">member_map</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">sym::gates</span>).<span class="ident">unwrap</span>());
+        <span class="comment">// If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.
+        // Note that type checking guarantees that the above fields exist.
+        </span><span class="kw">if </span>struct_definition.is_record {
+            <span class="comment">// Add the `owner` field.
+            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+            </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>sym::owner).unwrap());
+            <span class="comment">// Add the `gates` field.
+            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+            </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>sym::gates).unwrap());
         }
 
-        <span class="comment">// For each member of the struct definition, push the corresponding member of the init expression.</span>
-        <span class="kw">for</span> <span class="ident">member</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">struct_definition</span>.<span class="ident">members</span> {
-            <span class="comment">// If the member is part of a record and it is `owner` or `gates`, then we have already added it.</span>
-            <span class="kw">if</span> <span class="op">!</span>(<span class="ident">struct_definition</span>.<span class="ident">is_record</span> <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">member</span>.<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">sym::owner</span> <span class="op">|</span> <span class="ident">sym::gates</span>)) {
-                <span class="comment">// Lookup and push the member of the init expression.</span>
-                <span class="comment">// Note that the `unwrap` is safe, since type checking guarantees that the member exists.</span>
-                <span class="ident">reordered_members</span>.<span class="ident">push</span>(<span class="ident">member_map</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">member</span>.<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>());
+        <span class="comment">// For each member of the struct definition, push the corresponding member of the init expression.
+        </span><span class="kw">for </span>member <span class="kw">in </span><span class="kw-2">&amp;</span>struct_definition.members {
+            <span class="comment">// If the member is part of a record and it is `owner` or `gates`, then we have already added it.
+            </span><span class="kw">if </span>!(struct_definition.is_record &amp;&amp; <span class="macro">matches!</span>(member.identifier.name, sym::owner | sym::gates)) {
+                <span class="comment">// Lookup and push the member of the init expression.
+                // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
+                </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>member.identifier.name).unwrap());
             }
         }
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Struct</span>(<span class="ident">StructExpression</span> {
-                <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
-                <span class="ident">members</span>: <span class="ident">reordered_members</span>,
+        <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Struct(StructExpression {
+                name: input.name,
+                span: input.span,
+                members: reordered_members,
             }));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Produces a new `Identifier` with a unique name.</span>
-    <span class="kw">fn</span> <span class="ident">consume_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_lhs</span> {
-            <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.</span>
-            <span class="bool-val">true</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_symbol</span>(<span class="ident">identifier</span>.<span class="ident">name</span>);
-                <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">new_name</span>);
-                <span class="ident">new_name</span>
+    <span class="doccomment">/// Produces a new `Identifier` with a unique name.
+    </span><span class="kw">fn </span>consume_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>name = <span class="kw">match </span><span class="self">self</span>.is_lhs {
+            <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
+            </span><span class="bool-val">true </span>=&gt; {
+                <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name);
+                <span class="self">self</span>.rename_table.update(identifier.name, new_name);
+                new_name
             }
-            <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.</span>
-            <span class="comment">// Note that we do not panic if the identifier is not found in the rename table.</span>
-            <span class="comment">// Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.</span>
-            <span class="comment">// These variables are never re-assigned, and will never have an entry in the rename-table.</span>
-            <span class="bool-val">false</span> =&gt; <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="ident">identifier</span>.<span class="ident">name</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">identifier</span>.<span class="ident">name</span>),
+            <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.
+            // Note that we do not panic if the identifier is not found in the rename table.
+            // Variables that do not exist in the rename table are ones that have been introduced during the SSA pass.
+            // These variables are never re-assigned, and will never have an entry in the rename-table.
+            </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(identifier.name).unwrap_or(<span class="kw-2">&amp;</span>identifier.name),
         };
 
         (
-            <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                <span class="ident">name</span>,
-                <span class="ident">span</span>: <span class="ident">identifier</span>.<span class="ident">span</span>,
+            Expression::Identifier(Identifier {
+                name,
+                span: identifier.span,
             }),
-            <span class="ident">Default::default</span>(),
+            Default::default(),
         )
     }
 
-    <span class="doccomment">/// Consumes and returns the literal without making any modifications.</span>
-    <span class="kw">fn</span> <span class="ident">consume_literal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">Literal</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        (<span class="ident">Expression::Literal</span>(<span class="ident">input</span>), <span class="ident">Default::default</span>())
+    <span class="doccomment">/// Consumes and returns the literal without making any modifications.
+    </span><span class="kw">fn </span>consume_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Literal) -&gt; <span class="self">Self</span>::Output {
+        (Expression::Literal(input), Default::default())
     }
 
-    <span class="doccomment">/// Consumes a ternary expression, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_ternary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">TernaryExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Reconstruct the condition of the ternary expression.</span>
-        <span class="kw">let</span> (<span class="ident">cond_expr</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">condition</span>);
-        <span class="comment">// Reconstruct the if-true case of the ternary expression.</span>
-        <span class="kw">let</span> (<span class="ident">if_true_expr</span>, <span class="kw-2">mut</span> <span class="ident">if_true_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_true</span>);
-        <span class="comment">// Reconstruct the if-false case of the ternary expression.</span>
-        <span class="kw">let</span> (<span class="ident">if_false_expr</span>, <span class="kw-2">mut</span> <span class="ident">if_false_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_false</span>);
+    <span class="doccomment">/// Consumes a ternary expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TernaryExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Reconstruct the condition of the ternary expression.
+        </span><span class="kw">let </span>(cond_expr, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.condition);
+        <span class="comment">// Reconstruct the if-true case of the ternary expression.
+        </span><span class="kw">let </span>(if_true_expr, <span class="kw-2">mut </span>if_true_statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.if_true);
+        <span class="comment">// Reconstruct the if-false case of the ternary expression.
+        </span><span class="kw">let </span>(if_false_expr, <span class="kw-2">mut </span>if_false_statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.if_false);
 
-        <span class="comment">// Accumulate any statements produced.</span>
-        <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">if_true_statements</span>);
-        <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">if_false_statements</span>);
+        <span class="comment">// Accumulate any statements produced.
+        </span>statements.append(<span class="kw-2">&amp;mut </span>if_true_statements);
+        statements.append(<span class="kw-2">&amp;mut </span>if_false_statements);
 
-        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">cond_expr</span>),
-                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true_expr</span>),
-                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false_expr</span>),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                condition: Box::new(cond_expr),
+                if_true: Box::new(if_true_expr),
+                if_false: Box::new(if_false_expr),
+                span: input.span,
             }));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 
-    <span class="doccomment">/// Consumes a tuple expression, accumulating any statements that are generated</span>
-    <span class="kw">fn</span> <span class="ident">consume_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">TupleExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Consumes a tuple expression, accumulating any statements that are generated
+    </span><span class="kw">fn </span>consume_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TupleExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Process the elements, accumulating any statements produced.</span>
-        <span class="kw">let</span> <span class="ident">elements</span> <span class="op">=</span> <span class="ident">input</span>
-            .<span class="ident">elements</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">element</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">element</span>, <span class="kw-2">mut</span> <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">element</span>);
-                <span class="ident">statements</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">stmts</span>);
-                <span class="ident">element</span>
+        <span class="comment">// Process the elements, accumulating any statements produced.
+        </span><span class="kw">let </span>elements = input
+            .elements
+            .into_iter()
+            .map(|element| {
+                <span class="kw">let </span>(element, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(element);
+                statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                element
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// Note that we do not construct a new assignment statement for the tuple expression.</span>
-        <span class="comment">// This is because tuple expressions are restricted to use in a return statement.</span>
-        (
-            <span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> {
-                <span class="ident">elements</span>,
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Note that we do not construct a new assignment statement for the tuple expression.
+        // This is because tuple expressions are restricted to use in a return statement.
+        </span>(
+            Expression::Tuple(TupleExpression {
+                elements,
+                span: input.span,
             }),
-            <span class="ident">statements</span>,
+            statements,
         )
     }
 
-    <span class="doccomment">/// Consumes a unary expression, accumulating any statements that are generated.</span>
-    <span class="kw">fn</span> <span class="ident">consume_unary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">UnaryExpression</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Reconstruct the operand of the unary expression.</span>
-        <span class="kw">let</span> (<span class="ident">receiver</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">receiver</span>);
+    <span class="doccomment">/// Consumes a unary expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnaryExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Reconstruct the operand of the unary expression.
+        </span><span class="kw">let </span>(receiver, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.receiver);
 
-        <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.</span>
-        <span class="kw">let</span> (<span class="ident">place</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">assigner</span>
-            .<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                <span class="ident">op</span>: <span class="ident">input</span>.<span class="ident">op</span>,
-                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">receiver</span>),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+                op: input.op,
+                receiver: Box::new(receiver),
+                span: input.span,
             }));
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+        statements.push(statement);
 
-        (<span class="ident">Expression::Identifier</span>(<span class="ident">place</span>), <span class="ident">statements</span>)
+        (Expression::Identifier(place), statements)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

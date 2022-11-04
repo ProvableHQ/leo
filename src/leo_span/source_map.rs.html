@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/source_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>source_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_span/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/source_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>source_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_span/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -452,459 +452,459 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::span</span>::{<span class="ident">BytePos</span>, <span class="ident">CharPos</span>, <span class="ident">Pos</span>, <span class="ident">Span</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">cell::RefCell</span>,
-    <span class="ident">fmt</span>, <span class="ident">fs</span>, <span class="ident">io</span>,
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
-    <span class="ident">rc::Rc</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::span::{BytePos, CharPos, Pos, Span};
+<span class="kw">use </span>std::{
+    cell::RefCell,
+    fmt, fs, io,
+    path::{Path, PathBuf},
+    rc::Rc,
 };
 
-<span class="doccomment">/// The source map containing all recorded sources,</span>
-<span class="doccomment">/// methods to register new ones,</span>
-<span class="doccomment">/// and methods to query about spans in relation to recorded sources.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SourceMap</span> {
-    <span class="doccomment">/// The actual source map data.</span>
-    <span class="ident">inner</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">SourceMapInner</span><span class="op">&gt;</span>,
+<span class="doccomment">/// The source map containing all recorded sources,
+/// methods to register new ones,
+/// and methods to query about spans in relation to recorded sources.
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">pub struct </span>SourceMap {
+    <span class="doccomment">/// The actual source map data.
+    </span>inner: RefCell&lt;SourceMapInner&gt;,
 }
 
-<span class="doccomment">/// Actual data of the source map.</span>
-<span class="doccomment">/// We use this setup for purposes of interior mutability.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SourceMapInner</span> {
-    <span class="doccomment">/// The address space below this value is currently used by the files in the source map.</span>
-    <span class="ident">used_address_space</span>: <span class="ident">u32</span>,
+<span class="doccomment">/// Actual data of the source map.
+/// We use this setup for purposes of interior mutability.
+</span><span class="attribute">#[derive(Default)]
+</span><span class="kw">struct </span>SourceMapInner {
+    <span class="doccomment">/// The address space below this value is currently used by the files in the source map.
+    </span>used_address_space: u32,
 
-    <span class="doccomment">/// All the source files recorded thus far.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The list is append-only with mappings from the start byte position</span>
-    <span class="doccomment">/// for fast lookup from a `Span` to its `SourceFile`.</span>
-    <span class="ident">source_files</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// All the source files recorded thus far.
+    ///
+    /// The list is append-only with mappings from the start byte position
+    /// for fast lookup from a `Span` to its `SourceFile`.
+    </span>source_files: Vec&lt;Rc&lt;SourceFile&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SourceMap</span> {
-    <span class="doccomment">/// Loads the given `path` and returns a `SourceFile` for it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">io::Result</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="ident">new_source</span>(<span class="kw-2">&amp;</span><span class="ident">fs::read_to_string</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">FileName::Real</span>(<span class="ident">path</span>.<span class="ident">to_owned</span>())))
+<span class="kw">impl </span>SourceMap {
+    <span class="doccomment">/// Loads the given `path` and returns a `SourceFile` for it.
+    </span><span class="kw">pub fn </span>load_file(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; io::Result&lt;Rc&lt;SourceFile&gt;&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.new_source(<span class="kw-2">&amp;</span>fs::read_to_string(path)<span class="question-mark">?</span>, FileName::Real(path.to_owned())))
     }
 
-    <span class="doccomment">/// Registers `source` under the given file `name`, returning a `SourceFile` back.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_source</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="ident">FileName</span>) -&gt; <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">u32::try_from</span>(<span class="ident">source</span>.<span class="ident">len</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">let</span> <span class="ident">start_pos</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">try_allocate_address_space</span>(<span class="ident">len</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">source_file</span> <span class="op">=</span> <span class="ident">Rc::new</span>(<span class="ident">SourceFile::new</span>(<span class="ident">name</span>, <span class="ident">source</span>.<span class="ident">to_owned</span>(), <span class="ident">start_pos</span>));
-        <span class="ident">inner</span>.<span class="ident">source_files</span>.<span class="ident">push</span>(<span class="ident">source_file</span>.<span class="ident">clone</span>());
-        <span class="ident">source_file</span>
+    <span class="doccomment">/// Registers `source` under the given file `name`, returning a `SourceFile` back.
+    </span><span class="kw">pub fn </span>new_source(<span class="kw-2">&amp;</span><span class="self">self</span>, source: <span class="kw-2">&amp;</span>str, name: FileName) -&gt; Rc&lt;SourceFile&gt; {
+        <span class="kw">let </span>len = u32::try_from(source.len()).unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.inner.borrow_mut();
+        <span class="kw">let </span>start_pos = inner.try_allocate_address_space(len).unwrap();
+        <span class="kw">let </span>source_file = Rc::new(SourceFile::new(name, source.to_owned(), start_pos));
+        inner.source_files.push(source_file.clone());
+        source_file
     }
 
-    <span class="doccomment">/// Find the index for the source file containing `pos`.</span>
-    <span class="kw">fn</span> <span class="ident">find_source_file_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
-            .<span class="ident">borrow</span>()
-            .<span class="ident">source_files</span>
-            .<span class="ident">binary_search_by_key</span>(<span class="kw-2">&amp;</span><span class="ident">pos</span>, <span class="op">|</span><span class="ident">file</span><span class="op">|</span> <span class="ident">file</span>.<span class="ident">start_pos</span>)
-            .<span class="ident">map_or_else</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">checked_sub</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>)
+    <span class="doccomment">/// Find the index for the source file containing `pos`.
+    </span><span class="kw">fn </span>find_source_file_index(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="self">self</span>.inner
+            .borrow()
+            .source_files
+            .binary_search_by_key(<span class="kw-2">&amp;</span>pos, |file| file.start_pos)
+            .map_or_else(|p| p.checked_sub(<span class="number">1</span>), <span class="prelude-val">Some</span>)
     }
 
-    <span class="doccomment">/// Find the source file containing `pos`.</span>
-    <span class="kw">fn</span> <span class="ident">find_source_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">source_files</span>[<span class="self">self</span>.<span class="ident">find_source_file_index</span>(<span class="ident">pos</span>)<span class="question-mark">?</span>].<span class="ident">clone</span>())
+    <span class="doccomment">/// Find the source file containing `pos`.
+    </span><span class="kw">fn </span>find_source_file(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;Rc&lt;SourceFile&gt;&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.inner.borrow().source_files[<span class="self">self</span>.find_source_file_index(pos)<span class="question-mark">?</span>].clone())
     }
 
-    <span class="doccomment">/// Finds line column info about a given `pos`.</span>
-    <span class="kw">fn</span> <span class="ident">find_line_col</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LineCol</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">source_file</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_source_file</span>(<span class="ident">pos</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">line</span>, <span class="ident">col</span>) <span class="op">=</span> <span class="ident">source_file</span>.<span class="ident">lookup_file_pos</span>(<span class="ident">pos</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">LineCol</span> { <span class="ident">source_file</span>, <span class="ident">line</span>, <span class="ident">col</span> })
+    <span class="doccomment">/// Finds line column info about a given `pos`.
+    </span><span class="kw">fn </span>find_line_col(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;LineCol&gt; {
+        <span class="kw">let </span>source_file = <span class="self">self</span>.find_source_file(pos)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(line, col) = source_file.lookup_file_pos(pos);
+        <span class="prelude-val">Some</span>(LineCol { source_file, line, col })
     }
 
-    <span class="doccomment">/// Retrives the location (source file, line, col) on the given span.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_to_location</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sp</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SpanLocation</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_line_col</span>(<span class="ident">sp</span>.<span class="ident">lo</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_line_col</span>(<span class="ident">sp</span>.<span class="ident">hi</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">SpanLocation</span> {
-            <span class="ident">source_file</span>: <span class="ident">lo</span>.<span class="ident">source_file</span>,
-            <span class="ident">line_start</span>: <span class="ident">lo</span>.<span class="ident">line</span>,
-            <span class="ident">line_stop</span>: <span class="ident">hi</span>.<span class="ident">line</span>,
-            <span class="ident">col_start</span>: <span class="ident">lo</span>.<span class="ident">col</span>.<span class="ident">to_usize</span>() <span class="op">+</span> <span class="number">1</span>,
-            <span class="ident">col_stop</span>: <span class="ident">hi</span>.<span class="ident">col</span>.<span class="ident">to_usize</span>() <span class="op">+</span> <span class="number">1</span>,
+    <span class="doccomment">/// Retrives the location (source file, line, col) on the given span.
+    </span><span class="kw">pub fn </span>span_to_location(<span class="kw-2">&amp;</span><span class="self">self</span>, sp: Span) -&gt; <span class="prelude-ty">Option</span>&lt;SpanLocation&gt; {
+        <span class="kw">let </span>lo = <span class="self">self</span>.find_line_col(sp.lo)<span class="question-mark">?</span>;
+        <span class="kw">let </span>hi = <span class="self">self</span>.find_line_col(sp.hi)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(SpanLocation {
+            source_file: lo.source_file,
+            line_start: lo.line,
+            line_stop: hi.line,
+            col_start: lo.col.to_usize() + <span class="number">1</span>,
+            col_stop: hi.col.to_usize() + <span class="number">1</span>,
         })
     }
 
-    <span class="doccomment">/// Returns a displayable representation of the `span` as a string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">span_to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">loc</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">span_to_location</span>(<span class="ident">span</span>) {
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="string">&quot;no-location&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">l</span>) =&gt; <span class="ident">l</span>,
+    <span class="doccomment">/// Returns a displayable representation of the `span` as a string.
+    </span><span class="kw">pub fn </span>span_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; String {
+        <span class="kw">let </span>loc = <span class="kw">match </span><span class="self">self</span>.span_to_location(span) {
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="string">&quot;no-location&quot;</span>.to_string(),
+            <span class="prelude-val">Some</span>(l) =&gt; l,
         };
 
-        <span class="kw">if</span> <span class="ident">loc</span>.<span class="ident">line_start</span> <span class="op">==</span> <span class="ident">loc</span>.<span class="ident">line_stop</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}&quot;</span>, <span class="ident">loc</span>.<span class="ident">line_start</span>, <span class="ident">loc</span>.<span class="ident">col_start</span>, <span class="ident">loc</span>.<span class="ident">col_stop</span>)
-        } <span class="kw">else</span> {
+        <span class="kw">if </span>loc.line_start == loc.line_stop {
+            <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}&quot;</span>, loc.line_start, loc.col_start, loc.col_stop)
+        } <span class="kw">else </span>{
             <span class="macro">format!</span>(
                 <span class="string">&quot;{}:{}-{}:{}&quot;</span>,
-                <span class="ident">loc</span>.<span class="ident">line_start</span>, <span class="ident">loc</span>.<span class="ident">col_start</span>, <span class="ident">loc</span>.<span class="ident">line_stop</span>, <span class="ident">loc</span>.<span class="ident">col_stop</span>
+                loc.line_start, loc.col_start, loc.line_stop, loc.col_stop
             )
         }
     }
 
-    <span class="doccomment">/// Returns the source contents that is spanned by `span`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contents_of_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_source_file</span>(<span class="ident">span</span>.<span class="ident">lo</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_source_file</span>(<span class="ident">span</span>.<span class="ident">hi</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">begin</span>.<span class="ident">start_pos</span>, <span class="ident">end</span>.<span class="ident">start_pos</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">begin</span>.<span class="ident">contents_of_span</span>(<span class="ident">span</span>))
+    <span class="doccomment">/// Returns the source contents that is spanned by `span`.
+    </span><span class="kw">pub fn </span>contents_of_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="kw">let </span>begin = <span class="self">self</span>.find_source_file(span.lo)<span class="question-mark">?</span>;
+        <span class="kw">let </span>end = <span class="self">self</span>.find_source_file(span.hi)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(begin.start_pos, end.start_pos);
+        <span class="prelude-val">Some</span>(begin.contents_of_span(span))
     }
 
-    <span class="doccomment">/// Returns the source contents of the lines that `span` is within.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// That is, if the span refers to `x = 4` in the source code:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// &gt; ```text</span>
-    <span class="doccomment">/// &gt; // Line 1</span>
-    <span class="doccomment">/// &gt; let x</span>
-    <span class="doccomment">/// &gt;     = 4;</span>
-    <span class="doccomment">/// &gt; // Line 4</span>
-    <span class="doccomment">/// &gt; ```</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// then the contents on lines 2 and 3 are returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_contents_of_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">begin</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_source_file</span>(<span class="ident">span</span>.<span class="ident">lo</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_source_file</span>(<span class="ident">span</span>.<span class="ident">hi</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">begin</span>.<span class="ident">start_pos</span>, <span class="ident">end</span>.<span class="ident">start_pos</span>);
+    <span class="doccomment">/// Returns the source contents of the lines that `span` is within.
+    ///
+    /// That is, if the span refers to `x = 4` in the source code:
+    ///
+    /// &gt; ```text
+    /// &gt; // Line 1
+    /// &gt; let x
+    /// &gt;     = 4;
+    /// &gt; // Line 4
+    /// &gt; ```
+    ///
+    /// then the contents on lines 2 and 3 are returned.
+    </span><span class="kw">pub fn </span>line_contents_of_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="kw">let </span>begin = <span class="self">self</span>.find_source_file(span.lo)<span class="question-mark">?</span>;
+        <span class="kw">let </span>end = <span class="self">self</span>.find_source_file(span.hi)<span class="question-mark">?</span>;
+        <span class="macro">assert_eq!</span>(begin.start_pos, end.start_pos);
 
-        <span class="kw">let</span> <span class="ident">idx_lo</span> <span class="op">=</span> <span class="ident">begin</span>.<span class="ident">lookup_line</span>(<span class="ident">span</span>.<span class="ident">lo</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-        <span class="kw">let</span> <span class="ident">idx_hi</span> <span class="op">=</span> <span class="ident">begin</span>.<span class="ident">lookup_line</span>(<span class="ident">span</span>.<span class="ident">hi</span>).<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="op">+</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">lo_line_pos</span> <span class="op">=</span> <span class="ident">begin</span>.<span class="ident">lines</span>[<span class="ident">idx_lo</span>];
-        <span class="kw">let</span> <span class="ident">hi_line_pos</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx_hi</span> <span class="op">&lt;</span> <span class="ident">begin</span>.<span class="ident">lines</span>.<span class="ident">len</span>() {
-            <span class="ident">begin</span>.<span class="ident">lines</span>[<span class="ident">idx_hi</span>]
-        } <span class="kw">else</span> {
-            <span class="ident">begin</span>.<span class="ident">end_pos</span>
+        <span class="kw">let </span>idx_lo = begin.lookup_line(span.lo).unwrap_or(<span class="number">0</span>);
+        <span class="kw">let </span>idx_hi = begin.lookup_line(span.hi).unwrap_or(<span class="number">0</span>) + <span class="number">1</span>;
+        <span class="kw">let </span>lo_line_pos = begin.lines[idx_lo];
+        <span class="kw">let </span>hi_line_pos = <span class="kw">if </span>idx_hi &lt; begin.lines.len() {
+            begin.lines[idx_hi]
+        } <span class="kw">else </span>{
+            begin.end_pos
         };
-        <span class="prelude-val">Some</span>(<span class="ident">begin</span>.<span class="ident">contents_of_span</span>(<span class="ident">Span::new</span>(<span class="ident">lo_line_pos</span>, <span class="ident">hi_line_pos</span>)))
+        <span class="prelude-val">Some</span>(begin.contents_of_span(Span::new(lo_line_pos, hi_line_pos)))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SourceMapInner</span> {
-    <span class="doccomment">/// Attempt reserving address space for `size` number of bytes.</span>
-    <span class="kw">fn</span> <span class="ident">try_allocate_address_space</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">u32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BytePos</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">used_address_space</span>;
-        <span class="comment">// By adding one, we can distinguish between files, even when they are empty.</span>
-        <span class="self">self</span>.<span class="ident">used_address_space</span> <span class="op">=</span> <span class="ident">current</span>.<span class="ident">checked_add</span>(<span class="ident">size</span>)<span class="question-mark">?</span>.<span class="ident">checked_add</span>(<span class="number">1</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">BytePos</span>(<span class="ident">current</span>))
+<span class="kw">impl </span>SourceMapInner {
+    <span class="doccomment">/// Attempt reserving address space for `size` number of bytes.
+    </span><span class="kw">fn </span>try_allocate_address_space(<span class="kw-2">&amp;mut </span><span class="self">self</span>, size: u32) -&gt; <span class="prelude-ty">Option</span>&lt;BytePos&gt; {
+        <span class="kw">let </span>current = <span class="self">self</span>.used_address_space;
+        <span class="comment">// By adding one, we can distinguish between files, even when they are empty.
+        </span><span class="self">self</span>.used_address_space = current.checked_add(size)<span class="question-mark">?</span>.checked_add(<span class="number">1</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(BytePos(current))
     }
 }
 
-<span class="doccomment">/// A file name.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For now it&#39;s simply a wrapper around `PathBuf`,</span>
-<span class="doccomment">/// but may become more complicated in the future.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">FileName</span> {
-    <span class="doccomment">/// A real file.</span>
-    <span class="ident">Real</span>(<span class="ident">PathBuf</span>),
-    <span class="doccomment">/// Any sort of description for a source.</span>
-    <span class="ident">Custom</span>(<span class="ident">String</span>),
+<span class="doccomment">/// A file name.
+///
+/// For now it&#39;s simply a wrapper around `PathBuf`,
+/// but may become more complicated in the future.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>FileName {
+    <span class="doccomment">/// A real file.
+    </span>Real(PathBuf),
+    <span class="doccomment">/// Any sort of description for a source.
+    </span>Custom(String),
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">FileName</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Real</span>(<span class="ident">x</span>) <span class="kw">if</span> <span class="ident">is_not_test_framework</span>() =&gt; <span class="ident">x</span>.<span class="ident">display</span>().<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="ident"><span class="self">Self</span>::Real</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
-            <span class="ident"><span class="self">Self</span>::Custom</span>(<span class="ident">x</span>) =&gt; <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">x</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>FileName {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Real(x) <span class="kw">if </span>is_not_test_framework() =&gt; x.display().fmt(f),
+            <span class="self">Self</span>::Real(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
+            <span class="self">Self</span>::Custom(x) =&gt; f.write_str(x),
         }
     }
 }
 
-<span class="doccomment">/// Is the env var `LEO_TESTFRAMEWORK` not enabled?</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_not_test_framework</span>() -&gt; <span class="ident">bool</span> {
-    <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
-        .<span class="ident">unwrap_or_default</span>()
-        .<span class="ident">trim</span>()
-        .<span class="ident">to_owned</span>()
-        .<span class="ident">is_empty</span>()
+<span class="doccomment">/// Is the env var `LEO_TESTFRAMEWORK` not enabled?
+</span><span class="kw">pub fn </span>is_not_test_framework() -&gt; bool {
+    std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
+        .unwrap_or_default()
+        .trim()
+        .to_owned()
+        .is_empty()
 }
 
-<span class="doccomment">/// A single source in the [`SourceMap`].</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SourceFile</span> {
-    <span class="doccomment">/// The name of the file that the source came from.</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">FileName</span>,
-    <span class="doccomment">/// The complete source code.</span>
-    <span class="kw">pub</span> <span class="ident">src</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The start position of this source in the `SourceMap`.</span>
-    <span class="kw">pub</span> <span class="ident">start_pos</span>: <span class="ident">BytePos</span>,
-    <span class="doccomment">/// The end position of this source in the `SourceMap`.</span>
-    <span class="kw">pub</span> <span class="ident">end_pos</span>: <span class="ident">BytePos</span>,
-    <span class="doccomment">/// Locations of line beginnings in the source code.</span>
-    <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BytePos</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Locations of multi-byte characters in the source code.</span>
-    <span class="ident">multibyte_chars</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MultiByteChar</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A single source in the [`SourceMap`].
+</span><span class="kw">pub struct </span>SourceFile {
+    <span class="doccomment">/// The name of the file that the source came from.
+    </span><span class="kw">pub </span>name: FileName,
+    <span class="doccomment">/// The complete source code.
+    </span><span class="kw">pub </span>src: String,
+    <span class="doccomment">/// The start position of this source in the `SourceMap`.
+    </span><span class="kw">pub </span>start_pos: BytePos,
+    <span class="doccomment">/// The end position of this source in the `SourceMap`.
+    </span><span class="kw">pub </span>end_pos: BytePos,
+    <span class="doccomment">/// Locations of line beginnings in the source code.
+    </span>lines: Vec&lt;BytePos&gt;,
+    <span class="doccomment">/// Locations of multi-byte characters in the source code.
+    </span>multibyte_chars: Vec&lt;MultiByteChar&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SourceFile</span> {
-    <span class="doccomment">/// Creates a new `SourceMap` given the file `name`,</span>
-    <span class="doccomment">/// source contents, and the `start_pos`ition.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This position is used for analysis purposes.</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="ident">FileName</span>, <span class="kw-2">mut</span> <span class="ident">src</span>: <span class="ident">String</span>, <span class="ident">start_pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">normalize_src</span>(<span class="kw-2">&amp;mut</span> <span class="ident">src</span>);
-        <span class="kw">let</span> <span class="ident">end_pos</span> <span class="op">=</span> <span class="ident">start_pos</span> <span class="op">+</span> <span class="ident">BytePos::from_usize</span>(<span class="ident">src</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> (<span class="ident">lines</span>, <span class="ident">multibyte_chars</span>) <span class="op">=</span> <span class="ident">analyze_source_file</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>, <span class="ident">start_pos</span>);
-        <span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">src</span>,
-            <span class="ident">start_pos</span>,
-            <span class="ident">end_pos</span>,
-            <span class="ident">lines</span>,
-            <span class="ident">multibyte_chars</span>,
+<span class="kw">impl </span>SourceFile {
+    <span class="doccomment">/// Creates a new `SourceMap` given the file `name`,
+    /// source contents, and the `start_pos`ition.
+    ///
+    /// This position is used for analysis purposes.
+    </span><span class="kw">fn </span>new(name: FileName, <span class="kw-2">mut </span>src: String, start_pos: BytePos) -&gt; <span class="self">Self </span>{
+        normalize_src(<span class="kw-2">&amp;mut </span>src);
+        <span class="kw">let </span>end_pos = start_pos + BytePos::from_usize(src.len());
+        <span class="kw">let </span>(lines, multibyte_chars) = analyze_source_file(<span class="kw-2">&amp;</span>src, start_pos);
+        <span class="self">Self </span>{
+            name,
+            src,
+            start_pos,
+            end_pos,
+            lines,
+            multibyte_chars,
         }
     }
 
-    <span class="doccomment">/// Converts an absolute `BytePos` to a `CharPos` relative to the `SourceFile`.</span>
-    <span class="kw">fn</span> <span class="ident">bytepos_to_file_charpos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bpos</span>: <span class="ident">BytePos</span>) -&gt; <span class="ident">CharPos</span> {
-        <span class="comment">// The number of extra bytes due to multibyte chars in the `SourceFile`.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_extra_bytes</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="doccomment">/// Converts an absolute `BytePos` to a `CharPos` relative to the `SourceFile`.
+    </span><span class="kw">fn </span>bytepos_to_file_charpos(<span class="kw-2">&amp;</span><span class="self">self</span>, bpos: BytePos) -&gt; CharPos {
+        <span class="comment">// The number of extra bytes due to multibyte chars in the `SourceFile`.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>total_extra_bytes = <span class="number">0</span>;
 
-        <span class="kw">for</span> <span class="ident">mbc</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">multibyte_chars</span>.<span class="ident">iter</span>() {
-            <span class="kw">if</span> <span class="ident">mbc</span>.<span class="ident">pos</span> <span class="op">&lt;</span> <span class="ident">bpos</span> {
-                <span class="comment">// Every character is at least one byte, so we only</span>
-                <span class="comment">// count the actual extra bytes.</span>
-                <span class="ident">total_extra_bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">mbc</span>.<span class="ident">bytes</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">-</span> <span class="number">1</span>;
-                <span class="comment">// We should never see a byte position in the middle of a</span>
-                <span class="comment">// character.</span>
-                <span class="macro">assert!</span>(<span class="ident">bpos</span>.<span class="ident">to_u32</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">mbc</span>.<span class="ident">pos</span>.<span class="ident">to_u32</span>() <span class="op">+</span> <span class="ident">mbc</span>.<span class="ident">bytes</span> <span class="kw">as</span> <span class="ident">u32</span>);
-            } <span class="kw">else</span> {
+        <span class="kw">for </span>mbc <span class="kw">in </span><span class="self">self</span>.multibyte_chars.iter() {
+            <span class="kw">if </span>mbc.pos &lt; bpos {
+                <span class="comment">// Every character is at least one byte, so we only
+                // count the actual extra bytes.
+                </span>total_extra_bytes += mbc.bytes <span class="kw">as </span>u32 - <span class="number">1</span>;
+                <span class="comment">// We should never see a byte position in the middle of a
+                // character.
+                </span><span class="macro">assert!</span>(bpos.to_u32() &gt;= mbc.pos.to_u32() + mbc.bytes <span class="kw">as </span>u32);
+            } <span class="kw">else </span>{
                 <span class="kw">break</span>;
             }
         }
 
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">start_pos</span>.<span class="ident">to_u32</span>() <span class="op">+</span> <span class="ident">total_extra_bytes</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bpos</span>.<span class="ident">to_u32</span>());
-        <span class="ident">CharPos</span>(<span class="ident">bpos</span>.<span class="ident">to_usize</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">start_pos</span>.<span class="ident">to_usize</span>() <span class="op">-</span> <span class="ident">total_extra_bytes</span> <span class="kw">as</span> <span class="ident">usize</span>)
+        <span class="macro">assert!</span>(<span class="self">self</span>.start_pos.to_u32() + total_extra_bytes &lt;= bpos.to_u32());
+        CharPos(bpos.to_usize() - <span class="self">self</span>.start_pos.to_usize() - total_extra_bytes <span class="kw">as </span>usize)
     }
 
-    <span class="doccomment">/// Finds the line containing the given position. The return value is the</span>
-    <span class="doccomment">/// index into the `lines` array of this `SourceFile`, not the 1-based line</span>
-    <span class="doccomment">/// number. If the source_file is empty or the position is located before the</span>
-    <span class="doccomment">/// first line, `None` is returned.</span>
-    <span class="kw">fn</span> <span class="ident">lookup_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">binary_search</span>(<span class="kw-2">&amp;</span><span class="ident">pos</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">idx</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">idx</span>),
+    <span class="doccomment">/// Finds the line containing the given position. The return value is the
+    /// index into the `lines` array of this `SourceFile`, not the 1-based line
+    /// number. If the source_file is empty or the position is located before the
+    /// first line, `None` is returned.
+    </span><span class="kw">fn </span>lookup_line(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">match </span><span class="self">self</span>.lines.binary_search(<span class="kw-2">&amp;</span>pos) {
+            <span class="prelude-val">Ok</span>(idx) =&gt; <span class="prelude-val">Some</span>(idx),
             <span class="prelude-val">Err</span>(<span class="number">0</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">idx</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>),
+            <span class="prelude-val">Err</span>(idx) =&gt; <span class="prelude-val">Some</span>(idx - <span class="number">1</span>),
         }
     }
 
-    <span class="doccomment">/// Looks up the file&#39;s (1-based) line number and (0-based `CharPos`) column offset, for a</span>
-    <span class="doccomment">/// given `BytePos`.</span>
-    <span class="kw">fn</span> <span class="ident">lookup_file_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pos</span>: <span class="ident">BytePos</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">CharPos</span>) {
-        <span class="kw">let</span> <span class="ident">chpos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytepos_to_file_charpos</span>(<span class="ident">pos</span>);
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">lookup_line</span>(<span class="ident">pos</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">a</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">a</span> <span class="op">+</span> <span class="number">1</span>; <span class="comment">// Line numbers start at 1</span>
-                <span class="kw">let</span> <span class="ident">linebpos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>[<span class="ident">a</span>];
-                <span class="kw">let</span> <span class="ident">linechpos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytepos_to_file_charpos</span>(<span class="ident">linebpos</span>);
-                <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">chpos</span> <span class="op">-</span> <span class="ident">linechpos</span>;
-                <span class="macro">assert!</span>(<span class="ident">chpos</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">linechpos</span>);
-                (<span class="ident">line</span>, <span class="ident">col</span>)
+    <span class="doccomment">/// Looks up the file&#39;s (1-based) line number and (0-based `CharPos`) column offset, for a
+    /// given `BytePos`.
+    </span><span class="kw">fn </span>lookup_file_pos(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; (usize, CharPos) {
+        <span class="kw">let </span>chpos = <span class="self">self</span>.bytepos_to_file_charpos(pos);
+        <span class="kw">match </span><span class="self">self</span>.lookup_line(pos) {
+            <span class="prelude-val">Some</span>(a) =&gt; {
+                <span class="kw">let </span>line = a + <span class="number">1</span>; <span class="comment">// Line numbers start at 1
+                </span><span class="kw">let </span>linebpos = <span class="self">self</span>.lines[a];
+                <span class="kw">let </span>linechpos = <span class="self">self</span>.bytepos_to_file_charpos(linebpos);
+                <span class="kw">let </span>col = chpos - linechpos;
+                <span class="macro">assert!</span>(chpos &gt;= linechpos);
+                (line, col)
             }
-            <span class="prelude-val">None</span> =&gt; (<span class="number">0</span>, <span class="ident">chpos</span>),
+            <span class="prelude-val">None </span>=&gt; (<span class="number">0</span>, chpos),
         }
     }
 
-    <span class="doccomment">/// Returns contents of a `span` assumed to be within the given file.</span>
-    <span class="kw">fn</span> <span class="ident">contents_of_span</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">span</span>: <span class="ident">Span</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">begin_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytepos_to_file_charpos</span>(<span class="ident">span</span>.<span class="ident">lo</span>).<span class="ident">to_usize</span>();
-        <span class="kw">let</span> <span class="ident">end_pos</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bytepos_to_file_charpos</span>(<span class="ident">span</span>.<span class="ident">hi</span>).<span class="ident">to_usize</span>();
-        <span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">src</span>.<span class="ident">as_bytes</span>()[<span class="ident">begin_pos</span>..<span class="ident">end_pos</span>]).<span class="ident">into_owned</span>()
+    <span class="doccomment">/// Returns contents of a `span` assumed to be within the given file.
+    </span><span class="kw">fn </span>contents_of_span(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; String {
+        <span class="kw">let </span>begin_pos = <span class="self">self</span>.bytepos_to_file_charpos(span.lo).to_usize();
+        <span class="kw">let </span>end_pos = <span class="self">self</span>.bytepos_to_file_charpos(span.hi).to_usize();
+        String::from_utf8_lossy(<span class="kw-2">&amp;</span><span class="self">self</span>.src.as_bytes()[begin_pos..end_pos]).into_owned()
     }
 }
 
-<span class="doccomment">/// Detailed information on a `Span`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpanLocation</span> {
-    <span class="kw">pub</span> <span class="ident">source_file</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">line_start</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">line_stop</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">col_start</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">col_stop</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// Detailed information on a `Span`.
+</span><span class="kw">pub struct </span>SpanLocation {
+    <span class="kw">pub </span>source_file: Rc&lt;SourceFile&gt;,
+    <span class="kw">pub </span>line_start: usize,
+    <span class="kw">pub </span>line_stop: usize,
+    <span class="kw">pub </span>col_start: usize,
+    <span class="kw">pub </span>col_stop: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">SpanLocation</span> {
-    <span class="doccomment">/// Returns a dummy location.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">dummy</span> <span class="op">=</span> <span class="string">&quot;&lt;dummy&gt;&quot;</span>.<span class="ident">to_owned</span>();
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">Span::dummy</span>();
-        <span class="self">Self</span> {
-            <span class="ident">source_file</span>: <span class="ident">Rc::new</span>(<span class="ident">SourceFile</span> {
-                <span class="ident">name</span>: <span class="ident">FileName::Custom</span>(<span class="ident">dummy</span>.<span class="ident">clone</span>()),
-                <span class="ident">src</span>: <span class="ident">dummy</span>,
-                <span class="ident">start_pos</span>: <span class="ident">span</span>.<span class="ident">lo</span>,
-                <span class="ident">end_pos</span>: <span class="ident">span</span>.<span class="ident">hi</span>,
-                <span class="ident">lines</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">multibyte_chars</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>SpanLocation {
+    <span class="doccomment">/// Returns a dummy location.
+    </span><span class="kw">pub fn </span>dummy() -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>dummy = <span class="string">&quot;&lt;dummy&gt;&quot;</span>.to_owned();
+        <span class="kw">let </span>span = Span::dummy();
+        <span class="self">Self </span>{
+            source_file: Rc::new(SourceFile {
+                name: FileName::Custom(dummy.clone()),
+                src: dummy,
+                start_pos: span.lo,
+                end_pos: span.hi,
+                lines: Vec::new(),
+                multibyte_chars: Vec::new(),
             }),
-            <span class="ident">line_start</span>: <span class="number">0</span>,
-            <span class="ident">line_stop</span>: <span class="number">0</span>,
-            <span class="ident">col_start</span>: <span class="number">0</span>,
-            <span class="ident">col_stop</span>: <span class="number">0</span>,
+            line_start: <span class="number">0</span>,
+            line_stop: <span class="number">0</span>,
+            col_start: <span class="number">0</span>,
+            col_stop: <span class="number">0</span>,
         }
     }
 }
 
-<span class="doccomment">/// File / Line / Column information on a `BytePos`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LineCol</span> {
-    <span class="doccomment">/// Information on the original source.</span>
-    <span class="kw">pub</span> <span class="ident">source_file</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">SourceFile</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The 1-based line number.</span>
-    <span class="kw">pub</span> <span class="ident">line</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// The (0-based) column offset into the line.</span>
-    <span class="kw">pub</span> <span class="ident">col</span>: <span class="ident">CharPos</span>,
+<span class="doccomment">/// File / Line / Column information on a `BytePos`.
+</span><span class="kw">pub struct </span>LineCol {
+    <span class="doccomment">/// Information on the original source.
+    </span><span class="kw">pub </span>source_file: Rc&lt;SourceFile&gt;,
+    <span class="doccomment">/// The 1-based line number.
+    </span><span class="kw">pub </span>line: usize,
+    <span class="doccomment">/// The (0-based) column offset into the line.
+    </span><span class="kw">pub </span>col: CharPos,
 }
 
-<span class="doccomment">/// Normalizes the source code and records the normalizations.</span>
-<span class="kw">fn</span> <span class="ident">normalize_src</span>(<span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-    <span class="ident">remove_bom</span>(<span class="ident">src</span>);
-    <span class="ident">normalize_newlines</span>(<span class="ident">src</span>);
+<span class="doccomment">/// Normalizes the source code and records the normalizations.
+</span><span class="kw">fn </span>normalize_src(src: <span class="kw-2">&amp;mut </span>String) {
+    remove_bom(src);
+    normalize_newlines(src);
 }
 
-<span class="doccomment">/// Removes UTF-8 BOM, if any.</span>
-<span class="kw">fn</span> <span class="ident">remove_bom</span>(<span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-    <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">starts_with</span>(<span class="string">&#39;\u{feff}&#39;</span>) {
-        <span class="ident">src</span>.<span class="ident">drain</span>(..<span class="number">3</span>);
+<span class="doccomment">/// Removes UTF-8 BOM, if any.
+</span><span class="kw">fn </span>remove_bom(src: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">if </span>src.starts_with(<span class="string">&#39;\u{feff}&#39;</span>) {
+        src.drain(..<span class="number">3</span>);
     }
 }
 
-<span class="doccomment">/// Replaces `\r\n` with `\n` in-place in `src`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Returns error if there&#39;s a lone `\r` in the string.</span>
-<span class="kw">fn</span> <span class="ident">normalize_newlines</span>(<span class="ident">src</span>: <span class="kw-2">&amp;mut</span> <span class="ident">String</span>) {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">src</span>.<span class="ident">as_bytes</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
+<span class="doccomment">/// Replaces `\r\n` with `\n` in-place in `src`.
+///
+/// Returns error if there&#39;s a lone `\r` in the string.
+</span><span class="kw">fn </span>normalize_newlines(src: <span class="kw-2">&amp;mut </span>String) {
+    <span class="kw">if </span>!src.as_bytes().contains(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
         <span class="kw">return</span>;
     }
 
-    <span class="comment">// We replace `\r\n` with `\n` in-place, which doesn&#39;t break utf-8 encoding.</span>
-    <span class="comment">// While we *can* call `as_mut_vec` and do surgery on the live string</span>
-    <span class="comment">// directly, let&#39;s rather steal the contents of `src`. This makes the code</span>
-    <span class="comment">// safe even if a panic occurs.</span>
+    <span class="comment">// We replace `\r\n` with `\n` in-place, which doesn&#39;t break utf-8 encoding.
+    // While we *can* call `as_mut_vec` and do surgery on the live string
+    // directly, let&#39;s rather steal the contents of `src`. This makes the code
+    // safe even if a panic occurs.
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="ident">src</span>).<span class="ident">into_bytes</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gap_len</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tail</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">as_mut_slice</span>();
-    <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">find_crlf</span>(<span class="kw-2">&amp;</span><span class="ident">tail</span>[<span class="ident">gap_len</span>..]) {
-            <span class="prelude-val">None</span> =&gt; <span class="ident">tail</span>.<span class="ident">len</span>(),
-            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; <span class="ident">idx</span> <span class="op">+</span> <span class="ident">gap_len</span>,
+    </span><span class="kw">let </span><span class="kw-2">mut </span>buf = std::mem::take(src).into_bytes();
+    <span class="kw">let </span><span class="kw-2">mut </span>gap_len = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tail = buf.as_mut_slice();
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>idx = <span class="kw">match </span>find_crlf(<span class="kw-2">&amp;</span>tail[gap_len..]) {
+            <span class="prelude-val">None </span>=&gt; tail.len(),
+            <span class="prelude-val">Some</span>(idx) =&gt; idx + gap_len,
         };
-        <span class="ident">tail</span>.<span class="ident">copy_within</span>(<span class="ident">gap_len</span>..<span class="ident">idx</span>, <span class="number">0</span>);
-        <span class="ident">tail</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">tail</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="ident">gap_len</span>..];
-        <span class="kw">if</span> <span class="ident">tail</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">gap_len</span> {
+        tail.copy_within(gap_len..idx, <span class="number">0</span>);
+        tail = <span class="kw-2">&amp;mut </span>tail[idx - gap_len..];
+        <span class="kw">if </span>tail.len() == gap_len {
             <span class="kw">break</span>;
         }
-        <span class="ident">gap_len</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        gap_len += <span class="number">1</span>;
     }
 
-    <span class="comment">// Account for removed `\r`.</span>
-    <span class="comment">// After `buf.truncate(..)`, `buf` is guaranteed to contain utf-8 again.</span>
-    <span class="kw">let</span> <span class="ident">new_len</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="ident">gap_len</span>;
-    <span class="ident">buf</span>.<span class="ident">truncate</span>(<span class="ident">new_len</span>);
-    <span class="kw-2">*</span><span class="ident">src</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">buf</span>).<span class="ident">unwrap</span>();
+    <span class="comment">// Account for removed `\r`.
+    // After `buf.truncate(..)`, `buf` is guaranteed to contain utf-8 again.
+    </span><span class="kw">let </span>new_len = buf.len() - gap_len;
+    buf.truncate(new_len);
+    <span class="kw-2">*</span>src = String::from_utf8(buf).unwrap();
 
-    <span class="kw">fn</span> <span class="ident">find_crlf</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search_idx</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">find_cr</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>[<span class="ident">search_idx</span>..]) {
-            <span class="kw">if</span> <span class="ident">src</span>[<span class="ident">search_idx</span>..].<span class="ident">get</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\n&#39;</span>) {
-                <span class="ident">search_idx</span> <span class="op">+</span><span class="op">=</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>;
+    <span class="kw">fn </span>find_crlf(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>search_idx = <span class="number">0</span>;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = find_cr(<span class="kw-2">&amp;</span>src[search_idx..]) {
+            <span class="kw">if </span>src[search_idx..].get(idx + <span class="number">1</span>) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\n&#39;</span>) {
+                search_idx += idx + <span class="number">1</span>;
                 <span class="kw">continue</span>;
             }
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">search_idx</span> <span class="op">+</span> <span class="ident">idx</span>);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(search_idx + idx);
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">find_cr</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="ident">src</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">==</span> <span class="string">b&#39;\r&#39;</span>)
+    <span class="kw">fn </span>find_cr(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        src.iter().position(|<span class="kw-2">&amp;</span>b| b == <span class="string">b&#39;\r&#39;</span>)
     }
 }
 
-<span class="doccomment">/// Identifies an offset of a multi-byte character in a `SourceFile`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Eq</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">MultiByteChar</span> {
-    <span class="doccomment">/// The absolute offset of the character in the `SourceMap`.</span>
-    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">BytePos</span>,
-    <span class="doccomment">/// The number of bytes, `&gt;= 2`.</span>
-    <span class="kw">pub</span> <span class="ident">bytes</span>: <span class="ident">u8</span>,
+<span class="doccomment">/// Identifies an offset of a multi-byte character in a `SourceFile`.
+</span><span class="attribute">#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+</span><span class="kw">struct </span>MultiByteChar {
+    <span class="doccomment">/// The absolute offset of the character in the `SourceMap`.
+    </span><span class="kw">pub </span>pos: BytePos,
+    <span class="doccomment">/// The number of bytes, `&gt;= 2`.
+    </span><span class="kw">pub </span>bytes: u8,
 }
 
-<span class="doccomment">/// Finds all newlines, multi-byte characters, and non-narrow characters in a</span>
-<span class="doccomment">/// SourceFile.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This function will use an SSE2 enhanced implementation if hardware support</span>
-<span class="doccomment">/// is detected at runtime.</span>
-<span class="kw">fn</span> <span class="ident">analyze_source_file</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">source_file_start_pos</span>: <span class="ident">BytePos</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BytePos</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MultiByteChar</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">source_file_start_pos</span>];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">multi_byte_chars</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="doccomment">/// Finds all newlines, multi-byte characters, and non-narrow characters in a
+/// SourceFile.
+///
+/// This function will use an SSE2 enhanced implementation if hardware support
+/// is detected at runtime.
+</span><span class="kw">fn </span>analyze_source_file(src: <span class="kw-2">&amp;</span>str, source_file_start_pos: BytePos) -&gt; (Vec&lt;BytePos&gt;, Vec&lt;MultiByteChar&gt;) {
+    <span class="kw">let </span><span class="kw-2">mut </span>lines = <span class="macro">vec!</span>[source_file_start_pos];
+    <span class="kw">let </span><span class="kw-2">mut </span>multi_byte_chars = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="ident">src_bytes</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">as_bytes</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+    <span class="kw">let </span>src_bytes = src.as_bytes();
 
-    <span class="kw">while</span> <span class="ident">i</span> <span class="op">&lt;</span> <span class="ident">src</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">i_usize</span> <span class="op">=</span> <span class="ident">i</span>;
-        <span class="kw">let</span> <span class="ident">byte</span> <span class="op">=</span> <span class="ident">src_bytes</span>[<span class="ident">i_usize</span>];
+    <span class="kw">while </span>i &lt; src.len() {
+        <span class="kw">let </span>i_usize = i;
+        <span class="kw">let </span>byte = src_bytes[i_usize];
 
-        <span class="comment">// How much to advance to get to the next UTF-8 char in the string.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">char_len</span> <span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// How much to advance to get to the next UTF-8 char in the string.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>char_len = <span class="number">1</span>;
 
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">BytePos::from_usize</span>(<span class="ident">i</span>) <span class="op">+</span> <span class="ident">source_file_start_pos</span>;
+        <span class="kw">let </span>pos = BytePos::from_usize(i) + source_file_start_pos;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="string">b&#39;\n&#39;</span> <span class="op">=</span> <span class="ident">byte</span> {
-            <span class="ident">lines</span>.<span class="ident">push</span>(<span class="ident">pos</span> <span class="op">+</span> <span class="ident">BytePos</span>(<span class="number">1</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">byte</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">127</span> {
-            <span class="comment">// The slow path:</span>
-            <span class="comment">// This is either ASCII control character &quot;DEL&quot; or the beginning of</span>
-            <span class="comment">// a multibyte char. Just decode to `char`.</span>
-            <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> (<span class="ident">src</span>[<span class="ident">i</span>..]).<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
-            <span class="ident">char_len</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">len_utf8</span>();
+        <span class="kw">if let </span><span class="string">b&#39;\n&#39; </span>= byte {
+            lines.push(pos + BytePos(<span class="number">1</span>));
+        } <span class="kw">else if </span>byte &gt;= <span class="number">127 </span>{
+            <span class="comment">// The slow path:
+            // This is either ASCII control character &quot;DEL&quot; or the beginning of
+            // a multibyte char. Just decode to `char`.
+            </span><span class="kw">let </span>c = (src[i..]).chars().next().unwrap();
+            char_len = c.len_utf8();
 
-            <span class="kw">if</span> <span class="ident">char_len</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                <span class="macro">assert!</span>((<span class="number">2</span>..<span class="op">=</span><span class="number">4</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">char_len</span>));
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">char_len</span> <span class="kw">as</span> <span class="ident">u8</span>;
-                <span class="kw">let</span> <span class="ident">mbc</span> <span class="op">=</span> <span class="ident">MultiByteChar</span> { <span class="ident">pos</span>, <span class="ident">bytes</span> };
-                <span class="ident">multi_byte_chars</span>.<span class="ident">push</span>(<span class="ident">mbc</span>);
+            <span class="kw">if </span>char_len &gt; <span class="number">1 </span>{
+                <span class="macro">assert!</span>((<span class="number">2</span>..=<span class="number">4</span>).contains(<span class="kw-2">&amp;</span>char_len));
+                <span class="kw">let </span>bytes = char_len <span class="kw">as </span>u8;
+                <span class="kw">let </span>mbc = MultiByteChar { pos, bytes };
+                multi_byte_chars.push(mbc);
             }
         }
 
-        <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="ident">char_len</span>;
+        i += char_len;
     }
 
-    <span class="comment">// The code above optimistically registers a new line *after* each \n it encounters.</span>
-    <span class="comment">// If that point is already outside the source_file, remove it again.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">last_line_start</span>) <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">last</span>() {
-        <span class="kw">let</span> <span class="ident">source_file_end</span> <span class="op">=</span> <span class="ident">source_file_start_pos</span> <span class="op">+</span> <span class="ident">BytePos::from_usize</span>(<span class="ident">src</span>.<span class="ident">len</span>());
-        <span class="macro">assert!</span>(<span class="ident">source_file_end</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">last_line_start</span>);
-        <span class="kw">if</span> <span class="ident">last_line_start</span> <span class="op">==</span> <span class="ident">source_file_end</span> {
-            <span class="ident">lines</span>.<span class="ident">pop</span>();
+    <span class="comment">// The code above optimistically registers a new line *after* each \n it encounters.
+    // If that point is already outside the source_file, remove it again.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>last_line_start) = lines.last() {
+        <span class="kw">let </span>source_file_end = source_file_start_pos + BytePos::from_usize(src.len());
+        <span class="macro">assert!</span>(source_file_end &gt;= last_line_start);
+        <span class="kw">if </span>last_line_start == source_file_end {
+            lines.pop();
         }
     }
 
-    (<span class="ident">lines</span>, <span class="ident">multi_byte_chars</span>)
+    (lines, multi_byte_chars)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

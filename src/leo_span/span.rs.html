@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/span.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>span.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_span/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/span.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>span.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_span/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_span/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -158,165 +158,165 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="doccomment">//! Defines the `Span` type used to track where code comes from.</span>
+</span><span class="doccomment">//! Defines the `Span` type used to track where code comes from.
 
-<span class="kw">use</span> <span class="ident">core::ops</span>::{<span class="ident">Add</span>, <span class="ident">Sub</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">usize</span>};
+</span><span class="kw">use </span>core::ops::{Add, Sub};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::{fmt, usize};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::symbol::with_session_globals</span>;
+<span class="kw">use </span><span class="kw">crate</span>::symbol::with_session_globals;
 
-<span class="doccomment">/// The span type which tracks where formatted errors originate from in a Leo file.</span>
-<span class="doccomment">/// This is used in many spots throughout the rest of the Leo crates.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Deserialize</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Span</span> {
-    <span class="doccomment">/// The start (low) position of the span, inclusive.</span>
-    <span class="kw">pub</span> <span class="ident">lo</span>: <span class="ident">BytePos</span>,
-    <span class="doccomment">/// The end (high) position of the span, exclusive.</span>
-    <span class="doccomment">/// The length is simply `hi - lo`.</span>
-    <span class="kw">pub</span> <span class="ident">hi</span>: <span class="ident">BytePos</span>,
+<span class="doccomment">/// The span type which tracks where formatted errors originate from in a Leo file.
+/// This is used in many spots throughout the rest of the Leo crates.
+</span><span class="attribute">#[derive(Copy, Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
+</span><span class="kw">pub struct </span>Span {
+    <span class="doccomment">/// The start (low) position of the span, inclusive.
+    </span><span class="kw">pub </span>lo: BytePos,
+    <span class="doccomment">/// The end (high) position of the span, exclusive.
+    /// The length is simply `hi - lo`.
+    </span><span class="kw">pub </span>hi: BytePos,
 }
 
-<span class="kw">impl</span> <span class="ident">Span</span> {
-    <span class="doccomment">/// Generate a new span from the `start`ing and `end`ing positions.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">start</span>: <span class="ident">BytePos</span>, <span class="ident">end</span>: <span class="ident">BytePos</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">lo</span>: <span class="ident">start</span>, <span class="ident">hi</span>: <span class="ident">end</span> }
+<span class="kw">impl </span>Span {
+    <span class="doccomment">/// Generate a new span from the `start`ing and `end`ing positions.
+    </span><span class="kw">pub fn </span>new(start: BytePos, end: BytePos) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ lo: start, hi: end }
     }
 
-    <span class="doccomment">/// Generates a dummy span with all defaults.</span>
-    <span class="doccomment">/// Should only be used in temporary situations.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">lo</span>: <span class="ident">BytePos</span>(<span class="number">0</span>),
-            <span class="ident">hi</span>: <span class="ident">BytePos</span>(<span class="number">0</span>),
+    <span class="doccomment">/// Generates a dummy span with all defaults.
+    /// Should only be used in temporary situations.
+    </span><span class="kw">pub const fn </span>dummy() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            lo: BytePos(<span class="number">0</span>),
+            hi: BytePos(<span class="number">0</span>),
         }
     }
 
-    <span class="doccomment">/// Is the span a dummy?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dummy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::dummy</span>()
+    <span class="doccomment">/// Is the span a dummy?
+    </span><span class="kw">pub fn </span>is_dummy(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self </span>== <span class="kw-2">&amp;</span><span class="self">Self</span>::dummy()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Span</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="ident">with_session_globals</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>.<span class="ident">source_map</span>.<span class="ident">span_to_string</span>(<span class="kw-2">*</span><span class="self">self</span>)))
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Span {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        with_session_globals(|s| <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, s.source_map.span_to_string(<span class="kw-2">*</span><span class="self">self</span>)))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Add</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">Span</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Span</span>;
+<span class="kw">impl </span>std::ops::Add <span class="kw">for </span><span class="kw-2">&amp;</span>Span {
+    <span class="kw">type </span>Output = Span;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) -&gt; <span class="ident">Span</span> {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">+</span> <span class="kw-2">*</span><span class="ident">other</span>
+    <span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="kw-2">&amp;</span>Span) -&gt; Span {
+        <span class="kw-2">*</span><span class="self">self </span>+ <span class="kw-2">*</span>other
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::ops::Add</span> <span class="kw">for</span> <span class="ident">Span</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
+<span class="kw">impl </span>std::ops::Add <span class="kw">for </span>Span {
+    <span class="kw">type </span>Output = <span class="self">Self</span>;
 
-    <span class="doccomment">/// Add two spans together.</span>
-    <span class="doccomment">/// The resulting span is the smallest span that includes both.</span>
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lo</span>.<span class="ident">min</span>(<span class="ident">other</span>.<span class="ident">lo</span>);
-        <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hi</span>.<span class="ident">max</span>(<span class="ident">other</span>.<span class="ident">hi</span>);
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">lo</span>, <span class="ident">hi</span>)
+    <span class="doccomment">/// Add two spans together.
+    /// The resulting span is the smallest span that includes both.
+    </span><span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>lo = <span class="self">self</span>.lo.min(other.lo);
+        <span class="kw">let </span>hi = <span class="self">self</span>.hi.max(other.hi);
+        <span class="self">Self</span>::new(lo, hi)
     }
 }
 
-<span class="comment">// _____________________________________________________________________________</span>
-<span class="comment">// Pos, BytePos, CharPos</span>
-<span class="comment">//</span>
+<span class="comment">// _____________________________________________________________________________
+// Pos, BytePos, CharPos
+//
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Pos</span> {
-    <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span>;
-    <span class="kw">fn</span> <span class="ident">to_usize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
-    <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">n</span>: <span class="ident">u32</span>) -&gt; <span class="self">Self</span>;
-    <span class="kw">fn</span> <span class="ident">to_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span>;
+</span><span class="kw">pub trait </span>Pos {
+    <span class="kw">fn </span>from_usize(n: usize) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn </span>to_usize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+    <span class="kw">fn </span>from_u32(n: u32) -&gt; <span class="self">Self</span>;
+    <span class="kw">fn </span>to_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32;
 }
 
-<span class="macro">macro_rules!</span> <span class="ident">impl_pos</span> {
+<span class="macro">macro_rules! </span>impl_pos {
     (
         $(
-            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span>:<span class="ident">vis</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_vis</span>:<span class="ident">vis</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_ty</span>:<span class="ident">ty</span>);
-        )<span class="op">*</span>
+            $(<span class="attribute">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
+            <span class="macro-nonterminal">$vis</span>:vis <span class="kw">struct </span><span class="macro-nonterminal">$ident</span>:ident(<span class="macro-nonterminal">$inner_vis</span>:vis <span class="macro-nonterminal">$inner_ty</span>:ty);
+        )*
     ) =&gt; {
         $(
-            $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>)<span class="op">*</span>
-            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">vis</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_vis</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_ty</span>);
+            $(<span class="attribute">#[<span class="macro-nonterminal">$attr</span>]</span>)*
+            <span class="macro-nonterminal">$vis </span><span class="kw">struct </span><span class="macro-nonterminal">$ident</span>(<span class="macro-nonterminal">$inner_vis $inner_ty</span>);
 
-            <span class="kw">impl</span> <span class="ident">Pos</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">from_usize</span>(<span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_ty</span>)
+            <span class="kw">impl </span>Pos <span class="kw">for </span><span class="macro-nonterminal">$ident </span>{
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>from_usize(n: usize) -&gt; <span class="macro-nonterminal">$ident </span>{
+                    <span class="macro-nonterminal">$ident</span>(n <span class="kw">as </span><span class="macro-nonterminal">$inner_ty</span>)
                 }
 
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">to_usize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-                    <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">usize</span>
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>to_usize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+                    <span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>usize
                 }
 
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">from_u32</span>(<span class="ident">n</span>: <span class="ident">u32</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>(<span class="ident">n</span> <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">inner_ty</span>)
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>from_u32(n: u32) -&gt; <span class="macro-nonterminal">$ident </span>{
+                    <span class="macro-nonterminal">$ident</span>(n <span class="kw">as </span><span class="macro-nonterminal">$inner_ty</span>)
                 }
 
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">to_u32</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-                    <span class="self">self</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u32</span>
-                }
-            }
-
-            <span class="kw">impl</span> <span class="ident">Add</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>;
-
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">rhs</span>.<span class="number">0</span>)
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>to_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
+                    <span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span>u32
                 }
             }
 
-            <span class="kw">impl</span> <span class="ident">Sub</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>;
+            <span class="kw">impl </span>Add <span class="kw">for </span><span class="macro-nonterminal">$ident </span>{
+                <span class="kw">type </span>Output = <span class="macro-nonterminal">$ident</span>;
 
-                <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-                <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">rhs</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>) -&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span> {
-                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">rhs</span>.<span class="number">0</span>)
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>add(<span class="self">self</span>, rhs: <span class="macro-nonterminal">$ident</span>) -&gt; <span class="macro-nonterminal">$ident </span>{
+                    <span class="macro-nonterminal">$ident</span>(<span class="self">self</span>.<span class="number">0 </span>+ rhs.<span class="number">0</span>)
                 }
             }
-        )<span class="op">*</span>
+
+            <span class="kw">impl </span>Sub <span class="kw">for </span><span class="macro-nonterminal">$ident </span>{
+                <span class="kw">type </span>Output = <span class="macro-nonterminal">$ident</span>;
+
+                <span class="attribute">#[inline(always)]
+                </span><span class="kw">fn </span>sub(<span class="self">self</span>, rhs: <span class="macro-nonterminal">$ident</span>) -&gt; <span class="macro-nonterminal">$ident </span>{
+                    <span class="macro-nonterminal">$ident</span>(<span class="self">self</span>.<span class="number">0 </span>- rhs.<span class="number">0</span>)
+                }
+            }
+        )*
     };
 }
 
-<span class="macro">impl_pos!</span> {
-    <span class="doccomment">/// A byte offset.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Default</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BytePos</span>(<span class="kw">pub</span> <span class="ident">u32</span>);
+<span class="macro">impl_pos! </span>{
+    <span class="doccomment">/// A byte offset.
+    </span><span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Debug, Serialize, Deserialize, Default)]
+    </span><span class="kw">pub struct </span>BytePos(<span class="kw">pub </span>u32);
 
-    <span class="doccomment">/// A character offset.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Because of multibyte UTF-8 characters,</span>
-    <span class="doccomment">/// a byte offset is not equivalent to a character offset.</span>
-    <span class="doccomment">/// The [`SourceMap`] will convert [`BytePos`] values to `CharPos` values as necessary.</span>
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CharPos</span>(<span class="kw">pub</span> <span class="ident">usize</span>);
+    <span class="doccomment">/// A character offset.
+    ///
+    /// Because of multibyte UTF-8 characters,
+    /// a byte offset is not equivalent to a character offset.
+    /// The [`SourceMap`] will convert [`BytePos`] values to `CharPos` values as necessary.
+    </span><span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
+    </span><span class="kw">pub struct </span>CharPos(<span class="kw">pub </span>usize);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

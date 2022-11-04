@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/emitter/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_errors/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/emitter/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_errors/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -303,310 +303,310 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::LeoWarning</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::LeoWarning;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::LeoError</span>;
-<span class="kw">use</span> <span class="ident">core::default::Default</span>;
-<span class="kw">use</span> <span class="ident">core::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+<span class="kw">use </span><span class="kw">super</span>::LeoError;
+<span class="kw">use </span>core::default::Default;
+<span class="kw">use </span>core::fmt;
+<span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::rc::Rc;
 
-<span class="doccomment">/// Types that are sinks for compiler errors.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Emitter</span> {
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>);
+<span class="doccomment">/// Types that are sinks for compiler errors.
+</span><span class="kw">pub trait </span>Emitter {
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">fn </span>emit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: LeoError);
 
-    <span class="doccomment">/// Tracks last emitted error.</span>
-    <span class="kw">fn</span> <span class="ident">last_emitted_err_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Tracks last emitted error.
+    </span><span class="kw">fn </span>last_emitted_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt;;
 
-    <span class="doccomment">/// Emit the warning.</span>
-    <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">LeoWarning</span>);
+    <span class="doccomment">/// Emit the warning.
+    </span><span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;mut </span><span class="self">self</span>, warning: LeoWarning);
 }
 
-<span class="doccomment">/// A trivial `Emitter` using the standard error.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StderrEmitter</span> {
-    <span class="doccomment">/// Exit code of the last emitted error.</span>
-    <span class="ident">last_error_code</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A trivial `Emitter` using the standard error.
+</span><span class="kw">pub struct </span>StderrEmitter {
+    <span class="doccomment">/// Exit code of the last emitted error.
+    </span>last_error_code: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Emitter</span> <span class="kw">for</span> <span class="ident">StderrEmitter</span> {
-    <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>) {
-        <span class="self">self</span>.<span class="ident">last_error_code</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">exit_code</span>());
+<span class="kw">impl </span>Emitter <span class="kw">for </span>StderrEmitter {
+    <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: LeoError) {
+        <span class="self">self</span>.last_error_code = <span class="prelude-val">Some</span>(err.exit_code());
         <span class="macro">eprintln!</span>(<span class="string">&quot;{err}&quot;</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">last_emitted_err_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">last_error_code</span>
+    <span class="kw">fn </span>last_emitted_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
+        <span class="self">self</span>.last_error_code
     }
 
-    <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">LeoWarning</span>) {
+    <span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;mut </span><span class="self">self</span>, warning: LeoWarning) {
         <span class="macro">eprintln!</span>(<span class="string">&quot;{warning}&quot;</span>);
     }
 }
 
-<span class="doccomment">/// A buffer of `T`s.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>);
+<span class="doccomment">/// A buffer of `T`s.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Buffer&lt;T&gt;(Vec&lt;T&gt;);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span>(<span class="ident">Vec::new</span>())
+<span class="kw">impl</span>&lt;T&gt; Default <span class="kw">for </span>Buffer&lt;T&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>(Vec::new())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Push `x` to the buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">x</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">x</span>);
+<span class="kw">impl</span>&lt;T&gt; Buffer&lt;T&gt; {
+    <span class="doccomment">/// Push `x` to the buffer.
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: T) {
+        <span class="self">self</span>.<span class="number">0</span>.push(x);
     }
 
-    <span class="doccomment">/// Extract the underlying list of Ts.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Extract the underlying list of Ts.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; Vec&lt;T&gt; {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Last entry to the buffer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_entry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">last</span>()
+    <span class="doccomment">/// Last entry to the buffer.
+    </span><span class="kw">pub fn </span>last_entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.last()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>() {
-            <span class="ident">x</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)<span class="question-mark">?</span>;
+<span class="kw">impl</span>&lt;T: fmt::Display&gt; fmt::Display <span class="kw">for </span>Buffer&lt;T&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.<span class="number">0</span>.iter();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = iter.next() {
+            x.fmt(f)<span class="question-mark">?</span>;
         }
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="ident">f</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args!</span>(<span class="string">&quot;\n{x}&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">for </span>x <span class="kw">in </span>iter {
+            f.write_fmt(<span class="macro">format_args!</span>(<span class="string">&quot;\n{x}&quot;</span>))<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="doccomment">/// A buffer of `LeoError`s.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ErrBuffer</span> <span class="op">=</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">LeoError</span><span class="op">&gt;</span>;
-<span class="doccomment">/// A buffer of `LeoWarning`s.</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">WarningBuffer</span> <span class="op">=</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">LeoWarning</span><span class="op">&gt;</span>;
+<span class="doccomment">/// A buffer of `LeoError`s.
+</span><span class="kw">pub type </span>ErrBuffer = Buffer&lt;LeoError&gt;;
+<span class="doccomment">/// A buffer of `LeoWarning`s.
+</span><span class="kw">pub type </span>WarningBuffer = Buffer&lt;LeoWarning&gt;;
 
-<span class="doccomment">/// An `Emitter` that collects into a list.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BufferEmitter</span>(<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">ErrBuffer</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">WarningBuffer</span><span class="op">&gt;</span><span class="op">&gt;</span>);
+<span class="doccomment">/// An `Emitter` that collects into a list.
+</span><span class="attribute">#[derive(Default, Clone)]
+</span><span class="kw">pub struct </span>BufferEmitter(Rc&lt;RefCell&lt;ErrBuffer&gt;&gt;, Rc&lt;RefCell&lt;WarningBuffer&gt;&gt;);
 
-<span class="kw">impl</span> <span class="ident">BufferEmitter</span> {
-    <span class="doccomment">/// Returns a new buffered emitter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">BufferEmitter</span>(<span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="ident">::default</span>(), <span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="ident">::default</span>())
+<span class="kw">impl </span>BufferEmitter {
+    <span class="doccomment">/// Returns a new buffered emitter.
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        BufferEmitter(&lt;<span class="kw">_</span>&gt;::default(), &lt;<span class="kw">_</span>&gt;::default())
     }
 
-    <span class="doccomment">/// Extracts all the errors collected in this emitter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_errs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ErrBuffer</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">take</span>()
+    <span class="doccomment">/// Extracts all the errors collected in this emitter.
+    </span><span class="kw">pub fn </span>extract_errs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ErrBuffer {
+        <span class="self">self</span>.<span class="number">0</span>.take()
     }
 
-    <span class="doccomment">/// Extracts all the errors collected in this emitter.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_warnings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">WarningBuffer</span> {
-        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">take</span>()
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Emitter</span> <span class="kw">for</span> <span class="ident">BufferEmitter</span> {
-    <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">err</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">last_emitted_err_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">borrow</span>();
-        <span class="ident">temp</span>.<span class="ident">last_entry</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> <span class="ident">entry</span>.<span class="ident">exit_code</span>())
-    }
-
-    <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">LeoWarning</span>) {
-        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">borrow_mut</span>().<span class="ident">push</span>(<span class="ident">warning</span>);
+    <span class="doccomment">/// Extracts all the errors collected in this emitter.
+    </span><span class="kw">pub fn </span>extract_warnings(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; WarningBuffer {
+        <span class="self">self</span>.<span class="number">1</span>.take()
     }
 }
 
-<span class="doccomment">/// Contains the actual data for `Handler`.</span>
-<span class="doccomment">/// Modelled this way to afford an API using interior mutability.</span>
-<span class="kw">struct</span> <span class="ident">HandlerInner</span> {
-    <span class="doccomment">/// Number of errors emitted thus far.</span>
-    <span class="ident">err_count</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// Number of warnings emitted thus far.</span>
-    <span class="ident">warn_count</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// The sink through which errors will be emitted.</span>
-    <span class="ident">emitter</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Emitter</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">HandlerInner</span> {
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">fn</span> <span class="ident">emit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>) {
-        <span class="self">self</span>.<span class="ident">err_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">err_count</span>.<span class="ident">saturating_add</span>(<span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">emitter</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+<span class="kw">impl </span>Emitter <span class="kw">for </span>BufferEmitter {
+    <span class="kw">fn </span>emit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: LeoError) {
+        <span class="self">self</span>.<span class="number">0</span>.borrow_mut().push(err);
     }
 
-    <span class="doccomment">/// Gets the last emitted error&#39;s exit code.</span>
-    <span class="kw">fn</span> <span class="ident">last_emited_err_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">emitter</span>.<span class="ident">last_emitted_err_code</span>()
+    <span class="kw">fn </span>last_emitted_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
+        <span class="kw">let </span>temp = <span class="kw-2">&amp;*</span><span class="self">self</span>.<span class="number">0</span>.borrow();
+        temp.last_entry().map(|entry| entry.exit_code())
     }
 
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">LeoWarning</span>) {
-        <span class="self">self</span>.<span class="ident">warn_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">warn_count</span>.<span class="ident">saturating_add</span>(<span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">emitter</span>.<span class="ident">emit_warning</span>(<span class="ident">warning</span>);
+    <span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;mut </span><span class="self">self</span>, warning: LeoWarning) {
+        <span class="self">self</span>.<span class="number">1</span>.borrow_mut().push(warning);
     }
 }
 
-<span class="doccomment">/// A handler deals with errors and other compiler output.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Handler</span> {
-    <span class="doccomment">/// The inner handler.</span>
-    <span class="doccomment">/// `RefCell` is used here to avoid `&amp;mut` all over the compiler.</span>
-    <span class="ident">inner</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HandlerInner</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Contains the actual data for `Handler`.
+/// Modelled this way to afford an API using interior mutability.
+</span><span class="kw">struct </span>HandlerInner {
+    <span class="doccomment">/// Number of errors emitted thus far.
+    </span>err_count: usize,
+    <span class="doccomment">/// Number of warnings emitted thus far.
+    </span>warn_count: usize,
+    <span class="doccomment">/// The sink through which errors will be emitted.
+    </span>emitter: Box&lt;<span class="kw">dyn </span>Emitter&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Handler</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Box::new</span>(<span class="ident">StderrEmitter</span> { <span class="ident">last_error_code</span>: <span class="prelude-val">None</span> }))
+<span class="kw">impl </span>HandlerInner {
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">fn </span>emit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, err: LeoError) {
+        <span class="self">self</span>.err_count = <span class="self">self</span>.err_count.saturating_add(<span class="number">1</span>);
+        <span class="self">self</span>.emitter.emit_err(err);
+    }
+
+    <span class="doccomment">/// Gets the last emitted error&#39;s exit code.
+    </span><span class="kw">fn </span>last_emited_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
+        <span class="self">self</span>.emitter.last_emitted_err_code()
+    }
+
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;mut </span><span class="self">self</span>, warning: LeoWarning) {
+        <span class="self">self</span>.warn_count = <span class="self">self</span>.warn_count.saturating_add(<span class="number">1</span>);
+        <span class="self">self</span>.emitter.emit_warning(warning);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Handler</span> {
-    <span class="doccomment">/// Construct a `Handler` using the given `emitter`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">emitter</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Emitter</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">RefCell::new</span>(<span class="ident">HandlerInner</span> {
-            <span class="ident">err_count</span>: <span class="number">0</span>,
-            <span class="ident">warn_count</span>: <span class="number">0</span>,
-            <span class="ident">emitter</span>,
+<span class="doccomment">/// A handler deals with errors and other compiler output.
+</span><span class="kw">pub struct </span>Handler {
+    <span class="doccomment">/// The inner handler.
+    /// `RefCell` is used here to avoid `&amp;mut` all over the compiler.
+    </span>inner: RefCell&lt;HandlerInner&gt;,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>Handler {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(Box::new(StderrEmitter { last_error_code: <span class="prelude-val">None </span>}))
+    }
+}
+
+<span class="kw">impl </span>Handler {
+    <span class="doccomment">/// Construct a `Handler` using the given `emitter`.
+    </span><span class="kw">pub fn </span>new(emitter: Box&lt;<span class="kw">dyn </span>Emitter&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>inner = RefCell::new(HandlerInner {
+            err_count: <span class="number">0</span>,
+            warn_count: <span class="number">0</span>,
+            emitter,
         });
-        <span class="self">Self</span> { <span class="ident">inner</span> }
+        <span class="self">Self </span>{ inner }
     }
 
-    <span class="doccomment">/// Construct a `Handler` that will append to `buf`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_with_buf</span>() -&gt; (<span class="self">Self</span>, <span class="ident">BufferEmitter</span>) {
-        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">BufferEmitter::default</span>();
-        <span class="kw">let</span> <span class="ident">handler</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Box::new</span>(<span class="ident">buf</span>.<span class="ident">clone</span>()));
-        (<span class="ident">handler</span>, <span class="ident">buf</span>)
+    <span class="doccomment">/// Construct a `Handler` that will append to `buf`.
+    </span><span class="kw">pub fn </span>new_with_buf() -&gt; (<span class="self">Self</span>, BufferEmitter) {
+        <span class="kw">let </span>buf = BufferEmitter::default();
+        <span class="kw">let </span>handler = <span class="self">Self</span>::new(Box::new(buf.clone()));
+        (handler, buf)
     }
 
-    <span class="doccomment">/// Runs `logic` provided a handler that collects all errors into the `String`,</span>
-    <span class="doccomment">/// or if there were none, returns some `T`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">logic</span>: <span class="kw">impl</span> <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Handler</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">LeoError</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">ErrBuffer</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">handler</span>, <span class="ident">buf</span>) <span class="op">=</span> <span class="ident">Handler::new_with_buf</span>();
-        <span class="ident">handler</span>.<span class="ident">extend_if_error</span>(<span class="ident">logic</span>(<span class="kw-2">&amp;</span><span class="ident">handler</span>)).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">buf</span>.<span class="ident">extract_errs</span>())
+    <span class="doccomment">/// Runs `logic` provided a handler that collects all errors into the `String`,
+    /// or if there were none, returns some `T`.
+    </span><span class="kw">pub fn </span>with&lt;T&gt;(logic: <span class="kw">impl for</span>&lt;<span class="lifetime">&#39;a</span>&gt; FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="prelude-ty">Result</span>&lt;T, LeoError&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T, ErrBuffer&gt; {
+        <span class="kw">let </span>(handler, buf) = Handler::new_with_buf();
+        handler.extend_if_error(logic(<span class="kw-2">&amp;</span>handler)).map_err(|<span class="kw">_</span>| buf.extract_errs())
     }
 
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_err</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">LeoError</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">err</span>: <span class="ident">E</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">emit_err</span>(<span class="ident">err</span>.<span class="ident">into</span>());
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">pub fn </span>emit_err&lt;E: Into&lt;LeoError&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, err: E) {
+        <span class="self">self</span>.inner.borrow_mut().emit_err(err.into());
     }
 
-    <span class="doccomment">/// Emit the error `err`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emit_warning</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">warning</span>: <span class="ident">LeoWarning</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow_mut</span>().<span class="ident">emit_warning</span>(<span class="ident">warning</span>);
+    <span class="doccomment">/// Emit the error `err`.
+    </span><span class="kw">pub fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: LeoWarning) {
+        <span class="self">self</span>.inner.borrow_mut().emit_warning(warning);
     }
 
-    <span class="doccomment">/// Emits the error `err`.</span>
-    <span class="doccomment">/// This will immediately abort compilation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fatal_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">err</span>: <span class="ident">LeoError</span>) -&gt; <span class="op">!</span> {
-        <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">err</span>.<span class="ident">exit_code</span>();
-        <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
-        <span class="ident">std::process::exit</span>(<span class="ident">code</span>);
+    <span class="doccomment">/// Emits the error `err`.
+    /// This will immediately abort compilation.
+    </span><span class="kw">pub fn </span>fatal_err(<span class="kw-2">&amp;</span><span class="self">self</span>, err: LeoError) -&gt; ! {
+        <span class="kw">let </span>code = err.exit_code();
+        <span class="self">self</span>.emit_err(err);
+        std::process::exit(code);
     }
 
-    <span class="doccomment">/// The number of errors thus far.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">err_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">err_count</span>
+    <span class="doccomment">/// The number of errors thus far.
+    </span><span class="kw">pub fn </span>err_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.borrow().err_count
     }
 
-    <span class="doccomment">/// The number of warnings thus far.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">warning_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">warn_count</span>
+    <span class="doccomment">/// The number of warnings thus far.
+    </span><span class="kw">pub fn </span>warning_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.borrow().warn_count
     }
 
-    <span class="doccomment">/// Did we have any errors thus far?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">had_errors</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">err_count</span>() <span class="op">&gt;</span> <span class="number">0</span>
-    }
+    <span class="doccomment">/// Did we have any errors thus far?
+    </span><span class="kw">pub fn </span>had_errors(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.err_count() &gt; <span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Gets the last emitted error&#39;s exit code if it exists.</span>
-    <span class="doccomment">/// Then exits the program with it if it did exist.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_err</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LeoError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">code</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">borrow</span>().<span class="ident">last_emited_err_code</span>() {
-            <span class="prelude-val">Err</span>(<span class="ident">LeoError::LastErrorCode</span>(<span class="ident">code</span>))
-        } <span class="kw">else</span> {
+    <span class="doccomment">/// Gets the last emitted error&#39;s exit code if it exists.
+    /// Then exits the program with it if it did exist.
+    </span><span class="kw">pub fn </span>last_err(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), LeoError&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(code) = <span class="self">self</span>.inner.borrow().last_emited_err_code() {
+            <span class="prelude-val">Err</span>(LeoError::LastErrorCode(code))
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
     }
 
-    <span class="doccomment">/// Extend handler with `error` given `res = Err(error)`.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::result_unit_err</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend_if_error</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">LeoError</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, ()<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">res</span> {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">had_errors</span>() =&gt; <span class="prelude-val">Err</span>(()),
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">e</span>);
+    <span class="doccomment">/// Extend handler with `error` given `res = Err(error)`.
+    </span><span class="attribute">#[allow(clippy::result_unit_err)]
+    </span><span class="kw">pub fn </span>extend_if_error&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, res: <span class="prelude-ty">Result</span>&lt;T, LeoError&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;T, ()&gt; {
+        <span class="kw">match </span>res {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="kw">if </span><span class="self">self</span>.had_errors() =&gt; <span class="prelude-val">Err</span>(()),
+            <span class="prelude-val">Ok</span>(x) =&gt; <span class="prelude-val">Ok</span>(x),
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="self">self</span>.emit_err(e);
                 <span class="prelude-val">Err</span>(())
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ParserError</span>;
-    <span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">symbol::create_session_if_not_set_then</span>, <span class="ident">Span</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::ParserError;
+    <span class="kw">use </span>leo_span::{symbol::create_session_if_not_set_then, Span};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">fresh_no_errors</span>() {
-        <span class="kw">let</span> <span class="ident">handler</span> <span class="op">=</span> <span class="ident">Handler::new</span>(<span class="ident">Box::new</span>(<span class="ident">BufferEmitter::new</span>()));
-        <span class="macro">assert_eq!</span>(<span class="ident">handler</span>.<span class="ident">err_count</span>(), <span class="number">0</span>);
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">handler</span>.<span class="ident">had_errors</span>());
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>fresh_no_errors() {
+        <span class="kw">let </span>handler = Handler::new(Box::new(BufferEmitter::new()));
+        <span class="macro">assert_eq!</span>(handler.err_count(), <span class="number">0</span>);
+        <span class="macro">assert!</span>(!handler.had_errors());
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">buffer_works</span>() {
-        <span class="ident">create_session_if_not_set_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">count_err</span> <span class="op">=</span> <span class="op">|</span><span class="ident">s</span>: <span class="ident">String</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lines</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">contains</span>(<span class="string">&quot;Error&quot;</span>)).<span class="ident">count</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>buffer_works() {
+        create_session_if_not_set_then(|<span class="kw">_</span>| {
+            <span class="kw">let </span>count_err = |s: String| s.lines().filter(|l| l.contains(<span class="string">&quot;Error&quot;</span>)).count();
 
-            <span class="kw">let</span> <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Handler::with</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Span::default</span>();
-                <span class="macro">assert_eq!</span>(<span class="ident">h</span>.<span class="ident">err_count</span>(), <span class="number">0</span>);
-                <span class="ident">h</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::invalid_import_list</span>(<span class="ident">s</span>));
-                <span class="macro">assert_eq!</span>(<span class="ident">h</span>.<span class="ident">err_count</span>(), <span class="number">1</span>);
-                <span class="ident">h</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::unexpected_eof</span>(<span class="ident">s</span>));
-                <span class="macro">assert_eq!</span>(<span class="ident">h</span>.<span class="ident">err_count</span>(), <span class="number">2</span>);
-                <span class="prelude-val">Err</span>(<span class="ident">ParserError::spread_in_array_init</span>(<span class="ident">s</span>).<span class="ident">into</span>())
+            <span class="kw">let </span>res: <span class="prelude-ty">Result</span>&lt;(), <span class="kw">_</span>&gt; = Handler::with(|h| {
+                <span class="kw">let </span>s = Span::default();
+                <span class="macro">assert_eq!</span>(h.err_count(), <span class="number">0</span>);
+                h.emit_err(ParserError::invalid_import_list(s));
+                <span class="macro">assert_eq!</span>(h.err_count(), <span class="number">1</span>);
+                h.emit_err(ParserError::unexpected_eof(s));
+                <span class="macro">assert_eq!</span>(h.err_count(), <span class="number">2</span>);
+                <span class="prelude-val">Err</span>(ParserError::spread_in_array_init(s).into())
             });
 
-            <span class="macro">assert_eq!</span>(<span class="ident">count_err</span>(<span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">to_string</span>()), <span class="number">3</span>);
+            <span class="macro">assert_eq!</span>(count_err(res.unwrap_err().to_string()), <span class="number">3</span>);
 
-            <span class="kw">let</span> <span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Handler::with</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Span::default</span>();
-                <span class="ident">h</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::invalid_import_list</span>(<span class="ident">s</span>));
-                <span class="ident">h</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::unexpected_eof</span>(<span class="ident">s</span>));
+            <span class="kw">let </span>res: <span class="prelude-ty">Result</span>&lt;(), <span class="kw">_</span>&gt; = Handler::with(|h| {
+                <span class="kw">let </span>s = Span::default();
+                h.emit_err(ParserError::invalid_import_list(s));
+                h.emit_err(ParserError::unexpected_eof(s));
                 <span class="prelude-val">Ok</span>(())
             });
-            <span class="macro">assert_eq!</span>(<span class="ident">count_err</span>(<span class="ident">res</span>.<span class="ident">unwrap_err</span>().<span class="ident">to_string</span>()), <span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(count_err(res.unwrap_err().to_string()), <span class="number">2</span>);
 
-            <span class="ident">Handler::with</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="prelude-val">Ok</span>(())).<span class="ident">unwrap</span>();
+            Handler::with(|<span class="kw">_</span>| <span class="prelude-val">Ok</span>(())).unwrap();
         })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

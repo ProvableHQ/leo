@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/common/identifier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>identifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/common/identifier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>identifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_ast/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_ast/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -143,150 +143,150 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">leo_errors::Result</span>;
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">Span</span>, <span class="ident">Symbol</span>};
+</span><span class="kw">use </span>leo_errors::Result;
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">simple_node_impl</span>, <span class="ident">Node</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{
-    <span class="ident">de</span>::{
-        <span class="ident">Visitor</span>, {<span class="self">self</span>},
+<span class="kw">use crate</span>::{simple_node_impl, Node};
+<span class="kw">use </span>serde::{
+    de::{
+        Visitor, {<span class="self">self</span>},
     },
-    <span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">collections::BTreeMap</span>,
-    <span class="ident">fmt</span>,
-    <span class="ident">hash</span>::{<span class="ident">Hash</span>, <span class="ident">Hasher</span>},
+<span class="kw">use </span>std::{
+    collections::BTreeMap,
+    fmt,
+    hash::{Hash, Hasher},
 };
 
-<span class="doccomment">/// An identifier in a program.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Attention - When adding or removing fields from this struct,</span>
-<span class="doccomment">/// please remember to update its Serialize and Deserialize implementation</span>
-<span class="doccomment">/// to reflect the new struct instantiation.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Identifier</span> {
-    <span class="doccomment">/// The symbol that the user wrote, e.g., `foo`.</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Symbol</span>,
-    <span class="doccomment">/// A span locating where the identifier occurred in the source.</span>
-    <span class="kw">pub</span> <span class="ident">span</span>: <span class="ident">Span</span>,
+<span class="doccomment">/// An identifier in a program.
+///
+/// Attention - When adding or removing fields from this struct,
+/// please remember to update its Serialize and Deserialize implementation
+/// to reflect the new struct instantiation.
+</span><span class="attribute">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>Identifier {
+    <span class="doccomment">/// The symbol that the user wrote, e.g., `foo`.
+    </span><span class="kw">pub </span>name: Symbol,
+    <span class="doccomment">/// A span locating where the identifier occurred in the source.
+    </span><span class="kw">pub </span>span: Span,
 }
 
-<span class="macro">simple_node_impl!</span>(<span class="ident">Identifier</span>);
+<span class="macro">simple_node_impl!</span>(Identifier);
 
-<span class="kw">impl</span> <span class="ident">Identifier</span> {
-    <span class="doccomment">/// Constructs a new identifier with `name` and a default span.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="ident">Symbol</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">name</span>,
-            <span class="ident">span</span>: <span class="ident">Span::default</span>(),
+<span class="kw">impl </span>Identifier {
+    <span class="doccomment">/// Constructs a new identifier with `name` and a default span.
+    </span><span class="kw">pub fn </span>new(name: Symbol) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            name,
+            span: Span::default(),
         }
     }
 
-    <span class="doccomment">/// Check if the Identifier name matches the other name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">name</span>
+    <span class="doccomment">/// Check if the Identifier name matches the other name.
+    </span><span class="kw">pub fn </span>matches(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.name == other.name
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
     }
 }
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">name</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">span</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">span</span>
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Identifier</span> {}
-
-<span class="kw">impl</span> <span class="ident">Hash</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
-        <span class="self">self</span>.<span class="ident">span</span>.<span class="ident">hash</span>(<span class="ident">state</span>);
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.name == other.name &amp;&amp; <span class="self">self</span>.span == other.span
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Serializer</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">serializer</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span> {
-        <span class="comment">// Converts an element that implements Serialize into a string.</span>
-        <span class="kw">fn</span> <span class="ident">to_json_string</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">Serialize</span>, <span class="ident">Error</span>: <span class="ident">serde::ser::Error</span><span class="op">&gt;</span>(<span class="ident">element</span>: <span class="kw-2">&amp;</span><span class="ident">E</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-            <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">element</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::custom</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
+<span class="kw">impl </span>Eq <span class="kw">for </span>Identifier {}
+
+<span class="kw">impl </span>Hash <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>hash&lt;H: Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        <span class="self">self</span>.name.hash(state);
+        <span class="self">self</span>.span.hash(state);
+    }
+}
+
+<span class="kw">impl </span>Serialize <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>serialize&lt;S: Serializer&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+        <span class="comment">// Converts an element that implements Serialize into a string.
+        </span><span class="kw">fn </span>to_json_string&lt;E: Serialize, Error: serde::ser::Error&gt;(element: <span class="kw-2">&amp;</span>E) -&gt; <span class="prelude-ty">Result</span>&lt;String, Error&gt; {
+            serde_json::to_string(<span class="kw-2">&amp;</span>element).map_err(|e| Error::custom(e.to_string()))
         }
 
-        <span class="comment">// Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">key</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">key</span>.<span class="ident">insert</span>(<span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(), <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">to_string</span>());
-        <span class="ident">key</span>.<span class="ident">insert</span>(<span class="string">&quot;span&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">to_json_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">span</span>)<span class="question-mark">?</span>);
+        <span class="comment">// Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
+        </span><span class="kw">let </span><span class="kw-2">mut </span>key: BTreeMap&lt;String, String&gt; = BTreeMap::new();
+        key.insert(<span class="string">&quot;name&quot;</span>.to_string(), <span class="self">self</span>.name.to_string());
+        key.insert(<span class="string">&quot;span&quot;</span>.to_string(), to_json_string(<span class="kw-2">&amp;</span><span class="self">self</span>.span)<span class="question-mark">?</span>);
 
-        <span class="comment">// Convert the serialized object into a string for use as a key.</span>
-        <span class="ident">serializer</span>.<span class="ident">serialize_str</span>(<span class="kw-2">&amp;</span><span class="ident">to_json_string</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)<span class="question-mark">?</span>)
+        <span class="comment">// Convert the serialized object into a string for use as a key.
+        </span>serializer.serialize_str(<span class="kw-2">&amp;</span>to_json_string(<span class="kw-2">&amp;</span>key)<span class="question-mark">?</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">deserializer</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
-        <span class="kw">struct</span> <span class="ident">IdentifierVisitor</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>Identifier {
+    <span class="kw">fn </span>deserialize&lt;D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt; {
+        <span class="kw">struct </span>IdentifierVisitor;
 
-        <span class="kw">impl</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IdentifierVisitor</span> {
-            <span class="kw">type</span> <span class="ident">Value</span> <span class="op">=</span> <span class="ident">Identifier</span>;
+        <span class="kw">impl </span>Visitor&lt;<span class="lifetime">&#39;_</span>&gt; <span class="kw">for </span>IdentifierVisitor {
+            <span class="kw">type </span>Value = Identifier;
 
-            <span class="kw">fn</span> <span class="ident">expecting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-                <span class="ident">formatter</span>.<span class="ident">write_str</span>(<span class="string">&quot;a string encoding the ast Identifier struct&quot;</span>)
+            <span class="kw">fn </span>expecting(<span class="kw-2">&amp;</span><span class="self">self</span>, formatter: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+                formatter.write_str(<span class="string">&quot;a string encoding the ast Identifier struct&quot;</span>)
             }
 
-            <span class="doccomment">/// Implementation for recovering a string that serializes Identifier.</span>
-            <span class="kw">fn</span> <span class="ident">visit_str</span><span class="op">&lt;</span><span class="ident">E</span>: <span class="ident">de::Error</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Value</span>, <span class="ident">E</span><span class="op">&gt;</span> {
-                <span class="comment">// Converts a serialized string into an element that implements Deserialize.</span>
-                <span class="kw">fn</span> <span class="ident">to_json_string</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">D</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">Error</span>: <span class="ident">serde::de::Error</span><span class="op">&gt;</span>(
-                    <span class="ident">serialized</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-                ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">D</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-                    <span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">serialized</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::custom</span>(<span class="ident">e</span>.<span class="ident">to_string</span>()))
+            <span class="doccomment">/// Implementation for recovering a string that serializes Identifier.
+            </span><span class="kw">fn </span>visit_str&lt;E: de::Error&gt;(<span class="self">self</span>, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Value, E&gt; {
+                <span class="comment">// Converts a serialized string into an element that implements Deserialize.
+                </span><span class="kw">fn </span>to_json_string&lt;<span class="lifetime">&#39;a</span>, D: Deserialize&lt;<span class="lifetime">&#39;a</span>&gt;, Error: serde::de::Error&gt;(
+                    serialized: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+                ) -&gt; <span class="prelude-ty">Result</span>&lt;D, Error&gt; {
+                    serde_json::from_str::&lt;<span class="lifetime">&#39;a</span>&gt;(serialized).map_err(|e| Error::custom(e.to_string()))
                 }
 
-                <span class="comment">// Convert the serialized string into a BTreeMap to recover Identifier.</span>
-                <span class="kw">let</span> <span class="ident">key</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">to_json_string</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
+                <span class="comment">// Convert the serialized string into a BTreeMap to recover Identifier.
+                </span><span class="kw">let </span>key: BTreeMap&lt;String, String&gt; = to_json_string(value)<span class="question-mark">?</span>;
 
-                <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">name</span>) =&gt; <span class="ident">Symbol::intern</span>(<span class="ident">name</span>),
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">E::custom</span>(<span class="string">&quot;missing &#39;name&#39; in serialized Identifier struct&quot;</span>)),
+                <span class="kw">let </span>name = <span class="kw">match </span>key.get(<span class="string">&quot;name&quot;</span>) {
+                    <span class="prelude-val">Some</span>(name) =&gt; Symbol::intern(name),
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">&quot;missing &#39;name&#39; in serialized Identifier struct&quot;</span>)),
                 };
 
-                <span class="kw">let</span> <span class="ident">span</span>: <span class="ident">Span</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">key</span>.<span class="ident">get</span>(<span class="string">&quot;span&quot;</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">span</span>) =&gt; <span class="ident">to_json_string</span>(<span class="ident">span</span>)<span class="question-mark">?</span>,
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">E::custom</span>(<span class="string">&quot;missing &#39;span&#39; in serialized Identifier struct&quot;</span>)),
+                <span class="kw">let </span>span: Span = <span class="kw">match </span>key.get(<span class="string">&quot;span&quot;</span>) {
+                    <span class="prelude-val">Some</span>(span) =&gt; to_json_string(span)<span class="question-mark">?</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">&quot;missing &#39;span&#39; in serialized Identifier struct&quot;</span>)),
                 };
 
-                <span class="prelude-val">Ok</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>, <span class="ident">span</span> })
+                <span class="prelude-val">Ok</span>(Identifier { name, span })
             }
         }
 
-        <span class="ident">deserializer</span>.<span class="ident">deserialize_str</span>(<span class="ident">IdentifierVisitor</span>)
+        deserializer.deserialize_str(IdentifierVisitor)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_ast" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_statements.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>check_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_statements.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>check_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -356,363 +356,363 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">TypeChecker</span>, <span class="ident">VariableSymbol</span>, <span class="ident">VariableType</span>};
+</span><span class="kw">use crate</span>::{TypeChecker, VariableSymbol, VariableType};
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_errors::TypeCheckerError</span>;
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::TypeCheckerError;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">StatementVisitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TypeChecker</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">visit_statement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Statement</span>) {
-        <span class="comment">// No statements can follow a return statement.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_return</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unreachable_code_after_return</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StatementVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statement) {
+        <span class="comment">// No statements can follow a return statement.
+        </span><span class="kw">if </span><span class="self">self</span>.has_return {
+            <span class="self">self</span>.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
             <span class="kw">return</span>;
         }
 
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Statement::Assign</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_assign</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Console</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_console</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Decrement</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_decrement</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Definition</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_definition</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Finalize</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_finalize</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Increment</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_increment</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Iteration</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_iteration</span>(<span class="ident">stmt</span>),
-            <span class="ident">Statement::Return</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_return</span>(<span class="ident">stmt</span>),
+        <span class="kw">match </span>input {
+            Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
+            Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
+            Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
+            Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
+            Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
+            Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
+            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
+            Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
+            Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
+            Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssignStatement</span>) {
-        <span class="kw">let</span> <span class="ident">var_name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">place</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-            <span class="kw">_</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::invalid_assignment_target</span>(<span class="ident">input</span>.<span class="ident">place</span>.<span class="ident">span</span>()));
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) {
+        <span class="kw">let </span>var_name = <span class="kw">match </span>input.place {
+            Expression::Identifier(id) =&gt; id,
+            <span class="kw">_ </span>=&gt; {
+                <span class="self">self</span>.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 <span class="kw">return</span>;
             }
         };
 
-        <span class="kw">let</span> <span class="ident">var_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">var</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">lookup_variable</span>(<span class="ident">var_name</span>.<span class="ident">name</span>) {
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">var</span>.<span class="ident">declaration</span> {
-                <span class="ident">VariableType::Const</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_var</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>)),
-                <span class="ident">VariableType::Input</span>(<span class="ident">Mode::Const</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::cannot_assign_to_const_input</span>(<span class="ident">var_name</span>, <span class="ident">var</span>.<span class="ident">span</span>))
+        <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(var_name.name) {
+            <span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
+                VariableType::Const =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
+                VariableType::Input(Mode::Const) =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                <span class="kw">_</span> =&gt; {}
+                <span class="kw">_ </span>=&gt; {}
             }
 
-            <span class="prelude-val">Some</span>(<span class="ident">var</span>.<span class="ident">type_</span>.<span class="ident">clone</span>())
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::unknown_sym</span>(<span class="string">&quot;variable&quot;</span>, <span class="ident">var_name</span>.<span class="ident">name</span>, <span class="ident">var_name</span>.<span class="ident">span</span>));
+            <span class="prelude-val">Some</span>(var.type_.clone())
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, var_name.name, var_name.span));
 
-            <span class="prelude-val">None</span>
-        };
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="kw">if</span> <span class="ident">var_type</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="ident">var_type</span>);
+        <span class="kw">if </span>var_type.is_some() {
+            <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>var_type);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Block</span>) {
-        <span class="comment">// Create a new scope for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_child_scope</span>();
+    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Block) {
+        <span class="comment">// Create a new scope for the then-block.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
-        <span class="ident">input</span>.<span class="ident">statements</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_statement</span>(<span class="ident">stmt</span>));
+        input.statements.iter().for_each(|stmt| <span class="self">self</span>.visit_statement(stmt));
 
-        <span class="comment">// Exit the scope for the then-block.</span>
-        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">scope_index</span>);
+        <span class="comment">// Exit the scope for the then-block.
+        </span><span class="self">self</span>.exit_scope(scope_index);
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConditionalStatement</span>) {
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConditionalStatement) {
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_return = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>otherwise_block_has_return = <span class="bool-val">false</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">then_block_has_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">otherwise_block_has_finalize</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_finalize = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>otherwise_block_has_finalize = <span class="bool-val">false</span>;
 
-        <span class="comment">// Set the `has_return` flag for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">previous_has_return</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_return</span>, <span class="ident">then_block_has_return</span>);
-        <span class="comment">// Set the `has_finalize` flag for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">previous_has_finalize</span> <span class="op">=</span> <span class="ident">core::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_finalize</span>, <span class="ident">then_block_has_finalize</span>);
+        <span class="comment">// Set the `has_return` flag for the then-block.
+        </span><span class="kw">let </span>previous_has_return = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_return, then_block_has_return);
+        <span class="comment">// Set the `has_finalize` flag for the then-block.
+        </span><span class="kw">let </span>previous_has_finalize = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_finalize, then_block_has_finalize);
 
-        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">then</span>);
+        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
 
-        <span class="comment">// Store the `has_return` flag for the then-block.</span>
-        <span class="ident">then_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
-        <span class="comment">// Store the `has_finalize` flag for the then-block.</span>
-        <span class="ident">then_block_has_finalize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_finalize</span>;
+        <span class="comment">// Store the `has_return` flag for the then-block.
+        </span>then_block_has_return = <span class="self">self</span>.has_return;
+        <span class="comment">// Store the `has_finalize` flag for the then-block.
+        </span>then_block_has_finalize = <span class="self">self</span>.has_finalize;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">otherwise</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">otherwise</span> {
-            <span class="comment">// Set the `has_return` flag for the otherwise-block.</span>
-            <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">otherwise_block_has_return</span>;
-            <span class="comment">// Set the `has_finalize` flag for the otherwise-block.</span>
-            <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">otherwise_block_has_finalize</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(otherwise) = <span class="kw-2">&amp;</span>input.otherwise {
+            <span class="comment">// Set the `has_return` flag for the otherwise-block.
+            </span><span class="self">self</span>.has_return = otherwise_block_has_return;
+            <span class="comment">// Set the `has_finalize` flag for the otherwise-block.
+            </span><span class="self">self</span>.has_finalize = otherwise_block_has_finalize;
 
-            <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">otherwise</span> {
-                <span class="ident">Statement::Block</span>(<span class="ident">stmt</span>) =&gt; {
-                    <span class="comment">// Visit the otherwise-block.</span>
-                    <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="ident">stmt</span>);
+            <span class="kw">match </span><span class="kw-2">&amp;**</span>otherwise {
+                Statement::Block(stmt) =&gt; {
+                    <span class="comment">// Visit the otherwise-block.
+                    </span><span class="self">self</span>.visit_block(stmt);
                 }
-                <span class="ident">Statement::Conditional</span>(<span class="ident">stmt</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_conditional</span>(<span class="ident">stmt</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Else-case can only be a block or conditional statement.&quot;</span>),
+                Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Else-case can only be a block or conditional statement.&quot;</span>),
             }
 
-            <span class="comment">// Store the `has_return` flag for the otherwise-block.</span>
-            <span class="ident">otherwise_block_has_return</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_return</span>;
-            <span class="comment">// Store the `has_finalize` flag for the otherwise-block.</span>
-            <span class="ident">otherwise_block_has_finalize</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">has_finalize</span>;
+            <span class="comment">// Store the `has_return` flag for the otherwise-block.
+            </span>otherwise_block_has_return = <span class="self">self</span>.has_return;
+            <span class="comment">// Store the `has_finalize` flag for the otherwise-block.
+            </span>otherwise_block_has_finalize = <span class="self">self</span>.has_finalize;
         }
 
-        <span class="comment">// Restore the previous `has_return` flag.</span>
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">previous_has_return</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">then_block_has_return</span> <span class="op">&amp;&amp;</span> <span class="ident">otherwise_block_has_return</span>);
-        <span class="comment">// Restore the previous `has_finalize` flag.</span>
-        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">previous_has_finalize</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">then_block_has_finalize</span> <span class="op">&amp;&amp;</span> <span class="ident">otherwise_block_has_finalize</span>);
+        <span class="comment">// Restore the previous `has_return` flag.
+        </span><span class="self">self</span>.has_return = previous_has_return || (then_block_has_return &amp;&amp; otherwise_block_has_return);
+        <span class="comment">// Restore the previous `has_finalize` flag.
+        </span><span class="self">self</span>.has_finalize = previous_has_finalize || (then_block_has_finalize &amp;&amp; otherwise_block_has_finalize);
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ConsoleStatement</span>) {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">Type::Boolean</span>));
-                <span class="self">self</span>.<span class="ident">assert_bool_type</span>(<span class="kw-2">&amp;</span><span class="ident">type_</span>, <span class="ident">expr</span>.<span class="ident">span</span>());
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>input.function {
+            ConsoleFunction::Assert(expr) =&gt; {
+                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
+                <span class="self">self</span>.assert_bool_type(<span class="kw-2">&amp;</span>type_, expr.span());
             }
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">|</span> <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) =&gt; {
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
 
-                <span class="comment">// Check that the types are equal.</span>
-                <span class="self">self</span>.<span class="ident">check_eq_types</span>(<span class="kw-2">&amp;</span><span class="ident">t1</span>, <span class="kw-2">&amp;</span><span class="ident">t2</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the types are equal.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DecrementStatement</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_finalize</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::increment_or_decrement_outside_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+    <span class="kw">fn </span>visit_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DecrementStatement) {
+        <span class="kw">if </span>!<span class="self">self</span>.is_finalize {
+            <span class="self">self</span>.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
         }
 
-        <span class="comment">// Assert that the first operand is a mapping.</span>
-        <span class="kw">let</span> <span class="ident">mapping_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">mapping</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">assert_mapping_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping_type</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+        <span class="comment">// Assert that the first operand is a mapping.
+        </span><span class="kw">let </span>mapping_type = <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>input.mapping, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+        <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>mapping_type, input.span());
 
-        <span class="kw">match</span> <span class="ident">mapping_type</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
-                <span class="ident">input</span>.<span class="ident">mapping</span>,
-                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+        <span class="kw">match </span>mapping_type {
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(
+                input.mapping,
+                input.mapping.span,
             )),
-            <span class="prelude-val">Some</span>(<span class="ident">Type::Mapping</span>(<span class="ident">mapping_type</span>)) =&gt; {
-                <span class="comment">// Check that the index matches the key type of the mapping.</span>
-                <span class="kw">let</span> <span class="ident">index_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">index_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">key</span>, <span class="ident">input</span>.<span class="ident">index</span>.<span class="ident">span</span>());
+            <span class="prelude-val">Some</span>(Type::Mapping(mapping_type)) =&gt; {
+                <span class="comment">// Check that the index matches the key type of the mapping.
+                </span><span class="kw">let </span>index_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>index_type, <span class="kw-2">&amp;</span>mapping_type.key, input.index.span());
 
-                <span class="comment">// Check that the amount matches the value type of the mapping.</span>
-                <span class="kw">let</span> <span class="ident">amount_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">value</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the amount matches the value type of the mapping.
+                </span><span class="kw">let </span>amount_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>amount_type, <span class="kw-2">&amp;</span>mapping_type.value, input.amount.span());
 
-                <span class="comment">// Check that the amount type is incrementable.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_scalar_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the amount type is incrementable.
+                </span><span class="self">self</span>.assert_field_group_scalar_int_type(<span class="kw-2">&amp;</span>amount_type, input.amount.span());
             }
-            <span class="prelude-val">Some</span>(<span class="ident">mapping_type</span>) =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::expected_one_type_of</span>(
+            <span class="prelude-val">Some</span>(mapping_type) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::expected_one_type_of(
                 <span class="string">&quot;mapping&quot;</span>,
-                <span class="ident">mapping_type</span>,
-                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+                mapping_type,
+                input.mapping.span,
             )),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span>) {
-        <span class="kw">let</span> <span class="ident">declaration</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">declaration_type</span> <span class="op">==</span> <span class="ident">DeclarationType::Const</span> {
-            <span class="ident">VariableType::Const</span>
-        } <span class="kw">else</span> {
-            <span class="ident">VariableType::Mut</span>
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
+        <span class="kw">let </span>declaration = <span class="kw">if </span>input.declaration_type == DeclarationType::Const {
+            VariableType::Const
+        } <span class="kw">else </span>{
+            VariableType::Mut
         };
 
-        <span class="comment">// Check that the type of the definition is valid.</span>
-        <span class="self">self</span>.<span class="ident">assert_type_is_valid</span>(<span class="ident">input</span>.<span class="ident">span</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">type_</span>);
+        <span class="comment">// Check that the type of the definition is valid.
+        </span><span class="self">self</span>.assert_type_is_valid(input.span, <span class="kw-2">&amp;</span>input.type_);
 
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">input</span>.<span class="ident">type_</span>.<span class="ident">clone</span>()));
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_variable</span>(
-            <span class="ident">input</span>.<span class="ident">variable_name</span>.<span class="ident">name</span>,
-            <span class="ident">VariableSymbol</span> {
-                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>(),
-                <span class="ident">declaration</span>,
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+            input.variable_name.name,
+            VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration,
             },
         ) {
-            <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+            <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FinalizeStatement</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_finalize</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::finalize_in_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+    <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) {
+        <span class="kw">if </span><span class="self">self</span>.is_finalize {
+            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
         }
 
-        <span class="comment">// Set the `has_finalize` flag.</span>
-        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="comment">// Set the `has_finalize` flag.
+        </span><span class="self">self</span>.has_finalize = <span class="bool-val">true</span>;
 
-        <span class="comment">// Check that the function has a finalize block.</span>
-        <span class="comment">// Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.</span>
-        <span class="comment">// Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.</span>
-        <span class="kw">let</span> <span class="ident">finalize</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">symbol_table</span>
-            .<span class="ident">borrow</span>()
-            .<span class="ident">lookup_fn_symbol</span>(<span class="self">self</span>.<span class="ident">function</span>.<span class="ident">unwrap</span>())
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">finalize</span>
-            .<span class="ident">clone</span>();
-        <span class="kw">match</span> <span class="ident">finalize</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::finalize_without_finalize_block</span>(<span class="ident">input</span>.<span class="ident">span</span>())),
-            <span class="prelude-val">Some</span>(<span class="ident">finalize</span>) =&gt; {
-                <span class="comment">// Check number of function arguments.</span>
-                <span class="kw">if</span> <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>() {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::incorrect_num_args_to_finalize</span>(
-                        <span class="ident">finalize</span>.<span class="ident">input</span>.<span class="ident">len</span>(),
-                        <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">len</span>(),
-                        <span class="ident">input</span>.<span class="ident">span</span>(),
+        <span class="comment">// Check that the function has a finalize block.
+        // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
+        // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
+        </span><span class="kw">let </span>finalize = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(<span class="self">self</span>.function.unwrap())
+            .unwrap()
+            .finalize
+            .clone();
+        <span class="kw">match </span>finalize {
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
+            <span class="prelude-val">Some</span>(finalize) =&gt; {
+                <span class="comment">// Check number of function arguments.
+                </span><span class="kw">if </span>finalize.input.len() != input.arguments.len() {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
+                        finalize.input.len(),
+                        input.arguments.len(),
+                        input.span(),
                     ));
                 }
 
-                <span class="comment">// Check function argument types.</span>
-                <span class="ident">finalize</span>
-                    .<span class="ident">input</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">zip</span>(<span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>())
-                    .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">expected</span>, <span class="ident">argument</span>)<span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">expected</span>.<span class="ident">type_</span>()));
+                <span class="comment">// Check function argument types.
+                </span>finalize
+                    .input
+                    .iter()
+                    .zip(input.arguments.iter())
+                    .for_each(|(expected, argument)| {
+                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
                     });
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IncrementStatement</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_finalize</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::increment_or_decrement_outside_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+    <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) {
+        <span class="kw">if </span>!<span class="self">self</span>.is_finalize {
+            <span class="self">self</span>.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
         }
 
-        <span class="comment">// Assert that the first operand is a mapping.</span>
-        <span class="kw">let</span> <span class="ident">mapping_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">mapping</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">assert_mapping_type</span>(<span class="kw-2">&amp;</span><span class="ident">mapping_type</span>, <span class="ident">input</span>.<span class="ident">span</span>());
+        <span class="comment">// Assert that the first operand is a mapping.
+        </span><span class="kw">let </span>mapping_type = <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>input.mapping, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+        <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>mapping_type, input.span());
 
-        <span class="kw">match</span> <span class="ident">mapping_type</span> {
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::could_not_determine_type</span>(
-                <span class="ident">input</span>.<span class="ident">mapping</span>,
-                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+        <span class="kw">match </span>mapping_type {
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(
+                input.mapping,
+                input.mapping.span,
             )),
-            <span class="prelude-val">Some</span>(<span class="ident">Type::Mapping</span>(<span class="ident">mapping_type</span>)) =&gt; {
-                <span class="comment">// Check that the index matches the key type of the mapping.</span>
-                <span class="kw">let</span> <span class="ident">index_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">index</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">index_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">key</span>, <span class="ident">input</span>.<span class="ident">index</span>.<span class="ident">span</span>());
+            <span class="prelude-val">Some</span>(Type::Mapping(mapping_type)) =&gt; {
+                <span class="comment">// Check that the index matches the key type of the mapping.
+                </span><span class="kw">let </span>index_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>index_type, <span class="kw-2">&amp;</span>mapping_type.key, input.index.span());
 
-                <span class="comment">// Check that the amount matches the value type of the mapping.</span>
-                <span class="kw">let</span> <span class="ident">amount_type</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">amount</span>, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="self">self</span>.<span class="ident">assert_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="kw-2">&amp;</span><span class="ident">mapping_type</span>.<span class="ident">value</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the amount matches the value type of the mapping.
+                </span><span class="kw">let </span>amount_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>amount_type, <span class="kw-2">&amp;</span>mapping_type.value, input.amount.span());
 
-                <span class="comment">// Check that the amount type is incrementable.</span>
-                <span class="self">self</span>.<span class="ident">assert_field_group_scalar_int_type</span>(<span class="kw-2">&amp;</span><span class="ident">amount_type</span>, <span class="ident">input</span>.<span class="ident">amount</span>.<span class="ident">span</span>());
+                <span class="comment">// Check that the amount type is incrementable.
+                </span><span class="self">self</span>.assert_field_group_scalar_int_type(<span class="kw-2">&amp;</span>amount_type, input.amount.span());
             }
-            <span class="prelude-val">Some</span>(<span class="ident">mapping_type</span>) =&gt; <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::expected_one_type_of</span>(
+            <span class="prelude-val">Some</span>(mapping_type) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::expected_one_type_of(
                 <span class="string">&quot;mapping&quot;</span>,
-                <span class="ident">mapping_type</span>,
-                <span class="ident">input</span>.<span class="ident">mapping</span>.<span class="ident">span</span>,
+                mapping_type,
+                input.mapping.span,
             )),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IterationStatement</span>) {
-        <span class="kw">let</span> <span class="ident">iter_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">input</span>.<span class="ident">type_</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">assert_int_type</span>(<span class="ident">iter_type</span>, <span class="ident">input</span>.<span class="ident">variable</span>.<span class="ident">span</span>);
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IterationStatement) {
+        <span class="kw">let </span>iter_type = <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone());
+        <span class="self">self</span>.assert_int_type(iter_type, input.variable.span);
 
-        <span class="comment">// Create a new scope for the loop body.</span>
-        <span class="kw">let</span> <span class="ident">scope_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_child_scope</span>();
+        <span class="comment">// Create a new scope for the loop body.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
-        <span class="comment">// Add the loop variable to the scope of the loop body.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert_variable</span>(
-            <span class="ident">input</span>.<span class="ident">variable</span>.<span class="ident">name</span>,
-            <span class="ident">VariableSymbol</span> {
-                <span class="ident">type_</span>: <span class="ident">input</span>.<span class="ident">type_</span>.<span class="ident">clone</span>(),
-                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>(),
-                <span class="ident">declaration</span>: <span class="ident">VariableType::Const</span>,
+        <span class="comment">// Add the loop variable to the scope of the loop body.
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+            input.variable.name,
+            VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration: VariableType::Const,
             },
         ) {
-            <span class="self">self</span>.<span class="ident">handler</span>.<span class="ident">emit_err</span>(<span class="ident">err</span>);
+            <span class="self">self</span>.handler.emit_err(err);
         }
 
-        <span class="kw">let</span> <span class="ident">prior_has_return</span> <span class="op">=</span> <span class="ident">core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_return</span>);
-        <span class="kw">let</span> <span class="ident">prior_has_finalize</span> <span class="op">=</span> <span class="ident">core::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">has_finalize</span>);
+        <span class="kw">let </span>prior_has_return = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_return);
+        <span class="kw">let </span>prior_has_finalize = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_finalize);
 
-        <span class="self">self</span>.<span class="ident">visit_block</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">block</span>);
+        <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_return</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_body_contains_return</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+        <span class="kw">if </span><span class="self">self</span>.has_return {
+            <span class="self">self</span>.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">has_finalize</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_body_contains_finalize</span>(<span class="ident">input</span>.<span class="ident">span</span>()));
+        <span class="kw">if </span><span class="self">self</span>.has_finalize {
+            <span class="self">self</span>.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
         }
 
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="ident">prior_has_return</span>;
-        <span class="self">self</span>.<span class="ident">has_finalize</span> <span class="op">=</span> <span class="ident">prior_has_finalize</span>;
+        <span class="self">self</span>.has_return = prior_has_return;
+        <span class="self">self</span>.has_finalize = prior_has_finalize;
 
-        <span class="comment">// Exit the scope.</span>
-        <span class="self">self</span>.<span class="ident">exit_scope</span>(<span class="ident">scope_index</span>);
+        <span class="comment">// Exit the scope.
+        </span><span class="self">self</span>.exit_scope(scope_index);
 
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">start</span>, <span class="ident">iter_type</span>);
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, iter_type);
 
-        <span class="comment">// If `input.start` is a literal, instantiate it as a value.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Literal</span>(<span class="ident">literal</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">start</span> {
-            <span class="ident">input</span>.<span class="ident">start_value</span>.<span class="ident">replace</span>(<span class="prelude-val">Some</span>(<span class="ident">Value::from</span>(<span class="ident">literal</span>)));
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_bound_must_be_a_literal</span>(<span class="ident">input</span>.<span class="ident">start</span>.<span class="ident">span</span>()));
+        <span class="comment">// If `input.start` is a literal, instantiate it as a value.
+        </span><span class="kw">if let </span>Expression::Literal(literal) = <span class="kw-2">&amp;</span>input.start {
+            input.start_value.replace(<span class="prelude-val">Some</span>(Value::from(literal)));
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
         }
 
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">stop</span>, <span class="ident">iter_type</span>);
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, iter_type);
 
-        <span class="comment">// If `input.stop` is a literal, instantiate it as a value.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Literal</span>(<span class="ident">literal</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">stop</span> {
-            <span class="ident">input</span>.<span class="ident">stop_value</span>.<span class="ident">replace</span>(<span class="prelude-val">Some</span>(<span class="ident">Value::from</span>(<span class="ident">literal</span>)));
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">TypeCheckerError::loop_bound_must_be_a_literal</span>(<span class="ident">input</span>.<span class="ident">stop</span>.<span class="ident">span</span>()));
+        <span class="comment">// If `input.stop` is a literal, instantiate it as a value.
+        </span><span class="kw">if let </span>Expression::Literal(literal) = <span class="kw-2">&amp;</span>input.stop {
+            input.stop_value.replace(<span class="prelude-val">Some</span>(Value::from(literal)));
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ReturnStatement</span>) {
-        <span class="comment">// we can safely unwrap all self.parent instances because</span>
-        <span class="comment">// statements should always have some parent block</span>
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">function</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">return_type</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>
-            .<span class="ident">symbol_table</span>
-            .<span class="ident">borrow</span>()
-            .<span class="ident">lookup_fn_symbol</span>(<span class="ident">parent</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">is_finalize</span> {
-                <span class="comment">// TODO: Check this.</span>
-                <span class="comment">// Note that this `unwrap()` is safe since we checked that the function has a finalize block.</span>
-                <span class="bool-val">true</span> =&gt; <span class="ident">f</span>.<span class="ident">finalize</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">output_type</span>.<span class="ident">clone</span>(),
-                <span class="bool-val">false</span> =&gt; <span class="ident">f</span>.<span class="ident">output_type</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) {
+        <span class="comment">// we can safely unwrap all self.parent instances because
+        // statements should always have some parent block
+        </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();
+        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(parent)
+            .map(|f| <span class="kw">match </span><span class="self">self</span>.is_finalize {
+                <span class="comment">// TODO: Check this.
+                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
+                <span class="bool-val">false </span>=&gt; f.output_type.clone(),
             });
 
-        <span class="self">self</span>.<span class="ident">has_return</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.has_return = <span class="bool-val">true</span>;
 
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">expression</span>, <span class="ident">return_type</span>);
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, return_type);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

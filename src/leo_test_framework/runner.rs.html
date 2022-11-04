@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/runner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_test_framework/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_test_framework/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_test_framework/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/runner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_test_framework/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_test_framework/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_test_framework/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -317,324 +317,324 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">serde_yaml::Value</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">any::Any</span>,
-    <span class="ident">collections::BTreeMap</span>,
-    <span class="ident">panic</span>::{<span class="self">self</span>, <span class="ident">RefUnwindSafe</span>, <span class="ident">UnwindSafe</span>},
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
-    <span class="ident">sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>},
-    <span class="ident">thread</span>,
+</span><span class="kw">use </span>serde_yaml::Value;
+<span class="kw">use </span>std::{
+    any::Any,
+    collections::BTreeMap,
+    panic::{<span class="self">self</span>, RefUnwindSafe, UnwindSafe},
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+    thread,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">fetch::find_tests</span>, <span class="ident">output::TestExpectation</span>, <span class="ident">test</span>::<span class="kw-2">*</span>};
+<span class="kw">use crate</span>::{error::<span class="kw-2">*</span>, fetch::find_tests, output::TestExpectation, test::<span class="kw-2">*</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ParseType</span> {
-    <span class="ident">Line</span>,
-    <span class="ident">ContinuousLines</span>,
-    <span class="ident">Whole</span>,
+<span class="attribute">#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+</span><span class="kw">pub enum </span>ParseType {
+    Line,
+    ContinuousLines,
+    Whole,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Test</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">PathBuf</span>,
-    <span class="kw">pub</span> <span class="ident">config</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Test {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>content: String,
+    <span class="kw">pub </span>path: PathBuf,
+    <span class="kw">pub </span>config: BTreeMap&lt;String, Value&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Namespace</span>: <span class="ident">UnwindSafe</span> <span class="op">+</span> <span class="ident">RefUnwindSafe</span> {
-    <span class="kw">fn</span> <span class="ident">parse_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ParseType</span>;
+<span class="kw">pub trait </span>Namespace: UnwindSafe + RefUnwindSafe {
+    <span class="kw">fn </span>parse_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ParseType;
 
-    <span class="kw">fn</span> <span class="ident">run_test</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">test</span>: <span class="ident">Test</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">String</span><span class="op">&gt;</span>;
+    <span class="kw">fn </span>run_test(<span class="kw-2">&amp;</span><span class="self">self</span>, test: Test) -&gt; <span class="prelude-ty">Result</span>&lt;Value, String&gt;;
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Runner</span> {
-    <span class="kw">fn</span> <span class="ident">resolve_namespace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Namespace</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub trait </span>Runner {
+    <span class="kw">fn </span>resolve_namespace(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Namespace&gt;&gt;;
 }
 
-<span class="kw">fn</span> <span class="ident">is_env_var_set</span>(<span class="ident">var</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">std::env::var</span>(<span class="ident">var</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">trim</span>().<span class="ident">is_empty</span>()
+<span class="kw">fn </span>is_env_var_set(var: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    std::env::var(var).unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;&quot;</span>.to_string()).trim().is_empty()
 }
 
-<span class="kw">fn</span> <span class="ident">set_hook</span>() -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">panic_buf</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="prelude-val">None</span>));
-    <span class="kw">let</span> <span class="ident">thread_id</span> <span class="op">=</span> <span class="ident">thread::current</span>().<span class="ident">id</span>();
-    <span class="ident">panic::set_hook</span>({
-        <span class="kw">let</span> <span class="ident">panic_buf</span> <span class="op">=</span> <span class="ident">panic_buf</span>.<span class="ident">clone</span>();
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">thread::current</span>().<span class="ident">id</span>() <span class="op">==</span> <span class="ident">thread_id</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">is_env_var_set</span>(<span class="string">&quot;RUST_BACKTRACE&quot;</span>) {
-                    <span class="kw-2">*</span><span class="ident">panic_buf</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">backtrace::Backtrace::new</span>()));
-                } <span class="kw">else</span> {
-                    <span class="kw-2">*</span><span class="ident">panic_buf</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">e</span>.<span class="ident">to_string</span>());
+<span class="kw">fn </span>set_hook() -&gt; Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;&gt; {
+    <span class="kw">let </span>panic_buf = Arc::new(Mutex::new(<span class="prelude-val">None</span>));
+    <span class="kw">let </span>thread_id = thread::current().id();
+    panic::set_hook({
+        <span class="kw">let </span>panic_buf = panic_buf.clone();
+        Box::new(<span class="kw">move </span>|e| {
+            <span class="kw">if </span>thread::current().id() == thread_id {
+                <span class="kw">if </span>!is_env_var_set(<span class="string">&quot;RUST_BACKTRACE&quot;</span>) {
+                    <span class="kw-2">*</span>panic_buf.lock().unwrap() = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, backtrace::Backtrace::new()));
+                } <span class="kw">else </span>{
+                    <span class="kw-2">*</span>panic_buf.lock().unwrap() = <span class="prelude-val">Some</span>(e.to_string());
                 }
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="macro">println!</span>(<span class="string">&quot;{e}&quot;</span>)
             }
         })
     });
-    <span class="ident">panic_buf</span>
+    panic_buf
 }
 
-<span class="kw">fn</span> <span class="ident">take_hook</span>(
-    <span class="ident">output</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Any</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">panic_buf</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">panic::take_hook</span>();
-    <span class="ident">output</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">panic_buf</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>().<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to get panic message&quot;</span>))
+<span class="kw">fn </span>take_hook(
+    output: <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;Value, String&gt;, Box&lt;<span class="kw">dyn </span>Any + Send&gt;&gt;,
+    panic_buf: Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;Value, String&gt;, String&gt; {
+    <span class="kw">let _ </span>= panic::take_hook();
+    output.map_err(|<span class="kw">_</span>| panic_buf.lock().unwrap().take().expect(<span class="string">&quot;failed to get panic message&quot;</span>))
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestCases</span> {
-    <span class="ident">tests</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathBuf</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
-    <span class="ident">path_prefix</span>: <span class="ident">PathBuf</span>,
-    <span class="ident">fail_categories</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TestFailure</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>TestCases {
+    tests: Vec&lt;(PathBuf, String)&gt;,
+    path_prefix: PathBuf,
+    fail_categories: Vec&lt;TestFailure&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TestCases</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">expectation_category</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">additional_check</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">TestConfig</span>) -&gt; <span class="ident">bool</span>) -&gt; (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TestConfig</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path_prefix</span> <span class="op">=</span> <span class="ident">PathBuf::from</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
-        <span class="ident">path_prefix</span>.<span class="ident">push</span>(<span class="string">&quot;../../tests/&quot;</span>);
-        <span class="ident">path_prefix</span>.<span class="ident">push</span>(<span class="ident">expectation_category</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">std::env::var</span>(<span class="string">&quot;TEST_FILTER&quot;</span>) {
-            <span class="ident">path_prefix</span>.<span class="ident">push</span>(<span class="ident">p</span>);
+<span class="kw">impl </span>TestCases {
+    <span class="kw">fn </span>new(expectation_category: <span class="kw-2">&amp;</span>str, additional_check: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>TestConfig) -&gt; bool) -&gt; (<span class="self">Self</span>, Vec&lt;TestConfig&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>path_prefix = PathBuf::from(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
+        path_prefix.push(<span class="string">&quot;../../tests/&quot;</span>);
+        path_prefix.push(expectation_category);
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">&quot;TEST_FILTER&quot;</span>) {
+            path_prefix.push(p);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expectation_dir</span> <span class="op">=</span> <span class="ident">path_prefix</span>.<span class="ident">clone</span>();
-        <span class="ident">expectation_dir</span>.<span class="ident">push</span>(<span class="string">&quot;expectations&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>expectation_dir = path_prefix.clone();
+        expectation_dir.push(<span class="string">&quot;expectations&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">tests</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">path_prefix</span>,
-            <span class="ident">fail_categories</span>: <span class="ident">Vec::new</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>new = <span class="self">Self </span>{
+            tests: Vec::new(),
+            path_prefix,
+            fail_categories: Vec::new(),
         };
-        <span class="kw">let</span> <span class="ident">tests</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">load_tests</span>(<span class="ident">additional_check</span>);
-        (<span class="ident">new</span>, <span class="ident">tests</span>)
+        <span class="kw">let </span>tests = new.load_tests(additional_check);
+        (new, tests)
     }
 
-    <span class="kw">fn</span> <span class="ident">load_tests</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">additional_check</span>: <span class="kw">impl</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">TestConfig</span>) -&gt; <span class="ident">bool</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TestConfig</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">configs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">fn </span>load_tests(<span class="kw-2">&amp;mut </span><span class="self">self</span>, additional_check: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>TestConfig) -&gt; bool) -&gt; Vec&lt;TestConfig&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>configs = Vec::new();
 
-        <span class="self">self</span>.<span class="ident">tests</span> <span class="op">=</span> <span class="ident">find_tests</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path_prefix</span>.<span class="ident">clone</span>())
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">path</span>, <span class="ident">content</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">extract_test_config</span>(<span class="ident">content</span>) {
-                <span class="prelude-val">None</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">fail_categories</span>.<span class="ident">push</span>(<span class="ident">TestFailure</span> {
-                        <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">to_str</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>).<span class="ident">to_string</span>(),
-                        <span class="ident">errors</span>: <span class="macro">vec!</span>[<span class="ident">TestError::MissingTestConfig</span>],
+        <span class="self">self</span>.tests = find_tests(<span class="kw-2">&amp;</span><span class="self">self</span>.path_prefix.clone())
+            .filter(|(path, content)| <span class="kw">match </span>extract_test_config(content) {
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="self">self</span>.fail_categories.push(TestFailure {
+                        path: path.to_str().unwrap_or(<span class="string">&quot;&quot;</span>).to_string(),
+                        errors: <span class="macro">vec!</span>[TestError::MissingTestConfig],
                     });
-                    <span class="bool-val">true</span>
-                }
-                <span class="prelude-val">Some</span>(<span class="ident">cfg</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">additional_check</span>(<span class="kw-2">&amp;</span><span class="ident">cfg</span>);
-                    <span class="ident">configs</span>.<span class="ident">push</span>(<span class="ident">cfg</span>);
-                    <span class="ident">res</span>
+                    <span class="bool-val">true
+                </span>}
+                <span class="prelude-val">Some</span>(cfg) =&gt; {
+                    <span class="kw">let </span>res = additional_check(<span class="kw-2">&amp;</span>cfg);
+                    configs.push(cfg);
+                    res
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="ident">configs</span>
+        configs
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">process_tests</span><span class="op">&lt;</span><span class="ident">P</span>, <span class="ident">O</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">configs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TestConfig</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">process</span>: <span class="ident">P</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>, (<span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">TestConfig</span>)) -&gt; <span class="ident">O</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>process_tests&lt;P, O&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, configs: Vec&lt;TestConfig&gt;, <span class="kw-2">mut </span>process: P) -&gt; Vec&lt;O&gt;
+    <span class="kw">where
+        </span>P: FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, (<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str, TestConfig)) -&gt; O,
     {
-        <span class="ident">std::env::remove_var</span>(<span class="string">&quot;LEO_BACKTRACE&quot;</span>); <span class="comment">// always remove backtrace so it doesn&#39;t clog output files</span>
-        <span class="ident">std::env::set_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        std::env::remove_var(<span class="string">&quot;LEO_BACKTRACE&quot;</span>); <span class="comment">// always remove backtrace so it doesn&#39;t clog output files
+        </span>std::env::set_var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> ((<span class="ident">path</span>, <span class="ident">content</span>), <span class="ident">config</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">tests</span>.<span class="ident">clone</span>().<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">configs</span>.<span class="ident">into_iter</span>()) {
-            <span class="kw">let</span> <span class="ident">test_name</span> <span class="op">=</span> <span class="ident">path</span>
-                .<span class="ident">file_stem</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;no file name for test&quot;</span>)
-                .<span class="ident">to_str</span>()
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">to_string</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
+        <span class="kw">for </span>((path, content), config) <span class="kw">in </span><span class="self">self</span>.tests.clone().iter().zip(configs.into_iter()) {
+            <span class="kw">let </span>test_name = path
+                .file_stem()
+                .expect(<span class="string">&quot;no file name for test&quot;</span>)
+                .to_str()
+                .unwrap()
+                .to_string();
 
-            <span class="kw">let</span> <span class="ident">end_of_header</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">find</span>(<span class="string">&quot;*/&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to find header block in test&quot;</span>);
-            <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">end_of_header</span> <span class="op">+</span> <span class="number">2</span>..];
+            <span class="kw">let </span>end_of_header = content.find(<span class="string">&quot;*/&quot;</span>).expect(<span class="string">&quot;failed to find header block in test&quot;</span>);
+            <span class="kw">let </span>content = <span class="kw-2">&amp;</span>content[end_of_header + <span class="number">2</span>..];
 
-            <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">process</span>(<span class="self">self</span>, (<span class="ident">path</span>, <span class="ident">content</span>, <span class="kw-2">&amp;</span><span class="ident">test_name</span>, <span class="ident">config</span>)));
+            output.push(process(<span class="self">self</span>, (path, content, <span class="kw-2">&amp;</span>test_name, config)));
         }
-        <span class="ident">output</span>
+        output
     }
 
-    <span class="kw">fn</span> <span class="ident">load_expectations</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; (<span class="ident">PathBuf</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TestExpectation</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">test_dir</span> <span class="op">=</span> [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests/&quot;</span>].<span class="ident">iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>();
-        <span class="kw">let</span> <span class="ident">relative_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">test_dir</span>).<span class="ident">expect</span>(<span class="string">&quot;path error for test&quot;</span>);
-        <span class="kw">let</span> <span class="ident">expectation_path</span> <span class="op">=</span> <span class="ident">test_dir</span>
-            .<span class="ident">join</span>(<span class="string">&quot;expectations&quot;</span>)
-            .<span class="ident">join</span>(<span class="ident">relative_path</span>.<span class="ident">parent</span>().<span class="ident">expect</span>(<span class="string">&quot;no parent dir for test&quot;</span>))
-            .<span class="ident">join</span>(<span class="ident">relative_path</span>.<span class="ident">file_name</span>().<span class="ident">expect</span>(<span class="string">&quot;no file name for test&quot;</span>))
-            .<span class="ident">with_extension</span>(<span class="string">&quot;out&quot;</span>);
+    <span class="kw">fn </span>load_expectations(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; (PathBuf, <span class="prelude-ty">Option</span>&lt;TestExpectation&gt;) {
+        <span class="kw">let </span>test_dir = [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests/&quot;</span>].iter().collect::&lt;PathBuf&gt;();
+        <span class="kw">let </span>relative_path = path.strip_prefix(<span class="kw-2">&amp;</span>test_dir).expect(<span class="string">&quot;path error for test&quot;</span>);
+        <span class="kw">let </span>expectation_path = test_dir
+            .join(<span class="string">&quot;expectations&quot;</span>)
+            .join(relative_path.parent().expect(<span class="string">&quot;no parent dir for test&quot;</span>))
+            .join(relative_path.file_name().expect(<span class="string">&quot;no file name for test&quot;</span>))
+            .with_extension(<span class="string">&quot;out&quot;</span>);
 
-        <span class="kw">if</span> <span class="ident">expectation_path</span>.<span class="ident">exists</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">is_env_var_set</span>(<span class="string">&quot;CLEAR_LEO_TEST_EXPECTATIONS&quot;</span>) {
-                (<span class="ident">expectation_path</span>, <span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">std::fs::read_to_string</span>(<span class="kw-2">&amp;</span><span class="ident">expectation_path</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to read expectations file&quot;</span>);
+        <span class="kw">if </span>expectation_path.exists() {
+            <span class="kw">if </span>!is_env_var_set(<span class="string">&quot;CLEAR_LEO_TEST_EXPECTATIONS&quot;</span>) {
+                (expectation_path, <span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>raw = std::fs::read_to_string(<span class="kw-2">&amp;</span>expectation_path).expect(<span class="string">&quot;failed to read expectations file&quot;</span>);
                 (
-                    <span class="ident">expectation_path</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">serde_yaml::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid yaml in expectations file&quot;</span>)),
+                    expectation_path,
+                    <span class="prelude-val">Some</span>(serde_yaml::from_str(<span class="kw-2">&amp;</span>raw).expect(<span class="string">&quot;invalid yaml in expectations file&quot;</span>)),
                 )
             }
-        } <span class="kw">else</span> {
-            (<span class="ident">expectation_path</span>, <span class="prelude-val">None</span>)
+        } <span class="kw">else </span>{
+            (expectation_path, <span class="prelude-val">None</span>)
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_tests</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Runner</span><span class="op">&gt;</span>(<span class="ident">runner</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">expectation_category</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">cases</span>, <span class="ident">configs</span>) <span class="op">=</span> <span class="ident">TestCases::new</span>(<span class="ident">expectation_category</span>, <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>);
+<span class="kw">pub fn </span>run_tests&lt;T: Runner&gt;(runner: <span class="kw-2">&amp;</span>T, expectation_category: <span class="kw-2">&amp;</span>str) {
+    <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(expectation_category, |<span class="kw">_</span>| <span class="bool-val">true</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pass_categories</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pass_tests</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fail_tests</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>pass_categories = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>pass_tests = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>fail_tests = <span class="number">0</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outputs</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="ident">cases</span>.<span class="ident">process_tests</span>(<span class="ident">configs</span>, <span class="op">|</span><span class="ident">cases</span>, (<span class="ident">path</span>, <span class="ident">content</span>, <span class="ident">test_name</span>, <span class="ident">config</span>)<span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">namespace</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">runner</span>.<span class="ident">resolve_namespace</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">namespace</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">ns</span>) =&gt; <span class="ident">ns</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="kw">return</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="macro">vec!</span>[];
+    cases.process_tests(configs, |cases, (path, content, test_name, config)| {
+        <span class="kw">let </span>namespace = <span class="kw">match </span>runner.resolve_namespace(<span class="kw-2">&amp;</span>config.namespace) {
+            <span class="prelude-val">Some</span>(ns) =&gt; ns,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return</span>,
         };
 
-        <span class="kw">let</span> (<span class="ident">expectation_path</span>, <span class="ident">expectations</span>) <span class="op">=</span> <span class="ident">cases</span>.<span class="ident">load_expectations</span>(<span class="ident">path</span>);
+        <span class="kw">let </span>(expectation_path, expectations) = cases.load_expectations(path);
 
-        <span class="kw">let</span> <span class="ident">tests</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">namespace</span>.<span class="ident">parse_type</span>() {
-            <span class="ident">ParseType::Line</span> =&gt; <span class="ident"><span class="kw">crate</span>::fetch::split_tests_one_line</span>(<span class="ident">content</span>)
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
-                .<span class="ident">collect</span>(),
-            <span class="ident">ParseType::ContinuousLines</span> =&gt; <span class="ident"><span class="kw">crate</span>::fetch::split_tests_two_line</span>(<span class="ident">content</span>),
-            <span class="ident">ParseType::Whole</span> =&gt; <span class="macro">vec!</span>[<span class="ident">content</span>.<span class="ident">to_string</span>()],
+        <span class="kw">let </span>tests = <span class="kw">match </span>namespace.parse_type() {
+            ParseType::Line =&gt; <span class="kw">crate</span>::fetch::split_tests_one_line(content)
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect(),
+            ParseType::ContinuousLines =&gt; <span class="kw">crate</span>::fetch::split_tests_two_line(content),
+            ParseType::Whole =&gt; <span class="macro">vec!</span>[content.to_string()],
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">errors</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expectations</span>) <span class="op">=</span> <span class="ident">expectations</span>.<span class="ident">as_ref</span>() {
-            <span class="kw">if</span> <span class="ident">tests</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">expectations</span>.<span class="ident">outputs</span>.<span class="ident">len</span>() {
-                <span class="ident">errors</span>.<span class="ident">push</span>(<span class="ident">TestError::MismatchedTestExpectationLength</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>errors = <span class="macro">vec!</span>[];
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(expectations) = expectations.as_ref() {
+            <span class="kw">if </span>tests.len() != expectations.outputs.len() {
+                errors.push(TestError::MismatchedTestExpectationLength);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_outputs</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_output</span> <span class="op">=</span> <span class="ident">expectations</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">outputs</span>.<span class="ident">iter</span>());
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">test</span>) <span class="kw">in</span> <span class="ident">tests</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">expected_output</span> <span class="op">=</span> <span class="ident">expected_output</span>.<span class="ident">as_mut</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">next</span>()).<span class="ident">cloned</span>();
-            <span class="macro">println!</span>(<span class="string">&quot;running test {test_name} @ &#39;{}&#39;&quot;</span>, <span class="ident">path</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>());
-            <span class="kw">let</span> <span class="ident">panic_buf</span> <span class="op">=</span> <span class="ident">set_hook</span>();
-            <span class="kw">let</span> <span class="ident">leo_output</span> <span class="op">=</span> <span class="ident">panic::catch_unwind</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">namespace</span>.<span class="ident">run_test</span>(<span class="ident">Test</span> {
-                    <span class="ident">name</span>: <span class="ident">test_name</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">content</span>: <span class="ident">test</span>.<span class="ident">clone</span>(),
-                    <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">into</span>(),
-                    <span class="ident">config</span>: <span class="ident">config</span>.<span class="ident">extra</span>.<span class="ident">clone</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>new_outputs = <span class="macro">vec!</span>[];
+        <span class="kw">let </span><span class="kw-2">mut </span>expected_output = expectations.as_ref().map(|x| x.outputs.iter());
+        <span class="kw">for </span>(i, test) <span class="kw">in </span>tests.into_iter().enumerate() {
+            <span class="kw">let </span>expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
+            <span class="macro">println!</span>(<span class="string">&quot;running test {test_name} @ &#39;{}&#39;&quot;</span>, path.to_str().unwrap());
+            <span class="kw">let </span>panic_buf = set_hook();
+            <span class="kw">let </span>leo_output = panic::catch_unwind(|| {
+                namespace.run_test(Test {
+                    name: test_name.to_string(),
+                    content: test.clone(),
+                    path: path.into(),
+                    config: config.extra.clone(),
                 })
             });
-            <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">take_hook</span>(<span class="ident">leo_output</span>, <span class="ident">panic_buf</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">error</span>) <span class="op">=</span> <span class="ident">emit_errors</span>(<span class="kw-2">&amp;</span><span class="ident">test</span>, <span class="kw-2">&amp;</span><span class="ident">output</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">expectation</span>, <span class="ident">expected_output</span>, <span class="ident">i</span>) {
-                <span class="ident">fail_tests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">errors</span>.<span class="ident">push</span>(<span class="ident">error</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">pass_tests</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">new_outputs</span>.<span class="ident">push</span>(
-                    <span class="ident">output</span>
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">as_ref</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">serde_yaml::to_value</span>(<span class="ident">x</span>).<span class="ident">expect</span>(<span class="string">&quot;serialization failed&quot;</span>))
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Value::String</span>(<span class="ident">e</span>.<span class="ident">clone</span>())),
+            <span class="kw">let </span>output = take_hook(leo_output, panic_buf);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(error) = emit_errors(<span class="kw-2">&amp;</span>test, <span class="kw-2">&amp;</span>output, <span class="kw-2">&amp;</span>config.expectation, expected_output, i) {
+                fail_tests += <span class="number">1</span>;
+                errors.push(error);
+            } <span class="kw">else </span>{
+                pass_tests += <span class="number">1</span>;
+                new_outputs.push(
+                    output
+                        .unwrap()
+                        .as_ref()
+                        .map(|x| serde_yaml::to_value(x).expect(<span class="string">&quot;serialization failed&quot;</span>))
+                        .unwrap_or_else(|e| Value::String(e.clone())),
                 );
             }
         }
 
-        <span class="kw">if</span> <span class="ident">errors</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">expectations</span>.<span class="ident">is_none</span>() {
-                <span class="ident">outputs</span>.<span class="ident">push</span>((
-                    <span class="ident">expectation_path</span>,
-                    <span class="ident">TestExpectation</span> {
-                        <span class="ident">namespace</span>: <span class="ident">config</span>.<span class="ident">namespace</span>,
-                        <span class="ident">expectation</span>: <span class="ident">config</span>.<span class="ident">expectation</span>,
-                        <span class="ident">outputs</span>: <span class="ident">new_outputs</span>,
+        <span class="kw">if </span>errors.is_empty() {
+            <span class="kw">if </span>expectations.is_none() {
+                outputs.push((
+                    expectation_path,
+                    TestExpectation {
+                        namespace: config.namespace,
+                        expectation: config.expectation,
+                        outputs: new_outputs,
                     },
                 ));
             }
-            <span class="ident">pass_categories</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">cases</span>.<span class="ident">fail_categories</span>.<span class="ident">push</span>(<span class="ident">TestFailure</span> {
-                <span class="ident">path</span>: <span class="ident">path</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
-                <span class="ident">errors</span>,
+            pass_categories += <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            cases.fail_categories.push(TestFailure {
+                path: path.to_str().unwrap().to_string(),
+                errors,
             })
         }
     });
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">cases</span>.<span class="ident">fail_categories</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">fail</span>) <span class="kw">in</span> <span class="ident">cases</span>.<span class="ident">fail_categories</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">if </span>!cases.fail_categories.is_empty() {
+        <span class="kw">for </span>(i, fail) <span class="kw">in </span>cases.fail_categories.iter().enumerate() {
             <span class="macro">println!</span>(
                 <span class="string">&quot;\n\n-----------------TEST #{} FAILED (and shouldn&#39;t have)-----------------&quot;</span>,
-                <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>
-            );
-            <span class="macro">println!</span>(<span class="string">&quot;File: {}&quot;</span>, <span class="ident">fail</span>.<span class="ident">path</span>);
-            <span class="kw">for</span> <span class="ident">error</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">fail</span>.<span class="ident">errors</span> {
+                i + <span class="number">1
+            </span>);
+            <span class="macro">println!</span>(<span class="string">&quot;File: {}&quot;</span>, fail.path);
+            <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>fail.errors {
                 <span class="macro">println!</span>(<span class="string">&quot;{error}&quot;</span>);
             }
         }
         <span class="macro">panic!</span>(
             <span class="string">&quot;failed {}/{} tests in {}/{} categories&quot;</span>,
-            <span class="ident">pass_tests</span>,
-            <span class="ident">fail_tests</span> <span class="op">+</span> <span class="ident">pass_tests</span>,
-            <span class="ident">cases</span>.<span class="ident">fail_categories</span>.<span class="ident">len</span>(),
-            <span class="ident">cases</span>.<span class="ident">fail_categories</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">pass_categories</span>
+            pass_tests,
+            fail_tests + pass_tests,
+            cases.fail_categories.len(),
+            cases.fail_categories.len() + pass_categories
         );
-    } <span class="kw">else</span> {
-        <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">new_expectation</span>) <span class="kw">in</span> <span class="ident">outputs</span> {
-            <span class="ident">std::fs::create_dir_all</span>(<span class="ident">path</span>.<span class="ident">parent</span>().<span class="ident">unwrap</span>()).<span class="ident">expect</span>(<span class="string">&quot;failed to make test expectation parent directory&quot;</span>);
-            <span class="ident">std::fs::write</span>(
-                <span class="kw-2">&amp;</span><span class="ident">path</span>,
-                <span class="ident">serde_yaml::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">new_expectation</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to serialize expectation yaml&quot;</span>),
+    } <span class="kw">else </span>{
+        <span class="kw">for </span>(path, new_expectation) <span class="kw">in </span>outputs {
+            std::fs::create_dir_all(path.parent().unwrap()).expect(<span class="string">&quot;failed to make test expectation parent directory&quot;</span>);
+            std::fs::write(
+                <span class="kw-2">&amp;</span>path,
+                serde_yaml::to_string(<span class="kw-2">&amp;</span>new_expectation).expect(<span class="string">&quot;failed to serialize expectation yaml&quot;</span>),
             )
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to write expectation file&quot;</span>);
+            .expect(<span class="string">&quot;failed to write expectation file&quot;</span>);
         }
         <span class="macro">println!</span>(
             <span class="string">&quot;passed {}/{} tests in {}/{} categories&quot;</span>,
-            <span class="ident">pass_tests</span>,
-            <span class="ident">fail_tests</span> <span class="op">+</span> <span class="ident">pass_tests</span>,
-            <span class="ident">pass_categories</span>,
-            <span class="ident">pass_categories</span>
+            pass_tests,
+            fail_tests + pass_tests,
+            pass_categories,
+            pass_categories
         );
     }
 
-    <span class="ident">std::env::remove_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>);
+    std::env::remove_var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>);
 }
 
-<span class="doccomment">/// returns (name, content) for all benchmark samples</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_benches</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">cases</span>, <span class="ident">configs</span>) <span class="op">=</span> <span class="ident">TestCases::new</span>(<span class="string">&quot;compiler&quot;</span>, <span class="op">|</span><span class="ident">config</span><span class="op">|</span> {
-        (<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">namespace</span> <span class="op">==</span> <span class="string">&quot;Bench&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">config</span>.<span class="ident">expectation</span> <span class="op">==</span> <span class="ident">TestExpectationMode::Pass</span>)
-            <span class="op">|</span><span class="op">|</span> (<span class="kw-2">&amp;</span><span class="ident">config</span>.<span class="ident">namespace</span> <span class="op">==</span> <span class="string">&quot;Compile&quot;</span>
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="macro">matches!</span>(
-                    <span class="ident">config</span>.<span class="ident">expectation</span>,
-                    <span class="ident">TestExpectationMode::Fail</span> <span class="op">|</span> <span class="ident">TestExpectationMode::Skip</span>
+<span class="doccomment">/// returns (name, content) for all benchmark samples
+</span><span class="kw">pub fn </span>get_benches() -&gt; Vec&lt;(String, String)&gt; {
+    <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(<span class="string">&quot;compiler&quot;</span>, |config| {
+        (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Bench&quot; </span>&amp;&amp; config.expectation == TestExpectationMode::Pass)
+            || (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Compile&quot;
+                </span>&amp;&amp; !<span class="macro">matches!</span>(
+                    config.expectation,
+                    TestExpectationMode::Fail | TestExpectationMode::Skip
                 ))
     });
 
-    <span class="ident">cases</span>.<span class="ident">process_tests</span>(<span class="ident">configs</span>, <span class="op">|</span><span class="kw">_</span>, (<span class="kw">_</span>, <span class="ident">content</span>, <span class="ident">test_name</span>, <span class="kw">_</span>)<span class="op">|</span> {
-        (<span class="ident">test_name</span>.<span class="ident">to_string</span>(), <span class="ident">content</span>.<span class="ident">to_string</span>())
+    cases.process_tests(configs, |<span class="kw">_</span>, (<span class="kw">_</span>, content, test_name, <span class="kw">_</span>)| {
+        (test_name.to_string(), content.to_string())
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_test_framework" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_test_framework" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

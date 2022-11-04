@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/package/src/inputs/directory.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>directory.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_package/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/package/src/inputs/directory.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>directory.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_package/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -75,82 +75,82 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use </span>leo_errors::{PackageError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">borrow::Cow</span>,
-    <span class="ident">fs</span>,
-    <span class="ident">fs::ReadDir</span>,
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
+<span class="kw">use </span>std::{
+    borrow::Cow,
+    fs,
+    fs::ReadDir,
+    path::{Path, PathBuf},
 };
 
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">INPUTS_DIRECTORY_NAME</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;inputs/&quot;</span>;
+<span class="kw">pub static </span>INPUTS_DIRECTORY_NAME: <span class="kw-2">&amp;</span>str = <span class="string">&quot;inputs/&quot;</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputsDirectory</span>;
+<span class="kw">pub struct </span>InputsDirectory;
 
-<span class="kw">impl</span> <span class="ident">InputsDirectory</span> {
-    <span class="doccomment">/// Creates a directory at the provided path with the default directory name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Cow::from</span>(<span class="ident">path</span>);
-        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_dir</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="ident">INPUTS_DIRECTORY_NAME</span>) {
-            <span class="ident">path</span>.<span class="ident">to_mut</span>().<span class="ident">push</span>(<span class="ident">INPUTS_DIRECTORY_NAME</span>);
+<span class="kw">impl </span>InputsDirectory {
+    <span class="doccomment">/// Creates a directory at the provided path with the default directory name.
+    </span><span class="kw">pub fn </span>create(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Cow::from(path);
+        <span class="kw">if </span>path.is_dir() &amp;&amp; !path.ends_with(INPUTS_DIRECTORY_NAME) {
+            path.to_mut().push(INPUTS_DIRECTORY_NAME);
         }
 
-        <span class="ident">fs::create_dir_all</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_create_inputs_directory</span>)<span class="question-mark">?</span>;
+        fs::create_dir_all(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_create_inputs_directory)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Returns a list of files in the input directory.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">files</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">to_owned</span>();
-        <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">INPUTS_DIRECTORY_NAME</span>);
+    <span class="doccomment">/// Returns a list of files in the input directory.
+    </span><span class="kw">pub fn </span>files(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;PathBuf&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>path = path.to_owned();
+        path.push(INPUTS_DIRECTORY_NAME);
 
-        <span class="kw">let</span> <span class="ident">directory</span> <span class="op">=</span> <span class="ident">fs::read_dir</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_read_inputs_directory</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_paths</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">parse_file_paths</span>(<span class="ident">directory</span>, <span class="kw-2">&amp;mut</span> <span class="ident">file_paths</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>directory = fs::read_dir(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_read_inputs_directory)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>file_paths = Vec::new();
+        parse_file_paths(directory, <span class="kw-2">&amp;mut </span>file_paths)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">file_paths</span>)
+        <span class="prelude-val">Ok</span>(file_paths)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">parse_file_paths</span>(<span class="ident">directory</span>: <span class="ident">ReadDir</span>, <span class="ident">file_paths</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">file_entry</span> <span class="kw">in</span> <span class="ident">directory</span> {
-        <span class="kw">let</span> <span class="ident">file_entry</span> <span class="op">=</span> <span class="ident">file_entry</span>.<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_get_input_file_entry</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">file_path</span> <span class="op">=</span> <span class="ident">file_entry</span>.<span class="ident">path</span>();
+<span class="kw">fn </span>parse_file_paths(directory: ReadDir, file_paths: <span class="kw-2">&amp;mut </span>Vec&lt;PathBuf&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">for </span>file_entry <span class="kw">in </span>directory {
+        <span class="kw">let </span>file_entry = file_entry.map_err(PackageError::failed_to_get_input_file_entry)<span class="question-mark">?</span>;
+        <span class="kw">let </span>file_path = file_entry.path();
 
-        <span class="comment">// Verify that the entry is structured as a valid file or directory</span>
-        <span class="kw">let</span> <span class="ident">file_type</span> <span class="op">=</span> <span class="ident">file_entry</span>
-            .<span class="ident">file_type</span>()
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">PackageError::failed_to_get_input_file_type</span>(<span class="ident">file_path</span>.<span class="ident">as_os_str</span>().<span class="ident">to_owned</span>(), <span class="ident">e</span>))<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">file_type</span>.<span class="ident">is_dir</span>() {
-            <span class="kw">let</span> <span class="ident">directory</span> <span class="op">=</span> <span class="ident">fs::read_dir</span>(<span class="kw-2">&amp;</span><span class="ident">file_path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_read_inputs_directory</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Verify that the entry is structured as a valid file or directory
+        </span><span class="kw">let </span>file_type = file_entry
+            .file_type()
+            .map_err(|e| PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e))<span class="question-mark">?</span>;
+        <span class="kw">if </span>file_type.is_dir() {
+            <span class="kw">let </span>directory = fs::read_dir(<span class="kw-2">&amp;</span>file_path).map_err(PackageError::failed_to_read_inputs_directory)<span class="question-mark">?</span>;
 
-            <span class="ident">parse_file_paths</span>(<span class="ident">directory</span>, <span class="ident">file_paths</span>)<span class="question-mark">?</span>;
+            parse_file_paths(directory, file_paths)<span class="question-mark">?</span>;
             <span class="kw">continue</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">file_type</span>.<span class="ident">is_file</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::invalid_input_file_type</span>(<span class="ident">file_path</span>.<span class="ident">as_os_str</span>().<span class="ident">to_owned</span>(), <span class="ident">file_type</span>).<span class="ident">into</span>());
+        } <span class="kw">else if </span>!file_type.is_file() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_input_file_type(file_path.as_os_str().to_owned(), file_type).into());
         }
 
-        <span class="ident">file_paths</span>.<span class="ident">push</span>(<span class="ident">file_path</span>);
+        file_paths.push(file_path);
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_package" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_package" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

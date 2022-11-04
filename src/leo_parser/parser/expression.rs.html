@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_parser/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_parser/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -615,622 +615,622 @@
 <span id="615">615</span>
 <span id="616">616</span>
 <span id="617">617</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">ParserError</span>, <span class="prelude-ty">Result</span>};
+</span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident">leo_span</span>::{<span class="ident">sym</span>, <span class="ident">Symbol</span>};
-<span class="kw">use</span> <span class="ident">snarkvm_console</span>::{<span class="ident">account::Address</span>, <span class="ident">network::Testnet3</span>};
+<span class="kw">use </span>leo_span::{sym, Symbol};
+<span class="kw">use </span>snarkvm_console::{account::Address, network::Testnet3};
 
-<span class="kw">const</span> <span class="ident">INT_TYPES</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>] <span class="op">=</span> <span class="kw-2">&amp;</span>[
-    <span class="ident">Token::I8</span>,
-    <span class="ident">Token::I16</span>,
-    <span class="ident">Token::I32</span>,
-    <span class="ident">Token::I64</span>,
-    <span class="ident">Token::I128</span>,
-    <span class="ident">Token::U8</span>,
-    <span class="ident">Token::U16</span>,
-    <span class="ident">Token::U32</span>,
-    <span class="ident">Token::U64</span>,
-    <span class="ident">Token::U128</span>,
-    <span class="ident">Token::Field</span>,
-    <span class="ident">Token::Group</span>,
-    <span class="ident">Token::Scalar</span>,
+<span class="kw">const </span>INT_TYPES: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
+    Token::I8,
+    Token::I16,
+    Token::I32,
+    Token::I64,
+    Token::I128,
+    Token::U8,
+    Token::U16,
+    Token::U32,
+    Token::U64,
+    Token::U128,
+    Token::Field,
+    Token::Group,
+    Token::Scalar,
 ];
 
-<span class="kw">impl</span> <span class="ident">ParserContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is an expression.</span>
-    <span class="doccomment">/// Includes struct init expressions.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// Store current parser state.</span>
-        <span class="kw">let</span> <span class="ident">prior_fuzzy_state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">disallow_struct_construction</span>;
+<span class="kw">impl </span>ParserContext&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is an expression.
+    /// Includes struct init expressions.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// Store current parser state.
+        </span><span class="kw">let </span>prior_fuzzy_state = <span class="self">self</span>.disallow_struct_construction;
 
-        <span class="comment">// Allow struct init expressions.</span>
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Allow struct init expressions.
+        </span><span class="self">self</span>.disallow_struct_construction = <span class="bool-val">false</span>;
 
-        <span class="comment">// Parse expression.</span>
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_conditional_expression</span>();
+        <span class="comment">// Parse expression.
+        </span><span class="kw">let </span>result = <span class="self">self</span>.parse_conditional_expression();
 
-        <span class="comment">// Restore prior parser state.</span>
-        <span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">=</span> <span class="ident">prior_fuzzy_state</span>;
+        <span class="comment">// Restore prior parser state.
+        </span><span class="self">self</span>.disallow_struct_construction = prior_fuzzy_state;
 
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent</span>
-    <span class="doccomment">/// a ternary expression. May or may not include struct init expressions.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_conditional_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// Try to parse the next expression. Try BinaryOperation::Or.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_boolean_or_expression</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent
+    /// a ternary expression. May or may not include struct init expressions.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_boolean_or_expression`].
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_conditional_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// Try to parse the next expression. Try BinaryOperation::Or.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_boolean_or_expression()<span class="question-mark">?</span>;
 
-        <span class="comment">// Parse the rest of the ternary expression.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Question</span>) {
-            <span class="kw">let</span> <span class="ident">if_true</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Colon</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">if_false</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>;
-            <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">if_false</span>.<span class="ident">span</span>(),
-                <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
-                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
+        <span class="comment">// Parse the rest of the ternary expression.
+        </span><span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Question) {
+            <span class="kw">let </span>if_true = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+            <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
+            <span class="kw">let </span>if_false = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+            expr = Expression::Ternary(TernaryExpression {
+                span: expr.span() + if_false.span(),
+                condition: Box::new(expr),
+                if_true: Box::new(if_true),
+                if_false: Box::new(if_false),
             });
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Constructs a binary expression `left op right`.</span>
-    <span class="kw">fn</span> <span class="ident">bin_expr</span>(<span class="ident">left</span>: <span class="ident">Expression</span>, <span class="ident">right</span>: <span class="ident">Expression</span>, <span class="ident">op</span>: <span class="ident">BinaryOperation</span>) -&gt; <span class="ident">Expression</span> {
-        <span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-            <span class="ident">span</span>: <span class="ident">left</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">right</span>.<span class="ident">span</span>(),
-            <span class="ident">op</span>,
-            <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">left</span>),
-            <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">right</span>),
+    <span class="doccomment">/// Constructs a binary expression `left op right`.
+    </span><span class="kw">fn </span>bin_expr(left: Expression, right: Expression, op: BinaryOperation) -&gt; Expression {
+        Expression::Binary(BinaryExpression {
+            span: left.span() + right.span(),
+            op,
+            left: Box::new(left),
+            right: Box::new(right),
         })
     }
 
-    <span class="doccomment">/// Parses a left-associative binary expression `&lt;left&gt; token &lt;right&gt;` using `f` for left/right.</span>
-    <span class="doccomment">/// The `token` is translated to `op` in the AST.</span>
-    <span class="kw">fn</span> <span class="ident">parse_bin_expr</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">tokens</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>],
-        <span class="kw-2">mut</span> <span class="ident">f</span>: <span class="kw">impl</span> <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">f</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="ident">tokens</span>) {
-            <span class="ident">expr</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::bin_expr</span>(<span class="ident">expr</span>, <span class="ident">f</span>(<span class="self">self</span>)<span class="question-mark">?</span>, <span class="ident">op</span>);
+    <span class="doccomment">/// Parses a left-associative binary expression `&lt;left&gt; token &lt;right&gt;` using `f` for left/right.
+    /// The `token` is translated to `op` in the AST.
+    </span><span class="kw">fn </span>parse_bin_expr(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        tokens: <span class="kw-2">&amp;</span>[Token],
+        <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>expr = f(<span class="self">self</span>)<span class="question-mark">?</span>;
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_bin_op(tokens) {
+            expr = <span class="self">Self</span>::bin_expr(expr, f(<span class="self">self</span>)<span class="question-mark">?</span>, op);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent</span>
-    <span class="doccomment">/// a binary OR expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_boolean_and_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_boolean_or_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Or</span>], <span class="ident"><span class="self">Self</span>::parse_boolean_and_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent
+    /// a binary OR expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_boolean_and_expression`].
+    </span><span class="kw">fn </span>parse_boolean_or_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::Or], <span class="self">Self</span>::parse_boolean_and_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary AND expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_equality_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_boolean_and_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::And</span>], <span class="ident"><span class="self">Self</span>::parse_equality_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary AND expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
+    </span><span class="kw">fn </span>parse_boolean_and_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::And], <span class="self">Self</span>::parse_equality_expression)
     }
 
-    <span class="doccomment">/// Eats one of binary operators matching any in `tokens`.</span>
-    <span class="kw">fn</span> <span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">tokens</span>: <span class="kw-2">&amp;</span>[<span class="ident">Token</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BinaryOperation</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">tokens</span>).<span class="ident">then</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
-            <span class="ident">Token::Eq</span> =&gt; <span class="ident">BinaryOperation::Eq</span>,
-            <span class="ident">Token::NotEq</span> =&gt; <span class="ident">BinaryOperation::Neq</span>,
-            <span class="ident">Token::Lt</span> =&gt; <span class="ident">BinaryOperation::Lt</span>,
-            <span class="ident">Token::LtEq</span> =&gt; <span class="ident">BinaryOperation::Lte</span>,
-            <span class="ident">Token::Gt</span> =&gt; <span class="ident">BinaryOperation::Gt</span>,
-            <span class="ident">Token::GtEq</span> =&gt; <span class="ident">BinaryOperation::Gte</span>,
-            <span class="ident">Token::Add</span> =&gt; <span class="ident">BinaryOperation::Add</span>,
-            <span class="ident">Token::Sub</span> =&gt; <span class="ident">BinaryOperation::Sub</span>,
-            <span class="ident">Token::Mul</span> =&gt; <span class="ident">BinaryOperation::Mul</span>,
-            <span class="ident">Token::Div</span> =&gt; <span class="ident">BinaryOperation::Div</span>,
-            <span class="ident">Token::Rem</span> =&gt; <span class="ident">BinaryOperation::Rem</span>,
-            <span class="ident">Token::Or</span> =&gt; <span class="ident">BinaryOperation::Or</span>,
-            <span class="ident">Token::And</span> =&gt; <span class="ident">BinaryOperation::And</span>,
-            <span class="ident">Token::BitOr</span> =&gt; <span class="ident">BinaryOperation::BitwiseOr</span>,
-            <span class="ident">Token::BitAnd</span> =&gt; <span class="ident">BinaryOperation::BitwiseAnd</span>,
-            <span class="ident">Token::Pow</span> =&gt; <span class="ident">BinaryOperation::Pow</span>,
-            <span class="ident">Token::Shl</span> =&gt; <span class="ident">BinaryOperation::Shl</span>,
-            <span class="ident">Token::Shr</span> =&gt; <span class="ident">BinaryOperation::Shr</span>,
-            <span class="ident">Token::BitXor</span> =&gt; <span class="ident">BinaryOperation::Xor</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`eat_bin_op` shouldn&#39;t produce this&quot;</span>),
+    <span class="doccomment">/// Eats one of binary operators matching any in `tokens`.
+    </span><span class="kw">fn </span>eat_bin_op(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tokens: <span class="kw-2">&amp;</span>[Token]) -&gt; <span class="prelude-ty">Option</span>&lt;BinaryOperation&gt; {
+        <span class="self">self</span>.eat_any(tokens).then(|| <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
+            Token::Eq =&gt; BinaryOperation::Eq,
+            Token::NotEq =&gt; BinaryOperation::Neq,
+            Token::Lt =&gt; BinaryOperation::Lt,
+            Token::LtEq =&gt; BinaryOperation::Lte,
+            Token::Gt =&gt; BinaryOperation::Gt,
+            Token::GtEq =&gt; BinaryOperation::Gte,
+            Token::Add =&gt; BinaryOperation::Add,
+            Token::Sub =&gt; BinaryOperation::Sub,
+            Token::Mul =&gt; BinaryOperation::Mul,
+            Token::Div =&gt; BinaryOperation::Div,
+            Token::Rem =&gt; BinaryOperation::Rem,
+            Token::Or =&gt; BinaryOperation::Or,
+            Token::And =&gt; BinaryOperation::And,
+            Token::BitOr =&gt; BinaryOperation::BitwiseOr,
+            Token::BitAnd =&gt; BinaryOperation::BitwiseAnd,
+            Token::Pow =&gt; BinaryOperation::Pow,
+            Token::Shl =&gt; BinaryOperation::Shl,
+            Token::Shr =&gt; BinaryOperation::Shr,
+            Token::BitXor =&gt; BinaryOperation::Xor,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`eat_bin_op` shouldn&#39;t produce this&quot;</span>),
         })
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary relational expression: less than, less than or equals, greater than, greater than or equals.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_additive_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_ordering_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_bitwise_exclusive_or_expression</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Lt</span>, <span class="ident">Token::LtEq</span>, <span class="ident">Token::Gt</span>, <span class="ident">Token::GtEq</span>]) {
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_bitwise_exclusive_or_expression</span>()<span class="question-mark">?</span>;
-            <span class="ident">expr</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::bin_expr</span>(<span class="ident">expr</span>, <span class="ident">right</span>, <span class="ident">op</span>);
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
+    </span><span class="kw">fn </span>parse_ordering_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_bitwise_exclusive_or_expression()<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_bin_op(<span class="kw-2">&amp;</span>[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq]) {
+            <span class="kw">let </span>right = <span class="self">self</span>.parse_bitwise_exclusive_or_expression()<span class="question-mark">?</span>;
+            expr = <span class="self">Self</span>::bin_expr(expr, right, op);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary equals or not equals expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_ordering_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_equality_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ordering_expression</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Eq</span>, <span class="ident">Token::NotEq</span>]) {
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_ordering_expression</span>()<span class="question-mark">?</span>;
-            <span class="ident">expr</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::bin_expr</span>(<span class="ident">expr</span>, <span class="ident">right</span>, <span class="ident">op</span>);
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary equals or not equals expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_ordering_expression`].
+    </span><span class="kw">fn </span>parse_equality_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_ordering_expression()<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_bin_op(<span class="kw-2">&amp;</span>[Token::Eq, Token::NotEq]) {
+            <span class="kw">let </span>right = <span class="self">self</span>.parse_ordering_expression()<span class="question-mark">?</span>;
+            expr = <span class="self">Self</span>::bin_expr(expr, right, op);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// bitwise exclusive or expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_bitwise_exclusive_or_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitXor</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_inclusive_or_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// bitwise exclusive or expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_bitwise_inclusive_or_expression`].
+    </span><span class="kw">fn </span>parse_bitwise_exclusive_or_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::BitXor], <span class="self">Self</span>::parse_bitwise_inclusive_or_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// bitwise inclusive or expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_bitwise_inclusive_or_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitOr</span>], <span class="ident"><span class="self">Self</span>::parse_bitwise_and_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// bitwise inclusive or expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_bitwise_and_expression`].
+    </span><span class="kw">fn </span>parse_bitwise_inclusive_or_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::BitOr], <span class="self">Self</span>::parse_bitwise_and_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// bitwise and expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_shift_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_bitwise_and_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::BitAnd</span>], <span class="ident"><span class="self">Self</span>::parse_shift_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// bitwise and expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
+    </span><span class="kw">fn </span>parse_bitwise_and_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::BitAnd], <span class="self">Self</span>::parse_shift_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// shift left or a shift right expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_additive_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_shift_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Shl</span>, <span class="ident">Token::Shr</span>], <span class="ident"><span class="self">Self</span>::parse_additive_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// shift left or a shift right expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
+    </span><span class="kw">fn </span>parse_shift_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::Shl, Token::Shr], <span class="self">Self</span>::parse_additive_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary addition or subtraction expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_additive_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Add</span>, <span class="ident">Token::Sub</span>], <span class="ident"><span class="self">Self</span>::parse_multiplicative_expression</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary addition or subtraction expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
+    </span><span class="kw">fn </span>parse_additive_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::Add, Token::Sub], <span class="self">Self</span>::parse_multiplicative_expression)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary multiplication, division, or a remainder expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_exponential_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_multiplicative_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_bin_expr</span>(
-            <span class="kw-2">&amp;</span>[<span class="ident">Token::Mul</span>, <span class="ident">Token::Div</span>, <span class="ident">Token::Rem</span>],
-            <span class="ident"><span class="self">Self</span>::parse_exponential_expression</span>,
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary multiplication, division, or a remainder expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
+    </span><span class="kw">fn </span>parse_multiplicative_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="self">self</span>.parse_bin_expr(
+            <span class="kw-2">&amp;</span>[Token::Mul, Token::Div, Token::Rem],
+            <span class="self">Self</span>::parse_exponential_expression,
         )
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// binary exponentiation expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_unary_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_exponential_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_unary_expression</span>()<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// binary exponentiation expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
+    </span><span class="kw">fn </span>parse_exponential_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_unary_expression()<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">op</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_bin_op</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Pow</span>]) {
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_exponential_expression</span>()<span class="question-mark">?</span>;
-            <span class="ident">expr</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::bin_expr</span>(<span class="ident">expr</span>, <span class="ident">right</span>, <span class="ident">op</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_bin_op(<span class="kw-2">&amp;</span>[Token::Pow]) {
+            <span class="kw">let </span>right = <span class="self">self</span>.parse_exponential_expression()<span class="question-mark">?</span>;
+            expr = <span class="self">Self</span>::bin_expr(expr, right, op);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// unary not, negate, or bitwise not expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_postfix_expression`].</span>
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn</span> <span class="ident">parse_unary_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ops</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="kw-2">&amp;</span>[<span class="ident">Token::Not</span>, <span class="ident">Token::Sub</span>]) {
-            <span class="kw">let</span> <span class="ident">operation</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Not</span> =&gt; <span class="ident">UnaryOperation::Not</span>,
-                <span class="ident">Token::Sub</span> =&gt; <span class="ident">UnaryOperation::Negate</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_unary_expression_ shouldn&#39;t produce this&quot;</span>),
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// unary not, negate, or bitwise not expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_unary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>ops = Vec::new();
+        <span class="kw">while </span><span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Not, Token::Sub]) {
+            <span class="kw">let </span>operation = <span class="kw">match </span><span class="self">self</span>.prev_token.token {
+                Token::Not =&gt; UnaryOperation::Not,
+                Token::Sub =&gt; UnaryOperation::Negate,
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_unary_expression_ shouldn&#39;t produce this&quot;</span>),
             };
-            <span class="ident">ops</span>.<span class="ident">push</span>((<span class="ident">operation</span>, <span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">span</span>));
+            ops.push((operation, <span class="self">self</span>.prev_token.span));
         }
 
-        <span class="comment">// This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.</span>
-        <span class="kw">let</span> <span class="ident">inner_is_integer</span> <span class="op">=</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span>, <span class="ident">Token::Integer</span>(..));
+        <span class="comment">// This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.
+        </span><span class="kw">let </span>inner_is_integer = <span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::Integer(..));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_postfix_expression</span>()<span class="question-mark">?</span>;
-        <span class="kw">for</span> (<span class="ident">op</span>, <span class="ident">op_span</span>) <span class="kw">in</span> <span class="ident">ops</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>() {
-            <span class="ident">inner</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">inner</span> {
-                <span class="comment">// If the unary operation is a negate, and the inner expression is a signed integer literal,</span>
-                <span class="comment">// then produce a negative integer literal.</span>
-                <span class="comment">// This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn&#39;t.</span>
-                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Integer</span>(<span class="ident">integer_type</span>, <span class="ident">string</span>, <span class="ident">span</span>))
-                    <span class="kw">if</span> <span class="ident">op</span> <span class="op">==</span> <span class="ident">UnaryOperation::Negate</span> <span class="op">&amp;&amp;</span> <span class="ident">inner_is_integer</span> =&gt;
+        <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.parse_postfix_expression()<span class="question-mark">?</span>;
+        <span class="kw">for </span>(op, op_span) <span class="kw">in </span>ops.into_iter().rev() {
+            inner = <span class="kw">match </span>inner {
+                <span class="comment">// If the unary operation is a negate, and the inner expression is a signed integer literal,
+                // then produce a negative integer literal.
+                // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn&#39;t.
+                </span>Expression::Literal(Literal::Integer(integer_type, string, span))
+                    <span class="kw">if </span>op == UnaryOperation::Negate &amp;&amp; inner_is_integer =&gt;
                 {
-                    <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Integer</span>(<span class="ident">integer_type</span>, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), <span class="ident">op_span</span> <span class="op">+</span> <span class="ident">span</span>))
+                    Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span))
                 }
-                <span class="comment">// Otherwise, produce a unary expression.</span>
-                <span class="kw">_</span> =&gt; <span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                    <span class="ident">span</span>: <span class="ident">op_span</span> <span class="op">+</span> <span class="ident">inner</span>.<span class="ident">span</span>(),
-                    <span class="ident">op</span>,
-                    <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">inner</span>),
+                <span class="comment">// Otherwise, produce a unary expression.
+                </span><span class="kw">_ </span>=&gt; Expression::Unary(UnaryExpression {
+                    span: op_span + inner.span(),
+                    op,
+                    receiver: Box::new(inner),
                 }),
             };
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">inner</span>)
+        <span class="prelude-val">Ok</span>(inner)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// method call expression.</span>
-    <span class="kw">fn</span> <span class="ident">parse_method_call_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">receiver</span>: <span class="ident">Expression</span>, <span class="ident">method</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// Parse the argument list.</span>
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">args</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expr_tuple</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">receiver</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">span</span>;
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// method call expression.
+    </span><span class="kw">fn </span>parse_method_call_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, receiver: Expression, method: Identifier) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// Parse the argument list.
+        </span><span class="kw">let </span>(<span class="kw-2">mut </span>args, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = receiver.span() + span;
 
-        <span class="kw">if</span> <span class="kw">let</span> (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(<span class="ident">op</span>)) <span class="op">=</span> (<span class="ident">args</span>.<span class="ident">is_empty</span>(), <span class="ident">UnaryOperation::from_symbol</span>(<span class="ident">method</span>.<span class="ident">name</span>)) {
-            <span class="comment">// Found an unary operator and the argument list is empty.</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">Expression::Unary</span>(<span class="ident">UnaryExpression</span> {
-                <span class="ident">span</span>,
-                <span class="ident">op</span>,
-                <span class="ident">receiver</span>: <span class="ident">Box::new</span>(<span class="ident">receiver</span>),
+        <span class="kw">if let </span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
+            <span class="comment">// Found an unary operator and the argument list is empty.
+            </span><span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression {
+                span,
+                op,
+                receiver: Box::new(receiver),
             }))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">op</span>)) <span class="op">=</span> (<span class="ident">args</span>.<span class="ident">len</span>(), <span class="ident">BinaryOperation::from_symbol</span>(<span class="ident">method</span>.<span class="ident">name</span>)) {
-            <span class="comment">// Found a binary operator and the argument list contains a single argument.</span>
-            <span class="prelude-val">Ok</span>(<span class="ident">Expression::Binary</span>(<span class="ident">BinaryExpression</span> {
-                <span class="ident">span</span>,
-                <span class="ident">op</span>,
-                <span class="ident">left</span>: <span class="ident">Box::new</span>(<span class="ident">receiver</span>),
-                <span class="ident">right</span>: <span class="ident">Box::new</span>(<span class="ident">args</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>)),
+        } <span class="kw">else if let </span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
+            <span class="comment">// Found a binary operator and the argument list contains a single argument.
+            </span><span class="prelude-val">Ok</span>(Expression::Binary(BinaryExpression {
+                span,
+                op,
+                left: Box::new(receiver),
+                right: Box::new(args.swap_remove(<span class="number">0</span>)),
             }))
-        } <span class="kw">else</span> {
-            <span class="comment">// Either an invalid unary/binary operator, or more arguments given.</span>
-            <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::invalid_method_call</span>(<span class="ident">receiver</span>, <span class="ident">method</span>, <span class="ident">span</span>));
-            <span class="prelude-val">Ok</span>(<span class="ident">Expression::Err</span>(<span class="ident">ErrExpression</span> { <span class="ident">span</span> }))
+        } <span class="kw">else </span>{
+            <span class="comment">// Either an invalid unary/binary operator, or more arguments given.
+            </span><span class="self">self</span>.emit_err(ParserError::invalid_method_call(receiver, method, span));
+            <span class="prelude-val">Ok</span>(Expression::Err(ErrExpression { span }))
         }
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// static access expression.</span>
-    <span class="kw">fn</span> <span class="ident">parse_associated_access_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">module_name</span>: <span class="ident">Expression</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// Parse struct name expression into struct type.</span>
-        <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="ident">module_name</span> {
-            <span class="ident">Type::Identifier</span>(<span class="ident">ident</span>)
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::invalid_associated_access</span>(<span class="kw-2">&amp;</span><span class="ident">module_name</span>, <span class="ident">module_name</span>.<span class="ident">span</span>()).<span class="ident">into</span>());
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// static access expression.
+    </span><span class="kw">fn </span>parse_associated_access_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module_name: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// Parse struct name expression into struct type.
+        </span><span class="kw">let </span>type_ = <span class="kw">if let </span>Expression::Identifier(ident) = module_name {
+            Type::Identifier(ident)
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_associated_access(<span class="kw-2">&amp;</span>module_name, module_name.span()).into());
         };
 
-        <span class="comment">// Parse the struct member name (can be variable or function name).</span>
-        <span class="kw">let</span> <span class="ident">member_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+        <span class="comment">// Parse the struct member name (can be variable or function name).
+        </span><span class="kw">let </span>member_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-        <span class="comment">// Check if there are arguments.</span>
-        <span class="prelude-val">Ok</span>(<span class="ident">Expression::Access</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>) {
-            <span class="comment">// Parse the arguments</span>
-            <span class="kw">let</span> (<span class="ident">args</span>, <span class="kw">_</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expr_tuple</span>()<span class="question-mark">?</span>;
+        <span class="comment">// Check if there are arguments.
+        </span><span class="prelude-val">Ok</span>(Expression::Access(<span class="kw">if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
+            <span class="comment">// Parse the arguments
+            </span><span class="kw">let </span>(args, <span class="kw">_</span>, end) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
 
-            <span class="comment">// Return the struct function.</span>
-            <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">AssociatedFunction</span> {
-                <span class="ident">span</span>: <span class="ident">module_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">end</span>,
-                <span class="ident">ty</span>: <span class="ident">type_</span>,
-                <span class="ident">name</span>: <span class="ident">member_name</span>,
-                <span class="ident">args</span>,
+            <span class="comment">// Return the struct function.
+            </span>AccessExpression::AssociatedFunction(AssociatedFunction {
+                span: module_name.span() + end,
+                ty: type_,
+                name: member_name,
+                args,
             })
-        } <span class="kw">else</span> {
-            <span class="comment">// Return the struct constant.</span>
-            <span class="ident">AccessExpression::AssociatedConstant</span>(<span class="ident">AssociatedConstant</span> {
-                <span class="ident">span</span>: <span class="ident">module_name</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">member_name</span>.<span class="ident">span</span>(),
-                <span class="ident">ty</span>: <span class="ident">type_</span>,
-                <span class="ident">name</span>: <span class="ident">member_name</span>,
+        } <span class="kw">else </span>{
+            <span class="comment">// Return the struct constant.
+            </span>AccessExpression::AssociatedConstant(AssociatedConstant {
+                span: module_name.span() + member_name.span(),
+                ty: type_,
+                name: member_name,
             })
         }))
     }
 
-    <span class="doccomment">/// Parses a tuple of `Expression` AST nodes.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expr_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>, <span class="ident">bool</span>, <span class="ident">Span</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))
+    <span class="doccomment">/// Parses a tuple of `Expression` AST nodes.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_expr_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;Expression&gt;, bool, Span)&gt; {
+        <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an</span>
-    <span class="doccomment">/// array access, struct member access, function call, or static function call expression.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Otherwise, tries to parse the next token using [`parse_primary_expression`].</span>
-    <span class="kw">fn</span> <span class="ident">parse_postfix_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="comment">// We don&#39;t directly parse named-type&#39;s and Identifier&#39;s here as</span>
-        <span class="comment">// the ABNF states. Rather the primary expression already</span>
-        <span class="comment">// handle those. The ABNF is more specific for language reasons.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_primary_expression</span>()<span class="question-mark">?</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Dot</span>) {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">check_int</span>() {
-                    <span class="comment">// Eat a tuple member access.</span>
-                    <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_integer</span>()<span class="question-mark">?</span>;
-                    <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Tuple</span>(<span class="ident">TupleAccess</span> {
-                        <span class="ident">tuple</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                        <span class="ident">index</span>,
-                        <span class="ident">span</span>,
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an
+    /// array access, struct member access, function call, or static function call expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
+    </span><span class="kw">fn </span>parse_postfix_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// We don&#39;t directly parse named-type&#39;s and Identifier&#39;s here as
+        // the ABNF states. Rather the primary expression already
+        // handle those. The ABNF is more specific for language reasons.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_primary_expression()<span class="question-mark">?</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot) {
+                <span class="kw">if </span><span class="self">self</span>.check_int() {
+                    <span class="comment">// Eat a tuple member access.
+                    </span><span class="kw">let </span>(index, span) = <span class="self">self</span>.eat_integer()<span class="question-mark">?</span>;
+                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(expr),
+                        index,
+                        span,
                     }))
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Leo</span>) {
-                    <span class="comment">// Eat an external function call.</span>
-                    <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Div</span>); <span class="comment">// todo: Make `/` a more general token.</span>
+                } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
+                    <span class="comment">// Eat an external function call.
+                    </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
 
-                    <span class="comment">// Parse function name.</span>
-                    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+                    // Parse function name.
+                    </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-                    <span class="comment">// Parse the function call.</span>
-                    <span class="kw">let</span> (<span class="ident">arguments</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-                    <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
-                        <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">span</span>,
-                        <span class="ident">function</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">name</span>)),
-                        <span class="ident">external</span>: <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">expr</span>)),
-                        <span class="ident">arguments</span>,
+                    <span class="comment">// Parse the function call.
+                    </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+                    expr = Expression::Call(CallExpression {
+                        span: expr.span() + span,
+                        function: Box::new(Expression::Identifier(name)),
+                        external: <span class="prelude-val">Some</span>(Box::new(expr)),
+                        arguments,
                     });
-                } <span class="kw">else</span> {
-                    <span class="comment">// Parse identifier name.</span>
-                    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
+                } <span class="kw">else </span>{
+                    <span class="comment">// Parse identifier name.
+                    </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>) {
-                        <span class="comment">// Eat a method call on a type</span>
-                        <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_method_call_expression</span>(<span class="ident">expr</span>, <span class="ident">name</span>)<span class="question-mark">?</span>
-                    } <span class="kw">else</span> {
-                        <span class="comment">// Eat a struct member access.</span>
-                        <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                            <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>(),
-                            <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                            <span class="ident">name</span>,
+                    <span class="kw">if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
+                        <span class="comment">// Eat a method call on a type
+                        </span>expr = <span class="self">self</span>.parse_method_call_expression(expr, name)<span class="question-mark">?
+                    </span>} <span class="kw">else </span>{
+                        <span class="comment">// Eat a struct member access.
+                        </span>expr = Expression::Access(AccessExpression::Member(MemberAccess {
+                            span: expr.span(),
+                            inner: Box::new(expr),
+                            name,
                         }))
                     }
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::DoubleColon</span>) {
-                <span class="comment">// Eat a core struct constant or core struct function call.</span>
-                <span class="ident">expr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_associated_access_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>) {
-                <span class="comment">// Parse a function call that&#39;s by itself.</span>
-                <span class="kw">let</span> (<span class="ident">arguments</span>, <span class="kw">_</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_paren_comma_list</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">parse_expression</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-                <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression::Call</span>(<span class="ident">CallExpression</span> {
-                    <span class="ident">span</span>: <span class="ident">expr</span>.<span class="ident">span</span>() <span class="op">+</span> <span class="ident">span</span>,
-                    <span class="ident">function</span>: <span class="ident">Box::new</span>(<span class="ident">expr</span>),
-                    <span class="ident">external</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">arguments</span>,
+            } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::DoubleColon) {
+                <span class="comment">// Eat a core struct constant or core struct function call.
+                </span>expr = <span class="self">self</span>.parse_associated_access_expression(expr)<span class="question-mark">?</span>;
+            } <span class="kw">else if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
+                <span class="comment">// Parse a function call that&#39;s by itself.
+                </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+                expr = Expression::Call(CallExpression {
+                    span: expr.span() + span,
+                    function: Box::new(expr),
+                    external: <span class="prelude-val">None</span>,
+                    arguments,
                 });
             }
-            <span class="comment">// Check if next token is a dot to see if we are calling recursive method.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Dot</span>) {
+            <span class="comment">// Check if next token is a dot to see if we are calling recursive method.
+            </span><span class="kw">if </span>!<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::Dot) {
                 <span class="kw">break</span>;
             }
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">expr</span>)
+        <span class="prelude-val">Ok</span>(expr)
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// tuple initialization expression or an affine group literal.</span>
-    <span class="kw">fn</span> <span class="ident">parse_tuple_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_group_partial</span>().<span class="ident">transpose</span>()<span class="question-mark">?</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Group</span>(<span class="ident">Box::new</span>(<span class="ident">GroupLiteral::Tuple</span>(<span class="ident">gt</span>)))));
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// tuple initialization expression or an affine group literal.
+    </span><span class="kw">fn </span>parse_tuple_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(gt) = <span class="self">self</span>.eat_group_partial().transpose()<span class="question-mark">? </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
         }
 
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tuple</span>, <span class="ident">trailing</span>, <span class="ident">span</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_expr_tuple</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(<span class="kw-2">mut </span>tuple, trailing, span) = <span class="self">self</span>.parse_expr_tuple()<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">trailing</span> <span class="op">&amp;&amp;</span> <span class="ident">tuple</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">tuple</span>.<span class="ident">swap_remove</span>(<span class="number">0</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> { <span class="ident">elements</span>: <span class="ident">tuple</span>, <span class="ident">span</span> }))
+        <span class="kw">if </span>!trailing &amp;&amp; tuple.len() == <span class="number">1 </span>{
+            <span class="prelude-val">Ok</span>(tuple.swap_remove(<span class="number">0</span>))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements: tuple, span }))
         }
     }
 
-    <span class="doccomment">/// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if</span>
-    <span class="doccomment">/// the next token is not a [`GroupCoordinate`].</span>
-    <span class="kw">fn</span> <span class="ident">peek_group_coordinate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dist</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GroupCoordinate</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">advanced</span>, <span class="ident">gc</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="kw-2">*</span><span class="ident">dist</span>, <span class="op">|</span><span class="ident">t0</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">t0</span>.<span class="ident">token</span> {
-            <span class="ident">Token::Add</span> =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::SignHigh</span>)),
-            <span class="ident">Token::Sub</span> =&gt; <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="kw-2">*</span><span class="ident">dist</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">t1</span><span class="op">|</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">t1</span>.<span class="ident">token</span> {
-                <span class="ident">Token::Integer</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Some</span>((<span class="number">2</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="macro">format!</span>(<span class="string">&quot;-{value}&quot;</span>), <span class="ident">t1</span>.<span class="ident">span</span>))),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::SignLow</span>)),
+    <span class="doccomment">/// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
+    /// the next token is not a [`GroupCoordinate`].
+    </span><span class="kw">fn </span>peek_group_coordinate(<span class="kw-2">&amp;</span><span class="self">self</span>, dist: <span class="kw-2">&amp;mut </span>usize) -&gt; <span class="prelude-ty">Option</span>&lt;GroupCoordinate&gt; {
+        <span class="kw">let </span>(advanced, gc) = <span class="self">self</span>.look_ahead(<span class="kw-2">*</span>dist, |t0| <span class="kw">match </span><span class="kw-2">&amp;</span>t0.token {
+            Token::Add =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, GroupCoordinate::SignHigh)),
+            Token::Sub =&gt; <span class="self">self</span>.look_ahead(<span class="kw-2">*</span>dist + <span class="number">1</span>, |t1| <span class="kw">match </span><span class="kw-2">&amp;</span>t1.token {
+                Token::Integer(value) =&gt; <span class="prelude-val">Some</span>((<span class="number">2</span>, GroupCoordinate::Number(<span class="macro">format!</span>(<span class="string">&quot;-{value}&quot;</span>), t1.span))),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, GroupCoordinate::SignLow)),
             }),
-            <span class="ident">Token::Underscore</span> =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::Inferred</span>)),
-            <span class="ident">Token::Integer</span>(<span class="ident">value</span>) =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="ident">value</span>.<span class="ident">clone</span>(), <span class="ident">t0</span>.<span class="ident">span</span>))),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            Token::Underscore =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, GroupCoordinate::Inferred)),
+            Token::Integer(value) =&gt; <span class="prelude-val">Some</span>((<span class="number">1</span>, GroupCoordinate::Number(value.clone(), t0.span))),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         })<span class="question-mark">?</span>;
-        <span class="kw-2">*</span><span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">advanced</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">gc</span>)
+        <span class="kw-2">*</span>dist += advanced;
+        <span class="prelude-val">Some</span>(gc)
     }
 
-    <span class="doccomment">/// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,</span>
-    <span class="doccomment">/// or [None] if the next token is not a [`GroupCoordinate`].</span>
-    <span class="kw">fn</span> <span class="ident">eat_group_partial</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GroupTuple</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftParen</span>)); <span class="comment">// `(`.</span>
+    <span class="doccomment">/// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
+    /// or [None] if the next token is not a [`GroupCoordinate`].
+    </span><span class="kw">fn </span>eat_group_partial(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;GroupTuple&gt;&gt; {
+        <span class="macro">assert!</span>(<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen)); <span class="comment">// `(`.
 
-        <span class="comment">// Peek at first gc.</span>
-        <span class="kw">let</span> <span class="ident">start_span</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="number">1</span>; <span class="comment">// 0th is `(` so 1st is first gc&#39;s start.</span>
-        <span class="kw">let</span> <span class="ident">first_gc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peek_group_coordinate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dist</span>)<span class="question-mark">?</span>;
+        // Peek at first gc.
+        </span><span class="kw">let </span>start_span = <span class="kw-2">&amp;</span><span class="self">self</span>.token.span;
+        <span class="kw">let </span><span class="kw-2">mut </span>dist = <span class="number">1</span>; <span class="comment">// 0th is `(` so 1st is first gc&#39;s start.
+        </span><span class="kw">let </span>first_gc = <span class="self">self</span>.peek_group_coordinate(<span class="kw-2">&amp;mut </span>dist)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">check_ahead</span> <span class="op">=</span> <span class="op">|</span><span class="ident">d</span>, <span class="ident">token</span>: <span class="kw-2">&amp;</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">look_ahead</span>(<span class="ident">d</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">token</span> <span class="op">==</span> <span class="ident">token</span>).<span class="ident">then_some</span>(<span class="ident">t</span>.<span class="ident">span</span>));
+        <span class="kw">let </span>check_ahead = |d, token: <span class="kw-2">&amp;</span><span class="kw">_</span>| <span class="self">self</span>.look_ahead(d, |t| (<span class="kw-2">&amp;</span>t.token == token).then_some(t.span));
 
-        <span class="comment">// Peek at `,`.</span>
-        <span class="ident">check_ahead</span>(<span class="ident">dist</span>, <span class="kw-2">&amp;</span><span class="ident">Token::Comma</span>)<span class="question-mark">?</span>;
-        <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>; <span class="comment">// Standing at `,` so advance one for next gc&#39;s start.</span>
+        <span class="comment">// Peek at `,`.
+        </span>check_ahead(dist, <span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+        dist += <span class="number">1</span>; <span class="comment">// Standing at `,` so advance one for next gc&#39;s start.
 
-        <span class="comment">// Peek at second gc.</span>
-        <span class="kw">let</span> <span class="ident">second_gc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peek_group_coordinate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">dist</span>)<span class="question-mark">?</span>;
+        // Peek at second gc.
+        </span><span class="kw">let </span>second_gc = <span class="self">self</span>.peek_group_coordinate(<span class="kw-2">&amp;mut </span>dist)<span class="question-mark">?</span>;
 
-        <span class="comment">// Peek at `)`.</span>
-        <span class="kw">let</span> <span class="ident">right_paren_span</span> <span class="op">=</span> <span class="ident">check_ahead</span>(<span class="ident">dist</span>, <span class="kw-2">&amp;</span><span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-        <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.</span>
+        <span class="comment">// Peek at `)`.
+        </span><span class="kw">let </span>right_paren_span = check_ahead(dist, <span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+        dist += <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.
 
-        <span class="comment">// Peek at `group`.</span>
-        <span class="kw">let</span> <span class="ident">end_span</span> <span class="op">=</span> <span class="ident">check_ahead</span>(<span class="ident">dist</span>, <span class="kw-2">&amp;</span><span class="ident">Token::Group</span>)<span class="question-mark">?</span>;
-        <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.</span>
+        // Peek at `group`.
+        </span><span class="kw">let </span>end_span = check_ahead(dist, <span class="kw-2">&amp;</span>Token::Group)<span class="question-mark">?</span>;
+        dist += <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.
 
-        <span class="kw">let</span> <span class="ident">gt</span> <span class="op">=</span> <span class="ident">GroupTuple</span> {
-            <span class="ident">span</span>: <span class="ident">start_span</span> <span class="op">+</span> <span class="kw-2">&amp;</span><span class="ident">end_span</span>,
-            <span class="ident">x</span>: <span class="ident">first_gc</span>,
-            <span class="ident">y</span>: <span class="ident">second_gc</span>,
+        </span><span class="kw">let </span>gt = GroupTuple {
+            span: start_span + <span class="kw-2">&amp;</span>end_span,
+            x: first_gc,
+            y: second_gc,
         };
 
-        <span class="comment">// Eat everything so that this isn&#39;t just peeking.</span>
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">dist</span> {
-            <span class="self">self</span>.<span class="ident">bump</span>();
+        <span class="comment">// Eat everything so that this isn&#39;t just peeking.
+        </span><span class="kw">for _ in </span><span class="number">0</span>..dist {
+            <span class="self">self</span>.bump();
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">assert_no_whitespace</span>(<span class="ident">right_paren_span</span>, <span class="ident">end_span</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;({},{})&quot;</span>, <span class="ident">gt</span>.<span class="ident">x</span>, <span class="ident">gt</span>.<span class="ident">y</span>), <span class="string">&quot;group&quot;</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>));
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = assert_no_whitespace(right_paren_span, end_span, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;({},{})&quot;</span>, gt.x, gt.y), <span class="string">&quot;group&quot;</span>) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e));
         }
 
-        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">gt</span>))
+        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(gt))
     }
 
-    <span class="kw">fn</span> <span class="ident">parse_struct_member</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">StructVariableInitializer</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">allow_identifier_underscores</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Underscore</span>) {
-            <span class="comment">// Allow `_nonce` for struct records.</span>
-            <span class="kw">let</span> <span class="ident">identifier_without_underscore</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>;
-            <span class="ident">Identifier::new</span>(<span class="ident">Symbol::intern</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, <span class="ident">identifier_without_underscore</span>.<span class="ident">name</span>)))
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">expect_identifier</span>()<span class="question-mark">?</span>
-        };
+    <span class="kw">fn </span>parse_struct_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;StructVariableInitializer&gt; {
+        <span class="kw">let </span>identifier = <span class="kw">if </span><span class="self">self</span>.allow_identifier_underscores &amp;&amp; <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Underscore) {
+            <span class="comment">// Allow `_nonce` for struct records.
+            </span><span class="kw">let </span>identifier_without_underscore = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+            Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, identifier_without_underscore.name)))
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.expect_identifier()<span class="question-mark">?
+        </span>};
 
-        <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="kw-2">&amp;</span><span class="ident">Token::Colon</span>) {
-            <span class="comment">// Parse individual struct variable declarations.</span>
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">parse_expression</span>()<span class="question-mark">?</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
+        <span class="kw">let </span>expression = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Colon) {
+            <span class="comment">// Parse individual struct variable declarations.
+            </span><span class="prelude-val">Some</span>(<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
 
-        <span class="prelude-val">Ok</span>(<span class="ident">StructVariableInitializer</span> { <span class="ident">identifier</span>, <span class="ident">expression</span> })
+        <span class="prelude-val">Ok</span>(StructVariableInitializer { identifier, expression })
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a</span>
-    <span class="doccomment">/// struct initialization expression.</span>
-    <span class="doccomment">/// let foo = Foo { x: 1u8 };</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_struct_init_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">identifier</span>: <span class="ident">Identifier</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">members</span>, <span class="kw">_</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_list</span>(<span class="ident">Delimiter::Brace</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Comma</span>), <span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
-            <span class="ident">p</span>.<span class="ident">parse_struct_member</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>)
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// struct initialization expression.
+    /// let foo = Foo { x: 1u8 };
+    </span><span class="kw">pub fn </span>parse_struct_init_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span>(members, <span class="kw">_</span>, end) = <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">Some</span>(Token::Comma), |p| {
+            p.parse_struct_member().map(<span class="prelude-val">Some</span>)
         })<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Expression::Struct</span>(<span class="ident">StructExpression</span> {
-            <span class="ident">span</span>: <span class="ident">identifier</span>.<span class="ident">span</span> <span class="op">+</span> <span class="ident">end</span>,
-            <span class="ident">name</span>: <span class="ident">identifier</span>,
-            <span class="ident">members</span>,
+        <span class="prelude-val">Ok</span>(Expression::Struct(StructExpression {
+            span: identifier.span + end,
+            name: identifier,
+            members,
         }))
     }
 
-    <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is a primary expression:</span>
-    <span class="doccomment">/// - Literals: field, group, unsigned integer, signed integer, boolean, address</span>
-    <span class="doccomment">/// - Aggregate types: array, tuple</span>
-    <span class="doccomment">/// - Identifiers: variables, keywords</span>
-    <span class="doccomment">/// - self</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Returns an expression error if the token cannot be matched.</span>
-    <span class="kw">fn</span> <span class="ident">parse_primary_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Token::LeftParen</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">token</span> {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">parse_tuple_expression</span>();
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is a primary expression:
+    /// - Literals: field, group, unsigned integer, signed integer, boolean, address
+    /// - Aggregate types: array, tuple
+    /// - Identifiers: variables, keywords
+    /// - self
+    ///
+    /// Returns an expression error if the token cannot be matched.
+    </span><span class="kw">fn </span>parse_primary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">if let </span>Token::LeftParen = <span class="self">self</span>.token.token {
+            <span class="kw">return </span><span class="self">self</span>.parse_tuple_expression();
         }
 
-        <span class="kw">let</span> <span class="ident">SpannedToken</span> { <span class="ident">token</span>, <span class="ident">span</span> } <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">clone</span>();
-        <span class="self">self</span>.<span class="ident">bump</span>();
+        <span class="kw">let </span>SpannedToken { token, span } = <span class="self">self</span>.token.clone();
+        <span class="self">self</span>.bump();
 
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">token</span> {
-            <span class="ident">Token::Integer</span>(<span class="ident">value</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">suffix_span</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">token</span>.<span class="ident">span</span>;
-                <span class="kw">let</span> <span class="ident">full_span</span> <span class="op">=</span> <span class="ident">span</span> <span class="op">+</span> <span class="ident">suffix_span</span>;
-                <span class="kw">let</span> <span class="ident">assert_no_whitespace</span> <span class="op">=</span> <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">assert_no_whitespace</span>(<span class="ident">span</span>, <span class="ident">suffix_span</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>, <span class="ident">x</span>);
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">eat_any</span>(<span class="ident">INT_TYPES</span>).<span class="ident">then_some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prev_token</span>.<span class="ident">token</span>) {
-                    <span class="comment">// Literal followed by `field`, e.g., `42field`.</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">Token::Field</span>) =&gt; {
-                        <span class="ident">assert_no_whitespace</span>(<span class="string">&quot;field&quot;</span>)<span class="question-mark">?</span>;
-                        <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Field</span>(<span class="ident">value</span>, <span class="ident">full_span</span>))
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span>token {
+            Token::Integer(value) =&gt; {
+                <span class="kw">let </span>suffix_span = <span class="self">self</span>.token.span;
+                <span class="kw">let </span>full_span = span + suffix_span;
+                <span class="kw">let </span>assert_no_whitespace = |x| assert_no_whitespace(span, suffix_span, <span class="kw-2">&amp;</span>value, x);
+                <span class="kw">match </span><span class="self">self</span>.eat_any(INT_TYPES).then_some(<span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token) {
+                    <span class="comment">// Literal followed by `field`, e.g., `42field`.
+                    </span><span class="prelude-val">Some</span>(Token::Field) =&gt; {
+                        assert_no_whitespace(<span class="string">&quot;field&quot;</span>)<span class="question-mark">?</span>;
+                        Expression::Literal(Literal::Field(value, full_span))
                     }
-                    <span class="comment">// Literal followed by `group`, e.g., `42group`.</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">Token::Group</span>) =&gt; {
-                        <span class="ident">assert_no_whitespace</span>(<span class="string">&quot;group&quot;</span>)<span class="question-mark">?</span>;
-                        <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Group</span>(<span class="ident">Box::new</span>(<span class="ident">GroupLiteral::Single</span>(<span class="ident">value</span>, <span class="ident">full_span</span>))))
+                    <span class="comment">// Literal followed by `group`, e.g., `42group`.
+                    </span><span class="prelude-val">Some</span>(Token::Group) =&gt; {
+                        assert_no_whitespace(<span class="string">&quot;group&quot;</span>)<span class="question-mark">?</span>;
+                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(value, full_span))))
                     }
-                    <span class="comment">// Literal followed by `scalar` e.g., `42scalar`.</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">Token::Scalar</span>) =&gt; {
-                        <span class="ident">assert_no_whitespace</span>(<span class="string">&quot;scalar&quot;</span>)<span class="question-mark">?</span>;
-                        <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Scalar</span>(<span class="ident">value</span>, <span class="ident">full_span</span>))
+                    <span class="comment">// Literal followed by `scalar` e.g., `42scalar`.
+                    </span><span class="prelude-val">Some</span>(Token::Scalar) =&gt; {
+                        assert_no_whitespace(<span class="string">&quot;scalar&quot;</span>)<span class="question-mark">?</span>;
+                        Expression::Literal(Literal::Scalar(value, full_span))
                     }
-                    <span class="comment">// Literal followed by other type suffix, e.g., `42u8`.</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">suffix</span>) =&gt; {
-                        <span class="ident">assert_no_whitespace</span>(<span class="kw-2">&amp;</span><span class="ident">suffix</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
-                        <span class="kw">let</span> <span class="ident">int_ty</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::token_to_int_type</span>(<span class="ident">suffix</span>).<span class="ident">expect</span>(<span class="string">&quot;unknown int type token&quot;</span>);
-                        <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Integer</span>(<span class="ident">int_ty</span>, <span class="ident">value</span>, <span class="ident">full_span</span>))
+                    <span class="comment">// Literal followed by other type suffix, e.g., `42u8`.
+                    </span><span class="prelude-val">Some</span>(suffix) =&gt; {
+                        assert_no_whitespace(<span class="kw-2">&amp;</span>suffix.to_string())<span class="question-mark">?</span>;
+                        <span class="kw">let </span>int_ty = <span class="self">Self</span>::token_to_int_type(suffix).expect(<span class="string">&quot;unknown int type token&quot;</span>);
+                        Expression::Literal(Literal::Integer(int_ty, value, full_span))
                     }
-                    <span class="prelude-val">None</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::implicit_values_not_allowed</span>(<span class="ident">value</span>, <span class="ident">span</span>).<span class="ident">into</span>()),
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            <span class="ident">Token::True</span> =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Boolean</span>(<span class="bool-val">true</span>, <span class="ident">span</span>)),
-            <span class="ident">Token::False</span> =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Boolean</span>(<span class="bool-val">false</span>, <span class="ident">span</span>)),
-            <span class="ident">Token::AddressLit</span>(<span class="ident">address_string</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">address_string</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Address</span><span class="op">&lt;</span><span class="ident">Testnet3</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
-                    <span class="self">self</span>.<span class="ident">emit_err</span>(<span class="ident">ParserError::invalid_address_lit</span>(<span class="kw-2">&amp;</span><span class="ident">address_string</span>, <span class="ident">span</span>));
+            Token::True =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">true</span>, span)),
+            Token::False =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">false</span>, span)),
+            Token::AddressLit(address_string) =&gt; {
+                <span class="kw">if </span>address_string.parse::&lt;Address&lt;Testnet3&gt;&gt;().is_err() {
+                    <span class="self">self</span>.emit_err(ParserError::invalid_address_lit(<span class="kw-2">&amp;</span>address_string, span));
                 }
-                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Address</span>(<span class="ident">address_string</span>, <span class="ident">span</span>))
+                Expression::Literal(Literal::Address(address_string, span))
             }
-            <span class="ident">Token::StaticString</span>(<span class="ident">value</span>) =&gt; <span class="ident">Expression::Literal</span>(<span class="ident">Literal::String</span>(<span class="ident">value</span>, <span class="ident">span</span>)),
-            <span class="ident">Token::Identifier</span>(<span class="ident">name</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="ident">Identifier</span> { <span class="ident">name</span>, <span class="ident">span</span> };
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">disallow_struct_construction</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">check</span>(<span class="kw-2">&amp;</span><span class="ident">Token::LeftCurly</span>) {
-                    <span class="comment">// Parse struct and records inits as struct expressions.</span>
-                    <span class="comment">// Enforce struct or record type later at type checking.</span>
-                    <span class="self">self</span>.<span class="ident">parse_struct_init_expression</span>(<span class="ident">ident</span>)<span class="question-mark">?</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Expression::Identifier</span>(<span class="ident">ident</span>)
+            Token::StaticString(value) =&gt; Expression::Literal(Literal::String(value, span)),
+            Token::Identifier(name) =&gt; {
+                <span class="kw">let </span>ident = Identifier { name, span };
+                <span class="kw">if </span>!<span class="self">self</span>.disallow_struct_construction &amp;&amp; <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftCurly) {
+                    <span class="comment">// Parse struct and records inits as struct expressions.
+                    // Enforce struct or record type later at type checking.
+                    </span><span class="self">self</span>.parse_struct_init_expression(ident)<span class="question-mark">?
+                </span>} <span class="kw">else </span>{
+                    Expression::Identifier(ident)
                 }
             }
-            <span class="ident">Token::SelfLower</span> =&gt; <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                <span class="ident">name</span>: <span class="ident">sym::SelfLower</span>,
-                <span class="ident">span</span>,
+            Token::SelfLower =&gt; Expression::Identifier(Identifier {
+                name: sym::SelfLower,
+                span,
             }),
-            <span class="ident">t</span> <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::type_::TYPE_TOKENS</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>) =&gt; <span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                <span class="ident">name</span>: <span class="ident">t</span>.<span class="ident">keyword_to_symbol</span>().<span class="ident">unwrap</span>(),
-                <span class="ident">span</span>,
+            t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; Expression::Identifier(Identifier {
+                name: t.keyword_to_symbol().unwrap(),
+                span,
             }),
-            <span class="ident">token</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected_str</span>(<span class="ident">token</span>, <span class="string">&quot;expression&quot;</span>, <span class="ident">span</span>).<span class="ident">into</span>());
+            token =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_str(token, <span class="string">&quot;expression&quot;</span>, span).into());
             }
         })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">assert_no_whitespace</span>(<span class="ident">left_span</span>: <span class="ident">Span</span>, <span class="ident">right_span</span>: <span class="ident">Span</span>, <span class="ident">left</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">right</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">left_span</span>.<span class="ident">hi</span> <span class="op">!</span><span class="op">=</span> <span class="ident">right_span</span>.<span class="ident">lo</span> {
-        <span class="kw">let</span> <span class="ident">error_span</span> <span class="op">=</span> <span class="ident">Span::new</span>(<span class="ident">left_span</span>.<span class="ident">hi</span>, <span class="ident">right_span</span>.<span class="ident">lo</span>); <span class="comment">// The span between them.</span>
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ParserError::unexpected_whitespace</span>(<span class="ident">left</span>, <span class="ident">right</span>, <span class="ident">error_span</span>).<span class="ident">into</span>());
+<span class="kw">fn </span>assert_no_whitespace(left_span: Span, right_span: Span, left: <span class="kw-2">&amp;</span>str, right: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">if </span>left_span.hi != right_span.lo {
+        <span class="kw">let </span>error_span = Span::new(left_span.hi, right_span.lo); <span class="comment">// The span between them.
+        </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_whitespace(left, right, error_span).into());
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

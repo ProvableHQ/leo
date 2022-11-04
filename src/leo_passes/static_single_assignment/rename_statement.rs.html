@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/static_single_assignment/rename_statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rename_statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/static_single_assignment/rename_statement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>rename_statement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -297,304 +297,304 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">RenameTable</span>, <span class="ident">StaticSingleAssigner</span>};
+</span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AssignStatement</span>, <span class="ident">Block</span>, <span class="ident">ConditionalStatement</span>, <span class="ident">ConsoleFunction</span>, <span class="ident">ConsoleStatement</span>, <span class="ident">DecrementStatement</span>,
-    <span class="ident">DefinitionStatement</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionConsumer</span>, <span class="ident">FinalizeStatement</span>, <span class="ident">Identifier</span>, <span class="ident">IncrementStatement</span>,
-    <span class="ident">IterationStatement</span>, <span class="ident">ReturnStatement</span>, <span class="ident">Statement</span>, <span class="ident">StatementConsumer</span>, <span class="ident">TernaryExpression</span>,
+<span class="kw">use </span>leo_ast::{
+    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier, IncrementStatement,
+    IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
 };
-<span class="kw">use</span> <span class="ident">leo_span::Symbol</span>;
+<span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use</span> <span class="ident">indexmap::IndexSet</span>;
+<span class="kw">use </span>indexmap::IndexSet;
 
-<span class="kw">impl</span> <span class="ident">StatementConsumer</span> <span class="kw">for</span> <span class="ident">StaticSingleAssigner</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>;
+<span class="kw">impl </span>StatementConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">type </span>Output = Vec&lt;Statement&gt;;
 
-    <span class="doccomment">/// Consume all `AssignStatement`s, renaming as necessary.</span>
-    <span class="kw">fn</span> <span class="ident">consume_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">assign</span>: <span class="ident">AssignStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// First consume the right-hand-side of the assignment.</span>
-        <span class="kw">let</span> (<span class="ident">value</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">value</span>);
+    <span class="doccomment">/// Consume all `AssignStatement`s, renaming as necessary.
+    </span><span class="kw">fn </span>consume_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, assign: AssignStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// First consume the right-hand-side of the assignment.
+        </span><span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(assign.value);
 
-        <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.</span>
-        <span class="comment">// Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.</span>
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">place</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">assign</span>.<span class="ident">place</span>).<span class="number">0</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="ident">identifier</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Type checking guarantees that the left-hand-side of an assignment is an identifier.&quot;</span>),
+        <span class="comment">// Then assign a new unique name to the left-hand-side of the assignment.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        </span><span class="self">self</span>.is_lhs = <span class="bool-val">true</span>;
+        <span class="kw">let </span>place = <span class="kw">match </span><span class="self">self</span>.consume_expression(assign.place).<span class="number">0 </span>{
+            Expression::Identifier(identifier) =&gt; identifier,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Type checking guarantees that the left-hand-side of an assignment is an identifier.&quot;</span>),
         };
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">place</span>, <span class="ident">value</span>));
+        statements.push(<span class="self">self</span>.assigner.simple_assign_statement(place, value));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.</span>
-    <span class="kw">fn</span> <span class="ident">consume_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="ident">block</span>
-            .<span class="ident">statements</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">statement</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">consume_statement</span>(<span class="ident">statement</span>))
-            .<span class="ident">collect</span>()
+    <span class="doccomment">/// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
+    </span><span class="kw">fn </span>consume_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; <span class="self">Self</span>::Output {
+        block
+            .statements
+            .into_iter()
+            .flat_map(|statement| <span class="self">self</span>.consume_statement(statement))
+            .collect()
     }
 
-    <span class="doccomment">/// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.</span>
-    <span class="doccomment">/// For more information on phi functions, see https://en.wikipedia.org/wiki/Static_single_assignment_form.</span>
-    <span class="doccomment">/// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.</span>
-    <span class="doccomment">/// For example,</span>
-    <span class="doccomment">///   - `if x &gt; 0 { x = x + 1 }` becomes `let $cond$0 = x &gt; 0; if $cond$0 { x = x + 1; }`</span>
-    <span class="doccomment">///   - `if true { x = x + 1 }` remains the same.</span>
-    <span class="doccomment">///   - `if b { x = x + 1 }` remains the same.</span>
-    <span class="kw">fn</span> <span class="ident">consume_conditional</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">conditional</span>: <span class="ident">ConditionalStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Simplify the condition and add it into the rename table.</span>
-        <span class="kw">let</span> (<span class="ident">condition</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">conditional</span>.<span class="ident">condition</span>);
+    <span class="doccomment">/// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.
+    /// For more information on phi functions, see https://en.wikipedia.org/wiki/Static_single_assignment_form.
+    /// Furthermore a new `AssignStatement` is introduced for non-trivial expressions in the condition of `ConditionalStatement`s.
+    /// For example,
+    ///   - `if x &gt; 0 { x = x + 1 }` becomes `let $cond$0 = x &gt; 0; if $cond$0 { x = x + 1; }`
+    ///   - `if true { x = x + 1 }` remains the same.
+    ///   - `if b { x = x + 1 }` remains the same.
+    </span><span class="kw">fn </span>consume_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, conditional: ConditionalStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Simplify the condition and add it into the rename table.
+        </span><span class="kw">let </span>(condition, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(conditional.condition);
 
-        <span class="comment">// Instantiate a `RenameTable` for the then-block.</span>
-        <span class="self">self</span>.<span class="ident">push</span>();
+        <span class="comment">// Instantiate a `RenameTable` for the then-block.
+        </span><span class="self">self</span>.push();
 
-        <span class="comment">// Consume the then-block.</span>
-        <span class="kw">let</span> <span class="ident">then</span> <span class="op">=</span> <span class="ident">Block</span> {
-            <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">then</span>.<span class="ident">span</span>,
-            <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">conditional</span>.<span class="ident">then</span>),
+        <span class="comment">// Consume the then-block.
+        </span><span class="kw">let </span>then = Block {
+            span: conditional.then.span,
+            statements: <span class="self">self</span>.consume_block(conditional.then),
         };
 
-        <span class="comment">// Remove the `RenameTable` for the then-block.</span>
-        <span class="kw">let</span> <span class="ident">if_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
+        <span class="comment">// Remove the `RenameTable` for the then-block.
+        </span><span class="kw">let </span>if_table = <span class="self">self</span>.pop();
 
-        <span class="comment">// Instantiate a `RenameTable` for the otherwise-block.</span>
-        <span class="self">self</span>.<span class="ident">push</span>();
+        <span class="comment">// Instantiate a `RenameTable` for the otherwise-block.
+        </span><span class="self">self</span>.push();
 
-        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.</span>
-        <span class="kw">let</span> <span class="ident">otherwise</span> <span class="op">=</span> <span class="ident">conditional</span>.<span class="ident">otherwise</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">otherwise</span><span class="op">|</span> <span class="ident">Box::new</span>(<span class="ident">Statement::Block</span>(<span class="kw">match</span> <span class="kw-2">*</span><span class="ident">otherwise</span> {
-            <span class="ident">Statement::Block</span>(<span class="ident">block</span>) =&gt; <span class="ident">Block</span> {
-                <span class="ident">span</span>: <span class="ident">block</span>.<span class="ident">span</span>,
-                <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_block</span>(<span class="ident">block</span>),
+        <span class="comment">// Consume the otherwise-block and flatten its constituent statements into the current block.
+        </span><span class="kw">let </span>otherwise = conditional.otherwise.map(|otherwise| Box::new(Statement::Block(<span class="kw">match </span><span class="kw-2">*</span>otherwise {
+            Statement::Block(block) =&gt; Block {
+                span: block.span,
+                statements: <span class="self">self</span>.consume_block(block),
             },
-            <span class="ident">Statement::Conditional</span>(<span class="ident">conditional</span>) =&gt; <span class="ident">Block</span> {
-                <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">span</span>,
-                <span class="ident">statements</span>: <span class="self">self</span>.<span class="ident">consume_conditional</span>(<span class="ident">conditional</span>),
+            Statement::Conditional(conditional) =&gt; Block {
+                span: conditional.span,
+                statements: <span class="self">self</span>.consume_conditional(conditional),
             },
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement.&quot;</span>),
         })));
 
-        <span class="comment">// Remove the `RenameTable` for the otherwise-block.</span>
-        <span class="kw">let</span> <span class="ident">else_table</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>();
+        <span class="comment">// Remove the `RenameTable` for the otherwise-block.
+        </span><span class="kw">let </span>else_table = <span class="self">self</span>.pop();
 
-        <span class="comment">// Add reconstructed conditional statement to the list of produced statements.</span>
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Conditional</span>(<span class="ident">ConditionalStatement</span> {
-            <span class="ident">span</span>: <span class="ident">conditional</span>.<span class="ident">span</span>,
-            <span class="ident">condition</span>: <span class="ident">condition</span>.<span class="ident">clone</span>(),
-            <span class="ident">then</span>,
-            <span class="ident">otherwise</span>,
+        <span class="comment">// Add reconstructed conditional statement to the list of produced statements.
+        </span>statements.push(Statement::Conditional(ConditionalStatement {
+            span: conditional.span,
+            condition: condition.clone(),
+            then,
+            otherwise,
         }));
 
-        <span class="comment">// Compute the write set for the variables written in the then-block or otherwise-block.</span>
-        <span class="kw">let</span> <span class="ident">if_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">if_table</span>.<span class="ident">local_names</span>());
-        <span class="kw">let</span> <span class="ident">else_write_set</span>: <span class="ident">IndexSet</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Symbol</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IndexSet::from_iter</span>(<span class="ident">else_table</span>.<span class="ident">local_names</span>());
-        <span class="kw">let</span> <span class="ident">write_set</span> <span class="op">=</span> <span class="ident">if_write_set</span>.<span class="ident">union</span>(<span class="kw-2">&amp;</span><span class="ident">else_write_set</span>);
+        <span class="comment">// Compute the write set for the variables written in the then-block or otherwise-block.
+        </span><span class="kw">let </span>if_write_set: IndexSet&lt;<span class="kw-2">&amp;</span>Symbol&gt; = IndexSet::from_iter(if_table.local_names());
+        <span class="kw">let </span>else_write_set: IndexSet&lt;<span class="kw-2">&amp;</span>Symbol&gt; = IndexSet::from_iter(else_table.local_names());
+        <span class="kw">let </span>write_set = if_write_set.union(<span class="kw-2">&amp;</span>else_write_set);
 
-        <span class="comment">// For each variable in the write set, instantiate and add a phi function to the list of produced statements.</span>
-        <span class="kw">for</span> <span class="ident">symbol</span> <span class="kw">in</span> <span class="ident">write_set</span> {
-            <span class="comment">// Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">lookup</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>).<span class="ident">is_some</span>() {
-                <span class="comment">// Helper to lookup a symbol and create an argument for the phi function.</span>
-                <span class="kw">let</span> <span class="ident">create_phi_argument</span> <span class="op">=</span> <span class="op">|</span><span class="ident">table</span>: <span class="kw-2">&amp;</span><span class="ident">RenameTable</span>, <span class="ident">symbol</span>: <span class="ident">Symbol</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">table</span>
-                        .<span class="ident">lookup</span>(<span class="ident">symbol</span>)
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Symbol {symbol} should exist in the program.&quot;</span>));
-                    <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">Identifier</span> {
-                        <span class="ident">name</span>,
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+        <span class="comment">// For each variable in the write set, instantiate and add a phi function to the list of produced statements.
+        </span><span class="kw">for </span>symbol <span class="kw">in </span>write_set {
+            <span class="comment">// Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
+            </span><span class="kw">if </span><span class="self">self</span>.rename_table.lookup(<span class="kw-2">**</span>symbol).is_some() {
+                <span class="comment">// Helper to lookup a symbol and create an argument for the phi function.
+                </span><span class="kw">let </span>create_phi_argument = |table: <span class="kw-2">&amp;</span>RenameTable, symbol: Symbol| {
+                    <span class="kw">let </span>name = <span class="kw-2">*</span>table
+                        .lookup(symbol)
+                        .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Symbol {symbol} should exist in the program.&quot;</span>));
+                    Box::new(Expression::Identifier(Identifier {
+                        name,
+                        span: Default::default(),
                     }))
                 };
 
-                <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.</span>
-                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">unique_symbol</span>(<span class="ident">symbol</span>);
+                <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.
+                </span><span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(symbol);
 
-                <span class="kw">let</span> (<span class="ident">value</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_ternary</span>(<span class="ident">TernaryExpression</span> {
-                    <span class="ident">condition</span>: <span class="ident">Box::new</span>(<span class="ident">condition</span>.<span class="ident">clone</span>()),
-                    <span class="ident">if_true</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">if_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
-                    <span class="ident">if_false</span>: <span class="ident">create_phi_argument</span>(<span class="kw-2">&amp;</span><span class="ident">else_table</span>, <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">symbol</span>),
-                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.consume_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    if_true: create_phi_argument(<span class="kw-2">&amp;</span>if_table, <span class="kw-2">**</span>symbol),
+                    if_false: create_phi_argument(<span class="kw-2">&amp;</span>else_table, <span class="kw-2">**</span>symbol),
+                    span: Default::default(),
                 });
 
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                statements.extend(stmts);
 
-                <span class="comment">// Create a new `AssignStatement` for the phi function.</span>
-                <span class="kw">let</span> <span class="ident">assignment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(
-                    <span class="ident">Identifier</span> {
-                        <span class="ident">name</span>: <span class="ident">new_name</span>,
-                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                <span class="comment">// Create a new `AssignStatement` for the phi function.
+                </span><span class="kw">let </span>assignment = <span class="self">self</span>.assigner.simple_assign_statement(
+                    Identifier {
+                        name: new_name,
+                        span: Default::default(),
                     },
-                    <span class="ident">value</span>,
+                    value,
                 );
 
-                <span class="comment">// Update the `RenameTable` with the new name of the variable.</span>
-                <span class="self">self</span>.<span class="ident">rename_table</span>.<span class="ident">update</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span><span class="ident">symbol</span>), <span class="ident">new_name</span>);
+                <span class="comment">// Update the `RenameTable` with the new name of the variable.
+                </span><span class="self">self</span>.rename_table.update(<span class="kw-2">*</span>(<span class="kw-2">*</span>symbol), new_name);
 
-                <span class="comment">// Store the generated phi function.</span>
-                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">assignment</span>);
+                <span class="comment">// Store the generated phi function.
+                </span>statements.push(assignment);
             }
         }
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.</span>
-    <span class="kw">fn</span> <span class="ident">consume_console</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ConsoleStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> (<span class="ident">function</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">function</span> {
-            <span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">expr</span>);
-                (<span class="ident">ConsoleFunction::Assert</span>(<span class="ident">expr</span>), <span class="ident">statements</span>)
+    <span class="doccomment">/// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
+    </span><span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>(function, <span class="kw-2">mut </span>statements) = <span class="kw">match </span>input.function {
+            ConsoleFunction::Assert(expr) =&gt; {
+                <span class="kw">let </span>(expr, statements) = <span class="self">self</span>.consume_expression(expr);
+                (ConsoleFunction::Assert(expr), statements)
             }
-            <span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
-                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
-                <span class="comment">// Accumulate any statements produced.</span>
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">right_statements</span>);
+            ConsoleFunction::AssertEq(left, right) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.
+                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
+                <span class="comment">// Reconstruct the rhs of the binary expression.
+                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
+                <span class="comment">// Accumulate any statements produced.
+                </span>statements.extend(right_statements);
 
-                (<span class="ident">ConsoleFunction::AssertEq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
+                (ConsoleFunction::AssertEq(left, right), statements)
             }
-            <span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">left</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">left</span>);
-                <span class="comment">// Reconstruct the rhs of the binary expression.</span>
-                <span class="kw">let</span> (<span class="ident">right</span>, <span class="ident">right_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">right</span>);
-                <span class="comment">// Accumulate any statements produced.</span>
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">right_statements</span>);
+            ConsoleFunction::AssertNeq(left, right) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.
+                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
+                <span class="comment">// Reconstruct the rhs of the binary expression.
+                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
+                <span class="comment">// Accumulate any statements produced.
+                </span>statements.extend(right_statements);
 
-                (<span class="ident">ConsoleFunction::AssertNeq</span>(<span class="ident">left</span>, <span class="ident">right</span>), <span class="ident">statements</span>)
+                (ConsoleFunction::AssertNeq(left, right), statements)
             }
         };
 
-        <span class="comment">// Add the console statement to the list of produced statements.</span>
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement</span> {
-            <span class="ident">function</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Add the console statement to the list of produced statements.
+        </span>statements.push(Statement::Console(ConsoleStatement {
+            function,
+            span: input.span,
         }));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.</span>
-    <span class="kw">fn</span> <span class="ident">consume_decrement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">DecrementStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// First consume the expression associated with the amount.</span>
-        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">amount</span>);
+    <span class="doccomment">/// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.
+    </span><span class="kw">fn </span>consume_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// First consume the expression associated with the amount.
+        </span><span class="kw">let </span>(amount, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.amount);
 
-        <span class="comment">// Then, consume the expression associated with the index.</span>
-        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">index_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">index</span>);
-        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">index_statements</span>);
+        <span class="comment">// Then, consume the expression associated with the index.
+        </span><span class="kw">let </span>(index, index_statements) = <span class="self">self</span>.consume_expression(input.index);
+        statements.extend(index_statements);
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Decrement</span>(<span class="ident">DecrementStatement</span> {
-            <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
-            <span class="ident">index</span>,
-            <span class="ident">amount</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        statements.push(Statement::Decrement(DecrementStatement {
+            mapping: input.mapping,
+            index,
+            amount,
+            span: input.span,
         }));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.</span>
-    <span class="kw">fn</span> <span class="ident">consume_definition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">definition</span>: <span class="ident">DefinitionStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// First consume the right-hand-side of the definition.</span>
-        <span class="kw">let</span> (<span class="ident">value</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">definition</span>.<span class="ident">value</span>);
+    <span class="doccomment">/// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
+    </span><span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// First consume the right-hand-side of the definition.
+        </span><span class="kw">let </span>(value, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(definition.value);
 
-        <span class="comment">// Then assign a new unique name to the left-hand-side of the definition.</span>
-        <span class="comment">// Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.</span>
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">identifier</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">consume_identifier</span>(<span class="ident">definition</span>.<span class="ident">variable_name</span>).<span class="number">0</span> {
-            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>) =&gt; <span class="ident">identifier</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
+        <span class="comment">// Then assign a new unique name to the left-hand-side of the definition.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        </span><span class="self">self</span>.is_lhs = <span class="bool-val">true</span>;
+        <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(definition.variable_name).<span class="number">0 </span>{
+            Expression::Identifier(identifier) =&gt; identifier,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
         };
-        <span class="self">self</span>.<span class="ident">is_lhs</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">assigner</span>.<span class="ident">simple_assign_statement</span>(<span class="ident">identifier</span>, <span class="ident">value</span>));
+        statements.push(<span class="self">self</span>.assigner.simple_assign_statement(identifier, value));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.</span>
-    <span class="kw">fn</span> <span class="ident">consume_finalize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">FinalizeStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.
+    </span><span class="kw">fn </span>consume_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Process the arguments, accumulating any statements produced.</span>
-        <span class="kw">let</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="ident">input</span>
-            .<span class="ident">arguments</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">argument</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">argument</span>);
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
-                <span class="ident">argument</span>
+        <span class="comment">// Process the arguments, accumulating any statements produced.
+        </span><span class="kw">let </span>arguments = input
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                <span class="kw">let </span>(argument, stmts) = <span class="self">self</span>.consume_expression(argument);
+                statements.extend(stmts);
+                argument
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// Construct and accumulate a simplified finalize statement.</span>
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Finalize</span>(<span class="ident">FinalizeStatement</span> {
-            <span class="ident">arguments</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Construct and accumulate a simplified finalize statement.
+        </span>statements.push(Statement::Finalize(FinalizeStatement {
+            arguments,
+            span: input.span,
         }));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="doccomment">/// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.</span>
-    <span class="kw">fn</span> <span class="ident">consume_increment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">IncrementStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// First consume the expression associated with the amount.</span>
-        <span class="kw">let</span> (<span class="ident">amount</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">amount</span>);
+    <span class="doccomment">/// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
+    </span><span class="kw">fn </span>consume_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// First consume the expression associated with the amount.
+        </span><span class="kw">let </span>(amount, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.amount);
 
-        <span class="comment">// Then, consume the expression associated with the index.</span>
-        <span class="kw">let</span> (<span class="ident">index</span>, <span class="ident">index_statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">index</span>);
-        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">index_statements</span>);
+        <span class="comment">// Then, consume the expression associated with the index.
+        </span><span class="kw">let </span>(index, index_statements) = <span class="self">self</span>.consume_expression(input.index);
+        statements.extend(index_statements);
 
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Increment</span>(<span class="ident">IncrementStatement</span> {
-            <span class="ident">mapping</span>: <span class="ident">input</span>.<span class="ident">mapping</span>,
-            <span class="ident">index</span>,
-            <span class="ident">amount</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        statements.push(Statement::Increment(IncrementStatement {
+            mapping: input.mapping,
+            index,
+            amount,
+            span: input.span,
         }));
 
-        <span class="ident">statements</span>
+        statements
     }
 
-    <span class="comment">// TODO: Error message</span>
-    <span class="kw">fn</span> <span class="ident">consume_iteration</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="ident">IterationStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
+    <span class="comment">// TODO: Error message
+    </span><span class="kw">fn </span>consume_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="doccomment">/// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.</span>
-    <span class="doccomment">/// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.</span>
-    <span class="kw">fn</span> <span class="ident">consume_return</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">ReturnStatement</span>) -&gt; <span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="comment">// Consume the return expression.</span>
-        <span class="kw">let</span> (<span class="ident">expression</span>, <span class="kw-2">mut</span> <span class="ident">statements</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_expression</span>(<span class="ident">input</span>.<span class="ident">expression</span>);
+    <span class="doccomment">/// Reconstructs the expression associated with the return statement, returning a simplified `ReturnStatement`.
+    /// Note that type checking guarantees that there is at most one `ReturnStatement` in a block.
+    </span><span class="kw">fn </span>consume_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Consume the return expression.
+        </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.expression);
 
-        <span class="comment">// Add the simplified return statement to the list of produced statements.</span>
-        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">Statement::Return</span>(<span class="ident">ReturnStatement</span> {
-            <span class="ident">expression</span>,
-            <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+        <span class="comment">// Add the simplified return statement to the list of produced statements.
+        </span>statements.push(Statement::Return(ReturnStatement {
+            expression,
+            span: input.span,
         }));
 
-        <span class="ident">statements</span>
+        statements
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

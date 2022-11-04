@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flatten_expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flatten_expression.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>flatten_expression.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -281,288 +281,288 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Flattener</span>;
-<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
+<span class="kw">use </span>itertools::Itertools;
 
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AccessExpression</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionReconstructor</span>, <span class="ident">Member</span>, <span class="ident">MemberAccess</span>, <span class="ident">Statement</span>, <span class="ident">StructExpression</span>,
-    <span class="ident">StructVariableInitializer</span>, <span class="ident">TernaryExpression</span>, <span class="ident">TupleExpression</span>,
+<span class="kw">use </span>leo_ast::{
+    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
+    StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
-<span class="comment">// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)</span>
+<span class="comment">// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
 
-<span class="kw">impl</span> <span class="ident">ExpressionReconstructor</span> <span class="kw">for</span> <span class="ident">Flattener</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">AdditionalOutput</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span>;
+</span><span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">type </span>AdditionalOutput = Vec&lt;Statement&gt;;
 
-    <span class="doccomment">/// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.</span>
-    <span class="doccomment">/// This is necessary because Aleo instructions does not support ternary expressions over composite data types.</span>
-    <span class="doccomment">/// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:</span>
-    <span class="doccomment">/// ```leo</span>
-    <span class="doccomment">/// let var$0 = cond ? a : c;</span>
-    <span class="doccomment">/// let var$1 = cond ? b : d;</span>
-    <span class="doccomment">/// (var$0, var$1)</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// For structs, the ternary expression `cond ? a : b`, where `a` and `b` are both structs `Foo { bar: u8, baz: u8 }`, is flattened into the following:</span>
-    <span class="doccomment">/// ```leo</span>
-    <span class="doccomment">/// let var$0 = cond ? a.bar : b.bar;</span>
-    <span class="doccomment">/// let var$1 = cond ? a.baz : b.baz;</span>
-    <span class="doccomment">/// let var$2 = Foo { bar: var$0, baz: var$1 };</span>
-    <span class="doccomment">/// var$2</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">reconstruct_ternary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="ident">TernaryExpression</span>) -&gt; (<span class="ident">Expression</span>, <span class="ident"><span class="self">Self</span>::AdditionalOutput</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statements</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">match</span> (<span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_true</span>, <span class="kw-2">*</span><span class="ident">input</span>.<span class="ident">if_false</span>) {
-            <span class="comment">// Folds ternary expressions over tuples into a tuple of ternary expression.</span>
-            <span class="comment">// Note that this branch is only invoked when folding a conditional returns.</span>
-            (<span class="ident">Expression::Tuple</span>(<span class="ident">first</span>), <span class="ident">Expression::Tuple</span>(<span class="ident">second</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">tuple</span> <span class="op">=</span> <span class="ident">Expression::Tuple</span>(<span class="ident">TupleExpression</span> {
-                    <span class="ident">elements</span>: <span class="ident">first</span>
-                        .<span class="ident">elements</span>
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">zip_eq</span>(<span class="ident">second</span>.<span class="ident">elements</span>.<span class="ident">into_iter</span>())
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">if_true</span>, <span class="ident">if_false</span>)<span class="op">|</span> {
-                            <span class="comment">// Reconstruct the true case.</span>
-                            <span class="kw">let</span> (<span class="ident">if_true</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_true</span>);
-                            <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+    <span class="doccomment">/// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
+    /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
+    /// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:
+    /// ```leo
+    /// let var$0 = cond ? a : c;
+    /// let var$1 = cond ? b : d;
+    /// (var$0, var$1)
+    /// ```
+    /// For structs, the ternary expression `cond ? a : b`, where `a` and `b` are both structs `Foo { bar: u8, baz: u8 }`, is flattened into the following:
+    /// ```leo
+    /// let var$0 = cond ? a.bar : b.bar;
+    /// let var$1 = cond ? a.baz : b.baz;
+    /// let var$2 = Foo { bar: var$0, baz: var$1 };
+    /// var$2
+    /// ```
+    </span><span class="kw">fn </span>reconstruct_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TernaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+        <span class="kw">match </span>(<span class="kw-2">*</span>input.if_true, <span class="kw-2">*</span>input.if_false) {
+            <span class="comment">// Folds ternary expressions over tuples into a tuple of ternary expression.
+            // Note that this branch is only invoked when folding a conditional returns.
+            </span>(Expression::Tuple(first), Expression::Tuple(second)) =&gt; {
+                <span class="kw">let </span>tuple = Expression::Tuple(TupleExpression {
+                    elements: first
+                        .elements
+                        .into_iter()
+                        .zip_eq(second.elements.into_iter())
+                        .map(|(if_true, if_false)| {
+                            <span class="comment">// Reconstruct the true case.
+                            </span><span class="kw">let </span>(if_true, stmts) = <span class="self">self</span>.reconstruct_expression(if_true);
+                            statements.extend(stmts);
 
-                            <span class="comment">// Reconstruct the false case.</span>
-                            <span class="kw">let</span> (<span class="ident">if_false</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_false</span>);
-                            <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                            <span class="comment">// Reconstruct the false case.
+                            </span><span class="kw">let </span>(if_false, stmts) = <span class="self">self</span>.reconstruct_expression(if_false);
+                            statements.extend(stmts);
 
-                            <span class="comment">// Construct a new ternary expression for the tuple element.</span>
-                            <span class="kw">let</span> (<span class="ident">ternary</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">TernaryExpression</span> {
-                                <span class="ident">condition</span>: <span class="ident">input</span>.<span class="ident">condition</span>.<span class="ident">clone</span>(),
-                                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
-                                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
-                                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                            <span class="comment">// Construct a new ternary expression for the tuple element.
+                            </span><span class="kw">let </span>(ternary, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
+                                condition: input.condition.clone(),
+                                if_true: Box::new(if_true),
+                                if_false: Box::new(if_false),
+                                span: input.span,
                             });
 
-                            <span class="comment">// Accumulate any statements generated.</span>
-                            <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                            <span class="comment">// Accumulate any statements generated.
+                            </span>statements.extend(stmts);
 
-                            <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the tuple element.</span>
-                            <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">ternary</span>);
-                            <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                            <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the tuple element.
+                            </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(ternary);
+                            statements.push(statement);
 
-                            <span class="comment">// Return the identifier associated with the folded tuple element.</span>
-                            <span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>)
+                            <span class="comment">// Return the identifier associated with the folded tuple element.
+                            </span>Expression::Identifier(identifier)
                         })
-                        .<span class="ident">collect</span>(),
-                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        .collect(),
+                    span: Default::default(),
                 });
-                (<span class="ident">tuple</span>, <span class="ident">statements</span>)
+                (tuple, statements)
             }
-            <span class="comment">// If both expressions are access expressions which themselves are structs, construct ternary expression for nested struct member.</span>
-            (
-                <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">first</span>)),
-                <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">second</span>)),
+            <span class="comment">// If both expressions are access expressions which themselves are structs, construct ternary expression for nested struct member.
+            </span>(
+                Expression::Access(AccessExpression::Member(first)),
+                Expression::Access(AccessExpression::Member(second)),
             ) =&gt; {
-                <span class="comment">// Lookup the struct symbols associated with the expressions.</span>
-                <span class="comment">// TODO: Remove clones</span>
-                <span class="kw">let</span> <span class="ident">first_struct_symbol</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">lookup_struct_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">first</span>.<span class="ident">clone</span>())));
-                <span class="kw">let</span> <span class="ident">second_struct_symbol</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">lookup_struct_symbol</span>(<span class="kw-2">&amp;</span><span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">second</span>.<span class="ident">clone</span>())));
+                <span class="comment">// Lookup the struct symbols associated with the expressions.
+                // TODO: Remove clones
+                </span><span class="kw">let </span>first_struct_symbol =
+                    <span class="self">self</span>.lookup_struct_symbol(<span class="kw-2">&amp;</span>Expression::Access(AccessExpression::Member(first.clone())));
+                <span class="kw">let </span>second_struct_symbol =
+                    <span class="self">self</span>.lookup_struct_symbol(<span class="kw-2">&amp;</span>Expression::Access(AccessExpression::Member(second.clone())));
 
-                <span class="kw">match</span> (<span class="ident">first_struct_symbol</span>, <span class="ident">second_struct_symbol</span>) {
-                    (<span class="prelude-val">Some</span>(<span class="ident">first_struct_symbol</span>), <span class="prelude-val">Some</span>(<span class="ident">second_struct_symbol</span>)) =&gt; {
-                        <span class="kw">let</span> <span class="ident">first_member_struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">lookup_struct</span>(<span class="ident">first_struct_symbol</span>).<span class="ident">unwrap</span>();
-                        <span class="kw">let</span> <span class="ident">second_member_struct</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">symbol_table</span>.<span class="ident">lookup_struct</span>(<span class="ident">second_struct_symbol</span>).<span class="ident">unwrap</span>();
-                        <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.</span>
-                        <span class="macro">assert_eq!</span>(<span class="ident">first_member_struct</span>, <span class="ident">second_member_struct</span>);
+                <span class="kw">match </span>(first_struct_symbol, second_struct_symbol) {
+                    (<span class="prelude-val">Some</span>(first_struct_symbol), <span class="prelude-val">Some</span>(second_struct_symbol)) =&gt; {
+                        <span class="kw">let </span>first_member_struct = <span class="self">self</span>.symbol_table.lookup_struct(first_struct_symbol).unwrap();
+                        <span class="kw">let </span>second_member_struct = <span class="self">self</span>.symbol_table.lookup_struct(second_struct_symbol).unwrap();
+                        <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                        </span><span class="macro">assert_eq!</span>(first_member_struct, second_member_struct);
 
-                        <span class="comment">// For each struct member, construct a new ternary expression.</span>
-                        <span class="kw">let</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">first_member_struct</span>
-                            .<span class="ident">members</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">Member</span> { <span class="ident">identifier</span>, .. }<span class="op">|</span> {
-                                <span class="comment">// Construct a new ternary expression for the struct member.</span>
-                                <span class="kw">let</span> (<span class="ident">expression</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">TernaryExpression</span> {
-                                    <span class="ident">condition</span>: <span class="ident">input</span>.<span class="ident">condition</span>.<span class="ident">clone</span>(),
-                                    <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                                        <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">first</span>.<span class="ident">clone</span>()))),
-                                        <span class="ident">name</span>: <span class="kw-2">*</span><span class="ident">identifier</span>,
-                                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        <span class="comment">// For each struct member, construct a new ternary expression.
+                        </span><span class="kw">let </span>members = first_member_struct
+                            .members
+                            .iter()
+                            .map(|Member { identifier, .. }| {
+                                <span class="comment">// Construct a new ternary expression for the struct member.
+                                </span><span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
+                                    condition: input.condition.clone(),
+                                    if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                        inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
+                                        name: <span class="kw-2">*</span>identifier,
+                                        span: Default::default(),
                                     }))),
-                                    <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                                        <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">second</span>.<span class="ident">clone</span>()))),
-                                        <span class="ident">name</span>: <span class="kw-2">*</span><span class="ident">identifier</span>,
-                                        <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                                    if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                        inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
+                                        name: <span class="kw-2">*</span>identifier,
+                                        span: Default::default(),
                                     }))),
-                                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                                    span: Default::default(),
                                 });
 
-                                <span class="comment">// Accumulate any statements generated.</span>
-                                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                                <span class="comment">// Accumulate any statements generated.
+                                </span>statements.extend(stmts);
 
-                                <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.</span>
-                                <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">expression</span>);
-                                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                                <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
+                                </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
+                                statements.push(statement);
 
-                                <span class="ident">StructVariableInitializer</span> {
-                                    <span class="ident">identifier</span>,
-                                    <span class="ident">expression</span>: <span class="prelude-val">Some</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>)),
+                                StructVariableInitializer {
+                                    identifier,
+                                    expression: <span class="prelude-val">Some</span>(Expression::Identifier(identifier)),
                                 }
                             })
-                            .<span class="ident">collect</span>();
+                            .collect();
 
-                        <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_struct_init</span>(<span class="ident">StructExpression</span> {
-                            <span class="ident">name</span>: <span class="ident">first_member_struct</span>.<span class="ident">identifier</span>,
-                            <span class="ident">members</span>,
-                            <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                        <span class="kw">let </span>(expr, stmts) = <span class="self">self</span>.reconstruct_struct_init(StructExpression {
+                            name: first_member_struct.identifier,
+                            members,
+                            span: Default::default(),
                         });
 
-                        <span class="comment">// Accumulate any statements generated.</span>
-                        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                        <span class="comment">// Accumulate any statements generated.
+                        </span>statements.extend(stmts);
 
-                        <span class="comment">// Create a new assignment statement for the struct expression.</span>
-                        <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">expr</span>);
+                        <span class="comment">// Create a new assignment statement for the struct expression.
+                        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
 
-                        <span class="comment">// Mark the lhs of the assignment as a struct.</span>
-                        <span class="self">self</span>.<span class="ident">structs</span>
-                            .<span class="ident">insert</span>(<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">first_member_struct</span>.<span class="ident">identifier</span>.<span class="ident">name</span>);
+                        <span class="comment">// Mark the lhs of the assignment as a struct.
+                        </span><span class="self">self</span>.structs
+                            .insert(identifier.name, first_member_struct.identifier.name);
 
-                        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                        statements.push(statement);
 
-                        (<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>), <span class="ident">statements</span>)
+                        (Expression::Identifier(identifier), statements)
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">let</span> <span class="ident">if_true</span> <span class="op">=</span> <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">first</span>));
-                        <span class="kw">let</span> <span class="ident">if_false</span> <span class="op">=</span> <span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">second</span>));
-                        <span class="comment">// Reconstruct the true case.</span>
-                        <span class="kw">let</span> (<span class="ident">if_true</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_true</span>);
-                        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">let </span>if_true = Expression::Access(AccessExpression::Member(first));
+                        <span class="kw">let </span>if_false = Expression::Access(AccessExpression::Member(second));
+                        <span class="comment">// Reconstruct the true case.
+                        </span><span class="kw">let </span>(if_true, stmts) = <span class="self">self</span>.reconstruct_expression(if_true);
+                        statements.extend(stmts);
 
-                        <span class="comment">// Reconstruct the false case.</span>
-                        <span class="kw">let</span> (<span class="ident">if_false</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_false</span>);
-                        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                        <span class="comment">// Reconstruct the false case.
+                        </span><span class="kw">let </span>(if_false, stmts) = <span class="self">self</span>.reconstruct_expression(if_false);
+                        statements.extend(stmts);
 
-                        <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span>
-                            <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                                <span class="ident">condition</span>: <span class="ident">input</span>.<span class="ident">condition</span>,
-                                <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
-                                <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
-                                <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                        <span class="kw">let </span>(identifier, statement) =
+                            <span class="self">self</span>.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                                condition: input.condition,
+                                if_true: Box::new(if_true),
+                                if_false: Box::new(if_false),
+                                span: input.span,
                             }));
 
-                        <span class="comment">// Accumulate the new assignment statement.</span>
-                        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                        <span class="comment">// Accumulate the new assignment statement.
+                        </span>statements.push(statement);
 
-                        (<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>), <span class="ident">statements</span>)
+                        (Expression::Identifier(identifier), statements)
                     }
                 }
             }
-            <span class="comment">// If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.</span>
-            (<span class="ident">Expression::Identifier</span>(<span class="ident">first</span>), <span class="ident">Expression::Identifier</span>(<span class="ident">second</span>))
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">first</span>.<span class="ident">name</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">second</span>.<span class="ident">name</span>) =&gt;
+            <span class="comment">// If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.
+            </span>(Expression::Identifier(first), Expression::Identifier(second))
+                <span class="kw">if </span><span class="self">self</span>.structs.contains_key(<span class="kw-2">&amp;</span>first.name) &amp;&amp; <span class="self">self</span>.structs.contains_key(<span class="kw-2">&amp;</span>second.name) =&gt;
             {
-                <span class="kw">let</span> <span class="ident">first_struct</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">symbol_table</span>
-                    .<span class="ident">lookup_struct</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">first</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>())
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">second_struct</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">symbol_table</span>
-                    .<span class="ident">lookup_struct</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">second</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>())
-                    .<span class="ident">unwrap</span>();
-                <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.</span>
-                <span class="macro">assert_eq!</span>(<span class="ident">first_struct</span>, <span class="ident">second_struct</span>);
+                <span class="kw">let </span>first_struct = <span class="self">self
+                    </span>.symbol_table
+                    .lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>first.name).unwrap())
+                    .unwrap();
+                <span class="kw">let </span>second_struct = <span class="self">self
+                    </span>.symbol_table
+                    .lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>second.name).unwrap())
+                    .unwrap();
+                <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                </span><span class="macro">assert_eq!</span>(first_struct, second_struct);
 
-                <span class="comment">// For each struct member, construct a new ternary expression.</span>
-                <span class="kw">let</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">first_struct</span>
-                    .<span class="ident">members</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">Member</span> { <span class="ident">identifier</span>, .. }<span class="op">|</span> {
-                        <span class="comment">// Construct a new ternary expression for the struct member.</span>
-                        <span class="kw">let</span> (<span class="ident">expression</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_ternary</span>(<span class="ident">TernaryExpression</span> {
-                            <span class="ident">condition</span>: <span class="ident">input</span>.<span class="ident">condition</span>.<span class="ident">clone</span>(),
-                            <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                                <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">first</span>)),
-                                <span class="ident">name</span>: <span class="kw-2">*</span><span class="ident">identifier</span>,
-                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                <span class="comment">// For each struct member, construct a new ternary expression.
+                </span><span class="kw">let </span>members = first_struct
+                    .members
+                    .iter()
+                    .map(|Member { identifier, .. }| {
+                        <span class="comment">// Construct a new ternary expression for the struct member.
+                        </span><span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
+                            condition: input.condition.clone(),
+                            if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                inner: Box::new(Expression::Identifier(first)),
+                                name: <span class="kw-2">*</span>identifier,
+                                span: Default::default(),
                             }))),
-                            <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Access</span>(<span class="ident">AccessExpression::Member</span>(<span class="ident">MemberAccess</span> {
-                                <span class="ident">inner</span>: <span class="ident">Box::new</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">second</span>)),
-                                <span class="ident">name</span>: <span class="kw-2">*</span><span class="ident">identifier</span>,
-                                <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                            if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                                inner: Box::new(Expression::Identifier(second)),
+                                name: <span class="kw-2">*</span>identifier,
+                                span: Default::default(),
                             }))),
-                            <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                            span: Default::default(),
                         });
 
-                        <span class="comment">// Accumulate any statements generated.</span>
-                        <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                        <span class="comment">// Accumulate any statements generated.
+                        </span>statements.extend(stmts);
 
-                        <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.</span>
-                        <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">expression</span>);
-                        <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                        <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
+                        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
+                        statements.push(statement);
 
-                        <span class="ident">StructVariableInitializer</span> {
-                            <span class="ident">identifier</span>,
-                            <span class="ident">expression</span>: <span class="prelude-val">Some</span>(<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>)),
+                        StructVariableInitializer {
+                            identifier,
+                            expression: <span class="prelude-val">Some</span>(Expression::Identifier(identifier)),
                         }
                     })
-                    .<span class="ident">collect</span>();
+                    .collect();
 
-                <span class="kw">let</span> (<span class="ident">expr</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_struct_init</span>(<span class="ident">StructExpression</span> {
-                    <span class="ident">name</span>: <span class="ident">first_struct</span>.<span class="ident">identifier</span>,
-                    <span class="ident">members</span>,
-                    <span class="ident">span</span>: <span class="ident">Default::default</span>(),
+                <span class="kw">let </span>(expr, stmts) = <span class="self">self</span>.reconstruct_struct_init(StructExpression {
+                    name: first_struct.identifier,
+                    members,
+                    span: Default::default(),
                 });
 
-                <span class="comment">// Accumulate any statements generated.</span>
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                <span class="comment">// Accumulate any statements generated.
+                </span>statements.extend(stmts);
 
-                <span class="comment">// Create a new assignment statement for the struct expression.</span>
-                <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">expr</span>);
+                <span class="comment">// Create a new assignment statement for the struct expression.
+                </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
 
-                <span class="comment">// Mark the lhs of the assignment as a struct.</span>
-                <span class="self">self</span>.<span class="ident">structs</span>.<span class="ident">insert</span>(<span class="ident">identifier</span>.<span class="ident">name</span>, <span class="ident">first_struct</span>.<span class="ident">identifier</span>.<span class="ident">name</span>);
+                <span class="comment">// Mark the lhs of the assignment as a struct.
+                </span><span class="self">self</span>.structs.insert(identifier.name, first_struct.identifier.name);
 
-                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                statements.push(statement);
 
-                (<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>), <span class="ident">statements</span>)
+                (Expression::Identifier(identifier), statements)
             }
-            <span class="comment">// Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.</span>
-            <span class="comment">// Note that a new assignment must be created to flattened nested ternary expressions.</span>
-            (<span class="ident">if_true</span>, <span class="ident">if_false</span>) =&gt; {
-                <span class="comment">// Reconstruct the true case.</span>
-                <span class="kw">let</span> (<span class="ident">if_true</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_true</span>);
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+            <span class="comment">// Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
+            // Note that a new assignment must be created to flattened nested ternary expressions.
+            </span>(if_true, if_false) =&gt; {
+                <span class="comment">// Reconstruct the true case.
+                </span><span class="kw">let </span>(if_true, stmts) = <span class="self">self</span>.reconstruct_expression(if_true);
+                statements.extend(stmts);
 
-                <span class="comment">// Reconstruct the false case.</span>
-                <span class="kw">let</span> (<span class="ident">if_false</span>, <span class="ident">stmts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">reconstruct_expression</span>(<span class="ident">if_false</span>);
-                <span class="ident">statements</span>.<span class="ident">extend</span>(<span class="ident">stmts</span>);
+                <span class="comment">// Reconstruct the false case.
+                </span><span class="kw">let </span>(if_false, stmts) = <span class="self">self</span>.reconstruct_expression(if_false);
+                statements.extend(stmts);
 
-                <span class="kw">let</span> (<span class="ident">identifier</span>, <span class="ident">statement</span>) <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">unique_simple_assign_statement</span>(<span class="ident">Expression::Ternary</span>(<span class="ident">TernaryExpression</span> {
-                        <span class="ident">condition</span>: <span class="ident">input</span>.<span class="ident">condition</span>,
-                        <span class="ident">if_true</span>: <span class="ident">Box::new</span>(<span class="ident">if_true</span>),
-                        <span class="ident">if_false</span>: <span class="ident">Box::new</span>(<span class="ident">if_false</span>),
-                        <span class="ident">span</span>: <span class="ident">input</span>.<span class="ident">span</span>,
+                <span class="kw">let </span>(identifier, statement) =
+                    <span class="self">self</span>.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                        condition: input.condition,
+                        if_true: Box::new(if_true),
+                        if_false: Box::new(if_false),
+                        span: input.span,
                     }));
 
-                <span class="comment">// Accumulate the new assignment statement.</span>
-                <span class="ident">statements</span>.<span class="ident">push</span>(<span class="ident">statement</span>);
+                <span class="comment">// Accumulate the new assignment statement.
+                </span>statements.push(statement);
 
-                (<span class="ident">Expression::Identifier</span>(<span class="ident">identifier</span>), <span class="ident">statements</span>)
+                (Expression::Identifier(identifier), statements)
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

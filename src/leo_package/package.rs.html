@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/package/src/package.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>package.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_package/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/package/src/package.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>package.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_package/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_package/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -201,208 +201,208 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">inputs</span>::{<span class="ident">InputFile</span>, <span class="ident">InputsDirectory</span>},
-    <span class="ident">root::Gitignore</span>,
-    <span class="ident">source</span>::{<span class="ident">MainFile</span>, <span class="ident">SourceDirectory</span>},
+</span><span class="kw">use crate</span>::{
+    inputs::{InputFile, InputsDirectory},
+    root::Gitignore,
+    source::{MainFile, SourceDirectory},
 };
 
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{PackageError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::build::BuildDirectory</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+<span class="kw">use </span><span class="kw">crate</span>::build::BuildDirectory;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>std::path::Path;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Package</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">license</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub struct </span>Package {
+    <span class="kw">pub </span>name: String,
+    <span class="kw">pub </span>version: String,
+    <span class="kw">pub </span>description: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>license: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Package</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="comment">// Check that the package name is valid.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::invalid_package_name</span>(<span class="ident">package_name</span>).<span class="ident">into</span>());
+<span class="kw">impl </span>Package {
+    <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="comment">// Check that the package name is valid.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_package_name(package_name).into());
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">name</span>: <span class="ident">package_name</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">version</span>: <span class="string">&quot;0.1.0&quot;</span>.<span class="ident">to_owned</span>(),
-            <span class="ident">description</span>: <span class="prelude-val">None</span>,
-            <span class="ident">license</span>: <span class="prelude-val">None</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            name: package_name.to_owned(),
+            version: <span class="string">&quot;0.1.0&quot;</span>.to_owned(),
+            description: <span class="prelude-val">None</span>,
+            license: <span class="prelude-val">None</span>,
         })
     }
 
-    <span class="doccomment">/// Returns `true` if the package name is valid.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Package names can only contain ASCII alphanumeric characters and underscores.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_package_name_valid</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// Check that the package name is nonempty.</span>
-        <span class="kw">if</span> <span class="ident">package_name</span>.<span class="ident">is_empty</span>() {
+    <span class="doccomment">/// Returns `true` if the package name is valid.
+    ///
+    /// Package names can only contain ASCII alphanumeric characters and underscores.
+    </span><span class="kw">pub fn </span>is_package_name_valid(package_name: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="comment">// Check that the package name is nonempty.
+        </span><span class="kw">if </span>package_name.is_empty() {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must be nonempty&quot;</span>);
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">package_name</span>.<span class="ident">chars</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span>first = package_name.chars().next().unwrap();
 
-        <span class="comment">// Check that the first character is not an underscore.</span>
-        <span class="kw">if</span> <span class="ident">first</span> <span class="op">==</span> <span class="string">&#39;_&#39;</span> {
+        <span class="comment">// Check that the first character is not an underscore.
+        </span><span class="kw">if </span>first == <span class="string">&#39;_&#39; </span>{
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with an underscore&quot;</span>);
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Check that the first character is not a number.</span>
-        <span class="kw">if</span> <span class="ident">first</span>.<span class="ident">is_numeric</span>() {
+        <span class="comment">// Check that the first character is not a number.
+        </span><span class="kw">if </span>first.is_numeric() {
             <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names cannot begin with a number&quot;</span>);
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Iterate and check that the package name is valid.</span>
-        <span class="kw">for</span> <span class="ident">current</span> <span class="kw">in</span> <span class="ident">package_name</span>.<span class="ident">chars</span>() {
-            <span class="comment">// Check that the package name contains only ASCII alphanumeric or underscores.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">current</span>.<span class="ident">is_ascii_alphanumeric</span>() <span class="op">&amp;&amp;</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;_&#39;</span> {
+        <span class="comment">// Iterate and check that the package name is valid.
+        </span><span class="kw">for </span>current <span class="kw">in </span>package_name.chars() {
+            <span class="comment">// Check that the package name contains only ASCII alphanumeric or underscores.
+            </span><span class="kw">if </span>!current.is_ascii_alphanumeric() &amp;&amp; current != <span class="string">&#39;_&#39; </span>{
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;Project names must can only contain ASCII alphanumeric characters and underscores.&quot;</span>);
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }
 
-        <span class="bool-val">true</span>
+        <span class="bool-val">true
+    </span>}
+
+    <span class="doccomment">/// Returns `true` if a package is can be initialized at a given path.
+    </span><span class="kw">pub fn </span>can_initialize(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
+        <span class="comment">// Check that the package name is valid.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="bool-val">true</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>existing_files = <span class="macro">vec!</span>[];
+
+        <span class="comment">// Check if the input file already exists.
+        </span><span class="kw">let </span>input_file = InputFile::new(package_name);
+        <span class="kw">if </span>input_file.exists_at(path) {
+            existing_files.push(input_file.filename());
+            result = <span class="bool-val">false</span>;
+        }
+
+        <span class="comment">// Check if the main file already exists.
+        </span><span class="kw">if </span>MainFile::exists_at(path) {
+            existing_files.push(MainFile::filename());
+            result = <span class="bool-val">false</span>;
+        }
+
+        <span class="kw">if </span>!existing_files.is_empty() {
+            <span class="macro">tracing::error!</span>(<span class="string">&quot;File(s) {:?} already exist&quot;</span>, existing_files);
+        }
+
+        result
     }
 
-    <span class="doccomment">/// Returns `true` if a package is can be initialized at a given path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// Check that the package name is valid.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// Returns `true` if a package is initialized at the given path
+    </span><span class="kw">pub fn </span>is_initialized(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
+        <span class="comment">// Check that the package name is valid.
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">existing_files</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-
-        <span class="comment">// Check if the input file already exists.</span>
-        <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="ident">package_name</span>);
-        <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">exists_at</span>(<span class="ident">path</span>) {
-            <span class="ident">existing_files</span>.<span class="ident">push</span>(<span class="ident">input_file</span>.<span class="ident">filename</span>());
-            <span class="ident">result</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Check if the input file exists.
+        </span><span class="kw">let </span>input_file = InputFile::new(package_name);
+        <span class="kw">if </span>!input_file.exists_at(path) {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Check if the main file already exists.</span>
-        <span class="kw">if</span> <span class="ident">MainFile::exists_at</span>(<span class="ident">path</span>) {
-            <span class="ident">existing_files</span>.<span class="ident">push</span>(<span class="ident">MainFile::filename</span>());
-            <span class="ident">result</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Check if the main file exists.
+        </span><span class="kw">if </span>!MainFile::exists_at(path) {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">existing_files</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">tracing::error!</span>(<span class="string">&quot;File(s) {:?} already exist&quot;</span>, <span class="ident">existing_files</span>);
+        <span class="bool-val">true
+    </span>}
+
+    <span class="doccomment">/// Creates a Leo package at the given path
+    </span><span class="kw">pub fn </span>initialize(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// Verify that the .gitignore file does not exist.
+        </span><span class="kw">if </span>!Gitignore::exists_at(path) {
+            <span class="comment">// Create the .gitignore file.
+            </span>Gitignore::new().write_to(path)<span class="question-mark">?</span>;
         }
 
-        <span class="ident">result</span>
-    }
+        <span class="comment">// Create the source directory.
+        </span>SourceDirectory::create(path)<span class="question-mark">?</span>;
 
-    <span class="doccomment">/// Returns `true` if a package is initialized at the given path</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_initialized</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// Check that the package name is valid.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_package_name_valid</span>(<span class="ident">package_name</span>) {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
-        }
+        <span class="comment">// Create the inputs directory.
+        </span>InputsDirectory::create(path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Check if the input file exists.</span>
-        <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">InputFile::new</span>(<span class="ident">package_name</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">input_file</span>.<span class="ident">exists_at</span>(<span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
-        }
+        <span class="comment">// Create the Leo build/ directory
+        </span>BuildDirectory::create(path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Check if the main file exists.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">MainFile::exists_at</span>(<span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
-        }
+        <span class="comment">// Create the input file in the inputs directory.
+        </span>InputFile::new(package_name).write_to(path)<span class="question-mark">?</span>;
 
-        <span class="bool-val">true</span>
-    }
+        <span class="comment">// Create the main file in the source directory.
+        </span>MainFile::new(package_name).write_to(path)<span class="question-mark">?</span>;
 
-    <span class="doccomment">/// Creates a Leo package at the given path</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">package_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="comment">// Verify that the .gitignore file does not exist.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">Gitignore::exists_at</span>(<span class="ident">path</span>) {
-            <span class="comment">// Create the .gitignore file.</span>
-            <span class="ident">Gitignore::new</span>().<span class="ident">write_to</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="comment">// Create the source directory.</span>
-        <span class="ident">SourceDirectory::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the inputs directory.</span>
-        <span class="ident">InputsDirectory::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the Leo build/ directory</span>
-        <span class="ident">BuildDirectory::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the input file in the inputs directory.</span>
-        <span class="ident">InputFile::new</span>(<span class="ident">package_name</span>).<span class="ident">write_to</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the main file in the source directory.</span>
-        <span class="ident">MainFile::new</span>(<span class="ident">package_name</span>).<span class="ident">write_to</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-
-        <span class="comment">// Next, verify that a valid Leo package has been initialized in this directory</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="self">Self</span>::is_initialized</span>(<span class="ident">package_name</span>, <span class="ident">path</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">PackageError::failed_to_initialize_package</span>(<span class="ident">package_name</span>, <span class="ident">path</span>.<span class="ident">as_os_str</span>()).<span class="ident">into</span>());
+        <span class="comment">// Next, verify that a valid Leo package has been initialized in this directory
+        </span><span class="kw">if </span>!<span class="self">Self</span>::is_initialized(package_name, path) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
         }
 
         <span class="prelude-val">Ok</span>(())
     }
-    <span class="comment">//</span>
-    <span class="comment">// /// Removes the package at the given path</span>
-    <span class="comment">// pub fn remove_imported_package(package_name: &amp;str, path: &amp;Path) -&gt; Result&lt;()&gt; {</span>
-    <span class="comment">//     ImportsDirectory::remove_import(path, package_name)</span>
-    <span class="comment">// }</span>
-}
+    <span class="comment">//
+    // /// Removes the package at the given path
+    // pub fn remove_imported_package(package_name: &amp;str, path: &amp;Path) -&gt; Result&lt;()&gt; {
+    //     ImportsDirectory::remove_import(path, package_name)
+    // }
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_is_package_name_valid</span>() {
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo_bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo_bar___baz_&quot;</span>));
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_is_package_name_valid() {
+        <span class="macro">assert!</span>(Package::is_package_name_valid(<span class="string">&quot;foo&quot;</span>));
+        <span class="macro">assert!</span>(Package::is_package_name_valid(<span class="string">&quot;foo_bar&quot;</span>));
+        <span class="macro">assert!</span>(Package::is_package_name_valid(<span class="string">&quot;foo1&quot;</span>));
+        <span class="macro">assert!</span>(Package::is_package_name_valid(<span class="string">&quot;foo_bar___baz_&quot;</span>));
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-bar-baz&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo-1&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-foo&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;-foo-&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;_foo&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo--bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo---bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo--bar--baz&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo---bar---baz&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo*bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;foo,bar&quot;</span>));
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">Package::is_package_name_valid</span>(<span class="string">&quot;1-foo&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo-bar&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo-bar-baz&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo-1&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;-&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;-foo&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;-foo-&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;_foo&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo--bar&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo---bar&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo--bar--baz&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo---bar---baz&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo*bar&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;foo,bar&quot;</span>));
+        <span class="macro">assert!</span>(!Package::is_package_name_valid(<span class="string">&quot;1-foo&quot;</span>));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_package" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_package" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/package/package_errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>package_errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../leo_errors/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/package/package_errors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>package_errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../leo_errors/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../leo_errors/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -306,313 +306,313 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::create_messages</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::create_messages;
 
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">error::Error</span> <span class="kw">as</span> <span class="ident">ErrorArg</span>,
-    <span class="ident">fmt</span>::{<span class="ident">Debug</span>, <span class="ident">Display</span>},
+<span class="kw">use </span>std::{
+    error::Error <span class="kw">as </span>ErrorArg,
+    fmt::{Debug, Display},
 };
 
 <span class="macro">create_messages!</span>(
-    <span class="doccomment">/// PackageError enum that represents all the errors for the `leo-package` crate.</span>
-    <span class="ident">PackageError</span>,
-    <span class="ident">code_mask</span>: <span class="number">5000i32</span>,
-    <span class="ident">code_prefix</span>: <span class="string">&quot;PAK&quot;</span>,
+    <span class="doccomment">/// PackageError enum that represents all the errors for the `leo-package` crate.
+    </span>PackageError,
+    code_mask: <span class="number">5000i32</span>,
+    code_prefix: <span class="string">&quot;PAK&quot;</span>,
 
-    <span class="doccomment">/// For when getting a input file entry failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_get_input_file_entry</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to get input file entry: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when getting a input file entry failed.
+    </span>@backtraced
+    failed_to_get_input_file_entry {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to get input file entry: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when getting the input file type failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_get_input_file_type</span> {
-        <span class="ident">args</span>: (<span class="ident">file</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to get input file `{file:?}` type: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when getting the input file type failed.
+    </span>@backtraced
+    failed_to_get_input_file_type {
+        args: (file: <span class="kw">impl </span>Debug, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to get input file `{file:?}` type: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when getting the input file has an invalid file type.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">invalid_input_file_type</span> {
-        <span class="ident">args</span>: (<span class="ident">file</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">type_</span>: <span class="ident">std::fs::FileType</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;input file `{file:?}` has invalid type: {type_:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when getting the input file has an invalid file type.
+    </span>@backtraced
+    invalid_input_file_type {
+        args: (file: <span class="kw">impl </span>Debug, type_: std::fs::FileType),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;input file `{file:?}` has invalid type: {type_:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when creating the inputs directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_create_inputs_directory</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed creating inputs directory {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when creating the inputs directory failed.
+    </span>@backtraced
+    failed_to_create_inputs_directory {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed creating inputs directory {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the struct file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_circuit_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read struct file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when reading the struct file failed.
+    </span>@backtraced
+    failed_to_read_circuit_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot read struct file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the input directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_inputs_directory</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed reading inputs directory {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when reading the input directory failed.
+    </span>@backtraced
+    failed_to_read_inputs_directory {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed reading inputs directory {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the input file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_input_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read input file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when reading the input file failed.
+    </span>@backtraced
+    failed_to_read_input_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot read input file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the snapshot file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_snapshot_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read snapshot file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when reading the snapshot file failed.
+    </span>@backtraced
+    failed_to_read_snapshot_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot read snapshot file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when reading the checksum file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_checksum_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Cannot read checksum file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when reading the checksum file failed.
+    </span>@backtraced
+    failed_to_read_checksum_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot read checksum file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the struct file has an IO error.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">io_error_circuit_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error struct file from the provided file path - {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the struct file has an IO error.
+    </span>@backtraced
+    io_error_circuit_file {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;IO error struct file from the provided file path - {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the checksum file has an IO error.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">io_error_checksum_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error checksum file from the provided file path - {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the checksum file has an IO error.
+    </span>@backtraced
+    io_error_checksum_file {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;IO error checksum file from the provided file path - {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the main file has an IO error.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">io_error_main_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error main file from the provided file path - {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the main file has an IO error.
+    </span>@backtraced
+    io_error_main_file {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;IO error main file from the provided file path - {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when removing the struct file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_remove_circuit_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed removing struct file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when removing the struct file failed.
+    </span>@backtraced
+    failed_to_remove_circuit_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed removing struct file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when removing the checksum file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_remove_checksum_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed removing checksum file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when removing the checksum file failed.
+    </span>@backtraced
+    failed_to_remove_checksum_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed removing checksum file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when removing the snapshot file failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_remove_snapshot_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed removing snapshot file from the provided file path - {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when removing the snapshot file failed.
+    </span>@backtraced
+    failed_to_remove_snapshot_file {
+        args: (path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed removing snapshot file from the provided file path - {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the input file has an IO error.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">io_error_input_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error input file from the provided file path - {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the input file has an IO error.
+    </span>@backtraced
+    io_error_input_file {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;IO error input file from the provided file path - {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the gitignore file has an IO error.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">io_error_gitignore_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;IO error gitignore file from the provided file path - {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the gitignore file has an IO error.
+    </span>@backtraced
+    io_error_gitignore_file {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;IO error gitignore file from the provided file path - {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when creating the source directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_create_source_directory</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed creating source directory {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when creating the source directory failed.
+    </span>@backtraced
+    failed_to_create_source_directory {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed creating source directory {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when getting a Leo file entry failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_get_leo_file_entry</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to get Leo file entry: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when getting a Leo file entry failed.
+    </span>@backtraced
+    failed_to_get_leo_file_entry {
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to get Leo file entry: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when getting the source file extension failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_get_leo_file_extension</span> {
-        <span class="ident">args</span>: (<span class="ident">extension</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to get Leo file extension: {extension:?}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when getting the source file extension failed.
+    </span>@backtraced
+    failed_to_get_leo_file_extension {
+        args: (extension: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to get Leo file extension: {extension:?}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the Leo file has an invalid extension.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">invalid_leo_file_extension</span> {
-        <span class="ident">args</span>: (<span class="ident">file</span>: <span class="kw">impl</span> <span class="ident">Debug</span>, <span class="ident">extension</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Source file `{file:?}` has invalid extension: {extension:?}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the Leo file has an invalid extension.
+    </span>@backtraced
+    invalid_leo_file_extension {
+        args: (file: <span class="kw">impl </span>Debug, extension: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Source file `{file:?}` has invalid extension: {extension:?}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the package failed to initalize.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_initialize_package</span> {
-        <span class="ident">args</span>: (<span class="ident">package</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Debug</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to initialize package {package} {path:?}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the package failed to initalize.
+    </span>@backtraced
+    failed_to_initialize_package {
+        args: (package: <span class="kw">impl </span>Display, path: <span class="kw">impl </span>Debug),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to initialize package {package} {path:?}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the package has an invalid name.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">invalid_package_name</span> {
-        <span class="ident">args</span>: (<span class="ident">package</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;invalid project name {package}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when the package has an invalid name.
+    </span>@backtraced
+    invalid_package_name {
+        args: (package: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;invalid project name {package}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when opening a directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">directory_not_found</span> {
-        <span class="ident">args</span>: (<span class="ident">dirname</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;The `{dirname}` does not exist at `{path}`.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when opening a directory failed.
+    </span>@backtraced
+    directory_not_found {
+        args: (dirname: <span class="kw">impl </span>Display, path: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The `{dirname}` does not exist at `{path}`.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when creating a directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_create_directory</span> {
-        <span class="ident">args</span>: (<span class="ident">dirname</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to create directory `{dirname}`, error: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when creating a directory failed.
+    </span>@backtraced
+    failed_to_create_directory {
+        args: (dirname: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to create directory `{dirname}`, error: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when removing a directory failed.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_remove_directory</span> {
-        <span class="ident">args</span>: (<span class="ident">dirname</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to remove directory: {dirname}, error: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when removing a directory failed.
+    </span>@backtraced
+    failed_to_remove_directory {
+        args: (dirname: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to remove directory: {dirname}, error: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when file could not be read.</span>
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_read_file</span> {
-        <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to read file: {path}, error: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// For when file could not be read.
+    </span>@backtraced
+    failed_to_read_file {
+        args: (path: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;failed to read file: {path}, error: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_get_file_name</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;Failed to get names of Leo files in the `src/` directory.&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Check your `src/` directory for invalid file names.&quot;</span>.<span class="ident">to_string</span>()),
+    @backtraced
+    failed_to_get_file_name {
+        args: (),
+        msg: <span class="string">&quot;Failed to get names of Leo files in the `src/` directory.&quot;</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Check your `src/` directory for invalid file names.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_set_cwd</span> {
-        <span class="ident">args</span>: (<span class="ident">dir</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to set current working directory to `{dir}`. Error: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @backtraced
+    failed_to_set_cwd {
+        args: (dir: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to set current working directory to `{dir}`. Error: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_open_manifest</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to open manifest file: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Create a package by running `leo new`.&quot;</span>.<span class="ident">to_string</span>()),
+    @backtraced
+    failed_to_open_manifest {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to open manifest file: {error}&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Create a package by running `leo new`.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_open_aleo_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to open Aleo file: {error}&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Create a package by running `leo new`.&quot;</span>.<span class="ident">to_string</span>()),
+    @backtraced
+    failed_to_open_aleo_file {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to open Aleo file: {error}&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Create a package by running `leo new`.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_create_aleo_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to create Aleo file: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @backtraced
+    failed_to_create_aleo_file {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to create Aleo file: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_write_aleo_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to write aleo file: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @backtraced
+    failed_to_write_aleo_file {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to write aleo file: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">failed_to_remove_aleo_file</span> {
-        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Failed to remove aleo file: {error}.&quot;</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @backtraced
+    failed_to_remove_aleo_file {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to remove aleo file: {error}.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">empty_source_directory</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;The `src/` directory is empty.&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a `main.leo` file to the `src/` directory.&quot;</span>.<span class="ident">to_string</span>()),
+    @backtraced
+    empty_source_directory {
+        args: (),
+        msg: <span class="string">&quot;The `src/` directory is empty.&quot;</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a `main.leo` file to the `src/` directory.&quot;</span>.to_string()),
     }
 
-    @<span class="ident">backtraced</span>
-    <span class="ident">source_directory_can_contain_only_one_file</span> {
-        <span class="ident">args</span>: (),
-        <span class="ident">msg</span>: <span class="string">&quot;The `src/` directory can contain only one file and must be named `main.leo`.&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    @backtraced
+    source_directory_can_contain_only_one_file {
+        args: (),
+        msg: <span class="string">&quot;The `src/` directory can contain only one file and must be named `main.leo`.&quot;</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="leo_errors" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

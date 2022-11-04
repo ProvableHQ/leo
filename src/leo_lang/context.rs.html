@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/context.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_lang/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/context.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../leo_lang/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../leo_lang/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -82,89 +82,89 @@
 <span id="82">82</span>
 <span id="83">83</span>
 <span id="84">84</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::commands::Network</span>;
-<span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CliError</span>, <span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">snarkvm::file::Manifest</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::commands::Network;
+<span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>snarkvm::file::Manifest;
 
-<span class="kw">use</span> <span class="ident">leo_package::build</span>::{<span class="ident">BuildDirectory</span>, <span class="ident">BUILD_DIRECTORY_NAME</span>};
-<span class="kw">use</span> <span class="ident">std::fs::File</span>;
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{
-    <span class="ident">env::current_dir</span>,
-    <span class="ident">path</span>::{<span class="ident">Path</span>, <span class="ident">PathBuf</span>},
+<span class="kw">use </span>leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::Write;
+<span class="kw">use </span>std::{
+    env::current_dir,
+    path::{Path, PathBuf},
 };
 
-<span class="doccomment">/// Project context, manifest, current directory etc</span>
-<span class="doccomment">/// All the info that is relevant in most of the commands</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Context</span> {
-    <span class="doccomment">/// Path at which the command is called, None when default</span>
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Project context, manifest, current directory etc
+/// All the info that is relevant in most of the commands
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Context {
+    <span class="doccomment">/// Path at which the command is called, None when default
+    </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Context</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">Context</span> { <span class="ident">path</span> })
+<span class="kw">impl </span>Context {
+    <span class="kw">pub fn </span>new(path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
+        <span class="prelude-val">Ok</span>(Context { path })
     }
 
-    <span class="doccomment">/// Returns the path to the Leo package.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dir</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathBuf</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">path</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">clone</span>()),
-            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">current_dir</span>().<span class="ident">map_err</span>(<span class="ident">CliError::cli_io_error</span>)<span class="question-mark">?</span>),
+    <span class="doccomment">/// Returns the path to the Leo package.
+    </span><span class="kw">pub fn </span>dir(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.path {
+            <span class="prelude-val">Some</span>(path) =&gt; <span class="prelude-val">Ok</span>(path.clone()),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(current_dir().map_err(CliError::cli_io_error)<span class="question-mark">?</span>),
         }
     }
 
-    <span class="doccomment">/// Returns the package name as a String.</span>
-    <span class="doccomment">/// Opens the manifest file `program.json` and creates the build directory if it doesn&#39;t exist.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_manifest</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Manifest</span><span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// Open the manifest file.</span>
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dir</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::open</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
+    <span class="doccomment">/// Returns the package name as a String.
+    /// Opens the manifest file `program.json` and creates the build directory if it doesn&#39;t exist.
+    </span><span class="kw">pub fn </span>open_manifest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Manifest&lt;Network&gt;&gt; {
+        <span class="comment">// Open the manifest file.
+        </span><span class="kw">let </span>path = <span class="self">self</span>.dir()<span class="question-mark">?</span>;
+        <span class="kw">let </span>manifest = Manifest::&lt;Network&gt;::open(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
-        <span class="comment">// Lookup the program id.</span>
-        <span class="comment">// let program_id = manifest.program_id();</span>
+        <span class="comment">// Lookup the program id.
+        // let program_id = manifest.program_id();
 
-        <span class="comment">// Create the Leo build/ directory if it doesn&#39;t exist.</span>
-        <span class="kw">let</span> <span class="ident">build_path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">join</span>(<span class="ident">Path::new</span>(<span class="ident">BUILD_DIRECTORY_NAME</span>));
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">build_path</span>.<span class="ident">exists</span>() {
-            <span class="ident">BuildDirectory::create</span>(<span class="kw-2">&amp;</span><span class="ident">build_path</span>)<span class="question-mark">?</span>;
+        // Create the Leo build/ directory if it doesn&#39;t exist.
+        </span><span class="kw">let </span>build_path = path.join(Path::new(BUILD_DIRECTORY_NAME));
+        <span class="kw">if </span>!build_path.exists() {
+            BuildDirectory::create(<span class="kw-2">&amp;</span>build_path)<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.</span>
+        <span class="comment">// Mirror the program.json file in the Leo build/ directory for Aleo SDK compilation.
 
-        <span class="comment">// Read the manifest file to string.</span>
-        <span class="kw">let</span> <span class="ident">manifest_string</span> <span class="op">=</span>
-            <span class="ident">std::fs::read_to_string</span>(<span class="ident">manifest</span>.<span class="ident">path</span>()).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
+        // Read the manifest file to string.
+        </span><span class="kw">let </span>manifest_string =
+            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
-        <span class="comment">// Construct the file path.</span>
-        <span class="kw">let</span> <span class="ident">build_manifest_path</span> <span class="op">=</span> <span class="ident">build_path</span>.<span class="ident">join</span>(<span class="ident">Manifest</span>::<span class="op">&lt;</span><span class="ident">Network</span><span class="op">&gt;</span><span class="ident">::file_name</span>());
+        <span class="comment">// Construct the file path.
+        </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;Network&gt;::file_name());
 
-        <span class="comment">// Write the file.</span>
-        <span class="ident">File::create</span>(<span class="ident">build_manifest_path</span>)
-            .<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>
-            .<span class="ident">write_all</span>(<span class="ident">manifest_string</span>.<span class="ident">as_bytes</span>())
-            .<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_open_manifest</span>)<span class="question-mark">?</span>;
+        <span class="comment">// Write the file.
+        </span>File::create(build_manifest_path)
+            .map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?
+            </span>.write_all(manifest_string.as_bytes())
+            .map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
-        <span class="comment">// Get package name from program id.</span>
-        <span class="prelude-val">Ok</span>(<span class="ident">manifest</span>)
+        <span class="comment">// Get package name from program id.
+        </span><span class="prelude-val">Ok</span>(manifest)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_lang" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

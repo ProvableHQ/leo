@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_expressions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_expressions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visit_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../leo_passes/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../leo_passes/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -316,323 +316,323 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
-</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.</span>
-<span class="comment">// This file is part of the Leo library.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
+// This file is part of the Leo library.
 
-<span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
-<span class="comment">// it under the terms of the GNU General Public License as published by</span>
-<span class="comment">// the Free Software Foundation, either version 3 of the License, or</span>
-<span class="comment">// (at your option) any later version.</span>
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
-<span class="comment">// The Leo library is distributed in the hope that it will be useful,</span>
-<span class="comment">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="comment">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-<span class="comment">// GNU General Public License for more details.</span>
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-<span class="comment">// You should have received a copy of the GNU General Public License</span>
-<span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CodeGenerator</span>;
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{
-    <span class="ident">AccessExpression</span>, <span class="ident">AssociatedFunction</span>, <span class="ident">BinaryExpression</span>, <span class="ident">BinaryOperation</span>, <span class="ident">CallExpression</span>, <span class="ident">ErrExpression</span>, <span class="ident">Expression</span>,
-    <span class="ident">Identifier</span>, <span class="ident">Literal</span>, <span class="ident">MemberAccess</span>, <span class="ident">StructExpression</span>, <span class="ident">TernaryExpression</span>, <span class="ident">TupleExpression</span>, <span class="ident">Type</span>, <span class="ident">UnaryExpression</span>,
-    <span class="ident">UnaryOperation</span>,
+</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
+<span class="kw">use </span>leo_ast::{
+    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
+    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
+    UnaryOperation,
 };
-<span class="kw">use</span> <span class="ident">leo_span::sym</span>;
+<span class="kw">use </span>leo_span::sym;
 
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span> <span class="kw">as</span> <span class="kw">_</span>;
+<span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
-<span class="doccomment">/// Implement the necessary methods to visit nodes in the AST.</span>
-<span class="comment">// Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires</span>
-<span class="comment">// a post-order traversal of the AST. This is sufficient since this implementation is intended to be</span>
-<span class="comment">// a prototype. The production implementation will require a redesign of `Director`.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CodeGenerator</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">visit_expression</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Expression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">Expression::Access</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_access</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Binary</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_binary</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Call</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_call</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Struct</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_struct_init</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Err</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_err</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Identifier</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Literal</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_value</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Ternary</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_ternary</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Tuple</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_tuple</span>(<span class="ident">expr</span>),
-            <span class="ident">Expression::Unary</span>(<span class="ident">expr</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_unary</span>(<span class="ident">expr</span>),
+<span class="doccomment">/// Implement the necessary methods to visit nodes in the AST.
+</span><span class="comment">// Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
+// a post-order traversal of the AST. This is sufficient since this implementation is intended to be
+// a prototype. The production implementation will require a redesign of `Director`.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression) -&gt; (String, String) {
+        <span class="kw">match </span>input {
+            Expression::Access(expr) =&gt; <span class="self">self</span>.visit_access(expr),
+            Expression::Binary(expr) =&gt; <span class="self">self</span>.visit_binary(expr),
+            Expression::Call(expr) =&gt; <span class="self">self</span>.visit_call(expr),
+            Expression::Struct(expr) =&gt; <span class="self">self</span>.visit_struct_init(expr),
+            Expression::Err(expr) =&gt; <span class="self">self</span>.visit_err(expr),
+            Expression::Identifier(expr) =&gt; <span class="self">self</span>.visit_identifier(expr),
+            Expression::Literal(expr) =&gt; <span class="self">self</span>.visit_value(expr),
+            Expression::Ternary(expr) =&gt; <span class="self">self</span>.visit_ternary(expr),
+            Expression::Tuple(expr) =&gt; <span class="self">self</span>.visit_tuple(expr),
+            Expression::Unary(expr) =&gt; <span class="self">self</span>.visit_unary(expr),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_identifier</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Identifier</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        (<span class="self">self</span>.<span class="ident">variable_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>(), <span class="ident">String::new</span>())
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier) -&gt; (String, String) {
+        (<span class="self">self</span>.variable_mapping.get(<span class="kw-2">&amp;</span>input.name).unwrap().clone(), String::new())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_err</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ErrExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
+    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrExpression) -&gt; (String, String) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Literal</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        (<span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>), <span class="ident">String::new</span>())
+    <span class="kw">fn </span>visit_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Literal) -&gt; (String, String) {
+        (<span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>), String::new())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_binary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">BinaryExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> (<span class="ident">left_operand</span>, <span class="ident">left_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">left</span>);
-        <span class="kw">let</span> (<span class="ident">right_operand</span>, <span class="ident">right_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">right</span>);
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BinaryExpression) -&gt; (String, String) {
+        <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left);
+        <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right);
 
-        <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">op</span> {
-            <span class="ident">BinaryOperation::Add</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;add&quot;</span>),
-            <span class="ident">BinaryOperation::AddWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;add.w&quot;</span>),
-            <span class="ident">BinaryOperation::And</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;and&quot;</span>),
-            <span class="ident">BinaryOperation::BitwiseAnd</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;and&quot;</span>),
-            <span class="ident">BinaryOperation::Div</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;div&quot;</span>),
-            <span class="ident">BinaryOperation::DivWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;div.w&quot;</span>),
-            <span class="ident">BinaryOperation::Eq</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;is.eq&quot;</span>),
-            <span class="ident">BinaryOperation::Gte</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;gte&quot;</span>),
-            <span class="ident">BinaryOperation::Gt</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;gt&quot;</span>),
-            <span class="ident">BinaryOperation::Lte</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;lte&quot;</span>),
-            <span class="ident">BinaryOperation::Lt</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;lt&quot;</span>),
-            <span class="ident">BinaryOperation::Mod</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;mod&quot;</span>),
-            <span class="ident">BinaryOperation::Mul</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;mul&quot;</span>),
-            <span class="ident">BinaryOperation::MulWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;mul.w&quot;</span>),
-            <span class="ident">BinaryOperation::Nand</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;nand&quot;</span>),
-            <span class="ident">BinaryOperation::Neq</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;is.neq&quot;</span>),
-            <span class="ident">BinaryOperation::Nor</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;nor&quot;</span>),
-            <span class="ident">BinaryOperation::Or</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;or&quot;</span>),
-            <span class="ident">BinaryOperation::BitwiseOr</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;or&quot;</span>),
-            <span class="ident">BinaryOperation::Pow</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;pow&quot;</span>),
-            <span class="ident">BinaryOperation::PowWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;pow.w&quot;</span>),
-            <span class="ident">BinaryOperation::Rem</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;rem&quot;</span>),
-            <span class="ident">BinaryOperation::RemWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;rem.w&quot;</span>),
-            <span class="ident">BinaryOperation::Shl</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;shl&quot;</span>),
-            <span class="ident">BinaryOperation::ShlWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;shl.w&quot;</span>),
-            <span class="ident">BinaryOperation::Shr</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;shr&quot;</span>),
-            <span class="ident">BinaryOperation::ShrWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;shr.w&quot;</span>),
-            <span class="ident">BinaryOperation::Sub</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;sub&quot;</span>),
-            <span class="ident">BinaryOperation::SubWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;sub.w&quot;</span>),
-            <span class="ident">BinaryOperation::Xor</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;xor&quot;</span>),
+        <span class="kw">let </span>opcode = <span class="kw">match </span>input.op {
+            BinaryOperation::Add =&gt; String::from(<span class="string">&quot;add&quot;</span>),
+            BinaryOperation::AddWrapped =&gt; String::from(<span class="string">&quot;add.w&quot;</span>),
+            BinaryOperation::And =&gt; String::from(<span class="string">&quot;and&quot;</span>),
+            BinaryOperation::BitwiseAnd =&gt; String::from(<span class="string">&quot;and&quot;</span>),
+            BinaryOperation::Div =&gt; String::from(<span class="string">&quot;div&quot;</span>),
+            BinaryOperation::DivWrapped =&gt; String::from(<span class="string">&quot;div.w&quot;</span>),
+            BinaryOperation::Eq =&gt; String::from(<span class="string">&quot;is.eq&quot;</span>),
+            BinaryOperation::Gte =&gt; String::from(<span class="string">&quot;gte&quot;</span>),
+            BinaryOperation::Gt =&gt; String::from(<span class="string">&quot;gt&quot;</span>),
+            BinaryOperation::Lte =&gt; String::from(<span class="string">&quot;lte&quot;</span>),
+            BinaryOperation::Lt =&gt; String::from(<span class="string">&quot;lt&quot;</span>),
+            BinaryOperation::Mod =&gt; String::from(<span class="string">&quot;mod&quot;</span>),
+            BinaryOperation::Mul =&gt; String::from(<span class="string">&quot;mul&quot;</span>),
+            BinaryOperation::MulWrapped =&gt; String::from(<span class="string">&quot;mul.w&quot;</span>),
+            BinaryOperation::Nand =&gt; String::from(<span class="string">&quot;nand&quot;</span>),
+            BinaryOperation::Neq =&gt; String::from(<span class="string">&quot;is.neq&quot;</span>),
+            BinaryOperation::Nor =&gt; String::from(<span class="string">&quot;nor&quot;</span>),
+            BinaryOperation::Or =&gt; String::from(<span class="string">&quot;or&quot;</span>),
+            BinaryOperation::BitwiseOr =&gt; String::from(<span class="string">&quot;or&quot;</span>),
+            BinaryOperation::Pow =&gt; String::from(<span class="string">&quot;pow&quot;</span>),
+            BinaryOperation::PowWrapped =&gt; String::from(<span class="string">&quot;pow.w&quot;</span>),
+            BinaryOperation::Rem =&gt; String::from(<span class="string">&quot;rem&quot;</span>),
+            BinaryOperation::RemWrapped =&gt; String::from(<span class="string">&quot;rem.w&quot;</span>),
+            BinaryOperation::Shl =&gt; String::from(<span class="string">&quot;shl&quot;</span>),
+            BinaryOperation::ShlWrapped =&gt; String::from(<span class="string">&quot;shl.w&quot;</span>),
+            BinaryOperation::Shr =&gt; String::from(<span class="string">&quot;shr&quot;</span>),
+            BinaryOperation::ShrWrapped =&gt; String::from(<span class="string">&quot;shr.w&quot;</span>),
+            BinaryOperation::Sub =&gt; String::from(<span class="string">&quot;sub&quot;</span>),
+            BinaryOperation::SubWrapped =&gt; String::from(<span class="string">&quot;sub.w&quot;</span>),
+            BinaryOperation::Xor =&gt; String::from(<span class="string">&quot;xor&quot;</span>),
         };
 
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="kw">let</span> <span class="ident">binary_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>binary_instruction = <span class="macro">format!</span>(
             <span class="string">&quot;    {} {} {} into {};\n&quot;</span>,
-            <span class="ident">opcode</span>, <span class="ident">left_operand</span>, <span class="ident">right_operand</span>, <span class="ident">destination_register</span>
+            opcode, left_operand, right_operand, destination_register
         );
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        <span class="comment">// Concatenate the instructions.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">left_instructions</span>;
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">right_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">binary_instruction</span>);
+        <span class="comment">// Concatenate the instructions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = left_instructions;
+        instructions.push_str(<span class="kw-2">&amp;</span>right_instructions);
+        instructions.push_str(<span class="kw-2">&amp;</span>binary_instruction);
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_unary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">UnaryExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> (<span class="ident">expression_operand</span>, <span class="ident">expression_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">receiver</span>);
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnaryExpression) -&gt; (String, String) {
+        <span class="kw">let </span>(expression_operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver);
 
-        <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">op</span> {
-            <span class="ident">UnaryOperation::Abs</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;abs&quot;</span>),
-            <span class="ident">UnaryOperation::AbsWrapped</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;abs.w&quot;</span>),
-            <span class="ident">UnaryOperation::Double</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;double&quot;</span>),
-            <span class="ident">UnaryOperation::Inverse</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;inv&quot;</span>),
-            <span class="ident">UnaryOperation::Not</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;not&quot;</span>),
-            <span class="ident">UnaryOperation::Negate</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;neg&quot;</span>),
-            <span class="ident">UnaryOperation::Square</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;square&quot;</span>),
-            <span class="ident">UnaryOperation::SquareRoot</span> =&gt; <span class="ident">String::from</span>(<span class="string">&quot;sqrt&quot;</span>),
+        <span class="kw">let </span>opcode = <span class="kw">match </span>input.op {
+            UnaryOperation::Abs =&gt; String::from(<span class="string">&quot;abs&quot;</span>),
+            UnaryOperation::AbsWrapped =&gt; String::from(<span class="string">&quot;abs.w&quot;</span>),
+            UnaryOperation::Double =&gt; String::from(<span class="string">&quot;double&quot;</span>),
+            UnaryOperation::Inverse =&gt; String::from(<span class="string">&quot;inv&quot;</span>),
+            UnaryOperation::Not =&gt; String::from(<span class="string">&quot;not&quot;</span>),
+            UnaryOperation::Negate =&gt; String::from(<span class="string">&quot;neg&quot;</span>),
+            UnaryOperation::Square =&gt; String::from(<span class="string">&quot;square&quot;</span>),
+            UnaryOperation::SquareRoot =&gt; String::from(<span class="string">&quot;sqrt&quot;</span>),
         };
 
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="kw">let</span> <span class="ident">unary_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {opcode} {expression_operand} into {destination_register};\n&quot;</span>);
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>unary_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode} {expression_operand} into {destination_register};\n&quot;</span>);
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        <span class="comment">// Concatenate the instructions.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">expression_instructions</span>;
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">unary_instruction</span>);
+        <span class="comment">// Concatenate the instructions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = expression_instructions;
+        instructions.push_str(<span class="kw-2">&amp;</span>unary_instruction);
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_ternary</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TernaryExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> (<span class="ident">condition_operand</span>, <span class="ident">condition_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">condition</span>);
-        <span class="kw">let</span> (<span class="ident">if_true_operand</span>, <span class="ident">if_true_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">if_true</span>);
-        <span class="kw">let</span> (<span class="ident">if_false_operand</span>, <span class="ident">if_false_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">if_false</span>);
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TernaryExpression) -&gt; (String, String) {
+        <span class="kw">let </span>(condition_operand, condition_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition);
+        <span class="kw">let </span>(if_true_operand, if_true_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true);
+        <span class="kw">let </span>(if_false_operand, if_false_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false);
 
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="kw">let</span> <span class="ident">ternary_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>ternary_instruction = <span class="macro">format!</span>(
             <span class="string">&quot;    ternary {} {} {} into {};\n&quot;</span>,
-            <span class="ident">condition_operand</span>, <span class="ident">if_true_operand</span>, <span class="ident">if_false_operand</span>, <span class="ident">destination_register</span>
+            condition_operand, if_true_operand, if_false_operand, destination_register
         );
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        <span class="comment">// Concatenate the instructions.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">condition_instructions</span>;
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">if_true_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">if_false_instructions</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">ternary_instruction</span>);
+        <span class="comment">// Concatenate the instructions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = condition_instructions;
+        instructions.push_str(<span class="kw-2">&amp;</span>if_true_instructions);
+        instructions.push_str(<span class="kw-2">&amp;</span>if_false_instructions);
+        instructions.push_str(<span class="kw-2">&amp;</span>ternary_instruction);
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_struct_init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StructExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="comment">// Lookup struct or record.</span>
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">is_record</span>, <span class="ident">type_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">composite_mapping</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">name</span>) {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">is_record</span> {
-                <span class="comment">// record.private;</span>
-                <span class="macro">format!</span>(<span class="string">&quot;{}.{type_}&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// foo; // no visibility for interfaces</span>
-                <span class="ident">input</span>.<span class="ident">name</span>.<span class="ident">to_string</span>()
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructExpression) -&gt; (String, String) {
+        <span class="comment">// Lookup struct or record.
+        </span><span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>((is_record, type_)) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>input.name.name) {
+            <span class="kw">if </span><span class="kw-2">*</span>is_record {
+                <span class="comment">// record.private;
+                </span><span class="macro">format!</span>(<span class="string">&quot;{}.{type_}&quot;</span>, input.name)
+            } <span class="kw">else </span>{
+                <span class="comment">// foo; // no visibility for interfaces
+                </span>input.name.to_string()
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">&quot;All composite types should be known at this phase of compilation&quot;</span>)
         };
 
-        <span class="comment">// Initialize instruction builder strings.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">struct_init_instruction</span> <span class="op">=</span> <span class="ident">String::from</span>(<span class="string">&quot;    cast &quot;</span>);
+        <span class="comment">// Initialize instruction builder strings.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>struct_init_instruction = String::from(<span class="string">&quot;    cast &quot;</span>);
 
-        <span class="comment">// Visit each struct member and accumulate instructions from expressions.</span>
-        <span class="kw">for</span> <span class="ident">member</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> <span class="ident">operand</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expr</span>) <span class="op">=</span> <span class="ident">member</span>.<span class="ident">expression</span>.<span class="ident">as_ref</span>() {
-                <span class="comment">// Visit variable expression.</span>
-                <span class="kw">let</span> (<span class="ident">variable_operand</span>, <span class="ident">variable_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>);
-                <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">variable_instructions</span>);
+        <span class="comment">// Visit each struct member and accumulate instructions from expressions.
+        </span><span class="kw">for </span>member <span class="kw">in </span>input.members.iter() {
+            <span class="kw">let </span>operand = <span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = member.expression.as_ref() {
+                <span class="comment">// Visit variable expression.
+                </span><span class="kw">let </span>(variable_operand, variable_instructions) = <span class="self">self</span>.visit_expression(expr);
+                instructions.push_str(<span class="kw-2">&amp;</span>variable_instructions);
 
-                <span class="ident">variable_operand</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// Push operand identifier.</span>
-                <span class="kw">let</span> (<span class="ident">ident_operand</span>, <span class="ident">ident_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_identifier</span>(<span class="kw-2">&amp;</span><span class="ident">member</span>.<span class="ident">identifier</span>);
-                <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">ident_instructions</span>);
+                variable_operand
+            } <span class="kw">else </span>{
+                <span class="comment">// Push operand identifier.
+                </span><span class="kw">let </span>(ident_operand, ident_instructions) = <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>member.identifier);
+                instructions.push_str(<span class="kw-2">&amp;</span>ident_instructions);
 
-                <span class="ident">ident_operand</span>
+                ident_operand
             };
 
-            <span class="comment">// Push operand name to struct init instruction.</span>
-            <span class="macro">write!</span>(<span class="ident">struct_init_instruction</span>, <span class="string">&quot;{operand} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="comment">// Push operand name to struct init instruction.
+            </span><span class="macro">write!</span>(struct_init_instruction, <span class="string">&quot;{operand} &quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
-        <span class="comment">// Push destination register to struct init instruction.</span>
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
+        <span class="comment">// Push destination register to struct init instruction.
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
         <span class="macro">writeln!</span>(
-            <span class="ident">struct_init_instruction</span>,
+            struct_init_instruction,
             <span class="string">&quot;into {dest} as {name};&quot;</span>,
-            <span class="ident">dest</span> <span class="op">=</span> <span class="ident">destination_register</span>,
-            <span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>,
+            dest = destination_register,
+            name = name,
         )
-        .<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
+        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
 
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">struct_init_instruction</span>);
+        instructions.push_str(<span class="kw-2">&amp;</span>struct_init_instruction);
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_member_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">MemberAccess</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> (<span class="ident">inner_struct</span>, <span class="ident">_inner_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">inner</span>);
-        <span class="kw">let</span> <span class="ident">member_access_instruction</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{inner_struct}.{}&quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>);
+    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MemberAccess) -&gt; (String, String) {
+        <span class="kw">let </span>(inner_struct, _inner_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner);
+        <span class="kw">let </span>member_access_instruction = <span class="macro">format!</span>(<span class="string">&quot;{inner_struct}.{}&quot;</span>, input.name);
 
-        (<span class="ident">member_access_instruction</span>, <span class="ident">String::new</span>())
+        (member_access_instruction, String::new())
     }
 
-    <span class="comment">// Pedersen64::hash() -&gt; hash.ped64</span>
-    <span class="kw">fn</span> <span class="ident">visit_associated_function</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AssociatedFunction</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="comment">// Write identifier as opcode. `Pedersen64` -&gt; `ped64`.</span>
-        <span class="kw">let</span> <span class="ident">symbol</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">ty</span> {
-            <span class="kw">match</span> <span class="ident">identifier</span>.<span class="ident">name</span> {
-                <span class="ident">sym::BHP256</span> =&gt; <span class="string">&quot;bhp256&quot;</span>,
-                <span class="ident">sym::BHP512</span> =&gt; <span class="string">&quot;bhp512&quot;</span>,
-                <span class="ident">sym::BHP768</span> =&gt; <span class="string">&quot;bhp768&quot;</span>,
-                <span class="ident">sym::BHP1024</span> =&gt; <span class="string">&quot;bhp1024&quot;</span>,
-                <span class="ident">sym::Pedersen64</span> =&gt; <span class="string">&quot;ped64&quot;</span>,
-                <span class="ident">sym::Pedersen128</span> =&gt; <span class="string">&quot;ped128&quot;</span>,
-                <span class="ident">sym::Poseidon2</span> =&gt; <span class="string">&quot;psd2&quot;</span>,
-                <span class="ident">sym::Poseidon4</span> =&gt; <span class="string">&quot;psd4&quot;</span>,
-                <span class="ident">sym::Poseidon8</span> =&gt; <span class="string">&quot;psd8&quot;</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All core function calls should be known at this time.&quot;</span>),
+    <span class="comment">// Pedersen64::hash() -&gt; hash.ped64
+    </span><span class="kw">fn </span>visit_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssociatedFunction) -&gt; (String, String) {
+        <span class="comment">// Write identifier as opcode. `Pedersen64` -&gt; `ped64`.
+        </span><span class="kw">let </span>symbol: <span class="kw-2">&amp;</span>str = <span class="kw">if let </span>Type::Identifier(identifier) = input.ty {
+            <span class="kw">match </span>identifier.name {
+                sym::BHP256 =&gt; <span class="string">&quot;bhp256&quot;</span>,
+                sym::BHP512 =&gt; <span class="string">&quot;bhp512&quot;</span>,
+                sym::BHP768 =&gt; <span class="string">&quot;bhp768&quot;</span>,
+                sym::BHP1024 =&gt; <span class="string">&quot;bhp1024&quot;</span>,
+                sym::Pedersen64 =&gt; <span class="string">&quot;ped64&quot;</span>,
+                sym::Pedersen128 =&gt; <span class="string">&quot;ped128&quot;</span>,
+                sym::Poseidon2 =&gt; <span class="string">&quot;psd2&quot;</span>,
+                sym::Poseidon4 =&gt; <span class="string">&quot;psd4&quot;</span>,
+                sym::Poseidon8 =&gt; <span class="string">&quot;psd8&quot;</span>,
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All core function calls should be known at this time.&quot;</span>),
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">unreachable!</span>(<span class="string">&quot;All core function should be known at this time.&quot;</span>)
         };
 
-        <span class="comment">// Construct associated function call.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">associated_function_call</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;    {}.{symbol} &quot;</span>, <span class="ident">input</span>.<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="comment">// Construct associated function call.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>associated_function_call = <span class="macro">format!</span>(<span class="string">&quot;    {}.{symbol} &quot;</span>, input.name);
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
-        <span class="comment">// Visit each function argument and accumulate instructions from expressions.</span>
-        <span class="kw">for</span> <span class="ident">arg</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">args</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">arg_string</span>, <span class="ident">arg_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">arg</span>);
-            <span class="macro">write!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;{arg_string} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write associated function argument&quot;</span>);
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">arg_instructions</span>);
+        <span class="comment">// Visit each function argument and accumulate instructions from expressions.
+        </span><span class="kw">for </span>arg <span class="kw">in </span>input.args.iter() {
+            <span class="kw">let </span>(arg_string, arg_instructions) = <span class="self">self</span>.visit_expression(arg);
+            <span class="macro">write!</span>(associated_function_call, <span class="string">&quot;{arg_string} &quot;</span>).expect(<span class="string">&quot;failed to write associated function argument&quot;</span>);
+            instructions.push_str(<span class="kw-2">&amp;</span>arg_instructions);
         }
 
-        <span class="comment">// Push destination register to associated function call instruction.</span>
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="macro">writeln!</span>(<span class="ident">associated_function_call</span>, <span class="string">&quot;into {destination_register};&quot;</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;failed to write dest register for associated function&quot;</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">associated_function_call</span>);
+        <span class="comment">// Push destination register to associated function call instruction.
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="macro">writeln!</span>(associated_function_call, <span class="string">&quot;into {destination_register};&quot;</span>)
+            .expect(<span class="string">&quot;failed to write dest register for associated function&quot;</span>);
+        instructions.push_str(<span class="kw-2">&amp;</span>associated_function_call);
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_access</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">AccessExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">match</span> <span class="ident">input</span> {
-            <span class="ident">AccessExpression::Member</span>(<span class="ident">access</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_member_access</span>(<span class="ident">access</span>),
-            <span class="ident">AccessExpression::AssociatedConstant</span>(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(), <span class="comment">// Associated constants are not supported in AVM yet.</span>
-            <span class="ident">AccessExpression::AssociatedFunction</span>(<span class="ident">function</span>) =&gt; <span class="self">self</span>.<span class="ident">visit_associated_function</span>(<span class="ident">function</span>),
-            <span class="ident">AccessExpression::Tuple</span>(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(), <span class="comment">// Tuples are not supported in AVM yet.</span>
-        }
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression) -&gt; (String, String) {
+        <span class="kw">match </span>input {
+            AccessExpression::Member(access) =&gt; <span class="self">self</span>.visit_member_access(access),
+            AccessExpression::AssociatedConstant(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(), <span class="comment">// Associated constants are not supported in AVM yet.
+            </span>AccessExpression::AssociatedFunction(function) =&gt; <span class="self">self</span>.visit_associated_function(function),
+            AccessExpression::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(), <span class="comment">// Tuples are not supported in AVM yet.
+        </span>}
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_call</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">CallExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">call_instruction</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">external</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">external</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, <span class="ident">input</span>.<span class="ident">function</span>),
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
+        <span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">match </span><span class="kw-2">&amp;</span>input.external {
+            <span class="prelude-val">Some</span>(external) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{} &quot;</span>, input.function),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, input.function),
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
-        <span class="kw">for</span> <span class="ident">argument</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">argument</span>, <span class="ident">argument_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">argument</span>);
-            <span class="macro">write!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;{argument} &quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">argument_instructions</span>);
+        <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
+            <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
+            <span class="macro">write!</span>(call_instruction, <span class="string">&quot;{argument} &quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
 
-        <span class="comment">// Push destination register to call instruction.</span>
-        <span class="kw">let</span> <span class="ident">destination_register</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.<span class="ident">next_register</span>);
-        <span class="macro">writeln!</span>(<span class="ident">call_instruction</span>, <span class="string">&quot;into {destination_register};&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;failed to write to string&quot;</span>);
-        <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">call_instruction</span>);
+        <span class="comment">// Push destination register to call instruction.
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+        instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
-        <span class="comment">// Increment the register counter.</span>
-        <span class="self">self</span>.<span class="ident">next_register</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Increment the register counter.
+        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
-        (<span class="ident">destination_register</span>, <span class="ident">instructions</span>)
+        (destination_register, instructions)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_tuple</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">TupleExpression</span>) -&gt; (<span class="ident">String</span>, <span class="ident">String</span>) {
-        <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39;\n&#39;</span>
-        <span class="comment">// and split them after this method is called.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tuple_elements</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">String::new</span>();
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression) -&gt; (String, String) {
+        <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39;\n&#39;
+        // and split them after this method is called.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>tuple_elements = Vec::with_capacity(input.elements.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
-        <span class="comment">// Visit each tuple element and accumulate instructions from expressions.</span>
-        <span class="kw">for</span> <span class="ident">element</span> <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">elements</span>.<span class="ident">iter</span>() {
-            <span class="kw">let</span> (<span class="ident">element</span>, <span class="ident">element_instructions</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">element</span>);
-            <span class="ident">tuple_elements</span>.<span class="ident">push</span>(<span class="ident">element</span>);
-            <span class="ident">instructions</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="ident">element_instructions</span>);
+        <span class="comment">// Visit each tuple element and accumulate instructions from expressions.
+        </span><span class="kw">for </span>element <span class="kw">in </span>input.elements.iter() {
+            <span class="kw">let </span>(element, element_instructions) = <span class="self">self</span>.visit_expression(element);
+            tuple_elements.push(element);
+            instructions.push_str(<span class="kw-2">&amp;</span>element_instructions);
         }
 
-        <span class="comment">// CAUTION: does not return the destination_register.</span>
-        (<span class="ident">tuple_elements</span>.<span class="ident">join</span>(<span class="string">&quot;\n&quot;</span>), <span class="ident">instructions</span>)
+        <span class="comment">// CAUTION: does not return the destination_register.
+        </span>(tuple_elements.join(<span class="string">&quot;\n&quot;</span>), instructions)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_passes" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
