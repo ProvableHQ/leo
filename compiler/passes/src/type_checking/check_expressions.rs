@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::TypeChecker;
+
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::TypeCheckerError;
 use leo_span::{sym, Span};
-use std::str::FromStr;
 
-use crate::TypeChecker;
+use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -461,7 +462,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                     }
 
-                    let ret = self.assert_and_return_type(func.output_type, expected, func.span);
+                    let ret = self.assert_and_return_type(func.output_type, expected, input.span());
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
@@ -544,11 +545,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
+    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name) {
+            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
             None
         }
     }
