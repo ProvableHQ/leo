@@ -703,6 +703,7 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
+<span id="706">706</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -719,13 +720,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+</span><span class="kw">use </span><span class="kw">crate</span>::TypeChecker;
+
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::emitter::Handler;
 <span class="kw">use </span>leo_errors::TypeCheckerError;
 <span class="kw">use </span>leo_span::{sym, Span};
-<span class="kw">use </span>std::str::FromStr;
 
-<span class="kw">use </span><span class="kw">crate</span>::TypeChecker;
+<span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">fn </span>return_incorrect_type(t1: <span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Type&gt; {
     <span class="kw">match </span>(t1, t2) {
@@ -1166,7 +1168,7 @@
                         }
                     }
 
-                    <span class="kw">let </span>ret = <span class="self">self</span>.assert_and_return_type(func.output_type, expected, func.span);
+                    <span class="kw">let </span>ret = <span class="self">self</span>.assert_and_return_type(func.output_type, expected, input.span());
 
                     <span class="comment">// Check number of function arguments.
                     </span><span class="kw">if </span>func.input.len() != input.arguments.len() {
@@ -1249,11 +1251,11 @@
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, var: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(var.name) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, var.span))
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(input.name) {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, var.name, var.span()));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, input.name, input.span()));
             <span class="prelude-val">None
         </span>}
     }
