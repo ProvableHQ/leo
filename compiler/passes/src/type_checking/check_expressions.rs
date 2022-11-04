@@ -609,7 +609,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             },
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+            Literal::String(_, _) => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
+                self.assert_and_return_type(Type::String, expected, input.span())
+            }
         })
     }
 

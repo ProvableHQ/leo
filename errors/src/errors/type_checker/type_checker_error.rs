@@ -432,6 +432,13 @@ create_messages!(
     }
 
     @formatted
+    strings_are_not_supported {
+        args: (),
+        msg: format!("Strings are not yet supported."),
+        help: None,
+    }
+
+    @formatted
     imported_program_cannot_import_program {
         args: (),
         msg: format!("An imported program cannot import another program."),

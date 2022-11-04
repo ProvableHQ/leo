@@ -1,10 +1,5 @@
 ---
 namespace: Compile
-expectation: Pass
+expectation: Fail
 outputs:
-  - output:
-      - initial_input_ast: no input
-    initial_ast: d0b2004e12f3110cdaa10fdb79b46df1feb01dff5bf7285a7770910cad91b531
-    unrolled_ast: d0b2004e12f3110cdaa10fdb79b46df1feb01dff5bf7285a7770910cad91b531
-    ssa_ast: 016ce666473f43fda070fda790466b0c6907871eaeb0cb1e1d99e22cb025e5be
-    flattened_ast: 31f292c587ed5bfacfbf81159532bcf87d2d2673d7301adfe6e7ea914923fe6e
+  - "Error [ETYC0372050]: Strings are not yet supported.\n    --> compiler-test:6:9\n     |\n   6 |         let str:string = \"a a a\";\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372050]: Strings are not yet supported.\n    --> compiler-test:6:26\n     |\n   6 |         let str:string = \"a a a\";\n     |                          ^^^^^^^\nError [ETYC0372050]: Strings are not yet supported.\n    --> compiler-test:7:19\n     |\n   7 |         if(str == \"b b  b\") {\n     |                   ^^^^^^^^\n"
