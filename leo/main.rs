@@ -82,9 +82,8 @@ enum Commands {
         #[structopt(flatten)]
         command: Run,
     },
-    #[structopt(subcommand)]
-    Node(Node),
-
+    // #[structopt(subcommand)]
+    // Node(Node),
     #[structopt(about = "Deploy a program")]
     Deploy {
         #[structopt(flatten)]
@@ -153,7 +152,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Build { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
-        Commands::Node(command) => command.try_execute(context),
+        // Commands::Node(command) => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
     }
 }
