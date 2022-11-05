@@ -73,7 +73,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > 15 {
-            self.emit_err(TypeCheckerError::too_many_transitions(15, input.program_id.name.span + input.program_id.network.span));
+            self.emit_err(TypeCheckerError::too_many_transitions(
+                15,
+                input.program_id.name.span + input.program_id.network.span,
+            ));
         }
     }
 
