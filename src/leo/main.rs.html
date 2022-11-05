@@ -161,7 +161,6 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-<span id="164">164</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -246,10 +245,9 @@
         <span class="attribute">#[structopt(flatten)]
         </span>command: Run,
     },
-    <span class="attribute">#[structopt(subcommand)]
-    </span>Node(Node),
-
-    <span class="attribute">#[structopt(about = <span class="string">&quot;Deploy a program&quot;</span>)]
+    <span class="comment">// #[structopt(subcommand)]
+    // Node(Node),
+    </span><span class="attribute">#[structopt(about = <span class="string">&quot;Deploy a program&quot;</span>)]
     </span>Deploy {
         <span class="attribute">#[structopt(flatten)]
         </span>command: Deploy,
@@ -317,8 +315,8 @@
         Commands::Build { command } =&gt; command.try_execute(context),
         Commands::Clean { command } =&gt; command.try_execute(context),
         Commands::Run { command } =&gt; command.try_execute(context),
-        Commands::Node(command) =&gt; command.try_execute(context),
-        Commands::Deploy { command } =&gt; command.try_execute(context),
+        <span class="comment">// Commands::Node(command) =&gt; command.try_execute(context),
+        </span>Commands::Deploy { command } =&gt; command.try_execute(context),
     }
 }
 

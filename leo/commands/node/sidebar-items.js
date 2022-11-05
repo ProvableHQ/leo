@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["Node","Commands to operate a local development node."]]};
