@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::TypeChecker;
+
 use leo_ast::*;
 use leo_errors::emitter::Handler;
 use leo_errors::TypeCheckerError;
 use leo_span::{sym, Span};
-use std::str::FromStr;
 
-use crate::TypeChecker;
+use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -143,7 +144,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
                                         // Case where `access.name` is a member of the struct.
-                                        Some(Member { type_, .. }) => return Some(type_.clone()),
+                                        Some(Member { type_, .. }) => {
+                                            // Check that the type of `access.name` is the same as `expected`.
+                                            return Some(self.assert_and_return_type(
+                                                type_.clone(),
+                                                expected,
+                                                access.span(),
+                                            ));
+                                        }
                                         // Case where `access.name` is not a member of the struct.
                                         None => {
                                             self.emit_err(TypeCheckerError::invalid_struct_variable(
@@ -454,7 +462,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                     }
 
-                    let ret = self.assert_and_return_type(func.output_type, expected, func.span);
+                    let ret = self.assert_and_return_type(func.output_type, expected, input.span());
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
@@ -537,11 +545,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, var: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(var.name) {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, var.span))
+    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name) {
+            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var.name, var.span()));
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
             None
         }
     }
@@ -601,7 +609,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             },
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
             Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            Literal::String(_, _) => self.assert_and_return_type(Type::String, expected, input.span()),
+            Literal::String(_, _) => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
+                self.assert_and_return_type(Type::String, expected, input.span())
+            }
         })
     }
 

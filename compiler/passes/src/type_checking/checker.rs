@@ -39,6 +39,8 @@ pub struct TypeChecker<'a> {
     pub(crate) is_transition_function: bool,
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
+    /// Whether or not we are currently traversing an imported program.
+    pub(crate) is_imported: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -95,6 +97,7 @@ impl<'a> TypeChecker<'a> {
             has_return: false,
             has_finalize: false,
             is_finalize: false,
+            is_imported: false,
         }
     }
 
@@ -387,6 +390,10 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the type is not valid.
     pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
         match type_ {
+            // String types are temporarily disabled.
+            Type::String => {
+                self.emit_err(TypeCheckerError::strings_are_not_supported(span));
+            }
             // Check that the named composite type has been defined.
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));

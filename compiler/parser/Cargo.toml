@@ -32,7 +32,7 @@ version = "1.5.3"
 
 [dependencies.snarkvm-console]
 git = "https://github.com/AleoHQ/snarkVM.git"
-rev = "ea14990"
+version = "0.9.1"
 features = ["account", "network"]
 
 [dependencies.clap]

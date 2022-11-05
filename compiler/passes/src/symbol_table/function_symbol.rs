@@ -38,7 +38,7 @@ pub struct FunctionSymbol {
     /// Is this function a transition, inlined, or a regular function?.
     pub call_type: CallType,
     /// The `Span` associated with the function.
-    pub(crate) span: Span,
+    pub(crate) _span: Span,
     /// The inputs to the function.
     pub(crate) input: Vec<Input>,
     /// Metadata associated with the finalize block.
@@ -51,7 +51,7 @@ impl SymbolTable {
             id,
             output_type: func.output_type.clone(),
             call_type: func.call_type,
-            span: func.span,
+            _span: func.span,
             input: func.input.clone(),
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
                 input: finalize.input.clone(),

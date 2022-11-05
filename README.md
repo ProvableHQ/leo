@@ -19,9 +19,10 @@ Leo is a functional, statically-typed programming language built for writing pri
     * [2.1 Install Rust](#21-install-rust)
     * [2.2 Build from Source Code](#22-build-from-source-code)
 * [3. Quick Start](#3-quick-start)
-* [4. Documentation](#4-documentation)
-* [5. Contributing](#5-contributing)
-* [6. License](#6-license)
+* [4. Troubleshooting](#4-troubleshooting)
+* [5. Documentation](#5-documentation)
+* [6. Contributing](#6-contributing)
+* [7. License](#7-license)
 
 
 ## 1. Overview
@@ -93,18 +94,23 @@ The `leo run` command will compile the program into Aleo instructions and run it
 
 Congratulations! You've just run your first Leo program.
 
-## 4. Documentation
+## 4. Troubleshooting
+If you are are having trouble installing and using Leo, please check out our [guide](docs/troubleshooting.md).
+
+If the issue still persists, please [open an issue](https://github.com/AleoHQ/leo/issues/new/choose).
+
+## 5. Documentation
 
 * [Hello World - Next Steps](https://developer.aleo.org/leo/getting_started/hello_world)
 * [Leo Language Documentation](https://developer.aleo.org/leo/getting_started/overview)
 * [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
 * [Homepage](https://developer.aleo.org/overview/)
 
-## 5. Contributing
+## 6. Contributing
  
 Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 Thank you for helping make Leo better!
 
-## 6. License 
+## 7. License 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
