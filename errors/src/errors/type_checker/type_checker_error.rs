@@ -444,4 +444,11 @@ create_messages!(
         msg: format!("An imported program cannot import another program."),
         help: None,
     }
+
+    @formatted
+    too_many_transitions {
+        args: (max: impl Display),
+        msg: format!("The number of transitions exceeds the maximum. snarkVM allows up to {max} transitions within a single program."),
+        help: None,
+    }
 );
