@@ -53,7 +53,7 @@ impl<'a> CodeGenerator<'a> {
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.
+        // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo struct.
         program_string.push_str(
             &program_scope
                 .structs
@@ -126,7 +126,7 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping
             .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
-        let mut output_string = format!("interface {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+        let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
