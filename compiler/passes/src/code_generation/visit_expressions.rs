@@ -167,7 +167,7 @@ impl<'a> CodeGenerator<'a> {
                 // record.private;
                 format!("{}.{type_}", input.name)
             } else {
-                // foo; // no visibility for interfaces
+                // foo; // no visibility for structs
                 input.name.to_string()
             }
         } else {
