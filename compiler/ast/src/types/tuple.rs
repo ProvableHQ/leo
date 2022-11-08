@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Type;
-use leo_errors::{AstError, Result};
 
 use serde::{Deserialize, Serialize};
 use std::{fmt, ops::Deref};

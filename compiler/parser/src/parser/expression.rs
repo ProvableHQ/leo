@@ -433,7 +433,7 @@ impl ParserContext<'_> {
                 false => Ok(elements.swap_remove(0)),
                 // If there is one element in the tuple and a trailing comma, e.g `(foo,)`, emit an error since tuples must have at least two elements.
                 true => Err(ParserError::tuple_must_have_at_least_two_elements("expression", span).into()),
-            }
+            },
             // Otherwise, return a tuple expression.
             // Note: This is the only place where `TupleExpression` is constructed in the parser.
             _ => Ok(Expression::Tuple(TupleExpression { elements, span })),

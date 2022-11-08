@@ -326,6 +326,22 @@ impl ExpressionReconstructor for Flattener<'_> {
 
                 (Expression::Identifier(identifier), statements)
             }
+            // If both expressions are identifiers which map to tuples, construct ternary expression over the tuples.
+            (Expression::Identifier(first), Expression::Identifier(second))
+                if self.tuples.contains_key(&first.name) && self.tuples.contains_key(&second.name) =>
+            {
+                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                let first_tuple = self.tuples.get(&first.name).unwrap();
+                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                let second_tuple = self.tuples.get(&second.name).unwrap();
+                // Note that type checking guarantees that both expressions have the same same type.
+                self.reconstruct_ternary(TernaryExpression {
+                    condition: input.condition,
+                    if_true: Box::new(Expression::Tuple(first_tuple.clone())),
+                    if_false: Box::new(Expression::Tuple(second_tuple.clone())),
+                    span: input.span,
+                })
+            }
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.
             (if_true, if_false) => {

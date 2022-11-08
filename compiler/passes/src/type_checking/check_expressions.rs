@@ -712,7 +712,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Unit expression are only allowed inside a return statement.
         if !self.is_return {
-            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
+            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(
+                input.span(),
+            ));
         }
         Some(Type::Unit)
     }
