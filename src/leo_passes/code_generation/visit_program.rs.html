@@ -338,7 +338,7 @@
         <span class="comment">// Newline separator.
         </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo interface instruction.
+        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo struct.
         </span>program_string.push_str(
             <span class="kw-2">&amp;</span>program_scope
                 .structs
@@ -411,7 +411,7 @@
         </span><span class="self">self</span>.composite_mapping
             .insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.
 
-        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">&quot;interface {}:\n&quot;</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">&quot;struct {}:\n&quot;</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         </span><span class="kw">for </span>var <span class="kw">in </span>struct_.members.iter() {
