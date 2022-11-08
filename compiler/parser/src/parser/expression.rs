@@ -428,9 +428,14 @@ impl ParserContext<'_> {
         match elements.len() {
             // If the tuple expression is empty, return a `UnitExpression`.
             0 => Ok(Expression::Unit(UnitExpression { span })),
-            // If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
-            1 if !trailing => Ok(elements.swap_remove(0)),
+            1 => match trailing {
+                // If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
+                false => Ok(elements.swap_remove(0)),
+                // If there is one element in the tuple and a trailing comma, e.g `(foo,)`, emit an error since tuples must have at least two elements.
+                true => Err(ParserError::tuple_must_have_at_least_two_elements("expression", span).into()),
+            }
             // Otherwise, return a tuple expression.
+            // Note: This is the only place where `TupleExpression` is constructed in the parser.
             _ => Ok(Expression::Tuple(TupleExpression { elements, span })),
         }
     }

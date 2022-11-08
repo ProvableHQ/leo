@@ -307,8 +307,7 @@ impl<'a> CodeGenerator<'a> {
         match return_type {
             Type::Unit => (String::new(), instructions), // Do nothing
             Type::Tuple(tuple) => match tuple.len() {
-                0 => unreachable!("Parsing guarantees that a tuple type has at least one element"),
-                1 => unreachable!("Type checking disallows singleton tuples."),
+                0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
                     let mut destinations = Vec::new();
                     for _ in 0..len {

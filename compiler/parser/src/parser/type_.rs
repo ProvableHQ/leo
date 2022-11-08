@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::Result;
+use leo_errors::{ParserError, Result};
 
 pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Address,
@@ -83,7 +83,10 @@ impl ParserContext<'_> {
             match types.len() {
                 // If the parenthetical block is empty, e.g. `()` or `( )`, it should be parsed into `Unit` types.
                 0 => Ok((Type::Unit, span)),
+                // If the parenthetical block contains a single type, e.g. `(u8)`, emit an error, since tuples must have at least two elements.
+                1 => Err(ParserError::tuple_must_have_at_least_two_elements("type", span).into()),
                 // Otherwise, parse it into a `Tuple` type.
+                // Note: This is the only place where `Tuple` type is constructed in the parser.
                 _ => Ok((Type::Tuple(Tuple(types.into_iter().map(|t| t.0).collect())), span)),
             }
         } else {

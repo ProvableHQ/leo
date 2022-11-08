@@ -447,27 +447,12 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Eventually update to warnings.
+    // TODO: Consider chainging this to a warning.
+
     @formatted
     assign_unit_expression_to_variable {
         args: (),
         msg: format!("Cannot assign a unit expression to a variable."),
-        help: None,
-    }
-
-    // TODO: Better error messages for each tuple case. e.g tuple in function parameter, tuple in assignment, tuple in return, etc.
-
-    @formatted
-    singleton_tuple {
-        args: (),
-        msg: format!("Singleton tuple expressions and tuple types are not allowed."),
-        help: None,
-    }
-
-    @formatted
-    unit_tuple {
-        args: (),
-        msg: format!("Empty tuple expressions and tuple types are not allowed."),
         help: None,
     }
 
@@ -488,7 +473,7 @@ create_messages!(
     @formatted
     function_cannot_take_tuple_as_input {
         args: (),
-        msg: format!("A function cannot take in tuples as input."),
+        msg: format!("A function cannot take in a tuple as input."),
         help: None,
     }
 
@@ -530,7 +515,14 @@ create_messages!(
     @formatted
     lhs_must_be_identifier_or_tuple {
         args: (),
-        msg: format!("The left-hand side of a `DefinitionStatement` can only be a tuple or identifier."),
+        msg: format!("The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements."),
+        help: None,
+    }
+
+    @formatted
+    unit_expression_only_in_return_statements {
+        args: (),
+        msg: format!("Unit expressions can only be used in return statements."),
         help: None,
     }
 );

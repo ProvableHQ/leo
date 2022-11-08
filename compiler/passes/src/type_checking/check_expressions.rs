@@ -627,11 +627,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.elements.len() {
-            0 => unreachable!("Parsing guarantees that tuple expressions have at least one element."),
-            1 => {
-                self.emit_err(TypeCheckerError::singleton_tuple(input.span()));
-                None
-            }
+            0 | 1 => unreachable!("Parsing guarantees that tuple expressions have at least two elements."),
             _ => {
                 // Check the expected tuple types if they are known.
                 if let Some(Type::Tuple(expected_types)) = expected {
@@ -716,7 +712,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Unit expression are only allowed inside a return statement.
         if !self.is_return {
-            self.emit_err(TypeCheckerError::unit_tuple(input.span()));
+            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
         }
         Some(Type::Unit)
     }

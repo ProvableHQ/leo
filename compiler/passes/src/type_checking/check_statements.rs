@@ -195,11 +195,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
-            Type::Unit => self.emit_err(TypeCheckerError::unit_tuple(input.span)),
+            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
             Type::Tuple(tuple) => match tuple.len() {
-                0 => unreachable!("Parsing guarantees that tuples have a length of at least one."),
-                1 => self.emit_err(TypeCheckerError::singleton_tuple(input.span)),
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
                     if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
                         self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
