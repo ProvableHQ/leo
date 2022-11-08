@@ -56,6 +56,10 @@ impl<'a> CodeGenerator<'a> {
                     // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
                     self.current_function.unwrap().output.iter()
                 };
+                println!("input: {:?}", input);
+                println!("output: {:?}", output);
+                println!("operand: {:?}", operand);
+                println!("function: {:?}", self.current_function);
                 let instructions = operand
                     .split(' ')
                     .into_iter()

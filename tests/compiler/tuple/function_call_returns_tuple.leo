@@ -18,6 +18,7 @@ program test.aleo {
         if flag {
             start = foo(start.0, start.1);
         } else {
+
             start = foo(start.1, start.0);
         }
         return start;
