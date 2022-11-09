@@ -4,16 +4,15 @@ expectation: Pass
 */
 
 program test.aleo {
+    struct Extra {
+        c: u8,
+    }
+
     struct Data {
         a: u8,
         b: u8,
         c: Extra,
     }
-
-    struct Extra {
-        c: u8,
-    }
-
 
     function foo(a: u8, b: u8) -> (u8, u8, Data) {
         let extra: Extra = Extra { c: a };
