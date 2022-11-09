@@ -47,7 +47,6 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
-        println!("Visiting identifier: {}", input.name);
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
@@ -304,7 +303,6 @@ impl<'a> CodeGenerator<'a> {
             .get(&function_name)
             .unwrap()
             .output_type;
-        println!("return type: {:?}", return_type);
         match return_type {
             Type::Unit => (String::new(), instructions), // Do nothing
             Type::Tuple(tuple) => match tuple.len() {

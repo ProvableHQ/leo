@@ -218,7 +218,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
-        println!("Renaming definition: {:#?}", definition);
         // First consume the right-hand-side of the definition.
         let (value, mut statements) = self.consume_expression(definition.value);
 

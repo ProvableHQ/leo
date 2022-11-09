@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Flattener;
+use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
@@ -67,10 +68,18 @@ impl StatementReconstructor for Flattener<'_> {
                         // Create a new tuple expression with unique identifiers for each index of the lhs.
                         let tuple_expression = TupleExpression {
                             elements: (0..tuple.len())
-                                .map(|i| {
-                                    Expression::Identifier(Identifier::new(
+                                .zip_eq(tuple.0.iter())
+                                .map(|(i, type_)| {
+                                    let identifier = Identifier::new(
                                         self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
-                                    ))
+                                    );
+
+                                    // If the output type is a struct, add it to `self.structs`.
+                                    if let Type::Identifier(struct_name) = type_ {
+                                        self.structs.insert(identifier.name, struct_name.name);
+                                    }
+
+                                    Expression::Identifier(identifier)
                                 })
                                 .collect(),
                             span: Default::default(),
@@ -88,14 +97,20 @@ impl StatementReconstructor for Flattener<'_> {
                         )
                     }
                     // Otherwise, reconstruct the assignment as is.
-                    _ => (
-                        Statement::Assign(Box::new(AssignStatement {
-                            place: Expression::Identifier(lhs_identifier),
-                            value: Expression::Call(call),
-                            span: Default::default(),
-                        })),
-                        statements,
-                    ),
+                    type_ => {
+                        // If the function returns a struct, add it to `self.structs`.
+                        if let Type::Identifier(struct_name) = type_ {
+                            self.structs.insert(lhs_identifier.name, struct_name.name);
+                        };
+                        (
+                            Statement::Assign(Box::new(AssignStatement {
+                                place: Expression::Identifier(lhs_identifier),
+                                value: Expression::Call(call),
+                                span: Default::default(),
+                            })),
+                            statements,
+                        )
+                    }
                 }
             }
             (Expression::Identifier(identifier), expression) => {
@@ -106,18 +121,56 @@ impl StatementReconstructor for Flattener<'_> {
                 )
             }
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
-            (Expression::Tuple(tuple), Expression::Call(call)) => (
-                Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(tuple),
-                    value: Expression::Call(call),
-                    span: Default::default(),
-                })),
-                statements,
-            ),
+            (Expression::Tuple(tuple), Expression::Call(call)) => {
+                // Retrieve the entry in the symbol table for the function call.
+                // Note that this unwrap is safe since type checking ensures that the function exists.
+                let function_name = match call.function.borrow() {
+                    Expression::Identifier(rhs_identifier) => rhs_identifier.name,
+                    _ => unreachable!("Parsing guarantees that `function` is an identifier."),
+                };
+
+                let function = self.symbol_table.borrow().functions.get(&function_name).unwrap();
+
+                let output_type = match &function.output_type {
+                    Type::Tuple(tuple) => tuple.clone(),
+                    _ => unreachable!("Type checking guarantees that the output type is a tuple."),
+                };
+
+                tuple
+                    .elements
+                    .iter()
+                    .zip_eq(output_type.0.iter())
+                    .for_each(|(identifier, type_)| {
+                        let identifier = match identifier {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!(
+                                "Type checking guarantees that a tuple element on the lhs is an identifier."
+                            ),
+                        };
+                        // If the output type is a struct, add it to `self.structs`.
+                        if let Type::Identifier(struct_name) = type_ {
+                            self.structs.insert(identifier.name, struct_name.name);
+                        }
+                    });
+
+                (
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: Expression::Tuple(tuple),
+                        value: Expression::Call(call),
+                        span: Default::default(),
+                    })),
+                    statements,
+                )
+            }
             // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
                 statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()).map(
                     |(lhs, rhs)| {
+                        let identifier = match &lhs {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                        };
+                        self.update_structs(identifier, &rhs);
                         Statement::Assign(Box::new(AssignStatement {
                             place: lhs,
                             value: rhs,
@@ -133,21 +186,21 @@ impl StatementReconstructor for Flattener<'_> {
             {
                 // Lookup the entry in `self.tuples`.
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                let rhs_tuple = self.tuples.get(&identifier.name).unwrap();
+                let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
                 // Create a new assign statement for each tuple element.
-                statements.extend(
-                    lhs_tuple
-                        .elements
-                        .into_iter()
-                        .zip(rhs_tuple.elements.iter())
-                        .map(|(lhs, rhs)| {
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: lhs,
-                                value: rhs.clone(),
-                                span: Default::default(),
-                            }))
-                        }),
-                );
+                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()) {
+                    let identifier = match &lhs {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    };
+                    self.update_structs(identifier, &rhs);
+
+                    statements.push(Statement::Assign(Box::new(AssignStatement {
+                        place: lhs,
+                        value: rhs,
+                        span: Default::default(),
+                    })));
+                }
                 (Statement::dummy(Default::default()), statements)
             }
             // If the lhs of an assignment is a tuple, then the rhs can be one of the following:

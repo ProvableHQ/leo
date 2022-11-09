@@ -56,10 +56,6 @@ impl<'a> CodeGenerator<'a> {
                     // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
                     self.current_function.unwrap().output.iter()
                 };
-                println!("input: {:?}", input);
-                println!("output: {:?}", output);
-                println!("operand: {:?}", operand);
-                println!("function: {:?}", self.current_function);
                 let instructions = operand
                     .split(' ')
                     .into_iter()
@@ -165,8 +161,6 @@ impl<'a> CodeGenerator<'a> {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 // Split out the destinations from the tuple.
                 let operands = operand.split(' ').collect::<Vec<_>>();
-                println!("{:?}", operands);
-                println!("{:?}", tuple);
                 // Add the destinations to the variable mapping.
                 tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
                     match element {
