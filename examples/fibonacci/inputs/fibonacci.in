@@ -1,0 +1,3 @@
+// The program input for fibonacci/src/main.leo
+[fibonacci]
+public n: u8 = 63u8;
