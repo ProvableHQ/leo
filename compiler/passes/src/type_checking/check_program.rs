@@ -254,7 +254,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
                 // Check that the mode of the output is valid.
                 if output_type.mode() == Mode::Const || output_type.mode() == Mode::Private {
-                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
+                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
+                        output_type.span(),
+                    ));
                 }
             });
 
