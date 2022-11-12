@@ -16,12 +16,7 @@
 
 use crate::{RenameTable, StaticSingleAssigner};
 
-use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement, Identifier,
-    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
-    TupleExpression,
-};
+use leo_ast::{AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement, Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression, TupleExpression};
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
@@ -263,12 +258,34 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
     fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
-        // Process the expression associated with the `ExpressionStatement`.
-        let (expression, mut statements) = self.consume_expression(input.expression);
+        let mut statements = Vec::new();
 
-        // Add the `ExpressionStatement` to the list of produced statements.
+        // Extract the call expression.
+        let call = match input.expression {
+            Expression::Call(call) => call,
+            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        };
+
+        // Process the arguments, accumulating any statements produced.
+        let arguments = call
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                let (argument, mut stmts) = self.consume_expression(argument);
+                statements.append(&mut stmts);
+                argument
+            })
+            .collect();
+
+        // Create and accumulate the new expression statement.
+        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
         statements.push(Statement::Expression(ExpressionStatement {
-            expression,
+            expression: Expression::Call(CallExpression {
+                function: call.function,
+                arguments,
+                external: call.external,
+                span: call.span,
+            }),
             span: input.span,
         }));
 
