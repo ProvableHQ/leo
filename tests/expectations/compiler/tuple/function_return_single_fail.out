@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"\\n\\n\", Nom(MapRes)), (\"\\n\\n\\n\\nfunction main:\\n    input r0 as boolean.private;\\n    input r1 as boolean.private;\\n    output r0 as boolean.private;\\n\\n\", Nom(Alt)), (\"\\n\\n\\n\\nfunction main:\\n    input r0 as boolean.private;\\n    input r1 as boolean.private;\\n    output r0 as boolean.private;\\n\\n\", Nom(Many1))] }"
+  - "Error [EPAR0370030]: A tuple expression must have at least two elements.\n    --> compiler-test:9:16\n     |\n   9 |         return (b,);\n     |                ^^^^"
