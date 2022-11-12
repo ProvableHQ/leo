@@ -314,7 +314,14 @@ create_messages!(
     finalize_input_mode_must_be_public {
         args: (),
         msg: format!("An input to a finalize block must be public."),
-        help: Some("Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+        help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
+    finalize_output_mode_must_be_public {
+        args: (),
+        msg: format!("An output from a finalize block must be public."),
+        help: Some("Use a `public` modifier to the output variable declaration or remove the visibility modifier entirely.".to_string()),
     }
 
     @formatted
