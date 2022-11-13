@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor, Type};
+use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
@@ -37,11 +37,8 @@ impl ProgramReconstructor for Flattener<'_> {
             // Get all of the guards and return expression.
             let returns = self.clear_early_returns();
 
-            // If the finalize block contains return statements, then we fold them into a single return statement.
+            // Fold the return statements into the block.
             self.fold_returns(&mut block, returns);
-
-            // Initialize `self.finalizes` with the appropriate number of vectors.
-            self.finalizes = vec![vec![]; finalize.input.len()];
 
             Finalize {
                 identifier: finalize.identifier,
@@ -65,13 +62,10 @@ impl ProgramReconstructor for Flattener<'_> {
         let mut block = self.reconstruct_block(function.block).0;
 
         // Get all of the guards and return expression.
-        // TODO: Verify that there is always at least one
         let returns = self.clear_early_returns();
 
-        // If the function contains return statements, then we fold them into a single return statement.
+        // Fold the return statements into the block.
         self.fold_returns(&mut block, returns);
-
-
 
         Function {
             annotations: function.annotations,

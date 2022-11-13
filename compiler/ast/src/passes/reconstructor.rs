@@ -302,7 +302,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Return(ReturnStatement {
                 expression: self.reconstruct_expression(input.expression).0,
-                finalize_args: input.finalize_args.map(|arguments| {
+                finalize_arguments: input.finalize_arguments.map(|arguments| {
                     arguments
                         .into_iter()
                         .map(|argument| self.reconstruct_expression(argument).0)

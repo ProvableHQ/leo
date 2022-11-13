@@ -397,7 +397,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Unset the `is_return` flag.
         self.is_return = false;
 
-        if let Some(arguments) = &input.finalize_args {
+        if let Some(arguments) = &input.finalize_arguments {
             if self.is_finalize {
                 self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
             }
@@ -438,6 +438,5 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
             }
         }
-
     }
 }

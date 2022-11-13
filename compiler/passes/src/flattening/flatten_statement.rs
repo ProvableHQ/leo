@@ -19,9 +19,9 @@ use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, IterationStatement, Node, ReturnStatement, Statement, StatementReconstructor,
-    UnaryExpression, UnaryOperation,
+    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node, ReturnStatement,
+    Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -381,25 +381,23 @@ impl StatementReconstructor for Flattener<'_> {
         // Add it to `self.returns`.
         // Note that SSA guarantees that `input.expression` is either a literal or identifier.
         match input.expression {
-            // If the input is an identifier that maps to a tuple, add the corresponding tuple to `self.returns`
+            // If the input is an identifier that maps to a tuple,
+            // construct a `ReturnStatement` with the tuple and add it to `self.returns`
             Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
                 let tuple = self.tuples.get(&identifier.name).unwrap().clone();
-                self.returns.push((guard.clone(), Expression::Tuple(tuple)))
+                self.returns.push((
+                    guard,
+                    ReturnStatement {
+                        span: input.span,
+                        expression: Expression::Tuple(tuple),
+                        finalize_arguments: input.finalize_arguments,
+                    },
+                ));
             }
             // Otherwise, add the expression directly.
-            _ => self.returns.push((guard.clone(), input.expression)),
+            _ => self.returns.push((guard, input)),
         };
-
-        // Add each finalize argument to the list of finalize arguments.
-        if let Some(arguments) = input.finalize_args {
-            // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
-            // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
-            for (i, argument) in arguments.into_iter().enumerate() {
-                // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
-                self.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
-            }
-        }
 
         (Statement::dummy(Default::default()), Default::default())
     }

@@ -18,7 +18,8 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, IncrementStatement, IterationStatement, Mode, Output, ReturnStatement, Statement,
+    DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
+    ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -102,7 +103,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Output a finalize instruction if needed.
         // TODO: Check formatting.
-        if let Some(arguments) = &input.finalize_args {
+        if let Some(arguments) = &input.finalize_arguments {
             let mut finalize_instruction = "\n    finalize".to_string();
 
             for argument in arguments.iter() {
@@ -151,7 +152,6 @@ impl<'a> CodeGenerator<'a> {
 
         instructions
     }
-
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
         match (&input.place, &input.value) {

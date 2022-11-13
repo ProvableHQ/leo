@@ -142,7 +142,7 @@ impl ParserContext<'_> {
         Ok(ReturnStatement {
             span,
             expression,
-            finalize_args,
+            finalize_arguments: finalize_args,
         })
     }
 

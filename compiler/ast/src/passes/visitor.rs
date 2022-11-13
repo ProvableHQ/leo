@@ -190,7 +190,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
-        if let Some(arguments) = &input.finalize_args {
+        if let Some(arguments) = &input.finalize_arguments {
             arguments.iter().for_each(|argument| {
                 self.visit_expression(argument, &Default::default());
             })

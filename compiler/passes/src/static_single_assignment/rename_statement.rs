@@ -17,9 +17,10 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, Identifier, IncrementStatement, IterationStatement,
-    ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
+    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    TupleExpression,
 };
 use leo_span::Symbol;
 
@@ -328,7 +329,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
         // Consume the finalize arguments if they exist.
         // Process the arguments, accumulating any statements produced.
-        let finalize_args = input.finalize_args.map(|arguments| {
+        let finalize_args = input.finalize_arguments.map(|arguments| {
             arguments
                 .into_iter()
                 .map(|argument| {
@@ -342,7 +343,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Add the simplified return statement to the list of produced statements.
         statements.push(Statement::Return(ReturnStatement {
             expression,
-            finalize_args,
+            finalize_arguments: finalize_args,
             span: input.span,
         }));
 
