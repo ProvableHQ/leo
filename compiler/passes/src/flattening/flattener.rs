@@ -196,7 +196,8 @@ impl<'a> Flattener<'a> {
                 None => (false, 0),
                 Some(args) => (true, args.len()),
             };
-            let mut finalize_arguments: Vec<Vec<(Option<Expression>, Expression)>> = vec![Vec::with_capacity(returns.len()); number_of_finalize_arguments];
+            let mut finalize_arguments: Vec<Vec<(Option<Expression>, Expression)>> =
+                vec![Vec::with_capacity(returns.len()); number_of_finalize_arguments];
 
             // Aggregate the return expressions and finalize arguments and their respective guards.
             for (guard, return_statement) in returns {
