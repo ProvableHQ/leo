@@ -117,7 +117,7 @@ impl ParserContext<'_> {
 
         let expression = match self.token.token {
             // If the next token is a semicolon, implicitly return a unit expression, `()`.
-            Token::Semicolon => Expression::Unit(UnitExpression { span: self.token.span }),
+            Token::Semicolon | Token::Then => Expression::Unit(UnitExpression { span: self.token.span }),
             // Otherwise, attempt to parse an expression.
             _ => self.parse_expression()?,
         };
