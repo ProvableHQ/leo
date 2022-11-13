@@ -140,9 +140,10 @@ outputs:
                 - Return:
                     expression:
                       Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":201,\\\"hi\\\":202}\"}"
+                    finalize_arguments: ~
                     span:
                       lo: 194
-                      hi: 202
+                      hi: 203
               span:
                 lo: 167
                 hi: 209

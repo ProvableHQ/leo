@@ -63,9 +63,10 @@ outputs:
                     - span:
                         lo: 34
                         hi: 37
+              finalize_arguments: ~
               span:
                 lo: 27
-                hi: 37
+                hi: 38
         span:
           lo: 25
           hi: 40
@@ -102,9 +103,10 @@ outputs:
                     - span:
                         lo: 38
                         hi: 41
+              finalize_arguments: ~
               span:
                 lo: 31
-                hi: 41
+                hi: 42
         span:
           lo: 29
           hi: 44
@@ -136,9 +138,10 @@ outputs:
                     - span:
                         lo: 34
                         hi: 37
+              finalize_arguments: ~
               span:
                 lo: 27
-                hi: 37
+                hi: 38
         span:
           lo: 25
           hi: 40
