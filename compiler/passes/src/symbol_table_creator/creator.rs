@@ -22,14 +22,14 @@ use crate::{SymbolTable, VariableSymbol, VariableType};
 /// A compiler pass during which the `SymbolTable` is created.
 /// Note that this pass only creates the initial entries for functions, structs, and records.
 /// The table is populated further during the type checking pass.
-pub struct CreateSymbolTable<'a> {
+pub struct SymbolTableCreator<'a> {
     /// The `SymbolTable` constructed by this compiler pass.
     pub(crate) symbol_table: SymbolTable,
     /// The error handler.
     handler: &'a Handler,
 }
 
-impl<'a> CreateSymbolTable<'a> {
+impl<'a> SymbolTableCreator<'a> {
     pub fn new(handler: &'a Handler) -> Self {
         Self {
             symbol_table: Default::default(),
@@ -38,14 +38,14 @@ impl<'a> CreateSymbolTable<'a> {
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for CreateSymbolTable<'a> {
+impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
     type AdditionalInput = ();
     type Output = ();
 }
 
-impl<'a> StatementVisitor<'a> for CreateSymbolTable<'a> {}
+impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
-impl<'a> ProgramVisitor<'a> for CreateSymbolTable<'a> {
+impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     fn visit_import(&mut self, input: &'a Program) {
         self.visit_program(input)
     }

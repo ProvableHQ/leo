@@ -14,29 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
+pub mod assigner;
+pub use assigner::*;
 
-pub mod code_generation;
-pub use code_generation::*;
+pub mod rename_table;
+pub use rename_table::*;
 
-pub mod common;
-pub use common::*;
-
-pub mod flattening;
-pub use flattening::*;
-
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
-
-pub mod pass;
-pub use self::pass::*;
-
-pub mod static_single_assignment;
-pub use static_single_assignment::*;
-
-pub mod symbol_table_creator;
-pub use symbol_table_creator::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+pub mod symbol_table;
+pub use symbol_table::*;

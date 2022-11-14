@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 
 /// `RenameTable` tracks the names assigned by static single assignment in a single scope.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub(crate) struct RenameTable {
+pub struct RenameTable {
     /// The `RenameTable` of the parent scope.
     pub(crate) parent: Option<Box<RenameTable>>,
     /// The mapping from names in the original AST to new names in the renamed AST.
