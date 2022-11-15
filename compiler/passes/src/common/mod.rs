@@ -17,6 +17,9 @@
 pub mod assigner;
 pub use assigner::*;
 
+pub mod graph;
+pub use graph::*;
+
 pub mod rename_table;
 pub use rename_table::*;
 
