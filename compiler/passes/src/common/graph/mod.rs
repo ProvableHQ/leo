@@ -20,6 +20,15 @@ use indexmap::{IndexMap, IndexSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
+/// An struct dependency graph.
+pub type StructGraph = DiGraph<Symbol>;
+
+/// A call graph.
+pub type CallGraph = DiGraph<Symbol>;
+
+/// An import dependency graph.
+pub type ImportGraph = DiGraph<Symbol>;
+
 /// A node in a graph.
 pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 

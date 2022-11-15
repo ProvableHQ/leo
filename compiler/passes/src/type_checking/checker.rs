@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
+use crate::{StructGraph, SymbolTable};
 
 use leo_ast::{Identifier, IntegerType, Node, Type};
 use leo_core::*;
@@ -27,6 +27,8 @@ use std::cell::RefCell;
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// A dependency graph of the structs in program.
+    pub(crate) struct_graph: StructGraph,
     /// The error handler.
     pub(crate) handler: &'a Handler,
     /// The name of the function that we are currently traversing.
@@ -92,12 +94,13 @@ impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
         Self {
-            is_transition_function: false,
             symbol_table: RefCell::new(symbol_table),
+            struct_graph: StructGraph::new(Default::default()),
             handler,
             function: None,
             has_return: false,
             has_finalize: false,
+            is_transition_function: false,
             is_finalize: false,
             is_imported: false,
             is_return: false,

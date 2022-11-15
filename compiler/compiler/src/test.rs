@@ -194,7 +194,7 @@ fn temp_dir() -> PathBuf {
 
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
-    let st = parsed.type_checker_pass(st)?;
+    let (st, _struct_graph) = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
     let assigner = parsed.static_single_assignment_pass(&st)?;
 
