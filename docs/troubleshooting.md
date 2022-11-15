@@ -13,7 +13,7 @@ You will know that the download has failed if you see the following error messag
 ATTENTION - "genesis.prover.1c9bbe9" does not exist, downloading this file remotely and storing it locally. Please ensure "genesis.prover.1c9bbe9" is stored in "/Users/xxx/.aleo/resources/genesis.prover.1c9bbe9".
 
 snarkvm_parameters::testnet3 - Downloading parameters...
-snarkvm_parameters::testnet3 - thread `main` panicked at 'Failed to load proving key: Crate("curl::error", "Error { description: \"Transferred a partial file\", code: 18, extra: Some(\"transfer closed with 92197356 bytes remaining to read\") }")', /Users/xxx/.cargo/git/checkouts/snarkvm-f1160780ffe17de8/ea14990/parameters/src/testnet3/symbol_table_creator:95:9
+snarkvm_parameters::testnet3 - thread `main` panicked at 'Failed to load proving key: Crate("curl::error", "Error { description: \"Transferred a partial file\", code: 18, extra: Some(\"transfer closed with 92197356 bytes remaining to read\") }")', /Users/xxx/.cargo/git/checkouts/snarkvm-f1160780ffe17de8/ea14990/parameters/src/testnet3/symbol_table_creation:95:9
 stack backtrace: 
    0: backtrace::capture::Backtrace::new
    1: leo::set_panic_hook::{{closure}}

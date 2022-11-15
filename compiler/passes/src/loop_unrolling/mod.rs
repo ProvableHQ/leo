@@ -39,7 +39,6 @@ impl<'a> Pass for Unroller<'a> {
     type Output = Result<(Ast, SymbolTable)>;
 
     fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        // Reconstructs the AST based off any flattening work that is done.
         let mut reconstructor = Self::new(st, handler);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err()?;
