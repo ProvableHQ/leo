@@ -1,6 +1,6 @@
 [package]
 name = "leo-span"
-version = "1.5.3"
+version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Span handling in the Leo programming language"
 homepage = "https://aleo.org"
@@ -20,7 +20,7 @@ rust-version = "1.63"
 
 [dependencies.indexmap]
 version = "1.9"
-features = ["serde"]
+features = [ "serde" ]
 
 [dependencies.fxhash]
 version = "0.2.1"
@@ -30,6 +30,4 @@ version = "1.0.1"
 
 [dependencies.serde]
 version = "1.0.147"
-features = ["derive", "rc"]
-
-
+features = [ "derive", "rc" ]
