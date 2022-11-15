@@ -143,6 +143,14 @@ mod test {
 
     impl Node for u32 {}
 
+    fn check_post_order<N: Node>(graph: &DiGraph<N>, expected: &[N]) {
+        let result = graph.post_order();
+        assert!(result.is_ok());
+
+        let order: Vec<N> = result.unwrap().into_iter().collect();
+        assert_eq!(order, expected);
+    }
+
     #[test]
     fn test_post_order() {
         let mut graph = DiGraph::<u32>::new(IndexSet::new());
@@ -153,21 +161,29 @@ mod test {
         graph.add_edge(3, 4);
         graph.add_edge(4, 5);
 
-        // At this point, the graph looks like:
-        //    1
-        //   / \
-        //  2   3
-        //  \   /
-        //    4
-        //    |
-        //    5
+        check_post_order(&graph, &[5, 4, 2, 3, 1]);
 
-        let result = graph.post_order();
-        assert!(result.is_ok());
+        let mut graph = DiGraph::<u32>::new(IndexSet::new());
 
-        let order: Vec<u32> = result.unwrap().into_iter().collect();
-        let expected = Vec::from([5u32, 4, 2, 3, 1]);
-        assert_eq!(order, expected);
+        // F -> B
+        graph.add_edge(6, 2);
+        // B -> A
+        graph.add_edge(2, 1);
+        // B -> D
+        graph.add_edge(2, 4);
+        // D -> C
+        graph.add_edge(4, 3);
+        // D -> E
+        graph.add_edge(4, 5);
+        // F -> G
+        graph.add_edge(6, 7);
+        // G -> I
+        graph.add_edge(7, 9);
+        // I -> H
+        graph.add_edge(9, 8);
+
+        // A, C, E, D, B, H, I, G, F.
+        check_post_order(&graph, &[1, 3, 5, 4, 2, 8, 9, 7, 6]);
     }
 
     #[test]
@@ -178,15 +194,6 @@ mod test {
         graph.add_edge(2, 3);
         graph.add_edge(2, 4);
         graph.add_edge(4, 1);
-
-        // At this point, the graph looks like:
-        //    1
-        //    |
-        //    2
-        //   / \
-        //  3   4
-        //      |
-        //      1
 
         let result = graph.post_order();
         assert!(result.is_err());
