@@ -67,8 +67,9 @@ impl<N: Node> DiGraph<N> {
         self.nodes.contains(&node)
     }
 
+    /// Returns the post-order ordering of the graph.
     /// Detects if there is a cycle in the graph.
-    pub fn topological_sort(&self) -> Result<IndexSet<N>, GraphError<N>> {
+    pub fn post_order(&self) -> Result<IndexSet<N>, GraphError<N>> {
         // The set of nodes that do not need to be visited again.
         let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
 
@@ -104,11 +105,8 @@ impl<N: Node> DiGraph<N> {
     // Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
     // If there is no cycle, returns `None`.
     // If there is a cycle, returns the node that was most recently discovered.
-    // Nodes are added to to `finished` in topological order.
-    fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> Option<N>{
-        println!("discovered: {:?}", discovered);
-        println!("finished: {:?}", finished);
-        println!("node: {:?}\n", node);
+    // Nodes are added to to `finished` in post-order order.
+    fn contains_cycle_from(&self, node: N, discovered: &mut IndexSet<N>, finished: &mut IndexSet<N>) -> Option<N> {
         // Add the node to the set of discovered nodes.
         discovered.insert(node);
 
@@ -146,7 +144,7 @@ mod test {
     impl Node for u32 {}
 
     #[test]
-    fn test_toposort() {
+    fn test_post_order() {
         let mut graph = DiGraph::<u32>::new(IndexSet::new());
 
         graph.add_edge(1, 2);
@@ -164,7 +162,7 @@ mod test {
         //    |
         //    5
 
-        let result = graph.topological_sort();
+        let result = graph.post_order();
         assert!(result.is_ok());
 
         let order: Vec<u32> = result.unwrap().into_iter().collect();
@@ -173,7 +171,7 @@ mod test {
     }
 
     #[test]
-    fn test_toposort_cycle() {
+    fn test_cycle() {
         let mut graph = DiGraph::<u32>::new(IndexSet::new());
 
         graph.add_edge(1, 2);
@@ -190,12 +188,11 @@ mod test {
         //      |
         //      1
 
-        let result = graph.topological_sort();
+        let result = graph.post_order();
         assert!(result.is_err());
 
         let GraphError::CycleDetected(cycle) = result.unwrap_err();
         let expected = Vec::from([1u32, 2, 4, 1]);
         assert_eq!(cycle, expected);
     }
-
 }
