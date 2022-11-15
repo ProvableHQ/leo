@@ -262,4 +262,18 @@ create_messages!(
         msg: format!("A tuple {kind} must have at least two elements."),
         help: None,
     }
+
+    @formatted
+    async_finalize_is_deprecated {
+        args: (),
+        msg: format!("`async finalize` is deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
+    }
+
+    @formatted
+    finalize_statements_are_deprecated {
+        args: (),
+        msg: format!("`finalize` statements are deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
+    }
 );

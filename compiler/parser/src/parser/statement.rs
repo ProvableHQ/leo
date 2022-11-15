@@ -48,6 +48,8 @@ impl ParserContext<'_> {
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
+            Token::Async => Err(ParserError::async_finalize_is_deprecated(self.token.span).into()),
+            Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
         }
     }
