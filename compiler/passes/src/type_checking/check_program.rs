@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{TypeChecker, VariableSymbol, VariableType};
+use crate::{GraphError, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -52,6 +52,25 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             .program_scopes
             .values()
             .for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        // Typecheck each struct definition.
+        input.structs.values().for_each(|function| self.visit_struct(function));
+
+        // Check that the struct dependency graph does not have any cycles.
+        if let Err(GraphError::CycleDetected(path)) = self.struct_graph.post_order() {
+            self.emit_err(TypeCheckerError::cyclic_struct_dependency(path));
+        }
+
+        // Type check each mapping definition.
+        input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
+
+        // Type check each of the functions.
+        input
+            .functions
+            .values()
+            .for_each(|function| self.visit_function(function));
     }
 
     fn visit_struct(&mut self, input: &'a Struct) {
@@ -102,6 +121,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.assert_not_tuple(identifier.span, type_);
             // Ensure that there are no record members.
             self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+            // If the member is a struct, add it to the struct dependency graph.
+            // Note that we have already checked that each member is defined and valid.
+            if let Type::Identifier(member_type) = type_ {
+                self.struct_graph.add_edge(input.identifier.name, member_type.name);
+            }
         }
     }
 

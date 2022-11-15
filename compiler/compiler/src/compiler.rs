@@ -163,7 +163,7 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the type checker pass.
-    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<SymbolTable> {
+    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph)> {
         TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
     }
 
@@ -205,7 +205,7 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<SymbolTable> {
         let st = self.symbol_table_pass()?;
-        let st = self.type_checker_pass(st)?;
+        let (st, _struct_graph) = self.type_checker_pass(st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;

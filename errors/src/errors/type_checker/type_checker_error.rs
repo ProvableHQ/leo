@@ -444,4 +444,14 @@ create_messages!(
         msg: format!("An imported program cannot import another program."),
         help: None,
     }
+
+    @backtraced
+    cyclic_struct_dependency {
+        args: (path: Vec<impl Display>),
+        msg: {
+            let path_string = path.into_iter().map(|name| format!("`{name}`")).collect::<Vec<String>>().join(" --> ");
+            format!("Cyclic dependency between structs: {path_string}")
+        },
+        help: None,
+    }
 );
