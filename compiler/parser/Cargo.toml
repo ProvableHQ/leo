@@ -36,7 +36,7 @@ version = "0.9.7"
 features = [ "account", "network" ]
 
 [dependencies.clap]
-version = "3.2"
+version = "4.0"
 features = [ "derive" ]
 
 [dependencies.indexmap]
