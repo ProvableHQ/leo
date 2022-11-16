@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - output:
       - initial_input_ast: 3ca155c33debfdfb0192a7bddb387e5e7fafeeaf31f0ef5089be2352d74faed3
-    initial_ast: dab9213d6dd221ed32197393ab2cf7bf77849e7e8cad9242c55bd058b38aac3d
-    unrolled_ast: dab9213d6dd221ed32197393ab2cf7bf77849e7e8cad9242c55bd058b38aac3d
-    ssa_ast: 0cfdb78c8f2acf9863951a8621106651565cdb9e150042781b19e9f667aae280
-    flattened_ast: 6835a1d9bbe610390aaa3122dcc4f1d44a7a52e2d87beb8fe9f797afedb25bb3
+    initial_ast: 81a146302da70b1adb37abb3077a43b520f1eb282b1da8c652ce64be97e4e9c5
+    unrolled_ast: 81a146302da70b1adb37abb3077a43b520f1eb282b1da8c652ce64be97e4e9c5
+    ssa_ast: b217fa05821db02ed082753b93848d6496e3fb1b76a57fd963165fd443139f4b
+    flattened_ast: 2e2c13af90b3e39c40ba60d3068018c6156716e1fc3283536c3c148520b542b7

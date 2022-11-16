@@ -47,8 +47,8 @@ program test.aleo {
     transition foo(f: F) -> u8 {
         let a: u8 = f.b.a.data;
         let c: u8 = f.b.d.c.data;
-        let e = f.b.d.e.data;
-        let h = f.g.i.h.data;
+        let e: u8 = f.b.d.e.data;
+        let h: u8 = f.g.i.h.data;
         return a + c + e + h;
     }
 }
