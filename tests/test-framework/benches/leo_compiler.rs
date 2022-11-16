@@ -41,6 +41,7 @@ enum BenchMode {
     Ssa,
     /// Benchmarks flattening.
     Flatten,
+    // TODO: Benchmark code generation
     /// Benchmarks all the above stages.
     Full,
 }

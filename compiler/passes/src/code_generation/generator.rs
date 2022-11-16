@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::StructGraph;
+
 use leo_ast::Function;
 use leo_errors::emitter::Handler;
 use leo_span::Symbol;
@@ -22,6 +24,8 @@ use indexmap::IndexMap;
 
 pub struct CodeGenerator<'a> {
     _handler: &'a Handler,
+    /// The struct dependency graph for the progra,
+    pub(crate) struct_graph: &'a StructGraph,
     /// A counter to track the next available register.
     pub(crate) next_register: u64,
     /// Reference to the current function.
@@ -40,10 +44,11 @@ pub struct CodeGenerator<'a> {
 
 impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
-    pub fn new(handler: &'a Handler) -> Self {
+    pub fn new(handler: &'a Handler, struct_graph: &'a StructGraph) -> Self {
         // Initialize variable mapping.
         Self {
             _handler: handler,
+            struct_graph,
             next_register: 0,
             current_function: None,
             variable_mapping: IndexMap::new(),
