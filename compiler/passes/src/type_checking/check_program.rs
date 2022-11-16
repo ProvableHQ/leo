@@ -75,6 +75,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
         }
 
+        // Check that the call graph does not have any cycles.
+        if let Err(GraphError::CycleDetected(path)) = self.call_graph.post_order() {
+            self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
+        }
+
         // TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > 15 {

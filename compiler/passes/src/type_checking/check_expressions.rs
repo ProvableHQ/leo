@@ -481,6 +481,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.visit_expression(argument, &Some(expected.type_()));
                         });
 
+                    // Add the call to the call graph.
+                    let caller_name = match self.function {
+                        None => unreachable!("`self.function` is set every time a function is visited."),
+                        Some(func) => func,
+                    };
+                    self.call_graph.add_edge(caller_name, ident.name);
+
                     Some(ret)
                 } else {
                     self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
