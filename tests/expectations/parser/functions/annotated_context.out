@@ -9,7 +9,7 @@ outputs:
         structs: {}
         mappings: {}
         functions:
-          "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}":
+          f:
             annotations:
               - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":38}\"}"
                 span:
@@ -50,7 +50,7 @@ outputs:
             span:
               lo: 43
               hi: 89
-          "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}":
+          g:
             annotations:
               - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":107}\"}"
                 span:

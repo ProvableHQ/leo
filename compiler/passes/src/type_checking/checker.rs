@@ -93,9 +93,11 @@ const MAGNITUDE_TYPES: [Type; 3] = [
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+        let struct_names = symbol_table.structs.keys().cloned().collect();
+
         Self {
             symbol_table: RefCell::new(symbol_table),
-            struct_graph: StructGraph::new(Default::default()),
+            struct_graph: StructGraph::new(struct_names),
             handler,
             function: None,
             has_return: false,

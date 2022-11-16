@@ -9,7 +9,7 @@ outputs:
         structs: {}
         mappings: {}
         functions:
-          "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":134,\\\"hi\\\":138}\"}":
+          test:
             annotations:
               - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":111,\\\"hi\\\":115}\"}"
                 span:
