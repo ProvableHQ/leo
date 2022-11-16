@@ -22,9 +22,7 @@ pub use program_id::*;
 pub mod program_scope;
 pub use program_scope::*;
 
-use crate::Identifier;
-
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -34,7 +32,7 @@ use std::fmt;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
     /// A map from import names to import definitions.
-    pub imports: IndexMap<Identifier, (Program, Span)>,
+    pub imports: IndexMap<Symbol, (Program, Span)>,
     /// A map from program names to program scopes.
     pub program_scopes: IndexMap<ProgramId, ProgramScope>,
 }

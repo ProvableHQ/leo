@@ -16,10 +16,10 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{Function, Identifier, Mapping, ProgramId, Struct};
+use crate::{Function, Mapping, ProgramId, Struct};
 
 use indexmap::IndexMap;
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -29,11 +29,11 @@ pub struct ProgramScope {
     /// The program id of the program scope.
     pub program_id: ProgramId,
     /// A map from struct names to struct definitions.
-    pub structs: IndexMap<Identifier, Struct>,
+    pub structs: IndexMap<Symbol, Struct>,
     /// A map from mapping names to mapping definitions.
-    pub mappings: IndexMap<Identifier, Mapping>,
+    pub mappings: IndexMap<Symbol, Mapping>,
     /// A map from function names to function definitions.
-    pub functions: IndexMap<Identifier, Function>,
+    pub functions: IndexMap<Symbol, Function>,
     /// The span associated with the program scope.
     pub span: Span,
 }
