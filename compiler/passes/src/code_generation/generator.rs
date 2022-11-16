@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::SymbolTable;
+use crate::StructGraph;
 
 use leo_ast::Function;
 use leo_span::Symbol;
@@ -24,6 +25,8 @@ use indexmap::IndexMap;
 pub struct CodeGenerator<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: &'a SymbolTable,
+    /// The struct dependency graph for the program.
+    pub(crate) struct_graph: &'a StructGraph,
     /// A counter to track the next available register.
     pub(crate) next_register: u64,
     /// Reference to the current function.
@@ -42,10 +45,11 @@ pub struct CodeGenerator<'a> {
 
 impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
-    pub fn new(symbol_table: &'a SymbolTable) -> Self {
+    pub fn new(symbol_table: &'a SymbolTable, struct_graph: &'a StructGraph) -> Self {
         // Initialize variable mapping.
         Self {
             symbol_table,
+            struct_graph,
             next_register: 0,
             current_function: None,
             variable_mapping: IndexMap::new(),
