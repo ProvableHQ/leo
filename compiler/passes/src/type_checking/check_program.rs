@@ -71,6 +71,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             .functions
             .values()
             .for_each(|function| self.visit_function(function));
+
+        // Check that the call graph does not have any cycles.
+        if let Err(GraphError::CycleDetected(path)) = self.call_graph.post_order() {
+            self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
+        }
     }
 
     fn visit_struct(&mut self, input: &'a Struct) {
