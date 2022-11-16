@@ -85,8 +85,15 @@ impl<'a> CodeGenerator<'a> {
         let mut closures = String::new();
         let mut functions = String::new();
 
-        // Visit each `Function` in the Leo AST and produce Aleo instructions.
-        program_scope.functions.values().for_each(|function| {
+        // Get the post-order ordering of the call graph.
+        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
+        let order = self.call_graph.post_order().unwrap();
+
+        // Visit each function in the post-ordering and produce an Aleo function.
+        order.into_iter().for_each(|function_name| {
+            // Note that this unwrap is safe since type checking guarantees that all functions are declared.
+            let function = program_scope.functions.get(&function_name).unwrap();
+
             self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
             let function_string = self.visit_function(function);

@@ -194,14 +194,14 @@ fn temp_dir() -> PathBuf {
 
 fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
-    let (st, struct_graph) = parsed.type_checker_pass(st)?;
+    let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
     let assigner = parsed.static_single_assignment_pass(&st)?;
 
     parsed.flattening_pass(&st, assigner)?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph))?;
+    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
 
     Ok(bytecode)
 }
