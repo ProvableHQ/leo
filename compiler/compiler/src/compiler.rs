@@ -224,7 +224,7 @@ impl<'a> Compiler<'a> {
         self.parse_program()?;
         let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
 
-        let bytecode = CodeGenerator::do_pass((&self.ast, &symbol_table.handler, &struct_graph, &call_graph))?;
+        let bytecode = CodeGenerator::do_pass((&self.ast, &symbol_table, &struct_graph, &call_graph))?;
 
         Ok((symbol_table, bytecode))
     }
