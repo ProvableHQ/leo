@@ -73,7 +73,7 @@ impl ParserContext<'_> {
 
     // TODO: remove import resolution from parser.
     /// Parses an import statement `import foo.leo;`.
-    pub(super) fn parse_import(&mut self) -> Result<(Identifier, (Program, Span))> {
+    pub(super) fn parse_import(&mut self) -> Result<(Symbol, (Program, Span))> {
         // Parse `import`.
         let start = self.expect(&Token::Import)?;
 
@@ -115,7 +115,7 @@ impl ParserContext<'_> {
         // Use the parser to construct the imported abstract syntax tree (ast).
         let program_ast = parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
 
-        Ok((import_name, (program_ast.into_repr(), start + end)))
+        Ok((import_name.name, (program_ast.into_repr(), start + end)))
     }
 
     /// Parsers a program scope `program foo.aleo { ... }`.
@@ -238,7 +238,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
-    pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
+    pub(super) fn parse_struct(&mut self) -> Result<(Symbol, Struct)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Struct, Token::Record])?;
         let struct_name = self.expect_identifier()?;
@@ -247,7 +247,7 @@ impl ParserContext<'_> {
         let (members, end) = self.parse_struct_members()?;
 
         Ok((
-            struct_name,
+            struct_name.name,
             Struct {
                 identifier: struct_name,
                 members,
@@ -258,7 +258,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
-    pub(super) fn parse_mapping(&mut self) -> Result<(Identifier, Mapping)> {
+    pub(super) fn parse_mapping(&mut self) -> Result<(Symbol, Mapping)> {
         let start = self.expect(&Token::Mapping)?;
         let identifier = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
@@ -267,7 +267,7 @@ impl ParserContext<'_> {
         let (value_type, _) = self.parse_type()?;
         let end = self.expect(&Token::Semicolon)?;
         Ok((
-            identifier,
+            identifier.name,
             Mapping {
                 identifier,
                 key_type,
@@ -416,7 +416,7 @@ impl ParserContext<'_> {
 
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    fn parse_function(&mut self) -> Result<(Identifier, Function)> {
+    fn parse_function(&mut self) -> Result<(Symbol, Function)> {
         // TODO: Handle dangling annotations.
         // Parse annotations, if they exist.
         let mut annotations = Vec::new();
@@ -488,7 +488,7 @@ impl ParserContext<'_> {
 
         let span = start + block.span;
         Ok((
-            name,
+            name.name,
             Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
         ))
     }
