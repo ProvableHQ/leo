@@ -81,39 +81,30 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        // Store closures and functions in separate strings.
-        let mut closures = String::new();
-        let mut functions = String::new();
-
         // Get the post-order ordering of the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
         let order = self.call_graph.post_order().unwrap();
 
         // Visit each function in the post-ordering and produce an Aleo function.
-        order.into_iter().for_each(|function_name| {
-            // Note that this unwrap is safe since type checking guarantees that all functions are declared.
-            let function = program_scope.functions.get(&function_name).unwrap();
+        program_string.push_str(
+            &order
+                .into_iter()
+                .map(|function_name| {
+                    // Note that this unwrap is safe since type checking guarantees that all functions are declared.
+                    let function = program_scope.functions.get(&function_name).unwrap();
 
-            self.is_transition_function = matches!(function.call_type, CallType::Transition);
+                    // Set the `is_transition_function` flag.
+                    self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
-            let function_string = self.visit_function(function);
+                    let function_string = self.visit_function(function);
 
-            if self.is_transition_function {
-                functions.push_str(&function_string);
-                functions.push('\n');
-            } else {
-                closures.push_str(&function_string);
-                closures.push('\n');
-            }
+                    // Unset the `is_transition_function` flag.
+                    self.is_transition_function = false;
 
-            // Unset the `is_transition_function` flag.
-            self.is_transition_function = false;
-        });
-
-        // Closures must precede functions in the Aleo program.
-        program_string.push_str(&closures);
-        program_string.push('\n');
-        program_string.push_str(&functions);
+                    function_string
+                })
+                .join("\n"),
+        );
 
         program_string
     }
