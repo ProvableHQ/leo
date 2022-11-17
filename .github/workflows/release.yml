@@ -50,6 +50,48 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  linux-musl:
+    name: Linux musl
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+          target: x86_64-unknown-linux-musl
+          default: stable-x86_64-unknown-linux-musl
+
+      - name: Build
+        run: |
+          docker pull clux/muslrust:stable
+          docker run -v cargo-cache:/root/.cargo/registry -v $PWD:/volume --rm -t clux/muslrust:stable cargo build --target x86_64-unknown-linux-musl --package leo-lang --release --features noconfig && ldd target/x86_64-unknown-linux-musl/release/leo
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip
+        run: |
+          mkdir tempdir
+          cp target/x86_64-unknown-linux-musl/release/leo tempdir
+          strip tempdir/leo
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip .
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo-${{ steps.get_version.outputs.version }}-x86_64-unknown-linux-musl.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   macos:
     name: macOS
     runs-on: macos-latest
