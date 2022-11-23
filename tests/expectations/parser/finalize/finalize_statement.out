@@ -2,21 +2,46 @@
 namespace: ParseStatement
 expectation: Pass
 outputs:
-  - Finalize:
-      arguments: []
+  - Return:
+      expression:
+        Unit:
+          span:
+            lo: 7
+            hi: 11
+      finalize_arguments: []
       span:
-        lo: 6
-        hi: 16
-  - Finalize:
-      arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+        lo: 0
+        hi: 21
+  - Return:
+      expression:
+        Unit:
+          span:
+            lo: 7
+            hi: 11
+      finalize_arguments: []
       span:
-        lo: 6
-        hi: 19
-  - Finalize:
-      arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
-        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
+        lo: 0
+        hi: 23
+  - Return:
+      expression:
+        Unit:
+          span:
+            lo: 7
+            hi: 11
+      finalize_arguments:
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
       span:
-        lo: 6
-        hi: 24
+        lo: 0
+        hi: 26
+  - Return:
+      expression:
+        Unit:
+          span:
+            lo: 7
+            hi: 11
+      finalize_arguments:
+        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
+        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
+      span:
+        lo: 0
+        hi: 31

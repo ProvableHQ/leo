@@ -41,9 +41,6 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::Async => Ok(Statement::Finalize(self.parse_finalize_statement()?)),
-            // If a finalize token is found without a preceding async token, return an error.
-            Token::Finalize => Err(ParserError::finalize_without_async(self.token.span).into()),
             Token::Increment => Ok(Statement::Increment(self.parse_increment_statement()?)),
             Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
@@ -51,6 +48,8 @@ impl ParserContext<'_> {
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
+            Token::Async => Err(ParserError::async_finalize_is_deprecated(self.token.span).into()),
+            Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
         }
     }
@@ -117,25 +116,36 @@ impl ParserContext<'_> {
     /// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
         let start = self.expect(&Token::Return)?;
+
         let expression = match self.token.token {
             // If the next token is a semicolon, implicitly return a unit expression, `()`.
-            Token::Semicolon => Expression::Unit(UnitExpression { span: self.token.span }),
+            Token::Semicolon | Token::Then => Expression::Unit(UnitExpression { span: self.token.span }),
             // Otherwise, attempt to parse an expression.
             _ => self.parse_expression()?,
         };
-        self.expect(&Token::Semicolon)?;
-        let span = start + expression.span();
-        Ok(ReturnStatement { span, expression })
-    }
 
-    /// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
-    fn parse_finalize_statement(&mut self) -> Result<FinalizeStatement> {
-        self.expect(&Token::Async)?;
-        let start = self.expect(&Token::Finalize)?;
-        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-        self.expect(&Token::Semicolon)?;
-        let span = start + span;
-        Ok(FinalizeStatement { span, arguments })
+        let finalize_args = match self.token.token {
+            Token::Then => {
+                // Parse `then`.
+                self.expect(&Token::Then)?;
+                // Parse `finalize`.
+                self.expect(&Token::Finalize)?;
+                // Parse finalize arguments if they exist.
+                match self.token.token {
+                    Token::Semicolon => Some(vec![]),
+                    Token::LeftParen => Some(self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?.0),
+                    _ => Some(vec![self.parse_expression()?]),
+                }
+            }
+            _ => None,
+        };
+        let end = self.expect(&Token::Semicolon)?;
+        let span = start + end;
+        Ok(ReturnStatement {
+            span,
+            expression,
+            finalize_arguments: finalize_args,
+        })
     }
 
     /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.

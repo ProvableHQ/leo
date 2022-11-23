@@ -18,9 +18,9 @@ use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
     AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement,
-    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
-    TernaryExpression, TupleExpression,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
+    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    TupleExpression,
 };
 use leo_span::Symbol;
 
@@ -297,30 +297,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    /// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.
-    fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output {
-        let mut statements = Vec::new();
-
-        // Process the arguments, accumulating any statements produced.
-        let arguments = input
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                let (argument, stmts) = self.consume_expression(argument);
-                statements.extend(stmts);
-                argument
-            })
-            .collect();
-
-        // Construct and accumulate a simplified finalize statement.
-        statements.push(Statement::Finalize(FinalizeStatement {
-            arguments,
-            span: input.span,
-        }));
-
-        statements
-    }
-
     /// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
     fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output {
         // First consume the expression associated with the amount.
@@ -351,9 +327,23 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Consume the return expression.
         let (expression, mut statements) = self.consume_expression(input.expression);
 
+        // Consume the finalize arguments if they exist.
+        // Process the arguments, accumulating any statements produced.
+        let finalize_args = input.finalize_arguments.map(|arguments| {
+            arguments
+                .into_iter()
+                .map(|argument| {
+                    let (argument, stmts) = self.consume_expression(argument);
+                    statements.extend(stmts);
+                    argument
+                })
+                .collect()
+        });
+
         // Add the simplified return statement to the list of produced statements.
         statements.push(Statement::Return(ReturnStatement {
             expression,
+            finalize_arguments: finalize_args,
             span: input.span,
         }));
 

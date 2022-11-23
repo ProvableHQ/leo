@@ -37,7 +37,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
@@ -273,54 +272,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
-        if self.is_finalize {
-            self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-        }
-
-        // Set the `has_finalize` flag.
-        self.has_finalize = true;
-
-        // Check that the function has a finalize block.
-        // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-        // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-        let finalize = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(self.function.unwrap())
-            .unwrap()
-            .finalize
-            .clone();
-        match finalize {
-            None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-            Some(finalize) => {
-                // Check number of function arguments.
-                if finalize.input.len() != input.arguments.len() {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                        finalize.input.len(),
-                        input.arguments.len(),
-                        input.span(),
-                    ));
-                }
-
-                // Check function argument types.
-                finalize
-                    .input
-                    .iter()
-                    .zip(input.arguments.iter())
-                    .for_each(|(expected, argument)| {
-                        // Check that none of the arguments are tuple expressions.
-                        if matches!(argument, Expression::Tuple(_)) {
-                            self.emit_err(TypeCheckerError::finalize_statement_cannot_contain_tuples(
-                                argument.span(),
-                            ));
-                        }
-                        self.visit_expression(argument, &Some(expected.type_()));
-                    });
-            }
-        }
-    }
-
     fn visit_increment(&mut self, input: &'a IncrementStatement) {
         if !self.is_finalize {
             self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
@@ -413,7 +364,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // we can safely unwrap all self.parent instances because
+        // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
         let return_type = &self
@@ -439,11 +390,53 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         }
 
-        // Set the `is_return` flag.
+        // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
         self.is_return = true;
         // Type check the associated expression.
         self.visit_expression(&input.expression, return_type);
         // Unset the `is_return` flag.
         self.is_return = false;
+
+        if let Some(arguments) = &input.finalize_arguments {
+            if self.is_finalize {
+                self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
+            }
+
+            // Set the `has_finalize` flag.
+            self.has_finalize = true;
+
+            // Check that the function has a finalize block.
+            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
+            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
+            let finalize = self
+                .symbol_table
+                .borrow()
+                .lookup_fn_symbol(self.function.unwrap())
+                .unwrap()
+                .finalize
+                .clone();
+            match finalize {
+                None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
+                Some(finalize) => {
+                    // Check number of function arguments.
+                    if finalize.input.len() != arguments.len() {
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
+                            finalize.input.len(),
+                            arguments.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    // Check function argument types.
+                    finalize
+                        .input
+                        .iter()
+                        .zip(arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            self.visit_expression(argument, &Some(expected.type_()));
+                        });
+                }
+            }
+        }
     }
 }

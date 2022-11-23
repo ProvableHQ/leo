@@ -214,6 +214,7 @@ symbols! {
     std,
     Struct: "struct",
     test,
+    then,
     transition,
     Type: "type",
 

@@ -33,7 +33,7 @@ pub struct TypeChecker<'a> {
     pub(crate) function: Option<Symbol>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
-    /// Whether or not the function that we are currently traversing has a finalize statement.
+    /// Whether or not the function that we are currently traversing invokes the finalize block.
     pub(crate) has_finalize: bool,
     /// Whether or not we are currently traversing a transition function.
     pub(crate) is_transition_function: bool,

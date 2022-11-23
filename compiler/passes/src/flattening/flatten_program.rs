@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Finalize, FinalizeStatement, Function, ProgramReconstructor, Statement, StatementReconstructor, Type};
+use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
@@ -37,11 +37,8 @@ impl ProgramReconstructor for Flattener<'_> {
             // Get all of the guards and return expression.
             let returns = self.clear_early_returns();
 
-            // If the finalize block contains return statements, then we fold them into a single return statement.
+            // Fold the return statements into the block.
             self.fold_returns(&mut block, returns);
-
-            // Initialize `self.finalizes` with the appropriate number of vectors.
-            self.finalizes = vec![vec![]; finalize.input.len()];
 
             Finalize {
                 identifier: finalize.identifier,
@@ -67,41 +64,8 @@ impl ProgramReconstructor for Flattener<'_> {
         // Get all of the guards and return expression.
         let returns = self.clear_early_returns();
 
-        // If the function contains return statements, then we fold them into a single return statement.
+        // Fold the return statements into the block.
         self.fold_returns(&mut block, returns);
-
-        // If the function has a finalize block, then type checking guarantees that it has at least one finalize statement.
-        if finalize.is_some() {
-            // Get all of the guards and finalize expression.
-            let finalize_arguments = self.clear_early_finalizes();
-            let arguments = match finalize_arguments.iter().all(|component| component.is_empty()) {
-                // If the finalize statement takes no arguments, then output an empty vector.
-                true => vec![],
-                // If the function contains finalize statements with at least one argument, then we fold them into a vector of arguments.
-                // Note that `finalizes` is always initialized to the appropriate number of vectors.
-                false => {
-                    // Construct an expression for each argument to the finalize statement.
-                    finalize_arguments
-                        .into_iter()
-                        .enumerate()
-                        .map(|(i, component)| {
-                            let (expression, stmts) = self.fold_guards(format!("fin${i}$").as_str(), component);
-
-                            // Add all of the accumulated statements to the end of the block.
-                            block.statements.extend(stmts);
-
-                            expression
-                        })
-                        .collect()
-                }
-            };
-
-            // Add the `FinalizeStatement` to the end of the block.
-            block.statements.push(Statement::Finalize(FinalizeStatement {
-                arguments,
-                span: Default::default(),
-            }));
-        }
 
         Function {
             annotations: function.annotations,

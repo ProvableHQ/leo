@@ -171,7 +171,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Statement::Decrement(stmt) => self.reconstruct_decrement(stmt),
             Statement::Definition(stmt) => self.reconstruct_definition(stmt),
             Statement::Expression(stmt) => self.reconstruct_expression_statement(stmt),
-            Statement::Finalize(stmt) => self.reconstruct_finalize(stmt),
             Statement::Increment(stmt) => self.reconstruct_increment(stmt),
             Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
             Statement::Return(stmt) => self.reconstruct_return(stmt),
@@ -270,20 +269,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         )
     }
 
-    fn reconstruct_finalize(&mut self, input: FinalizeStatement) -> (Statement, Self::AdditionalOutput) {
-        (
-            Statement::Finalize(FinalizeStatement {
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
-                span: input.span,
-            }),
-            Default::default(),
-        )
-    }
-
     fn reconstruct_increment(&mut self, input: IncrementStatement) -> (Statement, Self::AdditionalOutput) {
         (
             Statement::Increment(IncrementStatement {
@@ -317,6 +302,12 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Return(ReturnStatement {
                 expression: self.reconstruct_expression(input.expression).0,
+                finalize_arguments: input.finalize_arguments.map(|arguments| {
+                    arguments
+                        .into_iter()
+                        .map(|argument| self.reconstruct_expression(argument).0)
+                        .collect()
+                }),
                 span: input.span,
             }),
             Default::default(),

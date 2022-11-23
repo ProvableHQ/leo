@@ -18,8 +18,8 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionStatement, FinalizeStatement, IncrementStatement, IterationStatement,
-    Mode, Output, ReturnStatement, Statement,
+    DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
+    ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -35,7 +35,6 @@ impl<'a> CodeGenerator<'a> {
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
@@ -43,7 +42,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        match input.expression {
+        let mut instructions = match input.expression {
             // Skip empty return statements.
             Expression::Unit(_) => String::new(),
             _ => {
@@ -100,7 +99,24 @@ impl<'a> CodeGenerator<'a> {
 
                 expression_instructions
             }
+        };
+
+        // Output a finalize instruction if needed.
+        // TODO: Check formatting.
+        if let Some(arguments) = &input.finalize_arguments {
+            let mut finalize_instruction = "\n    finalize".to_string();
+
+            for argument in arguments.iter() {
+                let (argument, argument_instructions) = self.visit_expression(argument);
+                write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+                instructions.push_str(&argument_instructions);
+            }
+            writeln!(finalize_instruction, ";").expect("failed to write to string");
+
+            instructions.push_str(&finalize_instruction);
         }
+
+        instructions
     }
 
     fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {
@@ -135,20 +151,6 @@ impl<'a> CodeGenerator<'a> {
         instructions.push_str(&format!("    decrement {}[{index}] by {amount};\n", input.mapping));
 
         instructions
-    }
-
-    fn visit_finalize(&mut self, input: &'a FinalizeStatement) -> String {
-        let mut instructions = String::new();
-        let mut finalize_instruction = "    finalize".to_string();
-
-        for argument in input.arguments.iter() {
-            let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(finalize_instruction, " {argument}").expect("failed to write to string");
-            instructions.push_str(&argument_instructions);
-        }
-        writeln!(finalize_instruction, ";").expect("failed to write to string");
-
-        finalize_instruction
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {

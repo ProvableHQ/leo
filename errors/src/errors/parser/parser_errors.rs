@@ -229,13 +229,6 @@ create_messages!(
     }
 
     @formatted
-    finalize_without_async {
-        args: (),
-        msg: "A finalize statement must be preceded by the `async` keyword.",
-        help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
-    }
-
-    @formatted
     circuit_is_deprecated {
         args: (),
         msg: "The keyword `circuit` is deprecated.",
@@ -268,5 +261,19 @@ create_messages!(
         args: (kind: impl Display),
         msg: format!("A tuple {kind} must have at least two elements."),
         help: None,
+    }
+
+    @formatted
+    async_finalize_is_deprecated {
+        args: (),
+        msg: format!("`async finalize` is deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
+    }
+
+    @formatted
+    finalize_statements_are_deprecated {
+        args: (),
+        msg: format!("`finalize` statements are deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
     }
 );

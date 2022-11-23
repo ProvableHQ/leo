@@ -124,7 +124,6 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
@@ -177,12 +176,6 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         self.visit_expression(&input.expression, &Default::default());
     }
 
-    fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
-        input.arguments.iter().for_each(|expr| {
-            self.visit_expression(expr, &Default::default());
-        });
-    }
-
     fn visit_increment(&mut self, input: &'a IncrementStatement) {
         self.visit_expression(&input.amount, &Default::default());
         self.visit_expression(&input.index, &Default::default());
@@ -197,6 +190,11 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
+        if let Some(arguments) = &input.finalize_arguments {
+            arguments.iter().for_each(|argument| {
+                self.visit_expression(argument, &Default::default());
+            })
+        }
     }
 }
 

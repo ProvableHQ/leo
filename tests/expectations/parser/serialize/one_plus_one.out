@@ -37,4 +37,5 @@ outputs:
                               - U8
                               - "1"
                         op: Add
+                    finalize_arguments: ~
             finalize: ~
