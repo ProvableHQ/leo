@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '('\n    --> compiler-test:7:14\n     |\n   7 |         bar: (Bar, Bar),\n     |              ^"
+  - "Error [ETYC0372054]: A record cannot contain a tuple.\n    --> compiler-test:7:9\n     |\n   7 |         bar: (Bar, Bar),\n     |         ^^^\nError [ETYC0372054]: A struct cannot contain a tuple.\n    --> compiler-test:11:9\n     |\n  11 |         bar: (Token, Token),\n     |         ^^^\nError [ETYC0372029]: A struct or record cannot contain another record.\n    --> compiler-test:11:9\n     |\n  11 |         bar: (Token, Token),\n     |         ^^^\n     |\n     = Remove the record `Token` from `Bar`.\nError [ETYC0372029]: A struct or record cannot contain another record.\n    --> compiler-test:11:9\n     |\n  11 |         bar: (Token, Token),\n     |         ^^^\n     |\n     = Remove the record `Token` from `Bar`.\n"

@@ -17,6 +17,8 @@
 use crate::create_messages;
 use std::fmt::{Debug, Display};
 
+// TODO: Consolidate errors.
+
 create_messages!(
     /// InputError enum that represents all the errors for the inputs part of `leo-ast` crate.
     TypeCheckerError,
@@ -254,13 +256,6 @@ create_messages!(
     }
 
     @formatted
-    tuple_not_allowed {
-        args: (),
-        msg: format!("Tuples are only allowed as function return types."),
-        help: None,
-    }
-
-    @formatted
     unreachable_code_after_return {
         args: (),
         msg: format!("Cannot reach the following statement."),
@@ -315,6 +310,13 @@ create_messages!(
         args: (),
         msg: format!("An input to a finalize block must be public."),
         help: Some("Add a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
+    finalize_output_mode_must_be_public {
+        args: (),
+        msg: format!("An output of a finalize block must be public."),
+        help: Some("Add a `public` modifier to the output type declaration or remove the visibility modifier entirely.".to_string()),
     }
 
     @formatted
@@ -442,6 +444,85 @@ create_messages!(
     imported_program_cannot_import_program {
         args: (),
         msg: format!("An imported program cannot import another program."),
+        help: None,
+    }
+
+    // TODO: Consider chainging this to a warning.
+
+    @formatted
+    assign_unit_expression_to_variable {
+        args: (),
+        msg: format!("Cannot assign a unit expression to a variable."),
+        help: None,
+    }
+
+    @formatted
+    nested_tuple_type {
+        args: (),
+        msg: format!("A tuple type cannot contain a tuple."),
+        help: None,
+    }
+
+    @formatted
+    composite_data_type_cannot_contain_tuple {
+        args: (data_type: impl Display),
+        msg: format!("A {data_type} cannot contain a tuple."),
+        help: None,
+    }
+
+    @formatted
+    function_cannot_take_tuple_as_input {
+        args: (),
+        msg: format!("A function cannot take in a tuple as input."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_take_tuple_as_input {
+        args: (),
+        msg: format!("A finalize block cannot take in a tuple as input."),
+        help: None,
+    }
+
+    @formatted
+    nested_tuple_expression {
+        args: (),
+        msg: format!("A tuple expression cannot contain another tuple expression."),
+        help: None,
+    }
+
+    @formatted
+    finalize_statement_cannot_contain_tuples {
+        args: (),
+        msg: format!("A finalize statement cannot contain tuple expressions."),
+        help: None,
+    }
+
+    @formatted
+    expression_statement_must_be_function_call {
+        args: (),
+        msg: format!("An expression statement must be a function call."),
+        help: None,
+    }
+
+    @formatted
+    lhs_tuple_element_must_be_an_identifier {
+        args: (),
+        msg: format!("Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers."),
+        help: None,
+    }
+
+    @formatted
+    lhs_must_be_identifier_or_tuple {
+        args: (),
+        msg: format!("The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements."),
+        help: None,
+    }
+
+    @formatted
+    unit_expression_only_in_return_statements {
+        args: (),
+        msg: format!("Unit expressions can only be used in return statements."),
         help: None,
     }
 );

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370027]: The keyword `circuit` is deprecated.\n    --> compiler-test:12:5\n     |\n  12 |     circuit Token {\n     |     ^^^^^^^\n     |\n     = Use `struct` instead."

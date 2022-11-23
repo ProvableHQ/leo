@@ -36,6 +36,7 @@ pub trait ExpressionReconstructor {
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
+            Expression::Unit(unit) => self.reconstruct_unit(unit),
         }
     }
 
@@ -150,6 +151,10 @@ pub trait ExpressionReconstructor {
             Default::default(),
         )
     }
+
+    fn reconstruct_unit(&mut self, input: UnitExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Unit(input), Default::default())
+    }
 }
 
 /// A Reconstructor trait for statements in the AST.
@@ -165,6 +170,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Statement::Console(stmt) => self.reconstruct_console(stmt),
             Statement::Decrement(stmt) => self.reconstruct_decrement(stmt),
             Statement::Definition(stmt) => self.reconstruct_definition(stmt),
+            Statement::Expression(stmt) => self.reconstruct_expression_statement(stmt),
             Statement::Finalize(stmt) => self.reconstruct_finalize(stmt),
             Statement::Increment(stmt) => self.reconstruct_increment(stmt),
             Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
@@ -245,9 +251,19 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Definition(DefinitionStatement {
                 declaration_type: input.declaration_type,
-                variable_name: input.variable_name,
+                place: input.place,
                 type_: input.type_,
                 value: self.reconstruct_expression(input.value).0,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
+        (
+            Statement::Expression(ExpressionStatement {
+                expression: self.reconstruct_expression(input.expression).0,
                 span: input.span,
             }),
             Default::default(),

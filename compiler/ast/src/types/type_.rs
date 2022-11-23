@@ -16,6 +16,7 @@
 
 use crate::{Identifier, IntegerType, MappingType, Tuple};
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -69,9 +70,9 @@ impl Type {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) => left
+            (Type::Tuple(left), Type::Tuple(right)) if left.len() == right.len() => left
                 .iter()
-                .zip(right.iter())
+                .zip_eq(right.iter())
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,

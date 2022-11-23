@@ -17,9 +17,10 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier, IncrementStatement,
-    IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement,
+    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
+    TernaryExpression, TupleExpression,
 };
 use leo_span::Symbol;
 
@@ -127,7 +128,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = self.assigner.unique_symbol(symbol);
+                let new_name = self.assigner.unique_symbol(symbol, "$");
 
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
@@ -223,13 +224,75 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Then assign a new unique name to the left-hand-side of the definition.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
         self.is_lhs = true;
-        let identifier = match self.consume_identifier(definition.variable_name).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
-        };
+        match definition.place {
+            Expression::Identifier(identifier) => {
+                let identifier = match self.consume_identifier(identifier).0 {
+                    Expression::Identifier(identifier) => identifier,
+                    _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
+                };
+                statements.push(self.assigner.simple_assign_statement(identifier, value));
+            }
+            Expression::Tuple(tuple) => {
+                let elements = tuple.elements.into_iter().map(|element| {
+                    match element {
+                        Expression::Identifier(identifier) => {
+                            let identifier = match self.consume_identifier(identifier).0 {
+                                Expression::Identifier(identifier) => identifier,
+                                _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
+                            };
+                            Expression::Identifier(identifier)
+                        }
+                        _ => unreachable!("Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."),
+                    }
+                }).collect();
+                statements.push(Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Tuple(TupleExpression {
+                        elements,
+                        span: Default::default()
+                    }),
+                    value,
+                    span: Default::default()
+                })));
+            }
+            _ => unreachable!("Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."),
+        }
         self.is_lhs = false;
 
-        statements.push(self.assigner.simple_assign_statement(identifier, value));
+        statements
+    }
+
+    /// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
+    fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
+        let mut statements = Vec::new();
+
+        // Extract the call expression.
+        let call = match input.expression {
+            Expression::Call(call) => call,
+            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        };
+
+        // Process the arguments, accumulating any statements produced.
+        let arguments = call
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                let (argument, mut stmts) = self.consume_expression(argument);
+                statements.append(&mut stmts);
+                argument
+            })
+            .collect();
+
+        // Create and accumulate the new expression statement.
+        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
+        statements.push(Statement::Expression(ExpressionStatement {
+            expression: Expression::Call(CallExpression {
+                function: call.function,
+                arguments,
+                external: call.external,
+                span: call.span,
+            }),
+            span: input.span,
+        }));
 
         statements
     }

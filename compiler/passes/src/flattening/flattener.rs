@@ -17,8 +17,8 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Expression, ExpressionReconstructor, Identifier, Member,
-    Statement, TernaryExpression, Type,
+    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
+    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -26,7 +26,6 @@ use indexmap::IndexMap;
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
-    /// This table is used to lookup struct definitions, when they are folded.
     pub(crate) symbol_table: &'a SymbolTable,
     /// An struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
@@ -44,6 +43,8 @@ pub struct Flattener<'a> {
     /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one finalize in a basic block.
     pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
+    /// A mapping between variables and flattened tuple expressions.
+    pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
 }
 
 impl<'a> Flattener<'a> {
@@ -55,6 +56,7 @@ impl<'a> Flattener<'a> {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             finalizes: Vec::new(),
+            tuples: IndexMap::new(),
         }
     }
 
@@ -66,6 +68,24 @@ impl<'a> Flattener<'a> {
     /// Clears the state associated with `FinalizeStatements`, returning the ones that were previously stored.
     pub(crate) fn clear_early_finalizes(&mut self) -> Vec<Vec<(Option<Expression>, Expression)>> {
         core::mem::take(&mut self.finalizes)
+    }
+
+    /// Constructs a guard from the current state of the condition stack.
+    pub(crate) fn construct_guard(&mut self) -> Option<Expression> {
+        match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        }
     }
 
     /// Fold guards and expressions into a single expression.
@@ -84,7 +104,7 @@ impl<'a> Flattener<'a> {
         // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
             let place = Identifier {
-                name: self.assigner.unique_symbol(prefix),
+                name: self.assigner.unique_symbol(prefix, "$"),
                 span: Default::default(),
             };
             let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
@@ -176,21 +196,21 @@ impl<'a> Flattener<'a> {
         self.assigner.simple_assign_statement(lhs, rhs)
     }
 
-    /// Constructs a conjunction of all the conditions in the stack.
-    pub(crate) fn construct_guard(&self) -> Option<Expression> {
-        match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
+    /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
+    pub(crate) fn fold_returns(&mut self, block: &mut Block, returns: Vec<(Option<Expression>, Expression)>) {
+        if !returns.is_empty() {
+            let (expression, stmts) = self.fold_guards("ret$", returns);
+
+            // TODO: Flatten tuples in the return statements.
+
+            // Add all of the accumulated statements to the end of the block.
+            block.statements.extend(stmts);
+
+            // Add the `ReturnStatement` to the end of the block.
+            block.statements.push(Statement::Return(ReturnStatement {
+                expression,
+                span: Default::default(),
+            }));
         }
     }
 }

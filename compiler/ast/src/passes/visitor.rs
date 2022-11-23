@@ -37,6 +37,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
+            Expression::Unit(unit) => self.visit_unit(unit, additional),
         }
     }
 
@@ -106,6 +107,10 @@ pub trait ExpressionVisitor<'a> {
         self.visit_expression(&input.receiver, additional);
         Default::default()
     }
+
+    fn visit_unit(&mut self, _input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
 }
 
 /// A Visitor trait for statements in the AST.
@@ -118,6 +123,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Finalize(stmt) => self.visit_finalize(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -165,6 +171,10 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         self.visit_expression(&input.value, &Default::default());
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+        self.visit_expression(&input.expression, &Default::default());
     }
 
     fn visit_finalize(&mut self, input: &'a FinalizeStatement) {

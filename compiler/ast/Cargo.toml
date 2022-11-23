@@ -30,6 +30,9 @@ version = "1.6.0"
 version = "1.9"
 features = [ "serde-1" ]
 
+[dependencies.itertools]
+version = "0.10.5"
+
 [dependencies.serde]
 version = "1.0"
 features = [ "derive", "rc" ]
