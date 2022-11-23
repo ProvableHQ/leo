@@ -380,6 +380,10 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -516,6 +520,7 @@
     SelfLower,
     Static,
     Struct,
+    Then,
     Transition,
     <span class="comment">// For imports.
     </span>Leo,
@@ -564,6 +569,7 @@
     Token::Static,
     Token::String,
     Token::Struct,
+    Token::Then,
     Token::Transition,
     Token::True,
     Token::U8,
@@ -618,6 +624,7 @@
             Token::Static =&gt; sym::Static,
             Token::String =&gt; sym::string,
             Token::Struct =&gt; sym::Struct,
+            Token::Then =&gt; sym::then,
             Token::Transition =&gt; sym::transition,
             Token::True =&gt; sym::True,
             Token::U8 =&gt; sym::u8,
@@ -737,6 +744,7 @@
             SelfLower =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;self&quot;</span>),
             Static =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;static&quot;</span>),
             Struct =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;struct&quot;</span>),
+            Then =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;then&quot;</span>),
             Transition =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;transition&quot;</span>),
             Leo =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;leo&quot;</span>),
             Eof =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;eof&gt;&quot;</span>),

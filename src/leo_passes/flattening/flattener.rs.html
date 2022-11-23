@@ -214,6 +214,33 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -253,12 +280,7 @@
     /// A guard is an expression that evaluates to true on the execution path of the `ReturnStatement`.
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;,
-    <span class="doccomment">/// A list containing tuples of guards and expressions associated with `FinalizeStatement`s.
-    /// A guard is an expression that evaluates to true on the execution path of the `FinalizeStatement`.
-    /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
-    /// Note that type checking guarantees that there is at most one finalize in a basic block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) finalizes: Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;,
     <span class="doccomment">/// A mapping between variables and flattened tuple expressions.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) tuples: IndexMap&lt;Symbol, TupleExpression&gt;,
 }
@@ -271,19 +293,13 @@
             structs: IndexMap::new(),
             condition_stack: Vec::new(),
             returns: Vec::new(),
-            finalizes: Vec::new(),
             tuples: IndexMap::new(),
         }
     }
 
     <span class="doccomment">/// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_early_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_early_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt; {
         core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.returns)
-    }
-
-    <span class="doccomment">/// Clears the state associated with `FinalizeStatements`, returning the ones that were previously stored.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_early_finalizes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt; {
-        core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.finalizes)
     }
 
     <span class="doccomment">/// Constructs a guard from the current state of the condition stack.
@@ -413,18 +429,56 @@
     }
 
     <span class="doccomment">/// Folds a list of return statements into a single return statement and adds the produced statements to the block.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fold_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block, returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fold_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block, returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;) {
         <span class="kw">if </span>!returns.is_empty() {
-            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;ret$&quot;</span>, returns);
+            <span class="kw">let </span><span class="kw-2">mut </span>return_expressions = Vec::with_capacity(returns.len());
 
-            <span class="comment">// TODO: Flatten tuples in the return statements.
+            <span class="comment">// Construct a vector for each argument position.
+            // Note that the indexing is safe since we check that `returns` is not empty.
+            </span><span class="kw">let </span>(has_finalize, number_of_finalize_arguments) = <span class="kw">match </span><span class="kw-2">&amp;</span>returns[<span class="number">0</span>].<span class="number">1</span>.finalize_arguments {
+                <span class="prelude-val">None </span>=&gt; (<span class="bool-val">false</span>, <span class="number">0</span>),
+                <span class="prelude-val">Some</span>(args) =&gt; (<span class="bool-val">true</span>, args.len()),
+            };
+            <span class="kw">let </span><span class="kw-2">mut </span>finalize_arguments: Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt; =
+                <span class="macro">vec!</span>[Vec::with_capacity(returns.len()); number_of_finalize_arguments];
 
-            // Add all of the accumulated statements to the end of the block.
+            <span class="comment">// Aggregate the return expressions and finalize arguments and their respective guards.
+            </span><span class="kw">for </span>(guard, return_statement) <span class="kw">in </span>returns {
+                return_expressions.push((guard.clone(), return_statement.expression));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = return_statement.finalize_arguments {
+                    <span class="kw">for </span>(i, argument) <span class="kw">in </span>arguments.into_iter().enumerate() {
+                        <span class="comment">// Note that the indexing is safe since we initialize `finalize_arguments` with the correct length.
+                        </span>finalize_arguments[i].push((guard.clone(), argument));
+                    }
+                }
+            }
+
+            <span class="comment">// Fold the return expressions into a single expression.
+            </span><span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;$ret&quot;</span>, return_expressions);
+
+            <span class="comment">// Add all of the accumulated statements to the end of the block.
             </span>block.statements.extend(stmts);
+
+            <span class="comment">// For each position in the finalize call, fold the corresponding arguments into a single expression.
+            </span><span class="kw">let </span>finalize_arguments = <span class="kw">match </span>has_finalize {
+                <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
+                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(
+                    finalize_arguments
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, arguments)| {
+                            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;finalize${i}$&quot;</span>), arguments);
+                            block.statements.extend(stmts);
+                            expression
+                        })
+                        .collect(),
+                ),
+            };
 
             <span class="comment">// Add the `ReturnStatement` to the end of the block.
             </span>block.statements.push(Statement::Return(ReturnStatement {
                 expression,
+                finalize_arguments,
                 span: Default::default(),
             }));
         }

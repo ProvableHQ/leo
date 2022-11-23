@@ -440,13 +440,6 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -486,7 +479,6 @@
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
@@ -722,54 +714,6 @@
         }
     }
 
-    <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) {
-        <span class="kw">if </span><span class="self">self</span>.is_finalize {
-            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-        }
-
-        <span class="comment">// Set the `has_finalize` flag.
-        </span><span class="self">self</span>.has_finalize = <span class="bool-val">true</span>;
-
-        <span class="comment">// Check that the function has a finalize block.
-        // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-        // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-        </span><span class="kw">let </span>finalize = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_fn_symbol(<span class="self">self</span>.function.unwrap())
-            .unwrap()
-            .finalize
-            .clone();
-        <span class="kw">match </span>finalize {
-            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-            <span class="prelude-val">Some</span>(finalize) =&gt; {
-                <span class="comment">// Check number of function arguments.
-                </span><span class="kw">if </span>finalize.input.len() != input.arguments.len() {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                        finalize.input.len(),
-                        input.arguments.len(),
-                        input.span(),
-                    ));
-                }
-
-                <span class="comment">// Check function argument types.
-                </span>finalize
-                    .input
-                    .iter()
-                    .zip(input.arguments.iter())
-                    .for_each(|(expected, argument)| {
-                        <span class="comment">// Check that none of the arguments are tuple expressions.
-                        </span><span class="kw">if </span><span class="macro">matches!</span>(argument, Expression::Tuple(<span class="kw">_</span>)) {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_statement_cannot_contain_tuples(
-                                argument.span(),
-                            ));
-                        }
-                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
-                    });
-            }
-        }
-    }
-
     <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) {
         <span class="kw">if </span>!<span class="self">self</span>.is_finalize {
             <span class="self">self</span>.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
@@ -862,7 +806,7 @@
     }
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) {
-        <span class="comment">// we can safely unwrap all self.parent instances because
+        <span class="comment">// We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();
         <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self
@@ -888,12 +832,54 @@
             }
         }
 
-        <span class="comment">// Set the `is_return` flag.
+        <span class="comment">// Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
         </span><span class="self">self</span>.is_return = <span class="bool-val">true</span>;
         <span class="comment">// Type check the associated expression.
         </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, return_type);
         <span class="comment">// Unset the `is_return` flag.
         </span><span class="self">self</span>.is_return = <span class="bool-val">false</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
+            <span class="kw">if </span><span class="self">self</span>.is_finalize {
+                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
+            }
+
+            <span class="comment">// Set the `has_finalize` flag.
+            </span><span class="self">self</span>.has_finalize = <span class="bool-val">true</span>;
+
+            <span class="comment">// Check that the function has a finalize block.
+            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
+            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
+            </span><span class="kw">let </span>finalize = <span class="self">self
+                </span>.symbol_table
+                .borrow()
+                .lookup_fn_symbol(<span class="self">self</span>.function.unwrap())
+                .unwrap()
+                .finalize
+                .clone();
+            <span class="kw">match </span>finalize {
+                <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
+                <span class="prelude-val">Some</span>(finalize) =&gt; {
+                    <span class="comment">// Check number of function arguments.
+                    </span><span class="kw">if </span>finalize.input.len() != arguments.len() {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
+                            finalize.input.len(),
+                            arguments.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    <span class="comment">// Check function argument types.
+                    </span>finalize
+                        .input
+                        .iter()
+                        .zip(arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
+                        });
+                }
+            }
+        }
     }
 }
 </code></pre></div>

@@ -350,16 +350,6 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -380,9 +370,9 @@
 
 <span class="kw">use </span>leo_ast::{
     AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement,
-    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
-    TernaryExpression, TupleExpression,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
+    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    TupleExpression,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
@@ -659,30 +649,6 @@
         statements
     }
 
-    <span class="doccomment">/// Consumes the expressions associated with the `FinalizeStatement`, returning the simplified `FinalizeStatement`.
-    </span><span class="kw">fn </span>consume_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
-
-        <span class="comment">// Process the arguments, accumulating any statements produced.
-        </span><span class="kw">let </span>arguments = input
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                <span class="kw">let </span>(argument, stmts) = <span class="self">self</span>.consume_expression(argument);
-                statements.extend(stmts);
-                argument
-            })
-            .collect();
-
-        <span class="comment">// Construct and accumulate a simplified finalize statement.
-        </span>statements.push(Statement::Finalize(FinalizeStatement {
-            arguments,
-            span: input.span,
-        }));
-
-        statements
-    }
-
     <span class="doccomment">/// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
     </span><span class="kw">fn </span>consume_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// First consume the expression associated with the amount.
@@ -713,9 +679,23 @@
         <span class="comment">// Consume the return expression.
         </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.expression);
 
+        <span class="comment">// Consume the finalize arguments if they exist.
+        // Process the arguments, accumulating any statements produced.
+        </span><span class="kw">let </span>finalize_args = input.finalize_arguments.map(|arguments| {
+            arguments
+                .into_iter()
+                .map(|argument| {
+                    <span class="kw">let </span>(argument, stmts) = <span class="self">self</span>.consume_expression(argument);
+                    statements.extend(stmts);
+                    argument
+                })
+                .collect()
+        });
+
         <span class="comment">// Add the simplified return statement to the list of produced statements.
         </span>statements.push(Statement::Return(ReturnStatement {
             expression,
+            finalize_arguments: finalize_args,
             span: input.span,
         }));
 

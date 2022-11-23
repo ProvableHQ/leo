@@ -235,8 +235,6 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -363,7 +361,6 @@
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
@@ -416,12 +413,6 @@
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
     }
 
-    <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) {
-        input.arguments.iter().for_each(|expr| {
-            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span>Default::default());
-        });
-    }
-
     <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount, <span class="kw-2">&amp;</span>Default::default());
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Default::default());
@@ -436,6 +427,11 @@
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
+            arguments.iter().for_each(|argument| {
+                <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span>Default::default());
+            })
+        }
     }
 }
 

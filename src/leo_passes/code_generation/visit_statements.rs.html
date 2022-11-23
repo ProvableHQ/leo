@@ -222,6 +222,8 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -242,8 +244,8 @@
 
 <span class="kw">use </span>leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionStatement, FinalizeStatement, IncrementStatement, IterationStatement,
-    Mode, Output, ReturnStatement, Statement,
+    DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
+    ReturnStatement, Statement,
 };
 
 <span class="kw">use </span>itertools::Itertools;
@@ -259,7 +261,6 @@
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
-            Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
@@ -267,7 +268,7 @@
     }
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) -&gt; String {
-        <span class="kw">match </span>input.expression {
+        <span class="kw">let </span><span class="kw-2">mut </span>instructions = <span class="kw">match </span>input.expression {
             <span class="comment">// Skip empty return statements.
             </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
             <span class="kw">_ </span>=&gt; {
@@ -324,7 +325,24 @@
 
                 expression_instructions
             }
+        };
+
+        <span class="comment">// Output a finalize instruction if needed.
+        // TODO: Check formatting.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
+            <span class="kw">let </span><span class="kw-2">mut </span>finalize_instruction = <span class="string">&quot;\n    finalize&quot;</span>.to_string();
+
+            <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
+                <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
+                <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {}&quot;</span>, argument).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
+            }
+            <span class="macro">writeln!</span>(finalize_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+
+            instructions.push_str(<span class="kw-2">&amp;</span>finalize_instruction);
         }
+
+        instructions
     }
 
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) -&gt; String {
@@ -359,20 +377,6 @@
         instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    decrement {}[{index}] by {amount};\n&quot;</span>, input.mapping));
 
         instructions
-    }
-
-    <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>finalize_instruction = <span class="string">&quot;    finalize&quot;</span>.to_string();
-
-        <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
-            <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-            <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
-            instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
-        }
-        <span class="macro">writeln!</span>(finalize_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
-
-        finalize_instruction
     }
 
     <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) -&gt; String {

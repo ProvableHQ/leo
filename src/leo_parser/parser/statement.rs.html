@@ -314,6 +314,16 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -357,9 +367,6 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
             Token::Return =&gt; <span class="prelude-val">Ok</span>(Statement::Return(<span class="self">self</span>.parse_return_statement()<span class="question-mark">?</span>)),
-            Token::Async =&gt; <span class="prelude-val">Ok</span>(Statement::Finalize(<span class="self">self</span>.parse_finalize_statement()<span class="question-mark">?</span>)),
-            <span class="comment">// If a finalize token is found without a preceding async token, return an error.
-            </span>Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_without_async(<span class="self">self</span>.token.span).into()),
             Token::Increment =&gt; <span class="prelude-val">Ok</span>(Statement::Increment(<span class="self">self</span>.parse_increment_statement()<span class="question-mark">?</span>)),
             Token::Decrement =&gt; <span class="prelude-val">Ok</span>(Statement::Decrement(<span class="self">self</span>.parse_decrement_statement()<span class="question-mark">?</span>)),
             Token::If =&gt; <span class="prelude-val">Ok</span>(Statement::Conditional(<span class="self">self</span>.parse_conditional_statement()<span class="question-mark">?</span>)),
@@ -367,6 +374,8 @@
             Token::Console =&gt; <span class="prelude-val">Ok</span>(Statement::Console(<span class="self">self</span>.parse_console_statement()<span class="question-mark">?</span>)),
             Token::Let | Token::Const =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
             Token::LeftCurly =&gt; <span class="prelude-val">Ok</span>(Statement::Block(<span class="self">self</span>.parse_block()<span class="question-mark">?</span>)),
+            Token::Async =&gt; <span class="prelude-val">Err</span>(ParserError::async_finalize_is_deprecated(<span class="self">self</span>.token.span).into()),
+            Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_statements_are_deprecated(<span class="self">self</span>.token.span).into()),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assign_statement()<span class="question-mark">?</span>),
         }
     }
@@ -433,25 +442,36 @@
     <span class="doccomment">/// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     </span><span class="kw">fn </span>parse_return_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReturnStatement&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Return)<span class="question-mark">?</span>;
+
         <span class="kw">let </span>expression = <span class="kw">match </span><span class="self">self</span>.token.token {
             <span class="comment">// If the next token is a semicolon, implicitly return a unit expression, `()`.
-            </span>Token::Semicolon =&gt; Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span }),
+            </span>Token::Semicolon | Token::Then =&gt; Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span }),
             <span class="comment">// Otherwise, attempt to parse an expression.
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>,
         };
-        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-        <span class="kw">let </span>span = start + expression.span();
-        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression })
-    }
 
-    <span class="doccomment">/// Returns a [`FinalizeStatement`] AST node if the next tokens represent a finalize statement.
-    </span><span class="kw">fn </span>parse_finalize_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FinalizeStatement&gt; {
-        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Async)<span class="question-mark">?</span>;
-        <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Finalize)<span class="question-mark">?</span>;
-        <span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-        <span class="kw">let </span>span = start + span;
-        <span class="prelude-val">Ok</span>(FinalizeStatement { span, arguments })
+        <span class="kw">let </span>finalize_args = <span class="kw">match </span><span class="self">self</span>.token.token {
+            Token::Then =&gt; {
+                <span class="comment">// Parse `then`.
+                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Then)<span class="question-mark">?</span>;
+                <span class="comment">// Parse `finalize`.
+                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Finalize)<span class="question-mark">?</span>;
+                <span class="comment">// Parse finalize arguments if they exist.
+                </span><span class="kw">match </span><span class="self">self</span>.token.token {
+                    Token::Semicolon =&gt; <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[]),
+                    Token::LeftParen =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0</span>),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>]),
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        };
+        <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>span = start + end;
+        <span class="prelude-val">Ok</span>(ReturnStatement {
+            span,
+            expression,
+            finalize_arguments: finalize_args,
+        })
     }
 
     <span class="doccomment">/// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.

@@ -270,6 +270,13 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -501,13 +508,6 @@
     }
 
     @formatted
-    finalize_without_async {
-        args: (),
-        msg: <span class="string">&quot;A finalize statement must be preceded by the `async` keyword.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Add the `async` keyword before the `finalize` keyword.&quot;</span>.to_string()),
-    }
-
-    @formatted
     circuit_is_deprecated {
         args: (),
         msg: <span class="string">&quot;The keyword `circuit` is deprecated.&quot;</span>,
@@ -540,6 +540,20 @@
         args: (kind: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;A tuple {kind} must have at least two elements.&quot;</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    async_finalize_is_deprecated {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;`async finalize` is deprecated.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead.&quot;</span>.to_string()),
+    }
+
+    @formatted
+    finalize_statements_are_deprecated {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;`finalize` statements are deprecated.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead.&quot;</span>.to_string()),
     }
 );
 </code></pre></div>

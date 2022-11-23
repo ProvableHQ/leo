@@ -402,15 +402,6 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -433,8 +424,8 @@
 
 <span class="kw">use </span>leo_ast::{
     AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, Identifier, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node, ReturnStatement,
+    Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -780,23 +771,6 @@
         <span class="macro">unreachable!</span>(<span class="string">&quot;`DefinitionStatement`s should not exist in the AST at this phase of compilation.&quot;</span>)
     }
 
-    <span class="doccomment">/// Replaces a finalize statement with an empty block statement.
-    /// Stores the arguments to the finalize statement, which are later folded into a single finalize statement at the end of the function.
-    </span><span class="kw">fn </span>reconstruct_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="comment">// Construct the associated guard.
-        </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
-
-        <span class="comment">// For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
-        // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
-        </span><span class="kw">for </span>(i, argument) <span class="kw">in </span>input.arguments.into_iter().enumerate() {
-            <span class="comment">// Note that the argument is not reconstructed.
-            // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
-            </span><span class="self">self</span>.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
-        }
-
-        (Statement::dummy(Default::default()), Default::default())
-    }
-
     <span class="comment">// TODO: Error message requesting the user to enable loop-unrolling.
     </span><span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
@@ -811,14 +785,22 @@
         <span class="comment">// Add it to `self.returns`.
         // Note that SSA guarantees that `input.expression` is either a literal or identifier.
         </span><span class="kw">match </span>input.expression {
-            <span class="comment">// If the input is an identifier that maps to a tuple, add the corresponding tuple to `self.returns`
+            <span class="comment">// If the input is an identifier that maps to a tuple,
+            // construct a `ReturnStatement` with the tuple and add it to `self.returns`
             </span>Expression::Identifier(identifier) <span class="kw">if </span><span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>identifier.name) =&gt; {
                 <span class="comment">// Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
                 </span><span class="kw">let </span>tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>identifier.name).unwrap().clone();
-                <span class="self">self</span>.returns.push((guard, Expression::Tuple(tuple)))
+                <span class="self">self</span>.returns.push((
+                    guard,
+                    ReturnStatement {
+                        span: input.span,
+                        expression: Expression::Tuple(tuple),
+                        finalize_arguments: input.finalize_arguments,
+                    },
+                ));
             }
             <span class="comment">// Otherwise, add the expression directly.
-            </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.returns.push((guard, input.expression)),
+            </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.returns.push((guard, input)),
         };
 
         (Statement::dummy(Default::default()), Default::default())

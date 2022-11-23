@@ -36,6 +36,8 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -63,6 +65,8 @@
 </span><span class="kw">pub struct </span>ReturnStatement {
     <span class="doccomment">/// The expression to return to the function caller.
     </span><span class="kw">pub </span>expression: Expression,
+    <span class="doccomment">/// Arguments to the finalize block.
+    </span><span class="kw">pub </span>finalize_arguments: <span class="prelude-ty">Option</span>&lt;Vec&lt;Expression&gt;&gt;,
     <span class="doccomment">/// The span of `return expression` excluding the semicolon.
     </span><span class="kw">pub </span>span: Span,
 }
