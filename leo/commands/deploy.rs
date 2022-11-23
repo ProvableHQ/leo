@@ -16,6 +16,7 @@
 
 use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
+
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
@@ -48,6 +49,9 @@ impl Command for Deploy {
         // Change the cwd to the Leo build/ directory to deploy aleo files.
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+
+        // Unset the Leo panic hook.
+        let _ = std::panic::take_hook();
 
         // Call the `aleo node` command from the Aleo SDK.
         println!();
