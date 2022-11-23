@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["TupleExpression","A tuple expression, e.g., `(foo, false, 42)`."]]};

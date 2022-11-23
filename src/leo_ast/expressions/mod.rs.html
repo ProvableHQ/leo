@@ -124,6 +124,14 @@
 <span id="124">124</span>
 <span id="125">125</span>
 <span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -164,11 +172,14 @@
 <span class="kw">mod </span>ternary;
 <span class="kw">pub use </span>ternary::<span class="kw-2">*</span>;
 
-<span class="kw">mod </span>tuple_init;
-<span class="kw">pub use </span>tuple_init::<span class="kw-2">*</span>;
+<span class="kw">mod </span>tuple;
+<span class="kw">pub use </span>tuple::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>unary;
 <span class="kw">pub use </span>unary::<span class="kw-2">*</span>;
+
+<span class="kw">mod </span>unit;
+<span class="kw">pub use </span>unit::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>literal;
 <span class="kw">pub use </span>literal::<span class="kw-2">*</span>;
@@ -197,6 +208,8 @@
     </span>Tuple(TupleExpression),
     <span class="doccomment">/// An unary expression.
     </span>Unary(UnaryExpression),
+    <span class="doccomment">/// A unit expression e.g. `()`
+    </span>Unit(UnitExpression),
 }
 
 <span class="kw">impl </span>Node <span class="kw">for </span>Expression {
@@ -213,6 +226,7 @@
             Ternary(n) =&gt; n.span(),
             Tuple(n) =&gt; n.span(),
             Unary(n) =&gt; n.span(),
+            Unit(n) =&gt; n.span(),
         }
     }
 
@@ -229,6 +243,7 @@
             Ternary(n) =&gt; n.set_span(span),
             Tuple(n) =&gt; n.set_span(span),
             Unary(n) =&gt; n.set_span(span),
+            Unit(n) =&gt; n.set_span(span),
         }
     }
 }
@@ -247,6 +262,7 @@
             Ternary(n) =&gt; n.fmt(f),
             Tuple(n) =&gt; n.fmt(f),
             Unary(n) =&gt; n.fmt(f),
+            Unit(n) =&gt; n.fmt(f),
         }
     }
 }

@@ -64,7 +64,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Expression, Identifier, Node, Type};
+</span><span class="kw">use crate</span>::{Expression, Node, Type};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -79,7 +79,7 @@
     <span class="doccomment">/// What sort of declaration is this? `let` or `const`?.
     </span><span class="kw">pub </span>declaration_type: DeclarationType,
     <span class="doccomment">/// The bindings / variable names to declare.
-    </span><span class="kw">pub </span>variable_name: Identifier,
+    </span><span class="kw">pub </span>place: Expression,
     <span class="doccomment">/// The types of the bindings, if specified, or inferred otherwise.
     </span><span class="kw">pub </span>type_: Type,
     <span class="doccomment">/// An initializer value for the bindings.
@@ -91,7 +91,7 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DefinitionStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">&quot;{} &quot;</span>, <span class="self">self</span>.declaration_type)<span class="question-mark">?</span>;
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.variable_name)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.place)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(f, <span class="string">&quot;: {}&quot;</span>, <span class="self">self</span>.type_)<span class="question-mark">?</span>;
         <span class="macro">write!</span>(f, <span class="string">&quot; = {};&quot;</span>, <span class="self">self</span>.value)
     }

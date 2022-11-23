@@ -270,7 +270,6 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
-<span id="273">273</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -472,14 +471,6 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// Parsed an expression statement.
-    </span>@formatted
-    expr_stmts_disallowed {
-        args: (),
-        msg: <span class="string">&quot;Expression statements are not supported.&quot;</span>,
-        help: <span class="prelude-val">None</span>,
-    }
-
     <span class="doccomment">/// Parsed an unknown method call on the type of an expression.
     </span>@formatted
     invalid_method_call {
@@ -541,6 +532,13 @@
     invalid_network {
         args: (),
         msg: <span class="string">&quot;Invalid network identifier. The only supported identifier is `aleo`.&quot;</span>,
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    tuple_must_have_at_least_two_elements {
+        args: (kind: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A tuple {kind} must have at least two elements.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

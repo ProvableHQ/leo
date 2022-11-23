@@ -321,6 +321,12 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -338,15 +344,16 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::StaticSingleAssigner;
-<span class="kw">use </span>indexmap::IndexMap;
-<span class="kw">use </span>std::borrow::Borrow;
 
 <span class="kw">use </span>leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
     Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
-    TupleAccess, TupleExpression, UnaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression, UnitExpression,
 };
 <span class="kw">use </span>leo_span::{sym, Symbol};
+
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>std::borrow::Borrow;
 
 <span class="kw">impl </span>ExpressionConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">type </span>Output = (Expression, Vec&lt;Statement&gt;);
@@ -548,7 +555,7 @@
         <span class="kw">let </span>name = <span class="kw">match </span><span class="self">self</span>.is_lhs {
             <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             </span><span class="bool-val">true </span>=&gt; {
-                <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name);
+                <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name, <span class="string">&quot;$&quot;</span>);
                 <span class="self">self</span>.rename_table.update(identifier.name, new_name);
                 new_name
             }
@@ -615,15 +622,16 @@
             })
             .collect();
 
-        <span class="comment">// Note that we do not construct a new assignment statement for the tuple expression.
-        // This is because tuple expressions are restricted to use in a return statement.
-        </span>(
-            Expression::Tuple(TupleExpression {
+        <span class="comment">// Construct and accumulate a new assignment statement for the tuple expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self
+            </span>.assigner
+            .unique_simple_assign_statement(Expression::Tuple(TupleExpression {
                 elements,
                 span: input.span,
-            }),
-            statements,
-        )
+            }));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
     }
 
     <span class="doccomment">/// Consumes a unary expression, accumulating any statements that are generated.
@@ -642,6 +650,10 @@
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
+    }
+
+    <span class="kw">fn </span>consume_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnitExpression) -&gt; <span class="self">Self</span>::Output {
+        (Expression::Unit(input), Default::default())
     }
 }
 </code></pre></div>

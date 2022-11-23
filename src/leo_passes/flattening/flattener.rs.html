@@ -194,6 +194,26 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -213,8 +233,8 @@
 </span><span class="kw">use crate</span>::{Assigner, SymbolTable};
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Expression, ExpressionReconstructor, Identifier, Member,
-    Statement, TernaryExpression, Type,
+    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
+    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
@@ -222,7 +242,6 @@
 
 <span class="kw">pub struct </span>Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table associated with the program.
-    /// This table is used to lookup struct definitions, when they are folded.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
     <span class="doccomment">/// An struct used to construct (unique) assignment statements.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: Assigner,
@@ -240,6 +259,8 @@
     /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one finalize in a basic block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) finalizes: Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt;,
+    <span class="doccomment">/// A mapping between variables and flattened tuple expressions.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) tuples: IndexMap&lt;Symbol, TupleExpression&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -251,6 +272,7 @@
             condition_stack: Vec::new(),
             returns: Vec::new(),
             finalizes: Vec::new(),
+            tuples: IndexMap::new(),
         }
     }
 
@@ -262,6 +284,24 @@
     <span class="doccomment">/// Clears the state associated with `FinalizeStatements`, returning the ones that were previously stored.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>clear_early_finalizes(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;&gt; {
         core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.finalizes)
+    }
+
+    <span class="doccomment">/// Constructs a guard from the current state of the condition stack.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>construct_guard(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
+        <span class="kw">match </span><span class="self">self</span>.condition_stack.is_empty() {
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">None</span>,
+            <span class="bool-val">false </span>=&gt; {
+                <span class="kw">let </span>(first, rest) = <span class="self">self</span>.condition_stack.split_first().unwrap();
+                <span class="prelude-val">Some</span>(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        }
     }
 
     <span class="doccomment">/// Fold guards and expressions into a single expression.
@@ -280,7 +320,7 @@
         <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
             <span class="kw">let </span>place = Identifier {
-                name: <span class="self">self</span>.assigner.unique_symbol(prefix),
+                name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>),
                 span: Default::default(),
             };
             <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
@@ -372,21 +412,21 @@
         <span class="self">self</span>.assigner.simple_assign_statement(lhs, rhs)
     }
 
-    <span class="doccomment">/// Constructs a conjunction of all the conditions in the stack.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>construct_guard(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Expression&gt; {
-        <span class="kw">match </span><span class="self">self</span>.condition_stack.is_empty() {
-            <span class="bool-val">true </span>=&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">false </span>=&gt; {
-                <span class="kw">let </span>(first, rest) = <span class="self">self</span>.condition_stack.split_first().unwrap();
-                <span class="prelude-val">Some</span>(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
-            }
+    <span class="doccomment">/// Folds a list of return statements into a single return statement and adds the produced statements to the block.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fold_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block, returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, Expression)&gt;) {
+        <span class="kw">if </span>!returns.is_empty() {
+            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;ret$&quot;</span>, returns);
+
+            <span class="comment">// TODO: Flatten tuples in the return statements.
+
+            // Add all of the accumulated statements to the end of the block.
+            </span>block.statements.extend(stmts);
+
+            <span class="comment">// Add the `ReturnStatement` to the end of the block.
+            </span>block.statements.push(Statement::Return(ReturnStatement {
+                expression,
+                span: Default::default(),
+            }));
         }
     }
 }

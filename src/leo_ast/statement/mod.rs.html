@@ -136,6 +136,14 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -169,6 +177,9 @@
 
 <span class="kw">pub mod </span>definition;
 <span class="kw">pub use </span>definition::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>expression;
+<span class="kw">pub use </span>expression::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>finalize;
 <span class="kw">pub use </span>finalize::<span class="kw-2">*</span>;
@@ -204,6 +215,8 @@
     </span>Decrement(DecrementStatement),
     <span class="doccomment">/// A binding or set of bindings / variables to declare.
     </span>Definition(DefinitionStatement),
+    <span class="doccomment">/// An expression statement
+    </span>Expression(ExpressionStatement),
     <span class="doccomment">/// A finalize statement.
     </span>Finalize(FinalizeStatement),
     <span class="doccomment">/// An increment statement.
@@ -233,6 +246,7 @@
             Statement::Console(x) =&gt; x.fmt(f),
             Statement::Decrement(x) =&gt; x.fmt(f),
             Statement::Definition(x) =&gt; x.fmt(f),
+            Statement::Expression(x) =&gt; x.fmt(f),
             Statement::Finalize(x) =&gt; x.fmt(f),
             Statement::Increment(x) =&gt; x.fmt(f),
             Statement::Iteration(x) =&gt; x.fmt(f),
@@ -251,6 +265,7 @@
             Console(n) =&gt; n.span(),
             Decrement(n) =&gt; n.span(),
             Definition(n) =&gt; n.span(),
+            Expression(n) =&gt; n.span(),
             Finalize(n) =&gt; n.span(),
             Increment(n) =&gt; n.span(),
             Iteration(n) =&gt; n.span(),
@@ -267,6 +282,7 @@
             Console(n) =&gt; n.set_span(span),
             Decrement(n) =&gt; n.set_span(span),
             Definition(n) =&gt; n.set_span(span),
+            Expression(n) =&gt; n.set_span(span),
             Finalize(n) =&gt; n.set_span(span),
             Increment(n) =&gt; n.set_span(span),
             Iteration(n) =&gt; n.set_span(span),

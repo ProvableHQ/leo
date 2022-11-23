@@ -451,7 +451,6 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
-<span id="454">454</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -866,8 +865,7 @@
     <span class="kw">let </span>src_bytes = src.as_bytes();
 
     <span class="kw">while </span>i &lt; src.len() {
-        <span class="kw">let </span>i_usize = i;
-        <span class="kw">let </span>byte = src_bytes[i_usize];
+        <span class="kw">let </span>byte = src_bytes[i];
 
         <span class="comment">// How much to advance to get to the next UTF-8 char in the string.
         </span><span class="kw">let </span><span class="kw-2">mut </span>char_len = <span class="number">1</span>;

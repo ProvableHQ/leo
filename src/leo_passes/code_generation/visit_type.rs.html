@@ -89,7 +89,7 @@
                 <span class="macro">unreachable!</span>(<span class="string">&quot;Mapping types are not supported at this phase of compilation&quot;</span>)
             }
             Type::Tuple(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;Tuple types are not supported at this phase of compilation&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">&quot;Tuple types should not be visited at this phase of compilation&quot;</span>)
             }
             Type::Err =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Error types should not exist at this phase of compilation&quot;</span>),
             Type::Unit =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Unit types are not supported at this phase of compilation&quot;</span>),

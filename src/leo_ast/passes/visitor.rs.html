@@ -227,6 +227,16 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -266,6 +276,7 @@
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, additional),
+            Expression::Unit(unit) =&gt; <span class="self">self</span>.visit_unit(unit, additional),
         }
     }
 
@@ -335,6 +346,10 @@
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, additional);
         Default::default()
     }
+
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        Default::default()
+    }
 }
 
 <span class="doccomment">/// A Visitor trait for statements in the AST.
@@ -347,6 +362,7 @@
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
+            Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
             Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
@@ -394,6 +410,10 @@
 
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
+    }
+
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) {
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
     }
 
     <span class="kw">fn </span>visit_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FinalizeStatement) {

@@ -297,6 +297,69 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -316,9 +379,10 @@
 </span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionConsumer, FinalizeStatement, Identifier, IncrementStatement,
-    IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, FinalizeStatement,
+    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
+    TernaryExpression, TupleExpression,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
@@ -426,7 +490,7 @@
                 };
 
                 <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.
-                </span><span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(symbol);
+                </span><span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(symbol, <span class="string">&quot;$&quot;</span>);
 
                 <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
@@ -522,13 +586,75 @@
         <span class="comment">// Then assign a new unique name to the left-hand-side of the definition.
         // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
         </span><span class="self">self</span>.is_lhs = <span class="bool-val">true</span>;
-        <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(definition.variable_name).<span class="number">0 </span>{
-            Expression::Identifier(identifier) =&gt; identifier,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
-        };
+        <span class="kw">match </span>definition.place {
+            Expression::Identifier(identifier) =&gt; {
+                <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(identifier).<span class="number">0 </span>{
+                    Expression::Identifier(identifier) =&gt; identifier,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
+                };
+                statements.push(<span class="self">self</span>.assigner.simple_assign_statement(identifier, value));
+            }
+            Expression::Tuple(tuple) =&gt; {
+                <span class="kw">let </span>elements = tuple.elements.into_iter().map(|element| {
+                    <span class="kw">match </span>element {
+                        Expression::Identifier(identifier) =&gt; {
+                            <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.consume_identifier(identifier).<span class="number">0 </span>{
+                                Expression::Identifier(identifier) =&gt; identifier,
+                                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
+                            };
+                            Expression::Identifier(identifier)
+                        }
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers.&quot;</span>),
+                    }
+                }).collect();
+                statements.push(Statement::Assign(Box::new(AssignStatement {
+                    place: Expression::Tuple(TupleExpression {
+                        elements,
+                        span: Default::default()
+                    }),
+                    value,
+                    span: Default::default()
+                })));
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple.&quot;</span>),
+        }
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        statements.push(<span class="self">self</span>.assigner.simple_assign_statement(identifier, value));
+        statements
+    }
+
+    <span class="doccomment">/// Consumes the expressions associated with `ExpressionStatement`, returning the simplified `ExpressionStatement`.
+    </span><span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+
+        <span class="comment">// Extract the call expression.
+        </span><span class="kw">let </span>call = <span class="kw">match </span>input.expression {
+            Expression::Call(call) =&gt; call,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that expression statements are always function calls.&quot;</span>),
+        };
+
+        <span class="comment">// Process the arguments, accumulating any statements produced.
+        </span><span class="kw">let </span>arguments = call
+            .arguments
+            .into_iter()
+            .map(|argument| {
+                <span class="kw">let </span>(argument, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(argument);
+                statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                argument
+            })
+            .collect();
+
+        <span class="comment">// Create and accumulate the new expression statement.
+        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
+        </span>statements.push(Statement::Expression(ExpressionStatement {
+            expression: Expression::Call(CallExpression {
+                function: call.function,
+                arguments,
+                external: call.external,
+                span: call.span,
+            }),
+            span: input.span,
+        }));
 
         statements
     }

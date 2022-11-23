@@ -116,32 +116,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -160,10 +134,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
 
-<span class="kw">use </span>leo_ast::{
-    Finalize, FinalizeStatement, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
-    Type,
-};
+<span class="kw">use </span>leo_ast::{Finalize, FinalizeStatement, Function, ProgramReconstructor, Statement, StatementReconstructor, Type};
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Flattens a function&#39;s body and finalize block, if it exists.
@@ -178,7 +149,6 @@
                     <span class="self">self</span>.structs.insert(input.identifier().name, struct_name.name);
                 }
             }
-
             <span class="comment">// Flatten the finalize block.
             </span><span class="kw">let </span><span class="kw-2">mut </span>block = <span class="self">self</span>.reconstruct_block(finalize.block).<span class="number">0</span>;
 
@@ -186,18 +156,7 @@
             </span><span class="kw">let </span>returns = <span class="self">self</span>.clear_early_returns();
 
             <span class="comment">// If the finalize block contains return statements, then we fold them into a single return statement.
-            </span><span class="kw">if </span>!returns.is_empty() {
-                <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;ret$&quot;</span>, returns);
-
-                <span class="comment">// Add all of the accumulated statements to the end of the block.
-                </span>block.statements.extend(stmts);
-
-                <span class="comment">// Add the `ReturnStatement` to the end of the block.
-                </span>block.statements.push(Statement::Return(ReturnStatement {
-                    expression,
-                    span: Default::default(),
-                }));
-            }
+            </span><span class="self">self</span>.fold_returns(<span class="kw-2">&amp;mut </span>block, returns);
 
             <span class="comment">// Initialize `self.finalizes` with the appropriate number of vectors.
             </span><span class="self">self</span>.finalizes = <span class="macro">vec!</span>[<span class="macro">vec!</span>[]; finalize.input.len()];
@@ -227,18 +186,7 @@
         </span><span class="kw">let </span>returns = <span class="self">self</span>.clear_early_returns();
 
         <span class="comment">// If the function contains return statements, then we fold them into a single return statement.
-        </span><span class="kw">if </span>!returns.is_empty() {
-            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;ret$&quot;</span>, returns);
-
-            <span class="comment">// Add all of the accumulated statements to the end of the block.
-            </span>block.statements.extend(stmts);
-
-            <span class="comment">// Add the `ReturnStatement` to the end of the block.
-            </span>block.statements.push(Statement::Return(ReturnStatement {
-                expression,
-                span: Default::default(),
-            }));
-        }
+        </span><span class="self">self</span>.fold_returns(<span class="kw-2">&amp;mut </span>block, returns);
 
         <span class="comment">// If the function has a finalize block, then type checking guarantees that it has at least one finalize statement.
         </span><span class="kw">if </span>finalize.is_some() {

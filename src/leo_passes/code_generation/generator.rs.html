@@ -53,6 +53,8 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -69,14 +71,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::Function;
-<span class="kw">use </span>leo_errors::emitter::Handler;
+</span><span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
+
+<span class="kw">use </span>leo_ast::Function;
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
 
 <span class="kw">pub struct </span>CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    _handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+    <span class="doccomment">/// The symbol table for the program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
     <span class="doccomment">/// A counter to track the next available register.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_register: u64,
     <span class="doccomment">/// Reference to the current function.
@@ -95,10 +99,10 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `CodeGenerator`.
-    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable) -&gt; <span class="self">Self </span>{
         <span class="comment">// Initialize variable mapping.
         </span><span class="self">Self </span>{
-            _handler: handler,
+            symbol_table,
             next_register: <span class="number">0</span>,
             current_function: <span class="prelude-val">None</span>,
             variable_mapping: IndexMap::new(),

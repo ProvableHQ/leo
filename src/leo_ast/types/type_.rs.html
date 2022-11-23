@@ -97,6 +97,7 @@
 <span id="97">97</span>
 <span id="98">98</span>
 <span id="99">99</span>
+<span id="100">100</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -115,6 +116,7 @@
 
 </span><span class="kw">use crate</span>::{Identifier, IntegerType, MappingType, Tuple};
 
+<span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
 
@@ -168,9 +170,9 @@
             (Type::Mapping(left), Type::Mapping(right)) =&gt; {
                 left.key.eq_flat(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) =&gt; left
+            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.len() == right.len() =&gt; left
                 .iter()
-                .zip(right.iter())
+                .zip_eq(right.iter())
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,

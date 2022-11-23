@@ -423,10 +423,6 @@
 <span id="423">423</span>
 <span id="424">424</span>
 <span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -470,6 +466,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
     <span class="doccomment">/// Whether or not we are currently traversing an imported program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_imported: bool,
+    <span class="doccomment">/// Whether or not we are currently traversing a return statement.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_return: bool,
 }
 
 <span class="kw">const </span>BOOLEAN_TYPE: Type = Type::Boolean;
@@ -527,6 +525,7 @@
             has_finalize: <span class="bool-val">false</span>,
             is_finalize: <span class="bool-val">false</span>,
             is_imported: <span class="bool-val">false</span>,
+            is_return: <span class="bool-val">false</span>,
         }
     }
 
@@ -784,13 +783,6 @@
         Type::Identifier(struct_)
     }
 
-    <span class="doccomment">/// Emits an error if the type is a tuple.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_not_tuple(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, type_: <span class="kw-2">&amp;</span>Type) {
-        <span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
-            <span class="self">self</span>.emit_err(TypeCheckerError::tuple_not_allowed(span))
-        }
-    }
-
     <span class="doccomment">/// Emits an error if the struct member is a record type.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_member_is_not_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, parent: Symbol, type_: <span class="kw-2">&amp;</span>Type) {
         <span class="kw">match </span>type_ {
@@ -816,8 +808,8 @@
         </span>}
     }
 
-    <span class="doccomment">/// Emits an error if the type is not valid.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, type_: <span class="kw-2">&amp;</span>Type) {
+    <span class="doccomment">/// Emits an error if the type or its constituent types are not defined.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_defined(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, span: Span) {
         <span class="kw">match </span>type_ {
             <span class="comment">// String types are temporarily disabled.
             </span>Type::String =&gt; {
@@ -830,13 +822,13 @@
             <span class="comment">// Check that the constituent types of the tuple are valid.
             </span>Type::Tuple(tuple_type) =&gt; {
                 <span class="kw">for </span>type_ <span class="kw">in </span>tuple_type.iter() {
-                    <span class="self">self</span>.assert_type_is_valid(span, type_)
+                    <span class="self">self</span>.assert_type_is_defined(type_, span)
                 }
             }
             <span class="comment">// Check that the constituent types of mapping are valid.
             </span>Type::Mapping(mapping_type) =&gt; {
-                <span class="self">self</span>.assert_type_is_valid(span, <span class="kw-2">&amp;</span>mapping_type.key);
-                <span class="self">self</span>.assert_type_is_valid(span, <span class="kw-2">&amp;</span>mapping_type.value);
+                <span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>mapping_type.key, span);
+                <span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>mapping_type.value, span);
             }
             <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
         </span>}

@@ -479,7 +479,7 @@
         <span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
         <span class="kw">let </span>symbol_table = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>bytecode = CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler))<span class="question-mark">?</span>;
+        <span class="kw">let </span>bytecode = CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="kw-2">&amp;</span>symbol_table))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((symbol_table, bytecode))
     }

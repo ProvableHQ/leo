@@ -306,6 +306,14 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -407,11 +415,12 @@
 
             <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } <span class="kw">else </span>{
-            <span class="comment">// Error on `expr;` but recover as an empty block `{}`.
-            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-            <span class="kw">let </span>span = place.span() + <span class="self">self</span>.prev_token.span;
-            <span class="self">self</span>.emit_err(ParserError::expr_stmts_disallowed(span));
-            <span class="prelude-val">Ok</span>(Statement::dummy(span))
+            <span class="comment">// Parse the expression as a statement.
+            </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement {
+                span: place.span() + end,
+                expression: place,
+            }))
         }
     }
 
@@ -424,7 +433,12 @@
     <span class="doccomment">/// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     </span><span class="kw">fn </span>parse_return_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReturnStatement&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Return)<span class="question-mark">?</span>;
-        <span class="kw">let </span>expression = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="kw">let </span>expression = <span class="kw">match </span><span class="self">self</span>.token.token {
+            <span class="comment">// If the next token is a semicolon, implicitly return a unit expression, `()`.
+            </span>Token::Semicolon =&gt; Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span }),
+            <span class="comment">// Otherwise, attempt to parse an expression.
+            </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>,
+        };
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
         <span class="kw">let </span>span = start + expression.span();
         <span class="prelude-val">Ok</span>(ReturnStatement { span, expression })
@@ -599,7 +613,9 @@
         };
 
         <span class="comment">// Parse variable name and type.
-        </span><span class="kw">let </span>(variable_name, type_) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
+        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
 
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Assign)<span class="question-mark">?</span>;
         <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
@@ -608,7 +624,7 @@
         <span class="prelude-val">Ok</span>(DefinitionStatement {
             span: decl_span + value.span(),
             declaration_type: decl_type,
-            variable_name,
+            place,
             type_,
             value,
         })

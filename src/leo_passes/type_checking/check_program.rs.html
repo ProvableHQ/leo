@@ -316,6 +316,27 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -342,15 +363,16 @@
 <span class="kw">use </span>std::collections::HashSet;
 
 <span class="comment">// TODO: Generally, cleanup tyc logic.
+// TODO: Cleanup logic for tuples.
 
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
-        <span class="kw">if </span>!input.members.iter().all(|Member { identifier, type_ }| {
-            <span class="comment">// TODO: Better spans.
-            // Check that the member types are valid.
-            </span><span class="self">self</span>.assert_type_is_valid(input.span, type_);
+        <span class="comment">// TODO: Better span to target duplicate member.
+        </span><span class="kw">if </span>!input.members.iter().all(|Member { identifier, type_ }| {
+            <span class="comment">// Check that the member types are defined.
+            </span><span class="self">self</span>.assert_type_is_defined(type_, identifier.span);
             used.insert(identifier.name)
         }) {
             <span class="self">self</span>.emit_err(<span class="kw">if </span>input.is_record {
@@ -388,8 +410,13 @@
         }
 
         <span class="kw">for </span>Member { identifier, type_ } <span class="kw">in </span>input.members.iter() {
-            <span class="comment">// Ensure there are no tuple typed members.
-            </span><span class="self">self</span>.assert_not_tuple(identifier.span, type_);
+            <span class="comment">// Check that the member type is not a tuple.
+            </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
+                <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                    <span class="kw">if </span>input.is_record { <span class="string">&quot;record&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;struct&quot; </span>},
+                    identifier.span,
+                ));
+            }
             <span class="comment">// Ensure that there are no record members.
             </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
         }
@@ -397,7 +424,7 @@
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) {
         <span class="comment">// Check that a mapping&#39;s key type is valid.
-        </span><span class="self">self</span>.assert_type_is_valid(input.span, <span class="kw-2">&amp;</span>input.key_type);
+        </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.key_type, input.span);
         <span class="comment">// Check that a mapping&#39;s key type is not tuple types or mapping types.
         </span><span class="kw">match </span>input.key_type {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
@@ -407,7 +434,7 @@
         }
 
         <span class="comment">// Check that a mapping&#39;s value type is valid.
-        </span><span class="self">self</span>.assert_type_is_valid(input.span, <span class="kw-2">&amp;</span>input.value_type);
+        </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.value_type, input.span);
         <span class="comment">// Check that a mapping&#39;s value type is not tuple types or mapping types.
         </span><span class="kw">match </span>input.value_type {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
@@ -421,7 +448,8 @@
         <span class="comment">// Check that the function&#39;s annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         </span><span class="kw">for </span>annotation <span class="kw">in </span>function.annotations.iter() {
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
+            <span class="comment">// TODO: Change to compiler warning.
+            </span><span class="self">self</span>.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
         <span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
@@ -452,9 +480,12 @@
 
         <span class="comment">// Type check the function&#39;s parameters.
         </span>function.input.iter().for_each(|input_var| {
-            <span class="comment">// Check that the type of input parameter is valid.
-            </span><span class="self">self</span>.assert_type_is_valid(input_var.span(), <span class="kw-2">&amp;</span>input_var.type_());
-            <span class="self">self</span>.assert_not_tuple(input_var.span(), <span class="kw-2">&amp;</span>input_var.type_());
+            <span class="comment">// Check that the type of input parameter is defined.
+            </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
+            <span class="comment">// Check that the type of the input parameter is not a tuple.
+            </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
+                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
+            }
 
             <span class="kw">match </span><span class="self">self</span>.is_transition_function {
                 <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
@@ -482,14 +513,20 @@
         });
 
         <span class="comment">// Type check the function&#39;s return type.
+        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
         </span>function.output.iter().for_each(|output_type| {
             <span class="kw">match </span>output_type {
-                Output::External(<span class="kw">_</span>) =&gt; {} <span class="comment">// Do not type check external record function outputs.
+                <span class="comment">// TODO: Verify that this is not needed when the import system is updated.
+                </span>Output::External(<span class="kw">_</span>) =&gt; {} <span class="comment">// Do not type check external record function outputs.
                 </span>Output::Internal(output_type) =&gt; {
-                    <span class="comment">// Check that the type of output is valid.
-                    </span><span class="self">self</span>.assert_type_is_valid(output_type.span, <span class="kw-2">&amp;</span>output_type.type_);
-
+                    <span class="comment">// Check that the type of output is defined.
+                    </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>output_type.type_, output_type.span);
+                    <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_, Type::Tuple(<span class="kw">_</span>)) {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span))
+                    }
                     <span class="comment">// Check that the mode of the output is valid.
+                    // For functions, only public and private outputs are allowed
                     </span><span class="kw">if </span>output_type.mode == Mode::Const {
                         <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
                     }
@@ -498,9 +535,6 @@
         });
 
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
-
-        <span class="comment">// Check that the return type is valid.
-        </span><span class="self">self</span>.assert_type_is_valid(function.span, <span class="kw-2">&amp;</span>function.output_type);
 
         <span class="comment">// If the function has a return type, then check that it has a return.
         </span><span class="kw">if </span>function.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {
@@ -543,15 +577,16 @@
             </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
             finalize.input.iter().for_each(|input_var| {
-                <span class="comment">// Check that the type of input parameter is valid.
-                </span><span class="self">self</span>.assert_type_is_valid(input_var.span(), <span class="kw-2">&amp;</span>input_var.type_());
-                <span class="self">self</span>.assert_not_tuple(input_var.span(), <span class="kw-2">&amp;</span>input_var.type_());
-
+                <span class="comment">// Check that the type of input parameter is defined.
+                </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
+                <span class="comment">// Check that the type of input parameter is not a tuple.
+                </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
+                }
                 <span class="comment">// Check that the input parameter is not constant or private.
                 </span><span class="kw">if </span>input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
-
                 <span class="comment">// Check for conflicting variable names.
                 </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                     input_var.identifier().name,
@@ -566,17 +601,24 @@
             });
 
             <span class="comment">// Type check the function&#39;s return type.
+            // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             </span>finalize.output.iter().for_each(|output_type| {
-                <span class="comment">// Check that the type of output is valid.
-                </span><span class="self">self</span>.assert_type_is_valid(output_type.span(), <span class="kw-2">&amp;</span>output_type.type_());
-
+                <span class="comment">// Check that the type of output is defined.
+                </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>output_type.type_(), output_type.span());
+                <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+                </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_(), Type::Tuple(<span class="kw">_</span>)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
+                }
                 <span class="comment">// Check that the mode of the output is valid.
-                </span><span class="kw">if </span>output_type.mode() == Mode::Const {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(output_type.span()));
+                // Note that a finalize block can have only public outputs.
+                </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Const | Mode::Private) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
+                        output_type.span(),
+                    ));
                 }
             });
 
-            <span class="comment">// TODO: Remove when this restriction is removed.
+            <span class="comment">// TODO: Remove if this restriction is relaxed at Aleo instructions level.
             // Check that the finalize block is not empty.
             </span><span class="kw">if </span>finalize.block.statements.is_empty() {
                 <span class="self">self</span>.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
@@ -585,8 +627,8 @@
             <span class="comment">// Type check the finalize block.
             </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
 
-            <span class="comment">// Check that the return type is valid.
-            </span><span class="self">self</span>.assert_type_is_valid(finalize.span, <span class="kw-2">&amp;</span>finalize.output_type);
+            <span class="comment">// Check that the return type is defined. Note that the component types are already checked.
+            </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
 
             <span class="comment">// If the function has a return type, then check that it has a return.
             </span><span class="kw">if </span>finalize.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {

@@ -380,6 +380,22 @@
 <span id="380">380</span>
 <span id="381">381</span>
 <span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -418,6 +434,7 @@
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(ternary),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple(tuple),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.reconstruct_unary(unary),
+            Expression::Unit(unit) =&gt; <span class="self">self</span>.reconstruct_unit(unit),
         }
     }
 
@@ -532,6 +549,10 @@
             Default::default(),
         )
     }
+
+    <span class="kw">fn </span>reconstruct_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: UnitExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        (Expression::Unit(input), Default::default())
+    }
 }
 
 <span class="doccomment">/// A Reconstructor trait for statements in the AST.
@@ -547,6 +568,7 @@
             Statement::Console(stmt) =&gt; <span class="self">self</span>.reconstruct_console(stmt),
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.reconstruct_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.reconstruct_definition(stmt),
+            Statement::Expression(stmt) =&gt; <span class="self">self</span>.reconstruct_expression_statement(stmt),
             Statement::Finalize(stmt) =&gt; <span class="self">self</span>.reconstruct_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.reconstruct_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.reconstruct_iteration(<span class="kw-2">*</span>stmt),
@@ -627,9 +649,19 @@
         (
             Statement::Definition(DefinitionStatement {
                 declaration_type: input.declaration_type,
-                variable_name: input.variable_name,
+                place: input.place,
                 type_: input.type_,
                 value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    <span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        (
+            Statement::Expression(ExpressionStatement {
+                expression: <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>,
                 span: input.span,
             }),
             Default::default(),

@@ -281,6 +281,94 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -301,14 +389,86 @@
 <span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
-    StructVariableInitializer, TernaryExpression, TupleExpression,
+    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
+    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
 <span class="comment">// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
 
 </span><span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">type </span>AdditionalOutput = Vec&lt;Statement&gt;;
+
+    <span class="doccomment">/// Replaces a tuple access expression with the appropriate expression.
+    </span><span class="kw">fn </span>reconstruct_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+        (
+            <span class="kw">match </span>input {
+                AccessExpression::AssociatedFunction(function) =&gt; {
+                    Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
+                            .collect(),
+                        span: function.span,
+                    }))
+                }
+                AccessExpression::Member(member) =&gt; Expression::Access(AccessExpression::Member(MemberAccess {
+                    inner: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>member.inner).<span class="number">0</span>),
+                    name: member.name,
+                    span: member.span,
+                })),
+                AccessExpression::Tuple(tuple) =&gt; {
+                    <span class="comment">// Reconstruct the tuple expression.
+                    </span><span class="kw">let </span>(expr, stmts) = <span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>tuple.tuple);
+
+                    <span class="comment">// Accumulate any statements produced.
+                    </span>statements.extend(stmts);
+
+                    <span class="comment">// Lookup the expression in the tuple map.
+                    </span><span class="kw">match </span>expr {
+                        Expression::Identifier(identifier) =&gt; {
+                            <span class="comment">// Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
+                            </span><span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
+                        }
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;SSA guarantees that subexpressions are identifiers or literals.&quot;</span>),
+                    }
+                }
+                expr =&gt; Expression::Access(expr),
+            },
+            statements,
+        )
+    }
+
+    <span class="doccomment">/// Reconstructs a struct init expression, flattening any tuples in the expression.
+    </span><span class="kw">fn </span>reconstruct_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: StructExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>members = Vec::with_capacity(input.members.len());
+
+        <span class="comment">// Reconstruct and flatten the argument expressions.
+        </span><span class="kw">for </span>member <span class="kw">in </span>input.members.into_iter() {
+            <span class="comment">// Note that this unwrap is safe since SSA guarantees that all struct variable initializers are of the form `&lt;name&gt;: &lt;expr&gt;`.
+            </span><span class="kw">let </span>(expr, stmts) = <span class="self">self</span>.reconstruct_expression(member.expression.unwrap());
+            <span class="comment">// Accumulate any statements produced.
+            </span>statements.extend(stmts);
+            <span class="comment">// Accumulate the struct members.
+            </span>members.push(StructVariableInitializer {
+                identifier: member.identifier,
+                expression: <span class="prelude-val">Some</span>(expr),
+            });
+        }
+
+        (
+            Expression::Struct(StructExpression {
+                name: input.name,
+                members,
+                span: input.span,
+            }),
+            statements,
+        )
+    }
 
     <span class="doccomment">/// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
     /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
@@ -536,6 +696,22 @@
                 statements.push(statement);
 
                 (Expression::Identifier(identifier), statements)
+            }
+            <span class="comment">// If both expressions are identifiers which map to tuples, construct ternary expression over the tuples.
+            </span>(Expression::Identifier(first), Expression::Identifier(second))
+                <span class="kw">if </span><span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>first.name) &amp;&amp; <span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>second.name) =&gt;
+            {
+                <span class="comment">// Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                </span><span class="kw">let </span>first_tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>first.name).unwrap();
+                <span class="comment">// Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                </span><span class="kw">let </span>second_tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>second.name).unwrap();
+                <span class="comment">// Note that type checking guarantees that both expressions have the same same type.
+                </span><span class="self">self</span>.reconstruct_ternary(TernaryExpression {
+                    condition: input.condition,
+                    if_true: Box::new(Expression::Tuple(first_tuple.clone())),
+                    if_false: Box::new(Expression::Tuple(second_tuple.clone())),
+                    span: input.span,
+                })
             }
             <span class="comment">// Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.

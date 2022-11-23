@@ -316,6 +316,47 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -336,9 +377,10 @@
 <span class="kw">use </span>leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
     Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation,
+    UnaryOperation, UnitExpression,
 };
 <span class="kw">use </span>leo_span::sym;
+<span class="kw">use </span>std::borrow::Borrow;
 
 <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
@@ -359,6 +401,7 @@
             Expression::Ternary(expr) =&gt; <span class="self">self</span>.visit_ternary(expr),
             Expression::Tuple(expr) =&gt; <span class="self">self</span>.visit_tuple(expr),
             Expression::Unary(expr) =&gt; <span class="self">self</span>.visit_unary(expr),
+            Expression::Unit(expr) =&gt; <span class="self">self</span>.visit_unit(expr),
         }
     }
 
@@ -593,7 +636,8 @@
         </span>}
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
+    <span class="comment">// TODO: Cleanup
+    </span><span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
         <span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">match </span><span class="kw-2">&amp;</span>input.external {
             <span class="prelude-val">Some</span>(external) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{} &quot;</span>, input.function),
             <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, input.function),
@@ -606,19 +650,53 @@
             instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
 
-        <span class="comment">// Push destination register to call instruction.
-        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-        <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
-        instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
+        <span class="comment">// Lookup the function return type.
+        </span><span class="kw">let </span>function_name = <span class="kw">match </span>input.function.borrow() {
+            Expression::Identifier(identifier) =&gt; identifier.name,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that all `input.function` is always an identifier.&quot;</span>),
+        };
+        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .functions
+            .get(<span class="kw-2">&amp;</span>function_name)
+            .unwrap()
+            .output_type;
+        <span class="kw">match </span>return_type {
+            Type::Unit =&gt; (String::new(), instructions), <span class="comment">// Do nothing
+            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.len() {
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a tuple type has at least two elements&quot;</span>),
+                len =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
+                    <span class="kw">for _ in </span><span class="number">0</span>..len {
+                        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                        destinations.push(destination_register);
+                        <span class="self">self</span>.next_register += <span class="number">1</span>;
+                    }
+                    <span class="kw">let </span>destinations = destinations.join(<span class="string">&quot; &quot;</span>);
+                    <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destinations};&quot;</span>, destinations = destinations)
+                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
-        <span class="comment">// Increment the register counter.
-        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
+                    (destinations, call_instruction)
+                }
+            },
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Push destination register to call instruction.
+                </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
-        (destination_register, instructions)
+                <span class="comment">// Increment the register counter.
+                </span><span class="self">self</span>.next_register += <span class="number">1</span>;
+
+                (destination_register, instructions)
+            }
+        }
     }
 
     <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression) -&gt; (String, String) {
-        <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39;\n&#39;
+        <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39; &#39;
         // and split them after this method is called.
         </span><span class="kw">let </span><span class="kw-2">mut </span>tuple_elements = Vec::with_capacity(input.elements.len());
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
@@ -631,7 +709,11 @@
         }
 
         <span class="comment">// CAUTION: does not return the destination_register.
-        </span>(tuple_elements.join(<span class="string">&quot;\n&quot;</span>), instructions)
+        </span>(tuple_elements.join(<span class="string">&quot; &quot;</span>), instructions)
+    }
+
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnitExpression) -&gt; (String, String) {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;`UnitExpression`s should not be visited during code generation.&quot;</span>)
     }
 }
 </code></pre></div>

@@ -95,6 +95,30 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -111,7 +135,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+</span><span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span><span class="kw">crate</span>::unroller::Unroller;
 <span class="kw">use crate</span>::{VariableSymbol, VariableType};
@@ -147,15 +173,37 @@
                 VariableType::Mut
             };
 
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                input.variable_name.name,
-                VariableSymbol {
-                    type_: input.type_.clone(),
-                    span: input.span(),
-                    declaration,
+            <span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                    symbol,
+                    VariableSymbol {
+                        type_,
+                        span,
+                        declaration,
+                    },
+                ) {
+                    <span class="self">self</span>.handler.emit_err(err);
+                }
+            };
+
+            <span class="comment">// Insert the variables in the into the symbol table.
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
+                Expression::Identifier(identifier) =&gt; insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration),
+                Expression::Tuple(tuple_expression) =&gt; {
+                    <span class="kw">let </span>tuple_type = <span class="kw">match </span>input.type_ {
+                        Type::Tuple(<span class="kw-2">ref </span>tuple_type) =&gt; tuple_type,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;</span>)
+                    };
+                    tuple_expression.elements.iter().zip_eq(tuple_type.<span class="number">0</span>.iter()).for_each(|(expression, type_)| {
+                        <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
+                            Expression::Identifier(identifier) =&gt; identifier,
+                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.&quot;</span>)
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    });
                 },
-            ) {
-                <span class="self">self</span>.handler.emit_err(err);
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple.&quot;</span>)
+
             }
         }
         (Statement::Definition(input), Default::default())

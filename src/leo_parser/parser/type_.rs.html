@@ -83,6 +83,17 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -101,7 +112,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>leo_errors::Result;
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">const </span>TYPE_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
     Token::Address,
@@ -163,6 +174,17 @@
     </span><span class="kw">pub fn </span>parse_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Type, Span)&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="self">self</span>.eat_identifier() {
             <span class="prelude-val">Ok</span>((Type::Identifier(ident), ident.span))
+        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftParen {
+            <span class="kw">let </span>(types, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+            <span class="kw">match </span>types.len() {
+                <span class="comment">// If the parenthetical block is empty, e.g. `()` or `( )`, it should be parsed into `Unit` types.
+                </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>((Type::Unit, span)),
+                <span class="comment">// If the parenthetical block contains a single type, e.g. `(u8)`, emit an error, since tuples must have at least two elements.
+                </span><span class="number">1 </span>=&gt; <span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">&quot;type&quot;</span>, span).into()),
+                <span class="comment">// Otherwise, parse it into a `Tuple` type.
+                // Note: This is the only place where `Tuple` type is constructed in the parser.
+                </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(Tuple(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
+            }
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_primitive_type()
         }

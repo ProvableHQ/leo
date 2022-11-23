@@ -196,6 +196,32 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -216,8 +242,8 @@
 
 <span class="kw">use </span>leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, Output,
-    ReturnStatement, Statement,
+    DefinitionStatement, Expression, ExpressionStatement, FinalizeStatement, IncrementStatement, IterationStatement,
+    Mode, Output, ReturnStatement, Statement,
 };
 
 <span class="kw">use </span>itertools::Itertools;
@@ -232,6 +258,7 @@
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
+            Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
             Statement::Finalize(stmt) =&gt; <span class="self">self</span>.visit_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
@@ -242,7 +269,7 @@
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) -&gt; String {
         <span class="kw">match </span>input.expression {
             <span class="comment">// Skip empty return statements.
-            </span>Expression::Tuple(<span class="kw-2">ref </span>tuple) <span class="kw">if </span>tuple.elements.is_empty() =&gt; String::new(),
+            </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span>(operand, <span class="kw-2">mut </span>expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
                 <span class="comment">// Get the output type of the function.
@@ -254,7 +281,7 @@
                     </span><span class="self">self</span>.current_function.unwrap().output.iter()
                 };
                 <span class="kw">let </span>instructions = operand
-                    .split(<span class="string">&#39;\n&#39;</span>)
+                    .split(<span class="string">&#39; &#39;</span>)
                     .into_iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
@@ -308,6 +335,14 @@
         </span><span class="macro">unreachable!</span>(<span class="string">&quot;DefinitionStatement&#39;s should not exist in SSA form.&quot;</span>)
     }
 
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) -&gt; String {
+        <span class="macro">println!</span>(<span class="string">&quot;ExpressionStatement: {:?}&quot;</span>, input);
+        <span class="kw">match </span>input.expression {
+            Expression::Call(<span class="kw">_</span>) =&gt; <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression).<span class="number">1</span>,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;ExpressionStatement&#39;s can only contain CallExpression&#39;s.&quot;</span>),
+        }
+    }
+
     <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) -&gt; String {
         <span class="kw">let </span>(index, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index);
         <span class="kw">let </span>(amount, amount_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount);
@@ -341,10 +376,27 @@
     }
 
     <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) -&gt; String {
-        <span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
-            Expression::Identifier(identifier) =&gt; {
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>input.value) {
+            (Expression::Identifier(identifier), <span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
                 <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand);
+                expression_instructions
+            }
+            (Expression::Tuple(tuple), Expression::Call(<span class="kw">_</span>)) =&gt; {
+                <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
+                <span class="comment">// Split out the destinations from the tuple.
+                </span><span class="kw">let </span>operands = operand.split(<span class="string">&#39; &#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                <span class="comment">// Add the destinations to the variable mapping.
+                </span>tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
+                    <span class="kw">match </span>element {
+                        Expression::Identifier(identifier) =&gt; {
+                            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand.to_string())
+                        }
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking ensures that tuple elements on the lhs are always identifiers.&quot;</span>)
+                        }
+                    };
+                });
                 expression_instructions
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(

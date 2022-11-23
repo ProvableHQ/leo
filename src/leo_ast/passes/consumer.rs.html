@@ -141,6 +141,12 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -178,6 +184,7 @@
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.consume_ternary(ternary),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.consume_tuple(tuple),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.consume_unary(unary),
+            Expression::Unit(unit) =&gt; <span class="self">self</span>.consume_unit(unit),
         }
     }
 
@@ -202,6 +209,8 @@
     <span class="kw">fn </span>consume_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: TupleExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: UnaryExpression) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: UnitExpression) -&gt; <span class="self">Self</span>::Output;
 }
 
 <span class="doccomment">/// A Consumer trait for statements in the AST.
@@ -216,6 +225,7 @@
             Statement::Console(stmt) =&gt; <span class="self">self</span>.consume_console(stmt),
             Statement::Decrement(stmt) =&gt; <span class="self">self</span>.consume_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.consume_definition(stmt),
+            Statement::Expression(stmt) =&gt; <span class="self">self</span>.consume_expression_statement(stmt),
             Statement::Finalize(stmt) =&gt; <span class="self">self</span>.consume_finalize(stmt),
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.consume_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.consume_iteration(<span class="kw-2">*</span>stmt),
@@ -234,6 +244,8 @@
     <span class="kw">fn </span>consume_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FinalizeStatement) -&gt; <span class="self">Self</span>::Output;
 

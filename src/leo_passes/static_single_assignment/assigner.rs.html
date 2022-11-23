@@ -85,9 +85,9 @@
 
 <span class="kw">impl </span>Assigner {
     <span class="doccomment">/// Return a new unique `Symbol` from a `&amp;str`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_symbol(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw">impl </span>Display) -&gt; Symbol {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_symbol(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw">impl </span>Display, separator: <span class="kw">impl </span>Display) -&gt; Symbol {
         <span class="self">self</span>.counter += <span class="number">1</span>;
-        Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{arg}${}&quot;</span>, <span class="self">self</span>.counter - <span class="number">1</span>))
+        Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}{}{}&quot;</span>, arg, separator, <span class="self">self</span>.counter - <span class="number">1</span>))
     }
 
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.
@@ -104,7 +104,7 @@
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
         <span class="comment">// Create a new variable for the expression.
-        </span><span class="kw">let </span>name = <span class="self">self</span>.unique_symbol(<span class="string">&quot;$var&quot;</span>);
+        </span><span class="kw">let </span>name = <span class="self">self</span>.unique_symbol(<span class="string">&quot;$var&quot;</span>, <span class="string">&quot;$&quot;</span>);
 
         <span class="kw">let </span>place = Identifier {
             name,
