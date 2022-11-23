@@ -261,6 +261,9 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -442,6 +445,9 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
+
+        <span class="comment">// Unset the Leo panic hook.
+        </span><span class="kw">let _ </span>= std::panic::take_hook();
 
         <span class="comment">// Change the cwd to the build directory to compile aleo files.
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)

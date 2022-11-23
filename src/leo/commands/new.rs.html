@@ -172,7 +172,7 @@
         <span class="comment">// Initialize the Leo package in the directory created by `aleo new`.
         </span>Package::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
-        <span class="comment">// Change the cwd to the Leo package directory. to compile aleo files.
+        <span class="comment">// Change the cwd to the Leo package directory to compile aleo files.
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))<span class="question-mark">?</span>;
 

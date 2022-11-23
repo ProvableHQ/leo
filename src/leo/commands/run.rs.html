@@ -96,6 +96,10 @@
 <span id="96">96</span>
 <span id="97">97</span>
 <span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -184,6 +188,10 @@
         </span><span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
             arguments.push(String::from(<span class="string">&quot;--offline&quot;</span>));
         }
+
+        <span class="comment">// Unset the Leo panic hook
+        </span><span class="kw">let _ </span>= std::panic::take_hook();
+
         <span class="macro">println!</span>();
         <span class="kw">let </span>command = AleoRun::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_aleo_run)<span class="question-mark">?</span>;
         <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_aleo_run)<span class="question-mark">?</span>;
