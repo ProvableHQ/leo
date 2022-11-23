@@ -455,12 +455,12 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a user specified more than a type on a parameter.
+    <span class="doccomment">/// For when a user specified more than one mode on a parameter.
     </span>@formatted
-    inputs_multiple_variable_types_specified {
+    inputs_multiple_variable_modes_specified {
         args: (),
-        msg: <span class="string">&quot;A parameter cannot be both public and const.&quot;</span>,
-        help: <span class="prelude-val">None</span>,
+        msg: <span class="string">&quot;A parameter cannot have multiple modes.&quot;</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider using either `constant`, `public`, `private`, or none at all.&quot;</span>.to_string()),
     }
 
     <span class="doccomment">/// For when the lexer encountered a bidi override character

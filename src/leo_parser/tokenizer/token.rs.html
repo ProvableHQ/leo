@@ -376,6 +376,10 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -504,6 +508,7 @@
     Increment,
     Let,
     Mapping,
+    Private,
     Program,
     <span class="comment">// For public inputs.
     </span>Public,
@@ -549,6 +554,7 @@
     Token::Increment,
     Token::Let,
     Token::Mapping,
+    Token::Private,
     Token::Program,
     Token::Public,
     Token::Record,
@@ -602,8 +608,9 @@
             Token::Let =&gt; sym::Let,
             Token::Leo =&gt; sym::leo,
             Token::Mapping =&gt; sym::mapping,
+            Token::Private =&gt; sym::private,
             Token::Program =&gt; sym::program,
-            Token::Public =&gt; sym::Public,
+            Token::Public =&gt; sym::public,
             Token::Record =&gt; sym::record,
             Token::Return =&gt; sym::Return,
             Token::Scalar =&gt; sym::scalar,
@@ -723,6 +730,7 @@
             Increment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;increment&quot;</span>),
             Let =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;let&quot;</span>),
             Mapping =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;mapping&quot;</span>),
+            Private =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;private&quot;</span>),
             Program =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;program&quot;</span>),
             Public =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;public&quot;</span>),
             Return =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;return&quot;</span>),
