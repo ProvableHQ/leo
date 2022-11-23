@@ -37,6 +37,9 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -59,6 +62,9 @@
 </span><span class="kw">pub mod </span>code_generation;
 <span class="kw">pub use </span>code_generation::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>common;
+<span class="kw">pub use </span>common::<span class="kw-2">*</span>;
+
 <span class="kw">pub mod </span>flattening;
 <span class="kw">pub use </span>flattening::<span class="kw-2">*</span>;
 
@@ -71,8 +77,8 @@
 <span class="kw">pub mod </span>static_single_assignment;
 <span class="kw">pub use </span>static_single_assignment::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>symbol_table;
-<span class="kw">pub use </span>symbol_table::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>symbol_table_creator;
+<span class="kw">pub use </span>symbol_table_creator::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>type_checking;
 <span class="kw">pub use </span>type_checking::<span class="kw-2">*</span>;

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["assigner",""],["rename_table",""],["symbol_table",""]]};

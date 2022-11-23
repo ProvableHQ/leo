@@ -414,7 +414,7 @@
 
     <span class="doccomment">/// Runs the symbol table pass.
     </span><span class="kw">pub fn </span>symbol_table_pass(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
-        CreateSymbolTable::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler))
+        SymbolTableCreator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler))
     }
 
     <span class="doccomment">/// Runs the type checker pass.

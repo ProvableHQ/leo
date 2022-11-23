@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["SymbolTableCreator","A compiler pass during which the `SymbolTable` is created. Note that this pass only creates the initial entries for functions, structs, and records. The table is populated further during the type checking pass."]]};
