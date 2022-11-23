@@ -16,10 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{
-    Finalize, FinalizeStatement, Function, ProgramReconstructor, ReturnStatement, Statement, StatementReconstructor,
-    Type,
-};
+use leo_ast::{Finalize, FinalizeStatement, Function, ProgramReconstructor, Statement, StatementReconstructor, Type};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
@@ -34,7 +31,6 @@ impl ProgramReconstructor for Flattener<'_> {
                     self.structs.insert(input.identifier().name, struct_name.name);
                 }
             }
-
             // Flatten the finalize block.
             let mut block = self.reconstruct_block(finalize.block).0;
 
@@ -42,18 +38,7 @@ impl ProgramReconstructor for Flattener<'_> {
             let returns = self.clear_early_returns();
 
             // If the finalize block contains return statements, then we fold them into a single return statement.
-            if !returns.is_empty() {
-                let (expression, stmts) = self.fold_guards("ret$", returns);
-
-                // Add all of the accumulated statements to the end of the block.
-                block.statements.extend(stmts);
-
-                // Add the `ReturnStatement` to the end of the block.
-                block.statements.push(Statement::Return(ReturnStatement {
-                    expression,
-                    span: Default::default(),
-                }));
-            }
+            self.fold_returns(&mut block, returns);
 
             // Initialize `self.finalizes` with the appropriate number of vectors.
             self.finalizes = vec![vec![]; finalize.input.len()];
@@ -83,18 +68,7 @@ impl ProgramReconstructor for Flattener<'_> {
         let returns = self.clear_early_returns();
 
         // If the function contains return statements, then we fold them into a single return statement.
-        if !returns.is_empty() {
-            let (expression, stmts) = self.fold_guards("ret$", returns);
-
-            // Add all of the accumulated statements to the end of the block.
-            block.statements.extend(stmts);
-
-            // Add the `ReturnStatement` to the end of the block.
-            block.statements.push(Statement::Return(ReturnStatement {
-                expression,
-                span: Default::default(),
-            }));
-        }
+        self.fold_returns(&mut block, returns);
 
         // If the function has a finalize block, then type checking guarantees that it has at least one finalize statement.
         if finalize.is_some() {

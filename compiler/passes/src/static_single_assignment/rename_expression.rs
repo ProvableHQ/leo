@@ -15,15 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::StaticSingleAssigner;
-use indexmap::IndexMap;
-use std::borrow::Borrow;
 
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
     Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
-    TupleAccess, TupleExpression, UnaryExpression,
+    TupleAccess, TupleExpression, UnaryExpression, UnitExpression,
 };
 use leo_span::{sym, Symbol};
+
+use indexmap::IndexMap;
+use std::borrow::Borrow;
 
 impl ExpressionConsumer for StaticSingleAssigner<'_> {
     type Output = (Expression, Vec<Statement>);
@@ -225,7 +226,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let name = match self.is_lhs {
             // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
-                let new_name = self.assigner.unique_symbol(identifier.name);
+                let new_name = self.assigner.unique_symbol(identifier.name, "$");
                 self.rename_table.update(identifier.name, new_name);
                 new_name
             }
@@ -292,15 +293,16 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             })
             .collect();
 
-        // Note that we do not construct a new assignment statement for the tuple expression.
-        // This is because tuple expressions are restricted to use in a return statement.
-        (
-            Expression::Tuple(TupleExpression {
+        // Construct and accumulate a new assignment statement for the tuple expression.
+        let (place, statement) = self
+            .assigner
+            .unique_simple_assign_statement(Expression::Tuple(TupleExpression {
                 elements,
                 span: input.span,
-            }),
-            statements,
-        )
+            }));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
@@ -319,5 +321,9 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
+    }
+
+    fn consume_unit(&mut self, input: UnitExpression) -> Self::Output {
+        (Expression::Unit(input), Default::default())
     }
 }

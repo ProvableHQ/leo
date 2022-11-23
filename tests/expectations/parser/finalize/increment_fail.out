@@ -7,4 +7,3 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ')'\n    --> test:1:11\n     |\n   1 | increment();\n     |           ^"
   - "Error [EPAR0370005]: expected , -- found ')'\n    --> test:1:15\n     |\n   1 | increment(floo)\n     |               ^"
   - "Error [EPAR0370005]: expected ( -- found 'foo'\n    --> test:1:11\n     |\n   1 | increment foo[bar] by baz;\n     |           ^^^"
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | incremet(foo, bar, baz);\n     | ^^^^^^^^^^^^^^^^^^^^^^^^"

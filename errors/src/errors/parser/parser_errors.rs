@@ -199,14 +199,6 @@ create_messages!(
         help: None,
     }
 
-    /// Parsed an expression statement.
-    @formatted
-    expr_stmts_disallowed {
-        args: (),
-        msg: "Expression statements are not supported.",
-        help: None,
-    }
-
     /// Parsed an unknown method call on the type of an expression.
     @formatted
     invalid_method_call {
@@ -268,6 +260,13 @@ create_messages!(
     invalid_network {
         args: (),
         msg: "Invalid network identifier. The only supported identifier is `aleo`.",
+        help: None,
+    }
+
+    @formatted
+    tuple_must_have_at_least_two_elements {
+        args: (kind: impl Display),
+        msg: format!("A tuple {kind} must have at least two elements."),
         help: None,
     }
 );

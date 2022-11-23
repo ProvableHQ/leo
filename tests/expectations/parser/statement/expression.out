@@ -1,7 +1,37 @@
 ---
 namespace: ParseStatement
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | expr;\n     | ^^^^^"
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | x+y;\n     | ^^^^"
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:1:1\n     |\n   1 | x();\n     | ^^^^"
+  - Expression:
+      expression:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+      span:
+        lo: 0
+        hi: 5
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Add
+          span:
+            lo: 0
+            hi: 3
+      span:
+        lo: 0
+        hi: 4
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+          arguments: []
+          external: ~
+          span:
+            lo: 0
+            hi: 3
+      span:
+        lo: 0
+        hi: 4

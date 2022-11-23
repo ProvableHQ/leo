@@ -4,7 +4,8 @@ expectation: Pass
 outputs:
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -22,7 +23,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -40,7 +42,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -58,7 +61,8 @@ outputs:
         hi: 17
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -76,7 +80,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -94,7 +99,8 @@ outputs:
         hi: 17
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -112,7 +118,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:

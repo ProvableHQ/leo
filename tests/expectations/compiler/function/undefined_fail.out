@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> compiler-test:5:9\n     |\n   5 |         my_function();\n     |         ^^^^^^^^^^^^^^"
+  - "Error [ETYC0372005]: Unknown function `my_function`\n    --> compiler-test:5:9\n     |\n   5 |         my_function();\n     |         ^^^^^^^^^^^\n"
