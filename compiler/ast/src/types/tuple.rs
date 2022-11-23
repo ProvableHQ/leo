@@ -15,26 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Type;
-use leo_errors::{AstError, Result};
-use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::{fmt, ops::Deref};
 
+// TODO: Consider defining a safe interface for constructing a tuple type.
+
 /// A type list of at least two types.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Tuple(pub Vec<Type>);
-
-impl Tuple {
-    /// Returns a new `Type::Tuple` enumeration.
-    pub fn try_new(elements: Vec<Type>, span: Span) -> Result<Type> {
-        match elements.len() {
-            0 => Err(AstError::empty_tuple(span).into()),
-            1 => Err(AstError::one_element_tuple(span).into()),
-            _ => Ok(Type::Tuple(Tuple(elements))),
-        }
-    }
-}
 
 impl Deref for Tuple {
     type Target = Vec<Type>;

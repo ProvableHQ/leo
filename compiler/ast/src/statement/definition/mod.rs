@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, Type};
+use crate::{Expression, Node, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ pub struct DefinitionStatement {
     /// What sort of declaration is this? `let` or `const`?.
     pub declaration_type: DeclarationType,
     /// The bindings / variable names to declare.
-    pub variable_name: Identifier,
+    pub place: Expression,
     /// The types of the bindings, if specified, or inferred otherwise.
     pub type_: Type,
     /// An initializer value for the bindings.
@@ -41,7 +41,7 @@ pub struct DefinitionStatement {
 impl fmt::Display for DefinitionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} ", self.declaration_type)?;
-        write!(f, "{}", self.variable_name)?;
+        write!(f, "{}", self.place)?;
         write!(f, ": {}", self.type_)?;
         write!(f, " = {};", self.value)
     }

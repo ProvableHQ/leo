@@ -41,6 +41,8 @@ pub struct TypeChecker<'a> {
     pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing an imported program.
     pub(crate) is_imported: bool,
+    /// Whether or not we are currently traversing a return statement.
+    pub(crate) is_return: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -98,6 +100,7 @@ impl<'a> TypeChecker<'a> {
             has_finalize: false,
             is_finalize: false,
             is_imported: false,
+            is_return: false,
         }
     }
 
@@ -355,13 +358,6 @@ impl<'a> TypeChecker<'a> {
         Type::Identifier(struct_)
     }
 
-    /// Emits an error if the type is a tuple.
-    pub(crate) fn assert_not_tuple(&self, span: Span, type_: &Type) {
-        if matches!(type_, Type::Tuple(_)) {
-            self.emit_err(TypeCheckerError::tuple_not_allowed(span))
-        }
-    }
-
     /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
@@ -387,8 +383,8 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Emits an error if the type is not valid.
-    pub(crate) fn assert_type_is_valid(&self, span: Span, type_: &Type) {
+    /// Emits an error if the type or its constituent types are not defined.
+    pub(crate) fn assert_type_is_defined(&self, type_: &Type, span: Span) {
         match type_ {
             // String types are temporarily disabled.
             Type::String => {
@@ -401,13 +397,13 @@ impl<'a> TypeChecker<'a> {
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
-                    self.assert_type_is_valid(span, type_)
+                    self.assert_type_is_defined(type_, span)
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                self.assert_type_is_valid(span, &mapping_type.key);
-                self.assert_type_is_valid(span, &mapping_type.value);
+                self.assert_type_is_defined(&mapping_type.key, span);
+                self.assert_type_is_defined(&mapping_type.value, span);
             }
             _ => {} // Do nothing.
         }

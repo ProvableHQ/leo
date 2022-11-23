@@ -10,4 +10,5 @@ program test.aleo {
         let t: (bool, bool) = (a, b);
     
         return (t.0, t.2); // Index `t.2` is out of bounds.
-    }}
+    }
+}

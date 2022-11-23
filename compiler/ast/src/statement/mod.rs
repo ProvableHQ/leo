@@ -32,6 +32,9 @@ pub use decrement::*;
 pub mod definition;
 pub use definition::*;
 
+pub mod expression;
+pub use expression::*;
+
 pub mod finalize;
 pub use finalize::*;
 
@@ -66,6 +69,8 @@ pub enum Statement {
     Decrement(DecrementStatement),
     /// A binding or set of bindings / variables to declare.
     Definition(DefinitionStatement),
+    /// An expression statement
+    Expression(ExpressionStatement),
     /// A finalize statement.
     Finalize(FinalizeStatement),
     /// An increment statement.
@@ -95,6 +100,7 @@ impl fmt::Display for Statement {
             Statement::Console(x) => x.fmt(f),
             Statement::Decrement(x) => x.fmt(f),
             Statement::Definition(x) => x.fmt(f),
+            Statement::Expression(x) => x.fmt(f),
             Statement::Finalize(x) => x.fmt(f),
             Statement::Increment(x) => x.fmt(f),
             Statement::Iteration(x) => x.fmt(f),
@@ -113,6 +119,7 @@ impl Node for Statement {
             Console(n) => n.span(),
             Decrement(n) => n.span(),
             Definition(n) => n.span(),
+            Expression(n) => n.span(),
             Finalize(n) => n.span(),
             Increment(n) => n.span(),
             Iteration(n) => n.span(),
@@ -129,6 +136,7 @@ impl Node for Statement {
             Console(n) => n.set_span(span),
             Decrement(n) => n.set_span(span),
             Definition(n) => n.set_span(span),
+            Expression(n) => n.set_span(span),
             Finalize(n) => n.set_span(span),
             Increment(n) => n.set_span(span),
             Iteration(n) => n.set_span(span),

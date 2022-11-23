@@ -412,8 +412,7 @@ fn analyze_source_file(src: &str, source_file_start_pos: BytePos) -> (Vec<BytePo
     let src_bytes = src.as_bytes();
 
     while i < src.len() {
-        let i_usize = i;
-        let byte = src_bytes[i_usize];
+        let byte = src_bytes[i];
 
         // How much to advance to get to the next UTF-8 char in the string.
         let mut char_len = 1;

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372054]: A tuple type cannot contain a tuple.\n    --> compiler-test:4:35\n     |\n   4 |     transition bar(a: u8) -> (u8, (u8, u8)) {\n     |                                   ^^^^^^^^\nError [ETYC0372058]: A tuple expression cannot contain another tuple expression.\n    --> compiler-test:5:20\n     |\n   5 |         return (a, (a + a, a * a));\n     |                    ^^^^^^^^^^^^^^\nError [ETYC0372058]: A tuple expression cannot contain another tuple expression.\n    --> compiler-test:5:20\n     |\n   5 |         return (a, (a + a, a * a));\n     |                    ^^^^^^^^^^^^^^\n"

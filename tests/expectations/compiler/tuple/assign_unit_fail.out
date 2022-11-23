@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372062]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:6:9\n     |\n   6 |         let b: () = ();\n     |         ^^^^^^^^^^^^^^\nError [ETYC0372063]: Unit expressions can only be used in return statements.\n    --> compiler-test:6:21\n     |\n   6 |         let b: () = ();\n     |                     ^^\nError [ETYC0372062]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:11:9\n     |\n  11 |         let b: () = bar();\n     |         ^^^^^^^^^^^^^^^^^\nError [ETYC0372048]: Cannot call a local transition function from a transition function.\n    --> compiler-test:11:21\n     |\n  11 |         let b: () = bar();\n     |                     ^^^^^\nError [ETYC0372006]: Call expected `1` args, but got `0`\n    --> compiler-test:11:21\n     |\n  11 |         let b: () = bar();\n     |                     ^^^^^\n"

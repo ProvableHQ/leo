@@ -627,11 +627,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.elements.len() {
-            0 => Some(self.assert_and_return_type(Type::Unit, expected, input.span())),
-            1 => self.visit_expression(&input.elements[0], expected),
+            0 | 1 => unreachable!("Parsing guarantees that tuple expressions have at least two elements."),
             _ => {
                 // Check the expected tuple types if they are known.
-
                 if let Some(Type::Tuple(expected_types)) = expected {
                     // Check actual length is equal to expected length.
                     if expected_types.len() != input.elements.len() {
@@ -646,6 +644,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         .iter()
                         .zip(input.elements.iter())
                         .for_each(|(expected, expr)| {
+                            // Check that the component expression is not a tuple.
+                            if matches!(expr, Expression::Tuple(_)) {
+                                self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+                            }
                             self.visit_expression(expr, &Some(expected.clone()));
                         });
 
@@ -705,5 +707,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.visit_expression(&input.receiver, destination)
             }
         }
+    }
+
+    fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+        // Unit expression are only allowed inside a return statement.
+        if !self.is_return {
+            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(
+                input.span(),
+            ));
+        }
+        Some(Type::Unit)
     }
 }

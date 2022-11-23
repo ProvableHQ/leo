@@ -13,4 +13,5 @@ program test.aleo {
         let c: u8 = a + b;
         let d: u8 = a - b;
         return (c, d);
-    }}
+    }
+}

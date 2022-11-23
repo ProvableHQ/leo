@@ -423,12 +423,20 @@ impl ParserContext<'_> {
             return Ok(Expression::Literal(Literal::Group(Box::new(GroupLiteral::Tuple(gt)))));
         }
 
-        let (mut tuple, trailing, span) = self.parse_expr_tuple()?;
+        let (mut elements, trailing, span) = self.parse_expr_tuple()?;
 
-        if !trailing && tuple.len() == 1 {
-            Ok(tuple.swap_remove(0))
-        } else {
-            Ok(Expression::Tuple(TupleExpression { elements: tuple, span }))
+        match elements.len() {
+            // If the tuple expression is empty, return a `UnitExpression`.
+            0 => Ok(Expression::Unit(UnitExpression { span })),
+            1 => match trailing {
+                // If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
+                false => Ok(elements.swap_remove(0)),
+                // If there is one element in the tuple and a trailing comma, e.g `(foo,)`, emit an error since tuples must have at least two elements.
+                true => Err(ParserError::tuple_must_have_at_least_two_elements("expression", span).into()),
+            },
+            // Otherwise, return a tuple expression.
+            // Note: This is the only place where `TupleExpression` is constructed in the parser.
+            _ => Ok(Expression::Tuple(TupleExpression { elements, span })),
         }
     }
 
