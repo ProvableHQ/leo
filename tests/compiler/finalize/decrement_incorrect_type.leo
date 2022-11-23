@@ -14,7 +14,7 @@ program test.aleo {
     mapping tokens: address => Token;
     
     transition decrease_self(amount: u128) {
-        async finalize(self.caller, amount);
+        return then finalize(self.caller, amount);
     }
     
     finalize decrease_self(addr: address, amount: u128) {

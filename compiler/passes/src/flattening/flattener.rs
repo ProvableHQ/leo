@@ -17,8 +17,8 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Expression, ExpressionReconstructor, Identifier, Member,
-    Statement, TernaryExpression, Type,
+    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
+    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
 };
 use leo_span::Symbol;
 
@@ -26,7 +26,6 @@ use indexmap::IndexMap;
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
-    /// This table is used to lookup struct definitions, when they are folded.
     pub(crate) symbol_table: &'a SymbolTable,
     /// An struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
@@ -38,12 +37,9 @@ pub struct Flattener<'a> {
     /// A guard is an expression that evaluates to true on the execution path of the `ReturnStatement`.
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
-    pub(crate) returns: Vec<(Option<Expression>, Expression)>,
-    /// A list containing tuples of guards and expressions associated with `FinalizeStatement`s.
-    /// A guard is an expression that evaluates to true on the execution path of the `FinalizeStatement`.
-    /// Note that finalizes are inserted in the order they are encountered during a pre-order traversal of the AST.
-    /// Note that type checking guarantees that there is at most one finalize in a basic block.
-    pub(crate) finalizes: Vec<Vec<(Option<Expression>, Expression)>>,
+    pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
+    /// A mapping between variables and flattened tuple expressions.
+    pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
 }
 
 impl<'a> Flattener<'a> {
@@ -54,18 +50,31 @@ impl<'a> Flattener<'a> {
             structs: IndexMap::new(),
             condition_stack: Vec::new(),
             returns: Vec::new(),
-            finalizes: Vec::new(),
+            tuples: IndexMap::new(),
         }
     }
 
     /// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.
-    pub(crate) fn clear_early_returns(&mut self) -> Vec<(Option<Expression>, Expression)> {
+    pub(crate) fn clear_early_returns(&mut self) -> Vec<(Option<Expression>, ReturnStatement)> {
         core::mem::take(&mut self.returns)
     }
 
-    /// Clears the state associated with `FinalizeStatements`, returning the ones that were previously stored.
-    pub(crate) fn clear_early_finalizes(&mut self) -> Vec<Vec<(Option<Expression>, Expression)>> {
-        core::mem::take(&mut self.finalizes)
+    /// Constructs a guard from the current state of the condition stack.
+    pub(crate) fn construct_guard(&mut self) -> Option<Expression> {
+        match self.condition_stack.is_empty() {
+            true => None,
+            false => {
+                let (first, rest) = self.condition_stack.split_first().unwrap();
+                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::And,
+                        left: Box::new(acc),
+                        right: Box::new(condition),
+                        span: Default::default(),
+                    })
+                }))
+            }
+        }
     }
 
     /// Fold guards and expressions into a single expression.
@@ -84,7 +93,7 @@ impl<'a> Flattener<'a> {
         // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
             let place = Identifier {
-                name: self.assigner.unique_symbol(prefix),
+                name: self.assigner.unique_symbol(prefix, "$"),
                 span: Default::default(),
             };
             let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
@@ -176,21 +185,59 @@ impl<'a> Flattener<'a> {
         self.assigner.simple_assign_statement(lhs, rhs)
     }
 
-    /// Constructs a conjunction of all the conditions in the stack.
-    pub(crate) fn construct_guard(&self) -> Option<Expression> {
-        match self.condition_stack.is_empty() {
-            true => None,
-            false => {
-                let (first, rest) = self.condition_stack.split_first().unwrap();
-                Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
-                    Expression::Binary(BinaryExpression {
-                        op: BinaryOperation::And,
-                        left: Box::new(acc),
-                        right: Box::new(condition),
-                        span: Default::default(),
-                    })
-                }))
+    /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
+    pub(crate) fn fold_returns(&mut self, block: &mut Block, returns: Vec<(Option<Expression>, ReturnStatement)>) {
+        if !returns.is_empty() {
+            let mut return_expressions = Vec::with_capacity(returns.len());
+
+            // Construct a vector for each argument position.
+            // Note that the indexing is safe since we check that `returns` is not empty.
+            let (has_finalize, number_of_finalize_arguments) = match &returns[0].1.finalize_arguments {
+                None => (false, 0),
+                Some(args) => (true, args.len()),
+            };
+            let mut finalize_arguments: Vec<Vec<(Option<Expression>, Expression)>> =
+                vec![Vec::with_capacity(returns.len()); number_of_finalize_arguments];
+
+            // Aggregate the return expressions and finalize arguments and their respective guards.
+            for (guard, return_statement) in returns {
+                return_expressions.push((guard.clone(), return_statement.expression));
+                if let Some(arguments) = return_statement.finalize_arguments {
+                    for (i, argument) in arguments.into_iter().enumerate() {
+                        // Note that the indexing is safe since we initialize `finalize_arguments` with the correct length.
+                        finalize_arguments[i].push((guard.clone(), argument));
+                    }
+                }
             }
+
+            // Fold the return expressions into a single expression.
+            let (expression, stmts) = self.fold_guards("$ret", return_expressions);
+
+            // Add all of the accumulated statements to the end of the block.
+            block.statements.extend(stmts);
+
+            // For each position in the finalize call, fold the corresponding arguments into a single expression.
+            let finalize_arguments = match has_finalize {
+                false => None,
+                true => Some(
+                    finalize_arguments
+                        .into_iter()
+                        .enumerate()
+                        .map(|(i, arguments)| {
+                            let (expression, stmts) = self.fold_guards(&format!("finalize${i}$"), arguments);
+                            block.statements.extend(stmts);
+                            expression
+                        })
+                        .collect(),
+                ),
+            };
+
+            // Add the `ReturnStatement` to the end of the block.
+            block.statements.push(Statement::Return(ReturnStatement {
+                expression,
+                finalize_arguments,
+                span: Default::default(),
+            }));
         }
     }
 }

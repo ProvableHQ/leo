@@ -14,33 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use super::*;
 
-use leo_span::Span;
+// TODO: Consider a restricted interface for constructing a tuple expression.
 
-use core::fmt;
-use serde::{Deserialize, Serialize};
-
-/// A return statement `finalize(arg1, ..., argN);`.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct FinalizeStatement {
-    /// The arguments to pass to the finalize block.
-    pub arguments: Vec<Expression>,
-    /// The span of `finalize(arg1, ..., argN)` excluding the semicolon.
+/// A tuple expression, e.g., `(foo, false, 42)`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TupleExpression {
+    /// The elements of the tuple.
+    /// In the example above, it would be `foo`, `false`, and `42`.
+    pub elements: Vec<Expression>,
+    /// The span from `(` to `)`.
     pub span: Span,
 }
 
-impl fmt::Display for FinalizeStatement {
+impl fmt::Display for TupleExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "finalize(")?;
-        for (i, param) in self.arguments.iter().enumerate() {
-            write!(f, "{param}")?;
-            if i < self.arguments.len() - 1 {
-                write!(f, ", ")?;
-            }
-        }
-        write!(f, ");")
+        write!(
+            f,
+            "({})",
+            self.elements
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     }
 }
 
-crate::simple_node_impl!(FinalizeStatement);
+crate::simple_node_impl!(TupleExpression);

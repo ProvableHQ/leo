@@ -23,7 +23,7 @@ program test.aleo {
     }
     
     function write_in_finalize(public addr: address, public amount: u128) {
-        async finalize(addr, amount);
+        return then finalize(addr, amount);
     }
     
     finalize write_in_finalize(public: addr: address, public amount: u128) {

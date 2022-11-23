@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372063]: Unit expressions can only be used in return statements.\n    --> compiler-test:10:13\n     |\n  10 |         foo(());\n     |             ^^\n"

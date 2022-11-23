@@ -1,0 +1,5 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370030]: `async finalize` is deprecated.\n    --> test:1:1\n     |\n   1 | async finalize(foo);\n     | ^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."

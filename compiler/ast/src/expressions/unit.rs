@@ -16,28 +16,17 @@
 
 use super::*;
 
-/// A tuple construction expression, e.g., `(foo, false, 42)`.
+/// Represents a unit expression.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct TupleExpression {
-    /// The elements of the tuple.
-    /// In the example above, it would be `foo`, `false`, and `42`.
-    pub elements: Vec<Expression>,
-    /// The span from `(` to `)`.
+pub struct UnitExpression {
+    /// The span of the unit expression.
     pub span: Span,
 }
 
-impl fmt::Display for TupleExpression {
+impl fmt::Display for UnitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({})",
-            self.elements
-                .iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<_>>()
-                .join(",")
-        )
+        f.write_str("()")
     }
 }
 
-crate::simple_node_impl!(TupleExpression);
+crate::simple_node_impl!(UnitExpression);

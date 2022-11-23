@@ -43,9 +43,7 @@ program basic_bank.aleo {
         // Compute the hash of the token owner.
         let hash: field = BHP256::hash(token.owner);
 
-        async finalize(hash, amount);
-
-        return remaining;
+        return remaining then finalize(hash, amount);
     }
 
     // Updates on-chain state by the amount of tokens deposited.
@@ -73,9 +71,7 @@ program basic_bank.aleo {
             amount: total,
         };
 
-        async finalize(hash, amount);
-
-        return token;
+        return token then finalize(hash, amount);
     }
 
     // Updates on-chain state by the amount of tokens withdrawn.

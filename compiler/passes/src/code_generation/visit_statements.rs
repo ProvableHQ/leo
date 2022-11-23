@@ -18,7 +18,7 @@ use crate::CodeGenerator;
 
 use leo_ast::{
     AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, FinalizeStatement, IncrementStatement, IterationStatement, Mode, Output,
+    DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
     ReturnStatement, Statement,
 };
 
@@ -34,7 +34,7 @@ impl<'a> CodeGenerator<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
-            Statement::Finalize(stmt) => self.visit_finalize(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
@@ -42,9 +42,9 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        match input.expression {
+        let mut instructions = match input.expression {
             // Skip empty return statements.
-            Expression::Tuple(ref tuple) if tuple.elements.is_empty() => String::new(),
+            Expression::Unit(_) => String::new(),
             _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
                 // Get the output type of the function.
@@ -56,7 +56,7 @@ impl<'a> CodeGenerator<'a> {
                     self.current_function.unwrap().output.iter()
                 };
                 let instructions = operand
-                    .split('\n')
+                    .split(' ')
                     .into_iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
@@ -99,7 +99,24 @@ impl<'a> CodeGenerator<'a> {
 
                 expression_instructions
             }
+        };
+
+        // Output a finalize instruction if needed.
+        // TODO: Check formatting.
+        if let Some(arguments) = &input.finalize_arguments {
+            let mut finalize_instruction = "\n    finalize".to_string();
+
+            for argument in arguments.iter() {
+                let (argument, argument_instructions) = self.visit_expression(argument);
+                write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+                instructions.push_str(&argument_instructions);
+            }
+            writeln!(finalize_instruction, ";").expect("failed to write to string");
+
+            instructions.push_str(&finalize_instruction);
         }
+
+        instructions
     }
 
     fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {
@@ -108,6 +125,14 @@ impl<'a> CodeGenerator<'a> {
         // self.variable_mapping.insert(&input.variable_name.name, operand);
         // expression_instructions
         unreachable!("DefinitionStatement's should not exist in SSA form.")
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
+        println!("ExpressionStatement: {:?}", input);
+        match input.expression {
+            Expression::Call(_) => self.visit_expression(&input.expression).1,
+            _ => unreachable!("ExpressionStatement's can only contain CallExpression's."),
+        }
     }
 
     fn visit_increment(&mut self, input: &'a IncrementStatement) -> String {
@@ -128,25 +153,28 @@ impl<'a> CodeGenerator<'a> {
         instructions
     }
 
-    fn visit_finalize(&mut self, input: &'a FinalizeStatement) -> String {
-        let mut instructions = String::new();
-        let mut finalize_instruction = "    finalize".to_string();
-
-        for argument in input.arguments.iter() {
-            let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(finalize_instruction, " {argument}").expect("failed to write to string");
-            instructions.push_str(&argument_instructions);
-        }
-        writeln!(finalize_instruction, ";").expect("failed to write to string");
-
-        finalize_instruction
-    }
-
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
-        match &input.place {
-            Expression::Identifier(identifier) => {
+        match (&input.place, &input.value) {
+            (Expression::Identifier(identifier), _) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
                 self.variable_mapping.insert(&identifier.name, operand);
+                expression_instructions
+            }
+            (Expression::Tuple(tuple), Expression::Call(_)) => {
+                let (operand, expression_instructions) = self.visit_expression(&input.value);
+                // Split out the destinations from the tuple.
+                let operands = operand.split(' ').collect::<Vec<_>>();
+                // Add the destinations to the variable mapping.
+                tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
+                    match element {
+                        Expression::Identifier(identifier) => {
+                            self.variable_mapping.insert(&identifier.name, operand.to_string())
+                        }
+                        _ => {
+                            unreachable!("Type checking ensures that tuple elements on the lhs are always identifiers.")
+                        }
+                    };
+                });
                 expression_instructions
             }
             _ => unimplemented!(

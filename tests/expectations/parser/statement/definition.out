@@ -4,7 +4,8 @@ expectation: Pass
 outputs:
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -14,7 +15,8 @@ outputs:
         hi: 16
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U16
       value:
@@ -32,7 +34,8 @@ outputs:
         hi: 16
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
@@ -49,7 +52,8 @@ outputs:
         hi: 15
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: String
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
@@ -58,7 +62,8 @@ outputs:
         hi: 20
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: I8
       value:
@@ -68,7 +73,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: I16
       value:
@@ -86,7 +92,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: I8
       value:
@@ -103,7 +110,8 @@ outputs:
         hi: 17
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_: String
       value:
         Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":22}\"}"
@@ -112,7 +120,8 @@ outputs:
         hi: 22
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
@@ -122,7 +131,8 @@ outputs:
         hi: 17
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
@@ -140,7 +150,8 @@ outputs:
         hi: 16
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
@@ -157,7 +168,8 @@ outputs:
         hi: 16
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: U32
       value:
@@ -167,7 +179,8 @@ outputs:
         hi: 19
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: U32
       value:
@@ -185,7 +198,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Const
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       type_:
         Integer: U32
       value:
@@ -202,7 +216,8 @@ outputs:
         hi: 18
   - Definition:
       declaration_type: Let
-      variable_name: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Address
       value:
         Literal:

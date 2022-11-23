@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.5.3"
+version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -36,48 +36,48 @@ members = [
   "docs/grammar",
   "errors",
   "leo/package",
-  "tests/test-framework",
+  "tests/test-framework"
 ]
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-errors]
 path = "./errors"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-package]
 path = "./leo/package"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-parser]
 path = "./compiler/parser"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-span]
 path = "./compiler/span"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.aleo]
 git = "https://github.com/AleoHQ/aleo.git"
-rev = "05a1318"
+version = "0.3.0"
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "0.9.3"
-features = ["aleo-cli", "circuit", "console", "parallel"]
+version = "0.9.7"
+features = [ "aleo-cli", "circuit", "console", "parallel" ]
 
 [dependencies.backtrace]
 version = "0.3.66"
 
 [dependencies.clap]
 version = "3.2"
-features = ["derive", "env"]
+features = [ "derive", "env" ]
 
 [dependencies.color-backtrace]
 version = "0.5.1"
@@ -93,7 +93,7 @@ version = "4.0.0"
 
 [dependencies.indexmap]
 version = "1.9"
-features = ["serde"]
+features = [ "serde" ]
 
 [dependencies.lazy_static]
 version = "1.4.0"

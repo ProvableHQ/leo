@@ -183,12 +183,12 @@ create_messages!(
         help: None,
     }
 
-    /// For when a user specified more than a type on a parameter.
+    /// For when a user specified more than one mode on a parameter.
     @formatted
-    inputs_multiple_variable_types_specified {
+    inputs_multiple_variable_modes_specified {
         args: (),
-        msg: "A parameter cannot be both public and const.",
-        help: None,
+        msg: "A parameter cannot have multiple modes.",
+        help: Some("Consider using either `constant`, `public`, `private`, or none at all.".to_string()),
     }
 
     /// For when the lexer encountered a bidi override character
@@ -196,14 +196,6 @@ create_messages!(
     lexer_bidi_override {
         args: (),
         msg: "Unicode bidi override code point encountered.",
-        help: None,
-    }
-
-    /// Parsed an expression statement.
-    @formatted
-    expr_stmts_disallowed {
-        args: (),
-        msg: "Expression statements are not supported.",
         help: None,
     }
 
@@ -237,13 +229,6 @@ create_messages!(
     }
 
     @formatted
-    finalize_without_async {
-        args: (),
-        msg: "A finalize statement must be preceded by the `async` keyword.",
-        help: Some("Add the `async` keyword before the `finalize` keyword.".to_string()),
-    }
-
-    @formatted
     circuit_is_deprecated {
         args: (),
         msg: "The keyword `circuit` is deprecated.",
@@ -269,5 +254,26 @@ create_messages!(
         args: (),
         msg: "Invalid network identifier. The only supported identifier is `aleo`.",
         help: None,
+    }
+
+    @formatted
+    tuple_must_have_at_least_two_elements {
+        args: (kind: impl Display),
+        msg: format!("A tuple {kind} must have at least two elements."),
+        help: None,
+    }
+
+    @formatted
+    async_finalize_is_deprecated {
+        args: (),
+        msg: format!("`async finalize` is deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
+    }
+
+    @formatted
+    finalize_statements_are_deprecated {
+        args: (),
+        msg: format!("`finalize` statements are deprecated."),
+        help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
     }
 );

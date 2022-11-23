@@ -206,7 +206,6 @@ symbols! {
     mapping,
     Mut: "mut",
     prelude,
-    Public,
     Return: "return",
     SelfLower: "self",
     SelfUpper: "Self",
@@ -215,6 +214,7 @@ symbols! {
     std,
     Struct: "struct",
     test,
+    then,
     transition,
     Type: "type",
 

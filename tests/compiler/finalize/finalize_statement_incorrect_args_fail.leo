@@ -8,7 +8,7 @@ program test.aleo {
     mapping account: address => u64;
     
     transition mint_public(public receiver: address, public amount: u64) {
-        async finalize(receiver, amount, amount);
+        return then finalize(receiver, amount, amount);
     }
     
     finalize mint_public (public receiver: address, public amount: u64) {

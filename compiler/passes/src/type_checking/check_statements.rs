@@ -15,9 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{TypeChecker, VariableSymbol, VariableType};
+use itertools::Itertools;
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
+use leo_span::{Span, Symbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
@@ -34,7 +36,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Console(stmt) => self.visit_console(stmt),
             Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
-            Statement::Finalize(stmt) => self.visit_finalize(stmt),
+            Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
@@ -186,62 +188,87 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             VariableType::Mut
         };
 
-        // Check that the type of the definition is valid.
-        self.assert_type_is_valid(input.span, &input.type_);
+        // Check that the type of the definition is defined.
+        self.assert_type_is_defined(&input.type_, input.span);
 
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        match &input.type_ {
+            // If the type is an empty tuple, return an error.
+            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
+            // If the type is a singleton tuple, return an error.
+            Type::Tuple(tuple) => match tuple.len() {
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                _ => {
+                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    }
+                }
+            },
+            Type::Mapping(_) | Type::Err => unreachable!(),
+            // Otherwise, the type is valid.
+            _ => (), // Do nothing
+        }
+
+        // Check the expression on the left-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-            input.variable_name.name,
-            VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.span(),
-                declaration,
-            },
-        ) {
-            self.handler.emit_err(err);
+        // TODO: Dedup with unrolling pass.
+        // Helper to insert the variables into the symbol table.
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                symbol,
+                VariableSymbol {
+                    type_,
+                    span,
+                    declaration,
+                },
+            ) {
+                self.handler.emit_err(err);
+            }
+        };
+
+        // Insert the variables in the into the symbol table.
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+            }
+            Expression::Tuple(tuple_expression) => {
+                let tuple_type = match &input.type_ {
+                    Type::Tuple(tuple_type) => tuple_type,
+                    _ => unreachable!(
+                        "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
+                    ),
+                };
+                tuple_expression
+                    .elements
+                    .iter()
+                    .zip_eq(tuple_type.0.iter())
+                    .for_each(|(expression, type_)| {
+                        let identifier = match expression {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => {
+                                return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
+                                    expression.span(),
+                                ))
+                            }
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    });
+            }
+            _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
     }
 
-    fn visit_finalize(&mut self, input: &'a FinalizeStatement) {
-        if self.is_finalize {
-            self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-        }
-
-        // Set the `has_finalize` flag.
-        self.has_finalize = true;
-
-        // Check that the function has a finalize block.
-        // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-        // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-        let finalize = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(self.function.unwrap())
-            .unwrap()
-            .finalize
-            .clone();
-        match finalize {
-            None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-            Some(finalize) => {
-                // Check number of function arguments.
-                if finalize.input.len() != input.arguments.len() {
-                    self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                        finalize.input.len(),
-                        input.arguments.len(),
-                        input.span(),
-                    ));
-                }
-
-                // Check function argument types.
-                finalize
-                    .input
-                    .iter()
-                    .zip(input.arguments.iter())
-                    .for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_()));
-                    });
-            }
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
+        // Expression statements can only be function calls.
+        if !matches!(input.expression, Expression::Call(_)) {
+            self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(
+                input.span(),
+            ));
+        } else {
+            // Check the expression.
+            // TODO: Should the output type be restricted to unit types?
+            self.visit_expression(&input.expression, &None);
         }
     }
 
@@ -337,7 +364,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // we can safely unwrap all self.parent instances because
+        // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
         let return_type = &self
@@ -351,8 +378,65 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 false => f.output_type.clone(),
             });
 
+        // Set the `has_return` flag.
         self.has_return = true;
 
+        // Check that the return expression is not a nested tuple.
+        if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
+            for element in elements {
+                if matches!(element, Expression::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::nested_tuple_expression(element.span()));
+                }
+            }
+        }
+
+        // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
+        self.is_return = true;
+        // Type check the associated expression.
         self.visit_expression(&input.expression, return_type);
+        // Unset the `is_return` flag.
+        self.is_return = false;
+
+        if let Some(arguments) = &input.finalize_arguments {
+            if self.is_finalize {
+                self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
+            }
+
+            // Set the `has_finalize` flag.
+            self.has_finalize = true;
+
+            // Check that the function has a finalize block.
+            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
+            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
+            let finalize = self
+                .symbol_table
+                .borrow()
+                .lookup_fn_symbol(self.function.unwrap())
+                .unwrap()
+                .finalize
+                .clone();
+            match finalize {
+                None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
+                Some(finalize) => {
+                    // Check number of function arguments.
+                    if finalize.input.len() != arguments.len() {
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
+                            finalize.input.len(),
+                            arguments.len(),
+                            input.span(),
+                        ));
+                    }
+
+                    // Check function argument types.
+                    finalize
+                        .input
+                        .iter()
+                        .zip(arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            self.visit_expression(argument, &Some(expected.type_()));
+                        });
+                }
+            }
+        }
     }
 }

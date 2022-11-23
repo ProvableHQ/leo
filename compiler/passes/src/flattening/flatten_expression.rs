@@ -18,14 +18,86 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
-    StructVariableInitializer, TernaryExpression, TupleExpression,
+    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
+    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
 
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
+
+    /// Replaces a tuple access expression with the appropriate expression.
+    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+        (
+            match input {
+                AccessExpression::AssociatedFunction(function) => {
+                    Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        args: function
+                            .args
+                            .into_iter()
+                            .map(|arg| self.reconstruct_expression(arg).0)
+                            .collect(),
+                        span: function.span,
+                    }))
+                }
+                AccessExpression::Member(member) => Expression::Access(AccessExpression::Member(MemberAccess {
+                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
+                    name: member.name,
+                    span: member.span,
+                })),
+                AccessExpression::Tuple(tuple) => {
+                    // Reconstruct the tuple expression.
+                    let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
+
+                    // Accumulate any statements produced.
+                    statements.extend(stmts);
+
+                    // Lookup the expression in the tuple map.
+                    match expr {
+                        Expression::Identifier(identifier) => {
+                            // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
+                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
+                        }
+                        _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
+                    }
+                }
+                expr => Expression::Access(expr),
+            },
+            statements,
+        )
+    }
+
+    /// Reconstructs a struct init expression, flattening any tuples in the expression.
+    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+        let mut members = Vec::with_capacity(input.members.len());
+
+        // Reconstruct and flatten the argument expressions.
+        for member in input.members.into_iter() {
+            // Note that this unwrap is safe since SSA guarantees that all struct variable initializers are of the form `<name>: <expr>`.
+            let (expr, stmts) = self.reconstruct_expression(member.expression.unwrap());
+            // Accumulate any statements produced.
+            statements.extend(stmts);
+            // Accumulate the struct members.
+            members.push(StructVariableInitializer {
+                identifier: member.identifier,
+                expression: Some(expr),
+            });
+        }
+
+        (
+            Expression::Struct(StructExpression {
+                name: input.name,
+                members,
+                span: input.span,
+            }),
+            statements,
+        )
+    }
 
     /// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
     /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
@@ -253,6 +325,22 @@ impl ExpressionReconstructor for Flattener<'_> {
                 statements.push(statement);
 
                 (Expression::Identifier(identifier), statements)
+            }
+            // If both expressions are identifiers which map to tuples, construct ternary expression over the tuples.
+            (Expression::Identifier(first), Expression::Identifier(second))
+                if self.tuples.contains_key(&first.name) && self.tuples.contains_key(&second.name) =>
+            {
+                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                let first_tuple = self.tuples.get(&first.name).unwrap();
+                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
+                let second_tuple = self.tuples.get(&second.name).unwrap();
+                // Note that type checking guarantees that both expressions have the same same type.
+                self.reconstruct_ternary(TernaryExpression {
+                    condition: input.condition,
+                    if_true: Box::new(Expression::Tuple(first_tuple.clone())),
+                    if_false: Box::new(Expression::Tuple(second_tuple.clone())),
+                    span: input.span,
+                })
             }
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
             // Note that a new assignment must be created to flattened nested ternary expressions.

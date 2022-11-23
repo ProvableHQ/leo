@@ -39,7 +39,7 @@ impl<'a> Pass for TypeChecker<'a> {
     fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
         let mut visitor = TypeChecker::new(st, handler);
         visitor.visit_program(ast.as_repr());
-        handler.last_err()?;
+        handler.last_err().map_err(|e| *e)?;
 
         Ok(visitor.symbol_table.take())
     }

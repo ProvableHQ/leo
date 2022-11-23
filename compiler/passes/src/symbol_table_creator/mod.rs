@@ -30,7 +30,7 @@ impl<'a> Pass for SymbolTableCreator<'a> {
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
         let mut visitor = SymbolTableCreator::new(handler);
         visitor.visit_program(ast.as_repr());
-        handler.last_err()?;
+        handler.last_err().map_err(|e| *e)?;
 
         Ok(visitor.symbol_table)
     }

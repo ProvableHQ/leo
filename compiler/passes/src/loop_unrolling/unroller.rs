@@ -191,7 +191,7 @@ impl<'a> Unroller<'a> {
                 type_: input.type_.clone(),
                 value: Expression::Literal(value),
                 span: Default::default(),
-                variable_name: input.variable,
+                place: Expression::Identifier(input.variable),
             })
             .0,
         ];

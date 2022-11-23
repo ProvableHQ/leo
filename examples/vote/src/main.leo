@@ -40,16 +40,15 @@ program vote.aleo {
         // Generate a new proposal id.
         let id: field = BHP256::hash(info.title);
 
-        // Finalize the proposal id.
-        async finalize(id);
 
         // Return a new record for the proposal.
+        // Finalize the proposal id.
         return Proposal {
             owner: self.caller,
             gates: 0u64,
             id,
             info,
-        };
+        } then finalize(id);
     }
     // Create a new proposal in the "tickets" mapping.
     finalize propose(public id: field) {
@@ -61,14 +60,13 @@ program vote.aleo {
         public pid: field,
         public voter: address,
     ) -> Ticket {
-        // Finalize the proposal id for the ticket.
-        async finalize(pid);
 
+        // Finalize the proposal id for the ticket.
         return Ticket {
             owner: voter,
             gates: 0u64,
             pid,
-        };
+        } then finalize(pid);
     }
     // Create a new ticket on a proposal in the "tickets" mapping.
     finalize new_ticket(public pid: field) {
@@ -78,7 +76,7 @@ program vote.aleo {
     // Vote privately to agree with a proposal.
     transition agree(ticket: Ticket) {
         // Finalize this vote.
-        async finalize(ticket.pid);
+        return then finalize(ticket.pid);
     }
     finalize agree(public pid: field) {
         // Publicly increment the number of agree votes.
@@ -88,7 +86,7 @@ program vote.aleo {
     // Vote privately to disagree with a proposal.
     transition disagree(ticket: Ticket) {
         // Finalize this vote.
-        async finalize(ticket.pid);
+        return then finalize(ticket.pid);
     }
     finalize disagree(pid: field) {
         // Publicly increment the number of disagree votes.
