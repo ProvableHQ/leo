@@ -91,7 +91,7 @@
         <span class="comment">// Reconstructs the AST based off any flattening work that is done.
         </span><span class="kw">let </span><span class="kw-2">mut </span>reconstructor = <span class="self">Self</span>::new(st, handler);
         <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
-        handler.last_err()<span class="question-mark">?</span>;
+        handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((Ast::new(program), reconstructor.symbol_table.take()))
     }

@@ -85,7 +85,7 @@
     <span class="kw">fn </span>do_pass((ast, handler, st): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>visitor = TypeChecker::new(st, handler);
         visitor.visit_program(ast.as_repr());
-        handler.last_err()<span class="question-mark">?</span>;
+        handler.last_err().map_err(|e| <span class="kw-2">*</span>e)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(visitor.symbol_table.take())
     }

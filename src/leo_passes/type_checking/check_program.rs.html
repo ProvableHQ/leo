@@ -337,6 +337,32 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -366,6 +392,60 @@
 // TODO: Cleanup logic for tuples.
 
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
+        <span class="kw">match </span><span class="self">self</span>.is_imported {
+            <span class="comment">// If the program is imported, then it is not allowed to import any other programs.
+            </span><span class="bool-val">true </span>=&gt; {
+                input.imports.values().for_each(|(<span class="kw">_</span>, span)| {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::imported_program_cannot_import_program(<span class="kw-2">*</span>span))
+                });
+            }
+            <span class="comment">// Otherwise, typecheck the imported programs.
+            </span><span class="bool-val">false </span>=&gt; {
+                <span class="comment">// Set `self.is_imported`.
+                </span><span class="kw">let </span>previous_is_imported = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.is_imported, <span class="bool-val">true</span>);
+
+                <span class="comment">// Typecheck the imported programs.
+                </span>input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
+
+                <span class="comment">// Set `self.is_imported` to its previous state.
+                </span><span class="self">self</span>.is_imported = previous_is_imported;
+            }
+        }
+
+        <span class="comment">// Typecheck the program scopes.
+        </span>input
+            .program_scopes
+            .values()
+            .for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
+    }
+
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
+        <span class="comment">// Typecheck the struct definitions.
+        </span>input.structs.values().for_each(|function| <span class="self">self</span>.visit_struct(function));
+
+        <span class="comment">// Typecheck the mapping definitions.
+        </span>input.mappings.values().for_each(|mapping| <span class="self">self</span>.visit_mapping(mapping));
+
+        <span class="comment">// Typecheck the function definitions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
+        <span class="kw">for </span>function <span class="kw">in </span>input.functions.values() {
+            <span class="self">self</span>.visit_function(function);
+            <span class="kw">if </span><span class="macro">matches!</span>(function.call_type, CallType::Transition) {
+                transition_count += <span class="number">1</span>;
+            }
+        }
+
+        <span class="comment">// TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
+        // Check that the number of transitions does not exceed the maximum.
+        </span><span class="kw">if </span>transition_count &gt; <span class="number">15 </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::too_many_transitions(
+                <span class="number">15</span>,
+                input.program_id.name.span + input.program_id.network.span,
+            ));
+        }
+    }
+
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
@@ -646,34 +726,6 @@
 
         <span class="comment">// Unset `is_transition_function` flag.
         </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
-    }
-
-    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
-        <span class="kw">match </span><span class="self">self</span>.is_imported {
-            <span class="comment">// If the program is imported, then it is not allowed to import any other programs.
-            </span><span class="bool-val">true </span>=&gt; {
-                input.imports.values().for_each(|(<span class="kw">_</span>, span)| {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::imported_program_cannot_import_program(<span class="kw-2">*</span>span))
-                });
-            }
-            <span class="comment">// Otherwise, typecheck the imported programs.
-            </span><span class="bool-val">false </span>=&gt; {
-                <span class="comment">// Set `self.is_imported`.
-                </span><span class="kw">let </span>previous_is_imported = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.is_imported, <span class="bool-val">true</span>);
-
-                <span class="comment">// Typecheck the imported programs.
-                </span>input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
-
-                <span class="comment">// Set `self.is_imported` to its previous state.
-                </span><span class="self">self</span>.is_imported = previous_is_imported;
-            }
-        }
-
-        <span class="comment">// Typecheck the program scopes.
-        </span>input
-            .program_scopes
-            .values()
-            .for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 }
 </code></pre></div>
