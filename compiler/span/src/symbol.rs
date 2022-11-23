@@ -206,7 +206,6 @@ symbols! {
     mapping,
     Mut: "mut",
     prelude,
-    Public,
     Return: "return",
     SelfLower: "self",
     SelfUpper: "Self",

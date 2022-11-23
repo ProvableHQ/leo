@@ -23,7 +23,6 @@ use leo_span::sym;
 
 use std::collections::HashSet;
 
-// TODO: Generally, cleanup tyc logic.
 // TODO: Cleanup logic for tuples.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
@@ -207,7 +206,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 true if input_var.mode() == Mode::Const => self.emit_err(
                     TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
-                // If the function is not a program function, then check that the parameters do not have an associated mode.
+                // If the function is not a transition function, then check that the parameters do not have an associated mode.
                 false if input_var.mode() != Mode::None => self.emit_err(
                     TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
                 ),

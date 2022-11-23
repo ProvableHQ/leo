@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372032]: An input to a finalize block must be public.\n    --> compiler-test:9:26\n     |\n   9 |     finalize foo(private a: u8) -> u8 {\n     |                          ^\n     |\n     = Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.\nError [ETYC0372033]: An output from a finalize block must be public.\n    --> compiler-test:18:36\n     |\n  18 |     finalize bar(a: u8) -> private u8 {\n     |                                    ^^\n     |\n     = Use a `public` modifier to the output type declaration or remove the visibility modifier entirely.\n"
