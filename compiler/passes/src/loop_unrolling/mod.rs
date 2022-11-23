@@ -42,7 +42,7 @@ impl<'a> Pass for Unroller<'a> {
         // Reconstructs the AST based off any flattening work that is done.
         let mut reconstructor = Self::new(st, handler);
         let program = reconstructor.reconstruct_program(ast.into_repr());
-        handler.last_err()?;
+        handler.last_err().map_err(|e| *e)?;
 
         Ok((Ast::new(program), reconstructor.symbol_table.take()))
     }

@@ -447,6 +447,13 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    too_many_transitions {
+        args: (max: impl Display),
+        msg: format!("The number of transitions exceeds the maximum. snarkVM allows up to {max} transitions within a single program."),
+        help: None,
+    }
+
     // TODO: Consider chainging this to a warning.
 
     @formatted

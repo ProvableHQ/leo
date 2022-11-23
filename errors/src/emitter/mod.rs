@@ -239,9 +239,9 @@ impl Handler {
 
     /// Gets the last emitted error's exit code if it exists.
     /// Then exits the program with it if it did exist.
-    pub fn last_err(&self) -> Result<(), LeoError> {
+    pub fn last_err(&self) -> Result<(), Box<LeoError>> {
         if let Some(code) = self.inner.borrow().last_emited_err_code() {
-            Err(LeoError::LastErrorCode(code))
+            Err(Box::new(LeoError::LastErrorCode(code)))
         } else {
             Ok(())
         }
