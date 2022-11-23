@@ -66,7 +66,7 @@ impl Command for New {
         // Initialize the Leo package in the directory created by `aleo new`.
         Package::initialize(&self.name, &package_path)?;
 
-        // Change the cwd to the Leo package directory. to compile aleo files.
+        // Change the cwd to the Leo package directory to compile aleo files.
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
 

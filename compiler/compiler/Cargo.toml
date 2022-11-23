@@ -1,7 +1,7 @@
 [package]
 name = "leo-compiler"
-version = "1.5.3"
-authors = ["The Aleo Team <hello@aleo.org>"]
+version = "1.6.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Compiler of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
@@ -10,33 +10,33 @@ keywords = [
   "cryptography",
   "leo",
   "programming-language",
-  "zero-knowledge",
+  "zero-knowledge"
 ]
-categories = ["cryptography::cryptocurrencies", "web-programming"]
-include = ["Cargo.toml", "src", "README.md", "LICENSE.md"]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.63"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-passes]
 path = "../passes"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.sha2]
 version = "0.10"
@@ -47,12 +47,12 @@ version = "1.4.0"
 
 [dev-dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "0.9.3"
-features = ["aleo-cli", "circuit", "console", "parallel"]
+version = "0.9.7"
+features = [ "aleo-cli", "circuit", "console", "parallel" ]
 
 [dev-dependencies.serde]
 version = "1.0.147"
-features = ["derive"]
+features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"
@@ -61,5 +61,5 @@ version = "0.8.25"
 version = "3.3"
 
 [features]
-default = []
-ci_skip = ["leo-ast/ci_skip"]
+default = [ ]
+ci_skip = [ "leo-ast/ci_skip" ]

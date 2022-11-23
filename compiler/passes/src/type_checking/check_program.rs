@@ -23,10 +23,63 @@ use leo_span::sym;
 
 use std::collections::HashSet;
 
-// TODO: Generally, cleanup tyc logic.
 // TODO: Cleanup logic for tuples.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
+    fn visit_program(&mut self, input: &'a Program) {
+        match self.is_imported {
+            // If the program is imported, then it is not allowed to import any other programs.
+            true => {
+                input.imports.values().for_each(|(_, span)| {
+                    self.emit_err(TypeCheckerError::imported_program_cannot_import_program(*span))
+                });
+            }
+            // Otherwise, typecheck the imported programs.
+            false => {
+                // Set `self.is_imported`.
+                let previous_is_imported = core::mem::replace(&mut self.is_imported, true);
+
+                // Typecheck the imported programs.
+                input.imports.values().for_each(|import| self.visit_import(&import.0));
+
+                // Set `self.is_imported` to its previous state.
+                self.is_imported = previous_is_imported;
+            }
+        }
+
+        // Typecheck the program scopes.
+        input
+            .program_scopes
+            .values()
+            .for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        // Typecheck the struct definitions.
+        input.structs.values().for_each(|function| self.visit_struct(function));
+
+        // Typecheck the mapping definitions.
+        input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
+
+        // Typecheck the function definitions.
+        let mut transition_count = 0;
+        for function in input.functions.values() {
+            self.visit_function(function);
+            if matches!(function.call_type, CallType::Transition) {
+                transition_count += 1;
+            }
+        }
+
+        // TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
+        // Check that the number of transitions does not exceed the maximum.
+        if transition_count > 15 {
+            self.emit_err(TypeCheckerError::too_many_transitions(
+                15,
+                input.program_id.name.span + input.program_id.network.span,
+            ));
+        }
+    }
+
     fn visit_struct(&mut self, input: &'a Struct) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
@@ -153,7 +206,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 true if input_var.mode() == Mode::Const => self.emit_err(
                     TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
-                // If the function is not a program function, then check that the parameters do not have an associated mode.
+                // If the function is not a transition function, then check that the parameters do not have an associated mode.
                 false if input_var.mode() != Mode::None => self.emit_err(
                     TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
                 ),
@@ -307,33 +360,5 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Unset `is_transition_function` flag.
         self.is_transition_function = false;
-    }
-
-    fn visit_program(&mut self, input: &'a Program) {
-        match self.is_imported {
-            // If the program is imported, then it is not allowed to import any other programs.
-            true => {
-                input.imports.values().for_each(|(_, span)| {
-                    self.emit_err(TypeCheckerError::imported_program_cannot_import_program(*span))
-                });
-            }
-            // Otherwise, typecheck the imported programs.
-            false => {
-                // Set `self.is_imported`.
-                let previous_is_imported = core::mem::replace(&mut self.is_imported, true);
-
-                // Typecheck the imported programs.
-                input.imports.values().for_each(|import| self.visit_import(&import.0));
-
-                // Set `self.is_imported` to its previous state.
-                self.is_imported = previous_is_imported;
-            }
-        }
-
-        // Typecheck the program scopes.
-        input
-            .program_scopes
-            .values()
-            .for_each(|scope| self.visit_program_scope(scope));
     }
 }

@@ -86,6 +86,10 @@ impl Command for Run {
         if self.compiler_options.offline {
             arguments.push(String::from("--offline"));
         }
+
+        // Unset the Leo panic hook
+        let _ = std::panic::take_hook();
+
         println!();
         let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;

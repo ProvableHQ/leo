@@ -180,6 +180,9 @@ impl Command for Build {
             None
         };
 
+        // Unset the Leo panic hook.
+        let _ = std::panic::take_hook();
+
         // Change the cwd to the build directory to compile aleo files.
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
