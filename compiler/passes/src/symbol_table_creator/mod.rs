@@ -14,30 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod create;
-pub use create::*;
+pub mod creator;
+pub use creator::*;
 
-pub mod function_symbol;
-pub use function_symbol::*;
-
-pub mod table;
-pub use table::*;
-
-pub mod variable_symbol;
-pub use variable_symbol::*;
-
-use crate::Pass;
+use crate::{Pass, SymbolTable};
 
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass for CreateSymbolTable<'a> {
+impl<'a> Pass for SymbolTableCreator<'a> {
     type Input = (&'a Ast, &'a Handler);
     type Output = Result<SymbolTable>;
 
     /// Runs the compiler pass.
     fn do_pass((ast, handler): Self::Input) -> Self::Output {
-        let mut visitor = CreateSymbolTable::new(handler);
+        let mut visitor = SymbolTableCreator::new(handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)?;
 

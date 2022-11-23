@@ -442,7 +442,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
-                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table` alive for the entire block and will be very memory inefficient!
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creator` alive for the entire block and will be very memory inefficient!
                 let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
 
                 if let Some(func) = func {
