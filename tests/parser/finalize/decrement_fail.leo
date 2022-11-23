@@ -12,5 +12,3 @@ decrement();
 decrement(floo)
 
 decrement foo[bar] by baz;
-
-decremet(foo, bar, baz);

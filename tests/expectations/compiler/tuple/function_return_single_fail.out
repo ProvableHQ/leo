@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n    output r0 as boolean;\\n\\n\\n\", Nom(Tag)), (\"\\n\\n\\nclosure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n    output r0 as boolean;\\n\\n\\n\", Nom(Alt)), (\"\\n\\n\\nclosure main:\\n    input r0 as boolean;\\n    input r1 as boolean;\\n    output r0 as boolean;\\n\\n\\n\", Nom(Many1))] }"
+  - "Error [EPAR0370030]: A tuple expression must have at least two elements.\n    --> compiler-test:9:16\n     |\n   9 |         return (b,);\n     |                ^^^^"

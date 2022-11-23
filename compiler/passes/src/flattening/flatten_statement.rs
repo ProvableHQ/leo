@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Flattener;
+use itertools::Itertools;
+use std::borrow::Borrow;
 
 use leo_ast::{
     AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, UnaryExpression, UnaryOperation,
+    DefinitionStatement, Expression, ExpressionReconstructor, FinalizeStatement, Identifier, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -28,29 +30,189 @@ impl StatementReconstructor for Flattener<'_> {
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
     /// Otherwise, the statement is returned as is.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let lhs = match assign.place {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!("`AssignStatement`s can only have `Identifier`s on the left hand side."),
-        };
+        // Flatten the rhs of the assignment.
+        let (value, mut statements) = self.reconstruct_expression(assign.value);
+        match (assign.place, value) {
+            // If the lhs is an identifier and the rhs is a tuple, then add the tuple to `self.tuples`.
+            (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
+                self.tuples.insert(identifier.name, tuple);
+                // Note that tuple assignments are removed from the AST.
+                (Statement::dummy(Default::default()), statements)
+            }
+            // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
+            (Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
+                if self.tuples.contains_key(&rhs_identifier.name) =>
+            {
+                // Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
+                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
+                self.tuples.insert(
+                    lhs_identifier.name,
+                    self.tuples.get(&rhs_identifier.name).unwrap().clone(),
+                );
+                // Note that tuple assignments are removed from the AST.
+                (Statement::dummy(Default::default()), statements)
+            }
+            // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
+            (Expression::Identifier(lhs_identifier), Expression::Call(call)) => {
+                // Retrieve the entry in the symbol table for the function call.
+                // Note that this unwrap is safe since type checking ensures that the function exists.
+                let function_name = match call.function.borrow() {
+                    Expression::Identifier(rhs_identifier) => rhs_identifier.name,
+                    _ => unreachable!("Parsing guarantees that `function` is an identifier."),
+                };
 
-        let (value, statements) = match assign.value {
-            // If the rhs of the assignment is ternary expression, reconstruct it.
-            Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
-            // Otherwise return the original statement.
-            value => (value, Default::default()),
-        };
+                let function = self.symbol_table.borrow().functions.get(&function_name).unwrap();
+                match &function.output_type {
+                    // If the function returns a tuple, reconstruct the assignment and add an entry to `self.tuples`.
+                    Type::Tuple(tuple) => {
+                        // Create a new tuple expression with unique identifiers for each index of the lhs.
+                        let tuple_expression = TupleExpression {
+                            elements: (0..tuple.len())
+                                .zip_eq(tuple.0.iter())
+                                .map(|(i, type_)| {
+                                    let identifier = Identifier::new(
+                                        self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
+                                    );
 
-        // Update the `self.structs` if the rhs is a struct.
-        self.update_structs(&lhs, &value);
+                                    // If the output type is a struct, add it to `self.structs`.
+                                    if let Type::Identifier(struct_name) = type_ {
+                                        self.structs.insert(identifier.name, struct_name.name);
+                                    }
 
-        (
-            Statement::Assign(Box::new(AssignStatement {
-                place: Expression::Identifier(lhs),
-                value,
-                span: assign.span,
-            })),
-            statements,
-        )
+                                    Expression::Identifier(identifier)
+                                })
+                                .collect(),
+                            span: Default::default(),
+                        };
+                        // Add the `tuple_expression` to `self.tuples`.
+                        self.tuples.insert(lhs_identifier.name, tuple_expression.clone());
+                        // Construct a new assignment statement with a tuple expression on the lhs.
+                        (
+                            Statement::Assign(Box::new(AssignStatement {
+                                place: Expression::Tuple(tuple_expression),
+                                value: Expression::Call(call),
+                                span: Default::default(),
+                            })),
+                            statements,
+                        )
+                    }
+                    // Otherwise, reconstruct the assignment as is.
+                    type_ => {
+                        // If the function returns a struct, add it to `self.structs`.
+                        if let Type::Identifier(struct_name) = type_ {
+                            self.structs.insert(lhs_identifier.name, struct_name.name);
+                        };
+                        (
+                            Statement::Assign(Box::new(AssignStatement {
+                                place: Expression::Identifier(lhs_identifier),
+                                value: Expression::Call(call),
+                                span: Default::default(),
+                            })),
+                            statements,
+                        )
+                    }
+                }
+            }
+            (Expression::Identifier(identifier), expression) => {
+                self.update_structs(&identifier, &expression);
+                (
+                    self.assigner.simple_assign_statement(identifier, expression),
+                    statements,
+                )
+            }
+            // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
+            (Expression::Tuple(tuple), Expression::Call(call)) => {
+                // Retrieve the entry in the symbol table for the function call.
+                // Note that this unwrap is safe since type checking ensures that the function exists.
+                let function_name = match call.function.borrow() {
+                    Expression::Identifier(rhs_identifier) => rhs_identifier.name,
+                    _ => unreachable!("Parsing guarantees that `function` is an identifier."),
+                };
+
+                let function = self.symbol_table.borrow().functions.get(&function_name).unwrap();
+
+                let output_type = match &function.output_type {
+                    Type::Tuple(tuple) => tuple.clone(),
+                    _ => unreachable!("Type checking guarantees that the output type is a tuple."),
+                };
+
+                tuple
+                    .elements
+                    .iter()
+                    .zip_eq(output_type.0.iter())
+                    .for_each(|(identifier, type_)| {
+                        let identifier = match identifier {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!(
+                                "Type checking guarantees that a tuple element on the lhs is an identifier."
+                            ),
+                        };
+                        // If the output type is a struct, add it to `self.structs`.
+                        if let Type::Identifier(struct_name) = type_ {
+                            self.structs.insert(identifier.name, struct_name.name);
+                        }
+                    });
+
+                (
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: Expression::Tuple(tuple),
+                        value: Expression::Call(call),
+                        span: Default::default(),
+                    })),
+                    statements,
+                )
+            }
+            // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
+            (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
+                statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()).map(
+                    |(lhs, rhs)| {
+                        let identifier = match &lhs {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                        };
+                        self.update_structs(identifier, &rhs);
+                        Statement::Assign(Box::new(AssignStatement {
+                            place: lhs,
+                            value: rhs,
+                            span: Default::default(),
+                        }))
+                    },
+                ));
+                (Statement::dummy(Default::default()), statements)
+            }
+            // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
+            (Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
+                if self.tuples.contains_key(&identifier.name) =>
+            {
+                // Lookup the entry in `self.tuples`.
+                // Note that the `unwrap` is safe since the match arm checks that the entry exists.
+                let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
+                // Create a new assign statement for each tuple element.
+                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()) {
+                    let identifier = match &lhs {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    };
+                    self.update_structs(identifier, &rhs);
+
+                    statements.push(Statement::Assign(Box::new(AssignStatement {
+                        place: lhs,
+                        value: rhs,
+                        span: Default::default(),
+                    })));
+                }
+                (Statement::dummy(Default::default()), statements)
+            }
+            // If the lhs of an assignment is a tuple, then the rhs can be one of the following:
+            //  - A function call that produces a tuple. (handled above)
+            //  - A tuple. (handled above)
+            //  - An identifier that is a tuple. (handled above)
+            //  - A ternary expression that produces a tuple. (handled when the rhs is flattened above)
+            (Expression::Tuple(_), _) => {
+                unreachable!("`Type checking guarantees that the rhs of an assignment to a tuple is a tuple.`")
+            }
+            _ => unreachable!("`AssignStatement`s can only have `Identifier`s or `Tuple`s on the left hand side."),
+        }
     }
 
     // TODO: Do we want to flatten nested blocks? They do not affect code generation but it would regularize the AST structure.
@@ -214,6 +376,7 @@ impl StatementReconstructor for Flattener<'_> {
         // For each finalize argument, add it and its associated guard to the appropriate list of finalize arguments.
         // Note that type checking guarantees that the number of arguments in a finalize statement is equal to the number of arguments in to the finalize block.
         for (i, argument) in input.arguments.into_iter().enumerate() {
+            // Note that the argument is not reconstructed.
             // Note that this unwrap is safe since we initialize `self.finalizes` with a number of vectors equal to the number of finalize arguments.
             self.finalizes.get_mut(i).unwrap().push((guard.clone(), argument));
         }
@@ -232,8 +395,18 @@ impl StatementReconstructor for Flattener<'_> {
         // Construct the associated guard.
         let guard = self.construct_guard();
 
-        // Add it to the list of return statements.
-        self.returns.push((guard, input.expression));
+        // Add it to `self.returns`.
+        // Note that SSA guarantees that `input.expression` is either a literal or identifier.
+        match input.expression {
+            // If the input is an identifier that maps to a tuple, add the corresponding tuple to `self.returns`
+            Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
+                // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
+                let tuple = self.tuples.get(&identifier.name).unwrap().clone();
+                self.returns.push((guard, Expression::Tuple(tuple)))
+            }
+            // Otherwise, add the expression directly.
+            _ => self.returns.push((guard, input.expression)),
+        };
 
         (Statement::dummy(Default::default()), Default::default())
     }

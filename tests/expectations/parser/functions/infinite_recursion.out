@@ -1,5 +1,99 @@
 ---
 namespace: Parse
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [EPAR0370021]: Expression statements are not supported.\n    --> test:5:9\n     |\n   5 |         inf();\n     |         ^^^^^^\nError [EPAR0370021]: Expression statements are not supported.\n    --> test:9:9\n     |\n   9 |         inf();\n     |         ^^^^^^"
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 48
+                    hi: 50
+            output_type:
+              Integer: U8
+            block:
+              statements:
+                - Expression:
+                    expression:
+                      Call:
+                        function:
+                          Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
+                        arguments: []
+                        external: ~
+                        span:
+                          lo: 61
+                          hi: 66
+                    span:
+                      lo: 61
+                      hi: 67
+              span:
+                lo: 51
+                hi: 73
+            finalize: ~
+            span:
+              lo: 30
+              hi: 73
+          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
+            annotations: []
+            call_type: Standard
+            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 97
+                    hi: 98
+            output:
+              - Internal:
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 109
+                    hi: 113
+            output_type: Boolean
+            block:
+              statements:
+                - Expression:
+                    expression:
+                      Call:
+                        function:
+                          Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
+                        arguments: []
+                        external: ~
+                        span:
+                          lo: 124
+                          hi: 129
+                    span:
+                      lo: 124
+                      hi: 130
+                - Return:
+                    expression:
+                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
+                    span:
+                      lo: 139
+                      hi: 147
+              span:
+                lo: 114
+                hi: 154
+            finalize: ~
+            span:
+              lo: 83
+              hi: 154
+        span:
+          lo: 2
+          hi: 156

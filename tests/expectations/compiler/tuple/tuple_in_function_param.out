@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372056]: A function cannot take in a tuple as input.\n    --> compiler-test:4:20\n     |\n   4 |     transition foo(a: (u8, u16)) -> (u8, u16) {\n     |                    ^\n"

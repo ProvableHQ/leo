@@ -33,7 +33,7 @@ impl<'a> CodeGenerator<'a> {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
             Type::Tuple(_) => {
-                unreachable!("Tuple types are not supported at this phase of compilation")
+                unreachable!("Tuple types should not be visited at this phase of compilation")
             }
             Type::Err => unreachable!("Error types should not exist at this phase of compilation"),
             Type::Unit => unreachable!("Unit types are not supported at this phase of compilation"),

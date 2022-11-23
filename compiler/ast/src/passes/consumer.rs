@@ -35,6 +35,7 @@ pub trait ExpressionConsumer {
             Expression::Ternary(ternary) => self.consume_ternary(ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::Unary(unary) => self.consume_unary(unary),
+            Expression::Unit(unit) => self.consume_unit(unit),
         }
     }
 
@@ -59,6 +60,8 @@ pub trait ExpressionConsumer {
     fn consume_tuple(&mut self, _input: TupleExpression) -> Self::Output;
 
     fn consume_unary(&mut self, _input: UnaryExpression) -> Self::Output;
+
+    fn consume_unit(&mut self, _input: UnitExpression) -> Self::Output;
 }
 
 /// A Consumer trait for statements in the AST.
@@ -73,6 +76,7 @@ pub trait StatementConsumer {
             Statement::Console(stmt) => self.consume_console(stmt),
             Statement::Decrement(stmt) => self.consume_decrement(stmt),
             Statement::Definition(stmt) => self.consume_definition(stmt),
+            Statement::Expression(stmt) => self.consume_expression_statement(stmt),
             Statement::Finalize(stmt) => self.consume_finalize(stmt),
             Statement::Increment(stmt) => self.consume_increment(stmt),
             Statement::Iteration(stmt) => self.consume_iteration(*stmt),
@@ -91,6 +95,8 @@ pub trait StatementConsumer {
     fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output;
 
     fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
+
+    fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output;
 
     fn consume_finalize(&mut self, input: FinalizeStatement) -> Self::Output;
 

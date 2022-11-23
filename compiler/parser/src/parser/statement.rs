@@ -99,11 +99,12 @@ impl ParserContext<'_> {
 
             Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
-            // Error on `expr;` but recover as an empty block `{}`.
-            self.expect(&Token::Semicolon)?;
-            let span = place.span() + self.prev_token.span;
-            self.emit_err(ParserError::expr_stmts_disallowed(span));
-            Ok(Statement::dummy(span))
+            // Parse the expression as a statement.
+            let end = self.expect(&Token::Semicolon)?;
+            Ok(Statement::Expression(ExpressionStatement {
+                span: place.span() + end,
+                expression: place,
+            }))
         }
     }
 
@@ -116,7 +117,12 @@ impl ParserContext<'_> {
     /// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
         let start = self.expect(&Token::Return)?;
-        let expression = self.parse_expression()?;
+        let expression = match self.token.token {
+            // If the next token is a semicolon, implicitly return a unit expression, `()`.
+            Token::Semicolon => Expression::Unit(UnitExpression { span: self.token.span }),
+            // Otherwise, attempt to parse an expression.
+            _ => self.parse_expression()?,
+        };
         self.expect(&Token::Semicolon)?;
         let span = start + expression.span();
         Ok(ReturnStatement { span, expression })
@@ -291,7 +297,9 @@ impl ParserContext<'_> {
         };
 
         // Parse variable name and type.
-        let (variable_name, type_) = self.parse_typed_ident()?;
+        let place = self.parse_expression()?;
+        self.expect(&Token::Colon)?;
+        let type_ = self.parse_type()?.0;
 
         self.expect(&Token::Assign)?;
         let value = self.parse_expression()?;
@@ -300,7 +308,7 @@ impl ParserContext<'_> {
         Ok(DefinitionStatement {
             span: decl_span + value.span(),
             declaration_type: decl_type,
-            variable_name,
+            place,
             type_,
             value,
         })

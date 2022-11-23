@@ -20,7 +20,7 @@ use leo_ast::{Mode, Type};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum VariableType {
     Const,
     Input(Mode),

@@ -27,9 +27,9 @@ pub struct Assigner {
 
 impl Assigner {
     /// Return a new unique `Symbol` from a `&str`.
-    pub(crate) fn unique_symbol(&mut self, arg: impl Display) -> Symbol {
+    pub(crate) fn unique_symbol(&mut self, arg: impl Display, separator: impl Display) -> Symbol {
         self.counter += 1;
-        Symbol::intern(&format!("{arg}${}", self.counter - 1))
+        Symbol::intern(&format!("{}{}{}", arg, separator, self.counter - 1))
     }
 
     /// Constructs the assignment statement `place = expr;`.
@@ -46,7 +46,7 @@ impl Assigner {
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
-        let name = self.unique_symbol("$var");
+        let name = self.unique_symbol("$var", "$");
 
         let place = Identifier {
             name,

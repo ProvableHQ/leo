@@ -1,6 +1,6 @@
 /*
 namespace: ParseStatement
-expectation: Fail
+expectation: Pass
 */
 
 expr;

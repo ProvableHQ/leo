@@ -1,6 +1,6 @@
 [package]
 name = "leo-parser"
-version = "1.5.3"
+version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Leo parser"
 homepage = "https://aleo.org"
@@ -20,24 +20,24 @@ rust-version = "1.63"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.5.3"
+version = "1.6.0"
 
 [dependencies.snarkvm-console]
 git = "https://github.com/AleoHQ/snarkVM.git"
-version = "0.9.3"
-features = ["account", "network"]
+version = "0.9.7"
+features = [ "account", "network" ]
 
 [dependencies.clap]
 version = "3.2"
-features = ["derive"]
+features = [ "derive" ]
 
 [dependencies.indexmap]
 version = "1.9"
