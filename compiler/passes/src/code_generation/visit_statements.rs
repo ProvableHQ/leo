@@ -130,7 +130,11 @@ impl<'a> CodeGenerator<'a> {
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
         println!("ExpressionStatement: {:?}", input);
         match input.expression {
-            Expression::Call(_) => self.visit_expression(&input.expression).1,
+            Expression::Call(_) => {
+                let result = self.visit_expression(&input.expression);
+                println!("Result: {:?}", result);
+                result.1
+            },
             _ => unreachable!("ExpressionStatement's can only contain CallExpression's."),
         }
     }
