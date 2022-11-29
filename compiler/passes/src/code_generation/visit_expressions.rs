@@ -279,7 +279,6 @@ impl<'a> CodeGenerator<'a> {
 
     // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
-        println!("Visiting call expression: {:?}", input);
         let mut call_instruction = match &input.external {
             Some(external) => format!("    call {external}.aleo/{}", input.function),
             None => format!("    call {}", input.function),
@@ -306,10 +305,10 @@ impl<'a> CodeGenerator<'a> {
             .output_type;
         match return_type {
             Type::Unit => {
-                call_instruction.push_str(";");
+                call_instruction.push(';');
                 instructions.push_str(&call_instruction);
                 (String::new(), instructions)
-            }, // Do nothing
+            } // Do nothing
             Type::Tuple(tuple) => match tuple.len() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
