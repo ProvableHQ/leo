@@ -64,13 +64,13 @@ path = "./compiler/span"
 version = "1.6.0"
 
 [dependencies.aleo]
-git = "https://github.com/AleoHQ/aleo.git"
-version = "0.3.0"
+version = "0.3.1"
+#git = "https://github.com/AleoHQ/aleo.git"
 
 [dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-version = "0.9.7"
+version = "0.9.8"
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
+#git = "https://github.com/AleoHQ/snarkVM.git"
 
 [dependencies.backtrace]
 version = "0.3.66"
