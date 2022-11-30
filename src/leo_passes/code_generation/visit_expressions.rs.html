@@ -357,6 +357,10 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -639,14 +643,14 @@
     <span class="comment">// TODO: Cleanup
     </span><span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
         <span class="kw">let </span><span class="kw-2">mut </span>call_instruction = <span class="kw">match </span><span class="kw-2">&amp;</span>input.external {
-            <span class="prelude-val">Some</span>(external) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{} &quot;</span>, input.function),
-            <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {} &quot;</span>, input.function),
+            <span class="prelude-val">Some</span>(external) =&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{}&quot;</span>, input.function),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;    call {}&quot;</span>, input.function),
         };
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
             <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-            <span class="macro">write!</span>(call_instruction, <span class="string">&quot;{argument} &quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(call_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
 
@@ -663,7 +667,11 @@
             .unwrap()
             .output_type;
         <span class="kw">match </span>return_type {
-            Type::Unit =&gt; (String::new(), instructions), <span class="comment">// Do nothing
+            Type::Unit =&gt; {
+                call_instruction.push(<span class="string">&#39;;&#39;</span>);
+                instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
+                (String::new(), instructions)
+            } <span class="comment">// Do nothing
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.len() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a tuple type has at least two elements&quot;</span>),
                 len =&gt; {
@@ -674,17 +682,17 @@
                         <span class="self">self</span>.next_register += <span class="number">1</span>;
                     }
                     <span class="kw">let </span>destinations = destinations.join(<span class="string">&quot; &quot;</span>);
-                    <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destinations};&quot;</span>, destinations = destinations)
+                    <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot; into {destinations};&quot;</span>, destinations = destinations)
                         .expect(<span class="string">&quot;failed to write to string&quot;</span>);
                     instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
-                    (destinations, call_instruction)
+                    (destinations, instructions)
                 }
             },
             <span class="kw">_ </span>=&gt; {
                 <span class="comment">// Push destination register to call instruction.
                 </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-                <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">writeln!</span>(call_instruction, <span class="string">&quot; into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
                 instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
                 <span class="comment">// Increment the register counter.

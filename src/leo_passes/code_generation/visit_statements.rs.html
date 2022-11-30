@@ -224,6 +224,8 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -354,9 +356,11 @@
     }
 
     <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) -&gt; String {
-        <span class="macro">println!</span>(<span class="string">&quot;ExpressionStatement: {:?}&quot;</span>, input);
         <span class="kw">match </span>input.expression {
-            Expression::Call(<span class="kw">_</span>) =&gt; <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression).<span class="number">1</span>,
+            Expression::Call(<span class="kw">_</span>) =&gt; {
+                <span class="comment">// Note that codegen for CallExpression in an expression statement does not return any destination registers.
+                </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression).<span class="number">1
+            </span>}
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;ExpressionStatement&#39;s can only contain CallExpression&#39;s.&quot;</span>),
         }
     }
