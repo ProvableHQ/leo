@@ -46,9 +46,9 @@ path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.snarkvm]
-git = "https://github.com/AleoHQ/snarkVM.git"
-version = "0.9.7"
+version = "0.9.8"
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
+#git = "https://github.com/AleoHQ/snarkVM.git"
 
 [dev-dependencies.serde]
 version = "1.0.148"
