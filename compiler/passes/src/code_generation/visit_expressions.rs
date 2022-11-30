@@ -280,14 +280,14 @@ impl<'a> CodeGenerator<'a> {
     // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let mut call_instruction = match &input.external {
-            Some(external) => format!("    call {external}.aleo/{} ", input.function),
-            None => format!("    call {} ", input.function),
+            Some(external) => format!("    call {external}.aleo/{}", input.function),
+            None => format!("    call {}", input.function),
         };
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
             let (argument, argument_instructions) = self.visit_expression(argument);
-            write!(call_instruction, "{argument} ").expect("failed to write to string");
+            write!(call_instruction, " {argument}").expect("failed to write to string");
             instructions.push_str(&argument_instructions);
         }
 
@@ -304,7 +304,11 @@ impl<'a> CodeGenerator<'a> {
             .unwrap()
             .output_type;
         match return_type {
-            Type::Unit => (String::new(), instructions), // Do nothing
+            Type::Unit => {
+                call_instruction.push(';');
+                instructions.push_str(&call_instruction);
+                (String::new(), instructions)
+            } // Do nothing
             Type::Tuple(tuple) => match tuple.len() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
@@ -315,17 +319,17 @@ impl<'a> CodeGenerator<'a> {
                         self.next_register += 1;
                     }
                     let destinations = destinations.join(" ");
-                    writeln!(call_instruction, "into {destinations};", destinations = destinations)
+                    writeln!(call_instruction, " into {destinations};", destinations = destinations)
                         .expect("failed to write to string");
                     instructions.push_str(&call_instruction);
 
-                    (destinations, call_instruction)
+                    (destinations, instructions)
                 }
             },
             _ => {
                 // Push destination register to call instruction.
                 let destination_register = format!("r{}", self.next_register);
-                writeln!(call_instruction, "into {destination_register};").expect("failed to write to string");
+                writeln!(call_instruction, " into {destination_register};").expect("failed to write to string");
                 instructions.push_str(&call_instruction);
 
                 // Increment the register counter.
