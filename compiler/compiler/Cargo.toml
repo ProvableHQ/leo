@@ -2,7 +2,7 @@
 name = "leo-compiler"
 version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Compiler of the Leo programming language"
+description = "Compiler for Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -12,11 +12,11 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.63"
+rust-version = "1.65"
 
 [dependencies.leo-ast]
 path = "../ast"
@@ -46,7 +46,8 @@ path = "../../tests/test-framework"
 version = "1.4.0"
 
 [dev-dependencies.snarkvm]
-version = "0.9.8"
+workspace = true
+default-features = false
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
 #git = "https://github.com/AleoHQ/snarkVM.git"
 
