@@ -2,7 +2,7 @@
 name = "leo-span"
 version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Span handling in the Leo programming language"
+description = "Span handling for the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -12,11 +12,11 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
-rust-version = "1.63"
+rust-version = "1.65"
 
 [dependencies.indexmap]
 version = "1.9"

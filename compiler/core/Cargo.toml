@@ -2,7 +2,7 @@
 name = "leo-core"
 version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "The Leo programming language"
+description = "Core library functions for the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -12,10 +12,11 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.65"
 
 [lib]
 path = "src/lib.rs"

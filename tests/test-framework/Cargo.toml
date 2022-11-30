@@ -2,7 +2,7 @@
 name = "leo-test-framework"
 version = "1.6.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Leo testing framework"
+description = "The testing framework for the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -12,10 +12,11 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
-categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "benches", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
+rust-version = "1.65"
 
 [[bench]]
 name = "leo_compiler"
