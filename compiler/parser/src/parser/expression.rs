@@ -502,7 +502,7 @@ impl ParserContext<'_> {
         Some(Ok(gt))
     }
 
-    fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
+    fn parse_struct_member(&mut self) -> Result<MemberInitializer> {
         let identifier = if self.allow_identifier_underscores && self.eat(&Token::Underscore) {
             // Allow `_nonce` for struct records.
             let identifier_without_underscore = self.expect_identifier()?;
@@ -518,7 +518,7 @@ impl ParserContext<'_> {
             None
         };
 
-        Ok(StructVariableInitializer { identifier, expression })
+        Ok(MemberInitializer { identifier, expression })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -529,7 +529,7 @@ impl ParserContext<'_> {
             p.parse_struct_member().map(Some)
         })?;
 
-        Ok(Expression::Struct(StructExpression {
+        Ok(Expression::Struct(StructuredExpression {
             span: identifier.span + end,
             name: identifier,
             members,

@@ -29,8 +29,8 @@ pub use binary::*;
 mod call;
 pub use call::*;
 
-mod struct_init;
-pub use struct_init::*;
+mod structured_init;
+pub use structured_init::*;
 
 mod err;
 pub use err::*;
@@ -60,7 +60,7 @@ pub enum Expression {
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    Struct(StructExpression),
+    Struct(StructuredExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),

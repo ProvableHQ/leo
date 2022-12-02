@@ -491,7 +491,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_structured_init(
+        &mut self,
+        input: &'a StructuredExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::Output {
         let metadata = self.symbol_table.borrow().lookup_structured_type(input.name.name);
         if let Some((structured_name, members)) = metadata {
             // Check struct type name.

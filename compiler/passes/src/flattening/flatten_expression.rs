@@ -18,8 +18,8 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
-    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
+    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, MemberInitializer,
+    Statement, StructuredExpression, TernaryExpression, TupleExpression,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
@@ -72,7 +72,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     }
 
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
-    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_structured_init(&mut self, input: StructuredExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         let mut members = Vec::with_capacity(input.members.len());
 
@@ -83,14 +83,14 @@ impl ExpressionReconstructor for Flattener<'_> {
             // Accumulate any statements produced.
             statements.extend(stmts);
             // Accumulate the struct members.
-            members.push(StructVariableInitializer {
+            members.push(MemberInitializer {
                 identifier: member.identifier,
                 expression: Some(expr),
             });
         }
 
         (
-            Expression::Struct(StructExpression {
+            Expression::Struct(StructuredExpression {
                 name: input.name,
                 members,
                 span: input.span,
@@ -204,14 +204,14 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 let (identifier, statement) = self.unique_simple_assign_statement(expression);
                                 statements.push(statement);
 
-                                StructVariableInitializer {
+                                MemberInitializer {
                                     identifier,
                                     expression: Some(Expression::Identifier(identifier)),
                                 }
                             })
                             .collect();
 
-                        let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
+                        let (expr, stmts) = self.reconstruct_structured_init(StructuredExpression {
                             name: first_member_struct.identifier,
                             members,
                             span: Default::default(),
@@ -300,14 +300,14 @@ impl ExpressionReconstructor for Flattener<'_> {
                         let (identifier, statement) = self.unique_simple_assign_statement(expression);
                         statements.push(statement);
 
-                        StructVariableInitializer {
+                        MemberInitializer {
                             identifier,
                             expression: Some(Expression::Identifier(identifier)),
                         }
                     })
                     .collect();
 
-                let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
+                let (expr, stmts) = self.reconstruct_structured_init(StructuredExpression {
                     name: first_struct.identifier,
                     members,
                     span: Default::default(),

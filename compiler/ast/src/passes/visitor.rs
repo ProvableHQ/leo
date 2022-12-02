@@ -30,7 +30,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
-            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Struct(struct_) => self.visit_structured_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
@@ -73,7 +73,11 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_struct_init(&mut self, _input: &'a StructExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_structured_init(
+        &mut self,
+        _input: &'a StructuredExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::Output {
         Default::default()
     }
 

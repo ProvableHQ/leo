@@ -29,7 +29,7 @@ pub trait ExpressionReconstructor {
             Expression::Access(access) => self.reconstruct_access(access),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
-            Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
+            Expression::Struct(struct_) => self.reconstruct_structured_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
@@ -99,7 +99,7 @@ pub trait ExpressionReconstructor {
         )
     }
 
-    fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
+    fn reconstruct_structured_init(&mut self, input: StructuredExpression) -> (Expression, Self::AdditionalOutput) {
         (Expression::Struct(input), Default::default())
     }
 

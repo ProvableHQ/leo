@@ -18,8 +18,8 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
-    Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
-    TupleAccess, TupleExpression, UnaryExpression, UnitExpression,
+    Literal, MemberAccess, MemberInitializer, Statement, Struct, StructuredExpression, TernaryExpression, TupleAccess,
+    TupleExpression, UnaryExpression, UnitExpression,
 };
 use leo_span::{sym, Symbol};
 
@@ -145,11 +145,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
     }
 
     /// Consumes a struct initialization expression with renamed variables, accumulating any statements that are generated.
-    fn consume_struct_init(&mut self, input: StructExpression) -> Self::Output {
+    fn consume_structured_init(&mut self, input: StructuredExpression) -> Self::Output {
         let mut statements = Vec::new();
 
         // Process the members, accumulating any statements produced.
-        let members: Vec<StructVariableInitializer> = input
+        let members: Vec<MemberInitializer> = input
             .members
             .into_iter()
             .map(|arg| {
@@ -165,7 +165,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                 statements.append(&mut stmts);
 
                 // Return the new member.
-                StructVariableInitializer {
+                MemberInitializer {
                     identifier: arg.identifier,
                     expression: Some(expression),
                 }
@@ -182,7 +182,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let mut reordered_members = Vec::with_capacity(members.len());
 
         // Collect the members of the init expression into a map.
-        let mut member_map: IndexMap<Symbol, StructVariableInitializer> = members
+        let mut member_map: IndexMap<Symbol, MemberInitializer> = members
             .into_iter()
             .map(|member| (member.identifier.name, member))
             .collect();
@@ -209,13 +209,13 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         }
 
         // Construct and accumulate a new assignment statement for the struct expression.
-        let (place, statement) = self
-            .assigner
-            .unique_simple_assign_statement(Expression::Struct(StructExpression {
-                name: input.name,
-                span: input.span,
-                members: reordered_members,
-            }));
+        let (place, statement) =
+            self.assigner
+                .unique_simple_assign_statement(Expression::Struct(StructuredExpression {
+                    name: input.name,
+                    span: input.span,
+                    members: reordered_members,
+                }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)

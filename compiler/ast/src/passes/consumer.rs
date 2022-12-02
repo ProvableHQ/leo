@@ -28,7 +28,7 @@ pub trait ExpressionConsumer {
             Expression::Access(access) => self.consume_access(access),
             Expression::Binary(binary) => self.consume_binary(binary),
             Expression::Call(call) => self.consume_call(call),
-            Expression::Struct(struct_) => self.consume_struct_init(struct_),
+            Expression::Struct(struct_) => self.consume_structured_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),
@@ -45,7 +45,7 @@ pub trait ExpressionConsumer {
 
     fn consume_call(&mut self, _input: CallExpression) -> Self::Output;
 
-    fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
+    fn consume_structured_init(&mut self, _input: StructuredExpression) -> Self::Output;
 
     fn consume_err(&mut self, _input: ErrExpression) -> Self::Output {
         unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")

@@ -17,10 +17,10 @@
 use super::*;
 use leo_span::sym;
 
-/// An initializer for a single field / variable of a struct initializer expression.
+/// An initializer for a single field / variable of a structured initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructVariableInitializer {
+pub struct MemberInitializer {
     /// The name of the field / variable to be initialized.
     pub identifier: Identifier,
     /// The expression to initialize the field with.
@@ -28,7 +28,7 @@ pub struct StructVariableInitializer {
     pub expression: Option<Expression>,
 }
 
-impl fmt::Display for StructVariableInitializer {
+impl fmt::Display for MemberInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(expr) = &self.expression {
             write!(f, "{}: {expr}", self.identifier)
@@ -38,21 +38,21 @@ impl fmt::Display for StructVariableInitializer {
     }
 }
 
-/// A struct initialization expression, e.g., `Foo { bar: 42, baz }`.
+/// A structured initialization expression, e.g., `Foo { bar: 42, baz }`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructExpression {
+pub struct StructuredExpression {
     /// The name of the structure type to initialize.
     pub name: Identifier,
     /// Initializer expressions for each of the fields in the struct.
     ///
     /// N.B. Any functions or member constants in the struct definition
     /// are excluded from this list.
-    pub members: Vec<StructVariableInitializer>,
+    pub members: Vec<MemberInitializer>,
     /// A span from `name` to `}`.
     pub span: Span,
 }
 
-impl StructExpression {
+impl StructuredExpression {
     /// Returns true if the record has all required fields and visibility.
     pub fn check_record(&self) -> bool {
         let has_member = |symbol| self.members.iter().any(|variable| variable.identifier.name == symbol);
@@ -80,7 +80,7 @@ impl StructExpression {
     }
 }
 
-impl fmt::Display for StructExpression {
+impl fmt::Display for StructuredExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -94,4 +94,4 @@ impl fmt::Display for StructExpression {
     }
 }
 
-crate::simple_node_impl!(StructExpression);
+crate::simple_node_impl!(StructuredExpression);

@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
-    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
+    Identifier, Literal, MemberAccess, StructuredExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
     UnaryOperation, UnitExpression,
 };
 use leo_span::sym;
@@ -162,7 +162,7 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression) -> (String, String) {
+    fn visit_struct_init(&mut self, input: &'a StructuredExpression) -> (String, String) {
         // Lookup struct or record.
         let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
             if *is_record {
