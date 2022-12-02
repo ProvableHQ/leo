@@ -361,19 +361,12 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
-            Type::Identifier(identifier)
-                if self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(identifier.name)
-                    .map_or(false, |struct_| struct_.is_record) =>
-            {
-                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
+            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_some() => self
+                .emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
                     parent,
                     identifier.name,
                     span,
-                ))
-            }
+                )),
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
                     self.assert_member_is_not_record(span, parent, type_)

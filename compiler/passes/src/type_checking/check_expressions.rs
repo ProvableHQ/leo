@@ -492,22 +492,22 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
-        if let Some(struct_) = struct_ {
+        let metadata = self.symbol_table.borrow().lookup_structured_type(input.name.name);
+        if let Some((structured_name, members)) = metadata {
             // Check struct type name.
-            let ret = self.check_expected_struct(struct_.identifier, additional, input.name.span());
+            let ret = self.check_expected_struct(*structured_name, additional, input.name.span());
 
             // Check number of struct members.
-            if struct_.members.len() != input.members.len() {
+            if members.len() != input.members.len() {
                 self.emit_err(TypeCheckerError::incorrect_num_struct_members(
-                    struct_.members.len(),
+                    members.len(),
                     input.members.len(),
                     input.span(),
                 ));
             }
 
             // Check struct member types.
-            struct_.members.iter().for_each(|Member { identifier, type_ }| {
+            members.iter().for_each(|Member { identifier, type_, .. }| {
                 // Lookup struct variable name.
                 if let Some(actual) = input
                     .members
@@ -522,7 +522,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     };
                 } else {
                     self.emit_err(TypeCheckerError::missing_struct_member(
-                        struct_.identifier,
+                        structured_name,
                         identifier,
                         input.span(),
                     ));
@@ -532,7 +532,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Some(ret)
         } else {
             self.emit_err(TypeCheckerError::unknown_sym(
-                "struct",
+                "structured data type (struct or record)",
                 input.name.name,
                 input.name.span(),
             ));

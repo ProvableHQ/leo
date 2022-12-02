@@ -58,6 +58,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Typecheck the struct definitions.
         input.structs.values().for_each(|function| self.visit_struct(function));
 
+        // Typecheck the record definitions.
+        input.records.values().for_each(|function| self.visit_record(function));
+
         // Typecheck the mapping definitions.
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 
@@ -81,59 +84,76 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct(&mut self, input: &'a Struct) {
-        // Check for conflicting struct/record member names.
+        // Check for conflicting struct member names.
         let mut used = HashSet::new();
-        // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(|Member { identifier, type_ }| {
+        for member in input.members.iter() {
             // Check that the member types are defined.
-            self.assert_type_is_defined(type_, identifier.span);
-            used.insert(identifier.name)
-        }) {
-            self.emit_err(if input.is_record {
-                TypeCheckerError::duplicate_record_variable(input.name(), input.span())
-            } else {
-                TypeCheckerError::duplicate_struct_member(input.name(), input.span())
-            });
-        }
-
-        // For records, enforce presence of `owner: Address` and `gates: u64` members.
-        if input.is_record {
-            let check_has_field = |need, expected_ty: Type| match input
-                .members
-                .iter()
-                .find_map(|Member { identifier, type_ }| (identifier.name == need).then_some((identifier, type_)))
-            {
-                Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
-                Some((field, _)) => {
-                    self.emit_err(TypeCheckerError::record_var_wrong_type(
-                        field,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-                None => {
-                    self.emit_err(TypeCheckerError::required_record_variable(
-                        need,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-            };
-            check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::gates, Type::Integer(IntegerType::U64));
-        }
-
-        for Member { identifier, type_ } in input.members.iter() {
+            self.assert_type_is_defined(&member.type_, member.span);
+            // Insert the member name into the set. If it already exists, then emit an error.
+            if !used.insert(member.identifier.name) {
+                self.emit_err(TypeCheckerError::duplicate_struct_member(member.span));
+            }
             // Check that the member type is not a tuple.
-            if matches!(type_, Type::Tuple(_)) {
+            if matches!(member.type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
-                    if input.is_record { "record" } else { "struct" },
-                    identifier.span,
+                    "struct",
+                    member.span,
                 ));
             }
             // Ensure that there are no record members.
-            self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+            self.assert_member_is_not_record(member.span, input.identifier.name, &member.type_);
         }
+    }
+
+    fn visit_record(&mut self, input: &'a Record) {
+        // Check for conflicting record member names.
+        let mut used = HashSet::new();
+        for member in input.members {
+            // Check that the member type is defined.
+            self.assert_type_is_defined(&member.type_, member.span);
+            // Insert the member name into the set. If it already exists, then emit an error.
+            if !used.insert(member.identifier.name) {
+                self.emit_err(TypeCheckerError::duplicate_record_member(member.span));
+            }
+            // Check that the member type is not a tuple.
+            if matches!(member.type_, Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                    "record",
+                    member.span,
+                ));
+            }
+            // Ensure that there are no record members.
+            self.assert_member_is_not_record(member.span, input.identifier.name, &member.type_);
+            // Check that the mode is not constant.
+            if matches!(member.mode, Mode::Const) {
+                self.emit_err(TypeCheckerError::record_member_cannot_be_constant(member.span));
+            }
+        }
+
+        // For records, enforce presence of `owner: Address` and `gates: u64` members.
+        let check_has_field = |need, expected_ty: Type| match input
+            .members
+            .iter()
+            .find_map(|Member { identifier, type_, .. }| (identifier.name == need).then_some((identifier, type_)))
+        {
+            Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+            Some((field, _)) => {
+                self.emit_err(TypeCheckerError::record_var_wrong_type(
+                    field,
+                    expected_ty,
+                    input.span(),
+                ));
+            }
+            None => {
+                self.emit_err(TypeCheckerError::required_record_variable(
+                    need,
+                    expected_ty,
+                    input.span(),
+                ));
+            }
+        };
+        check_has_field(sym::owner, Type::Address);
+        check_has_field(sym::gates, Type::Integer(IntegerType::U64));
     }
 
     fn visit_mapping(&mut self, input: &'a Mapping) {

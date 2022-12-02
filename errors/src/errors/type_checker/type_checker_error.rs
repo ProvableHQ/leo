@@ -176,20 +176,16 @@ create_messages!(
     /// Attempted to define more that one struct member with the same name.
     @formatted
     duplicate_struct_member {
-        args: (struct_: impl Display),
-        msg: format!(
-            "Struct {struct_} defined with more than one member with the same name."
-        ),
+        args: (),
+        msg: format!("A struct member must have a unique name."),
         help: None,
     }
 
     /// Attempted to define more that one record variable with the same name.
     @formatted
-    duplicate_record_variable {
-        args: (record: impl Display),
-        msg: format!(
-            "Record {record} defined with more than one variable with the same name."
-        ),
+    duplicate_record_member {
+        args: (),
+        msg: format!("A record member must have a unique name."),
         help: None,
     }
 
@@ -532,4 +528,13 @@ create_messages!(
         msg: format!("Unit expressions can only be used in return statements."),
         help: None,
     }
+
+    @formatted
+    record_member_cannot_be_constant {
+        args: (),
+        msg: format!("A record member cannot be a constant."),
+        help: None,
+    }
+
+
 );

@@ -22,7 +22,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{Function, Record, Struct};
+use leo_ast::{Function, Identifier, Member, Record, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -142,6 +142,18 @@ impl SymbolTable {
             Some(record)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_record(symbol)
+        } else {
+            None
+        }
+    }
+
+    /// Attempts to lookup a structured data type in the symbol table.
+    /// Returns the members associated with the composite data type.
+    pub fn lookup_structured_type(&self, symbol: Symbol) -> Option<(&Identifier, &Vec<Member>)> {
+        if let Some(struct_) = self.lookup_struct(symbol) {
+            Some((&struct_.identifier, &struct_.members))
+        } else if let Some(record) = self.lookup_record(symbol) {
+            Some((&record.identifier, &record.members))
         } else {
             None
         }
