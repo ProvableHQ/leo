@@ -197,8 +197,9 @@ impl ParserContext<'_> {
         })
     }
 
+    // TODO: Refactor with `parse_record_members`
     /// Returns a [`Vec<StructMember>`] AST node if the next tokens represent a struct member.
-    fn parse_struct_members(&mut self) -> Result<(Vec<StructMember>, Span)> {
+    fn parse_struct_members(&mut self) -> Result<(Vec<Member>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -211,7 +212,8 @@ impl ParserContext<'_> {
             // Parse the member type.
             let (type_, type_span) = self.parse_type()?;
             // Construct the member.
-            let variable = StructMember {
+            let variable = Member {
+                mode: Mode::None,
                 identifier,
                 type_,
                 span: identifier.span + type_span,
@@ -239,7 +241,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`Vec<RecordMember>`] AST node if the next tokens represent a record member.
-    fn parse_record_members(&mut self) -> Result<(Vec<RecordMember>, Span)> {
+    fn parse_record_members(&mut self) -> Result<(Vec<Member>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -256,7 +258,7 @@ impl ParserContext<'_> {
             // Parse the type.
             let (type_, type_span) = self.parse_type()?;
             // Construct the member.
-            let variable = RecordMember {
+            let variable = Member {
                 mode,
                 identifier,
                 type_,
