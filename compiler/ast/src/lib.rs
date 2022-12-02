@@ -42,8 +42,10 @@ pub use self::functions::*;
 pub mod groups;
 pub use self::groups::*;
 
-pub mod input;
-pub use self::input::*;
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+// pub mod input;
+// pub use self::input::*;
 
 pub mod mapping;
 pub use self::mapping::*;

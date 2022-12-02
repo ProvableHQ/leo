@@ -59,20 +59,21 @@ impl Command for Run {
         .execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
         // If input values are provided, then run the program with those inputs.
         // Otherwise, use the input file.
-        let mut inputs = match self.inputs.is_empty() {
-            true => match input {
-                (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
-                _ => Vec::new(),
-            },
-            false => self.inputs,
-        };
+        // let mut inputs = match self.inputs.is_empty() {
+        //     true => match input {
+        //         (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
+        //         _ => Vec::new(),
+        //     },
+        //     false => self.inputs,
+        // };
 
         // Compose the `aleo run` command.
         let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
-        arguments.append(&mut inputs);
+        arguments.extend(self.inputs);
 
         // Open the Leo build/ directory
         let path = context.dir()?;

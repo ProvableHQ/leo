@@ -18,7 +18,10 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 use leo_ast::Program;
-pub use leo_ast::{Ast, InputAst};
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+// pub use leo_ast::InputAst;
+pub use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_errors::{CompilerError, Result};
 pub use leo_passes::SymbolTable;
@@ -47,8 +50,10 @@ pub struct Compiler<'a> {
     pub network: String,
     /// The AST for the program.
     pub ast: Ast,
-    /// The input ast for the program if it exists.
-    pub input_ast: Option<InputAst>,
+    // Input files are deprecated.
+    // TODO: Remove when we make a hard switch.
+    // /// The input ast for the program if it exists.
+    // pub input_ast: Option<InputAst>,
     /// Compiler options on some optional output files.
     output_options: OutputOptions,
 }
@@ -70,7 +75,8 @@ impl<'a> Compiler<'a> {
             program_name,
             network,
             ast: Ast::new(Program::default()),
-            input_ast: None,
+            // TODO: Input files are deprecated. Remove when we make a hard switch.
+            // input_ast: None,
             output_options: output_options.unwrap_or_default(),
         }
     }
@@ -127,35 +133,37 @@ impl<'a> Compiler<'a> {
         self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
     }
 
-    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
-    pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
-        if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
+    // Input files are deprecated.
+    // TODO: Remove when we make a hard switch.
+    // /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
+    // pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
+    //     if input_file_path.exists() {
+    //         // Load the input file into the source map.
+    //         let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
+    //             .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
-            // Parse and serialize it.
-            let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            if self.output_options.initial_ast {
-                // Write the input AST snapshot post parsing.
-                if self.output_options.spans_enabled {
-                    input_ast.to_json_file(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                    )?;
-                } else {
-                    input_ast.to_json_file_without_keys(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                        &["span"],
-                    )?;
-                }
-            }
+    //         // Parse and serialize it.
+    //         let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
+    //         if self.output_options.initial_ast {
+    //             // Write the input AST snapshot post parsing.
+    //             if self.output_options.spans_enabled {
+    //                 input_ast.to_json_file(
+    //                     self.output_directory.clone(),
+    //                     &format!("{}.initial_input_ast.json", self.program_name),
+    //                 )?;
+    //             } else {
+    //                 input_ast.to_json_file_without_keys(
+    //                     self.output_directory.clone(),
+    //                     &format!("{}.initial_input_ast.json", self.program_name),
+    //                     &["span"],
+    //                 )?;
+    //             }
+    //         }
 
-            self.input_ast = Some(input_ast);
-        }
-        Ok(())
-    }
+    //         self.input_ast = Some(input_ast);
+    //     }
+    //     Ok(())
+    // }
 
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {

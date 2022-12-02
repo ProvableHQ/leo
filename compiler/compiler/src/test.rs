@@ -106,7 +106,7 @@ impl Namespace for CompileNamespace {
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct OutputItem {
-    pub initial_input_ast: String,
+    pub input_file: String,
 }
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
@@ -226,16 +226,18 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
     if inputs.is_empty() {
         output_items.push(OutputItem {
-            initial_input_ast: "no input".to_string(),
+            input_file: "no input".to_string(),
         });
     } else {
         // Parse one or more input files to execute the program with.
         for input in inputs {
-            let mut parsed = parsed.clone();
-            handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/test.initial_input_ast.json");
+            // Input files are deprecated.
+            // TODO: Remove when we make a hard switch.
+            // let mut parsed = parsed.clone();
+            // handler.extend_if_error(parsed.parse_input(input))?;
+            let input_file = hash_file(input.to_str().unwrap());
 
-            output_items.push(OutputItem { initial_input_ast });
+            output_items.push(OutputItem { input_file });
         }
     };
 

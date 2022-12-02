@@ -18,11 +18,10 @@ use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 
 use leo_ast::Struct;
-use leo_compiler::{Compiler, InputAst, OutputOptions};
-use leo_errors::{CliError, CompilerError, PackageError, Result};
+use leo_compiler::{Compiler, OutputOptions};
+use leo_errors::{CliError, PackageError, Result};
+use leo_package::outputs::OutputsDirectory;
 use leo_package::source::SourceDirectory;
-use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
-use leo_span::symbol::with_session_globals;
 
 use aleo::commands::Build as AleoBuild;
 
@@ -91,7 +90,9 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, IndexMap<Symbol, Struct>);
+    // TODO: Input files are deprecated. Remove when we make a hard switch.
+    // type Output = (Option<InputAst>, IndexMap<Symbol, Struct>);
+    type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -163,22 +164,23 @@ impl Command for Build {
             }
         }
 
-        // Load the input file at `package_name.in`
-        let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // // Load the input file at `package_name.in`
+        // let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
+        //
+        // // Parse the input file.
+        // let input_ast = if input_file_path.exists() {
+        //     // Load the input file into the source map.
+        //     let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
+        //         .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
-        // Parse the input file.
-        let input_ast = if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
-
-            // TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
-            leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos)
-                .map_err(|_e| println!("Warning: Failed to parse input file"))
-                .ok()
-        } else {
-            None
-        };
+        //     // TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
+        //     leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos)
+        //         .map_err(|_e| println!("Warning: Failed to parse input file"))
+        //         .ok()
+        // } else {
+        //     None
+        // };
 
         // Unset the Leo panic hook.
         let _ = std::panic::take_hook();
@@ -198,7 +200,9 @@ impl Command for Build {
         // Log the result of the build
         tracing::info!("{}", result);
 
-        Ok((input_ast, structs))
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // Ok((input_ast, structs))
+        Ok(())
     }
 }
 

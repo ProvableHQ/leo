@@ -14,66 +14,72 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-
-use leo_errors::{emitter::Handler, Result};
-use leo_span::symbol::create_session_if_not_set_then;
-
-use clap::StructOpt;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
-
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "input parser",
-    about = "Parse an Input file and save its JSON representation"
-)]
-struct Opt {
-    /// Path to the input file.
-    #[structopt(parse(from_os_str))]
-    input_path: PathBuf,
-
-    /// Optional path to the output directory.
-    #[structopt(parse(from_os_str))]
-    out_dir_path: Option<PathBuf>,
-
-    /// Whether to print result to STDOUT.
-    #[structopt(short, long)]
-    print_stdout: bool,
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+fn main() {
+    panic!("Input files are deprecated.");
 }
 
-fn main() -> Result<(), String> {
-    let opt = Opt::parse();
-    let input_tree = create_session_if_not_set_then(|s| {
-        let input_string = s
-            .source_map
-            .load_file(&opt.input_path)
-            .expect("failed to open an input file");
-
-        Handler::with(|handler| {
-            let input = leo_parser::parse_program_inputs(handler, &input_string.src, input_string.start_pos)?;
-            input.to_json_string()
-        })
-        .map_err(|e| e.to_string())
-    })?;
-
-    if opt.print_stdout {
-        println!("{input_tree}");
-    }
-
-    let out_path = if let Some(out_dir) = opt.out_dir_path {
-        format!(
-            "{}/{}.json",
-            out_dir.as_path().display(),
-            opt.input_path.file_stem().unwrap().to_str().unwrap()
-        )
-    } else {
-        format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
-    };
-
-    fs::write(Path::new(&out_path), input_tree).expect("failed to write output");
-
-    Ok(())
-}
+// #![forbid(unsafe_code)]
+//
+// use leo_errors::{emitter::Handler, Result};
+// use leo_span::symbol::create_session_if_not_set_then;
+//
+// use clap::StructOpt;
+// use std::{
+//     fs,
+//     path::{Path, PathBuf},
+// };
+//
+// #[derive(Debug, StructOpt)]
+// #[structopt(
+//     name = "input parser",
+//     about = "Parse an Input file and save its JSON representation"
+// )]
+// struct Opt {
+//     /// Path to the input file.
+//     #[structopt(parse(from_os_str))]
+//     input_path: PathBuf,
+//
+//     /// Optional path to the output directory.
+//     #[structopt(parse(from_os_str))]
+//     out_dir_path: Option<PathBuf>,
+//
+//     /// Whether to print result to STDOUT.
+//     #[structopt(short, long)]
+//     print_stdout: bool,
+// }
+//
+// fn main() -> Result<(), String> {
+//     let opt = Opt::parse();
+//     let input_tree = create_session_if_not_set_then(|s| {
+//         let input_string = s
+//             .source_map
+//             .load_file(&opt.input_path)
+//             .expect("failed to open an input file");
+//
+//         Handler::with(|handler| {
+//             let input = leo_parser::parse_program_inputs(handler, &input_string.src, input_string.start_pos)?;
+//             input.to_json_string()
+//         })
+//         .map_err(|e| e.to_string())
+//     })?;
+//
+//     if opt.print_stdout {
+//         println!("{input_tree}");
+//     }
+//
+//     let out_path = if let Some(out_dir) = opt.out_dir_path {
+//         format!(
+//             "{}/{}.json",
+//             out_dir.as_path().display(),
+//             opt.input_path.file_stem().unwrap().to_str().unwrap()
+//         )
+//     } else {
+//         format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
+//     };
+//
+//     fs::write(Path::new(&out_path), input_tree).expect("failed to write output");
+//
+//     Ok(())
+// }

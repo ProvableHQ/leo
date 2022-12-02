@@ -46,9 +46,11 @@ pub fn parse(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Prog
     tokens.parse_program()
 }
 
-/// Parses an input file at the given file `path` and `source` code text.
-pub fn parse_input(handler: &Handler, source: &str, start_pos: BytePos) -> Result<InputAst> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
-
-    tokens.parse_input_file()
-}
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+// /// Parses an input file at the given file `path` and `source` code text.
+// pub fn parse_input(handler: &Handler, source: &str, start_pos: BytePos) -> Result<InputAst> {
+//     let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
+//
+//     tokens.parse_input_file()
+// }

@@ -31,7 +31,11 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
-use leo_ast::{input::InputData, Ast, ProgramInput};
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+// use leo_ast::input::InputData;
+// use leo_ast::ProgramInput;
+use leo_ast::Ast;
 use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
@@ -43,9 +47,11 @@ pub fn parse_ast(handler: &Handler, source: &str, start_pos: BytePos) -> Result<
     Ok(Ast::new(parser::parse(handler, source, start_pos)?))
 }
 
-/// Parses program inputs from from the input file path and state file path
-pub fn parse_program_inputs(handler: &Handler, input_string: &str, start_pos: BytePos) -> Result<InputData> {
-    let program_input: ProgramInput = parser::parse_input(handler, input_string, start_pos)?.try_into()?;
-
-    Ok(InputData { program_input })
-}
+// Input files are deprecated.
+// TODO: Remove when we make a hard switch.
+// /// Parses program inputs from from the input file path and state file path
+// pub fn parse_program_inputs(handler: &Handler, input_string: &str, start_pos: BytePos) -> Result<InputData> {
+//     let program_input: ProgramInput = parser::parse_input(handler, input_string, start_pos)?.try_into()?;
+//
+//     Ok(InputData { program_input })
+// }
