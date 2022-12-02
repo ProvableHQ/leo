@@ -19,7 +19,8 @@
 
 pub mod build;
 pub mod imports;
-pub mod inputs;
+// TODO: Input files are deprecated. Remove when we make a hard switch.
+// pub mod inputs;
 pub mod outputs;
 pub mod package;
 pub mod root;

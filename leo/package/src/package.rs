@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    inputs::{InputFile, InputsDirectory},
     root::Gitignore,
     source::{MainFile, SourceDirectory},
 };
@@ -95,12 +94,13 @@ impl Package {
         let mut result = true;
         let mut existing_files = vec![];
 
-        // Check if the input file already exists.
-        let input_file = InputFile::new(package_name);
-        if input_file.exists_at(path) {
-            existing_files.push(input_file.filename());
-            result = false;
-        }
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // // Check if the input file already exists.
+        // let input_file = InputFile::new(package_name);
+        // if input_file.exists_at(path) {
+        //     existing_files.push(input_file.filename());
+        //     result = false;
+        // }
 
         // Check if the main file already exists.
         if MainFile::exists_at(path) {
@@ -122,11 +122,12 @@ impl Package {
             return false;
         }
 
-        // Check if the input file exists.
-        let input_file = InputFile::new(package_name);
-        if !input_file.exists_at(path) {
-            return false;
-        }
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // // Check if the input file exists.
+        // let input_file = InputFile::new(package_name);
+        // if !input_file.exists_at(path) {
+        //     return false;
+        // }
 
         // Check if the main file exists.
         if !MainFile::exists_at(path) {
@@ -147,14 +148,16 @@ impl Package {
         // Create the source directory.
         SourceDirectory::create(path)?;
 
-        // Create the inputs directory.
-        InputsDirectory::create(path)?;
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // // Create the inputs directory.
+        // InputsDirectory::create(path)?;
 
         // Create the Leo build/ directory
         BuildDirectory::create(path)?;
 
-        // Create the input file in the inputs directory.
-        InputFile::new(package_name).write_to(path)?;
+        // TODO: Input files are deprecated. Remove when we make a hard switch.
+        // // Create the input file in the inputs directory.
+        // InputFile::new(package_name).write_to(path)?;
 
         // Create the main file in the source directory.
         MainFile::new(package_name).write_to(path)?;
