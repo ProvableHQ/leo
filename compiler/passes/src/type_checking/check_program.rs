@@ -108,7 +108,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_record(&mut self, input: &'a Record) {
         // Check for conflicting record member names.
         let mut used = HashSet::new();
-        for member in input.members {
+        for member in input.members.iter() {
             // Check that the member type is defined.
             self.assert_type_is_defined(&member.type_, member.span);
             // Insert the member name into the set. If it already exists, then emit an error.

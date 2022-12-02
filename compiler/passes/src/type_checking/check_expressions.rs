@@ -496,10 +496,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         input: &'a StructuredExpression,
         additional: &Self::AdditionalInput,
     ) -> Self::Output {
-        let metadata = self.symbol_table.borrow().lookup_structured_type(input.name.name);
+        let metadata = self
+            .symbol_table
+            .borrow()
+            .lookup_structured_type(input.name.name)
+            .map(|(id, members)| (*id, members.clone()));
         if let Some((structured_name, members)) = metadata {
             // Check struct type name.
-            let ret = self.check_expected_struct(*structured_name, additional, input.name.span());
+            let ret = self.check_expected_struct(structured_name, additional, input.name.span());
 
             // Check number of struct members.
             if members.len() != input.members.len() {

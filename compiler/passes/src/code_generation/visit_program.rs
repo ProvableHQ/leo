@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
+use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Record, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -53,12 +53,21 @@ impl<'a> CodeGenerator<'a> {
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo struct.
+        // Visit each `Struct` in the Leo AST and produce a Aleo struct.
         program_string.push_str(
             &program_scope
                 .structs
                 .values()
-                .map(|struct_| self.visit_struct_or_record(struct_))
+                .map(|struct_| self.visit_struct(struct_))
+                .join("\n"),
+        );
+
+        // Visit eat `Record` in the Leo AST and produce a Aleo record.
+        program_string.push_str(
+            &program_scope
+                .records
+                .values()
+                .map(|record| self.visit_record(record))
                 .join("\n"),
         );
 
@@ -113,14 +122,6 @@ impl<'a> CodeGenerator<'a> {
         format!("import {import_name}.aleo;")
     }
 
-    fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
-        if struct_.is_record {
-            self.visit_record(struct_)
-        } else {
-            self.visit_struct(struct_)
-        }
-    }
-
     fn visit_struct(&mut self, struct_: &'a Struct) -> String {
         // Add private symbol to composite types.
         self.composite_mapping
@@ -136,7 +137,7 @@ impl<'a> CodeGenerator<'a> {
         output_string
     }
 
-    fn visit_record(&mut self, record: &'a Struct) -> String {
+    fn visit_record(&mut self, record: &'a Record) -> String {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
         self.composite_mapping

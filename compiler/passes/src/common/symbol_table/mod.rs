@@ -152,10 +152,9 @@ impl SymbolTable {
     pub fn lookup_structured_type(&self, symbol: Symbol) -> Option<(&Identifier, &Vec<Member>)> {
         if let Some(struct_) = self.lookup_struct(symbol) {
             Some((&struct_.identifier, &struct_.members))
-        } else if let Some(record) = self.lookup_record(symbol) {
-            Some((&record.identifier, &record.members))
         } else {
-            None
+            self.lookup_record(symbol)
+                .map(|record| (&record.identifier, &record.members))
         }
     }
 

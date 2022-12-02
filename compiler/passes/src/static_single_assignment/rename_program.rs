@@ -139,7 +139,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
             records: input
                 .records
                 .into_iter()
-                .map(|(i, s)| (i, self.consume_record(r)))
+                .map(|(i, r)| (i, self.consume_record(r)))
                 .collect(),
             mappings: input.mappings,
             functions: input
