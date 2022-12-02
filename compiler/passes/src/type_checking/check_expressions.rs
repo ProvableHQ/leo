@@ -139,10 +139,17 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         match self.visit_expression(&access.inner, &None) {
                             Some(Type::Identifier(identifier)) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
-                                if let Some(struct_) = struct_ {
+                                let metadata = self
+                                    .symbol_table
+                                    .borrow()
+                                    .lookup_structured_type(identifier.name)
+                                    .map(|(id, member)| (*id, member.clone()));
+                                if let Some((structured_name, structured_members)) = metadata {
                                     // Check that `access.name` is a member of the struct.
-                                    match struct_.members.iter().find(|member| member.name() == access.name.name) {
+                                    match structured_members
+                                        .iter()
+                                        .find(|member| member.name() == access.name.name)
+                                    {
                                         // Case where `access.name` is a member of the struct.
                                         Some(Member { type_, .. }) => {
                                             // Check that the type of `access.name` is the same as `expected`.
@@ -156,7 +163,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                         None => {
                                             self.emit_err(TypeCheckerError::invalid_struct_variable(
                                                 access.name,
-                                                &struct_,
+                                                structured_name,
                                                 access.name.span(),
                                             ));
                                         }
@@ -166,7 +173,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 }
                             }
                             Some(type_) => {
-                                self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));
+                                self.emit_err(TypeCheckerError::type_should_be(
+                                    type_,
+                                    "struct` or `record`",
+                                    access.inner.span(),
+                                ));
                             }
                             None => {
                                 self.emit_err(TypeCheckerError::could_not_determine_type(

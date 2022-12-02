@@ -114,6 +114,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     /// let var$2 = Foo { bar: var$0, baz: var$1 };
     /// var$2
     /// ```
+    // TODO: Needs cleanup.
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         match (*input.if_true, *input.if_false) {
@@ -171,14 +172,17 @@ impl ExpressionReconstructor for Flattener<'_> {
 
                 match (first_struct_symbol, second_struct_symbol) {
                     (Some(first_struct_symbol), Some(second_struct_symbol)) => {
-                        let first_member_struct = self.symbol_table.lookup_struct(first_struct_symbol).unwrap();
-                        let second_member_struct = self.symbol_table.lookup_struct(second_struct_symbol).unwrap();
                         // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_member_struct, second_member_struct);
+                        assert_eq!(
+                            *self.structs.get(&first_struct_symbol).unwrap(),
+                            *self.structs.get(&second_struct_symbol).unwrap()
+                        );
+                        // Note that type checking guarantees that both expressions have the same same type
+                        let (member_struct_identifier, member_struct_members) =
+                            self.symbol_table.lookup_structured_type(first_struct_symbol).unwrap();
 
                         // For each struct member, construct a new ternary expression.
-                        let members = first_member_struct
-                            .members
+                        let members = member_struct_members
                             .iter()
                             .map(|Member { identifier, .. }| {
                                 // Construct a new ternary expression for the struct member.
@@ -212,7 +216,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                             .collect();
 
                         let (expr, stmts) = self.reconstruct_structured_init(StructuredExpression {
-                            name: first_member_struct.identifier,
+                            name: *member_struct_identifier,
                             members,
                             span: Default::default(),
                         });
@@ -224,8 +228,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                         // Mark the lhs of the assignment as a struct.
-                        self.structs
-                            .insert(identifier.name, first_member_struct.identifier.name);
+                        self.structs.insert(identifier.name, member_struct_identifier.name);
 
                         statements.push(statement);
 
@@ -261,20 +264,18 @@ impl ExpressionReconstructor for Flattener<'_> {
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
             {
-                let first_struct = self
-                    .symbol_table
-                    .lookup_struct(*self.structs.get(&first.name).unwrap())
-                    .unwrap();
-                let second_struct = self
-                    .symbol_table
-                    .lookup_struct(*self.structs.get(&second.name).unwrap())
-                    .unwrap();
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert_eq!(first_struct, second_struct);
+                assert_eq!(
+                    *self.structs.get(&first.name).unwrap(),
+                    *self.structs.get(&second.name).unwrap()
+                );
+                let (structured_identifier, structured_members) = self
+                    .symbol_table
+                    .lookup_structured_type(*self.structs.get(&first.name).unwrap())
+                    .unwrap();
 
                 // For each struct member, construct a new ternary expression.
-                let members = first_struct
-                    .members
+                let members = structured_members
                     .iter()
                     .map(|Member { identifier, .. }| {
                         // Construct a new ternary expression for the struct member.
@@ -308,7 +309,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     .collect();
 
                 let (expr, stmts) = self.reconstruct_structured_init(StructuredExpression {
-                    name: first_struct.identifier,
+                    name: *structured_identifier,
                     members,
                     span: Default::default(),
                 });
@@ -320,7 +321,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                 let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                 // Mark the lhs of the assignment as a struct.
-                self.structs.insert(identifier.name, first_struct.identifier.name);
+                self.structs.insert(identifier.name, structured_identifier.name);
 
                 statements.push(statement);
 

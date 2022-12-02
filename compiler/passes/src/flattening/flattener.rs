@@ -135,12 +135,8 @@ impl<'a> Flattener<'a> {
             Expression::Access(AccessExpression::Member(access)) => {
                 // The inner expression of an access expression is either an identifier or another access expression.
                 let name = self.lookup_struct_symbol(&access.inner).unwrap();
-                let struct_ = self.symbol_table.lookup_struct(name).unwrap();
-                let Member { type_, .. } = struct_
-                    .members
-                    .iter()
-                    .find(|member| member.name() == access.name.name)
-                    .unwrap();
+                let (_, members) = self.symbol_table.lookup_structured_type(name).unwrap();
+                let Member { type_, .. } = members.iter().find(|member| member.name() == access.name.name).unwrap();
                 match type_ {
                     Type::Identifier(identifier) => Some(identifier.name),
                     _ => None,

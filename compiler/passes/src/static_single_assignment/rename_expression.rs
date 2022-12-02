@@ -176,7 +176,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Lookup the definition.
         // Note that type checking guarantees that the correct structured definition exists.
-        let (structured_name, structured_members) = self
+        let (_, structured_members) = self
             .symbol_table
             .borrow()
             .lookup_structured_type(input.name.name)
@@ -206,7 +206,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // For each member of the struct definition, push the corresponding member of the init expression.
         for member in structured_members {
             // If the member is part of a record and it is `owner` or `gates`, then we have already added it.
-            if !(structured_is_record && matches!(structured_name.name, sym::owner | sym::gates)) {
+            if !(structured_is_record && matches!(member.identifier.name, sym::owner | sym::gates)) {
                 // Lookup and push the member of the init expression.
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
                 reordered_members.push(member_map.remove(&member.identifier.name).unwrap());

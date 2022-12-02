@@ -361,7 +361,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
-            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_some() => self
+            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_record(identifier.name).is_some() => self
                 .emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
                     parent,
                     identifier.name,
@@ -383,8 +383,14 @@ impl<'a> TypeChecker<'a> {
             Type::String => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
-            // Check that the named composite type has been defined.
-            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
+            // Check that the structured type has been defined.
+            Type::Identifier(identifier)
+                if self
+                    .symbol_table
+                    .borrow()
+                    .lookup_structured_type(identifier.name)
+                    .is_none() =>
+            {
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             // Check that the constituent types of the tuple are valid.
