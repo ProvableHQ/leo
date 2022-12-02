@@ -154,7 +154,7 @@ impl<'a> Flattener<'a> {
     /// Expects the left hand side of the assignment to be an identifier.
     pub(crate) fn update_structs(&mut self, lhs: &Identifier, rhs: &Expression) {
         match rhs {
-            Expression::Struct(rhs) => {
+            Expression::Structured(rhs) => {
                 self.structs.insert(lhs.name, rhs.name.name);
             }
             // If the rhs of the assignment is an identifier that is a struct, add it to `self.structs`.

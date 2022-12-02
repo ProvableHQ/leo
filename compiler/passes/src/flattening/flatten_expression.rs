@@ -90,7 +90,7 @@ impl ExpressionReconstructor for Flattener<'_> {
         }
 
         (
-            Expression::Struct(StructuredExpression {
+            Expression::Structured(StructuredExpression {
                 name: input.name,
                 members,
                 span: input.span,

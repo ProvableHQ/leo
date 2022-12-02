@@ -60,7 +60,7 @@ pub enum Expression {
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    Struct(StructuredExpression),
+    Structured(StructuredExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
@@ -85,7 +85,7 @@ impl Node for Expression {
             Access(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
-            Struct(n) => n.span(),
+            Structured(n) => n.span(),
             Err(n) => n.span(),
             Identifier(n) => n.span(),
             Literal(n) => n.span(),
@@ -102,7 +102,7 @@ impl Node for Expression {
             Access(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
-            Struct(n) => n.set_span(span),
+            Structured(n) => n.set_span(span),
             Identifier(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
             Err(n) => n.set_span(span),
@@ -121,7 +121,7 @@ impl fmt::Display for Expression {
             Access(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
-            Struct(n) => n.fmt(f),
+            Structured(n) => n.fmt(f),
             Err(n) => n.fmt(f),
             Identifier(n) => n.fmt(f),
             Literal(n) => n.fmt(f),

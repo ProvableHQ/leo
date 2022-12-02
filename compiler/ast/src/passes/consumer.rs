@@ -28,7 +28,7 @@ pub trait ExpressionConsumer {
             Expression::Access(access) => self.consume_access(access),
             Expression::Binary(binary) => self.consume_binary(binary),
             Expression::Call(call) => self.consume_call(call),
-            Expression::Struct(struct_) => self.consume_structured_init(struct_),
+            Expression::Structured(struct_) => self.consume_structured_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),

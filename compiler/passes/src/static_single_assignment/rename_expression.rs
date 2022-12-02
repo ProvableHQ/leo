@@ -174,9 +174,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Reorder the members to match that of the struct definition.
 
-        // Lookup the struct definition.
-        // Note that type checking guarantees that the correct struct definition exists.
-        let struct_definition: &Struct = self.symbol_table.borrow().structs.get(&input.name.name).unwrap();
+        // Lookup the definition.
+        // Note that type checking guarantees that the correct structured definition exists.
+        let (structured_name, structured_members) = self
+            .symbol_table
+            .borrow()
+            .lookup_structured_type(input.name.name)
+            .unwrap();
+        let structured_is_record = self.symbol_table.borrow().lookup_record(input.name.name).is_some();
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());
@@ -189,7 +194,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.
         // Note that type checking guarantees that the above fields exist.
-        if struct_definition.is_record {
+        if structured_is_record {
             // Add the `owner` field.
             // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
             reordered_members.push(member_map.remove(&sym::owner).unwrap());
@@ -199,9 +204,9 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         }
 
         // For each member of the struct definition, push the corresponding member of the init expression.
-        for member in &struct_definition.members {
+        for member in structured_members {
             // If the member is part of a record and it is `owner` or `gates`, then we have already added it.
-            if !(struct_definition.is_record && matches!(member.identifier.name, sym::owner | sym::gates)) {
+            if !(structured_is_record && matches!(structured_name.name, sym::owner | sym::gates)) {
                 // Lookup and push the member of the init expression.
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
                 reordered_members.push(member_map.remove(&member.identifier.name).unwrap());
@@ -211,7 +216,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Construct and accumulate a new assignment statement for the struct expression.
         let (place, statement) =
             self.assigner
-                .unique_simple_assign_statement(Expression::Struct(StructuredExpression {
+                .unique_simple_assign_statement(Expression::Structured(StructuredExpression {
                     name: input.name,
                     span: input.span,
                     members: reordered_members,

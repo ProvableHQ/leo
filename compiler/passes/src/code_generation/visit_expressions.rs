@@ -35,7 +35,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Access(expr) => self.visit_access(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
-            Expression::Struct(expr) => self.visit_struct_init(expr),
+            Expression::Structured(expr) => self.visit_struct_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Literal(expr) => self.visit_value(expr),

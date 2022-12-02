@@ -529,7 +529,7 @@ impl ParserContext<'_> {
             p.parse_struct_member().map(Some)
         })?;
 
-        Ok(Expression::Struct(StructuredExpression {
+        Ok(Expression::Structured(StructuredExpression {
             span: identifier.span + end,
             name: identifier,
             members,

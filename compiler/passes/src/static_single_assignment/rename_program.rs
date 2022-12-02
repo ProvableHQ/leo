@@ -18,7 +18,7 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     Block, Finalize, Function, FunctionConsumer, Member, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
-    StatementConsumer, Struct, StructConsumer,
+    Record, RecordConsumer, StatementConsumer, Struct, StructConsumer,
 };
 use leo_span::{sym, Symbol};
 
@@ -27,32 +27,35 @@ use indexmap::IndexMap;
 impl StructConsumer for StaticSingleAssigner<'_> {
     type Output = Struct;
 
-    /// Reconstructs records in the program, ordering its fields such that `owner` and `gates` are the first and second fields, respectively.
     fn consume_struct(&mut self, struct_: Struct) -> Self::Output {
-        match struct_.is_record {
-            false => struct_,
-            true => {
-                let mut members = Vec::with_capacity(struct_.members.len());
-                let mut member_map: IndexMap<Symbol, Member> = struct_
-                    .members
-                    .into_iter()
-                    .map(|member| (member.identifier.name, member))
-                    .collect();
+        struct_
+    }
+}
 
-                // Add the owner field to the beginning of the members list.
-                // Note that type checking ensures that the owner field exists.
-                members.push(member_map.shift_remove(&sym::owner).unwrap());
+impl RecordConsumer for StaticSingleAssigner<'_> {
+    type Output = Record;
 
-                // Add the gates field to the beginning of the members list.
-                // Note that type checking ensures that the gates field exists.
-                members.push(member_map.shift_remove(&sym::gates).unwrap());
+    /// Reconstructs records in the program, ordering its fields such that `owner` and `gates` are the first and second fields, respectively.
+    fn consume_record(&mut self, record: Record) -> Self::Output {
+        let mut members = Vec::with_capacity(record.members.len());
+        let mut member_map: IndexMap<Symbol, Member> = record
+            .members
+            .into_iter()
+            .map(|member| (member.identifier.name, member))
+            .collect();
 
-                // Add the remaining fields to the members list.
-                members.extend(member_map.into_iter().map(|(_, member)| member));
+        // Add the owner field to the beginning of the members list.
+        // Note that type checking ensures that the owner field exists.
+        members.push(member_map.shift_remove(&sym::owner).unwrap());
 
-                Struct { members, ..struct_ }
-            }
-        }
+        // Add the gates field to the beginning of the members list.
+        // Note that type checking ensures that the gates field exists.
+        members.push(member_map.shift_remove(&sym::gates).unwrap());
+
+        // Add the remaining fields to the members list.
+        members.extend(member_map.into_iter().map(|(_, member)| member));
+
+        Record { members, ..record }
     }
 }
 
@@ -132,6 +135,11 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
                 .structs
                 .into_iter()
                 .map(|(i, s)| (i, self.consume_struct(s)))
+                .collect(),
+            records: input
+                .records
+                .into_iter()
+                .map(|(i, s)| (i, self.consume_record(r)))
                 .collect(),
             mappings: input.mappings,
             functions: input
