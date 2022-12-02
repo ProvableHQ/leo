@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372008]: record `Token` shadowed by\n    --> compiler-test:13:5\n     |\n  13 |     struct Token { // This struct cannot have the same name as the record defined above it.\n  14 |         x: u32,\n  15 |     }\n     |     ^\n"
+  - "Error [EAST0372007]: struct `Token` shadowed by\n    --> compiler-test:4:5\n     |\n   4 |     record Token {\n   5 |         // The token owner.\n   6 |         owner: address,\n   7 |         // The Aleo balance (in gates).\n   8 |         gates: u64,\n   9 |         // The token amount.\n  10 |         amount: u64,\n  11 |     }\n     |     ^\n"
