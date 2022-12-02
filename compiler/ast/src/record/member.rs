@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Type};
+use crate::{Identifier, Mode, Type};
 use leo_span::Symbol;
 
 use serde::{Deserialize, Serialize};
@@ -22,22 +22,27 @@ use std::fmt;
 
 /// A member of a struct definition, e.g `foobar: u8`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructMember {
+pub struct RecordMember {
+    /// The mode of the member.
+    pub mode: Option<Mode>,
     /// The identifier of the member.
     pub identifier: Identifier,
     /// The type of the member.
     pub type_: Type,
 }
 
-impl StructMember {
+impl RecordMember {
     /// Returns the name of the struct member without span.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
 }
 
-impl fmt::Display for StructMember {
+impl fmt::Display for RecordMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.identifier, self.type_)
+        match self.mode {
+            Some(mode) => write!(f, "{} {} {}", mode, self.identifier, self.type_),
+            None => write!(f, "{} {}", self.identifier, self.type_),
+        }
     }
 }

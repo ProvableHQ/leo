@@ -56,6 +56,9 @@ pub use self::passes::*;
 pub mod program;
 pub use self::program::*;
 
+pub mod record;
+pub use self::record::*;
+
 pub mod statement;
 pub use self::statement::*;
 

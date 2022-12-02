@@ -23,42 +23,41 @@ use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A struct type definition, e.g., `struct Foo { my_field: Bar }`.
-/// The fields are named so `struct Foo(u8, u16)` is not allowed.
+/// A record type definition, e.g., `record Foo { owner: <addr>, gates: 0u64, my_field: Bar }`.
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Struct {
+pub struct Record {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
-    /// The fields of this structure.
-    pub members: Vec<StructMember>,
-    /// The entire span of the struct definition.
+    /// The fields of this record.
+    pub members: Vec<RecordMember>,
+    /// The entire span of the record definition.
     pub span: Span,
 }
 
-impl PartialEq for Struct {
+impl PartialEq for Record {
     fn eq(&self, other: &Self) -> bool {
         self.identifier == other.identifier
     }
 }
 
-impl Eq for Struct {}
+impl Eq for Record {}
 
-impl Struct {
+impl Record {
     /// Returns the struct name as a Symbol.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
 }
 
-impl fmt::Debug for Struct {
+impl fmt::Debug for Record {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Display>::fmt(self, f)
     }
 }
 
-impl fmt::Display for Struct {
+impl fmt::Display for Record {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "struct {} {{ ", self.identifier)?;
+        writeln!(f, "record {} {{ ", self.identifier)?;
         for field in self.members.iter() {
             writeln!(f, "    {field}")?;
         }
@@ -66,4 +65,4 @@ impl fmt::Display for Struct {
     }
 }
 
-crate::simple_node_impl!(Struct);
+crate::simple_node_impl!(Record);

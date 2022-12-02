@@ -237,10 +237,9 @@ impl ParserContext<'_> {
         Ok(Member { identifier, type_ })
     }
 
-    /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
+    /// Parses a struct definition, e.g., `struct Foo { ... }`.
     pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
-        let is_record = matches!(&self.token.token, Token::Record);
-        let start = self.expect_any(&[Token::Struct, Token::Record])?;
+        let start = self.expect(&Token::Struct)?;
         let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
@@ -251,7 +250,26 @@ impl ParserContext<'_> {
             Struct {
                 identifier: struct_name,
                 members,
-                is_record,
+                is_record: false,
+                span: start + end,
+            },
+        ))
+    }
+
+    /// Parses a record definition e.g., `record Foo { ... }`.
+    pub(super) fn parse_record(&mut self) -> Result<(Identifier, Struct)> {
+        let start = self.expect(&Token::Record)?;
+        let struct_name = self.expect_identifier()?;
+
+        self.expect(&Token::LeftCurly)?;
+        let (members, end) = self.parse_struct_members()?;
+
+        Ok((
+            struct_name,
+            Struct {
+                identifier: struct_name,
+                members,
+                is_record: true,
                 span: start + end,
             },
         ))
