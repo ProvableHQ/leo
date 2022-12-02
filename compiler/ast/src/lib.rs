@@ -27,9 +27,6 @@ extern crate core;
 pub mod access;
 pub use self::access::*;
 
-pub mod r#struct;
-pub use self::r#struct::*;
-
 pub mod common;
 pub use self::common::*;
 
@@ -56,11 +53,11 @@ pub use self::passes::*;
 pub mod program;
 pub use self::program::*;
 
-pub mod record;
-pub use self::record::*;
-
 pub mod statement;
 pub use self::statement::*;
+
+pub mod structured;
+pub use self::structured::*;
 
 pub mod types;
 pub use self::types::*;

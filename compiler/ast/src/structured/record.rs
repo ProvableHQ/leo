@@ -14,34 +14,52 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Type};
+use crate::{Identifier, Member, Node};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A member of a struct definition, e.g `foobar: u8`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct StructMember {
-    /// The identifier of the member.
+/// A record type definition, e.g., `record Foo { owner: <addr>, gates: 0u64, my_field: Bar }`.
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Record {
+    /// The name of the type in the type system in this module.
     pub identifier: Identifier,
-    /// The type of the member.
-    pub type_: Type,
-    /// The span of the member.
+    /// The fields of this record.
+    pub members: Vec<Member>,
+    /// The entire span of the record definition.
     pub span: Span,
 }
 
-impl StructMember {
-    /// Returns the name of the struct member without span.
+impl PartialEq for Record {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier == other.identifier
+    }
+}
+
+impl Eq for Record {}
+
+impl Record {
+    /// Returns the struct name as a Symbol.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
 }
 
-impl fmt::Display for StructMember {
+impl fmt::Debug for Record {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.identifier, self.type_)
+        <Self as fmt::Display>::fmt(self, f)
     }
 }
 
-crate::simple_node_impl!(StructMember);
+impl fmt::Display for Record {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "record {} {{ ", self.identifier)?;
+        for field in self.members.iter() {
+            writeln!(f, "    {field}")?;
+        }
+        write!(f, "}}")
+    }
+}
+
+crate::simple_node_impl!(Record);

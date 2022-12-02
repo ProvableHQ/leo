@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, MappingType, Tuple};
+use crate::{Identifier, IntegerType, MappingType, TupleType};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -43,7 +43,7 @@ pub enum Type {
     /// The `string` type.
     String,
     /// A static tuple of at least one type.
-    Tuple(Tuple),
+    Tuple(TupleType),
     /// The `unit` type.
     Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.

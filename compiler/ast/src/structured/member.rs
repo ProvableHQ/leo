@@ -14,55 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod member;
-pub use member::*;
-
-use crate::{Identifier, Node};
+use crate::{Identifier, Mode, Node, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A record type definition, e.g., `record Foo { owner: <addr>, gates: 0u64, my_field: Bar }`.
-#[derive(Clone, Serialize, Deserialize)]
-pub struct Record {
-    /// The name of the type in the type system in this module.
+/// A member of a structured data type, e.g `foobar: u8` or `public foo: u8`.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Member {
+    /// The mode of the member.
+    pub mode: Mode,
+    /// The identifier of the member.
     pub identifier: Identifier,
-    /// The fields of this record.
-    pub members: Vec<RecordMember>,
-    /// The entire span of the record definition.
+    /// The type of the member.
+    pub type_: Type,
+    /// The span of the member.
     pub span: Span,
 }
 
-impl PartialEq for Record {
-    fn eq(&self, other: &Self) -> bool {
-        self.identifier == other.identifier
-    }
-}
-
-impl Eq for Record {}
-
-impl Record {
-    /// Returns the struct name as a Symbol.
+impl Member {
+    /// Returns the name of the struct member without span.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
 }
 
-impl fmt::Debug for Record {
+impl fmt::Display for Member {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        <Self as fmt::Display>::fmt(self, f)
-    }
-}
-
-impl fmt::Display for Record {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "record {} {{ ", self.identifier)?;
-        for field in self.members.iter() {
-            writeln!(f, "    {field}")?;
+        match self.mode {
+            Mode::None => write!(f, "{}: {}", self.identifier, self.type_),
+            _ => write!(f, "{} {} {}", self.mode, self.identifier, self.type_),
         }
-        write!(f, "}}")
     }
 }
 
-crate::simple_node_impl!(Record);
+crate::simple_node_impl!(Member);

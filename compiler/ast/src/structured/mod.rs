@@ -14,31 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+pub mod member;
+pub use member::*;
 
-use serde::{Deserialize, Serialize};
-use std::{fmt, ops::Deref};
+pub mod record;
+pub use record::*;
 
-// TODO: Consider defining a safe interface for constructing a tuple type.
-
-/// A type list of at least two types.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TupleType(pub Vec<Type>);
-
-impl Deref for TupleType {
-    type Target = Vec<Type>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl fmt::Display for TupleType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({})",
-            self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
-        )
-    }
-}
+pub mod struct_;
+pub use struct_::*;
