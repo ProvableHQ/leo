@@ -56,6 +56,12 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         }
     }
 
+    fn visit_record(&mut self, _input: &'a Record) {
+        if let Err(err) = self.symbol_table.insert_record(_input.name(), _input) {
+            self.handler.emit_err(err);
+        }
+    }
+
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Add the variable associated with the mapping to the symbol table.
         if let Err(err) = self.symbol_table.insert_variable(

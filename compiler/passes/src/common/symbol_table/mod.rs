@@ -22,7 +22,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{Function, Struct};
+use leo_ast::{Function, Record, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -39,6 +39,9 @@ pub struct SymbolTable {
     /// Maps struct names to struct definitions.
     /// This field is populated at a first pass.
     pub structs: IndexMap<Symbol, Struct>,
+    /// Maps record names to record definitions.
+    /// This field is populated at a first pass.
+    pub records: IndexMap<Symbol, Record>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
@@ -56,11 +59,10 @@ impl SymbolTable {
             Err(AstError::shadowed_variable(symbol, span).into())
         } else if self.functions.contains_key(&symbol) {
             Err(AstError::shadowed_function(symbol, span).into())
-        } else if let Some(existing) = self.structs.get(&symbol) {
-            match existing.is_record {
-                true => Err(AstError::shadowed_record(symbol, span).into()),
-                false => Err(AstError::shadowed_struct(symbol, span).into()),
-            }
+        } else if self.structs.contains_key(&symbol) {
+            Err(AstError::shadowed_struct(symbol, span).into())
+        } else if self.records.contains_key(&symbol) {
+            Err(AstError::shadowed_record(symbol, span).into())
         } else if let Some(parent) = self.parent.as_ref() {
             parent.check_shadowing(symbol, span)
         } else {
@@ -89,6 +91,13 @@ impl SymbolTable {
     pub fn insert_struct(&mut self, symbol: Symbol, insert: &Struct) -> Result<()> {
         self.check_shadowing(symbol, insert.span)?;
         self.structs.insert(symbol, insert.clone());
+        Ok(())
+    }
+
+    /// Inserts a record into the symbol table.
+    pub fn insert_record(&mut self, symbol: Symbol, insert: &Record) -> Result<()> {
+        self.check_shadowing(symbol, insert.span)?;
+        self.records.insert(symbol, insert.clone());
         Ok(())
     }
 
@@ -122,6 +131,17 @@ impl SymbolTable {
             Some(struct_)
         } else if let Some(parent) = self.parent.as_ref() {
             parent.lookup_struct(symbol)
+        } else {
+            None
+        }
+    }
+
+    /// Attempts to lookup a record in the symbol table.
+    pub fn lookup_record(&self, symbol: Symbol) -> Option<&Record> {
+        if let Some(record) = self.records.get(&symbol) {
+            Some(record)
+        } else if let Some(parent) = self.parent.as_ref() {
+            parent.lookup_record(symbol)
         } else {
             None
         }
