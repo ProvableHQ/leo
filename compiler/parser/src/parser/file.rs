@@ -148,9 +148,13 @@ impl ParserContext<'_> {
 
         while self.has_next() {
             match &self.token.token {
-                Token::Struct | Token::Record => {
+                Token::Struct => {
                     let (id, struct_) = self.parse_struct()?;
                     structs.insert(id, struct_);
+                }
+                Token::Record => {
+                    let (id, record) = self.parse_record()?;
+                    records.insert(id, record);
                 }
                 Token::Mapping => {
                     let (id, mapping) = self.parse_mapping()?;
@@ -191,14 +195,71 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
-    fn parse_struct_members(&mut self) -> Result<(Vec<Member>, Span)> {
+    /// Returns a [`Vec<StructMember>`] AST node if the next tokens represent a struct member.
+    fn parse_struct_members(&mut self) -> Result<(Vec<StructMember>, Span)> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
 
         while !self.check(&Token::RightCurly) {
-            let variable = self.parse_member_variable_declaration()?;
+            // Parse the member identifier.
+            let identifier = self.expect_identifier()?;
+            // Parse the colon.
+            self.expect(&Token::Colon)?;
+            // Parse the member type.
+            let (type_, type_span) = self.parse_type()?;
+            // Construct the member.
+            let variable = StructMember {
+                identifier,
+                type_,
+                span: identifier.span + type_span,
+            };
+
+            if self.eat(&Token::Semicolon) {
+                if commas {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                }
+                semi_colons = true;
+            }
+
+            if self.eat(&Token::Comma) {
+                if semi_colons {
+                    self.emit_err(ParserError::mixed_commas_and_semicolons(self.token.span));
+                }
+                commas = true;
+            }
+
+            members.push(variable);
+        }
+        let span = self.expect(&Token::RightCurly)?;
+
+        Ok((members, span))
+    }
+
+    /// Returns a [`Vec<RecordMember>`] AST node if the next tokens represent a record member.
+    fn parse_record_members(&mut self) -> Result<(Vec<RecordMember>, Span)> {
+        let mut members = Vec::new();
+
+        let (mut semi_colons, mut commas) = (false, false);
+
+        while !self.check(&Token::RightCurly) {
+            // Get the beginning of the member span.
+            let start = self.token.span;
+            // Parse the mode.
+            let mode = self.parse_mode()?;
+            // Parse the identifier.
+            let identifier = self.expect_identifier()?;
+            // Parse the colon.
+            self.expect(&Token::Colon)?;
+            // Parse the type.
+            let (type_, type_span) = self.parse_type()?;
+            // Construct the member.
+            let variable = RecordMember {
+                mode,
+                identifier,
+                type_,
+                span: start + type_span,
+            };
 
             if self.eat(&Token::Semicolon) {
                 if commas {
@@ -230,13 +291,6 @@ impl ParserContext<'_> {
         Ok((name, type_))
     }
 
-    /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
-    fn parse_member_variable_declaration(&mut self) -> Result<Member> {
-        let (identifier, type_) = self.parse_typed_ident()?;
-
-        Ok(Member { identifier, type_ })
-    }
-
     /// Parses a struct definition, e.g., `struct Foo { ... }`.
     pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
         let start = self.expect(&Token::Struct)?;
@@ -250,14 +304,13 @@ impl ParserContext<'_> {
             Struct {
                 identifier: struct_name,
                 members,
-                is_record: false,
                 span: start + end,
             },
         ))
     }
 
     /// Parses a record definition e.g., `record Foo { ... }`.
-    pub(super) fn parse_record(&mut self) -> Result<(Identifier, Struct)> {
+    pub(super) fn parse_record(&mut self) -> Result<(Identifier, Record)> {
         let start = self.expect(&Token::Record)?;
         let struct_name = self.expect_identifier()?;
 
@@ -266,10 +319,9 @@ impl ParserContext<'_> {
 
         Ok((
             struct_name,
-            Struct {
+            Record {
                 identifier: struct_name,
                 members,
-                is_record: true,
                 span: start + end,
             },
         ))

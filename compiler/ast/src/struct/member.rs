@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Type};
-use leo_span::Symbol;
+use crate::{Identifier, Node, Type};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,6 +27,8 @@ pub struct StructMember {
     pub identifier: Identifier,
     /// The type of the member.
     pub type_: Type,
+    /// The span of the member.
+    pub span: Span,
 }
 
 impl StructMember {
@@ -41,3 +43,5 @@ impl fmt::Display for StructMember {
         write!(f, "{}: {}", self.identifier, self.type_)
     }
 }
+
+crate::simple_node_impl!(StructMember);

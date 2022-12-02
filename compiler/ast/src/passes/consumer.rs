@@ -118,6 +118,13 @@ pub trait StructConsumer {
     fn consume_struct(&mut self, input: Struct) -> Self::Output;
 }
 
+/// A Consumer trait for records in the AST.
+pub trait RecordConsumer {
+    type Output;
+
+    fn consume_record(&mut self, input: Record) -> Self::Output;
+}
+
 /// A Consumer trait for imported programs in the AST.
 pub trait ImportConsumer {
     type Output;

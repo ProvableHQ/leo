@@ -340,6 +340,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(i, c)| (i, self.reconstruct_struct(c)))
                 .collect(),
+            records: input
+                .records
+                .into_iter()
+                .map(|(i, r)| (i, self.reconstruct_record(r)))
+                .collect(),
             mappings: input
                 .mappings
                 .into_iter()
@@ -376,6 +381,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
     }
 
     fn reconstruct_struct(&mut self, input: Struct) -> Struct {
+        input
+    }
+
+    fn reconstruct_record(&mut self, input: Record) -> Record {
         input
     }
 

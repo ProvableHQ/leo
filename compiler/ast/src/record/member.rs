@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Type};
-use leo_span::Symbol;
+use crate::{simple_node_impl, Identifier, Mode, Node, Type};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,11 +24,13 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RecordMember {
     /// The mode of the member.
-    pub mode: Option<Mode>,
+    pub mode: Mode,
     /// The identifier of the member.
     pub identifier: Identifier,
     /// The type of the member.
     pub type_: Type,
+    /// The span of the member.
+    pub span: Span,
 }
 
 impl RecordMember {
@@ -41,8 +43,10 @@ impl RecordMember {
 impl fmt::Display for RecordMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.mode {
-            Some(mode) => write!(f, "{} {} {}", mode, self.identifier, self.type_),
-            None => write!(f, "{} {}", self.identifier, self.type_),
+            Mode::None => write!(f, "{}: {}", self.identifier, self.type_),
+            _ => write!(f, "{} {} : {}", self.mode, self.identifier, self.type_),
         }
     }
 }
+
+simple_node_impl!(RecordMember);

@@ -210,7 +210,9 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
-        input.structs.values().for_each(|function| self.visit_struct(function));
+        input.structs.values().for_each(|struct_| self.visit_struct(struct_));
+
+        input.records.values().for_each(|record| self.visit_record(record));
 
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 
@@ -225,6 +227,8 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     }
 
     fn visit_struct(&mut self, _input: &'a Struct) {}
+
+    fn visit_record(&mut self, _input: &'a Record) {}
 
     fn visit_mapping(&mut self, _input: &'a Mapping) {}
 
