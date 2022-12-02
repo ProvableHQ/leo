@@ -144,6 +144,7 @@ impl ParserContext<'_> {
         // Parse the body of the program scope.
         let mut functions = IndexMap::new();
         let mut structs = IndexMap::new();
+        let mut records = IndexMap::new();
         let mut mappings = IndexMap::new();
 
         while self.has_next() {
@@ -190,6 +191,7 @@ impl ParserContext<'_> {
             program_id,
             functions,
             structs,
+            records,
             mappings,
             span: start + end,
         })
@@ -282,15 +284,6 @@ impl ParserContext<'_> {
         Ok((members, span))
     }
 
-    /// Parses `IDENT: TYPE`.
-    pub(super) fn parse_typed_ident(&mut self) -> Result<(Identifier, Type)> {
-        let name = self.expect_identifier()?;
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
-
-        Ok((name, type_))
-    }
-
     /// Parses a struct definition, e.g., `struct Foo { ... }`.
     pub(super) fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
         let start = self.expect(&Token::Struct)?;
@@ -315,7 +308,7 @@ impl ParserContext<'_> {
         let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
-        let (members, end) = self.parse_struct_members()?;
+        let (members, end) = self.parse_record_members()?;
 
         Ok((
             struct_name,
