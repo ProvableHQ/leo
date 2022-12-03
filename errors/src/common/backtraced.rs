@@ -134,10 +134,8 @@ impl fmt::Display for Backtraced {
         if let Some(help) = &self.help {
             write!(
                 f,
-                "\n{indent     } |\n\
-            {indent     } = {help}",
-                indent = INDENT,
-                help = help
+                "\n{INDENT     } |\n\
+            {INDENT     } = {help}",
             )?;
         }
 

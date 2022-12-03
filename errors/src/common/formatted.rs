@@ -164,20 +164,13 @@ impl fmt::Display for Formatted {
             )?;
         }
 
-        write!(
-            f,
-            "{indent     } |{underlined}",
-            indent = INDENT,
-            underlined = underlined,
-        )?;
+        write!(f, "{INDENT     } |{underlined}",)?;
 
         if let Some(help) = &self.backtrace.help {
             write!(
                 f,
-                "\n{indent     } |\n\
-            {indent     } = {help}",
-                indent = INDENT,
-                help = help
+                "\n{INDENT     } |\n\
+            {INDENT     } = {help}",
             )?;
         }
 

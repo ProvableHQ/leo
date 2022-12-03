@@ -108,7 +108,7 @@ impl<'a> CodeGenerator<'a> {
 
             for argument in arguments.iter() {
                 let (argument, argument_instructions) = self.visit_expression(argument);
-                write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+                write!(finalize_instruction, " {argument}").expect("failed to write to string");
                 instructions.push_str(&argument_instructions);
             }
             writeln!(finalize_instruction, ";").expect("failed to write to string");
