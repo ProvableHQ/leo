@@ -276,4 +276,11 @@ create_messages!(
         msg: format!("`finalize` statements are deprecated."),
         help: Some("Use `return <expr> then finalize(<args>)` instead.".to_string()),
     }
+
+    @formatted
+    console_statements_are_not_yet_supported {
+        args: (),
+        msg: format!("`console` statements are not yet supported."),
+        help: Some("Consider using `assert`, `assert_eq`, or `assert_neq` instead.".to_string()),
+    }
 );
