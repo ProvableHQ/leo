@@ -19,16 +19,16 @@ program battleship.aleo {
     ) -> board.leo/board_state.record {
         // Verify that each individual ship placement bitstring is valid.
         let valid_carrier: bool = verify.leo/validate_ship(carrier, 5u64, 31u64, 4311810305u64);
-        console.assert(valid_carrier);
+        assert(valid_carrier);
 
         let valid_battleship: bool = verify.leo/validate_ship(battleship, 4u64, 15u64, 16843009u64);
-        console.assert(valid_battleship);
+        assert(valid_battleship);
 
         let valid_cruiser: bool = verify.leo/validate_ship(cruiser, 3u64, 7u64, 65793u64);
-        console.assert(valid_cruiser);
+        assert(valid_cruiser);
 
         let valid_destroyer: bool = verify.leo/validate_ship(destroyer, 2u64, 3u64, 257u64);
-        console.assert(valid_destroyer);
+        assert(valid_destroyer);
 
         // Create the board with all the ship placements combined.
         let board: u64 = verify.leo/create_board(carrier, battleship, cruiser, destroyer);
@@ -61,8 +61,8 @@ program battleship.aleo {
         move_start: move.leo/move.record,
     ) -> (board.leo/board_state.record, move.leo/move.record) {
         // Validate that the move players and board players match each other.
-        console.assert_eq(board.player_1, move_start.player_2);
-        console.assert_eq(board.player_2, move_start.player_1);
+        assert_eq(board.player_1, move_start.player_2);
+        assert_eq(board.player_2, move_start.player_1);
 
         let state: board_state = board.leo/start_board(board);
         let dummy: move = move.leo/start_game(board.player_2);
@@ -82,11 +82,11 @@ program battleship.aleo {
     ) -> (board.leo/board_state.record, move.leo/move.record) {
         // Verify the board has been started. This prevents players from starting a game and then creating
         // a brand new board to play with.
-        console.assert(board.game_started);
+        assert(board.game_started);
 
         // Validate that the move players and board players match each other.
-        console.assert_eq(board.player_1, move_incoming.player_2);
-        console.assert_eq(board.player_2, move_incoming.player_1);
+        assert_eq(board.player_1, move_incoming.player_2);
+        assert_eq(board.player_2, move_incoming.player_1);
 
         // Play coordinate on own board. Will fail if not a valid move.
         let hit_or_miss: board_state = board.leo/update_played_tiles(board, shoot);

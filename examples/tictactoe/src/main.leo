@@ -56,9 +56,9 @@ program tictactoe.aleo {
     // If an entry is already occupied, the move is invalid and the board is returned unchanged.
     transition make_move(player: u8, row: u8, col: u8, board: Board) -> (Board, u8) {
         // Check that inputs are valid.
-        console.assert(player == 1u8 || player == 2u8);
-        console.assert(1u8 <= row && row <= 3u8);
-        console.assert(1u8 <= col && col <= 3u8);
+        assert(player == 1u8 || player == 2u8);
+        assert(1u8 <= row && row <= 3u8);
+        assert(1u8 <= col && col <= 3u8);
 
         // Unpack the entries in the board into variables.
         let r1c1: u8 = board.r1.c1;

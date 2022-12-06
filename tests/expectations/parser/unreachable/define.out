@@ -26,7 +26,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found '>'\n    --> test:1:1\n     |\n   1 | > x = 10u8;\n     | ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found '..'\n    --> test:1:1\n     |\n   1 | .. x = 10u8;\n     | ^^"
   - "Error [EPAR0370005]: expected ; -- found 'x'\n    --> test:1:4\n     |\n   1 | as x = 10u8;\n     |    ^"
-  - "Error [EPAR0370005]: expected . -- found 'x'\n    --> test:1:9\n     |\n   1 | console x = 10u8;\n     |         ^"
+  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> test:1:1\n     |\n   1 | console x = 10u8;\n     | ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."
   - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:7\n     |\n   1 | for x = 10u8;\n     |       ^"
   - "Error [EPAR0370005]: expected { -- found '='\n    --> test:1:6\n     |\n   1 | if x = 10u8;\n     |      ^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'\n    --> test:1:1\n     |\n   1 | else x = 10u8;\n     | ^^^^"

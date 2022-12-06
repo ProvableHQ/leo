@@ -26,7 +26,7 @@ Can you find any others?
 
 ## Language Features and Concepts
 - `record` declarations
-- `console.assert_eq`
+- `assert_eq`
 - core functions, e.g. `BHP256::hash`
 - record ownership
 - loops and bounded iteration

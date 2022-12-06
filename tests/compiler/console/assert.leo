@@ -20,13 +20,13 @@ program test.aleo {
     
     
     transition main(a: bool, foo: Foo, token: Token) -> bool {
-        console.assert_eq(a, true);
-        console.assert_neq(a, false);
-        console.assert(a);
+        assert_eq(a, true);
+        assert_neq(a, false);
+        assert(a);
     
-        console.assert_eq(foo, Foo { a: 0u8 });
+        assert_eq(foo, Foo { a: 0u8 });
     
-        console.assert_neq(token, Token {
+        assert_neq(token, Token {
             owner: aleo1lfapwg53y5enqpt0d8cnef4g8lj7l6g9uhkkma23qyv6jm4ppyfq50regr,
             gates: 0u64,
             amount: 0u64,

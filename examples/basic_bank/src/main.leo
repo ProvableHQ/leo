@@ -19,7 +19,7 @@ program basic_bank.aleo {
     // Requires that the function caller is the bank.
     // The bank's address is aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a.
     transition issue(owner: address, amount: u64) -> Token {
-        console.assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
+        assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         return Token {
             owner: owner,
             gates: 0u64,
@@ -60,7 +60,7 @@ program basic_bank.aleo {
     // - `periods`  : The number of periods to compound the interest over.
     // Requires that the function caller is the bank.
     transition withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> Token {
-        console.assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
+        assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         let hash: field = BHP256::hash(recipient);
 
         let total: u64 = calculate_interest(amount, rate, periods);

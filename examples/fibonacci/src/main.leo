@@ -1,7 +1,7 @@
 program fibonacci.aleo {
     // This calculates the n-th fibonacci number (up to 64th)
     transition fibonacci(public n: u8) -> u128 {
-        console.assert(n <= 64u8);
+        assert(n <= 64u8);
 
         let f0: u128 = 0u128;
         let f1: u128 = 1u128;

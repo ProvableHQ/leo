@@ -7,7 +7,7 @@ input_file: inputs/eq.in
 program test.aleo {    
     transition main(a: i64, b: i64) -> bool {
         let ret: bool = a == b;
-        console.assert(ret);
+        assert(ret);
         return ret;
     }
 }

@@ -69,8 +69,8 @@ impl ParserContext<'_> {
         // Parse the variant.
         let variant = match (is_assert, is_assert_eq, is_assert_neq) {
             (true, false, false) => AssertVariant::Assert(self.parse_expression()?),
-            (false, true, false) => AssertVariant::AssertEq(self.parse_expression()?, self.parse_expression()?),
-            (false, false, true) => AssertVariant::AssertNeq(self.parse_expression()?, self.parse_expression()?),
+            (false, true, false) => AssertVariant::AssertEq(self.parse_expression()?, { self.expect(&Token::Comma)?; self.parse_expression()? }),
+            (false, false, true) => AssertVariant::AssertNeq(self.parse_expression()?, { self.expect(&Token::Comma)?; self.parse_expression()? }),
             _ => unreachable!("The call the `expect_any` ensures that only one of the three tokens is true."),
         };
         // Parse the right parenthesis token.

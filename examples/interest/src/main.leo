@@ -18,7 +18,7 @@ program interest.aleo {
     transition bounded_iteration_interest(capital: u32,
                                         public rate: u32,
                                         iterations: u8) -> u32 {
-        console.assert(iterations <= 50u8);
+        assert(iterations <= 50u8);
         let amount: u32 = capital;
 
         // Accrue for up to 50 iterations.
