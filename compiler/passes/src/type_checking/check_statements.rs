@@ -45,7 +45,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) {
-        match &input.variant{
+        match &input.variant {
             AssertVariant::Assert(expr) => {
                 let type_ = self.visit_expression(expr, &Some(Type::Boolean));
                 self.assert_bool_type(&type_, expr.span());
