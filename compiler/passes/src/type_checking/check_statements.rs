@@ -30,6 +30,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         match input {
+            Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
@@ -40,6 +41,22 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
+        }
+    }
+
+    fn visit_assert(&mut self, input: &'a AssertStatement) {
+        match &input.variant {
+            AssertVariant::Assert(expr) => {
+                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
+                self.assert_bool_type(&type_, expr.span());
+            }
+            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
+                let t1 = self.visit_expression(left, &None);
+                let t2 = self.visit_expression(right, &None);
+
+                // Check that the types are equal.
+                self.check_eq_types(&t1, &t2, input.span());
+            }
         }
     }
 
@@ -131,20 +148,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) {
-        match &input.function {
-            ConsoleFunction::Assert(expr) => {
-                let type_ = self.visit_expression(expr, &Some(Type::Boolean));
-                self.assert_bool_type(&type_, expr.span());
-            }
-            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) => {
-                let t1 = self.visit_expression(left, &None);
-                let t2 = self.visit_expression(right, &None);
-
-                // Check that the types are equal.
-                self.check_eq_types(&t1, &t2, input.span());
-            }
-        }
+    fn visit_console(&mut self, _: &'a ConsoleStatement) {
+        unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
     fn visit_decrement(&mut self, input: &'a DecrementStatement) {

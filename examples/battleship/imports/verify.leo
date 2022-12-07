@@ -87,7 +87,7 @@ program verify.aleo {
     ) -> bool {
         // Check bitcount -- all other validations depend on the bitcount being correct.
         let num_bits: u64 = bitcount(ship);
-        console.assert_eq(num_bits, length);
+        assert_eq(num_bits, length);
 
         // Check horizontal bits of ship.
         let is_adjacent: bool = adjacency_check(ship, horizontal); // True if bits are adjacent horizontally.
@@ -118,7 +118,7 @@ program verify.aleo {
         let ships: u64 = carrier | battleship | cruiser | destroyer;
 
         let num_bits: u64 = bitcount(ships);
-        console.assert_eq(num_bits, 14u64); // Given 4 individually-valid ships, a valid combination should yield exactly 14 flipped bits.
+        assert_eq(num_bits, 14u64); // Given 4 individually-valid ships, a valid combination should yield exactly 14 flipped bits.
 
         return ships;
     }

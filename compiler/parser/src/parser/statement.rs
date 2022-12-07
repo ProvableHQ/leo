@@ -45,16 +45,50 @@ impl ParserContext<'_> {
             Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
-            Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
+            Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
             Token::Async => Err(ParserError::async_finalize_is_deprecated(self.token.span).into()),
+            Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
             Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
         }
     }
 
-    /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    /// Returns a [`AssertStatement`] AST node if the next tokens represent an assertion statement.
+    fn parse_assert_statement(&mut self) -> Result<Statement> {
+        // Check which variant of the assert statement is being used.
+        // Note that `parse_assert_statement` is called only if the next token is an assertion token.
+        let is_assert = self.check(&Token::Assert);
+        let is_assert_eq = self.check(&Token::AssertEq);
+        let is_assert_neq = self.check(&Token::AssertNeq);
+        // Parse the span of the assertion statement.
+        let span = self.expect_any(&[Token::Assert, Token::AssertEq, Token::AssertNeq])?;
+        // Parse the left parenthesis token.
+        self.expect(&Token::LeftParen)?;
+        // Parse the variant.
+        let variant = match (is_assert, is_assert_eq, is_assert_neq) {
+            (true, false, false) => AssertVariant::Assert(self.parse_expression()?),
+            (false, true, false) => AssertVariant::AssertEq(self.parse_expression()?, {
+                self.expect(&Token::Comma)?;
+                self.parse_expression()?
+            }),
+            (false, false, true) => AssertVariant::AssertNeq(self.parse_expression()?, {
+                self.expect(&Token::Comma)?;
+                self.parse_expression()?
+            }),
+            _ => unreachable!("The call the `expect_any` ensures that only one of the three tokens is true."),
+        };
+        // Parse the right parenthesis token.
+        self.expect(&Token::RightParen)?;
+        // Parse the semicolon token.
+        self.expect(&Token::Semicolon)?;
+
+        // Return the assertion statement.
+        Ok(Statement::Assert(AssertStatement { variant, span }))
+    }
+
+    /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
         let place = self.parse_expression()?;
 
@@ -246,6 +280,7 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
+    #[allow(dead_code)]
     fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
         let keyword = self.expect(&Token::Console)?;
         self.expect(&Token::Dot)?;

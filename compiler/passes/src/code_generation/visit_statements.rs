@@ -17,7 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
     ReturnStatement, Statement,
 };
@@ -28,6 +28,7 @@ use std::fmt::Write as _;
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
         match input {
+            Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
@@ -38,6 +39,32 @@ impl<'a> CodeGenerator<'a> {
             Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
+        }
+    }
+
+    fn visit_assert(&mut self, input: &'a AssertStatement) -> String {
+        let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
+            let (left_operand, left_instructions) = self.visit_expression(left);
+            let (right_operand, right_instructions) = self.visit_expression(right);
+            let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
+
+            // Concatenate the instructions.
+            let mut instructions = left_instructions;
+            instructions.push_str(&right_instructions);
+            instructions.push_str(&assert_instruction);
+
+            instructions
+        };
+        match &input.variant {
+            AssertVariant::Assert(expr) => {
+                let (operand, mut instructions) = self.visit_expression(expr);
+                let assert_instruction = format!("    assert.eq {operand} true;\n");
+
+                instructions.push_str(&assert_instruction);
+                instructions
+            }
+            AssertVariant::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
+            AssertVariant::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
         }
     }
 
@@ -108,7 +135,7 @@ impl<'a> CodeGenerator<'a> {
 
             for argument in arguments.iter() {
                 let (argument, argument_instructions) = self.visit_expression(argument);
-                write!(finalize_instruction, " {}", argument).expect("failed to write to string");
+                write!(finalize_instruction, " {argument}").expect("failed to write to string");
                 instructions.push_str(&argument_instructions);
             }
             writeln!(finalize_instruction, ";").expect("failed to write to string");
@@ -195,30 +222,8 @@ impl<'a> CodeGenerator<'a> {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
-    fn visit_console(&mut self, input: &'a ConsoleStatement) -> String {
-        let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
-            let (left_operand, left_instructions) = self.visit_expression(left);
-            let (right_operand, right_instructions) = self.visit_expression(right);
-            let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
-
-            // Concatenate the instructions.
-            let mut instructions = left_instructions;
-            instructions.push_str(&right_instructions);
-            instructions.push_str(&assert_instruction);
-
-            instructions
-        };
-        match &input.function {
-            ConsoleFunction::Assert(expr) => {
-                let (operand, mut instructions) = self.visit_expression(expr);
-                let assert_instruction = format!("    assert.eq {operand} true;\n");
-
-                instructions.push_str(&assert_instruction);
-                instructions
-            }
-            ConsoleFunction::AssertEq(left, right) => generate_assert_instruction("assert.eq", left, right),
-            ConsoleFunction::AssertNeq(left, right) => generate_assert_instruction("assert.neq", left, right),
-        }
+    fn visit_console(&mut self, _: &'a ConsoleStatement) -> String {
+        unreachable!("Parsing guarantees that `ConsoleStatement`s are not present in the AST.")
     }
 
     pub(crate) fn visit_block(&mut self, input: &'a Block) -> String {

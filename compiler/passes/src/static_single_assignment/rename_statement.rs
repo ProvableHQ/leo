@@ -17,7 +17,7 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleStatement,
     DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
     IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
     TupleExpression,
@@ -28,6 +28,44 @@ use indexmap::IndexSet;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
+
+    /// Consumes the expressions in an `AssertStatement`, returning the list of simplified statements.
+    fn consume_assert(&mut self, input: AssertStatement) -> Self::Output {
+        let (variant, mut statements) = match input.variant {
+            AssertVariant::Assert(expr) => {
+                let (expr, statements) = self.consume_expression(expr);
+                (AssertVariant::Assert(expr), statements)
+            }
+            AssertVariant::AssertEq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.extend(right_statements);
+
+                (AssertVariant::AssertEq(left, right), statements)
+            }
+            AssertVariant::AssertNeq(left, right) => {
+                // Reconstruct the lhs of the binary expression.
+                let (left, mut statements) = self.consume_expression(left);
+                // Reconstruct the rhs of the binary expression.
+                let (right, right_statements) = self.consume_expression(right);
+                // Accumulate any statements produced.
+                statements.extend(right_statements);
+
+                (AssertVariant::AssertNeq(left, right), statements)
+            }
+        };
+
+        // Add the assert statement to the list of produced statements.
+        statements.push(Statement::Assert(AssertStatement {
+            variant,
+            span: input.span,
+        }));
+
+        statements
+    }
 
     /// Consume all `AssignStatement`s, renaming as necessary.
     fn consume_assign(&mut self, assign: AssignStatement) -> Self::Output {
@@ -160,41 +198,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     }
 
     /// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
-    fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output {
-        let (function, mut statements) = match input.function {
-            ConsoleFunction::Assert(expr) => {
-                let (expr, statements) = self.consume_expression(expr);
-                (ConsoleFunction::Assert(expr), statements)
-            }
-            ConsoleFunction::AssertEq(left, right) => {
-                // Reconstruct the lhs of the binary expression.
-                let (left, mut statements) = self.consume_expression(left);
-                // Reconstruct the rhs of the binary expression.
-                let (right, right_statements) = self.consume_expression(right);
-                // Accumulate any statements produced.
-                statements.extend(right_statements);
-
-                (ConsoleFunction::AssertEq(left, right), statements)
-            }
-            ConsoleFunction::AssertNeq(left, right) => {
-                // Reconstruct the lhs of the binary expression.
-                let (left, mut statements) = self.consume_expression(left);
-                // Reconstruct the rhs of the binary expression.
-                let (right, right_statements) = self.consume_expression(right);
-                // Accumulate any statements produced.
-                statements.extend(right_statements);
-
-                (ConsoleFunction::AssertNeq(left, right), statements)
-            }
-        };
-
-        // Add the console statement to the list of produced statements.
-        statements.push(Statement::Console(ConsoleStatement {
-            function,
-            span: input.span,
-        }));
-
-        statements
+    fn consume_console(&mut self, _: ConsoleStatement) -> Self::Output {
+        unreachable!("Parsing guarantees that console statements are not present in the program.")
     }
 
     /// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.

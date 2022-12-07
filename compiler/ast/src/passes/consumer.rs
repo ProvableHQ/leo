@@ -70,6 +70,7 @@ pub trait StatementConsumer {
 
     fn consume_statement(&mut self, input: Statement) -> Self::Output {
         match input {
+            Statement::Assert(assert) => self.consume_assert(assert),
             Statement::Assign(stmt) => self.consume_assign(*stmt),
             Statement::Block(stmt) => self.consume_block(stmt),
             Statement::Conditional(stmt) => self.consume_conditional(stmt),
@@ -82,6 +83,8 @@ pub trait StatementConsumer {
             Statement::Return(stmt) => self.consume_return(stmt),
         }
     }
+
+    fn consume_assert(&mut self, input: AssertStatement) -> Self::Output;
 
     fn consume_assign(&mut self, input: AssignStatement) -> Self::Output;
 

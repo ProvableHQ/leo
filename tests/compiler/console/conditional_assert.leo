@@ -9,7 +9,7 @@ program test.aleo {
             return true;
         }
         if (id_type == 2u8) {
-            console.assert(0u8 > id_type);
+            assert(0u8 > id_type);
             return false;
         }
         return false;

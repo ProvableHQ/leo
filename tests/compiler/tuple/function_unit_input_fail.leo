@@ -5,7 +5,7 @@ expectation: Fail
 
 program test.aleo {
     function foo(a: ()) -> u8 {
-        console.assert_eq(1u8, 2u8);
+        assert_eq(1u8, 2u8);
         return 3u8;
     }
 
