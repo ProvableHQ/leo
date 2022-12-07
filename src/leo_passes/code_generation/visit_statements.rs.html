@@ -226,6 +226,11 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -245,7 +250,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement, DecrementStatement,
+    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
     ReturnStatement, Statement,
 };
@@ -256,6 +261,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statement) -&gt; String {
         <span class="kw">match </span>input {
+            Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
             Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
             Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
@@ -266,6 +272,32 @@
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
+        }
+    }
+
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssertStatement) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>generate_assert_instruction = |name: <span class="kw-2">&amp;</span>str, left: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression, right: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression| {
+            <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(left);
+            <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(right);
+            <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
+
+            <span class="comment">// Concatenate the instructions.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = left_instructions;
+            instructions.push_str(<span class="kw-2">&amp;</span>right_instructions);
+            instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
+
+            instructions
+        };
+        <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
+            AssertVariant::Assert(expr) =&gt; {
+                <span class="kw">let </span>(operand, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(expr);
+                <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
+
+                instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
+                instructions
+            }
+            AssertVariant::AssertEq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.eq&quot;</span>, left, right),
+            AssertVariant::AssertNeq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.neq&quot;</span>, left, right),
         }
     }
 
@@ -336,7 +368,7 @@
 
             <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
                 <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-                <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {}&quot;</span>, argument).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
                 instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
             }
             <span class="macro">writeln!</span>(finalize_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
@@ -423,30 +455,8 @@
         </span><span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>generate_assert_instruction = |name: <span class="kw-2">&amp;</span>str, left: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression, right: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression| {
-            <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(left);
-            <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(right);
-            <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
-
-            <span class="comment">// Concatenate the instructions.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = left_instructions;
-            instructions.push_str(<span class="kw-2">&amp;</span>right_instructions);
-            instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
-
-            instructions
-        };
-        <span class="kw">match </span><span class="kw-2">&amp;</span>input.function {
-            ConsoleFunction::Assert(expr) =&gt; {
-                <span class="kw">let </span>(operand, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(expr);
-                <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
-
-                instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
-                instructions
-            }
-            ConsoleFunction::AssertEq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.eq&quot;</span>, left, right),
-            ConsoleFunction::AssertNeq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.neq&quot;</span>, left, right),
-        }
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) -&gt; String {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that `ConsoleStatement`s are not present in the AST.&quot;</span>)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Block) -&gt; String {

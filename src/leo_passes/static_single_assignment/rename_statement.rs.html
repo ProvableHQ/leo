@@ -350,6 +350,11 @@
 <span id="350">350</span>
 <span id="351">351</span>
 <span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -369,7 +374,7 @@
 </span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleFunction, ConsoleStatement,
+    AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleStatement,
     DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
     IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
     TupleExpression,
@@ -380,6 +385,44 @@
 
 <span class="kw">impl </span>StatementConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">type </span>Output = Vec&lt;Statement&gt;;
+
+    <span class="doccomment">/// Consumes the expressions in an `AssertStatement`, returning the list of simplified statements.
+    </span><span class="kw">fn </span>consume_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>(variant, <span class="kw-2">mut </span>statements) = <span class="kw">match </span>input.variant {
+            AssertVariant::Assert(expr) =&gt; {
+                <span class="kw">let </span>(expr, statements) = <span class="self">self</span>.consume_expression(expr);
+                (AssertVariant::Assert(expr), statements)
+            }
+            AssertVariant::AssertEq(left, right) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.
+                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
+                <span class="comment">// Reconstruct the rhs of the binary expression.
+                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
+                <span class="comment">// Accumulate any statements produced.
+                </span>statements.extend(right_statements);
+
+                (AssertVariant::AssertEq(left, right), statements)
+            }
+            AssertVariant::AssertNeq(left, right) =&gt; {
+                <span class="comment">// Reconstruct the lhs of the binary expression.
+                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
+                <span class="comment">// Reconstruct the rhs of the binary expression.
+                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
+                <span class="comment">// Accumulate any statements produced.
+                </span>statements.extend(right_statements);
+
+                (AssertVariant::AssertNeq(left, right), statements)
+            }
+        };
+
+        <span class="comment">// Add the assert statement to the list of produced statements.
+        </span>statements.push(Statement::Assert(AssertStatement {
+            variant,
+            span: input.span,
+        }));
+
+        statements
+    }
 
     <span class="doccomment">/// Consume all `AssignStatement`s, renaming as necessary.
     </span><span class="kw">fn </span>consume_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, assign: AssignStatement) -&gt; <span class="self">Self</span>::Output {
@@ -512,41 +555,8 @@
     }
 
     <span class="doccomment">/// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
-    </span><span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>(function, <span class="kw-2">mut </span>statements) = <span class="kw">match </span>input.function {
-            ConsoleFunction::Assert(expr) =&gt; {
-                <span class="kw">let </span>(expr, statements) = <span class="self">self</span>.consume_expression(expr);
-                (ConsoleFunction::Assert(expr), statements)
-            }
-            ConsoleFunction::AssertEq(left, right) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.
-                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
-                <span class="comment">// Reconstruct the rhs of the binary expression.
-                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
-                <span class="comment">// Accumulate any statements produced.
-                </span>statements.extend(right_statements);
-
-                (ConsoleFunction::AssertEq(left, right), statements)
-            }
-            ConsoleFunction::AssertNeq(left, right) =&gt; {
-                <span class="comment">// Reconstruct the lhs of the binary expression.
-                </span><span class="kw">let </span>(left, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(left);
-                <span class="comment">// Reconstruct the rhs of the binary expression.
-                </span><span class="kw">let </span>(right, right_statements) = <span class="self">self</span>.consume_expression(right);
-                <span class="comment">// Accumulate any statements produced.
-                </span>statements.extend(right_statements);
-
-                (ConsoleFunction::AssertNeq(left, right), statements)
-            }
-        };
-
-        <span class="comment">// Add the console statement to the list of produced statements.
-        </span>statements.push(Statement::Console(ConsoleStatement {
-            function,
-            span: input.span,
-        }));
-
-        statements
+    </span><span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; <span class="self">Self</span>::Output {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the program.&quot;</span>)
     }
 
     <span class="doccomment">/// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.

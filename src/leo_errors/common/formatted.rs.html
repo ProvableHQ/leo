@@ -206,13 +206,6 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -379,20 +372,13 @@
             )<span class="question-mark">?</span>;
         }
 
-        <span class="macro">write!</span>(
-            f,
-            <span class="string">&quot;{indent     } |{underlined}&quot;</span>,
-            indent = INDENT,
-            underlined = underlined,
-        )<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(f, <span class="string">&quot;{INDENT     } |{underlined}&quot;</span>,)<span class="question-mark">?</span>;
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(help) = <span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.help {
             <span class="macro">write!</span>(
                 f,
-                <span class="string">&quot;\n{indent     } |\n\
-            {indent     } = {help}&quot;</span>,
-                indent = INDENT,
-                help = help
+                <span class="string">&quot;\n{INDENT     } |\n\
+            {INDENT     } = {help}&quot;</span>,
             )<span class="question-mark">?</span>;
         }
 

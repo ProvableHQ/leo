@@ -402,6 +402,10 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -423,12 +427,102 @@
 <span class="kw">use </span>std::borrow::Borrow;
 
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node, ReturnStatement,
-    Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    AssertStatement, AssertVariant, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
+    ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="doccomment">/// Rewrites an assert statement into a flattened form.
+    /// Assert statements at the top level only have their arguments flattened.
+    /// Assert statements inside a conditional statement are flattened to such that the check is conditional on
+    /// the execution path being valid.
+    /// For example, the following snippet:
+    /// ```leo
+    /// if condition1 {
+    ///    if condition2 {
+    ///        assert(foo);
+    ///    }
+    /// }
+    /// ```
+    /// is flattened to:
+    /// ```leo
+    /// assert(!(condition1 &amp;&amp; condition2) || foo);
+    /// ```
+    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.
+    </span><span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+
+        <span class="comment">// Flatten the arguments of the assert statement.
+        </span><span class="kw">let </span>assert = AssertStatement {
+            span: input.span,
+            variant: <span class="kw">match </span>input.variant {
+                AssertVariant::Assert(expression) =&gt; {
+                    <span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(expression);
+                    statements.extend(additional_statements);
+                    AssertVariant::Assert(expression)
+                }
+                AssertVariant::AssertEq(left, right) =&gt; {
+                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    AssertVariant::AssertEq(left, right)
+                }
+                AssertVariant::AssertNeq(left, right) =&gt; {
+                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    AssertVariant::AssertNeq(left, right)
+                }
+            },
+        };
+
+        <span class="comment">// Add the appropriate guards.
+        </span><span class="kw">match </span><span class="self">self</span>.construct_guard() {
+            <span class="comment">// If the condition stack is empty, we can return the flattened assert statement.
+            </span><span class="prelude-val">None </span>=&gt; (Statement::Assert(assert), statements),
+            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened assert statement.
+            // Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,
+            // which is equivalent to `!guard || expression`.
+            </span><span class="prelude-val">Some</span>(guard) =&gt; (
+                Statement::Assert(AssertStatement {
+                    span: input.span,
+                    variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
+                        <span class="comment">// Take the logical negation of the guard.
+                        </span>left: Box::new(Expression::Unary(UnaryExpression {
+                            op: UnaryOperation::Not,
+                            receiver: Box::new(guard),
+                            span: Default::default(),
+                        })),
+                        op: BinaryOperation::Or,
+                        span: Default::default(),
+                        right: Box::new(<span class="kw">match </span>assert.variant {
+                            <span class="comment">// If the assert statement is an `assert`, use the expression as is.
+                            </span>AssertVariant::Assert(expression) =&gt; expression,
+                            <span class="comment">// If the assert statement is an `assert_eq`, construct a new equality expression.
+                            </span>AssertVariant::AssertEq(left, right) =&gt; Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Eq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                            <span class="comment">// If the assert statement is an `assert_ne`, construct a new inequality expression.
+                            </span>AssertVariant::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Neq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                        }),
+                    })),
+                }),
+                statements,
+            ),
+        }
+    }
+
     <span class="doccomment">/// Flattens an assign statement, if necessary.
     /// Marks variables as structs as necessary.
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
@@ -676,94 +770,8 @@
         (Statement::dummy(Default::default()), statements)
     }
 
-    <span class="doccomment">/// Rewrites a console statement into a flattened form.
-    /// Console statements at the top level only have their arguments flattened.
-    /// Console statements inside a conditional statement are flattened to such that the check is conditional on
-    /// the execution path being valid.
-    /// For example, the following snippet:
-    /// ```leo
-    /// if condition1 {
-    ///    if condition2 {
-    ///        console.assert(foo);
-    ///    }
-    /// }
-    /// ```
-    /// is flattened to:
-    /// ```leo
-    /// console.assert(!(condition1 &amp;&amp; condition2) || foo);
-    /// ```
-    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.
-    </span><span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
-
-        <span class="comment">// Flatten the arguments of the console statement.
-        </span><span class="kw">let </span>console = ConsoleStatement {
-            span: input.span,
-            function: <span class="kw">match </span>input.function {
-                ConsoleFunction::Assert(expression) =&gt; {
-                    <span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(expression);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::Assert(expression)
-                }
-                ConsoleFunction::AssertEq(left, right) =&gt; {
-                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::AssertEq(left, right)
-                }
-                ConsoleFunction::AssertNeq(left, right) =&gt; {
-                    <span class="kw">let </span>(left, additional_statements) = <span class="self">self</span>.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    <span class="kw">let </span>(right, additional_statements) = <span class="self">self</span>.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::AssertNeq(left, right)
-                }
-            },
-        };
-
-        <span class="comment">// Add the appropriate guards.
-        </span><span class="kw">match </span><span class="self">self</span>.construct_guard() {
-            <span class="comment">// If the condition stack is empty, we can return the flattened console statement.
-            </span><span class="prelude-val">None </span>=&gt; (Statement::Console(console), statements),
-            <span class="comment">// Otherwise, we need to join the guard with the expression in the flattened console statement.
-            // Note given the guard and the expression, we construct the logical formula `guard =&gt; expression`,
-            // which is equivalent to `!guard || expression`.
-            </span><span class="prelude-val">Some</span>(guard) =&gt; (
-                Statement::Console(ConsoleStatement {
-                    span: input.span,
-                    function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
-                        <span class="comment">// Take the logical negation of the guard.
-                        </span>left: Box::new(Expression::Unary(UnaryExpression {
-                            op: UnaryOperation::Not,
-                            receiver: Box::new(guard),
-                            span: Default::default(),
-                        })),
-                        op: BinaryOperation::Or,
-                        span: Default::default(),
-                        right: Box::new(<span class="kw">match </span>console.function {
-                            <span class="comment">// If the console statement is an `assert`, use the expression as is.
-                            </span>ConsoleFunction::Assert(expression) =&gt; expression,
-                            <span class="comment">// If the console statement is an `assert_eq`, construct a new equality expression.
-                            </span>ConsoleFunction::AssertEq(left, right) =&gt; Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Eq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                            }),
-                            <span class="comment">// If the console statement is an `assert_ne`, construct a new inequality expression.
-                            </span>ConsoleFunction::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Neq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                            }),
-                        }),
-                    })),
-                }),
-                statements,
-            ),
-        }
+    <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;`ConsoleStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
     }
 
     <span class="doccomment">/// Static single assignment converts definition statements into assignment statements.

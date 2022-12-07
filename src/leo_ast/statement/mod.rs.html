@@ -136,6 +136,14 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -152,7 +160,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">pub mod </span>assign;
+</span><span class="kw">pub mod </span>assert;
+<span class="kw">pub use </span>assert::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>assign;
 <span class="kw">pub use </span>assign::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>block;
@@ -192,6 +203,8 @@
 <span class="doccomment">/// Program statement that defines some action (or expression) to be carried out.
 </span><span class="attribute">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 </span><span class="kw">pub enum </span>Statement {
+    <span class="doccomment">/// An assert statement.
+    </span>Assert(AssertStatement),
     <span class="doccomment">/// An assignment statement.
     </span>Assign(Box&lt;AssignStatement&gt;),
     <span class="doccomment">/// A block statement.
@@ -227,6 +240,7 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Statement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
+            Statement::Assert(x) =&gt; x.fmt(f),
             Statement::Assign(x) =&gt; x.fmt(f),
             Statement::Block(x) =&gt; x.fmt(f),
             Statement::Conditional(x) =&gt; x.fmt(f),
@@ -245,6 +259,7 @@
     <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
+            Assert(n) =&gt; n.span(),
             Assign(n) =&gt; n.span(),
             Block(n) =&gt; n.span(),
             Conditional(n) =&gt; n.span(),
@@ -261,6 +276,7 @@
     <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span) {
         <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
+            Assert(n) =&gt; n.set_span(span),
             Assign(n) =&gt; n.set_span(span),
             Block(n) =&gt; n.set_span(span),
             Conditional(n) =&gt; n.set_span(span),

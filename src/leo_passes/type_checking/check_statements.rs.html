@@ -440,6 +440,11 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -472,6 +477,7 @@
         }
 
         <span class="kw">match </span>input {
+            Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
             Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
             Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
@@ -482,6 +488,22 @@
             Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
+        }
+    }
+
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssertStatement) {
+        <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
+            AssertVariant::Assert(expr) =&gt; {
+                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
+                <span class="self">self</span>.assert_bool_type(<span class="kw-2">&amp;</span>type_, expr.span());
+            }
+            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) =&gt; {
+                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+
+                <span class="comment">// Check that the types are equal.
+                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
+            }
         }
     }
 
@@ -573,20 +595,8 @@
         </span><span class="self">self</span>.has_finalize = previous_has_finalize || (then_block_has_finalize &amp;&amp; otherwise_block_has_finalize);
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) {
-        <span class="kw">match </span><span class="kw-2">&amp;</span>input.function {
-            ConsoleFunction::Assert(expr) =&gt; {
-                <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
-                <span class="self">self</span>.assert_bool_type(<span class="kw-2">&amp;</span>type_, expr.span());
-            }
-            ConsoleFunction::AssertEq(left, right) | ConsoleFunction::AssertNeq(left, right) =&gt; {
-                <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(left, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-                <span class="kw">let </span>t2 = <span class="self">self</span>.visit_expression(right, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
-
-                <span class="comment">// Check that the types are equal.
-                </span><span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span>t1, <span class="kw-2">&amp;</span>t2, input.span());
-            }
-        }
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) {
+        <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the AST.&quot;</span>);
     }
 
     <span class="kw">fn </span>visit_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DecrementStatement) {

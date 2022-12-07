@@ -324,6 +324,41 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -371,16 +406,50 @@
             Token::Decrement =&gt; <span class="prelude-val">Ok</span>(Statement::Decrement(<span class="self">self</span>.parse_decrement_statement()<span class="question-mark">?</span>)),
             Token::If =&gt; <span class="prelude-val">Ok</span>(Statement::Conditional(<span class="self">self</span>.parse_conditional_statement()<span class="question-mark">?</span>)),
             Token::For =&gt; <span class="prelude-val">Ok</span>(Statement::Iteration(Box::new(<span class="self">self</span>.parse_loop_statement()<span class="question-mark">?</span>))),
-            Token::Console =&gt; <span class="prelude-val">Ok</span>(Statement::Console(<span class="self">self</span>.parse_console_statement()<span class="question-mark">?</span>)),
+            Token::Assert | Token::AssertEq | Token::AssertNeq =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assert_statement()<span class="question-mark">?</span>),
             Token::Let | Token::Const =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
             Token::LeftCurly =&gt; <span class="prelude-val">Ok</span>(Statement::Block(<span class="self">self</span>.parse_block()<span class="question-mark">?</span>)),
             Token::Async =&gt; <span class="prelude-val">Err</span>(ParserError::async_finalize_is_deprecated(<span class="self">self</span>.token.span).into()),
+            Token::Console =&gt; <span class="prelude-val">Err</span>(ParserError::console_statements_are_not_yet_supported(<span class="self">self</span>.token.span).into()),
             Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_statements_are_deprecated(<span class="self">self</span>.token.span).into()),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assign_statement()<span class="question-mark">?</span>),
         }
     }
 
-    <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    <span class="doccomment">/// Returns a [`AssertStatement`] AST node if the next tokens represent an assertion statement.
+    </span><span class="kw">fn </span>parse_assert_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
+        <span class="comment">// Check which variant of the assert statement is being used.
+        // Note that `parse_assert_statement` is called only if the next token is an assertion token.
+        </span><span class="kw">let </span>is_assert = <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::Assert);
+        <span class="kw">let </span>is_assert_eq = <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::AssertEq);
+        <span class="kw">let </span>is_assert_neq = <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::AssertNeq);
+        <span class="comment">// Parse the span of the assertion statement.
+        </span><span class="kw">let </span>span = <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Assert, Token::AssertEq, Token::AssertNeq])<span class="question-mark">?</span>;
+        <span class="comment">// Parse the left parenthesis token.
+        </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftParen)<span class="question-mark">?</span>;
+        <span class="comment">// Parse the variant.
+        </span><span class="kw">let </span>variant = <span class="kw">match </span>(is_assert, is_assert_eq, is_assert_neq) {
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; AssertVariant::Assert(<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; AssertVariant::AssertEq(<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>, {
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+                <span class="self">self</span>.parse_expression()<span class="question-mark">?
+            </span>}),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; AssertVariant::AssertNeq(<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>, {
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Comma)<span class="question-mark">?</span>;
+                <span class="self">self</span>.parse_expression()<span class="question-mark">?
+            </span>}),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The call the `expect_any` ensures that only one of the three tokens is true.&quot;</span>),
+        };
+        <span class="comment">// Parse the right parenthesis token.
+        </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightParen)<span class="question-mark">?</span>;
+        <span class="comment">// Parse the semicolon token.
+        </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+
+        <span class="comment">// Return the assertion statement.
+        </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span }))
+    }
+
+    <span class="doccomment">/// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
     </span><span class="kw">fn </span>parse_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Statement&gt; {
         <span class="kw">let </span>place = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
 
@@ -572,6 +641,7 @@
     }
 
     <span class="doccomment">/// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
+    </span><span class="attribute">#[allow(dead_code)]
     </span><span class="kw">fn </span>parse_console_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ConsoleStatement&gt; {
         <span class="kw">let </span>keyword = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Console)<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;

@@ -144,6 +144,9 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -216,6 +219,7 @@
 
     <span class="kw">fn </span>consume_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Statement) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
+            Statement::Assert(assert) =&gt; <span class="self">self</span>.consume_assert(assert),
             Statement::Assign(stmt) =&gt; <span class="self">self</span>.consume_assign(<span class="kw-2">*</span>stmt),
             Statement::Block(stmt) =&gt; <span class="self">self</span>.consume_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.consume_conditional(stmt),
@@ -228,6 +232,8 @@
             Statement::Return(stmt) =&gt; <span class="self">self</span>.consume_return(stmt),
         }
     }
+
+    <span class="kw">fn </span>consume_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssignStatement) -&gt; <span class="self">Self</span>::Output;
 
