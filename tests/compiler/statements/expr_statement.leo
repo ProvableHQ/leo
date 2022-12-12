@@ -6,7 +6,7 @@ expectation: Pass
 program test.aleo {
 
     function foo(a: u8, b: u8) -> () {
-        console.assert_eq(a, b);
+        assert_eq(a, b);
     }
 
     transition main(a: u8, b: u8) -> u8 {

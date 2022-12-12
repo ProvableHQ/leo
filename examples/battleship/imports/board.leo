@@ -44,7 +44,7 @@ program board.aleo {
         board: board_state,
     ) -> board_state {
         // Ensure this board hasn't been used to start a game before.
-        console.assert(!board.game_started);
+        assert(!board.game_started);
 
         return board_state {
             owner: board.owner,
@@ -70,11 +70,11 @@ program board.aleo {
         let flip_bit: u64 = shoot - 1u64;
         // bitwise and operation
         let check_move: u64 = shoot & flip_bit;
-        console.assert_eq(check_move, 0u64);
+        assert_eq(check_move, 0u64);
 
         // Need to make sure r1 is a valid move given the played_tiles. no bits should overlap.
         let check_tiles: u64 = shoot & board.played_tiles;
-        console.assert_eq(check_tiles, 0u64);
+        assert_eq(check_tiles, 0u64);
 
         // Update played tiles.
         let played_tiles: u64 = board.played_tiles | shoot;

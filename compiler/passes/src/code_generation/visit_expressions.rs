@@ -96,10 +96,7 @@ impl<'a> CodeGenerator<'a> {
         };
 
         let destination_register = format!("r{}", self.next_register);
-        let binary_instruction = format!(
-            "    {} {} {} into {};\n",
-            opcode, left_operand, right_operand, destination_register
-        );
+        let binary_instruction = format!("    {opcode} {left_operand} {right_operand} into {destination_register};\n",);
 
         // Increment the register counter.
         self.next_register += 1;
@@ -146,8 +143,7 @@ impl<'a> CodeGenerator<'a> {
 
         let destination_register = format!("r{}", self.next_register);
         let ternary_instruction = format!(
-            "    ternary {} {} {} into {};\n",
-            condition_operand, if_true_operand, if_false_operand, destination_register
+            "    ternary {condition_operand} {if_true_operand} {if_false_operand} into {destination_register};\n",
         );
 
         // Increment the register counter.
@@ -202,13 +198,8 @@ impl<'a> CodeGenerator<'a> {
 
         // Push destination register to struct init instruction.
         let destination_register = format!("r{}", self.next_register);
-        writeln!(
-            struct_init_instruction,
-            "into {dest} as {name};",
-            dest = destination_register,
-            name = name,
-        )
-        .expect("failed to write to string");
+        writeln!(struct_init_instruction, "into {destination_register} as {name};",)
+            .expect("failed to write to string");
 
         instructions.push_str(&struct_init_instruction);
 
@@ -319,8 +310,7 @@ impl<'a> CodeGenerator<'a> {
                         self.next_register += 1;
                     }
                     let destinations = destinations.join(" ");
-                    writeln!(call_instruction, " into {destinations};", destinations = destinations)
-                        .expect("failed to write to string");
+                    writeln!(call_instruction, " into {destinations};").expect("failed to write to string");
                     instructions.push_str(&call_instruction);
 
                     (destinations, instructions)

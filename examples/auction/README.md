@@ -29,7 +29,7 @@ The auction is conducted in a series of stages.
 
 ## Language Features and Concepts
 - `record` declarations
-- `console.assert_eq`
+- `assert_eq`
 - record ownership
 
 ## Running the Program

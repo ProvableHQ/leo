@@ -19,12 +19,102 @@ use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
-    AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement, ConsoleFunction, ConsoleStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node, ReturnStatement,
-    Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    AssertStatement, AssertVariant, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
+    ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node,
+    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
+    /// Rewrites an assert statement into a flattened form.
+    /// Assert statements at the top level only have their arguments flattened.
+    /// Assert statements inside a conditional statement are flattened to such that the check is conditional on
+    /// the execution path being valid.
+    /// For example, the following snippet:
+    /// ```leo
+    /// if condition1 {
+    ///    if condition2 {
+    ///        assert(foo);
+    ///    }
+    /// }
+    /// ```
+    /// is flattened to:
+    /// ```leo
+    /// assert(!(condition1 && condition2) || foo);
+    /// ```
+    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==> foo`.
+    fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+
+        // Flatten the arguments of the assert statement.
+        let assert = AssertStatement {
+            span: input.span,
+            variant: match input.variant {
+                AssertVariant::Assert(expression) => {
+                    let (expression, additional_statements) = self.reconstruct_expression(expression);
+                    statements.extend(additional_statements);
+                    AssertVariant::Assert(expression)
+                }
+                AssertVariant::AssertEq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    AssertVariant::AssertEq(left, right)
+                }
+                AssertVariant::AssertNeq(left, right) => {
+                    let (left, additional_statements) = self.reconstruct_expression(left);
+                    statements.extend(additional_statements);
+                    let (right, additional_statements) = self.reconstruct_expression(right);
+                    statements.extend(additional_statements);
+                    AssertVariant::AssertNeq(left, right)
+                }
+            },
+        };
+
+        // Add the appropriate guards.
+        match self.construct_guard() {
+            // If the condition stack is empty, we can return the flattened assert statement.
+            None => (Statement::Assert(assert), statements),
+            // Otherwise, we need to join the guard with the expression in the flattened assert statement.
+            // Note given the guard and the expression, we construct the logical formula `guard => expression`,
+            // which is equivalent to `!guard || expression`.
+            Some(guard) => (
+                Statement::Assert(AssertStatement {
+                    span: input.span,
+                    variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
+                        // Take the logical negation of the guard.
+                        left: Box::new(Expression::Unary(UnaryExpression {
+                            op: UnaryOperation::Not,
+                            receiver: Box::new(guard),
+                            span: Default::default(),
+                        })),
+                        op: BinaryOperation::Or,
+                        span: Default::default(),
+                        right: Box::new(match assert.variant {
+                            // If the assert statement is an `assert`, use the expression as is.
+                            AssertVariant::Assert(expression) => expression,
+                            // If the assert statement is an `assert_eq`, construct a new equality expression.
+                            AssertVariant::AssertEq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Eq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                            // If the assert statement is an `assert_ne`, construct a new inequality expression.
+                            AssertVariant::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
+                                left: Box::new(left),
+                                op: BinaryOperation::Neq,
+                                right: Box::new(right),
+                                span: Default::default(),
+                            }),
+                        }),
+                    })),
+                }),
+                statements,
+            ),
+        }
+    }
+
     /// Flattens an assign statement, if necessary.
     /// Marks variables as structs as necessary.
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
@@ -272,94 +362,8 @@ impl StatementReconstructor for Flattener<'_> {
         (Statement::dummy(Default::default()), statements)
     }
 
-    /// Rewrites a console statement into a flattened form.
-    /// Console statements at the top level only have their arguments flattened.
-    /// Console statements inside a conditional statement are flattened to such that the check is conditional on
-    /// the execution path being valid.
-    /// For example, the following snippet:
-    /// ```leo
-    /// if condition1 {
-    ///    if condition2 {
-    ///        console.assert(foo);
-    ///    }
-    /// }
-    /// ```
-    /// is flattened to:
-    /// ```leo
-    /// console.assert(!(condition1 && condition2) || foo);
-    /// ```
-    /// which is equivalent to the logical formula `(condition1 /\ condition2) ==> foo`.
-    fn reconstruct_console(&mut self, input: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
-        let mut statements = Vec::new();
-
-        // Flatten the arguments of the console statement.
-        let console = ConsoleStatement {
-            span: input.span,
-            function: match input.function {
-                ConsoleFunction::Assert(expression) => {
-                    let (expression, additional_statements) = self.reconstruct_expression(expression);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::Assert(expression)
-                }
-                ConsoleFunction::AssertEq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::AssertEq(left, right)
-                }
-                ConsoleFunction::AssertNeq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    ConsoleFunction::AssertNeq(left, right)
-                }
-            },
-        };
-
-        // Add the appropriate guards.
-        match self.construct_guard() {
-            // If the condition stack is empty, we can return the flattened console statement.
-            None => (Statement::Console(console), statements),
-            // Otherwise, we need to join the guard with the expression in the flattened console statement.
-            // Note given the guard and the expression, we construct the logical formula `guard => expression`,
-            // which is equivalent to `!guard || expression`.
-            Some(guard) => (
-                Statement::Console(ConsoleStatement {
-                    span: input.span,
-                    function: ConsoleFunction::Assert(Expression::Binary(BinaryExpression {
-                        // Take the logical negation of the guard.
-                        left: Box::new(Expression::Unary(UnaryExpression {
-                            op: UnaryOperation::Not,
-                            receiver: Box::new(guard),
-                            span: Default::default(),
-                        })),
-                        op: BinaryOperation::Or,
-                        span: Default::default(),
-                        right: Box::new(match console.function {
-                            // If the console statement is an `assert`, use the expression as is.
-                            ConsoleFunction::Assert(expression) => expression,
-                            // If the console statement is an `assert_eq`, construct a new equality expression.
-                            ConsoleFunction::AssertEq(left, right) => Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Eq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                            }),
-                            // If the console statement is an `assert_ne`, construct a new inequality expression.
-                            ConsoleFunction::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
-                                left: Box::new(left),
-                                op: BinaryOperation::Neq,
-                                right: Box::new(right),
-                                span: Default::default(),
-                            }),
-                        }),
-                    })),
-                }),
-                statements,
-            ),
-        }
+    fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
     /// Static single assignment converts definition statements into assignment statements.

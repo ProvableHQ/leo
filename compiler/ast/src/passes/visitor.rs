@@ -117,6 +117,7 @@ pub trait ExpressionVisitor<'a> {
 pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         match input {
+            Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
@@ -128,6 +129,16 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
+    }
+
+    fn visit_assert(&mut self, input: &'a AssertStatement) {
+        match &input.variant {
+            AssertVariant::Assert(expr) => self.visit_expression(expr, &Default::default()),
+            AssertVariant::AssertEq(left, right) | AssertVariant::AssertNeq(left, right) => {
+                self.visit_expression(left, &Default::default());
+                self.visit_expression(right, &Default::default())
+            }
+        };
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {

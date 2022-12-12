@@ -35,7 +35,7 @@ program vote.aleo {
     // Propose a new proposal to vote on.
     transition propose(public info: ProposalInfo) -> Proposal {
         // Authenticate proposer.
-        console.assert_eq(self.caller, info.proposer);
+        assert_eq(self.caller, info.proposer);
 
         // Generate a new proposal id.
         let id: field = BHP256::hash(info.title);

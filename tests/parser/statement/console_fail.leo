@@ -15,6 +15,11 @@ console.error("{}{}", x, y);
 
 console.error("x");
 
+console.assert(true);
+
+console.assert_eq(1u32, 2u32);
+
+console.assert_neq(true, false);
 
 console.log("{}", x);
 

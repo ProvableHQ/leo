@@ -181,6 +181,8 @@ symbols! {
     // general keywords
     AlwaysConst,
     assert,
+    assert_eq,
+    assert_neq,
     Async: "async",
     caller,
     circuit,
@@ -200,8 +202,6 @@ symbols! {
     input,
     Let: "let",
     leo,
-    assert_eq,
-    assert_neq,
     main,
     mapping,
     Mut: "mut",
