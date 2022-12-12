@@ -51,7 +51,7 @@ default-features = false
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
 
 [dev-dependencies.serde]
-version = "1.0.148"
+version = "1.0.150"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
