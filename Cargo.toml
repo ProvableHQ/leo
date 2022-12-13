@@ -33,10 +33,14 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.9.9"
+version = "0.9.11"
+#git = "https://github.com/AleoHQ/snarkVM"
+#rev = "6c009ef"
 
 [workspace.dependencies.snarkvm-console]
-version = "0.9.9"
+version = "0.9.11"
+#git = "https://github.com/AleoHQ/snarkVM"
+#rev = "6c009ef"
 
 [lib]
 path = "leo/lib.rs"
@@ -51,9 +55,9 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
 [dependencies.aleo]
-git = "https://github.com/aleohq/aleo.git"
-rev = "c8544a7"
-#version = "0.3.1"
+version = "0.3.2"
+#git = "https://github.com/AleoHQ/aleo"
+#rev = "58a64b6"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
