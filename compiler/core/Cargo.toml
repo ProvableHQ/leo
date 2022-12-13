@@ -1,6 +1,6 @@
 [package]
 name = "leo-core"
-version = "1.6.1"
+version = "1.6.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core library functions for the Leo programming language"
 homepage = "https://aleo.org"
@@ -23,12 +23,12 @@ path = "src/lib.rs"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.6.1"
+version = "1.6.2"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.6.1"
+version = "1.6.2"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.6.1"
+version = "1.6.2"
