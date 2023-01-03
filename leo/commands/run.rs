@@ -60,8 +60,6 @@ impl Command for Run {
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        println!("before");
-
         // If input values are provided, then run the program with those inputs.
         // Otherwise, use the input file.
         let mut inputs = match self.inputs.is_empty() {
@@ -92,6 +90,7 @@ impl Command for Run {
         // Unset the Leo panic hook
         let _ = std::panic::take_hook();
 
+        println!();
         let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
 
