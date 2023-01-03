@@ -84,7 +84,6 @@ impl<'a> CodeGenerator<'a> {
                 };
                 let instructions = operand
                     .split(' ')
-                    .into_iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
                         match output {
