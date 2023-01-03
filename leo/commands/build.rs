@@ -127,6 +127,8 @@ impl Command for Build {
         // Store all struct declarations made in the source files.
         let mut structs = IndexMap::new();
 
+        println!("1. compile leo files");
+
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
             structs.extend(compile_leo_file(
@@ -166,6 +168,7 @@ impl Command for Build {
         // Load the input file at `package_name.in`
         let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
 
+        println!("2. load input files");
         // Parse the input file.
         let input_ast = if input_file_path.exists() {
             // Load the input file into the source map.
@@ -192,8 +195,10 @@ impl Command for Build {
         if self.compiler_options.offline {
             args.push("--offline");
         }
+        println!("3. parse build");
         let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
         let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        println!("4. build parsed");
 
         // Log the result of the build
         tracing::info!("{}", result);

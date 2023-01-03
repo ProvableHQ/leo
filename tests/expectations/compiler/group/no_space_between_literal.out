@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EPAR0370004]: Unexpected white space between terms (0,1) and group\n    --> compiler-test:5:29\n     |\n   5 |       const g: group = (0,1) group;\n     |                             ^"
