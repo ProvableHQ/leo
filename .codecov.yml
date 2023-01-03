@@ -3,4 +3,3 @@ coverage:
     project:
       default:
         threshold: 2%
-
