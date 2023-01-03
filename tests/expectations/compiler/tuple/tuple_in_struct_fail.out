@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372055]: A struct cannot contain a tuple.\n    --> compiler-test:5:9\n     |\n   5 |         mem: (u8, u16)\n     |         ^^^\nError [ETYC0372055]: A struct cannot contain a tuple.\n    --> compiler-test:9:9\n     |\n   9 |         mems: (A, A)\n     |         ^^^^\n"

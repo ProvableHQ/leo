@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370018]: A hex number `0x..` was provided but hex is not allowed."

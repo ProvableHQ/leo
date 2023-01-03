@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372025]: Cannot reach the following statement.\n    --> compiler-test:6:9\n     |\n   6 |         let double: u32 = x + x;\n     |         ^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Remove the unreachable code.\nError [ETYC0372025]: Cannot reach the following statement.\n    --> compiler-test:7:9\n     |\n   7 |         return double;\n     |         ^^^^^^^^^^^^^^\n     |\n     = Remove the unreachable code.\n"

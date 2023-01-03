@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected 'import', 'program' -- found 'struct'\n    --> test:2:1\n     |\n   2 | struct import\n     | ^^^^^^"

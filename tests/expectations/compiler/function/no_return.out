@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372038]: Function must return a value.\n    --> compiler-test:4:5\n     |\n   4 |     transition main() -> u8 {}\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

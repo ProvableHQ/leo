@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372017]: The type `Foo` is not found in the current scope.\n    --> compiler-test:5:6\n     |\n   5 |     \tlet b: Foo = 1u8;\n     |      ^^^^^^^^^^^^^^^^\nError [ETYC0372003]: Expected type `Foo` but type `u8` was found\n    --> compiler-test:5:19\n     |\n   5 |     \tlet b: Foo = 1u8;\n     |                   ^^^\n"

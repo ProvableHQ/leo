@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372013]: Struct initialization expression for `Foo` is missing member `x`.\n    --> compiler-test:10:24\n     |\n  10 |         const a: Foo = Foo { y: 0u32 };\n     |                        ^^^^^^^^^^^^^^^\n"

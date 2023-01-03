@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `boolean` but type `u32` was found\n    --> compiler-test:5:30\n     |\n   5 |         let x: bool = true ? x: true;\n     |                              ^\nError [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:5:13\n     |\n   5 |         let x: bool = true ? x: true;\n     |             ^\n"

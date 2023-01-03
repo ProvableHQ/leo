@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:5:18\n     |\n   5 |         const hi = 2u8;\n     |                  ^"

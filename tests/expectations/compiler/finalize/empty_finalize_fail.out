@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372039]: A finalize block cannot be empty.\n    --> compiler-test:9:5\n     |\n   9 |     finalize mint_public (public receiver: address, public amount: u64) {}\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

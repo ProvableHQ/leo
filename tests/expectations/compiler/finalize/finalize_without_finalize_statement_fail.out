@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372044]: Function must contain a `finalize` statement on all execution paths.\n    --> compiler-test:6:5\n     |\n   6 |     transition mint_public(public receiver: address, public amount: u64) {\n   7 |     \n   8 |     }\n     |     ^\n"

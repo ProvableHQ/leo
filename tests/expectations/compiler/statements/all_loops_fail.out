@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '='\n    --> compiler-test:16:30\n     |\n  16 |         for a: u32 in 10u32..=0u32 {\n     |                              ^"

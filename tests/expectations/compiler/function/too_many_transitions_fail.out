@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372052]: The number of transitions exceeds the maximum. snarkVM allows up to 15 transitions within a single program.\n    --> compiler-test:3:9\n     |\n   3 | program test.aleo {\n     |         ^^^^^^^^^\n"

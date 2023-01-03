@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372006]: function `hi` shadowed by\n    --> compiler-test:8:21\n     |\n   8 |     function tester(hi: u8) -> u8 {\n     |                     ^^\n"

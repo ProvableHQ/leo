@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372048]: Cannot call a local transition function from a transition function.\n    --> compiler-test:6:19\n     |\n   6 |            return adder(a, b);\n     |                   ^^^^^^^^^^^\nError [ETYC0372048]: Cannot call a local transition function from a transition function.\n    --> compiler-test:8:20\n     |\n   8 |             return subber(a, b);\n     |                    ^^^^^^^^^^^^\n"

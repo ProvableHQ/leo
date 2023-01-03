@@ -14,7 +14,7 @@ program test.aleo {
         u16_value: u16,
         u32_value: u32,
         u64_value: u64,
-    ) -> group {
+    ) -> bool {
         let bool_value: bool = true;
         // let string_value: string = "helloworld";
     
@@ -30,5 +30,5 @@ program test.aleo {
         let i: group = Pedersen128::commit(u64_value, 1scalar);
         // let j11: group = Pedersen128::commit(string_value, 1scalar);
     
-        return a + i;
+        return a == i;
     }}

@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '{'\n    --> test:6:16\n     |\n   6 |     } finalize {\n     |                ^"

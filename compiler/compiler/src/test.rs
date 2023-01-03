@@ -266,7 +266,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         // Open the package at the temporary directory.
         let package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
 
-        // Commented out since it bottlenecks the test framework.
         // Get the program process and check all instructions.
         handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
     }

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372017]: The type `Foo` is not found in the current scope.\n    --> compiler-test:4:28\n     |\n   4 |     transition main(a: u8, foo: Foo) -> u8 {\n     |                            ^^^\nError [ETYC0372017]: The type `Foo` is not found in the current scope.\n    --> compiler-test:8:38\n     |\n   8 |     transition returns_foo(a: u8) -> Foo {\n     |                                      ^^^\nError [ETYC0372003]: Expected type `Foo` but type `u8` was found\n    --> compiler-test:9:16\n     |\n   9 |         return a;\n     |                ^\n"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372027]: Unknown annotation: `@test`.\n    --> compiler-test:4:5\n     |\n   4 |     @test\n     |     ^^^^^\nError [ETYC0372027]: Unknown annotation: `@program`.\n    --> compiler-test:9:5\n     |\n   9 |     @program\n     |     ^^^^^^^^\n"

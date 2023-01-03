@@ -1,0 +1,16 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "did not consume all input: 'group' @ 1:3-8\n"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123)group\n     |  ^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:2\n     |\n   1 | (,)group\n     |  ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '+'\n    --> test:1:2\n     |\n   1 | (+, -,)group\n     |  ^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found ','\n    --> test:1:2\n     |\n   1 | (,+, -)group\n     |  ^"
+  - "did not consume all input: 'group' @ 1:6-11\n"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123,456u8)group\n     |  ^^^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123,456field)group\n     |  ^^^"
+  - "Error [EPAR0370004]: Unexpected white space between terms (123,456) and group\n    --> test:1:11\n     |\n   1 | (123, 456) group\n     |           ^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123, )group\n     |  ^^^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123, 456, 789)group\n     |  ^^^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 123.\n    --> test:1:2\n     |\n   1 | (123, 456)bool\n     |  ^^^"
