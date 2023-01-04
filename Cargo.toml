@@ -80,7 +80,7 @@ version = "1.6.2"
 version = "0.3.67"
 
 [dependencies.clap]
-version = "3.2"
+version = "4.0"
 features = [ "derive", "env" ]
 
 [dependencies.color-backtrace]
