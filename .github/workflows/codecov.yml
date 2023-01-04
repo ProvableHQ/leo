@@ -1,0 +1,103 @@
+name: Code Coverage
+on:
+  push:
+    branches:
+      - testnet3
+    paths-ignore:
+      - 'docs/**'
+      - 'documentation/**'
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  codecov:
+    name: Run Code Coverage
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_BOOTSTRAP: 1
+      RUSTC_WRAPPER: sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_DIR: /home/runner/.cache/sccache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install sccache Ubuntu
+        env:
+          LINK: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: v0.2.15
+        run: |
+          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          chmod +x $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: codecov-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            codecov-cargo-
+
+      - name: Save sccache
+        uses: actions/cache@v2
+        continue-on-error: false
+        with:
+          path: /Users/runner/Library/Caches/Mozilla.sccache
+          key: codecov-sccache-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            codecov-sccache-
+
+      - name: Start sccache server
+        run: |
+          sccache --start-server
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all
+        env:
+          CARGO_INCREMENTAL: "0"
+
+      - name: Install dependencies for code coverage
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+
+      - name: Generate coverage report
+        run: |
+          wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+          tar xzf master.tar.gz
+          cd kcov-master
+          mkdir build && cd build
+          cmake .. && make
+          make install DESTDIR=../../kcov-build
+          cd ../..
+          rm -rf kcov-master
+          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Print sccache stats
+        run: sccache --show-stats
+
+      - name: Stop sccache server
+        run: sccache --stop-server || true
