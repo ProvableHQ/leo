@@ -77,7 +77,7 @@ path = "./compiler/span"
 version = "1.6.2"
 
 [dependencies.backtrace]
-version = "0.3.66"
+version = "0.3.67"
 
 [dependencies.clap]
 version = "3.2"
