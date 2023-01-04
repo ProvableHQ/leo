@@ -26,7 +26,7 @@ version = "1.6.2"
 version = "1.0"
 
 [dependencies.backtrace]
-version = "0.3.66"
+version = "0.3.67"
 
 [dependencies.colored]
 version = "2.0.0"
