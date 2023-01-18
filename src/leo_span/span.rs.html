@@ -158,6 +158,10 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -189,7 +193,7 @@
     <span class="doccomment">/// The start (low) position of the span, inclusive.
     </span><span class="kw">pub </span>lo: BytePos,
     <span class="doccomment">/// The end (high) position of the span, exclusive.
-    /// The length is simply `hi - lo`.
+    /// The length of the span is `hi - lo`.
     </span><span class="kw">pub </span>hi: BytePos,
 }
 
@@ -223,7 +227,8 @@
 <span class="kw">impl </span>std::ops::Add <span class="kw">for </span><span class="kw-2">&amp;</span>Span {
     <span class="kw">type </span>Output = Span;
 
-    <span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="kw-2">&amp;</span>Span) -&gt; Span {
+    <span class="doccomment">/// Add two spans (by reference) together.
+    </span><span class="kw">fn </span>add(<span class="self">self</span>, other: <span class="kw-2">&amp;</span>Span) -&gt; Span {
         <span class="kw-2">*</span><span class="self">self </span>+ <span class="kw-2">*</span>other
     }
 }
@@ -244,6 +249,8 @@
 // Pos, BytePos, CharPos
 //
 
+</span><span class="doccomment">/// Offsets (i.e. positions), in some units (e.g. bytes or characters),
+/// with conversions between unsigned integers.
 </span><span class="kw">pub trait </span>Pos {
     <span class="kw">fn </span>from_usize(n: usize) -&gt; <span class="self">Self</span>;
     <span class="kw">fn </span>to_usize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
@@ -251,7 +258,8 @@
     <span class="kw">fn </span>to_u32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32;
 }
 
-<span class="macro">macro_rules! </span>impl_pos {
+<span class="doccomment">/// Generate one-component tuple structs that implement the [`Pos`] trait.
+</span><span class="macro">macro_rules! </span>impl_pos {
     (
         $(
             $(<span class="attribute">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
@@ -319,4 +327,4 @@
     </span><span class="kw">pub struct </span>CharPos(<span class="kw">pub </span>usize);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_span" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>

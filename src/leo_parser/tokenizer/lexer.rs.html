@@ -482,6 +482,14 @@
 <span id="482">482</span>
 <span id="483">483</span>
 <span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -659,7 +667,7 @@
         <span class="prelude-val">Ok</span>((int.len(), Token::Integer(int)))
     }
 
-    <span class="doccomment">/// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
+    <span class="doccomment">/// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.
     /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>eat(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Token)&gt; {
         <span class="kw">if </span>input.is_empty() {
@@ -737,6 +745,10 @@
             <span class="string">&#39;&quot;&#39; </span>=&gt; {
                 <span class="comment">// Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
+                // This works because the code 34 of double quote cannot appear as a byte
+                // in middle of a multi-byte UTF-8 encoding of a character,
+                // because those bytes all have the high bit set to 1;
+                // in UTF-8, the byte 34 can only appear as the single-byte encoding of double quote.
                 </span><span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input_str[<span class="number">1</span>..];
                 <span class="kw">let </span>string = <span class="kw">match </span>rest.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;&quot;&#39;</span>) {
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_string_not_closed(rest).into()),
@@ -786,6 +798,10 @@
                 input.next();
                 <span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">&#39;/&#39;</span>).is_some() {
                     <span class="comment">// Find the end of the comment line.
+                    // This works because the code 10 of line feed cannot appear as a byte
+                    // in middle of a multi-byte UTF-8 encoding of a character,
+                    // because those bytes all have the high bit set to 1;
+                    // in UTF-8, the byte 10 can only appear as the single-byte encoding of line feed.
                     </span><span class="kw">let </span>comment = <span class="kw">match </span>input_str.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;\n&#39;</span>) {
                         <span class="prelude-val">None </span>=&gt; input_str,
                         <span class="prelude-val">Some</span>(idx) =&gt; <span class="kw-2">&amp;</span>input_str[..idx + <span class="number">1</span>],
@@ -967,4 +983,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0 (69f9c33d7 2022-12-12)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_parser" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.1 (90743e729 2023-01-10)" ></div></body></html>
