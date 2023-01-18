@@ -532,4 +532,11 @@ create_messages!(
         msg: format!("Unit expressions can only be used in return statements."),
         help: None,
     }
+
+    @formatted
+    function_cannot_output_record {
+        args: (),
+        msg: format!("A `function` cannot output a record."),
+        help: None,
+    }
 );

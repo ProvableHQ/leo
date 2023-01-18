@@ -228,21 +228,41 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().for_each(|output_type| {
-            match output_type {
-                // TODO: Verify that this is not needed when the import system is updated.
-                Output::External(_) => {} // Do not type check external record function outputs.
-                Output::Internal(output_type) => {
+        function.output.iter().for_each(|output| {
+            match output {
+                Output::External(external) => {
+                    // If the function is not a transition function, then it cannot output a record.
+                    // Note that an external output must always be a record.
+                    if !self.is_transition_function {
+                        self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
+                    }
+                    // Otherwise, do not type check external record function outputs.
+                    // TODO: Verify that this is not needed when the import system is updated.
+                }
+                Output::Internal(function_output) => {
                     // Check that the type of output is defined.
-                    self.assert_type_is_defined(&output_type.type_, output_type.span);
+                    self.assert_type_is_defined(&function_output.type_, function_output.span);
+                    // If the function is not a transition function, then it cannot output a record.
+                    if let Type::Identifier(identifier) = function_output.type_ {
+                        if !self.is_transition_function
+                            && self
+                                .symbol_table
+                                .borrow()
+                                .lookup_struct(identifier.name)
+                                .unwrap()
+                                .is_record
+                        {
+                            self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                        }
+                    }
                     // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&output_type.type_, Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span))
+                    if matches!(&function_output.type_, Type::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
                     }
                     // Check that the mode of the output is valid.
                     // For functions, only public and private outputs are allowed
-                    if output_type.mode == Mode::Const {
-                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    if function_output.mode == Mode::Const {
+                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                 }
             }
