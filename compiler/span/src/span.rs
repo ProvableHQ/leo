@@ -29,7 +29,7 @@ pub struct Span {
     /// The start (low) position of the span, inclusive.
     pub lo: BytePos,
     /// The end (high) position of the span, exclusive.
-    /// The length is simply `hi - lo`.
+    /// The length of the span is `hi - lo`.
     pub hi: BytePos,
 }
 
@@ -63,6 +63,7 @@ impl fmt::Display for Span {
 impl std::ops::Add for &Span {
     type Output = Span;
 
+    /// Add two spans (by reference) together.
     fn add(self, other: &Span) -> Span {
         *self + *other
     }
@@ -84,6 +85,8 @@ impl std::ops::Add for Span {
 // Pos, BytePos, CharPos
 //
 
+/// Offsets (i.e. positions), in some units (e.g. bytes or characters),
+/// with conversions between unsigned integers.
 pub trait Pos {
     fn from_usize(n: usize) -> Self;
     fn to_usize(&self) -> usize;
@@ -91,6 +94,7 @@ pub trait Pos {
     fn to_u32(&self) -> u32;
 }
 
+/// Generate one-component tuple structs that implement the [`Pos`] trait.
 macro_rules! impl_pos {
     (
         $(

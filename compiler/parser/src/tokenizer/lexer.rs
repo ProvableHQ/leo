@@ -175,7 +175,7 @@ impl Token {
         Ok((int.len(), Token::Integer(int)))
     }
 
-    /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
+    /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.
     /// The next token can be eaten if the bytes at the front of the given `input` string can be scanned into a token.
     pub(crate) fn eat(input: &str) -> Result<(usize, Token)> {
         if input.is_empty() {
@@ -253,6 +253,10 @@ impl Token {
             '"' => {
                 // Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
+                // This works because the code 34 of double quote cannot appear as a byte
+                // in middle of a multi-byte UTF-8 encoding of a character,
+                // because those bytes all have the high bit set to 1;
+                // in UTF-8, the byte 34 can only appear as the single-byte encoding of double quote.
                 let rest = &input_str[1..];
                 let string = match rest.as_bytes().iter().position(|c| *c == b'"') {
                     None => return Err(ParserError::lexer_string_not_closed(rest).into()),
@@ -302,6 +306,10 @@ impl Token {
                 input.next();
                 if input.next_if_eq(&'/').is_some() {
                     // Find the end of the comment line.
+                    // This works because the code 10 of line feed cannot appear as a byte
+                    // in middle of a multi-byte UTF-8 encoding of a character,
+                    // because those bytes all have the high bit set to 1;
+                    // in UTF-8, the byte 10 can only appear as the single-byte encoding of line feed.
                     let comment = match input_str.as_bytes().iter().position(|c| *c == b'\n') {
                         None => input_str,
                         Some(idx) => &input_str[..idx + 1],
