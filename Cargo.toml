@@ -50,7 +50,7 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
 [dependencies.aleo]
-version = "0.3.2"
+version = "0.3.3"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"

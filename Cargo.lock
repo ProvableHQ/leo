@@ -70,9 +70,9 @@ dependencies = [
 
 [[package]]
 name = "aleo"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5bc94cfbf1c50218567ebbd22d8caf4db2ac9283c139c890ba0c5da74bc01fa"
+checksum = "17259b13bd25bf6fdc8d6a207fd690daca08640dd364d7072ba425b5a5bfa6cd"
 dependencies = [
  "anyhow",
  "clap",
