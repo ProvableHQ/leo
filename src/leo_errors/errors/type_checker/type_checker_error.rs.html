@@ -533,6 +533,13 @@
 <a href="#533" id="533">533</a>
 <a href="#534" id="534">534</a>
 <a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1065,6 +1072,13 @@
     unit_expression_only_in_return_statements {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;Unit expressions can only be used in return statements.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    function_cannot_output_record {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A `function` cannot output a record.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

@@ -362,6 +362,26 @@
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2022 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -592,21 +612,41 @@
 
         <span class="comment">// Type check the function&#39;s return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        </span>function.output.iter().for_each(|output_type| {
-            <span class="kw">match </span>output_type {
-                <span class="comment">// TODO: Verify that this is not needed when the import system is updated.
-                </span>Output::External(<span class="kw">_</span>) =&gt; {} <span class="comment">// Do not type check external record function outputs.
-                </span>Output::Internal(output_type) =&gt; {
+        </span>function.output.iter().for_each(|output| {
+            <span class="kw">match </span>output {
+                Output::External(external) =&gt; {
+                    <span class="comment">// If the function is not a transition function, then it cannot output a record.
+                    // Note that an external output must always be a record.
+                    </span><span class="kw">if </span>!<span class="self">self</span>.is_transition_function {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
+                    }
+                    <span class="comment">// Otherwise, do not type check external record function outputs.
+                    // TODO: Verify that this is not needed when the import system is updated.
+                </span>}
+                Output::Internal(function_output) =&gt; {
                     <span class="comment">// Check that the type of output is defined.
-                    </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>output_type.type_, output_type.span);
+                    </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>function_output.type_, function_output.span);
+                    <span class="comment">// If the function is not a transition function, then it cannot output a record.
+                    </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
+                        <span class="kw">if </span>!<span class="self">self</span>.is_transition_function
+                            &amp;&amp; <span class="self">self
+                                </span>.symbol_table
+                                .borrow()
+                                .lookup_struct(identifier.name)
+                                .unwrap()
+                                .is_record
+                        {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                        }
+                    }
                     <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_, Type::Tuple(<span class="kw">_</span>)) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span))
+                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>function_output.type_, Type::Tuple(<span class="kw">_</span>)) {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
                     }
                     <span class="comment">// Check that the mode of the output is valid.
                     // For functions, only public and private outputs are allowed
-                    </span><span class="kw">if </span>output_type.mode == Mode::Const {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(output_type.span));
+                    </span><span class="kw">if </span>function_output.mode == Mode::Const {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                 }
             }
