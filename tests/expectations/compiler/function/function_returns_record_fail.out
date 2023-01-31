@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372064]: A `function` cannot output a record.\n    --> compiler-test:10:45\n     |\n  10 |     function foo(board: Board, data: u8) -> Board {\n     |                                             ^^^^^\n"
