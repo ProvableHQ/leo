@@ -25,7 +25,7 @@ mod visit_statements;
 
 mod visit_type;
 
-use crate::{SymbolTable};
+use crate::SymbolTable;
 use crate::{CallGraph, Pass, StructGraph};
 
 use leo_ast::Ast;
