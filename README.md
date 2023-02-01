@@ -95,7 +95,7 @@ The `leo run` command will compile the program into Aleo instructions and run it
 Congratulations! You've just run your first Leo program.
 
 ## 4. Troubleshooting
-If you are are having trouble installing and using Leo, please check out our [guide](docs/troubleshooting.md).
+If you are having trouble installing and using Leo, please check out our [guide](docs/troubleshooting.md).
 
 If the issue still persists, please [open an issue](https://github.com/AleoHQ/leo/issues/new/choose).
 
