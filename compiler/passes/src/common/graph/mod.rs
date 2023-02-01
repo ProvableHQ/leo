@@ -34,10 +34,10 @@ pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
 impl Node for Symbol {}
 
-/// Errors in graph operations.
+/// Errors in directed graph operations.
 #[derive(Debug)]
-pub enum GraphError<N: Node> {
-    /// An error that is emitted when a cycle is detected in the graph. Contains the path of cycle.
+pub enum DiGraphError<N: Node> {
+    /// An error that is emitted when a cycle is detected in the directed graph. Contains the path of the cycle.
     CycleDetected(Vec<N>),
 }
 
@@ -46,13 +46,13 @@ pub enum GraphError<N: Node> {
 pub struct DiGraph<N: Node> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
-    // TODO: Better name.
     /// The directed edges in the graph.
+    /// Each entry in the map is a node in the graph, and the set of nodes that it points to.
     edges: IndexMap<N, IndexSet<N>>,
 }
 
 impl<N: Node> DiGraph<N> {
-    /// Initializes a new `CallGraph` from a vector of source nodes.
+    /// Initializes a new `DiGraph` from a vector of source nodes.
     pub fn new(nodes: IndexSet<N>) -> Self {
         Self {
             nodes,
@@ -60,7 +60,7 @@ impl<N: Node> DiGraph<N> {
         }
     }
 
-    /// Adds an edge to the call graph.
+    /// Adds an edge to the graph.
     pub fn add_edge(&mut self, from: N, to: N) {
         // Add `from` and `to` to the set of nodes if they are not already in the set.
         self.nodes.insert(from);
@@ -78,7 +78,7 @@ impl<N: Node> DiGraph<N> {
 
     /// Returns the post-order ordering of the graph.
     /// Detects if there is a cycle in the graph.
-    pub fn post_order(&self) -> Result<IndexSet<N>, GraphError<N>> {
+    pub fn post_order(&self) -> Result<IndexSet<N>, DiGraphError<N>> {
         // The set of nodes that do not need to be visited again.
         let mut finished: IndexSet<N> = IndexSet::with_capacity(self.nodes.len());
 
@@ -103,7 +103,7 @@ impl<N: Node> DiGraph<N> {
                     // Reverse the path to get the cycle in the correct order.
                     path.reverse();
                     // A cycle was detected. Return the path of the cycle.
-                    return Err(GraphError::CycleDetected(path));
+                    return Err(DiGraphError::CycleDetected(path));
                 }
             }
         }
@@ -207,7 +207,7 @@ mod test {
         let result = graph.post_order();
         assert!(result.is_err());
 
-        let GraphError::CycleDetected(cycle) = result.unwrap_err();
+        let DiGraphError::CycleDetected(cycle) = result.unwrap_err();
         let expected = Vec::from([1u32, 2, 4, 1]);
         assert_eq!(cycle, expected);
     }

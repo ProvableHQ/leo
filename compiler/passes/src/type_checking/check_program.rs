@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{GraphError, TypeChecker, VariableSymbol, VariableType};
+use crate::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -59,7 +59,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.structs.values().for_each(|function| self.visit_struct(function));
 
         // Check that the struct dependency graph does not have any cycles.
-        if let Err(GraphError::CycleDetected(path)) = self.struct_graph.post_order() {
+        if let Err(DiGraphError::CycleDetected(path)) = self.struct_graph.post_order() {
             self.emit_err(TypeCheckerError::cyclic_struct_dependency(path));
         }
 
@@ -76,7 +76,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that the call graph does not have any cycles.
-        if let Err(GraphError::CycleDetected(path)) = self.call_graph.post_order() {
+        if let Err(DiGraphError::CycleDetected(path)) = self.call_graph.post_order() {
             self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
         }
 
