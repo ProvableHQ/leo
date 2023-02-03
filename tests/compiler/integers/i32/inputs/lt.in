@@ -1,7 +1,0 @@
-[main]
-a: i32 = 2i32;
-b: i32 = 4i32;
-c: bool = true;
-
-[registers]
-r0: bool = false;

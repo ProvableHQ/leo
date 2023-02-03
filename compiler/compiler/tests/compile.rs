@@ -15,13 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{BufferEmitter, collect_all_inputs, compile_and_process, hash_file, parse_program, temp_dir};
+use utilities::{collect_all_inputs, compile_and_process, hash_file, parse_program, temp_dir, BufferEmitter};
 
-use leo_errors::{
-    emitter::{Handler},
-    LeoError,
-};
-use leo_span::{symbol::create_session_if_not_set_then};
+use leo_errors::{emitter::Handler, LeoError};
+use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
@@ -31,15 +28,11 @@ use snarkvm::file::Manifest;
 use snarkvm::package::Package;
 use snarkvm::prelude::*;
 
+use crate::utilities::buffer_if_err;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use std::{
-    fs,
-    path::{Path},
-    rc::Rc,
-};
+use std::{fs, path::Path, rc::Rc};
 use std::{fs::File, io::Write};
-use crate::utilities::buffer_if_err;
 
 type CurrentNetwork = Testnet3;
 
@@ -58,14 +51,9 @@ impl Namespace for CompileNamespace {
     }
 }
 
-#[derive(Deserialize, PartialEq, Eq, Serialize)]
-struct OutputItem {
-    pub initial_input_ast: String,
-}
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct CompileOutput {
-    pub output: Vec<OutputItem>,
     pub initial_ast: String,
     pub unrolled_ast: String,
     pub ssa_ast: String,
@@ -83,27 +71,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         cwd.join(val.as_str().unwrap())
     });
 
+    // Parse the program.
     let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
-
-    // (name, content)
-    let inputs = buffer_if_err(err_buf, collect_all_inputs(&test))?;
-
-    let mut output_items = Vec::with_capacity(inputs.len());
-
-    if inputs.is_empty() {
-        output_items.push(OutputItem {
-            initial_input_ast: "no input".to_string(),
-        });
-    } else {
-        // Parse one or more input files to execute the program with.
-        for input in inputs {
-            let mut parsed = parsed.clone();
-            handler.extend_if_error(parsed.parse_input(input))?;
-            let initial_input_ast = hash_file("/tmp/output/test.initial_input_ast.json");
-
-            output_items.push(OutputItem { initial_input_ast });
-        }
-    };
 
     // Compile the program to bytecode.
     let program_name = format!("{}.{}", parsed.program_name, parsed.network);
@@ -146,7 +115,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     let final_output = CompileOutput {
-        output: output_items,
         initial_ast,
         unrolled_ast,
         ssa_ast,

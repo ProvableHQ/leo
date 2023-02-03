@@ -1,9 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file:
- - inputs/mul.in
-    
 */
 
 program test.aleo {    

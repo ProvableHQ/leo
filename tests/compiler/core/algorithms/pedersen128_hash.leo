@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/int64.in
 */
 
 program test.aleo {    

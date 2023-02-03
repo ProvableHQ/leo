@@ -1,7 +1,0 @@
-[main]
-a: u64 = 1u64;
-b: u64 = 2u64;
-c: u64 = 3u64;
-
-[registers]
-r0: bool = true;

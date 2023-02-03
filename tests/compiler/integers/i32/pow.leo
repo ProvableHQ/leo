@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/pow.in
 */
 
 program test.aleo {    

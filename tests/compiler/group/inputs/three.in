@@ -1,4 +1,0 @@
-[main]
-a: group = (0, 4)group;
-b: group = (4, 0)group;
-c: group = (4, 4)group;

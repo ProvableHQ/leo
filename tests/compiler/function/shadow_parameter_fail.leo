@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: input/dummy.in
 */
 
 program test.aleo {    

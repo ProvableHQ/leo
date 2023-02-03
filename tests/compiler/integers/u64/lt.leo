@@ -1,9 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file:
- - inputs/eq.in
- - inputs/lt.in
 */
 
 program test.aleo {    

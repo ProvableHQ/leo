@@ -1,8 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file:
- - inputs/address1.in
 */
 
 program test.aleo {    

@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: inputs/point.in
 */
 
 program test.aleo {    

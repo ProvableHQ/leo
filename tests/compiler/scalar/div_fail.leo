@@ -1,8 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file:
- - inputs/scalars.in
 */
 
 program test.aleo {    

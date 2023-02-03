@@ -1,8 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file:
- - inputs/u32_3.in
 */
 
 program test.aleo {    

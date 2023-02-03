@@ -1,7 +1,0 @@
-[main]
-a: i128 = 1i128;
-b: i128 = 2i128;
-c: i128 = 3i128;
-
-[registers]
-r0: bool = true;

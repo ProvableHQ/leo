@@ -1,9 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file:
- - inputs/tern.in
- - inputs/tern_rev.in
 */
 
 program test.aleo {    

@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: inputs/i8.in
 */
 
 program test.aleo {    

@@ -1,4 +1,0 @@
-[main]
-y: bool = true;
-x: bool = false;
-

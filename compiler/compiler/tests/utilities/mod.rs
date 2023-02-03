@@ -19,11 +19,9 @@ use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
 };
-use leo_span::{source_map::FileName};
-use leo_test_framework::{
-    Test,
-};
 use leo_passes::{CodeGenerator, Pass};
+use leo_span::source_map::FileName;
+use leo_test_framework::Test;
 
 use snarkvm::prelude::*;
 
@@ -126,7 +124,10 @@ impl Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-pub struct BufferEmitter(pub Rc<RefCell<Buffer<LeoOrString>>>, pub Rc<RefCell<Buffer<LeoWarning>>>);
+pub struct BufferEmitter(
+    pub Rc<RefCell<Buffer<LeoOrString>>>,
+    pub Rc<RefCell<Buffer<LeoWarning>>>,
+);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
@@ -158,15 +159,14 @@ pub fn temp_dir() -> PathBuf {
 
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
-    let st = parsed.type_checker_pass(st)?;
+    let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
     let st = parsed.loop_unrolling_pass(st)?;
     let assigner = parsed.static_single_assignment_pass(&st)?;
 
     parsed.flattening_pass(&st, assigner)?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st))?;
+    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
 
     Ok(bytecode)
 }
-

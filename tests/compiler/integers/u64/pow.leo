@@ -1,9 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/pow.in
-
-# The exponent must be u8, u16, or u32
 */
 
 program test.aleo {    

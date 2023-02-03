@@ -1,10 +1,6 @@
 /*
 namespace: Compile
 expectation: Fail
-input_file: inputs/dummy.in
-
-# inclusive loops are currently disallowed
-
 */
 
 program test.aleo {    

@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/ternary_explicit_and_implicit.in
 */
 
 program test.aleo {    

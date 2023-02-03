@@ -1,6 +1,0 @@
-[main]
-a: i64 = -5i64;
-b: i64 = 5i64;
-
-[registers]
-r0: bool = false;
