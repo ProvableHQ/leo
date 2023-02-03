@@ -14,17 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_compiler::{Compiler, OutputOptions};
+mod utilities;
+use utilities::{BufferEmitter, collect_all_inputs, compile_and_process, hash_file, parse_program, temp_dir};
+
 use leo_errors::{
-    emitter::{Buffer, Emitter, Handler},
-    LeoError, LeoWarning,
+    emitter::{Handler},
+    LeoError,
 };
-use leo_span::{source_map::FileName, symbol::create_session_if_not_set_then};
+use leo_span::{symbol::create_session_if_not_set_then};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
-use leo_passes::{CodeGenerator, Pass};
 
 use snarkvm::file::Manifest;
 use snarkvm::package::Package;
@@ -33,61 +34,14 @@ use snarkvm::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{
-    cell::RefCell,
     fs,
-    path::{Path, PathBuf},
+    path::{Path},
     rc::Rc,
 };
 use std::{fs::File, io::Write};
+use crate::utilities::buffer_if_err;
 
 type CurrentNetwork = Testnet3;
-
-fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
-    let output_dir = PathBuf::from("/tmp/output/");
-    fs::create_dir_all(output_dir.clone()).unwrap();
-
-    Compiler::new(
-        String::from("test"),
-        String::from("aleo"),
-        handler,
-        main_file_path,
-        output_dir,
-        Some(OutputOptions {
-            spans_enabled: false,
-            initial_input_ast: true,
-            initial_ast: true,
-            unrolled_ast: true,
-            ssa_ast: true,
-            flattened_ast: true,
-        }),
-    )
-}
-
-fn parse_program<'a>(
-    handler: &'a Handler,
-    program_string: &str,
-    cwd: Option<PathBuf>,
-) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()));
-    let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
-    compiler.parse_program_from_string(program_string, name)?;
-
-    Ok(compiler)
-}
-
-fn hash_content(content: &str) -> String {
-    use sha2::{Digest, Sha256};
-    let mut hasher = Sha256::new();
-    hasher.update(content);
-    let hash = hasher.finalize();
-
-    format!("{hash:x}")
-}
-
-fn hash_file(path: &str) -> String {
-    let file = fs::read_to_string(Path::new(path)).unwrap();
-    hash_content(&file)
-}
 
 struct CompileNamespace;
 
@@ -116,94 +70,6 @@ struct CompileOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
-}
-
-/// Get the path of the `input_file` given in `input` into `list`.
-fn get_input_file_paths(list: &mut Vec<PathBuf>, test: &Test, input: &Value) {
-    let input_file: PathBuf = test.path.parent().expect("no test parent dir").into();
-    if input.as_str().is_some() {
-        let mut input_file = input_file;
-        input_file.push(input.as_str().expect("input_file was not a string or array"));
-        list.push(input_file.clone());
-    } else if let Some(seq) = input.as_sequence() {
-        for name in seq {
-            let mut input_file = input_file.clone();
-            input_file.push(name.as_str().expect("input_file was not a string"));
-            list.push(input_file.clone());
-        }
-    }
-}
-
-/// Collect and return all inputs, if possible.
-fn collect_all_inputs(test: &Test) -> Result<Vec<PathBuf>, String> {
-    let mut list = vec![];
-
-    if let Some(input) = test.config.get("input_file") {
-        get_input_file_paths(&mut list, test, input);
-    }
-
-    Ok(list)
-}
-
-// Errors used in this module.
-enum LeoOrString {
-    Leo(LeoError),
-    String(String),
-}
-
-impl Display for LeoOrString {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Leo(x) => std::fmt::Display::fmt(&x, f),
-            Self::String(x) => std::fmt::Display::fmt(&x, f),
-        }
-    }
-}
-
-/// A buffer used to emit errors into.
-#[derive(Clone)]
-struct BufferEmitter(Rc<RefCell<Buffer<LeoOrString>>>, Rc<RefCell<Buffer<LeoWarning>>>);
-
-impl Emitter for BufferEmitter {
-    fn emit_err(&mut self, err: LeoError) {
-        self.0.borrow_mut().push(LeoOrString::Leo(err));
-    }
-
-    fn last_emitted_err_code(&self) -> Option<i32> {
-        let temp = &*self.0.borrow();
-        temp.last_entry().map(|entry| match entry {
-            LeoOrString::Leo(err) => err.exit_code(),
-            _ => 0,
-        })
-    }
-
-    fn emit_warning(&mut self, warning: leo_errors::LeoWarning) {
-        self.1.borrow_mut().push(warning);
-    }
-}
-
-fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()> {
-    res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
-}
-
-fn temp_dir() -> PathBuf {
-    tempfile::tempdir()
-        .expect("Failed to open temporary directory")
-        .into_path()
-}
-
-fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
-    let st = parsed.symbol_table_pass()?;
-    let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
-    let st = parsed.loop_unrolling_pass(st)?;
-    let assigner = parsed.static_single_assignment_pass(&st)?;
-
-    parsed.flattening_pass(&st, assigner)?;
-
-    // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
-
-    Ok(bytecode)
 }
 
 fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
