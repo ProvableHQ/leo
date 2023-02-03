@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Compiler, OutputOptions};
-
+use leo_compiler::{Compiler, OutputOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -25,11 +24,12 @@ use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
+use leo_passes::{CodeGenerator, Pass};
+
 use snarkvm::file::Manifest;
 use snarkvm::package::Package;
 use snarkvm::prelude::*;
 
-use leo_passes::{CodeGenerator, Pass};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{
