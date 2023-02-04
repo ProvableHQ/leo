@@ -152,6 +152,9 @@ pub fn emit_errors(
             }
             None
         }
+        (Ok(Ok(output)), TestExpectationMode::Match) => {
+            todo!()
+        }
         (Ok(Ok(_tokens)), TestExpectationMode::Fail) => Some(TestError::PassedAndShouldntHave {
             test: test.to_string(),
             index: test_index,
@@ -161,6 +164,9 @@ pub fn emit_errors(
             error: err.to_string(),
             index: test_index,
         }),
+        (Ok(Err(err)), TestExpectationMode::Match) => {
+            todo!()
+        }
         (Ok(Err(err)), TestExpectationMode::Fail) => {
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));

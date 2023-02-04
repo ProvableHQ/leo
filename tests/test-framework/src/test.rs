@@ -18,9 +18,14 @@ use std::collections::BTreeMap;
 
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone)]
 pub enum TestExpectationMode {
+    /// The test should pass.
     Pass,
+    /// The test should fail.
     Fail,
+    /// The test should be skipped.
     Skip,
+    /// The test should pass and match the expected output.
+    Match,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
