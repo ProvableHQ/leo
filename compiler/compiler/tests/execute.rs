@@ -18,7 +18,7 @@ mod utilities;
 use utilities::{buffer_if_err, compile_and_process, parse_program, BufferEmitter};
 use utilities::{get_cwd_option, setup_build_directory, Aleo, Network};
 
-use leo_errors::{emitter::Handler};
+use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
