@@ -17,7 +17,6 @@
 use serde_yaml::Value;
 use std::{
     any::Any,
-    collections::BTreeMap,
     panic::{self, RefUnwindSafe, UnwindSafe},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -37,7 +36,7 @@ pub struct Test {
     pub name: String,
     pub content: String,
     pub path: PathBuf,
-    pub config: BTreeMap<String, Value>,
+    pub config: TestConfig,
 }
 
 pub trait Namespace: UnwindSafe + RefUnwindSafe {
@@ -91,14 +90,11 @@ pub struct TestCases {
 impl TestCases {
     fn new(expectation_category: &str, additional_check: impl Fn(&TestConfig) -> bool) -> (Self, Vec<TestConfig>) {
         let mut path_prefix = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path_prefix.push("../../tests/");
+        path_prefix.push("../../tests/tests");
         path_prefix.push(expectation_category);
         if let Ok(p) = std::env::var("TEST_FILTER") {
             path_prefix.push(p);
         }
-
-        let mut expectation_dir = path_prefix.clone();
-        expectation_dir.push("expectations");
 
         let mut new = Self {
             tests: Vec::new(),
@@ -224,7 +220,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                     name: test_name.to_string(),
                     content: test.clone(),
                     path: path.into(),
-                    config: config.extra.clone(),
+                    config: config.clone(),
                 })
             });
             let output = take_hook(leo_output, panic_buf);

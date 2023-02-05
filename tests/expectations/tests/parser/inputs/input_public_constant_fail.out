@@ -1,0 +1,5 @@
+---
+namespace: Input
+expectation: Fail
+outputs:
+  - "Error [EPAR0370019]: A parameter cannot have multiple modes.\n    --> test:4:1\n     |\n   4 | public constant a: bool  = true;\n     | ^^^^^^^^^^^^^^^\n     |\n     = Consider using either `constant`, `public`, `private`, or none at all."

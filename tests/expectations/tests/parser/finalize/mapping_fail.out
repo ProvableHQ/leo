@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'u8'\n    --> test:4:13\n     |\n   4 |     mapping u8: u8 => u8;\n     |             ^^"

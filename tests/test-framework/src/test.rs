@@ -24,11 +24,9 @@ pub enum TestExpectationMode {
     Fail,
     /// The test should be skipped.
     Skip,
-    /// The test should pass and match the expected output.
-    Match,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct TestConfig {
     pub namespace: String,
     pub expectation: TestExpectationMode,

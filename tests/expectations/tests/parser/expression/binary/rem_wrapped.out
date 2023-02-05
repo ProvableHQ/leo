@@ -1,0 +1,243 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              op: RemWrapped
+              span:
+                lo: 2
+                hi: 18
+          op: Negate
+          span:
+            lo: 1
+            hi: 18
+      op: Not
+      span:
+        lo: 0
+        hi: 18
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+              op: RemWrapped
+              span:
+                lo: 0
+                hi: 16
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
+          op: RemWrapped
+          span:
+            lo: 0
+            hi: 31
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
+      op: RemWrapped
+      span:
+        lo: 0
+        hi: 46
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+          op: RemWrapped
+          span:
+            lo: 1
+            hi: 17
+      op: Negate
+      span:
+        lo: 0
+        hi: 17
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+      op: RemWrapped
+      span:
+        lo: 1
+        hi: 19
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+          op: RemWrapped
+          span:
+            lo: 2
+            hi: 18
+      op: Negate
+      span:
+        lo: 0
+        hi: 18
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              op: RemWrapped
+              span:
+                lo: 2
+                hi: 18
+          op: Negate
+          span:
+            lo: 1
+            hi: 18
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
+      op: RemWrapped
+      span:
+        lo: 1
+        hi: 34
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+          op: RemWrapped
+          span:
+            lo: 1
+            hi: 17
+      op: Not
+      span:
+        lo: 0
+        hi: 17
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+      op: RemWrapped
+      span:
+        lo: 1
+        hi: 19
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+          op: RemWrapped
+          span:
+            lo: 2
+            hi: 18
+      op: Not
+      span:
+        lo: 0
+        hi: 18
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              op: RemWrapped
+              span:
+                lo: 2
+                hi: 18
+          op: Not
+          span:
+            lo: 1
+            hi: 18
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
+      op: RemWrapped
+      span:
+        lo: 1
+        hi: 34
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+              op: RemWrapped
+              span:
+                lo: 1
+                hi: 17
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":34,\\\"hi\\\":35}\"}"
+              op: RemWrapped
+              span:
+                lo: 20
+                hi: 36
+          op: Div
+          span:
+            lo: 1
+            hi: 36
+      right:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":64,\\\"hi\\\":65}\"}"
+              op: RemWrapped
+              span:
+                lo: 50
+                hi: 66
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":69,\\\"hi\\\":70}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":83,\\\"hi\\\":84}\"}"
+              op: RemWrapped
+              span:
+                lo: 69
+                hi: 85
+          op: Div
+          span:
+            lo: 50
+            hi: 85
+      op: RemWrapped
+      span:
+        lo: 1
+        hi: 86

@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:5:17\n     |\n   5 |         let mut x = 0;\n     |                 ^"
