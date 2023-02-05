@@ -539,4 +539,24 @@ create_messages!(
         msg: format!("A `function` cannot output a record."),
         help: None,
     }
+
+    @backtraced
+    cyclic_struct_dependency {
+        args: (path: Vec<impl Display>),
+        msg: {
+            let path_string = path.into_iter().map(|name| format!("`{name}`")).collect::<Vec<String>>().join(" --> ");
+            format!("Cyclic dependency between structs: {path_string}")
+        },
+        help: None,
+    }
+
+    @backtraced
+    cyclic_function_dependency {
+        args: (path: Vec<impl Display>),
+        msg: {
+            let path_string = path.into_iter().map(|name| format!("`{name}`")).collect::<Vec<String>>().join(" --> ");
+            format!("Cyclic dependency between functions: {path_string}")
+        },
+        help: None,
+    }
 );

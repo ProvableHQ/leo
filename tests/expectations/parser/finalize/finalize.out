@@ -9,41 +9,7 @@ outputs:
         structs: {}
         mappings: {}
         functions:
-          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":43}\"}":
-            annotations: []
-            call_type: Standard
-            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":43}\"}"
-            input: []
-            output:
-              - Internal:
-                  mode: None
-                  type_: Boolean
-                  span:
-                    lo: 49
-                    hi: 53
-            output_type: Boolean
-            block:
-              statements: []
-              span:
-                lo: 54
-                hi: 66
-            finalize:
-              identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":85,\\\"hi\\\":89}\"}"
-              input: []
-              output: []
-              output_type: Unit
-              block:
-                statements: []
-                span:
-                  lo: 92
-                  hi: 104
-              span:
-                lo: 76
-                hi: 104
-            span:
-              lo: 30
-              hi: 66
-          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}":
+          main:
             annotations: []
             call_type: Standard
             identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"

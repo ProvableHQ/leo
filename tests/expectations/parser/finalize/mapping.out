@@ -8,16 +8,7 @@ outputs:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings:
-          "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":41}\"}":
-            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":41}\"}"
-            key_type:
-              Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":46}\"}"
-            value_type:
-              Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":53}\"}"
-            span:
-              lo: 30
-              hi: 54
-          "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":75}\"}":
+          foo:
             identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":75}\"}"
             key_type:
               Integer: U8

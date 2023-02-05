@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372008]: record `Token` shadowed by\n    --> compiler-test:13:5\n     |\n  13 |     struct Token { // This struct cannot have the same name as the record defined above it.\n  14 |         x: u32,\n  15 |     }\n     |     ^\n"
+  - "Failed to parse string. Remaining invalid string is: \"closure main:\n    output true as boolean;\n\""

@@ -9,7 +9,7 @@ outputs:
         structs: {}
         mappings: {}
         functions:
-          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}":
+          main:
             annotations: []
             call_type: Standard
             identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"

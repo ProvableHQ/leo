@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372065]: Cyclic dependency between structs: `One` --> `Two` --> `Three` --> `One`\n"

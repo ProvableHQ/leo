@@ -9,7 +9,7 @@ outputs:
         structs: {}
         mappings: {}
         functions:
-          "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}":
+          "inf":
             annotations: []
             call_type: Standard
             identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
@@ -46,7 +46,7 @@ outputs:
             span:
               lo: 30
               hi: 73
-          "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}":
+          main:
             annotations: []
             call_type: Standard
             identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"

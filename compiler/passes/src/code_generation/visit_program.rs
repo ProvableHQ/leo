@@ -16,11 +16,11 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
+use leo_ast::{functions, CallType, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -53,12 +53,19 @@ impl<'a> CodeGenerator<'a> {
         // Newline separator.
         program_string.push('\n');
 
-        // Visit each `Struct` or `Record` in the Leo AST and produce a Aleo struct.
+        // Get the post-order ordering of the composite data types.
+        // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
+        let order = self.struct_graph.post_order().unwrap();
+
+        // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
-            &program_scope
-                .structs
-                .values()
-                .map(|struct_| self.visit_struct_or_record(struct_))
+            &order
+                .into_iter()
+                .map(|name| {
+                    // Note that this unwrap is safe since type checking guarantees that all structs are declared.
+                    let struct_ = program_scope.structs.get(&name).unwrap();
+                    self.visit_struct_or_record(struct_)
+                })
                 .join("\n"),
         );
 
@@ -74,37 +81,35 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        // Store closures and functions in separate strings.
-        let mut closures = String::new();
-        let mut functions = String::new();
+        // Get the post-order ordering of the call graph.
+        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
+        let order = self.call_graph.post_order().unwrap();
 
-        // Visit each `Function` in the Leo AST and produce Aleo instructions.
-        program_scope.functions.values().for_each(|function| {
-            self.is_transition_function = matches!(function.call_type, CallType::Transition);
+        // Visit each function in the post-ordering and produce an Aleo function.
+        program_string.push_str(
+            &order
+                .into_iter()
+                .map(|function_name| {
+                    // Note that this unwrap is safe since type checking guarantees that all functions are declared.
+                    let function = program_scope.functions.get(&function_name).unwrap();
 
-            let function_string = self.visit_function(function);
+                    // Set the `is_transition_function` flag.
+                    self.is_transition_function = matches!(function.call_type, CallType::Transition);
 
-            if self.is_transition_function {
-                functions.push_str(&function_string);
-                functions.push('\n');
-            } else {
-                closures.push_str(&function_string);
-                closures.push('\n');
-            }
+                    let function_string = self.visit_function(function);
 
-            // Unset the `is_transition_function` flag.
-            self.is_transition_function = false;
-        });
+                    // Unset the `is_transition_function` flag.
+                    self.is_transition_function = false;
 
-        // Closures must precede functions in the Aleo program.
-        program_string.push_str(&closures);
-        program_string.push('\n');
-        program_string.push_str(&functions);
+                    function_string
+                })
+                .join("\n"),
+        );
 
         program_string
     }
 
-    fn visit_import(&mut self, import_name: &'a Identifier, import_program: &'a Program) -> String {
+    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> String {
         // Load symbols into composite mapping.
         let _import_program_string = self.visit_program(import_program);
         // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
