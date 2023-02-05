@@ -423,6 +423,16 @@
 <a href="#423" id="423">423</a>
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -439,7 +449,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
+</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable};
 
 <span class="kw">use </span>leo_ast::{Identifier, IntegerType, Node, Type};
 <span class="kw">use </span>leo_core::<span class="kw-2">*</span>;
@@ -452,6 +462,10 @@
 <span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    <span class="doccomment">/// A dependency graph of the structs in program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) struct_graph: StructGraph,
+    <span class="doccomment">/// The call graph for the program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_graph: CallGraph,
     <span class="doccomment">/// The error handler.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
     <span class="doccomment">/// The name of the function that we are currently traversing.
@@ -516,13 +530,19 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
     </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>struct_names = symbol_table.structs.keys().cloned().collect();
+
+        <span class="kw">let </span>function_names = symbol_table.functions.keys().cloned().collect();
+
         <span class="self">Self </span>{
-            is_transition_function: <span class="bool-val">false</span>,
             symbol_table: RefCell::new(symbol_table),
+            struct_graph: StructGraph::new(struct_names),
+            call_graph: CallGraph::new(function_names),
             handler,
             function: <span class="prelude-val">None</span>,
             has_return: <span class="bool-val">false</span>,
             has_finalize: <span class="bool-val">false</span>,
+            is_transition_function: <span class="bool-val">false</span>,
             is_finalize: <span class="bool-val">false</span>,
             is_imported: <span class="bool-val">false</span>,
             is_return: <span class="bool-val">false</span>,

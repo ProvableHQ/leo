@@ -570,7 +570,7 @@
 
     <span class="comment">// TODO: remove import resolution from parser.
     </span><span class="doccomment">/// Parses an import statement `import foo.leo;`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, (Program, Span))&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, (Program, Span))&gt; {
         <span class="comment">// Parse `import`.
         </span><span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Import)<span class="question-mark">?</span>;
 
@@ -612,7 +612,7 @@
         <span class="comment">// Use the parser to construct the imported abstract syntax tree (ast).
         </span><span class="kw">let </span>program_ast = parse_ast(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((import_name, (program_ast.into_repr(), start + end)))
+        <span class="prelude-val">Ok</span>((import_name.name, (program_ast.into_repr(), start + end)))
     }
 
     <span class="doccomment">/// Parsers a program scope `program foo.aleo { ... }`.
@@ -735,7 +735,7 @@
     }
 
     <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, Struct)&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Struct)&gt; {
         <span class="kw">let </span>is_record = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, Token::Record);
         <span class="kw">let </span>start = <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Struct, Token::Record])<span class="question-mark">?</span>;
         <span class="kw">let </span>struct_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
@@ -744,7 +744,7 @@
         <span class="kw">let </span>(members, end) = <span class="self">self</span>.parse_struct_members()<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((
-            struct_name,
+            struct_name.name,
             Struct {
                 identifier: struct_name,
                 members,
@@ -755,7 +755,7 @@
     }
 
     <span class="doccomment">/// Parses a mapping declaration, e.g. `mapping balances: address =&gt; u128`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, Mapping)&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Mapping)&gt; {
         <span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Mapping)<span class="question-mark">?</span>;
         <span class="kw">let </span>identifier = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
@@ -764,7 +764,7 @@
         <span class="kw">let </span>(value_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>((
-            identifier,
+            identifier.name,
             Mapping {
                 identifier,
                 key_type,
@@ -913,7 +913,7 @@
 
     <span class="doccomment">/// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    </span><span class="kw">fn </span>parse_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, Function)&gt; {
+    </span><span class="kw">fn </span>parse_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Function)&gt; {
         <span class="comment">// TODO: Handle dangling annotations.
         // Parse annotations, if they exist.
         </span><span class="kw">let </span><span class="kw-2">mut </span>annotations = Vec::new();
@@ -985,7 +985,7 @@
 
         <span class="kw">let </span>span = start + block.span;
         <span class="prelude-val">Ok</span>((
-            name,
+            name.name,
             Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
         ))
     }

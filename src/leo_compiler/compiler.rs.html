@@ -418,7 +418,7 @@
     }
 
     <span class="doccomment">/// Runs the type checker pass.
-    </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
+    </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
         TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table))
     }
 
@@ -458,9 +458,9 @@
     }
 
     <span class="doccomment">/// Runs the compiler stages.
-    </span><span class="kw">pub fn </span>compiler_stages(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
+    </span><span class="kw">pub fn </span>compiler_stages(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
         <span class="kw">let </span>st = <span class="self">self</span>.symbol_table_pass()<span class="question-mark">?</span>;
-        <span class="kw">let </span>st = <span class="self">self</span>.type_checker_pass(st)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(st, struct_graph, call_graph) = <span class="self">self</span>.type_checker_pass(st)<span class="question-mark">?</span>;
 
         <span class="comment">// TODO: Make this pass optional.
         </span><span class="kw">let </span>st = <span class="self">self</span>.loop_unrolling_pass(st)<span class="question-mark">?</span>;
@@ -470,16 +470,16 @@
 
         <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st, assigner)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(st)
+        <span class="prelude-val">Ok</span>((st, struct_graph, call_graph))
     }
 
     <span class="doccomment">/// Returns a compiled Leo program and prints the resulting bytecode.
     </span><span class="comment">// TODO: Remove when code generation is ready to be integrated into the compiler.
     </span><span class="kw">pub fn </span>compile_and_generate_instructions(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, String)&gt; {
         <span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
-        <span class="kw">let </span>symbol_table = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>bytecode = CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="kw-2">&amp;</span>symbol_table))<span class="question-mark">?</span>;
+        <span class="kw">let </span>bytecode = CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="kw-2">&amp;</span>symbol_table, <span class="kw-2">&amp;</span>struct_graph, <span class="kw-2">&amp;</span>call_graph))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((symbol_table, bytecode))
     }
@@ -487,7 +487,7 @@
     <span class="doccomment">/// Returns a compiled Leo program.
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
         <span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
-        <span class="self">self</span>.compiler_stages()
+        <span class="self">self</span>.compiler_stages().map(|(st, <span class="kw">_</span>, <span class="kw">_</span>)| st)
     }
 
     <span class="doccomment">/// Writes the AST to a JSON file.

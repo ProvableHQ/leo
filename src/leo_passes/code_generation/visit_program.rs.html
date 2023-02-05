@@ -283,6 +283,11 @@
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -301,11 +306,11 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{functions, CallType, Function, Identifier, Mapping, Mode, Program, ProgramScope, Struct, Type};
+<span class="kw">use </span>leo_ast::{functions, CallType, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>leo_span::sym;
+<span class="kw">use </span>leo_span::{sym, Symbol};
 <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -338,12 +343,19 @@
         <span class="comment">// Newline separator.
         </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
-        <span class="comment">// Visit each `Struct` or `Record` in the Leo AST and produce a Aleo struct.
+        <span class="comment">// Get the post-order ordering of the composite data types.
+        // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
+        </span><span class="kw">let </span>order = <span class="self">self</span>.struct_graph.post_order().unwrap();
+
+        <span class="comment">// Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         </span>program_string.push_str(
-            <span class="kw-2">&amp;</span>program_scope
-                .structs
-                .values()
-                .map(|struct_| <span class="self">self</span>.visit_struct_or_record(struct_))
+            <span class="kw-2">&amp;</span>order
+                .into_iter()
+                .map(|name| {
+                    <span class="comment">// Note that this unwrap is safe since type checking guarantees that all structs are declared.
+                    </span><span class="kw">let </span>struct_ = program_scope.structs.get(<span class="kw-2">&amp;</span>name).unwrap();
+                    <span class="self">self</span>.visit_struct_or_record(struct_)
+                })
                 .join(<span class="string">&quot;\n&quot;</span>),
         );
 
@@ -359,37 +371,35 @@
                 .join(<span class="string">&quot;\n&quot;</span>),
         );
 
-        <span class="comment">// Store closures and functions in separate strings.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>closures = String::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>functions = String::new();
+        <span class="comment">// Get the post-order ordering of the call graph.
+        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
+        </span><span class="kw">let </span>order = <span class="self">self</span>.call_graph.post_order().unwrap();
 
-        <span class="comment">// Visit each `Function` in the Leo AST and produce Aleo instructions.
-        </span>program_scope.functions.values().for_each(|function| {
-            <span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
+        <span class="comment">// Visit each function in the post-ordering and produce an Aleo function.
+        </span>program_string.push_str(
+            <span class="kw-2">&amp;</span>order
+                .into_iter()
+                .map(|function_name| {
+                    <span class="comment">// Note that this unwrap is safe since type checking guarantees that all functions are declared.
+                    </span><span class="kw">let </span>function = program_scope.functions.get(<span class="kw-2">&amp;</span>function_name).unwrap();
 
-            <span class="kw">let </span>function_string = <span class="self">self</span>.visit_function(function);
+                    <span class="comment">// Set the `is_transition_function` flag.
+                    </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
 
-            <span class="kw">if </span><span class="self">self</span>.is_transition_function {
-                functions.push_str(<span class="kw-2">&amp;</span>function_string);
-                functions.push(<span class="string">&#39;\n&#39;</span>);
-            } <span class="kw">else </span>{
-                closures.push_str(<span class="kw-2">&amp;</span>function_string);
-                closures.push(<span class="string">&#39;\n&#39;</span>);
-            }
+                    <span class="kw">let </span>function_string = <span class="self">self</span>.visit_function(function);
 
-            <span class="comment">// Unset the `is_transition_function` flag.
-            </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
-        });
+                    <span class="comment">// Unset the `is_transition_function` flag.
+                    </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
 
-        <span class="comment">// Closures must precede functions in the Aleo program.
-        </span>program_string.push_str(<span class="kw-2">&amp;</span>closures);
-        program_string.push(<span class="string">&#39;\n&#39;</span>);
-        program_string.push_str(<span class="kw-2">&amp;</span>functions);
+                    function_string
+                })
+                .join(<span class="string">&quot;\n&quot;</span>),
+        );
 
         program_string
     }
 
-    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, import_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, import_program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) -&gt; String {
+    <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, import_name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Symbol, import_program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) -&gt; String {
         <span class="comment">// Load symbols into composite mapping.
         </span><span class="kw">let </span>_import_program_string = <span class="self">self</span>.visit_program(import_program);
         <span class="comment">// todo: We do not need the import program string because we generate instructions for imports separately during leo build.

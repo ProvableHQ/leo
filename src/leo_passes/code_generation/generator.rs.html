@@ -55,6 +55,13 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -72,6 +79,7 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
+<span class="kw">use crate</span>::{CallGraph, StructGraph};
 
 <span class="kw">use </span>leo_ast::Function;
 <span class="kw">use </span>leo_span::Symbol;
@@ -81,6 +89,10 @@
 <span class="kw">pub struct </span>CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+    <span class="doccomment">/// The struct dependency graph for the program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph,
+    <span class="doccomment">/// The call graph for the program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
     <span class="doccomment">/// A counter to track the next available register.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_register: u64,
     <span class="doccomment">/// Reference to the current function.
@@ -99,10 +111,12 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `CodeGenerator`.
-    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph, call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph) -&gt; <span class="self">Self </span>{
         <span class="comment">// Initialize variable mapping.
         </span><span class="self">Self </span>{
             symbol_table,
+            struct_graph,
+            call_graph,
             next_register: <span class="number">0</span>,
             current_function: <span class="prelude-val">None</span>,
             variable_mapping: IndexMap::new(),

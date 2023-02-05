@@ -41,6 +41,7 @@
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -68,17 +69,18 @@
 
 <span class="kw">mod </span>visit_type;
 
-<span class="kw">use crate</span>::{Pass, SymbolTable};
+<span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
+<span class="kw">use crate</span>::{CallGraph, Pass, StructGraph};
 
 <span class="kw">use </span>leo_ast::Ast;
 <span class="kw">use </span>leo_errors::Result;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Pass <span class="kw">for </span>CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Input = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable);
+    <span class="kw">type </span>Input = (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph);
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;String&gt;;
 
-    <span class="kw">fn </span>do_pass((ast, symbol_table): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span><span class="kw-2">mut </span>generator = <span class="self">Self</span>::new(symbol_table);
+    <span class="kw">fn </span>do_pass((ast, symbol_table, struct_graph, call_graph): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>generator = <span class="self">Self</span>::new(symbol_table, struct_graph, call_graph);
         <span class="kw">let </span>bytecode = generator.visit_program(ast.as_repr());
 
         <span class="prelude-val">Ok</span>(bytecode)

@@ -382,6 +382,21 @@
 <a href="#382" id="382">382</a>
 <a href="#383" id="383">383</a>
 <a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -398,7 +413,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{TypeChecker, VariableSymbol, VariableType};
+</span><span class="kw">use crate</span>::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::TypeCheckerError;
@@ -439,19 +454,29 @@
     }
 
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
-        <span class="comment">// Typecheck the struct definitions.
+        <span class="comment">// Typecheck each struct definition.
         </span>input.structs.values().for_each(|function| <span class="self">self</span>.visit_struct(function));
 
-        <span class="comment">// Typecheck the mapping definitions.
+        <span class="comment">// Check that the struct dependency graph does not have any cycles.
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(DiGraphError::CycleDetected(path)) = <span class="self">self</span>.struct_graph.post_order() {
+            <span class="self">self</span>.emit_err(TypeCheckerError::cyclic_struct_dependency(path));
+        }
+
+        <span class="comment">// Typecheck each mapping definition.
         </span>input.mappings.values().for_each(|mapping| <span class="self">self</span>.visit_mapping(mapping));
 
-        <span class="comment">// Typecheck the function definitions.
+        <span class="comment">// Typecheck each function definitions.
         </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
         <span class="kw">for </span>function <span class="kw">in </span>input.functions.values() {
             <span class="self">self</span>.visit_function(function);
             <span class="kw">if </span><span class="macro">matches!</span>(function.call_type, CallType::Transition) {
                 transition_count += <span class="number">1</span>;
             }
+        }
+
+        <span class="comment">// Check that the call graph does not have any cycles.
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(DiGraphError::CycleDetected(path)) = <span class="self">self</span>.call_graph.post_order() {
+            <span class="self">self</span>.emit_err(TypeCheckerError::cyclic_function_dependency(path));
         }
 
         <span class="comment">// TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
@@ -517,6 +542,11 @@
             }
             <span class="comment">// Ensure that there are no record members.
             </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+            <span class="comment">// If the member is a struct, add it to the struct dependency graph.
+            // Note that we have already checked that each member is defined and valid.
+            </span><span class="kw">if let </span>Type::Identifier(member_type) = type_ {
+                <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.name);
+            }
         }
     }
 
