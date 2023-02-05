@@ -9,11 +9,11 @@ outputs:
     bytecode: b26e7efafe9624ccaa5ebe73afb04f718bffd1dd4094724a1a040dffd96ee6e8
     results:
       main:
-        - inputs: "[1u32]"
-          outputs: "[true]"
-        - inputs: "[2u32]"
-          outputs: "[true]"
-        - inputs: "[3u32]"
-          outputs: "[true]"
-        - inputs: "[4u32]"
-          outputs: "[false]"
+        - input: "[1u32]"
+          output: "[true]"
+        - input: "[2u32]"
+          output: "[true]"
+        - input: "[3u32]"
+          output: "[true]"
+        - input: "[4u32]"
+          output: "[false]"

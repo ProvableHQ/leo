@@ -107,37 +107,29 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         for case in cases {
             let case = case.as_mapping().unwrap();
             let inputs: Vec<_> = case
-                .get(&Value::from("inputs"))
+                .get(&Value::from("input"))
                 .unwrap()
                 .as_sequence()
                 .unwrap()
                 .iter()
                 .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
                 .collect();
-            let inputs_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
+            let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
 
+            // TODO: Add support for custom config like custom private keys.
             // Execute the program and get the outputs.
-            // TODO: Error as expected output.
-            let (response, _, _, _) = handler.extend_if_error(
-                package
-                    .run::<Aleo, _>(
-                        None,
-                        package.manifest_file().development_private_key(),
-                        function_name,
-                        &inputs,
-                        rng,
-                    )
-                    .map_err(LeoError::Anyhow),
-            )?;
-            let outputs_string = format!(
-                "[{}]",
-                response.outputs().iter().map(|output| output.to_string()).join(", ")
-            );
+            let output_string = match package.run::<Aleo, _>(None, package.manifest_file().development_private_key(), function_name, &inputs, rng) {
+                Ok((response, _, _, _)) => format!(
+                        "[{}]",
+                        response.outputs().iter().map(|output| output.to_string()).join(", ")
+                    ),
+                Err(err) => format!("SnarkVMError({:?})", err),
+            };
 
             // Store the inputs and outputs in a map.
             let mut result = BTreeMap::new();
-            result.insert("inputs".to_string(), inputs_string);
-            result.insert("outputs".to_string(), outputs_string);
+            result.insert("input".to_string(), input_string);
+            result.insert("output".to_string(), output_string);
 
             // Add the hashes of the inputs and outputs to the function results.
             function_results.push(result);

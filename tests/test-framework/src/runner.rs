@@ -251,7 +251,6 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         if errors.is_empty() {
             if expectations.is_none() {
-                println!("expectation_path: {:?}", expectation_path);
                 outputs.push((
                     expectation_path,
                     TestExpectation {
@@ -290,7 +289,6 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         );
     } else {
         for (path, new_expectation) in outputs {
-            println!("writing expectation to {:?}", path);
             std::fs::create_dir_all(path.parent().unwrap()).expect("failed to make test expectation parent directory");
             std::fs::write(
                 &path,

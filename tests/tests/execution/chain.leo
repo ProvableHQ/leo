@@ -3,10 +3,10 @@ namespace: Execute
 expectation: Pass
 cases:
     main:
-    - inputs: ["1u32"]
-    - inputs: ["2u32"]
-    - inputs: ["3u32"]
-    - inputs: ["4u32"]
+    - input: ["1u32"]
+    - input: ["2u32"]
+    - input: ["3u32"]
+    - input: ["4u32"]
 */
 
 program test.aleo {
