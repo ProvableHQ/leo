@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{collect_all_inputs, compile_and_process, hash_file, parse_program, temp_dir, BufferEmitter};
+use utilities::{compile_and_process, parse_program, BufferEmitter};
 
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
@@ -24,17 +24,13 @@ use leo_test_framework::{
     Test,
 };
 
-use snarkvm::file::Manifest;
-use snarkvm::package::Package;
 use snarkvm::prelude::*;
 
-use crate::utilities::buffer_if_err;
+use crate::utilities::{get_cwd_option, hash_asts, hash_content, setup_build_directory};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use std::{fs, path::Path, rc::Rc};
-use std::{fs::File, io::Write};
-
-type CurrentNetwork = Testnet3;
+use std::rc::Rc;
+use std::{fs, path::Path};
 
 struct CompileNamespace;
 
@@ -47,7 +43,7 @@ impl Namespace for CompileNamespace {
         let buf = BufferEmitter(Rc::default(), Rc::default());
         let handler = Handler::new(Box::new(buf.clone()));
 
-        create_session_if_not_set_then(|_| run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string()))
+        create_session_if_not_set_then(|_| run_test(test, &handler).map_err(|()| buf.0.take().to_string()))
     }
 }
 
@@ -57,18 +53,12 @@ struct CompileOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
+    pub bytecode: String
 }
 
-fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
+fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
     // Check for CWD option:
-    // ``` cwd: import ```
-    // When set, uses different working directory for current file.
-    // If not, uses file path as current working directory.
-    let cwd = test.config.get("cwd").map(|val| {
-        let mut cwd = test.path.clone();
-        cwd.pop();
-        cwd.join(val.as_str().unwrap())
-    });
+    let cwd = get_cwd_option(&test);
 
     // Parse the program.
     let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
@@ -77,38 +67,16 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let program_name = format!("{}.{}", parsed.program_name, parsed.network);
     let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-    // Run snarkvm package.
-    {
-        // Initialize a temporary directory.
-        let directory = temp_dir();
+    // Set up the build directory.
+    let package = setup_build_directory(&program_name, &bytecode, &handler)?;
 
-        // Create the program id.
-        let program_id = ProgramID::<CurrentNetwork>::from_str(&program_name).unwrap();
+    // Get the program process and check all instructions.
+    handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
 
-        // Write the program string to a file in the temporary directory.
-        let path = directory.join("main.aleo");
-        let mut file = File::create(path).unwrap();
-        file.write_all(bytecode.as_bytes()).unwrap();
+    // Hash the ast files.
+    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast) = hash_asts();
 
-        // Create the manifest file.
-        let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
-
-        // Create the build directory.
-        let build_directory = directory.join("build");
-        std::fs::create_dir_all(build_directory).unwrap();
-
-        // Open the package at the temporary directory.
-        let package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
-
-        // Get the program process and check all instructions.
-        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
-    }
-
-    let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
-    let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
-    let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
-
+    // Clean up the output directory.
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
     }
@@ -118,6 +86,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         unrolled_ast,
         ssa_ast,
         flattened_ast,
+        bytecode: hash_content(&bytecode)
     };
     Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
 }

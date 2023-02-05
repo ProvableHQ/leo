@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{compile_and_process, hash_content, hash_file, parse_program, temp_dir, BufferEmitter};
+use utilities::{buffer_if_err, compile_and_process, parse_program, BufferEmitter};
+use utilities::{get_cwd_option, setup_build_directory, Aleo, Network};
 
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
@@ -25,18 +26,14 @@ use leo_test_framework::{
 };
 
 use snarkvm::console;
-use snarkvm::file::Manifest;
-use snarkvm::package::Package;
 use snarkvm::prelude::*;
 
+use crate::utilities::{hash_asts, hash_content};
+use leo_test_framework::test::TestExpectationMode;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::collections::BTreeMap;
 use std::{fs, path::Path, rc::Rc};
-use std::{fs::File, io::Write};
-
-type Network = Testnet3;
-pub type Aleo = snarkvm::circuit::AleoV0;
 
 struct ExecuteNamespace;
 
@@ -60,19 +57,21 @@ struct ExecuteOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
-    pub results: BTreeMap<String, Vec<(String, String)>>,
+    pub bytecode: String,
+    pub results: BTreeMap<String, Vec<BTreeMap<String, String>>>,
 }
 
-fn run_test(test: Test, handler: &Handler, _err_buf: &BufferEmitter) -> Result<Value, ()> {
+fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
+    // Check that config expectation is always pass.
+    if test.config.expectation != TestExpectationMode::Pass {
+        buffer_if_err(
+            err_buf,
+            Err("Test expectation must be `Pass` for `Execute` tests.".to_string()),
+        )?;
+    }
+
     // Check for CWD option:
-    // ``` cwd: import ```
-    // When set, uses different working directory for current file.
-    // If not, uses file path as current working directory.
-    let cwd = test.config.get("cwd").map(|val| {
-        let mut cwd = test.path.clone();
-        cwd.pop();
-        cwd.join(val.as_str().unwrap())
-    });
+    let cwd = get_cwd_option(&test);
 
     // Parse the program.
     let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
@@ -84,6 +83,7 @@ fn run_test(test: Test, handler: &Handler, _err_buf: &BufferEmitter) -> Result<V
     // Extract the cases from the test config.
     let all_cases = test
         .config
+        .extra
         .get("cases")
         .expect("An `Execute` config must have a `cases` field.")
         .as_mapping()
@@ -92,93 +92,63 @@ fn run_test(test: Test, handler: &Handler, _err_buf: &BufferEmitter) -> Result<V
     // Initialize a map for the expected results.
     let mut results = BTreeMap::new();
 
-    // Run snarkvm package.
-    {
-        // Initialize a temporary directory.
-        let directory = temp_dir();
+    // Setup the build directory.
+    let package = setup_build_directory(&program_name, &bytecode, &handler)?;
 
-        // Create the program id.
-        let program_id = ProgramID::<Network>::from_str(&program_name).unwrap();
+    // Initialize an rng.
+    let rng = &mut rand::thread_rng();
 
-        // Write the program string to a file in the temporary directory.
-        let path = directory.join("main.aleo");
-        let mut file = File::create(path).unwrap();
-        file.write_all(bytecode.as_bytes()).unwrap();
+    // Run each test case for each function.
+    for (function_name, function_cases) in all_cases {
+        let function_name = Identifier::from_str(function_name.as_str().unwrap()).unwrap();
+        let cases = function_cases.as_sequence().unwrap();
+        let mut function_results = Vec::with_capacity(cases.len());
 
-        // Create the manifest file.
-        let manifest_file = Manifest::create(&directory, &program_id).unwrap();
+        for case in cases {
+            let case = case.as_mapping().unwrap();
+            let inputs: Vec<_> = case
+                .get(&Value::from("inputs"))
+                .unwrap()
+                .as_sequence()
+                .unwrap()
+                .iter()
+                .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
+                .collect();
+            let inputs_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
 
-        // Create the build directory.
-        let build_directory = directory.join("build");
-        std::fs::create_dir_all(build_directory).unwrap();
+            // Execute the program and get the outputs.
+            // TODO: Error as expected output.
+            let (response, _, _, _) = handler.extend_if_error(
+                package
+                    .run::<Aleo, _>(
+                        None,
+                        package.manifest_file().development_private_key(),
+                        function_name,
+                        &inputs,
+                        rng,
+                    )
+                    .map_err(LeoError::Anyhow),
+            )?;
+            let outputs_string = format!(
+                "[{}]",
+                response.outputs().iter().map(|output| output.to_string()).join(", ")
+            );
 
-        // Open the package at the temporary directory.
-        let package = handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))?;
+            // Store the inputs and outputs in a map.
+            let mut result = BTreeMap::new();
+            result.insert("inputs".to_string(), inputs_string);
+            result.insert("outputs".to_string(), outputs_string);
 
-        // Initialize an rng.
-        let rng = &mut rand::thread_rng();
-
-        // Run each test case for each function.
-        for (function_name, function_cases) in all_cases {
-            let function_name = Identifier::from_str(function_name.as_str().unwrap()).unwrap();
-            let cases = function_cases.as_sequence().unwrap();
-            let mut function_results = Vec::with_capacity(cases.len());
-
-            for case in cases {
-                let case = case.as_mapping().unwrap();
-                let inputs: Vec<_> = case
-                    .get(&Value::from("inputs"))
-                    .unwrap()
-                    .as_sequence()
-                    .unwrap()
-                    .iter()
-                    .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
-                    .collect();
-                let inputs_hash = hash_content(&format!(
-                    "[{}]",
-                    inputs.iter().map(|input| input.to_string()).join(", ")
-                ));
-
-                let outputs: Vec<_> = case
-                    .get(&Value::from("expected"))
-                    .unwrap()
-                    .as_sequence()
-                    .unwrap()
-                    .iter()
-                    .map(|output| console::program::Value::<Network>::from_str(output.as_str().unwrap()).unwrap())
-                    .collect();
-                let outputs_hash = hash_content(&format!(
-                    "[{}]",
-                    outputs.iter().map(|output| output.to_string()).join(", ")
-                ));
-
-                // Execute the program and get the outputs.
-                let (_response, _, _, _) = handler.extend_if_error(
-                    package
-                        .run::<Aleo, _>(
-                            None,
-                            manifest_file.development_private_key(),
-                            function_name,
-                            &inputs,
-                            rng,
-                        )
-                        .map_err(LeoError::Anyhow),
-                )?;
-
-                // TODO: Check that outputs match
-
-                // Add the hashes of the inputs and outputs to the function results.
-                function_results.push((inputs_hash, outputs_hash));
-            }
-            results.insert(function_name.to_string(), function_results);
+            // Add the hashes of the inputs and outputs to the function results.
+            function_results.push(result);
         }
+        results.insert(function_name.to_string(), function_results);
     }
 
-    let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
-    let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
-    let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
+    // Hash the ast files.
+    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast) = hash_asts();
 
+    // Clean up the output directory.
     if fs::read_dir("/tmp/output").is_ok() {
         fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
     }
@@ -188,6 +158,7 @@ fn run_test(test: Test, handler: &Handler, _err_buf: &BufferEmitter) -> Result<V
         unrolled_ast,
         ssa_ast,
         flattened_ast,
+        bytecode: hash_content(&bytecode),
         results,
     };
     Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
