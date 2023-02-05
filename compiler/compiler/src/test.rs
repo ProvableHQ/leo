@@ -286,7 +286,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         ssa_ast,
         flattened_ast,
     };
-    Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
+    Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
 }
 
 struct TestRunner;
