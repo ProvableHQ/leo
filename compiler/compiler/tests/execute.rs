@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Aleo Systems Inc.
+// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@ mod utilities;
 use utilities::{buffer_if_err, compile_and_process, parse_program, BufferEmitter};
 use utilities::{get_cwd_option, setup_build_directory, Aleo, Network};
 
-use leo_errors::{emitter::Handler, LeoError};
+use leo_errors::{emitter::Handler};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -35,6 +35,7 @@ use serde_yaml::Value;
 use std::collections::BTreeMap;
 use std::{fs, path::Path, rc::Rc};
 
+// TODO: Evaluate namespace.
 struct ExecuteNamespace;
 
 impl Namespace for ExecuteNamespace {
@@ -93,7 +94,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let mut results = BTreeMap::new();
 
     // Setup the build directory.
-    let package = setup_build_directory(&program_name, &bytecode, &handler)?;
+    let package = setup_build_directory(&program_name, &bytecode, handler)?;
 
     // Initialize an rng.
     let rng = &mut rand::thread_rng();
@@ -118,12 +119,18 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
             // TODO: Add support for custom config like custom private keys.
             // Execute the program and get the outputs.
-            let output_string = match package.run::<Aleo, _>(None, package.manifest_file().development_private_key(), function_name, &inputs, rng) {
+            let output_string = match package.run::<Aleo, _>(
+                None,
+                package.manifest_file().development_private_key(),
+                function_name,
+                &inputs,
+                rng,
+            ) {
                 Ok((response, _, _, _)) => format!(
-                        "[{}]",
-                        response.outputs().iter().map(|output| output.to_string()).join(", ")
-                    ),
-                Err(err) => format!("SnarkVMError({:?})", err),
+                    "[{}]",
+                    response.outputs().iter().map(|output| output.to_string()).join(", ")
+                ),
+                Err(err) => format!("SnarkVMError({err})"),
             };
 
             // Store the inputs and outputs in a map.
@@ -153,7 +160,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         bytecode: hash_content(&bytecode),
         results,
     };
-    Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
+    Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
 }
 
 struct TestRunner;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Aleo Systems Inc.
+// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -36,6 +36,7 @@ use std::{
 };
 
 pub type Network = Testnet3;
+#[allow(unused)]
 pub type Aleo = snarkvm::circuit::AleoV0;
 
 pub fn hash_asts() -> (String, String, String, String) {
@@ -169,6 +170,7 @@ impl Emitter for BufferEmitter {
     }
 }
 
+#[allow(unused)]
 pub fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T, ()> {
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }

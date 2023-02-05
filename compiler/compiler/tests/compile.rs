@@ -68,7 +68,7 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
     let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
     // Set up the build directory.
-    let package = setup_build_directory(&program_name, &bytecode, &handler)?;
+    let package = setup_build_directory(&program_name, &bytecode, handler)?;
 
     // Get the program process and check all instructions.
     handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
