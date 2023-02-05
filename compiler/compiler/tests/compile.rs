@@ -53,7 +53,7 @@ struct CompileOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
-    pub bytecode: String
+    pub bytecode: String,
 }
 
 fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
@@ -86,7 +86,7 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
         unrolled_ast,
         ssa_ast,
         flattened_ast,
-        bytecode: hash_content(&bytecode)
+        bytecode: hash_content(&bytecode),
     };
     Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
 }

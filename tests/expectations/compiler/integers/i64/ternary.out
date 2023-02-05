@@ -6,3 +6,4 @@ outputs:
     unrolled_ast: 27210d6f7f5baec178ab877bddaa778e9d7cf5cc8420682619646d51e250ff6d
     ssa_ast: 7699affdbe67bf9d302e4ffb3e267f1d47d43dc31fcb9791fb5f8aa606dfd0b8
     flattened_ast: a4eca8a18cc6e02ff7656819dc74b929a7c1ee00714de4e2f2d81ae98b6072e0
+    bytecode: efc50d9c273e04e053737ce892bd545a43ffd8bf293e1a9b60ac1b39f215a653

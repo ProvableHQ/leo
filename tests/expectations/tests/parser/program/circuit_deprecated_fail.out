@@ -1,5 +1,0 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370025]: The keyword `circuit` is deprecated.\n    --> test:5:5\n     |\n   5 |     circuit Foo {\n     |     ^^^^^^^\n     |\n     = Use `struct` instead."
