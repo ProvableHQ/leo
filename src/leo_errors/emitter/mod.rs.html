@@ -460,7 +460,7 @@
     }
 
     <span class="doccomment">/// Gets the last emitted error&#39;s exit code.
-    </span><span class="kw">fn </span>last_emited_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
+    </span><span class="kw">fn </span>last_emitted_err_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i32&gt; {
         <span class="self">self</span>.emitter.last_emitted_err_code()
     }
 
@@ -545,7 +545,7 @@
     <span class="doccomment">/// Gets the last emitted error&#39;s exit code if it exists.
     /// Then exits the program with it if it did exist.
     </span><span class="kw">pub fn </span>last_err(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;LeoError&gt;&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(code) = <span class="self">self</span>.inner.borrow().last_emited_err_code() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(code) = <span class="self">self</span>.inner.borrow().last_emitted_err_code() {
             <span class="prelude-val">Err</span>(Box::new(LeoError::LastErrorCode(code)))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())

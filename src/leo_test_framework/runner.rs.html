@@ -317,6 +317,12 @@
 <a href="#317" id="317">317</a>
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -336,7 +342,6 @@
 </span><span class="kw">use </span>serde_yaml::Value;
 <span class="kw">use </span>std::{
     any::Any,
-    collections::BTreeMap,
     panic::{<span class="self">self</span>, RefUnwindSafe, UnwindSafe},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -356,7 +361,7 @@
     <span class="kw">pub </span>name: String,
     <span class="kw">pub </span>content: String,
     <span class="kw">pub </span>path: PathBuf,
-    <span class="kw">pub </span>config: BTreeMap&lt;String, Value&gt;,
+    <span class="kw">pub </span>config: TestConfig,
 }
 
 <span class="kw">pub trait </span>Namespace: UnwindSafe + RefUnwindSafe {
@@ -404,24 +409,19 @@
 <span class="kw">pub struct </span>TestCases {
     tests: Vec&lt;(PathBuf, String)&gt;,
     path_prefix: PathBuf,
+    expectation_category: String,
     fail_categories: Vec&lt;TestFailure&gt;,
 }
 
 <span class="kw">impl </span>TestCases {
     <span class="kw">fn </span>new(expectation_category: <span class="kw-2">&amp;</span>str, additional_check: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>TestConfig) -&gt; bool) -&gt; (<span class="self">Self</span>, Vec&lt;TestConfig&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>path_prefix = PathBuf::from(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
-        path_prefix.push(<span class="string">&quot;../../tests/&quot;</span>);
-        path_prefix.push(expectation_category);
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">&quot;TEST_FILTER&quot;</span>) {
-            path_prefix.push(p);
-        }
-
-        <span class="kw">let </span><span class="kw-2">mut </span>expectation_dir = path_prefix.clone();
-        expectation_dir.push(<span class="string">&quot;expectations&quot;</span>);
+        path_prefix.push(<span class="string">&quot;../../tests&quot;</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>new = <span class="self">Self </span>{
             tests: Vec::new(),
             path_prefix,
+            expectation_category: expectation_category.to_string(),
             fail_categories: Vec::new(),
         };
         <span class="kw">let </span>tests = new.load_tests(additional_check);
@@ -431,7 +431,14 @@
     <span class="kw">fn </span>load_tests(<span class="kw-2">&amp;mut </span><span class="self">self</span>, additional_check: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>TestConfig) -&gt; bool) -&gt; Vec&lt;TestConfig&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>configs = Vec::new();
 
-        <span class="self">self</span>.tests = find_tests(<span class="kw-2">&amp;</span><span class="self">self</span>.path_prefix.clone())
+        <span class="kw">let </span><span class="kw-2">mut </span>test_path = <span class="self">self</span>.path_prefix.clone();
+        test_path.push(<span class="string">&quot;tests&quot;</span>);
+        test_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.expectation_category);
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">&quot;TEST_FILTER&quot;</span>) {
+            test_path.push(p);
+        }
+
+        <span class="self">self</span>.tests = find_tests(<span class="kw-2">&amp;</span>test_path)
             .filter(|(path, content)| <span class="kw">match </span>extract_test_config(content) {
                 <span class="prelude-val">None </span>=&gt; {
                     <span class="self">self</span>.fail_categories.push(TestFailure {
@@ -476,11 +483,16 @@
     }
 
     <span class="kw">fn </span>load_expectations(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; (PathBuf, <span class="prelude-ty">Option</span>&lt;TestExpectation&gt;) {
-        <span class="kw">let </span>test_dir = [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests/&quot;</span>].iter().collect::&lt;PathBuf&gt;();
-        <span class="kw">let </span>relative_path = path.strip_prefix(<span class="kw-2">&amp;</span>test_dir).expect(<span class="string">&quot;path error for test&quot;</span>);
+        <span class="kw">let </span>test_dir = [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests&quot;</span>].iter().collect::&lt;PathBuf&gt;();
+        <span class="kw">let </span>relative_path = path
+            .strip_prefix(<span class="kw-2">&amp;</span>test_dir)
+            .expect(<span class="string">&quot;path error for test&quot;</span>)
+            .strip_prefix(<span class="string">&quot;tests&quot;</span>)
+            .expect(<span class="string">&quot;path error for test&quot;</span>);
+
         <span class="kw">let </span>expectation_path = test_dir
             .join(<span class="string">&quot;expectations&quot;</span>)
-            .join(relative_path.parent().expect(<span class="string">&quot;no parent dir for test&quot;</span>))
+            .join(relative_path.parent().expect(<span class="string">&quot;no parent for test&quot;</span>))
             .join(relative_path.file_name().expect(<span class="string">&quot;no file name for test&quot;</span>))
             .with_extension(<span class="string">&quot;out&quot;</span>);
 
@@ -543,7 +555,7 @@
                     name: test_name.to_string(),
                     content: test.clone(),
                     path: path.into(),
-                    config: config.extra.clone(),
+                    config: config.clone(),
                 })
             });
             <span class="kw">let </span>output = take_hook(leo_output, panic_buf);
