@@ -1,3 +1,0 @@
-[main]
-x: u8 = 3u8;
-y: bool = true;

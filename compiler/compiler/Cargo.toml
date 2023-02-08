@@ -45,6 +45,10 @@ version = "0.10"
 path = "../../tests/test-framework"
 version = "1.4.0"
 
+[dev-dependencies.rand]
+version = "0.8"
+default-features = false
+
 [dev-dependencies.snarkvm]
 workspace = true
 default-features = false

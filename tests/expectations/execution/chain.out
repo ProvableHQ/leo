@@ -1,0 +1,19 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - initial_ast: 3c1a4035879a71f0f4b9a29f5ae565055141d2fccdd180071a4b228ad83c2d9b
+    unrolled_ast: 3c1a4035879a71f0f4b9a29f5ae565055141d2fccdd180071a4b228ad83c2d9b
+    ssa_ast: ad31bc1da505ff74ba0dc532e74c5b36603cb1f912c616bbe1694751b2557f61
+    flattened_ast: 6c838e3ae060537709075ea5cd05afdd745815bbd4925daf174268dfa5d58d64
+    bytecode: b26e7efafe9624ccaa5ebe73afb04f718bffd1dd4094724a1a040dffd96ee6e8
+    results:
+      main:
+        - input: "[1u32]"
+          output: "[true]"
+        - input: "[2u32]"
+          output: "[true]"
+        - input: "[3u32]"
+          output: "[true]"
+        - input: "[4u32]"
+          output: "[false]"

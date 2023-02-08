@@ -1,3 +1,0 @@
-[main]
-flag: u8 = 1u8;
-value: u8 = 1u8;

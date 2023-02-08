@@ -1,0 +1,19 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - initial_ast: 587c36a1a4e1585d53211eea86221014a6b8a816d0657f29de282b2984bf31c9
+    unrolled_ast: 587c36a1a4e1585d53211eea86221014a6b8a816d0657f29de282b2984bf31c9
+    ssa_ast: 587c36a1a4e1585d53211eea86221014a6b8a816d0657f29de282b2984bf31c9
+    flattened_ast: 587c36a1a4e1585d53211eea86221014a6b8a816d0657f29de282b2984bf31c9
+    bytecode: e82dc85d86570ddd2ae71f8a7f9e150e43061697a6d0152a0c354fecd6bfd15d
+    results:
+      main:
+        - input: "[0u32, 1u32]"
+          output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
+        - input: "[1u32, 1u32]"
+          output: "[]"
+        - input: "[1u32, 2u32]"
+          output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
+        - input: "[2u32, 2u32]"
+          output: "[]"

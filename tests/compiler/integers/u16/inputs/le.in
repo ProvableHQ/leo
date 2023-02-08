@@ -1,7 +1,0 @@
-[main]
-a: u16 = 1u16;
-b: u16 = 100u16;
-c: bool = true;
-
-[registers]
-r0: bool = true;

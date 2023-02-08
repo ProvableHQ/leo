@@ -1,8 +1,0 @@
-[main]
-s: bool = true;
-a: i8 = 10i8;
-b: i8 = 5i8;
-c: i8 = 10i8;
-
-[registers]
-r0: bool = false;

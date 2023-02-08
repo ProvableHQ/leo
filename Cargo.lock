@@ -1210,6 +1210,7 @@ dependencies = [
  "leo-passes",
  "leo-span",
  "leo-test-framework",
+ "rand",
  "serde",
  "serde_yaml",
  "sha2",

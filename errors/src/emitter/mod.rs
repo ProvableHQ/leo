@@ -155,7 +155,7 @@ impl HandlerInner {
     }
 
     /// Gets the last emitted error's exit code.
-    fn last_emited_err_code(&self) -> Option<i32> {
+    fn last_emitted_err_code(&self) -> Option<i32> {
         self.emitter.last_emitted_err_code()
     }
 
@@ -240,7 +240,7 @@ impl Handler {
     /// Gets the last emitted error's exit code if it exists.
     /// Then exits the program with it if it did exist.
     pub fn last_err(&self) -> Result<(), Box<LeoError>> {
-        if let Some(code) = self.inner.borrow().last_emited_err_code() {
+        if let Some(code) = self.inner.borrow().last_emitted_err_code() {
             Err(Box::new(LeoError::LastErrorCode(code)))
         } else {
             Ok(())

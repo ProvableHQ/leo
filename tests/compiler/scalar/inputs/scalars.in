@@ -1,7 +1,0 @@
-[main]
-a: scalar = 1scalar;
-b: scalar = 1scalar;
-c: scalar = 2scalar;
-
-[registers]
-r: bool = false;

@@ -1,7 +1,0 @@
-[main]
-a: i16 = 2i16;
-b: i16 = 2i16;
-c: bool = true;
-
-[registers]
-r0: bool = true;

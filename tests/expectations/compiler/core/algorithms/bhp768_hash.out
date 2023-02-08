@@ -2,9 +2,8 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - output:
-      - initial_input_ast: 3cb982a5d4144e548fca897ceb686ad1f638971bb22fff7b935363eacc1b3473
-    initial_ast: fd09783877c99da74d6ba033e99e7bda8e82433c307d93e9c0a4e3914d6a109a
+  - initial_ast: fd09783877c99da74d6ba033e99e7bda8e82433c307d93e9c0a4e3914d6a109a
     unrolled_ast: fd09783877c99da74d6ba033e99e7bda8e82433c307d93e9c0a4e3914d6a109a
     ssa_ast: 74e79d5cbd5e7b80826ff017294a6542b55cfe9e0734e82c8d0b47c257d1f0a3
     flattened_ast: b5d3d72262fec88ea316abd2f6dfaf90e199aceb959b7eda6eaeddcc419233b2
+    bytecode: 45f6f395a7abca14ca5a1e3d5dc3fb2ac5ea3946740553ca5aee7a5822a235ec

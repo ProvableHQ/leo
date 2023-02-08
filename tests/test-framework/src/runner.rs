@@ -17,7 +17,6 @@
 use serde_yaml::Value;
 use std::{
     any::Any,
-    collections::BTreeMap,
     panic::{self, RefUnwindSafe, UnwindSafe},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
@@ -37,7 +36,7 @@ pub struct Test {
     pub name: String,
     pub content: String,
     pub path: PathBuf,
-    pub config: BTreeMap<String, Value>,
+    pub config: TestConfig,
 }
 
 pub trait Namespace: UnwindSafe + RefUnwindSafe {
@@ -85,24 +84,19 @@ fn take_hook(
 pub struct TestCases {
     tests: Vec<(PathBuf, String)>,
     path_prefix: PathBuf,
+    expectation_category: String,
     fail_categories: Vec<TestFailure>,
 }
 
 impl TestCases {
     fn new(expectation_category: &str, additional_check: impl Fn(&TestConfig) -> bool) -> (Self, Vec<TestConfig>) {
         let mut path_prefix = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        path_prefix.push("../../tests/");
-        path_prefix.push(expectation_category);
-        if let Ok(p) = std::env::var("TEST_FILTER") {
-            path_prefix.push(p);
-        }
-
-        let mut expectation_dir = path_prefix.clone();
-        expectation_dir.push("expectations");
+        path_prefix.push("../../tests");
 
         let mut new = Self {
             tests: Vec::new(),
             path_prefix,
+            expectation_category: expectation_category.to_string(),
             fail_categories: Vec::new(),
         };
         let tests = new.load_tests(additional_check);
@@ -112,7 +106,14 @@ impl TestCases {
     fn load_tests(&mut self, additional_check: impl Fn(&TestConfig) -> bool) -> Vec<TestConfig> {
         let mut configs = Vec::new();
 
-        self.tests = find_tests(&self.path_prefix.clone())
+        let mut test_path = self.path_prefix.clone();
+        test_path.push("tests");
+        test_path.push(&self.expectation_category);
+        if let Ok(p) = std::env::var("TEST_FILTER") {
+            test_path.push(p);
+        }
+
+        self.tests = find_tests(&test_path)
             .filter(|(path, content)| match extract_test_config(content) {
                 None => {
                     self.fail_categories.push(TestFailure {
@@ -157,11 +158,16 @@ impl TestCases {
     }
 
     fn load_expectations(&self, path: &Path) -> (PathBuf, Option<TestExpectation>) {
-        let test_dir = [env!("CARGO_MANIFEST_DIR"), "../../tests/"].iter().collect::<PathBuf>();
-        let relative_path = path.strip_prefix(&test_dir).expect("path error for test");
+        let test_dir = [env!("CARGO_MANIFEST_DIR"), "../../tests"].iter().collect::<PathBuf>();
+        let relative_path = path
+            .strip_prefix(&test_dir)
+            .expect("path error for test")
+            .strip_prefix("tests")
+            .expect("path error for test");
+
         let expectation_path = test_dir
             .join("expectations")
-            .join(relative_path.parent().expect("no parent dir for test"))
+            .join(relative_path.parent().expect("no parent for test"))
             .join(relative_path.file_name().expect("no file name for test"))
             .with_extension("out");
 
@@ -224,7 +230,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                     name: test_name.to_string(),
                     content: test.clone(),
                     path: path.into(),
-                    config: config.extra.clone(),
+                    config: config.clone(),
                 })
             });
             let output = take_hook(leo_output, panic_buf);

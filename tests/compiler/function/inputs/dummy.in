@@ -1,8 +1,0 @@
-[main]
-a: u32 = 10u32;
-b: u32 = 100u32;
-y: bool = true;
-
-[registers]
-r0: bool = true;
-r1: bool = true;

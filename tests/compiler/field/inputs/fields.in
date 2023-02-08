@@ -1,7 +1,0 @@
-[main]
-a: field = 1field;
-b: field = 1field;
-c: field = 2field;
-
-[registers]
-r: bool = false;
