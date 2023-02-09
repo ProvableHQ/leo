@@ -454,7 +454,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                         // If the function is a transition function, then check that the call is not to another local transition function.
                         true => {
-                            if matches!(func.call_type, Variant::Transition) && input.external.is_none() {
+                            if matches!(func.variant, Variant::Transition) && input.external.is_none() {
                                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
                                     input.span,
                                 ));

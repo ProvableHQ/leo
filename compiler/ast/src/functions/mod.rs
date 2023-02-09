@@ -77,7 +77,7 @@ impl Function {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
-        call_type: Variant,
+        variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
@@ -99,7 +99,7 @@ impl Function {
 
         Function {
             annotations,
-            variant: call_type,
+            variant,
             identifier,
             input,
             output,

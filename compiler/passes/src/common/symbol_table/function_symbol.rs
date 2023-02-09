@@ -36,7 +36,7 @@ pub struct FunctionSymbol {
     /// The output type of the function.
     pub(crate) output_type: Type,
     /// Is this function a transition, inlined, or a regular function?.
-    pub call_type: Variant,
+    pub variant: Variant,
     /// The `Span` associated with the function.
     pub(crate) _span: Span,
     /// The inputs to the function.
@@ -50,7 +50,7 @@ impl SymbolTable {
         FunctionSymbol {
             id,
             output_type: func.output_type.clone(),
-            call_type: func.variant,
+            variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
