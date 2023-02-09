@@ -16,7 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable};
 
-use leo_ast::{Identifier, IntegerType, Node, Type};
+use leo_ast::{Identifier, IntegerType, Node, Type, Variant};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -35,12 +35,13 @@ pub struct TypeChecker<'a> {
     pub(crate) handler: &'a Handler,
     /// The name of the function that we are currently traversing.
     pub(crate) function: Option<Symbol>,
+    /// The variant of the function that we are currently traversing.
+    pub(crate) variant: Option<Variant>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
     /// Whether or not the function that we are currently traversing invokes the finalize block.
     pub(crate) has_finalize: bool,
-    /// Whether or not we are currently traversing a transition function.
-    pub(crate) is_transition_function: bool,
+
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing an imported program.
@@ -105,9 +106,9 @@ impl<'a> TypeChecker<'a> {
             call_graph: CallGraph::new(function_names),
             handler,
             function: None,
+            variant: None,
             has_return: false,
             has_finalize: false,
-            is_transition_function: false,
             is_finalize: false,
             is_imported: false,
             is_return: false,

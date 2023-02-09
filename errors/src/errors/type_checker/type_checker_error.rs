@@ -412,10 +412,11 @@ create_messages!(
         help: None,
     }
 
+    // TODO: Is this error message clear?
     @formatted
-    cannot_invoke_call_from_standard_function {
+    can_only_call_inline_function {
         args: (),
-        msg: format!("Cannot call another function from a standard function."),
+        msg: format!("Only `inline` can be called from a `function` or `inline`."),
         help: None,
     }
 
