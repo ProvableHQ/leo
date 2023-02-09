@@ -425,8 +425,8 @@ impl ParserContext<'_> {
         }
         // Parse `<call_type> IDENT`, where `<call_type>` is `function` or `transition`.
         let (call_type, start) = match self.token.token {
-            Token::Function => (CallType::Standard, self.expect(&Token::Function)?),
-            Token::Transition => (CallType::Transition, self.expect(&Token::Transition)?),
+            Token::Function => (Variant::Standard, self.expect(&Token::Function)?),
+            Token::Transition => (Variant::Transition, self.expect(&Token::Transition)?),
             _ => self.unexpected("'function', 'transition'")?,
         };
         let name = self.expect_identifier()?;

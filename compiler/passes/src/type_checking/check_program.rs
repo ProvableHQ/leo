@@ -70,7 +70,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let mut transition_count = 0;
         for function in input.functions.values() {
             self.visit_function(function);
-            if matches!(function.call_type, CallType::Transition) {
+            if matches!(function.variant, Variant::Transition) {
                 transition_count += 1;
             }
         }
@@ -181,7 +181,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
-        self.is_transition_function = matches!(function.call_type, CallType::Transition);
+        self.is_transition_function = matches!(function.variant, Variant::Transition);
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.

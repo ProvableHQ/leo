@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, CallType, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
+use leo_ast::{functions, Variant, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -94,7 +94,7 @@ impl<'a> CodeGenerator<'a> {
                     let function = program_scope.functions.get(&function_name).unwrap();
 
                     // Set the `is_transition_function` flag.
-                    self.is_transition_function = matches!(function.call_type, CallType::Transition);
+                    self.is_transition_function = matches!(function.variant, Variant::Transition);
 
                     let function_string = self.visit_function(function);
 
