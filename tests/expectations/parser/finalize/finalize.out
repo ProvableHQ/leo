@@ -11,7 +11,7 @@ outputs:
         functions:
           main:
             annotations: []
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"
             input: []
             output:

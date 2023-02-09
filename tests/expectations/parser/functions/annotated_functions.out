@@ -15,7 +15,7 @@ outputs:
                 span:
                   lo: 170
                   hi: 178
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
             input: []
             output:
@@ -39,7 +39,7 @@ outputs:
               hi: 206
           mint:
             annotations: []
-            call_type: Transition
+            variant: Transition
             identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
             input: []
             output:
@@ -67,7 +67,7 @@ outputs:
                 span:
                   lo: 126
                   hi: 131
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
             input: []
             output:

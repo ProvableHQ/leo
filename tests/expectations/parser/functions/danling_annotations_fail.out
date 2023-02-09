@@ -15,7 +15,7 @@ outputs:
                 span:
                   lo: 110
                   hi: 115
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":134,\\\"hi\\\":138}\"}"
             input: []
             output:
