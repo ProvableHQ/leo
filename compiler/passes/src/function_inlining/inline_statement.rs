@@ -16,7 +16,10 @@
 
 use crate::FunctionInliner;
 
-use leo_ast::{Block, ConsoleStatement, DefinitionStatement, IterationStatement, Statement, StatementReconstructor};
+use leo_ast::{
+    Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, IterationStatement, Statement,
+    StatementReconstructor,
+};
 
 impl StatementReconstructor for FunctionInliner<'_> {
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
@@ -38,18 +41,23 @@ impl StatementReconstructor for FunctionInliner<'_> {
         )
     }
 
+    /// Flattening removes conditional statements from the program.
+    fn reconstruct_conditional(&mut self, _: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+    }
+
     /// Parsing guarantees that console statements are not present in the program.
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
     /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.
-    fn reconstruct_iteration(&mut self, _input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
+    fn reconstruct_iteration(&mut self, _: IterationStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 }

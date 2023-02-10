@@ -75,6 +75,6 @@ impl<'a> Pass for FunctionInliner<'a> {
         let mut reconstructor = FunctionInliner::new(st, call_graph, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
-        Ok((Ast::new(program), reconstructor.assigner))
+        Ok((Ast::new(program), reconstructor.static_single_assigner.assigner))
     }
 }
