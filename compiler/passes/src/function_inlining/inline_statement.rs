@@ -17,11 +17,44 @@
 use crate::FunctionInliner;
 
 use leo_ast::{
-    Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, IterationStatement, Statement,
-    StatementReconstructor,
+    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
+    ExpressionReconstructor, ExpressionStatement, IterationStatement, Statement, StatementReconstructor,
 };
 
 impl StatementReconstructor for FunctionInliner<'_> {
+    /// Reconstruct an assignment statement by inlining any function calls.
+    /// This function also segments tuple assignment statements into multiple assignment statements.
+    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        let (value, mut statements) = self.reconstruct_expression(input.value.clone());
+        match (input.place, value) {
+            // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
+            (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
+                statements.extend(
+                    left.elements
+                        .into_iter()
+                        .zip(right.elements.into_iter())
+                        .map(|(lhs, rhs)| {
+                            Statement::Assign(Box::new(AssignStatement {
+                                place: lhs,
+                                value: rhs,
+                                span: Default::default(),
+                            }))
+                        }),
+                );
+                (Statement::dummy(Default::default()), statements)
+            }
+
+            (place, value) => (
+                Statement::Assign(Box::new(AssignStatement {
+                    place,
+                    value,
+                    span: input.span,
+                })),
+                statements,
+            ),
+        }
+    }
+
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
         let mut statements = Vec::with_capacity(block.statements.len());
@@ -54,6 +87,24 @@ impl StatementReconstructor for FunctionInliner<'_> {
     /// Static single assignment replaces definition statements with assignment statements.
     fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    }
+
+    /// Reconstructs expression statements by inlining any function calls.
+    fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Reconstruct the expression.
+        // Note that type checking guarantees that the expression is a function call.
+        let (expression, additional_statements) = self.reconstruct_expression(input.expression);
+
+        // If the resulting expression is a unit expression, return a dummy statement.
+        let statement = match expression {
+            Expression::Unit(_) => Statement::dummy(Default::default()),
+            _ => Statement::Expression(ExpressionStatement {
+                expression,
+                span: input.span,
+            }),
+        };
+
+        (statement, additional_statements)
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.

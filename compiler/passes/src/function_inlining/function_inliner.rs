@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, CallGraph, StaticSingleAssigner, SymbolTable};
+use crate::{Assigner, AssignmentRenamer, CallGraph, SymbolTable};
 
 use leo_ast::Function;
 use leo_span::Symbol;
@@ -24,21 +24,18 @@ use indexmap::IndexMap;
 pub struct FunctionInliner<'a> {
     /// The call graph for the program.
     pub(crate) call_graph: &'a CallGraph,
-    /// A static single assigner used to create unique variable assignments.
-    pub(crate) static_single_assigner: StaticSingleAssigner<'a>,
+    /// A wrapper aroung an Assigner used to create unique variable assignments.
+    pub(crate) assignment_renamer: AssignmentRenamer,
     /// A map of reconstructed functions in the current program scope.
     pub(crate) reconstructed_functions: IndexMap<Symbol, Function>,
 }
 
 impl<'a> FunctionInliner<'a> {
     /// Initializes a new `FunctionInliner`.
-    pub fn new(symbol_table: &'a SymbolTable, call_graph: &'a CallGraph, assigner: Assigner) -> Self {
+    pub fn new(_symbol_table: &'a SymbolTable, call_graph: &'a CallGraph, assigner: Assigner) -> Self {
         Self {
             call_graph,
-            // Note: Since we are using the `StaticSingleAssigner` to create unique variable assignments over `BlockStatement`s, we do not need to pass in
-            // an "accurate" symbol table. This assumption only holds if function inlining occurs after flattening.
-            // TODO: Refactor out the unique renamer from the static single assigner and use it instead.
-            static_single_assigner: StaticSingleAssigner::new(symbol_table, assigner),
+            assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),
         }
     }
