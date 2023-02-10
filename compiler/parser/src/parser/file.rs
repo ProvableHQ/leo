@@ -156,7 +156,7 @@ impl ParserContext<'_> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.insert(id, mapping);
                 }
-                Token::At | Token::Function | Token::Transition => {
+                Token::At | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
@@ -172,6 +172,7 @@ impl ParserContext<'_> {
                             Token::At,
                             Token::Function,
                             Token::Transition,
+                            Token::Inline,
                         ],
                     )
                     .into())
