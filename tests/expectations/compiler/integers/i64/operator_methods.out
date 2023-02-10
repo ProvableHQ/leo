@@ -6,4 +6,5 @@ outputs:
     unrolled_ast: aacae98aeedbd8eb16311d12874e2245ce8c205fbb67f7c5efdb8b3f71d4c605
     ssa_ast: 7a9ea30b5ebc12987e117322db994faae028794aacc81ad91c48fdcab3c95b3b
     flattened_ast: 4e635e9839a156e43a5b384f8236b4e5bfa0bd4b8628248b33bfd4fcdde51268
+    inlined_ast: 4e635e9839a156e43a5b384f8236b4e5bfa0bd4b8628248b33bfd4fcdde51268
     bytecode: 45e1a7496d8146d68d8b9e79a05867ae62ee1ef6d06ff6cdd69932bdd88ee66e
