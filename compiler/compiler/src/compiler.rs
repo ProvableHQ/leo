@@ -180,8 +180,12 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<Assigner> {
-        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
+    pub fn static_single_assignment_pass(
+        &mut self,
+        symbol_table: &SymbolTable,
+        assigner: Assigner,
+    ) -> Result<Assigner> {
+        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
         self.ast = ast;
 
         if self.output_options.ssa_ast {
@@ -210,8 +214,11 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
 
+        // Initialize the assigner. This is responsible for creating unique variable names in the following passes.
+        let assigner = Assigner::default();
+
         // TODO: Make this pass optional.
-        let assigner = self.static_single_assignment_pass(&st)?;
+        let assigner = self.static_single_assignment_pass(&st, assigner)?;
 
         self.flattening_pass(&st, assigner)?;
 

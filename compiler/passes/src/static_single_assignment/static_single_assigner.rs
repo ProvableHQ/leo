@@ -29,12 +29,12 @@ pub struct StaticSingleAssigner<'a> {
 
 impl<'a> StaticSingleAssigner<'a> {
     /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
-    pub(crate) fn new(symbol_table: &'a SymbolTable) -> Self {
+    pub(crate) fn new(symbol_table: &'a SymbolTable, assigner: Assigner) -> Self {
         Self {
             symbol_table,
             rename_table: RenameTable::new(None),
             is_lhs: false,
-            assigner: Assigner::default(),
+            assigner,
         }
     }
 

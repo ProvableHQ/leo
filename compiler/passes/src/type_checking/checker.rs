@@ -100,6 +100,7 @@ impl<'a> TypeChecker<'a> {
 
         let function_names = symbol_table.functions.keys().cloned().collect();
 
+        // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
             symbol_table: RefCell::new(symbol_table),
             struct_graph: StructGraph::new(struct_names),

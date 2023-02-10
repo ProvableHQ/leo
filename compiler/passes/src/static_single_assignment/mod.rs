@@ -65,11 +65,11 @@ use leo_ast::{Ast, ProgramConsumer};
 use leo_errors::Result;
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
-    type Input = (Ast, &'a SymbolTable);
+    type Input = (Ast, &'a SymbolTable, Assigner);
     type Output = Result<(Ast, Assigner)>;
 
-    fn do_pass((ast, symbol_table): Self::Input) -> Self::Output {
-        let mut consumer = StaticSingleAssigner::new(symbol_table);
+    fn do_pass((ast, symbol_table, assigner): Self::Input) -> Self::Output {
+        let mut consumer = StaticSingleAssigner::new(symbol_table, assigner);
         let program = consumer.consume_program(ast.into_repr());
 
         Ok((Ast::new(program), consumer.assigner))
