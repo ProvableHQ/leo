@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Variant, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
+use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;

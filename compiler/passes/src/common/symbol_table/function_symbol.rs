@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Variant, Function, Input, Type};
+use leo_ast::{Function, Input, Type, Variant};
 use leo_span::Span;
 
 use crate::SymbolTable;

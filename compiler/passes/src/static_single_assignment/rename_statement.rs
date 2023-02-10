@@ -197,7 +197,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         statements
     }
 
-    /// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
+    /// Parsing guarantees that console statements are not present in the program.
     fn consume_console(&mut self, _: ConsoleStatement) -> Self::Output {
         unreachable!("Parsing guarantees that console statements are not present in the program.")
     }
