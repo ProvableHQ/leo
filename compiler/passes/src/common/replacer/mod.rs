@@ -21,14 +21,14 @@ use leo_ast::{Expression, ExpressionReconstructor, Identifier, ProgramReconstruc
 /// `Replacer`s are used to interpolate function arguments.
 pub struct Replacer<F>
 where
-    F: Fn(Identifier) -> Expression,
+    F: Fn(&Identifier) -> Expression,
 {
     replace: F,
 }
 
 impl<F> Replacer<F>
 where
-    F: Fn(Identifier) -> Expression,
+    F: Fn(&Identifier) -> Expression,
 {
     pub fn new(replace: F) -> Self {
         Self { replace }
@@ -37,15 +37,15 @@ where
 
 impl<F> ExpressionReconstructor for Replacer<F>
 where
-    F: Fn(Identifier) -> Expression,
+    F: Fn(&Identifier) -> Expression,
 {
     type AdditionalOutput = ();
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
-        ((self.replace)(input), Default::default())
+        ((self.replace)(&input), Default::default())
     }
 }
 
-impl<F> StatementReconstructor for Replacer<F> where F: Fn(Identifier) -> Expression {}
+impl<F> StatementReconstructor for Replacer<F> where F: Fn(&Identifier) -> Expression {}
 
-impl<F> ProgramReconstructor for Replacer<F> where F: Fn(Identifier) -> Expression {}
+impl<F> ProgramReconstructor for Replacer<F> where F: Fn(&Identifier) -> Expression {}
