@@ -30,4 +30,6 @@ pub struct OutputOptions {
     pub ssa_ast: bool,
     /// If enabled writes the AST after flattening.
     pub flattened_ast: bool,
+    /// If enabled writes the AST after inlining.
+    pub inlined_ast: bool,
 }
