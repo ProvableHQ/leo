@@ -39,13 +39,14 @@ pub type Network = Testnet3;
 #[allow(unused)]
 pub type Aleo = snarkvm::circuit::AleoV0;
 
-pub fn hash_asts() -> (String, String, String, String) {
+pub fn hash_asts() -> (String, String, String, String, String) {
     let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
     let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
     let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
     let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
+    let inlined_ast = hash_file("/tmp/output/test.inlined_ast.json");
 
-    (initial_ast, unrolled_ast, ssa_ast, flattened_ast)
+    (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast)
 }
 
 pub fn get_cwd_option(test: &Test) -> Option<PathBuf> {

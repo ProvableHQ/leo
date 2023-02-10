@@ -66,12 +66,12 @@ use leo_errors::Result;
 
 impl<'a> Pass for Flattener<'a> {
     type Input = (Ast, &'a SymbolTable, Assigner);
-    type Output = Result<Ast>;
+    type Output = Result<(Ast, Assigner)>;
 
     fn do_pass((ast, st, assigner): Self::Input) -> Self::Output {
         let mut reconstructor = Flattener::new(st, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
-        Ok(Ast::new(program))
+        Ok((Ast::new(program), reconstructor.assigner))
     }
 }

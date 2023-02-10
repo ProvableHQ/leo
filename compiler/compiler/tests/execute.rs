@@ -58,6 +58,7 @@ struct ExecuteOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
+    pub inlined_ast: String,
     pub bytecode: String,
     pub results: BTreeMap<String, Vec<BTreeMap<String, String>>>,
 }
@@ -145,7 +146,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     }
 
     // Hash the ast files.
-    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast) = hash_asts();
+    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast) = hash_asts();
 
     // Clean up the output directory.
     if fs::read_dir("/tmp/output").is_ok() {
@@ -157,6 +158,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         unrolled_ast,
         ssa_ast,
         flattened_ast,
+        inlined_ast,
         bytecode: hash_content(&bytecode),
         results,
     };
