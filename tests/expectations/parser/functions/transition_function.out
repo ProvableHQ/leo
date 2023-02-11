@@ -1,0 +1,67 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          foo:
+            annotations: []
+            variant: Transition
+            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":40}\"}"
+            input:
+              - Internal:
+                  identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 41
+                    hi: 42
+              - Internal:
+                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":50}\"}"
+                  mode: None
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 49
+                    hi: 50
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 60
+                    hi: 63
+            output_type:
+              Integer: U32
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Literal:
+                        Integer:
+                          - U32
+                          - "0"
+                          - span:
+                              lo: 81
+                              hi: 85
+                    finalize_arguments: ~
+                    span:
+                      lo: 74
+                      hi: 86
+              span:
+                lo: 64
+                hi: 92
+            finalize: ~
+            span:
+              lo: 26
+              hi: 92
+        span:
+          lo: 2
+          hi: 94
