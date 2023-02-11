@@ -72,7 +72,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(Mode::Const) => {
+                VariableType::Input(Mode::Constant) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
                 _ => {}

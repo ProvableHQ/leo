@@ -219,7 +219,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Note that this unwrap is safe since we assign to `self.variant` above.
             match self.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition if input_var.mode() == Mode::Const => self.emit_err(
+                Variant::Transition if input_var.mode() == Mode::Constant => self.emit_err(
                     TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
                 // If the function is not a transition function, then check that the parameters do not have an associated mode.
@@ -277,7 +277,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     }
                     // Check that the mode of the output is valid.
                     // For functions, only public and private outputs are allowed
-                    if function_output.mode == Mode::Const {
+                    if function_output.mode == Mode::Constant {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                 }
@@ -334,7 +334,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
                 }
                 // Check that the input parameter is not constant or private.
-                if input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
+                if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
                 // Check for conflicting variable names.
@@ -361,7 +361,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
                 // Check that the mode of the output is valid.
                 // Note that a finalize block can have only public outputs.
-                if matches!(output_type.mode(), Mode::Const | Mode::Private) {
+                if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
                     self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
                         output_type.span(),
                     ));
