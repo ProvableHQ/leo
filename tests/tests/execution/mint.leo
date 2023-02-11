@@ -3,8 +3,8 @@ namespace: Execute
 expectation: Pass
 cases:
     mint:
-    - input: ["0u64"]
-    - input: ["1u64"]
+    - input: ["aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs",  "0u64"]
+    - input: ["aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q", "1u64"]
 */
 
 
@@ -20,9 +20,9 @@ program test.aleo {
         constant flag: bool,
     }
 
-    transition mint(amount: u64) -> Token {
+    transition mint(owner: address, amount: u64) -> Token {
         return Token {
-            owner: self.caller,
+            owner,
             gates: 0u64,
             amount: amount,
             flag: true,
