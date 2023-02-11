@@ -1,0 +1,16 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - initial_ast: d8b67efebf092931062c3d22f8a2a75c4fd1eda6c73b50fb3c42f2c168ff7c81
+    unrolled_ast: d8b67efebf092931062c3d22f8a2a75c4fd1eda6c73b50fb3c42f2c168ff7c81
+    ssa_ast: d3c967e26cc8a48a074b00ff0317ca6387475cc92e41b62d21b0083f1e20a489
+    flattened_ast: cb3e2365d3c851822094cec4c433927a597ec7a1e76bbc65c4ecce97f6a2a5a9
+    inlined_ast: cb3e2365d3c851822094cec4c433927a597ec7a1e76bbc65c4ecce97f6a2a5a9
+    bytecode: 2739a8e190af8451b36ee5be577e27389ff4f246d30514da4d07d10eb3323f23
+    results:
+      mint:
+        - input: "[0u64]"
+          output: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  gates: 0u64.public,\n  amount: 0u64.private,\n  flag: true.constant,\n  \n}]"
+        - input: "[1u64]"
+          output: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  gates: 0u64.public,\n  amount: 1u64.private,\n  flag: true.constant,\n  \n}]"
