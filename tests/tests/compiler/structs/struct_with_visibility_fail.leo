@@ -8,7 +8,7 @@ program test.aleo {
         constant a: u8,
         private bar: bool,
         public bax: u16,
-        baz: u32e
+        baz: u32,
     }
 
     transition main(a: u8) -> u8 {
