@@ -560,4 +560,11 @@ create_messages!(
         },
         help: None,
     }
+
+    @formatted
+    struct_cannot_have_member_mode {
+        args: (),
+        msg: format!("A struct cannot have a member with mode `constant`, `private`, or `public`."),
+        help: None,
+    }
 );

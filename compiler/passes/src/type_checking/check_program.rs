@@ -94,11 +94,18 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(|Member { identifier, type_ }| {
-            // Check that the member types are defined.
-            self.assert_type_is_defined(type_, identifier.span);
-            used.insert(identifier.name)
-        }) {
+        if !input.members.iter().all(
+            |Member {
+                 identifier,
+                 type_,
+                 span,
+                 ..
+             }| {
+                // Check that the member types are defined.
+                self.assert_type_is_defined(type_, *span);
+                used.insert(identifier.name)
+            },
+        ) {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
@@ -108,32 +115,37 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // For records, enforce presence of `owner: Address` and `gates: u64` members.
         if input.is_record {
-            let check_has_field = |need, expected_ty: Type| match input
-                .members
-                .iter()
-                .find_map(|Member { identifier, type_ }| (identifier.name == need).then_some((identifier, type_)))
-            {
-                Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
-                Some((field, _)) => {
-                    self.emit_err(TypeCheckerError::record_var_wrong_type(
-                        field,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-                None => {
-                    self.emit_err(TypeCheckerError::required_record_variable(
-                        need,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-            };
+            let check_has_field =
+                |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
+                    (identifier.name == need).then_some((identifier, type_))
+                }) {
+                    Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+                    Some((field, _)) => {
+                        self.emit_err(TypeCheckerError::record_var_wrong_type(
+                            field,
+                            expected_ty,
+                            input.span(),
+                        ));
+                    }
+                    None => {
+                        self.emit_err(TypeCheckerError::required_record_variable(
+                            need,
+                            expected_ty,
+                            input.span(),
+                        ));
+                    }
+                };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        for Member { identifier, type_ } in input.members.iter() {
+        for Member {
+            mode,
+            identifier,
+            type_,
+            span,
+        } in input.members.iter()
+        {
             // Check that the member type is not a tuple.
             if matches!(type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
@@ -147,6 +159,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Note that we have already checked that each member is defined and valid.
             if let Type::Identifier(member_type) = type_ {
                 self.struct_graph.add_edge(input.identifier.name, member_type.name);
+            }
+            // If the input is a struct, then check that the member does not have a mode.
+            if !input.is_record && !matches!(mode, Mode::None) {
+                self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
             }
         }
     }

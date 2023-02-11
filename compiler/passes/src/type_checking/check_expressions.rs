@@ -517,7 +517,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
 
             // Check struct member types.
-            struct_.members.iter().for_each(|Member { identifier, type_ }| {
+            struct_.members.iter().for_each(|Member { identifier, type_, .. }| {
                 // Lookup struct variable name.
                 if let Some(actual) = input
                     .members

@@ -237,7 +237,12 @@ impl ParserContext<'_> {
 
         let (identifier, type_, span) = self.parse_typed_ident()?;
 
-        Ok(Member { mode, identifier, type_, span })
+        Ok(Member {
+            mode,
+            identifier,
+            type_,
+            span,
+        })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
