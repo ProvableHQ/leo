@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, AssignmentRenamer, CallGraph, SymbolTable};
+use crate::{Assigner, AssignmentRenamer, CallGraph};
 
 use leo_ast::Function;
 use leo_span::Symbol;
@@ -32,7 +32,7 @@ pub struct FunctionInliner<'a> {
 
 impl<'a> FunctionInliner<'a> {
     /// Initializes a new `FunctionInliner`.
-    pub fn new(_symbol_table: &'a SymbolTable, call_graph: &'a CallGraph, assigner: Assigner) -> Self {
+    pub fn new(call_graph: &'a CallGraph, assigner: Assigner) -> Self {
         Self {
             call_graph,
             assignment_renamer: AssignmentRenamer::new(assigner),

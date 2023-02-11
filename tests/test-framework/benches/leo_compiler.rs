@@ -234,11 +234,11 @@ impl Sample {
             let assigner = compiler
                 .static_single_assignment_pass(&symbol_table)
                 .expect("failed to run ssa pass");
-            let (symbol_table, assigner) = compiler
+            let assigner = compiler
                 .flattening_pass(&symbol_table, assigner)
                 .expect("failed to run flattener pass");
             let start = Instant::now();
-            let out = compiler.function_inlining_pass(&symbol_table, &call_graph, assigner);
+            let out = compiler.function_inlining_pass(&call_graph, assigner);
             let time = start.elapsed();
             out.expect("failed to run inliner pass");
             time
@@ -265,7 +265,7 @@ impl Sample {
             let assigner = compiler
                 .flattening_pass(&symbol_table, assigner)
                 .expect("failed to run flattening pass");
-            compiler.function_inlining_pass(&symbol_table, &call_graph, assigner);
+            compiler.function_inlining_pass(&call_graph, assigner).expect("failed to run function inlining pass");
             start.elapsed()
         })
     }

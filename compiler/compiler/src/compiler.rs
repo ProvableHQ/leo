@@ -183,9 +183,8 @@ impl<'a> Compiler<'a> {
     pub fn static_single_assignment_pass(
         &mut self,
         symbol_table: &SymbolTable,
-        assigner: Assigner,
     ) -> Result<Assigner> {
-        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
+        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
         self.ast = ast;
 
         if self.output_options.ssa_ast {
@@ -210,12 +209,11 @@ impl<'a> Compiler<'a> {
     /// Runs the function inlining pass.
     pub fn function_inlining_pass(
         &mut self,
-        symbol_table: &SymbolTable,
         call_graph: &CallGraph,
         assigner: Assigner,
     ) -> Result<Assigner> {
         let (ast, assigner) =
-            FunctionInliner::do_pass((std::mem::take(&mut self.ast), symbol_table, call_graph, assigner))?;
+            FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
         self.ast = ast;
 
         if self.output_options.inlined_ast {
@@ -233,15 +231,12 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
 
-        // Initialize the assigner. This is responsible for creating unique variable names in the following passes.
-        let assigner = Assigner::default();
-
         // TODO: Make this pass optional.
-        let assigner = self.static_single_assignment_pass(&st, assigner)?;
+        let assigner = self.static_single_assignment_pass(&st)?;
 
         let assigner = self.flattening_pass(&st, assigner)?;
 
-        let _ = self.function_inlining_pass(&st, &call_graph, assigner)?;
+        let _ = self.function_inlining_pass(&call_graph, assigner)?;
 
         Ok((st, struct_graph, call_graph))
     }

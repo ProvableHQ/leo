@@ -19,7 +19,7 @@ use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
 };
-use leo_passes::{Assigner, CodeGenerator, Pass};
+use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
 use leo_test_framework::Test;
 
@@ -190,13 +190,11 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     let st = parsed.loop_unrolling_pass(st)?;
 
-    let assigner = Assigner::default();
-
-    let assigner = parsed.static_single_assignment_pass(&st, assigner)?;
+    let assigner = parsed.static_single_assignment_pass(&st)?;
 
     let assigner = parsed.flattening_pass(&st, assigner)?;
 
-    let _ = parsed.function_inlining_pass(&st, &call_graph, assigner)?;
+    let _ = parsed.function_inlining_pass(&call_graph, assigner)?;
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
