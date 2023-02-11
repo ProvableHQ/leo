@@ -180,10 +180,7 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(
-        &mut self,
-        symbol_table: &SymbolTable,
-    ) -> Result<Assigner> {
+    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<Assigner> {
         let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
         self.ast = ast;
 
@@ -207,13 +204,8 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the function inlining pass.
-    pub fn function_inlining_pass(
-        &mut self,
-        call_graph: &CallGraph,
-        assigner: Assigner,
-    ) -> Result<Assigner> {
-        let (ast, assigner) =
-            FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
+    pub fn function_inlining_pass(&mut self, call_graph: &CallGraph, assigner: Assigner) -> Result<Assigner> {
+        let (ast, assigner) = FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
         self.ast = ast;
 
         if self.output_options.inlined_ast {

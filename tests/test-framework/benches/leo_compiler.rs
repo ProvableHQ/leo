@@ -265,7 +265,9 @@ impl Sample {
             let assigner = compiler
                 .flattening_pass(&symbol_table, assigner)
                 .expect("failed to run flattening pass");
-            compiler.function_inlining_pass(&call_graph, assigner).expect("failed to run function inlining pass");
+            compiler
+                .function_inlining_pass(&call_graph, assigner)
+                .expect("failed to run function inlining pass");
             start.elapsed()
         })
     }
