@@ -1260,7 +1260,7 @@ dependencies = [
  "rand_core",
  "reqwest",
  "rusty-hook",
- "self_update 0.34.0",
+ "self_update 0.35.0",
  "serde",
  "serde_json",
  "snarkvm",
@@ -1889,6 +1889,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "quick-xml"
+version = "0.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11bafc859c6815fbaffbbbf4229ecb767ac913fecb27f9ad4343662e9ef099ea"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "quote"
 version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2211,7 +2220,7 @@ dependencies = [
  "hyper",
  "indicatif",
  "log",
- "quick-xml",
+ "quick-xml 0.22.0",
  "regex",
  "reqwest",
  "semver",
@@ -2228,7 +2237,24 @@ dependencies = [
  "hyper",
  "indicatif",
  "log",
- "quick-xml",
+ "quick-xml 0.22.0",
+ "regex",
+ "reqwest",
+ "semver",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "self_update"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2e18819cd93c4799f93cd4cf0ac069ed0e615fea3af28ec78df71e0ea890628a"
+dependencies = [
+ "hyper",
+ "indicatif",
+ "log",
+ "quick-xml 0.23.1",
  "regex",
  "reqwest",
  "semver",
