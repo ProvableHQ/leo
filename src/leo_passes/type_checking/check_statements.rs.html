@@ -519,7 +519,7 @@
         <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(var_name.name) {
             <span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
                 VariableType::Const =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(Mode::Const) =&gt; {
+                VariableType::Input(Mode::Constant) =&gt; {
                     <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
                 <span class="kw">_ </span>=&gt; {}

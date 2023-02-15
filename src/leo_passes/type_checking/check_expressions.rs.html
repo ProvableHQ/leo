@@ -1248,7 +1248,7 @@
             }
 
             <span class="comment">// Check struct member types.
-            </span>struct_.members.iter().for_each(|Member { identifier, type_ }| {
+            </span>struct_.members.iter().for_each(|Member { identifier, type_, .. }| {
                 <span class="comment">// Lookup struct variable name.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(actual) = input
                     .members

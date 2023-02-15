@@ -61,7 +61,7 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Mode {
     <span class="prelude-val">None</span>,
-    Const,
+    Constant,
     Private,
     Public,
 }
@@ -72,7 +72,7 @@
 
         <span class="kw">match </span><span class="self">self </span>{
             <span class="prelude-val">None </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&quot;</span>),
-            Const =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;const&quot;</span>),
+            Constant =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constant&quot;</span>),
             Private =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;private&quot;</span>),
             Public =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;public&quot;</span>),
         }
