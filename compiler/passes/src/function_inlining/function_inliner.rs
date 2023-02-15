@@ -24,7 +24,7 @@ use indexmap::IndexMap;
 pub struct FunctionInliner<'a> {
     /// The call graph for the program.
     pub(crate) call_graph: &'a CallGraph,
-    /// A wrapper aroung an Assigner used to create unique variable assignments.
+    /// A wrapper around an Assigner used to create unique variable assignments.
     pub(crate) assignment_renamer: AssignmentRenamer,
     /// A map of reconstructed functions in the current program scope.
     pub(crate) reconstructed_functions: IndexMap<Symbol, Function>,

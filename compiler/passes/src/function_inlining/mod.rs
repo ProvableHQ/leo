@@ -47,7 +47,6 @@
 //!     $var$4$5 = value * value;
 //!     $var$1 = $var$4$5;
 //!     value$2 = $var$1;
-//!     return value$2;
 //!     value$3 = $var$0 ? value$2 : value;
 //!     return value$3;
 //! }

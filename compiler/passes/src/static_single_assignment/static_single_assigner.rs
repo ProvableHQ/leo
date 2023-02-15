@@ -23,7 +23,7 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) rename_table: RenameTable,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
-    /// An struct used to construct (unique) assignment statements.
+    /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
 }
 

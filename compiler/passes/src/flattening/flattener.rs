@@ -27,7 +27,7 @@ use indexmap::IndexMap;
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
     pub(crate) symbol_table: &'a SymbolTable,
-    /// An struct used to construct (unique) assignment statements.
+    /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: Assigner,
     /// The set of variables that are structs.
     pub(crate) structs: IndexMap<Symbol, Symbol>,

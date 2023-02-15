@@ -412,7 +412,6 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Is this error message clear?
     @formatted
     can_only_call_inline_function {
         args: (),
