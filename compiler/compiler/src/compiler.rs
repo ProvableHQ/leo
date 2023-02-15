@@ -192,14 +192,27 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the flattening pass.
-    pub fn flattening_pass(&mut self, symbol_table: &SymbolTable, assigner: Assigner) -> Result<()> {
-        self.ast = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
+    pub fn flattening_pass(&mut self, symbol_table: &SymbolTable, assigner: Assigner) -> Result<Assigner> {
+        let (ast, assigner) = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
+        self.ast = ast;
 
         if self.output_options.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
         }
 
-        Ok(())
+        Ok(assigner)
+    }
+
+    /// Runs the function inlining pass.
+    pub fn function_inlining_pass(&mut self, call_graph: &CallGraph, assigner: Assigner) -> Result<Assigner> {
+        let (ast, assigner) = FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
+        self.ast = ast;
+
+        if self.output_options.inlined_ast {
+            self.write_ast_to_json("inlined_ast.json")?;
+        }
+
+        Ok(assigner)
     }
 
     /// Runs the compiler stages.
@@ -213,7 +226,9 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let assigner = self.static_single_assignment_pass(&st)?;
 
-        self.flattening_pass(&st, assigner)?;
+        let assigner = self.flattening_pass(&st, assigner)?;
+
+        let _ = self.function_inlining_pass(&call_graph, assigner)?;
 
         Ok((st, struct_graph, call_graph))
     }

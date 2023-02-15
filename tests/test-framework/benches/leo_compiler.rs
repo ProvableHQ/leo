@@ -41,6 +41,8 @@ enum BenchMode {
     Ssa,
     /// Benchmarks flattening.
     Flatten,
+    /// Benchmarks function inlining.
+    Inline,
     // TODO: Benchmark code generation
     /// Benchmarks all the above stages.
     Full,
@@ -107,6 +109,7 @@ impl Sample {
             BenchMode::Unroll => self.bench_loop_unroller(c),
             BenchMode::Ssa => self.bench_ssa(c),
             BenchMode::Flatten => self.bench_flattener(c),
+            BenchMode::Inline => self.bench_inline(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
@@ -219,15 +222,10 @@ impl Sample {
         });
     }
 
-    fn bench_full(&self, c: &mut Criterion) {
-        self.bencher(c, "full", |mut compiler| {
-            let (input, name) = self.data();
-            let start = Instant::now();
-            compiler
-                .parse_program_from_string(input, name)
-                .expect("Failed to parse program");
+    fn bench_inline(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "inliner pass", |mut compiler| {
             let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
-            let (symbol_table, _struct_graph, _call_graph) = compiler
+            let (symbol_table, _struct_graph, call_graph) = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
             let symbol_table = compiler
@@ -236,9 +234,40 @@ impl Sample {
             let assigner = compiler
                 .static_single_assignment_pass(&symbol_table)
                 .expect("failed to run ssa pass");
+            let assigner = compiler
+                .flattening_pass(&symbol_table, assigner)
+                .expect("failed to run flattener pass");
+            let start = Instant::now();
+            let out = compiler.function_inlining_pass(&call_graph, assigner);
+            let time = start.elapsed();
+            out.expect("failed to run inliner pass");
+            time
+        });
+    }
+
+    fn bench_full(&self, c: &mut Criterion) {
+        self.bencher(c, "full", |mut compiler| {
+            let (input, name) = self.data();
+            let start = Instant::now();
             compiler
+                .parse_program_from_string(input, name)
+                .expect("Failed to parse program");
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let (symbol_table, _struct_graph, call_graph) = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            let symbol_table = compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            let assigner = compiler
+                .static_single_assignment_pass(&symbol_table)
+                .expect("failed to run ssa pass");
+            let assigner = compiler
                 .flattening_pass(&symbol_table, assigner)
                 .expect("failed to run flattening pass");
+            compiler
+                .function_inlining_pass(&call_graph, assigner)
+                .expect("failed to run function inlining pass");
             start.elapsed()
         })
     }
@@ -258,6 +287,7 @@ bench!(bench_type, BenchMode::Type);
 bench!(bench_unroll, BenchMode::Unroll);
 bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_flatten, BenchMode::Flatten);
+bench!(bench_inline, BenchMode::Inline);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -270,6 +300,7 @@ criterion_group!(
         bench_unroll,
         bench_ssa,
         bench_flatten,
+        bench_inline,
         bench_full
 );
 criterion_main!(benches);

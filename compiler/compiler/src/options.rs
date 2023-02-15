@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// NOTE: If compiler passes are made optional, pass preconditions and invariants may not necessarily hold true.
+
 #[derive(Clone, Default)]
 pub struct OutputOptions {
     /// Whether spans are enabled in the output ASTs.
@@ -28,4 +30,6 @@ pub struct OutputOptions {
     pub ssa_ast: bool,
     /// If enabled writes the AST after flattening.
     pub flattened_ast: bool,
+    /// If enabled writes the AST after inlining.
+    pub inlined_ast: bool,
 }

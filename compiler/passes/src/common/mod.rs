@@ -23,5 +23,8 @@ pub use graph::*;
 pub mod rename_table;
 pub use rename_table::*;
 
+pub mod replacer;
+pub use replacer::*;
+
 pub mod symbol_table;
 pub use symbol_table::*;

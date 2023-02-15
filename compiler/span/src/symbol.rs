@@ -199,6 +199,7 @@ symbols! {
     In: "in",
     import,
     increment,
+    inline,
     input,
     Let: "let",
     leo,

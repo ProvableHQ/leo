@@ -20,7 +20,7 @@ use indexmap::{IndexMap, IndexSet};
 use std::fmt::Debug;
 use std::hash::Hash;
 
-/// An struct dependency graph.
+/// A struct dependency graph.
 pub type StructGraph = DiGraph<Symbol>;
 
 /// A call graph.
@@ -210,5 +210,12 @@ mod test {
         let DiGraphError::CycleDetected(cycle) = result.unwrap_err();
         let expected = Vec::from([1u32, 2, 4, 1]);
         assert_eq!(cycle, expected);
+    }
+
+    #[test]
+    fn test_unconnected_graph() {
+        let graph = DiGraph::<u32>::new(IndexSet::from([1, 2, 3, 4, 5]));
+
+        check_post_order(&graph, &[1, 2, 3, 4, 5]);
     }
 }

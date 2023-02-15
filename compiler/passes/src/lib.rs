@@ -26,6 +26,9 @@ pub use common::*;
 pub mod flattening;
 pub use flattening::*;
 
+pub mod function_inlining;
+pub use function_inlining::*;
+
 pub mod loop_unrolling;
 pub use self::loop_unrolling::*;
 

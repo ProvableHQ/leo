@@ -201,12 +201,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 statements.extend(stmts);
 
                                 // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                                let (identifier, statement) = self.unique_simple_assign_statement(expression);
+                                let (result, statement) = self.unique_simple_assign_statement(expression);
                                 statements.push(statement);
 
                                 StructVariableInitializer {
-                                    identifier,
-                                    expression: Some(Expression::Identifier(identifier)),
+                                    identifier: *identifier,
+                                    expression: Some(Expression::Identifier(result)),
                                 }
                             })
                             .collect();
@@ -297,12 +297,12 @@ impl ExpressionReconstructor for Flattener<'_> {
                         statements.extend(stmts);
 
                         // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                        let (identifier, statement) = self.unique_simple_assign_statement(expression);
+                        let (result, statement) = self.unique_simple_assign_statement(expression);
                         statements.push(statement);
 
                         StructVariableInitializer {
-                            identifier,
-                            expression: Some(Expression::Identifier(identifier)),
+                            identifier: *identifier,
+                            expression: Some(Expression::Identifier(result)),
                         }
                     })
                     .collect();

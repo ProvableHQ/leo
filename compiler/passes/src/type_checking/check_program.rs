@@ -70,7 +70,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let mut transition_count = 0;
         for function in input.functions.values() {
             self.visit_function(function);
-            if matches!(function.call_type, CallType::Transition) {
+            if matches!(function.variant, Variant::Transition) {
                 transition_count += 1;
             }
         }
@@ -181,7 +181,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
-        self.is_transition_function = matches!(function.call_type, CallType::Transition);
+        self.variant = Some(function.variant);
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -216,13 +216,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
 
-            match self.is_transition_function {
+            // Note that this unwrap is safe since we assign to `self.variant` above.
+            match self.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                true if input_var.mode() == Mode::Const => self.emit_err(
+                Variant::Transition if input_var.mode() == Mode::Const => self.emit_err(
                     TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
                 // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                false if input_var.mode() != Mode::None => self.emit_err(
+                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => self.emit_err(
                     TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
                 ),
                 _ => {} // Do nothing.
@@ -248,7 +249,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 Output::External(external) => {
                     // If the function is not a transition function, then it cannot output a record.
                     // Note that an external output must always be a record.
-                    if !self.is_transition_function {
+                    if !matches!(function.variant, Variant::Transition) {
                         self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
                     }
                     // Otherwise, do not type check external record function outputs.
@@ -259,7 +260,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     self.assert_type_is_defined(&function_output.type_, function_output.span);
                     // If the function is not a transition function, then it cannot output a record.
                     if let Type::Identifier(identifier) = function_output.type_ {
-                        if !self.is_transition_function
+                        if !matches!(function.variant, Variant::Transition)
                             && self
                                 .symbol_table
                                 .borrow()
@@ -307,7 +308,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.has_finalize = false;
 
             // Check that the function is a transition function.
-            if !self.is_transition_function {
+            if !matches!(function.variant, Variant::Transition) {
                 self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(
                     finalize.span,
                 ));
@@ -393,7 +394,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Exit the function's scope.
         self.exit_scope(function_index);
 
-        // Unset `is_transition_function` flag.
-        self.is_transition_function = false;
+        // Unset the `variant`.
+        self.variant = None;
     }
 }

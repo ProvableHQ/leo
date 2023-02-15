@@ -15,7 +15,7 @@ outputs:
                 span:
                   lo: 30
                   hi: 38
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}"
             input: []
             output:
@@ -56,7 +56,7 @@ outputs:
                 span:
                   lo: 99
                   hi: 107
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
             input: []
             output:

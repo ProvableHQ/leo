@@ -11,7 +11,7 @@ outputs:
         functions:
           x:
             annotations: []
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
             input: []
             output:

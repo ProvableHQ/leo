@@ -17,8 +17,8 @@
 pub mod annotation;
 pub use annotation::*;
 
-pub mod call_type;
-pub use call_type::*;
+pub mod variant;
+pub use variant::*;
 
 pub mod external;
 pub use external::*;
@@ -26,11 +26,11 @@ pub use external::*;
 pub mod finalize;
 pub use finalize::*;
 
-pub mod function_input;
-pub use function_input::*;
+pub mod input;
+pub use input::*;
 
-pub mod function_output;
-pub use function_output::*;
+pub mod output;
+pub use output::*;
 
 pub mod mode;
 pub use mode::*;
@@ -47,7 +47,7 @@ pub struct Function {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
     /// Is this function a transition, inlined, or a regular function?.
-    pub call_type: CallType,
+    pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// The function's input parameters.
@@ -77,7 +77,7 @@ impl Function {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
-        call_type: CallType,
+        variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
@@ -99,7 +99,7 @@ impl Function {
 
         Function {
             annotations,
-            call_type,
+            variant,
             identifier,
             input,
             output,
@@ -123,10 +123,10 @@ impl Function {
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.call_type {
-            CallType::Inline => write!(f, "inline ")?,
-            CallType::Standard => write!(f, "function ")?,
-            CallType::Transition => write!(f, "transition ")?,
+        match self.variant {
+            Variant::Inline => write!(f, "inline ")?,
+            Variant::Standard => write!(f, "function ")?,
+            Variant::Transition => write!(f, "transition ")?,
         }
         write!(f, "{}", self.identifier)?;
 

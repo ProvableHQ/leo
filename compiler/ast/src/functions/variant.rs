@@ -16,12 +16,12 @@
 
 use serde::{Deserialize, Serialize};
 
-/// An enum declaring how the function is invoked.
+/// Functions are always one of three variants.
 /// A transition function is permitted the ability to manipulate records.
 /// A regular function is not permitted to manipulate records.
 /// An inline function is directly copied at the call site.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub enum CallType {
+pub enum Variant {
     Inline,
     Standard,
     Transition,

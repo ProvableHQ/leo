@@ -156,7 +156,7 @@ impl ParserContext<'_> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.insert(id, mapping);
                 }
-                Token::At | Token::Function | Token::Transition => {
+                Token::At | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
@@ -172,6 +172,7 @@ impl ParserContext<'_> {
                             Token::At,
                             Token::Function,
                             Token::Transition,
+                            Token::Inline,
                         ],
                     )
                     .into())
@@ -423,11 +424,12 @@ impl ParserContext<'_> {
         while self.look_ahead(0, |t| &t.token) == &Token::At {
             annotations.push(self.parse_annotation()?)
         }
-        // Parse `<call_type> IDENT`, where `<call_type>` is `function` or `transition`.
-        let (call_type, start) = match self.token.token {
-            Token::Function => (CallType::Standard, self.expect(&Token::Function)?),
-            Token::Transition => (CallType::Transition, self.expect(&Token::Transition)?),
-            _ => self.unexpected("'function', 'transition'")?,
+        // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
+        let (variant, start) = match self.token.token {
+            Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
+            Token::Function => (Variant::Standard, self.expect(&Token::Function)?),
+            Token::Transition => (Variant::Transition, self.expect(&Token::Transition)?),
+            _ => self.unexpected("'function', 'transition', or 'inline'")?,
         };
         let name = self.expect_identifier()?;
 
@@ -489,7 +491,7 @@ impl ParserContext<'_> {
         let span = start + block.span;
         Ok((
             name.name,
-            Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
+            Function::new(annotations, variant, name, inputs, output, block, finalize, span),
         ))
     }
 }

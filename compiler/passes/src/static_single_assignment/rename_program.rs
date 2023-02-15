@@ -110,7 +110,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
 
         Function {
             annotations: function.annotations,
-            call_type: function.call_type,
+            variant: function.variant,
             identifier: function.identifier,
             input: function.input,
             output: function.output,

@@ -11,7 +11,7 @@ outputs:
         functions:
           x:
             annotations: []
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
             input:
               - Internal:
@@ -97,7 +97,7 @@ outputs:
               hi: 126
           main:
             annotations: []
-            call_type: Standard
+            variant: Standard
             identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
             input:
               - Internal:

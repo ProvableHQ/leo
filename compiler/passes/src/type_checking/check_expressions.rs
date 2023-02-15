@@ -447,14 +447,17 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                 if let Some(func) = func {
                     // Check that the call is valid.
-                    match self.is_transition_function {
-                        // If the function is not a transition function, it cannot call any other functions.
-                        false => {
-                            self.emit_err(TypeCheckerError::cannot_invoke_call_from_standard_function(input.span));
+                    // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
+                    match self.variant.unwrap() {
+                        // If the function is not a transition function, it can only call "inline" functions.
+                        Variant::Inline | Variant::Standard => {
+                            if !matches!(func.variant, Variant::Inline) {
+                                self.emit_err(TypeCheckerError::can_only_call_inline_function(input.span));
+                            }
                         }
                         // If the function is a transition function, then check that the call is not to another local transition function.
-                        true => {
-                            if matches!(func.call_type, CallType::Transition) && input.external.is_none() {
+                        Variant::Transition => {
+                            if matches!(func.variant, Variant::Transition) && input.external.is_none() {
                                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
                                     input.span,
                                 ));
