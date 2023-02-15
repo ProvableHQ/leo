@@ -560,6 +560,13 @@
 <a href="#560" id="560">560</a>
 <a href="#561" id="561">561</a>
 <a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -975,9 +982,9 @@
     }
 
     @formatted
-    cannot_invoke_call_from_standard_function {
+    can_only_call_inline_function {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot call another function from a standard function.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Only `inline` can be called from a `function` or `inline`.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1119,6 +1126,13 @@
             <span class="kw">let </span>path_string = path.into_iter().map(|name| <span class="macro">format!</span>(<span class="string">&quot;`{name}`&quot;</span>)).collect::&lt;Vec&lt;String&gt;&gt;().join(<span class="string">&quot; --&gt; &quot;</span>);
             <span class="macro">format!</span>(<span class="string">&quot;Cyclic dependency between functions: {path_string}&quot;</span>)
         },
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    struct_cannot_have_member_mode {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A struct cannot have a member with mode `constant`, `private`, or `public`.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

@@ -29,6 +29,10 @@
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -45,6 +49,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
+// NOTE: If compiler passes are made optional, pass preconditions and invariants may not necessarily hold true.
+
 </span><span class="attr">#[derive(Clone, Default)]
 </span><span class="kw">pub struct </span>OutputOptions {
     <span class="doccomment">/// Whether spans are enabled in the output ASTs.
@@ -59,6 +65,8 @@
     </span><span class="kw">pub </span>ssa_ast: bool,
     <span class="doccomment">/// If enabled writes the AST after flattening.
     </span><span class="kw">pub </span>flattened_ast: bool,
+    <span class="doccomment">/// If enabled writes the AST after inlining.
+    </span><span class="kw">pub </span>inlined_ast: bool,
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_compiler" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

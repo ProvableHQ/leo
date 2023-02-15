@@ -76,7 +76,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::{CallType, Function, Input, Type};
+</span><span class="kw">use </span>leo_ast::{Function, Input, Type, Variant};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
@@ -98,7 +98,7 @@
     <span class="doccomment">/// The output type of the function.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) output_type: Type,
     <span class="doccomment">/// Is this function a transition, inlined, or a regular function?.
-    </span><span class="kw">pub </span>call_type: CallType,
+    </span><span class="kw">pub </span>variant: Variant,
     <span class="doccomment">/// The `Span` associated with the function.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) _span: Span,
     <span class="doccomment">/// The inputs to the function.
@@ -112,7 +112,7 @@
         FunctionSymbol {
             id,
             output_type: func.output_type.clone(),
-            call_type: func.call_type,
+            variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {

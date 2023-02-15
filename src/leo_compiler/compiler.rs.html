@@ -253,6 +253,21 @@
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
 <a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -447,14 +462,27 @@
     }
 
     <span class="doccomment">/// Runs the flattening pass.
-    </span><span class="kw">pub fn </span>flattening_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable, assigner: Assigner) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.ast = Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, assigner))<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>flattening_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable, assigner: Assigner) -&gt; <span class="prelude-ty">Result</span>&lt;Assigner&gt; {
+        <span class="kw">let </span>(ast, assigner) = Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, assigner))<span class="question-mark">?</span>;
+        <span class="self">self</span>.ast = ast;
 
         <span class="kw">if </span><span class="self">self</span>.output_options.flattened_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;flattened_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(())
+        <span class="prelude-val">Ok</span>(assigner)
+    }
+
+    <span class="doccomment">/// Runs the function inlining pass.
+    </span><span class="kw">pub fn </span>function_inlining_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call_graph: <span class="kw-2">&amp;</span>CallGraph, assigner: Assigner) -&gt; <span class="prelude-ty">Result</span>&lt;Assigner&gt; {
+        <span class="kw">let </span>(ast, assigner) = FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), call_graph, assigner))<span class="question-mark">?</span>;
+        <span class="self">self</span>.ast = ast;
+
+        <span class="kw">if </span><span class="self">self</span>.output_options.inlined_ast {
+            <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;inlined_ast.json&quot;</span>)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(assigner)
     }
 
     <span class="doccomment">/// Runs the compiler stages.
@@ -468,7 +496,9 @@
         <span class="comment">// TODO: Make this pass optional.
         </span><span class="kw">let </span>assigner = <span class="self">self</span>.static_single_assignment_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
-        <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st, assigner)<span class="question-mark">?</span>;
+        <span class="kw">let </span>assigner = <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st, assigner)<span class="question-mark">?</span>;
+
+        <span class="kw">let _ </span>= <span class="self">self</span>.function_inlining_pass(<span class="kw-2">&amp;</span>call_graph, assigner)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((st, struct_graph, call_graph))
     }

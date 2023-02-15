@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["assigner",""],["graph",""],["rename_table",""],["symbol_table",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["assigner",""],["graph",""],["rename_table",""],["replacer",""],["symbol_table",""]]};

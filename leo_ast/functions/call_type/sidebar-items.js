@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["CallType","An enum declaring how the function is invoked. A transition function is permitted the ability to manipulate records. A regular function is not permitted to manipulate records. An inline function is directly copied at the call site."]]};

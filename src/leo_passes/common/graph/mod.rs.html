@@ -212,6 +212,13 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -234,7 +241,7 @@
 <span class="kw">use </span>std::fmt::Debug;
 <span class="kw">use </span>std::hash::Hash;
 
-<span class="doccomment">/// An struct dependency graph.
+<span class="doccomment">/// A struct dependency graph.
 </span><span class="kw">pub type </span>StructGraph = DiGraph&lt;Symbol&gt;;
 
 <span class="doccomment">/// A call graph.
@@ -424,6 +431,13 @@
         <span class="kw">let </span>DiGraphError::CycleDetected(cycle) = result.unwrap_err();
         <span class="kw">let </span>expected = Vec::from([<span class="number">1u32</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">1</span>]);
         <span class="macro">assert_eq!</span>(cycle, expected);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_unconnected_graph() {
+        <span class="kw">let </span>graph = DiGraph::&lt;u32&gt;::new(IndexSet::from([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]));
+
+        check_post_order(<span class="kw-2">&amp;</span>graph, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]);
     }
 }
 </code></pre></div>

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Variant","Functions are always one of three variants. A transition function is permitted the ability to manipulate records. A regular function is not permitted to manipulate records. An inline function is directly copied at the call site."]]};

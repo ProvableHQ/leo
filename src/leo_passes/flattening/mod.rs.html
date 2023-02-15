@@ -143,13 +143,13 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Pass <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, Assigner);
-    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(Ast, Assigner)&gt;;
 
     <span class="kw">fn </span>do_pass((ast, st, assigner): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>reconstructor = Flattener::new(st, assigner);
         <span class="kw">let </span>program = reconstructor.reconstruct_program(ast.into_repr());
 
-        <span class="prelude-val">Ok</span>(Ast::new(program))
+        <span class="prelude-val">Ok</span>((Ast::new(program), reconstructor.assigner))
     }
 }
 </code></pre></div>

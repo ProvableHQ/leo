@@ -288,6 +288,11 @@
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
 <a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -306,7 +311,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{functions, CallType, Function, Mapping, Mode, Program, ProgramScope, Struct, Type};
+<span class="kw">use </span>leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>itertools::Itertools;
@@ -384,7 +389,7 @@
                     </span><span class="kw">let </span>function = program_scope.functions.get(<span class="kw-2">&amp;</span>function_name).unwrap();
 
                     <span class="comment">// Set the `is_transition_function` flag.
-                    </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
+                    </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.variant, Variant::Transition);
 
                     <span class="kw">let </span>function_string = <span class="self">self</span>.visit_function(function);
 
@@ -440,10 +445,15 @@
 
         // Construct and append the record variables.
         </span><span class="kw">for </span>var <span class="kw">in </span>record.members.iter() {
+            <span class="kw">let </span>mode = <span class="kw">match </span>var.mode {
+                Mode::Constant =&gt; <span class="string">&quot;constant&quot;</span>,
+                Mode::Public =&gt; <span class="string">&quot;public&quot;</span>,
+                Mode::None | Mode::Private =&gt; <span class="string">&quot;private&quot;</span>,
+            };
             <span class="macro">writeln!</span>(
                 output_string,
-                <span class="string">&quot;    {} as {}.private;&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.
-                </span>var.identifier, var.type_,
+                <span class="string">&quot;    {} as {}.{mode};&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.
+                </span>var.identifier, var.type_
             )
             .expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }

@@ -572,12 +572,12 @@
                                 </span>statements.extend(stmts);
 
                                 <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                                </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
+                                </span><span class="kw">let </span>(result, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
                                 statements.push(statement);
 
                                 StructVariableInitializer {
-                                    identifier,
-                                    expression: <span class="prelude-val">Some</span>(Expression::Identifier(identifier)),
+                                    identifier: <span class="kw-2">*</span>identifier,
+                                    expression: <span class="prelude-val">Some</span>(Expression::Identifier(result)),
                                 }
                             })
                             .collect();
@@ -668,12 +668,12 @@
                         </span>statements.extend(stmts);
 
                         <span class="comment">// Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                        </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
+                        </span><span class="kw">let </span>(result, statement) = <span class="self">self</span>.unique_simple_assign_statement(expression);
                         statements.push(statement);
 
                         StructVariableInitializer {
-                            identifier,
-                            expression: <span class="prelude-val">Some</span>(Expression::Identifier(identifier)),
+                            identifier: <span class="kw-2">*</span>identifier,
+                            expression: <span class="prelude-val">Some</span>(Expression::Identifier(result)),
                         }
                     })
                     .collect();

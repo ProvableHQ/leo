@@ -264,6 +264,10 @@
 <a href="#264" id="264">264</a>
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -324,6 +328,8 @@
     </span><span class="kw">pub </span>enable_ssa_ast_snapshot: bool,
     <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_flattened_ast_snapshot: bool,
+    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the inlined AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_inlined_ast_snapshot: bool,
 }
 
 <span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>OutputOptions {
@@ -335,6 +341,7 @@
             unrolled_ast: options.enable_unrolled_ast_snapshot,
             ssa_ast: options.enable_ssa_ast_snapshot,
             flattened_ast: options.enable_flattened_ast_snapshot,
+            inlined_ast: options.enable_inlined_ast_snapshot,
         };
         <span class="kw">if </span>options.enable_all_ast_snapshots {
             out_options.initial_input_ast = <span class="bool-val">true</span>;
@@ -342,6 +349,7 @@
             out_options.unrolled_ast = <span class="bool-val">true</span>;
             out_options.ssa_ast = <span class="bool-val">true</span>;
             out_options.flattened_ast = <span class="bool-val">true</span>;
+            out_options.inlined_ast = <span class="bool-val">true</span>;
         }
 
         out_options

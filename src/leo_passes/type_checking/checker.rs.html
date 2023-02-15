@@ -433,6 +433,8 @@
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
 <a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -451,7 +453,7 @@
 
 </span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable};
 
-<span class="kw">use </span>leo_ast::{Identifier, IntegerType, Node, Type};
+<span class="kw">use </span>leo_ast::{Identifier, IntegerType, Node, Type, Variant};
 <span class="kw">use </span>leo_core::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
 <span class="kw">use </span>leo_span::{Span, Symbol};
@@ -470,12 +472,13 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
     <span class="doccomment">/// The name of the function that we are currently traversing.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) function: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+    <span class="doccomment">/// The variant of the function that we are currently traversing.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) variant: <span class="prelude-ty">Option</span>&lt;Variant&gt;,
     <span class="doccomment">/// Whether or not the function that we are currently traversing has a return statement.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_return: bool,
     <span class="doccomment">/// Whether or not the function that we are currently traversing invokes the finalize block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_finalize: bool,
-    <span class="doccomment">/// Whether or not we are currently traversing a transition function.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_transition_function: bool,
+
     <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
     <span class="doccomment">/// Whether or not we are currently traversing an imported program.
@@ -534,15 +537,16 @@
 
         <span class="kw">let </span>function_names = symbol_table.functions.keys().cloned().collect();
 
-        <span class="self">Self </span>{
+        <span class="comment">// Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
+        </span><span class="self">Self </span>{
             symbol_table: RefCell::new(symbol_table),
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
             function: <span class="prelude-val">None</span>,
+            variant: <span class="prelude-val">None</span>,
             has_return: <span class="bool-val">false</span>,
             has_finalize: <span class="bool-val">false</span>,
-            is_transition_function: <span class="bool-val">false</span>,
             is_finalize: <span class="bool-val">false</span>,
             is_imported: <span class="bool-val">false</span>,
             is_return: <span class="bool-val">false</span>,

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["assignment_renamer",""],["function_inliner",""],["inline_expression",""],["inline_program",""],["inline_statement",""]]};

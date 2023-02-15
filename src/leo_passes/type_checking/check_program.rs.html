@@ -397,6 +397,23 @@
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
 <a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -469,7 +486,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
         <span class="kw">for </span>function <span class="kw">in </span>input.functions.values() {
             <span class="self">self</span>.visit_function(function);
-            <span class="kw">if </span><span class="macro">matches!</span>(function.call_type, CallType::Transition) {
+            <span class="kw">if </span><span class="macro">matches!</span>(function.variant, Variant::Transition) {
                 transition_count += <span class="number">1</span>;
             }
         }
@@ -493,11 +510,18 @@
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
         <span class="comment">// TODO: Better span to target duplicate member.
-        </span><span class="kw">if </span>!input.members.iter().all(|Member { identifier, type_ }| {
-            <span class="comment">// Check that the member types are defined.
-            </span><span class="self">self</span>.assert_type_is_defined(type_, identifier.span);
-            used.insert(identifier.name)
-        }) {
+        </span><span class="kw">if </span>!input.members.iter().all(
+            |Member {
+                 identifier,
+                 type_,
+                 span,
+                 ..
+             }| {
+                <span class="comment">// Check that the member types are defined.
+                </span><span class="self">self</span>.assert_type_is_defined(type_, <span class="kw-2">*</span>span);
+                used.insert(identifier.name)
+            },
+        ) {
             <span class="self">self</span>.emit_err(<span class="kw">if </span>input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } <span class="kw">else </span>{
@@ -507,32 +531,37 @@
 
         <span class="comment">// For records, enforce presence of `owner: Address` and `gates: u64` members.
         </span><span class="kw">if </span>input.is_record {
-            <span class="kw">let </span>check_has_field = |need, expected_ty: Type| <span class="kw">match </span>input
-                .members
-                .iter()
-                .find_map(|Member { identifier, type_ }| (identifier.name == need).then_some((identifier, type_)))
-            {
-                <span class="prelude-val">Some</span>((<span class="kw">_</span>, actual_ty)) <span class="kw">if </span>expected_ty.eq_flat(actual_ty) =&gt; {} <span class="comment">// All good, found + right type!
-                </span><span class="prelude-val">Some</span>((field, <span class="kw">_</span>)) =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::record_var_wrong_type(
-                        field,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::required_record_variable(
-                        need,
-                        expected_ty,
-                        input.span(),
-                    ));
-                }
-            };
+            <span class="kw">let </span>check_has_field =
+                |need, expected_ty: Type| <span class="kw">match </span>input.members.iter().find_map(|Member { identifier, type_, .. }| {
+                    (identifier.name == need).then_some((identifier, type_))
+                }) {
+                    <span class="prelude-val">Some</span>((<span class="kw">_</span>, actual_ty)) <span class="kw">if </span>expected_ty.eq_flat(actual_ty) =&gt; {} <span class="comment">// All good, found + right type!
+                    </span><span class="prelude-val">Some</span>((field, <span class="kw">_</span>)) =&gt; {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::record_var_wrong_type(
+                            field,
+                            expected_ty,
+                            input.span(),
+                        ));
+                    }
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::required_record_variable(
+                            need,
+                            expected_ty,
+                            input.span(),
+                        ));
+                    }
+                };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        <span class="kw">for </span>Member { identifier, type_ } <span class="kw">in </span>input.members.iter() {
+        <span class="kw">for </span>Member {
+            mode,
+            identifier,
+            type_,
+            span,
+        } <span class="kw">in </span>input.members.iter()
+        {
             <span class="comment">// Check that the member type is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
@@ -546,6 +575,10 @@
             // Note that we have already checked that each member is defined and valid.
             </span><span class="kw">if let </span>Type::Identifier(member_type) = type_ {
                 <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.name);
+            }
+            <span class="comment">// If the input is a struct, then check that the member does not have a mode.
+            </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="macro">matches!</span>(mode, Mode::None) {
+                <span class="self">self</span>.emit_err(TypeCheckerError::struct_cannot_have_member_mode(<span class="kw-2">*</span>span));
             }
         }
     }
@@ -580,7 +613,7 @@
             </span><span class="self">self</span>.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
-        <span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.call_type, CallType::Transition);
+        <span class="self">self</span>.variant = <span class="prelude-val">Some</span>(function.variant);
 
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -615,13 +648,14 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
             }
 
-            <span class="kw">match </span><span class="self">self</span>.is_transition_function {
+            <span class="comment">// Note that this unwrap is safe since we assign to `self.variant` above.
+            </span><span class="kw">match </span><span class="self">self</span>.variant.unwrap() {
                 <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
-                </span><span class="bool-val">true </span><span class="kw">if </span>input_var.mode() == Mode::Const =&gt; <span class="self">self</span>.emit_err(
+                </span>Variant::Transition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; <span class="self">self</span>.emit_err(
                     TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
                 ),
                 <span class="comment">// If the function is not a transition function, then check that the parameters do not have an associated mode.
-                </span><span class="bool-val">false </span><span class="kw">if </span>input_var.mode() != Mode::None =&gt; <span class="self">self</span>.emit_err(
+                </span>Variant::Standard | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; <span class="self">self</span>.emit_err(
                     TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
                 ),
                 <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
@@ -647,7 +681,7 @@
                 Output::External(external) =&gt; {
                     <span class="comment">// If the function is not a transition function, then it cannot output a record.
                     // Note that an external output must always be a record.
-                    </span><span class="kw">if </span>!<span class="self">self</span>.is_transition_function {
+                    </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
                     }
                     <span class="comment">// Otherwise, do not type check external record function outputs.
@@ -658,7 +692,7 @@
                     </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>function_output.type_, function_output.span);
                     <span class="comment">// If the function is not a transition function, then it cannot output a record.
                     </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
-                        <span class="kw">if </span>!<span class="self">self</span>.is_transition_function
+                        <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
                             &amp;&amp; <span class="self">self
                                 </span>.symbol_table
                                 .borrow()
@@ -675,7 +709,7 @@
                     }
                     <span class="comment">// Check that the mode of the output is valid.
                     // For functions, only public and private outputs are allowed
-                    </span><span class="kw">if </span>function_output.mode == Mode::Const {
+                    </span><span class="kw">if </span>function_output.mode == Mode::Constant {
                         <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                 }
@@ -706,7 +740,7 @@
             </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
 
             <span class="comment">// Check that the function is a transition function.
-            </span><span class="kw">if </span>!<span class="self">self</span>.is_transition_function {
+            </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(
                     finalize.span,
                 ));
@@ -732,7 +766,7 @@
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
                 }
                 <span class="comment">// Check that the input parameter is not constant or private.
-                </span><span class="kw">if </span>input_var.mode() == Mode::Const || input_var.mode() == Mode::Private {
+                </span><span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
                 <span class="comment">// Check for conflicting variable names.
@@ -759,7 +793,7 @@
                 }
                 <span class="comment">// Check that the mode of the output is valid.
                 // Note that a finalize block can have only public outputs.
-                </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Const | Mode::Private) {
+                </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Constant | Mode::Private) {
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
                         output_type.span(),
                     ));
@@ -792,8 +826,8 @@
         <span class="comment">// Exit the function&#39;s scope.
         </span><span class="self">self</span>.exit_scope(function_index);
 
-        <span class="comment">// Unset `is_transition_function` flag.
-        </span><span class="self">self</span>.is_transition_function = <span class="bool-val">false</span>;
+        <span class="comment">// Unset the `variant`.
+        </span><span class="self">self</span>.variant = <span class="prelude-val">None</span>;
     }
 }
 </code></pre></div>

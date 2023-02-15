@@ -172,8 +172,8 @@
 </span><span class="kw">pub mod </span>annotation;
 <span class="kw">pub use </span>annotation::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>call_type;
-<span class="kw">pub use </span>call_type::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>variant;
+<span class="kw">pub use </span>variant::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>external;
 <span class="kw">pub use </span>external::<span class="kw-2">*</span>;
@@ -181,11 +181,11 @@
 <span class="kw">pub mod </span>finalize;
 <span class="kw">pub use </span>finalize::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>function_input;
-<span class="kw">pub use </span>function_input::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>input;
+<span class="kw">pub use </span>input::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>function_output;
-<span class="kw">pub use </span>function_output::<span class="kw-2">*</span>;
+<span class="kw">pub mod </span>output;
+<span class="kw">pub use </span>output::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>mode;
 <span class="kw">pub use </span>mode::<span class="kw-2">*</span>;
@@ -202,7 +202,7 @@
     <span class="doccomment">/// Annotations on the function.
     </span><span class="kw">pub </span>annotations: Vec&lt;Annotation&gt;,
     <span class="doccomment">/// Is this function a transition, inlined, or a regular function?.
-    </span><span class="kw">pub </span>call_type: CallType,
+    </span><span class="kw">pub </span>variant: Variant,
     <span class="doccomment">/// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     </span><span class="kw">pub </span>identifier: Identifier,
     <span class="doccomment">/// The function&#39;s input parameters.
@@ -232,7 +232,7 @@
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>new(
         annotations: Vec&lt;Annotation&gt;,
-        call_type: CallType,
+        variant: Variant,
         identifier: Identifier,
         input: Vec&lt;Input&gt;,
         output: Vec&lt;Output&gt;,
@@ -254,7 +254,7 @@
 
         Function {
             annotations,
-            call_type,
+            variant,
             identifier,
             input,
             output,
@@ -278,10 +278,10 @@
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///
     </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self</span>.call_type {
-            CallType::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;inline &quot;</span>)<span class="question-mark">?</span>,
-            CallType::Standard =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;function &quot;</span>)<span class="question-mark">?</span>,
-            CallType::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;transition &quot;</span>)<span class="question-mark">?</span>,
+        <span class="kw">match </span><span class="self">self</span>.variant {
+            Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;inline &quot;</span>)<span class="question-mark">?</span>,
+            Variant::Standard =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;function &quot;</span>)<span class="question-mark">?</span>,
+            Variant::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;transition &quot;</span>)<span class="question-mark">?</span>,
         }
         <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
 

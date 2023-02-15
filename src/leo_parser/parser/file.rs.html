@@ -495,6 +495,16 @@
 <a href="#495" id="495">495</a>
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -653,7 +663,7 @@
                     <span class="kw">let </span>(id, mapping) = <span class="self">self</span>.parse_mapping()<span class="question-mark">?</span>;
                     mappings.insert(id, mapping);
                 }
-                Token::At | Token::Function | Token::Transition =&gt; {
+                Token::At | Token::Function | Token::Transition | Token::Inline =&gt; {
                     <span class="kw">let </span>(id, function) = <span class="self">self</span>.parse_function()<span class="question-mark">?</span>;
                     functions.insert(id, function);
                 }
@@ -669,6 +679,7 @@
                             Token::At,
                             Token::Function,
                             Token::Transition,
+                            Token::Inline,
                         ],
                     )
                     .into())
@@ -719,19 +730,26 @@
     }
 
     <span class="doccomment">/// Parses `IDENT: TYPE`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_typed_ident(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, Type)&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_typed_ident(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Identifier, Type, Span)&gt; {
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
-        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((name, type_))
+        <span class="prelude-val">Ok</span>((name, type_, name.span + span))
     }
 
     <span class="doccomment">/// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
     </span><span class="kw">fn </span>parse_member_variable_declaration(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Member&gt; {
-        <span class="kw">let </span>(identifier, type_) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
+        <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Member { identifier, type_ })
+        <span class="kw">let </span>(identifier, type_, span) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(Member {
+            mode,
+            identifier,
+            type_,
+            span,
+        })
     }
 
     <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -774,7 +792,8 @@
         ))
     }
 
-    <span class="doccomment">/// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
+    <span class="comment">// TODO: Return a span associated with the mode.
+    </span><span class="doccomment">/// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Mode&gt; {
         <span class="kw">let </span>private = <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Private).then_some(<span class="self">self</span>.prev_token.span);
         <span class="kw">let </span>public = <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Public).then_some(<span class="self">self</span>.prev_token.span);
@@ -789,8 +808,8 @@
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(Mode::None),
             (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(Mode::Private),
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(Mode::Public),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(Mode::Const),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(Mode::Const),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Ok</span>(Mode::Constant),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(Mode::Constant),
             <span class="kw">_ </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>spans = [private, public, constant, const_].into_iter().flatten();
 
@@ -920,11 +939,12 @@
         <span class="kw">while </span><span class="self">self</span>.look_ahead(<span class="number">0</span>, |t| <span class="kw-2">&amp;</span>t.token) == <span class="kw-2">&amp;</span>Token::At {
             annotations.push(<span class="self">self</span>.parse_annotation()<span class="question-mark">?</span>)
         }
-        <span class="comment">// Parse `&lt;call_type&gt; IDENT`, where `&lt;call_type&gt;` is `function` or `transition`.
-        </span><span class="kw">let </span>(call_type, start) = <span class="kw">match </span><span class="self">self</span>.token.token {
-            Token::Function =&gt; (CallType::Standard, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>),
-            Token::Transition =&gt; (CallType::Transition, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>),
-            <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">&quot;&#39;function&#39;, &#39;transition&#39;&quot;</span>)<span class="question-mark">?</span>,
+        <span class="comment">// Parse `&lt;variant&gt; IDENT`, where `&lt;variant&gt;` is `function`, `transition`, or `inline`.
+        </span><span class="kw">let </span>(variant, start) = <span class="kw">match </span><span class="self">self</span>.token.token {
+            Token::Inline =&gt; (Variant::Inline, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Inline)<span class="question-mark">?</span>),
+            Token::Function =&gt; (Variant::Standard, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>),
+            Token::Transition =&gt; (Variant::Transition, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">&quot;&#39;function&#39;, &#39;transition&#39;, or &#39;inline&#39;&quot;</span>)<span class="question-mark">?</span>,
         };
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
@@ -986,7 +1006,7 @@
         <span class="kw">let </span>span = start + block.span;
         <span class="prelude-val">Ok</span>((
             name.name,
-            Function::new(annotations, call_type, name, inputs, output, block, finalize, span),
+            Function::new(annotations, variant, name, inputs, output, block, finalize, span),
         ))
     }
 }

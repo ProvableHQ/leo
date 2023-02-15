@@ -396,6 +396,10 @@
 <a href="#396" id="396">396</a>
 <a href="#397" id="397">397</a>
 <a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -525,6 +529,7 @@
     Import,
     In,
     Increment,
+    Inline,
     Let,
     Mapping,
     Private,
@@ -575,6 +580,7 @@
     Token::Import,
     Token::In,
     Token::Increment,
+    Token::Inline,
     Token::Let,
     Token::Mapping,
     Token::Private,
@@ -629,9 +635,10 @@
             Token::I64 =&gt; sym::i64,
             Token::I128 =&gt; sym::i128,
             Token::If =&gt; sym::If,
+            Token::Import =&gt; sym::import,
             Token::In =&gt; sym::In,
             Token::Increment =&gt; sym::increment,
-            Token::Import =&gt; sym::import,
+            Token::Inline =&gt; sym::inline,
             Token::Let =&gt; sym::Let,
             Token::Leo =&gt; sym::leo,
             Token::Mapping =&gt; sym::mapping,
@@ -759,6 +766,7 @@
             Import =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;import&quot;</span>),
             In =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;in&quot;</span>),
             Increment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;increment&quot;</span>),
+            Inline =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;inline&quot;</span>),
             Let =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;let&quot;</span>),
             Mapping =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;mapping&quot;</span>),
             Private =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;private&quot;</span>),

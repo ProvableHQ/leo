@@ -554,7 +554,7 @@
         statements
     }
 
-    <span class="doccomment">/// Consumes the expressions in a `ConsoleStatement`, returning the list of simplified statements.
+    <span class="doccomment">/// Parsing guarantees that console statements are not present in the program.
     </span><span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; <span class="self">Self</span>::Output {
         <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the program.&quot;</span>)
     }
