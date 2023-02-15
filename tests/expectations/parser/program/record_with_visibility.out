@@ -1,0 +1,34 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs:
+          token:
+            identifier: "{\"name\":\"token\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":38}\"}"
+            members:
+              - mode: Private
+                identifier: "{\"name\":\"owner\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":62}\"}"
+                type_: Address
+                span:
+                  lo: 57
+                  hi: 71
+              - mode: Private
+                identifier: "{\"name\":\"gates\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":94}\"}"
+                type_:
+                  Integer: U64
+                span:
+                  lo: 89
+                  hi: 99
+            is_record: true
+            span:
+              lo: 26
+              hi: 106
+        mappings: {}
+        functions: {}
+        span:
+          lo: 2
+          hi: 108

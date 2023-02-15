@@ -1205,6 +1205,7 @@ dependencies = [
  "leo-span",
  "leo-test-framework",
  "rand",
+ "regex",
  "serde",
  "serde_yaml",
  "sha2",

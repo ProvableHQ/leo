@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Mode {
     None,
-    Const,
+    Constant,
     Private,
     Public,
 }
@@ -32,7 +32,7 @@ impl fmt::Display for Mode {
 
         match self {
             None => write!(f, ""),
-            Const => write!(f, "const"),
+            Constant => write!(f, "constant"),
             Private => write!(f, "private"),
             Public => write!(f, "public"),
         }

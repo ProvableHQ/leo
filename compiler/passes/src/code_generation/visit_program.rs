@@ -150,10 +150,15 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in record.members.iter() {
+            let mode = match var.mode {
+                Mode::Constant => "constant",
+                Mode::Public => "public",
+                Mode::None | Mode::Private => "private",
+            };
             writeln!(
                 output_string,
-                "    {} as {}.private;", // todo: CAUTION private record variables only.
-                var.identifier, var.type_,
+                "    {} as {}.{mode};", // todo: CAUTION private record variables only.
+                var.identifier, var.type_
             )
             .expect("failed to write to string");
         }

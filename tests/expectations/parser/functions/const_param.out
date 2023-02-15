@@ -16,7 +16,7 @@ outputs:
             input:
               - Internal:
                   identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":129,\\\"hi\\\":130}\"}"
-                  mode: Const
+                  mode: Constant
                   type_:
                     Integer: U32
                   span:

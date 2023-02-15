@@ -54,6 +54,9 @@ workspace = true
 default-features = false
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
 
+[dev-dependencies.regex]
+version = "1.7.1"
+
 [dev-dependencies.serde]
 version = "1.0.152"
 features = [ "derive" ]

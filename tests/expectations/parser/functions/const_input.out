@@ -16,7 +16,7 @@ outputs:
             input:
               - Internal:
                   identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":47,\\\"hi\\\":48}\"}"
-                  mode: Const
+                  mode: Constant
                   type_:
                     Integer: U8
                   span:
@@ -48,7 +48,7 @@ outputs:
             input:
               - Internal:
                   identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":93}\"}"
-                  mode: Const
+                  mode: Constant
                   type_:
                     Integer: U64
                   span:

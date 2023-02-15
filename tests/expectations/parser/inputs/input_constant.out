@@ -5,7 +5,7 @@ outputs:
   - sections:
       - name: main
         definitions:
-          - mode: Const
+          - mode: Constant
             type_: Boolean
             name: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
             value:
@@ -18,7 +18,7 @@ outputs:
             span:
               lo: 21
               hi: 25
-          - mode: Const
+          - mode: Constant
             type_:
               Integer: U8
             name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
@@ -33,7 +33,7 @@ outputs:
             span:
               lo: 47
               hi: 49
-          - mode: Const
+          - mode: Constant
             type_: Field
             name: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":69,\\\"hi\\\":70}\"}"
             value:
@@ -46,7 +46,7 @@ outputs:
             span:
               lo: 72
               hi: 77
-          - mode: Const
+          - mode: Constant
             type_: Group
             name: "{\"name\":\"d\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
             value:
@@ -71,7 +71,7 @@ outputs:
             span:
               lo: 100
               hi: 105
-          - mode: Const
+          - mode: Constant
             type_: Address
             name: "{\"name\":\"e\",\"span\":\"{\\\"lo\\\":130,\\\"hi\\\":131}\"}"
             value:
@@ -84,7 +84,7 @@ outputs:
             span:
               lo: 133
               hi: 140
-          - mode: Const
+          - mode: Constant
             type_:
               Integer: I8
             name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":217,\\\"hi\\\":218}\"}"

@@ -223,19 +223,26 @@ impl ParserContext<'_> {
     }
 
     /// Parses `IDENT: TYPE`.
-    pub(super) fn parse_typed_ident(&mut self) -> Result<(Identifier, Type)> {
+    pub(super) fn parse_typed_ident(&mut self) -> Result<(Identifier, Type, Span)> {
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let (type_, span) = self.parse_type()?;
 
-        Ok((name, type_))
+        Ok((name, type_, name.span + span))
     }
 
     /// Returns a [`Member`] AST node if the next tokens represent a struct member variable.
     fn parse_member_variable_declaration(&mut self) -> Result<Member> {
-        let (identifier, type_) = self.parse_typed_ident()?;
+        let mode = self.parse_mode()?;
 
-        Ok(Member { identifier, type_ })
+        let (identifier, type_, span) = self.parse_typed_ident()?;
+
+        Ok(Member {
+            mode,
+            identifier,
+            type_,
+            span,
+        })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -278,6 +285,7 @@ impl ParserContext<'_> {
         ))
     }
 
+    // TODO: Return a span associated with the mode.
     /// Returns a [`ParamMode`] AST node if the next tokens represent a function parameter mode.
     pub(super) fn parse_mode(&mut self) -> Result<Mode> {
         let private = self.eat(&Token::Private).then_some(self.prev_token.span);
@@ -293,8 +301,8 @@ impl ParserContext<'_> {
             (None, None, None, None) => Ok(Mode::None),
             (Some(_), None, None, None) => Ok(Mode::Private),
             (None, Some(_), None, None) => Ok(Mode::Public),
-            (None, None, Some(_), None) => Ok(Mode::Const),
-            (None, None, None, Some(_)) => Ok(Mode::Const),
+            (None, None, Some(_), None) => Ok(Mode::Constant),
+            (None, None, None, Some(_)) => Ok(Mode::Constant),
             _ => {
                 let mut spans = [private, public, constant, const_].into_iter().flatten();
 
