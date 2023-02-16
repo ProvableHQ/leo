@@ -3,7 +3,8 @@ echo "
 Step 4: Downloading parameters. This may take a few minutes..."
 
 # Create a new dummy Leo project.
-$LEO new dummy && cd dummy
+$LEO new dummy || exit
+cd dummy || exit
 
 # Attempt to compile the dummy program until it passes.
 # This is necessary to ensure that the universal parameters are downloaded.
