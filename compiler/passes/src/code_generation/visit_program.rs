@@ -84,31 +84,23 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        // Get the post-order ordering of the call graph.
-        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        let order = self.call_graph.post_order().unwrap();
-
-        // Visit each function in the post-ordering and produce an Aleo function.
+        // Visit each function in the program scope and produce an Aleo function.
+        // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
+        // In other words, a callee function precedes its caller function in the program scope.
         program_string.push_str(
-            &order
-                .into_iter()
-                .map(|function_name| {
-                    match program_scope.functions.get(&function_name) {
-                        // If the function is found, it is a local function.
-                        Some(function) => {
-                            // Set the `is_transition_function` flag.
-                            self.is_transition_function = matches!(function.variant, Variant::Transition);
+            &program_scope
+                .functions
+                .values()
+                .map(|function| {
+                    // Set the `is_transition_function` flag.
+                    self.is_transition_function = matches!(function.variant, Variant::Transition);
 
-                            let function_string = self.visit_function(function);
+                    let function_string = self.visit_function(function);
 
-                            // Unset the `is_transition_function` flag.
-                            self.is_transition_function = false;
+                    // Unset the `is_transition_function` flag.
+                    self.is_transition_function = false;
 
-                            function_string
-                        }
-                        // If the function is not found, it is an imported function.
-                        None => String::new(),
-                    }
+                    function_string
                 })
                 .join("\n"),
         );
