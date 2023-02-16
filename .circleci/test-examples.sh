@@ -53,7 +53,7 @@ fi
 echo "Building and running the \`bubblesort\` program..."
 (
   cd ./project/examples/bubblesort || exit
-  $LEO run bubblesort || exit
+  $LEO run bubble_sort || exit
 )
 # Check that the bubblesort program ran successfully.
 EXITCODE=$?

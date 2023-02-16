@@ -1,11 +1,3 @@
-#!/bin/bash
-# First check that Leo is installed.
-if ! command -v leo &> /dev/null
-then
-    echo "leo is not installed."
-    exit
-fi
-
 # The private key and address of the bank.
 # Swap these into program.json, when running transactions as the first bidder.
 # "private_key": "APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD",
