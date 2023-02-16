@@ -1,3 +1,6 @@
+# Alias the Leo binary.
+alias leo=$LEO
+
 # Build and run the auction Leo program.
 echo "Building and running the \`auction\` program..."
 (
