@@ -465,6 +465,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                     }
 
+                    // Check that the call is not to an external `inline` function.
+                    if func.variant == Variant::Inline && input.external.is_some() {
+                        self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
+                    }
+
                     let ret = self.assert_and_return_type(func.output_type, expected, input.span());
 
                     // Check number of function arguments.
