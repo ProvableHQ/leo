@@ -1,4 +1,3 @@
-#!/bin/bash
 # Alias the leo command to use the local binary.
 # Note: Use a full path for $LEO when running locally.
 leo() {
