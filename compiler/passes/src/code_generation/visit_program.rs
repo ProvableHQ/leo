@@ -62,9 +62,12 @@ impl<'a> CodeGenerator<'a> {
             &order
                 .into_iter()
                 .map(|name| {
-                    // Note that this unwrap is safe since type checking guarantees that all structs are declared.
-                    let struct_ = program_scope.structs.get(&name).unwrap();
-                    self.visit_struct_or_record(struct_)
+                    match program_scope.structs.get(&name) {
+                        // If the struct is found, it is a local struct.
+                        Some(struct_) => self.visit_struct_or_record(struct_),
+                        // If the struct is not found, it is an imported struct.
+                        None => String::new(),
+                    }
                 })
                 .join("\n"),
         );
@@ -90,18 +93,22 @@ impl<'a> CodeGenerator<'a> {
             &order
                 .into_iter()
                 .map(|function_name| {
-                    // Note that this unwrap is safe since type checking guarantees that all functions are declared.
-                    let function = program_scope.functions.get(&function_name).unwrap();
+                    match program_scope.functions.get(&function_name) {
+                        // If the function is found, it is a local function.
+                        Some(function) => {
+                            // Set the `is_transition_function` flag.
+                            self.is_transition_function = matches!(function.variant, Variant::Transition);
 
-                    // Set the `is_transition_function` flag.
-                    self.is_transition_function = matches!(function.variant, Variant::Transition);
+                            let function_string = self.visit_function(function);
 
-                    let function_string = self.visit_function(function);
+                            // Unset the `is_transition_function` flag.
+                            self.is_transition_function = false;
 
-                    // Unset the `is_transition_function` flag.
-                    self.is_transition_function = false;
-
-                    function_string
+                            function_string
+                        }
+                        // If the function is not found, it is an imported function.
+                        None => String::new(),
+                    }
                 })
                 .join("\n"),
         );
