@@ -1,18 +1,5 @@
-#!/bin/bash
-# First check that Leo is installed.
-if ! command -v leo &> /dev/null
-then
-    echo "leo is not installed."
-    exit
-fi
-
-# Clone the 'leo' repository, or pull if it already exists.
-git clone https://github.com/AleoHQ/leo.git leo 2> /dev/null || (cd leo ; git pull)
-
-# Install 'leo'.
-cd leo && cargo install --path . && cd ..
-
 # Build and run the auction Leo program.
+echo "Building and running the \`auction\` program..."
 (
   cd ./project/examples/auction || exit
   $LEO run place_bid
@@ -24,6 +11,7 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the basic_bank Leo program.
+echo "Building and running the \`basic_bank\` program..."
 (
   cd ./project/examples/basic_bank || exit
   $LEO run issue
@@ -35,6 +23,7 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the battleship Leo program.
+echo "Building and running the \`battleship\` program..."
 (
   cd ./project/examples/battleship || exit
 
@@ -43,84 +32,98 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the bubblesort Leo program.
+echo "Building and running the \`bubblesort\` program..."
 (
   cd ./project/examples/bubblesort || exit
   $LEO run bubblesort
 )
 
 # Build and run the core example Leo program.
+echo "Building and running the \`core\` program..."
 (
   cd ./project/examples/core || exit
   $LEO run main
 )
 
 # Build and run the groups example Leo program.
+echo "Building and running the \`groups\` program..."
 (
   cd ./project/examples/groups || exit
   $LEO run main
 )
 
 # Build and run the hackers-delight/ntzdebruijin program.
+echo "Building and running the \`hackers-delight/ntzdebruijin\` program..."
 (
   cd ./project/examples/hackers-delight/ntzdebruijin || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzgaudet program.
+echo "Building and running the \`hackers-delight/ntzgaudet\` program..."
 (
   cd ./project/examples/hackers-delight/ntzgaudet || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzloops program.
+echo "Building and running the \`hackers-delight/ntzloops\` program..."
 (
   cd ./project/examples/hackers-delight/ntzloops || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzmasks program.
+echo "Building and running the \`hackers-delight/ntzmasks\` program..."
 (
   cd ./project/examples/hackers-delight/ntzmasks || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzreisers program.
+echo "Building and running the \`hackers-delight/ntzreisers\` program..."
 (
   cd ./project/examples/hackers-delight/ntzreisers || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzseals program.
+echo "Building and running the \`hackers-delight/ntzseals\` program..."
 (
   cd ./project/examples/hackers-delight/ntzseals || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzsearchtree program.
+echo "Building and running the \`hackers-delight/ntzsearchtree\` program..."
 (
   cd ./project/examples/hackers-delight/ntzsearchtree || exit
   $LEO run
 )
 
 # Build and run the hackers-delight/ntzsmallvals program.
+echo "Building and running the \`hackers-delight/ntzsmallvals\` program..."
 (
   cd ./project/examples/hackers-delight/ntzsmallvals || exit
   $LEO run
 )
 
 # Build and run the helloworld Leo program.
+echo "Building and running the \`helloworld\` program..."
 (
   cd ./project/examples/helloworld || exit
   $LEO run main
 )
 
 # Build and run the import point example Leo program.
+echo "Building and running the \`import_point\` program..."
 (
   cd ./project/examples/import_point || exit
   $LEO run main
 )
 
 # Build and run the interest example Leo programs.
+echo "Building and running the \`interest\` programs..."
 (
   cd ./project/examples/import_point || exit
 
@@ -132,12 +135,14 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the message example Leo program.
+echo "Building and running the \`message\` program..."
 (
   cd ./project/examples/message || exit
   $LEO run main
 )
 
 # Build and run the tic tac toe example Leo program.
+echo "Building and running the \`tictactoe\` program..."
 (
   cd ./project/examples/tictactoe || exit
   $LEO run new
@@ -148,6 +153,7 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the simple token example programs.
+echo "Building and running the \`simple_token\` programs..."
 (
   cd ./project/examples/simple_token || exit
 
@@ -159,6 +165,7 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the token example program.
+echo "Building and running the \`token\` program..."
 (
   cd ./project/examples/token || exit
 
@@ -182,12 +189,14 @@ cd leo && cargo install --path . && cd ..
 )
 
 # Build and run the two-adicity program.
+echo "Building and running the \`twoadicity\` program..."
 (
   cd ./project/examples/twoadicity || exit
   $LEO run main
 )
 
 # Build and run the vote Leo program.
+echo "Building and running the \`vote\` program..."
 (
   cd ./project/examples/vote || exit
 
