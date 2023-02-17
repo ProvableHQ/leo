@@ -28,7 +28,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         // Reconstruct and accumulate each of the functions in post-order.
         for function_name in order.into_iter() {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
-            // TODO: Check that this iindeed an external function. Requires a redesign of the symbol table.
+            // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
             if let Some(function) = input.functions.remove(&function_name) {
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
