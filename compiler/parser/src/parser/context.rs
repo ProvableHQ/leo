@@ -126,8 +126,8 @@ impl<'a> ParserContext<'a> {
         self.handler.emit_err(err);
     }
 
-    /// Emit the error `err`.
-    pub(super) fn emit_warning(&self, warning: ParserWarning) {
+    /// Emit the warning `warning`.
+    pub(super) fn _emit_warning(&self, warning: ParserWarning) {
         self.handler.emit_warning(warning.into());
     }
 

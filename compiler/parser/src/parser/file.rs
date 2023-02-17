@@ -16,7 +16,7 @@
 
 use super::*;
 use crate::parse_ast;
-use leo_errors::{CompilerError, ParserError, ParserWarning, Result};
+use leo_errors::{CompilerError, ParserError, Result};
 use leo_span::source_map::FileName;
 use leo_span::symbol::with_session_globals;
 
@@ -160,7 +160,6 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function()?;
                     functions.insert(id, function);
                 }
-                Token::Circuit => return Err(ParserError::circuit_is_deprecated(self.token.span).into()),
                 Token::RightCurly => break,
                 _ => {
                     return Err(Self::unexpected_item(
@@ -291,20 +290,14 @@ impl ParserContext<'_> {
         let private = self.eat(&Token::Private).then_some(self.prev_token.span);
         let public = self.eat(&Token::Public).then_some(self.prev_token.span);
         let constant = self.eat(&Token::Constant).then_some(self.prev_token.span);
-        let const_ = self.eat(&Token::Const).then_some(self.prev_token.span);
 
-        if let Some(span) = const_ {
-            self.emit_warning(ParserWarning::const_parameter_or_input(span));
-        }
-
-        match (private, public, constant, const_) {
-            (None, None, None, None) => Ok(Mode::None),
-            (Some(_), None, None, None) => Ok(Mode::Private),
-            (None, Some(_), None, None) => Ok(Mode::Public),
-            (None, None, Some(_), None) => Ok(Mode::Constant),
-            (None, None, None, Some(_)) => Ok(Mode::Constant),
+        match (private, public, constant) {
+            (None, None, None) => Ok(Mode::None),
+            (Some(_), None, None) => Ok(Mode::Private),
+            (None, Some(_), None) => Ok(Mode::Public),
+            (None, None, Some(_)) => Ok(Mode::Constant),
             _ => {
-                let mut spans = [private, public, constant, const_].into_iter().flatten();
+                let mut spans = [private, public, constant].into_iter().flatten();
 
                 // There must exist at least one mode, since the none case is handled above.
                 let starting_span = spans.next().unwrap();
