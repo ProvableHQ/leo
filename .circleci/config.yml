@@ -131,6 +131,7 @@ jobs:
           name: test examples example
           command: |
             export LEO=/home/circleci/project/project/bin/leo
+            export EXAMPLES=/home/circleci/project/project/examples
             ./project/.circleci/test-examples.sh
 
 workflows:

@@ -70,11 +70,10 @@ dependencies = [
 
 [[package]]
 name = "aleo"
-version = "0.3.4"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1e4929cda45548d053c11a8e08eb0c530361b441f31ad7cf6f066289368d1df"
+checksum = "17259b13bd25bf6fdc8d6a207fd690daca08640dd364d7072ba425b5a5bfa6cd"
 dependencies = [
- "aleo-rust",
  "anyhow",
  "clap",
  "colored",
@@ -82,7 +81,6 @@ dependencies = [
  "parking_lot",
  "rand",
  "rand_chacha",
- "rpassword",
  "self_update 0.32.0",
  "serde",
  "serde_json",
@@ -91,22 +89,6 @@ dependencies = [
  "tokio",
  "walkdir",
  "warp",
-]
-
-[[package]]
-name = "aleo-rust"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34efc6c260c8e720f02a96e72748e6d9392b985dd0883d923882a20500274eef"
-dependencies = [
- "anyhow",
- "indexmap",
- "once_cell",
- "rand",
- "serde_json",
- "snarkvm",
- "snarkvm-wasm",
- "ureq",
 ]
 
 [[package]]
@@ -932,10 +914,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c05aeb6a22b8f62540c194aac980f2115af067bfe15a0734d7277a768d396b31"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -2124,27 +2104,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rpassword"
-version = "7.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6678cf63ab3491898c0d021b493c94c9b221d91295294a2a5746eacbe5928322"
-dependencies = [
- "libc",
- "rtoolbox",
- "winapi",
-]
-
-[[package]]
-name = "rtoolbox"
-version = "0.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "034e22c514f5c0cb8a10ff341b9b048b5ceb21591f31c8f44c43b960f9b3524a"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2945,13 +2904,11 @@ dependencies = [
  "parking_lot",
  "paste",
  "rand",
- "reqwest",
  "serde_json",
  "sha2",
  "snarkvm-curves",
  "snarkvm-utilities",
  "thiserror",
- "wasm-bindgen-futures",
 ]
 
 [[package]]
@@ -3028,20 +2985,6 @@ dependencies = [
  "proc-macro2 1.0.51",
  "quote 1.0.23",
  "syn 1.0.107",
-]
-
-[[package]]
-name = "snarkvm-wasm"
-version = "0.9.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eab1c2fc59610557d3f4e8c215d43bdb90748aec810ba0b04e6fa7d1b6543ece"
-dependencies = [
- "getrandom",
- "rand",
- "serde",
- "snarkvm-console",
- "snarkvm-utilities",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -3632,8 +3575,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "31f8dcbc21f30d9b8f2ea926ecb58f6b91192c17e9d33594b3df58b2007ca53b"
 dependencies = [
  "cfg-if",
- "serde",
- "serde_json",
  "wasm-bindgen-macro",
 ]
 

@@ -1,11 +1,3 @@
-#!/bin/bash
-# First check that Leo is installed.
-if ! command -v leo &> /dev/null
-then
-    echo "leo is not installed."
-    exit
-fi
-
 # The private key and address of the first bidder.
 # Swap these into program.json, when running transactions as the first bidder.
 # "private_key": "APrivateKey1zkpG9Af9z5Ha4ejVyMCqVFXRKknSm8L1ELEwcc4htk9YhVK"
@@ -61,7 +53,7 @@ echo "
 ########                                                               ########
 ###############################################################################
 "
-leo run place_bid aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke 10u64
+leo run place_bid aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke 10u64 || exit
 
 # Swap in the private key and address of the second bidder to program.json.
 echo "{
@@ -90,7 +82,7 @@ echo "
 ########                                                               ########
 ###############################################################################
 "
-leo run place_bid aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4 90u64
+leo run place_bid aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4 90u64 || exit
 
 # Swap in the private key and address of the auctioneer to program.json.
 echo "{
@@ -132,7 +124,7 @@ leo run resolve "{
         amount: 90u64.private,
         is_winner: false.private,
         _nonce: 5952811863753971450641238938606857357746712138665944763541786901326522216736group.public
-    }"
+    }" || exit
 
 # Have the auctioneer finish the auction.
 echo "
@@ -155,7 +147,7 @@ leo run finish "{
         amount: 90u64.private,
         is_winner: false.private,
         _nonce: 5952811863753971450641238938606857357746712138665944763541786901326522216736group.public
-    }"
+    }" || exit
 
 
 

@@ -1,10 +1,10 @@
 # Create a new Leo program named `foo`.
-$LEO new foo
+$LEO new foo || exit
 ls -la
 cd foo && ls -la
 
 # Run `leo build`.
-$LEO build
+$LEO build || exit
 
 # Assert that the 'build' folder exists.
 if [ "$(ls -A build)" ]; then
@@ -15,7 +15,7 @@ else
 fi
 
 # Run `leo clean`
-$LEO clean
+$LEO clean || exit
 
 # Assert that the 'build' folder is empty.
 if [ "$(ls -A build)" ]; then

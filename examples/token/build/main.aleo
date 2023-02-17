@@ -1,4 +1,4 @@
-program token.aleo
+program token.aleo;
 
 record token:
     owner as address.private;
@@ -8,10 +8,10 @@ record token:
 mapping account:
 	key left as address.public;
 	value right as u64.public;
-
 function mint_public:
     input r0 as address.public;
     input r1 as u64.public;
+
     finalize r0 r1;
 
 finalize mint_public:
@@ -28,6 +28,7 @@ function mint_private:
 function transfer_public:
     input r0 as address.public;
     input r1 as u64.public;
+
     finalize self.caller r0 r1;
 
 finalize transfer_public:
@@ -54,6 +55,7 @@ function transfer_private_to_public:
     sub r0.amount r2 into r3;
     cast r0.owner r0.gates r3 into r4 as token.record;
     output r4 as token.record;
+
     finalize r1 r2;
 
 finalize transfer_private_to_public:
@@ -66,10 +68,10 @@ function transfer_public_to_private:
     input r1 as u64.public;
     cast r0 0u64 r1 into r2 as token.record;
     output r2 as token.record;
+
     finalize self.caller r1;
 
 finalize transfer_public_to_private:
     input r0 as address.public;
     input r1 as u64.public;
     decrement account[r0] by r1;
-

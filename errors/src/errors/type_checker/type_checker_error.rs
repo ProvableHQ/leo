@@ -566,4 +566,11 @@ create_messages!(
         msg: format!("A struct cannot have a member with mode `constant`, `private`, or `public`."),
         help: None,
     }
+
+    @formatted
+    cannot_call_external_inline_function {
+        args: (),
+        msg: format!("Cannot call an external `inline` function."),
+        help: None,
+    }
 );
