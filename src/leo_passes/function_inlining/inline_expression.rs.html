@@ -91,6 +91,11 @@
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -121,6 +126,11 @@
     <span class="kw">type </span>AdditionalOutput = Vec&lt;Statement&gt;;
 
     <span class="kw">fn </span>reconstruct_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CallExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Type checking guarantees that only functions local to the program scope can be inlined.
+        </span><span class="kw">if </span>input.external.is_some() {
+            <span class="kw">return </span>(Expression::Call(input), Default::default());
+        }
+
         <span class="comment">// Get the name of the callee function.
         </span><span class="kw">let </span>function_name = <span class="kw">match </span><span class="kw-2">*</span>input.function {
             Expression::Identifier(identifier) =&gt; identifier.name,

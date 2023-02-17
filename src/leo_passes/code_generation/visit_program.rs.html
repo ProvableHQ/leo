@@ -292,7 +292,6 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -357,9 +356,12 @@
             <span class="kw-2">&amp;</span>order
                 .into_iter()
                 .map(|name| {
-                    <span class="comment">// Note that this unwrap is safe since type checking guarantees that all structs are declared.
-                    </span><span class="kw">let </span>struct_ = program_scope.structs.get(<span class="kw-2">&amp;</span>name).unwrap();
-                    <span class="self">self</span>.visit_struct_or_record(struct_)
+                    <span class="kw">match </span>program_scope.structs.get(<span class="kw-2">&amp;</span>name) {
+                        <span class="comment">// If the struct is found, it is a local struct.
+                        </span><span class="prelude-val">Some</span>(struct_) =&gt; <span class="self">self</span>.visit_struct_or_record(struct_),
+                        <span class="comment">// If the struct is not found, it is an imported struct.
+                        </span><span class="prelude-val">None </span>=&gt; String::new(),
+                    }
                 })
                 .join(<span class="string">&quot;\n&quot;</span>),
         );
@@ -376,18 +378,14 @@
                 .join(<span class="string">&quot;\n&quot;</span>),
         );
 
-        <span class="comment">// Get the post-order ordering of the call graph.
-        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        </span><span class="kw">let </span>order = <span class="self">self</span>.call_graph.post_order().unwrap();
-
-        <span class="comment">// Visit each function in the post-ordering and produce an Aleo function.
+        <span class="comment">// Visit each function in the program scope and produce an Aleo function.
+        // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
+        // In other words, a callee function precedes its caller function in the program scope.
         </span>program_string.push_str(
-            <span class="kw-2">&amp;</span>order
-                .into_iter()
-                .map(|function_name| {
-                    <span class="comment">// Note that this unwrap is safe since type checking guarantees that all functions are declared.
-                    </span><span class="kw">let </span>function = program_scope.functions.get(<span class="kw-2">&amp;</span>function_name).unwrap();
-
+            <span class="kw-2">&amp;</span>program_scope
+                .functions
+                .values()
+                .map(|function| {
                     <span class="comment">// Set the `is_transition_function` flag.
                     </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.variant, Variant::Transition);
 

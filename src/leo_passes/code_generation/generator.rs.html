@@ -92,7 +92,7 @@
     <span class="doccomment">/// The struct dependency graph for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph,
     <span class="doccomment">/// The call graph for the program.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) _call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
     <span class="doccomment">/// A counter to track the next available register.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_register: u64,
     <span class="doccomment">/// Reference to the current function.
@@ -111,12 +111,12 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `CodeGenerator`.
-    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph, call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph, _call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph) -&gt; <span class="self">Self </span>{
         <span class="comment">// Initialize variable mapping.
         </span><span class="self">Self </span>{
             symbol_table,
             struct_graph,
-            call_graph,
+            _call_graph,
             next_register: <span class="number">0</span>,
             current_function: <span class="prelude-val">None</span>,
             variable_mapping: IndexMap::new(),

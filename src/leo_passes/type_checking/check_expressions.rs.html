@@ -729,6 +729,11 @@
 <a href="#729" id="729">729</a>
 <a href="#730" id="730">730</a>
 <a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1194,6 +1199,11 @@
                                 ));
                             }
                         }
+                    }
+
+                    <span class="comment">// Check that the call is not to an external `inline` function.
+                    </span><span class="kw">if </span>func.variant == Variant::Inline &amp;&amp; input.external.is_some() {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
 
                     <span class="kw">let </span>ret = <span class="self">self</span>.assert_and_return_type(func.output_type, expected, input.span());
