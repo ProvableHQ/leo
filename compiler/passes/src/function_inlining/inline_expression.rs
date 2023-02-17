@@ -28,6 +28,11 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
     type AdditionalOutput = Vec<Statement>;
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
+        // Type checking guarantees that only functions local to the program scope can be inlined.
+        if input.external.is_some() {
+            return (Expression::Call(input), Default::default());
+        }
+
         // Get the name of the callee function.
         let function_name = match *input.function {
             Expression::Identifier(identifier) => identifier.name,

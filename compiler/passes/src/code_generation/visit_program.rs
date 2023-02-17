@@ -62,9 +62,12 @@ impl<'a> CodeGenerator<'a> {
             &order
                 .into_iter()
                 .map(|name| {
-                    // Note that this unwrap is safe since type checking guarantees that all structs are declared.
-                    let struct_ = program_scope.structs.get(&name).unwrap();
-                    self.visit_struct_or_record(struct_)
+                    match program_scope.structs.get(&name) {
+                        // If the struct is found, it is a local struct.
+                        Some(struct_) => self.visit_struct_or_record(struct_),
+                        // If the struct is not found, it is an imported struct.
+                        None => String::new(),
+                    }
                 })
                 .join("\n"),
         );
@@ -81,18 +84,14 @@ impl<'a> CodeGenerator<'a> {
                 .join("\n"),
         );
 
-        // Get the post-order ordering of the call graph.
-        // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
-        let order = self.call_graph.post_order().unwrap();
-
-        // Visit each function in the post-ordering and produce an Aleo function.
+        // Visit each function in the program scope and produce an Aleo function.
+        // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
+        // In other words, a callee function precedes its caller function in the program scope.
         program_string.push_str(
-            &order
-                .into_iter()
-                .map(|function_name| {
-                    // Note that this unwrap is safe since type checking guarantees that all functions are declared.
-                    let function = program_scope.functions.get(&function_name).unwrap();
-
+            &program_scope
+                .functions
+                .values()
+                .map(|function| {
                     // Set the `is_transition_function` flag.
                     self.is_transition_function = matches!(function.variant, Variant::Transition);
 
