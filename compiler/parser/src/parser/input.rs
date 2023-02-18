@@ -51,7 +51,7 @@ impl ParserContext<'_> {
         self.expect(&Token::RightSquare)?;
 
         let mut definitions = Vec::new();
-        while let Token::Const | Token::Constant | Token::Public | Token::Identifier(_) = self.token.token {
+        while let Token::Constant | Token::Public | Token::Identifier(_) = self.token.token {
             definitions.push(self.parse_input_definition()?);
         }
 

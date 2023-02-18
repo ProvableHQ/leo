@@ -5,6 +5,6 @@ expectation: Fail
 
 program test.aleo {    
     function main() {
-        const a: Foo = Foo { };
+        let a: Foo = Foo { };
     }
 }

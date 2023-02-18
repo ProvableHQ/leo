@@ -63,7 +63,7 @@ outputs:
   - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
   - "Error [EPAR0370016]: Could not lex the following content: `~`.\n"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'console'\n    --> test:1:1\n     |\n   1 | console\n     | ^^^^^^^"
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'const'\n    --> test:1:1\n     |\n   1 | const\n     | ^^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'constant'\n    --> test:1:1\n     |\n   1 | constant\n     | ^^^^^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'else'\n    --> test:1:1\n     |\n   1 | else\n     | ^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'for'\n    --> test:1:1\n     |\n   1 | for\n     | ^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'expression', found 'function'\n    --> test:1:1\n     |\n   1 | function\n     | ^^^^^^^^"

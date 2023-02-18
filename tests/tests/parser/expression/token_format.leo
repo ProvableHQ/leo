@@ -125,7 +125,7 @@ input ~
 
 console
 
-const
+constant
 
 else
 

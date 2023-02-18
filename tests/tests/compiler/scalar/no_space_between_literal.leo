@@ -5,5 +5,5 @@ expectation: Fail
 
 program test.aleo {    
     function main() {
-      const f = 1 scalar;
+      let f = 1 scalar;
     }}

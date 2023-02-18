@@ -22,7 +22,7 @@ program test.aleo {
     }
     
     function main(x: address) -> u64 {
-        const c: u64 = 1u64;
+        let c: u64 = 1u64;
         let t: Token = mint(x, c);
     
         return t.gates;

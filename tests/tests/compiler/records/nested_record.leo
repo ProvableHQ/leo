@@ -27,7 +27,7 @@ program test.aleo {
     }
     
     transition main(x: address) -> u64 {
-        const c: u64 = 1u64;
+        let c: u64 = 1u64;
         let t: Token = Token { owner: x, gates: 0u64, amount: Amount { amount: c, amt: c } };
     
         return t.gates;

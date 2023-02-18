@@ -12,13 +12,13 @@ program test.aleo {
     
     type f1gXY = i32;
     
-    const jpPIR: u8 = 16u8;
+    let jpPIR: u8 = 16u8;
     
     
-    const f2Tb9: i128 = 45051584313652375601764187183414341445;
+    let f2Tb9: i128 = 45051584313652375601764187183414341445;
     
     
-    const V5kfY: i16 = -8790i16;
+    let V5kfY: i16 = -8790i16;
     
     
     struct Sjme {
@@ -38,7 +38,7 @@ program test.aleo {
         let ohlv: f1gXY = -1259603809i32;
         let gZRDA: i64 = -7347494256161757768i64;
         gZRDA *= 0;
-        const ok24: Plflu = -2051516710597000367i64;
+        let ok24: Plflu = -2051516710597000367i64;
         gZRDA *= gZRDA;
         return (8i8, ohlv, 948067729i32, 1783509931145130420616818325370403915997535152021967071633491200599020999853659867294845842362448613053777476366231124404691257428640224773765087015983573field);
     }
@@ -47,10 +47,10 @@ program test.aleo {
         DMUO: u128,
         OA4M: u64
     ) -> Plflu {
-        const nXWy: u128 = 186484550818404824661609584894630678829;
+        let nXWy: u128 = 186484550818404824661609584894630678829;
         let dXEf: f1gXY = -240549848i32;
-        const fWQ_: Sq9N = 42;
-        const mX9QW: i8 = fWQ_;
+        let fWQ_: Sq9N = 42;
+        let mX9QW: i8 = fWQ_;
         for GhJkG in 2746090830u32..2746090848u32 {
             dXEf **= 0;
         }

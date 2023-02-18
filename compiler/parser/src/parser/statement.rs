@@ -46,9 +46,8 @@ impl ParserContext<'_> {
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
-            Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
+            Token::Let => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
-            Token::Async => Err(ParserError::async_finalize_is_deprecated(self.token.span).into()),
             Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
             Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
@@ -333,11 +332,11 @@ impl ParserContext<'_> {
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     pub(super) fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
-        self.expect_any(&[Token::Let, Token::Const])?;
+        self.expect(&Token::Let)?;
         let decl_span = self.prev_token.span;
         let decl_type = match &self.prev_token.token {
             Token::Let => DeclarationType::Let,
-            Token::Const => DeclarationType::Const,
+            // Note: Reserving for `constant` declarations.
             _ => unreachable!("parse_definition_statement_ shouldn't produce this"),
         };
 

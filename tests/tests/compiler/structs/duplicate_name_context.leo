@@ -9,8 +9,8 @@ program test.aleo {
     }
     
     function main(y: bool) -> bool {
-        const Bar: u32 = 66u32;
-        const k1: Bar = Bar { b2: 30u32 };
+        let Bar: u32 = 66u32;
+        let k1: Bar = Bar { b2: 30u32 };
     
         return y == true;
     }
