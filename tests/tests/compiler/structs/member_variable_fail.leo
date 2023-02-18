@@ -9,7 +9,7 @@ program test.aleo {
     }
     
     function main() {
-        const a: foo = Foo { x: 1u32 };
-        const err = a.y;
+        let a: foo = Foo { x: 1u32 };
+        let err = a.y;
     }
 }

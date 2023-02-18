@@ -5,6 +5,6 @@ expectation: Fail
 
 program test.aleo {    
     function main() {
-        const a: u128 = -1u128;
+        let a: u128 = -1u128;
     }
 }

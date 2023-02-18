@@ -10,8 +10,8 @@ program test.aleo {
     }
     
     function main() -> field {
-        const myGlobal = 42field;
-        const err = foo();
+        let myGlobal = 42field;
+        let err = foo();
     
         return err;
     }

@@ -29,8 +29,8 @@ program test.aleo {
     
     function main (
         Mv6I9: i128,
-        const VcQam: u64,
-        const w78D6: OX7t
+        let VcQam: u64,
+        let w78D6: OX7t
     ) -> (
         i128,
         gzOiV

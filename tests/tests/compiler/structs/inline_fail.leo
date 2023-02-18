@@ -10,6 +10,6 @@ program test.aleo {
     
     function main() {
         // no member y in Foo
-        const a: Foo = Foo { y: 0u32 };
+        let a: Foo = Foo { y: 0u32 };
     }
 }

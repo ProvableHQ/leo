@@ -12,16 +12,16 @@ program test.aleo {
     
     type aEw3O = i32;
     
-    const osrt: u16 = 26669;
+    let osrt: u16 = 26669;
     
     
-    const fQIQx: gOJKD = 11778118567534946352u64;
+    let fQIQx: gOJKD = 11778118567534946352u64;
     
     
-    const WzA2: bool = false;
+    let WzA2: bool = false;
     
     
-    const sJL7i: i8 = -64i8;
+    let sJL7i: i8 = -64i8;
     
     
     function kHP2 () -> (
@@ -44,25 +44,25 @@ program test.aleo {
     
     function main (
         Q9DOI: field,
-        const dUAEB: i8,
-        const SEj4g: address
+        let dUAEB: i8,
+        let SEj4g: address
     ) {
-        const thtph: [u32; 3] = [3453204639u32; 3];
-        const CHwG: HeJTD = HeJTD {};
-        const prUJ: u16 = osrt;
+        let thtph: [u32; 3] = [3453204639u32; 3];
+        let CHwG: HeJTD = HeJTD {};
+        let prUJ: u16 = osrt;
         let grcq: HeJTD = CHwG;
         grcq = grcq;
-        const QdIT = aleo1pphryx5dnmwsjyup8znnj4w9qpvlrvm36j2gl9uulgl8vg4j9u9srxufzk;
+        let QdIT = aleo1pphryx5dnmwsjyup8znnj4w9qpvlrvm36j2gl9uulgl8vg4j9u9srxufzk;
         grcq = HeJTD {};
         let P5L8: u8 = HeJTD {}.sxOgu(100534064157134121298169452117712518470).0;
-        const YIRE5 = 108u8;
+        let YIRE5 = 108u8;
         P5L8 *= P5L8;
         //RETURN
     }
     
     struct HeJTD {
     
-        function sxOgu (self, const kksQi: i128) -> (
+        function sxOgu (self, let kksQi: i128) -> (
             u8,
             i16,
             [u128; 4],
@@ -70,7 +70,7 @@ program test.aleo {
         ) {
             let tgb7Z: bool = false;
             tgb7Z = WzA2;
-            const aGPY: i8 = sJL7i;
+            let aGPY: i8 = sJL7i;
             let OKQp: u16 = 21911u16;
             OKQp **= 1u16;
             OKQp += OKQp;
@@ -83,13 +83,13 @@ program test.aleo {
             return (r5XK, -25382i16, [288029439387827313674819119656624687220, kHP2().2, 94803277963316423116564545225695504468, 108699602594758049345372064866936627487u128], aleo1cmgajygcpkrs43aud2upesptrf6sfxanxgf6ytf8rm4z6vnxfcqsvz88kk);
         }
     
-        function Keuz (&self, const qKKxX: i128) {
-            const lCYBT: bool = WzA2;
+        function Keuz (&self, let qKKxX: i128) {
+            let lCYBT: bool = WzA2;
             self = self;
             self = self;
-            const fPcJ5: i32 = -1765493837;
+            let fPcJ5: i32 = -1765493837;
             self = self;
-            const A2mgB: address = aleo1dlgjsyeagpfg2lxc5d9srdcawucuxtklpw4le68xfd59wzl08qxqdrsde3;
+            let A2mgB: address = aleo1dlgjsyeagpfg2lxc5d9srdcawucuxtklpw4le68xfd59wzl08qxqdrsde3;
             self = self;
             //RETURN
         }
@@ -105,19 +105,19 @@ program test.aleo {
     
     
     function WRVhi () -> u64 {
-        const kwp3 = 4062i16;
+        let kwp3 = 4062i16;
         let maLh: [u16; 1] = [42138u16; 1];
         let jlbK: [i128; 4] = [167777657792304947682323667177143824400i128, 147207114508691533575493469927314056629i128, 66922896792228500944582561782862644012i128, -144705193941485103492871736247790985658i128];
-        const KMFt = true;
+        let KMFt = true;
         let bipj: i64 = 7343659879021916427i64;
-        const CUZY: u128 = 100991402047349670687233987155884950904u128;
+        let CUZY: u128 = 100991402047349670687233987155884950904u128;
         jlbK[0..][0u32..4u32][2] = jlbK[..2u32][1u32];
-        const A9ur = CUZY;
+        let A9ur = CUZY;
         let D1ki6: u64 = 7803539941792604692u64;
         jlbK[2107741964 * 0u32 + 2488863191 - 2488863190u32..2896282209u32 - 1534373463 + 1853241563 + 231797636 + 254304638 - 757682938u32 - 2943569641u32][2] /= jlbK[3339182546 + 898119994u32 / 2751796078 - 3339182544u32..4][0];
         jlbK[3725489917u32 / 2537373408 / 3769922341u32 * 0u32 / 3952650523 + 3u32..4][..1] = jlbK[..1u32];
         let ezm9p = maLh[0u32..][0u32];
-        const b16WX: [[i8; 2]; 3] = [-23i8; (3, 2)];
-        const r8zp = kwp3 - 28411i16 / 3137i16;
+        let b16WX: [[i8; 2]; 3] = [-23i8; (3, 2)];
+        let r8zp = kwp3 - 28411i16 / 3137i16;
         return 2027828210765338626u64;
     }}

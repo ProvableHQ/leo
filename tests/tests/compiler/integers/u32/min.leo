@@ -5,7 +5,7 @@ expectation: Pass
 
 program test.aleo {    
     transition main(y: bool) -> bool {
-        const a: u32 = 0u32;
+        let a: u32 = 0u32;
         return y == true;
     }
 }

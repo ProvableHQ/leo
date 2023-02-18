@@ -9,7 +9,7 @@ program test.aleo {
     }
     
     transition main(y: bool) -> bool {
-        const a: Foo = Foo { x: 1u32 };
+        let a: Foo = Foo { x: 1u32 };
     
         return (a.x == 1u32) == y;
     }

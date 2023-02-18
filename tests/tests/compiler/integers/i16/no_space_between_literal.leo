@@ -5,6 +5,6 @@ expectation: Fail
 
 program test.aleo {    
     function main() {
-        const i = 1 i16;
+        let i = 1 i16;
     }
 }

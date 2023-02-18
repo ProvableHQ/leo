@@ -5,7 +5,7 @@ expectation: Skip
 
 program test.aleo {    
     function main() -> u8 {
-        const x: u8 = 191;
+        let x: u8 = 191;
     
         if x == 0 {
             return x;

@@ -18,8 +18,8 @@ program test.aleo {
         x: u8
     }
     
-    function main(const x: u8, y: bool) -> bool {
-        const a: Foo = Foo { x };
+    function main(let x: u8, y: bool) -> bool {
+        let a: Foo = Foo { x };
     
         return (b.x == a.x) == y;
     }

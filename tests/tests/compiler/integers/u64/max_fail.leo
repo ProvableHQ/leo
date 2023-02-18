@@ -5,6 +5,6 @@ expectation: Fail
 
 program test.aleo {    
     function main() {
-        const a: u64 = 18446744073709551616u64;
+        let a: u64 = 18446744073709551616u64;
     }
 }
