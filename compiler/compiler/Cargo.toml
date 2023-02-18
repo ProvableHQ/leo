@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "1.6.2"
+version = "1.6.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://aleo.org"
@@ -20,23 +20,23 @@ rust-version = "1.65"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.6.2"
+version = "1.6.3"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.6.2"
+version = "1.6.3"
 
 [dependencies.leo-passes]
 path = "../passes"
-version = "1.6.2"
+version = "1.6.3"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "1.6.2"
+version = "1.6.3"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.6.2"
+version = "1.6.3"
 
 [dependencies.sha2]
 version = "0.10"
