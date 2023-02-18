@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected : -- found 'x'\n    --> test:4:22\n     |\n   4 |     function x(const x: u8) -> u8 {}\n     |                      ^"

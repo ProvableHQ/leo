@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370030]: `async finalize` is deprecated.\n    --> compiler-test:5:9\n     |\n   5 |         async finalize(a);\n     |         ^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370005]: expected ; -- found 'finalize'\n    --> compiler-test:5:15\n     |\n   5 |         async finalize(a);\n     |               ^^^^^^^^"
