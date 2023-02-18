@@ -137,7 +137,7 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightSquare)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>definitions = Vec::new();
-        <span class="kw">while let </span>Token::Const | Token::Constant | Token::Public | Token::Identifier(<span class="kw">_</span>) = <span class="self">self</span>.token.token {
+        <span class="kw">while let </span>Token::Constant | Token::Public | Token::Identifier(<span class="kw">_</span>) = <span class="self">self</span>.token.token {
             definitions.push(<span class="self">self</span>.parse_input_definition()<span class="question-mark">?</span>);
         }
 

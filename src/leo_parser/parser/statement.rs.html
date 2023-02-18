@@ -358,7 +358,6 @@
 <a href="#358" id="358">358</a>
 <a href="#359" id="359">359</a>
 <a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -407,9 +406,8 @@
             Token::If =&gt; <span class="prelude-val">Ok</span>(Statement::Conditional(<span class="self">self</span>.parse_conditional_statement()<span class="question-mark">?</span>)),
             Token::For =&gt; <span class="prelude-val">Ok</span>(Statement::Iteration(Box::new(<span class="self">self</span>.parse_loop_statement()<span class="question-mark">?</span>))),
             Token::Assert | Token::AssertEq | Token::AssertNeq =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assert_statement()<span class="question-mark">?</span>),
-            Token::Let | Token::Const =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
+            Token::Let =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
             Token::LeftCurly =&gt; <span class="prelude-val">Ok</span>(Statement::Block(<span class="self">self</span>.parse_block()<span class="question-mark">?</span>)),
-            Token::Async =&gt; <span class="prelude-val">Err</span>(ParserError::async_finalize_is_deprecated(<span class="self">self</span>.token.span).into()),
             Token::Console =&gt; <span class="prelude-val">Err</span>(ParserError::console_statements_are_not_yet_supported(<span class="self">self</span>.token.span).into()),
             Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_statements_are_deprecated(<span class="self">self</span>.token.span).into()),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assign_statement()<span class="question-mark">?</span>),
@@ -694,12 +692,12 @@
 
     <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_definition_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;DefinitionStatement&gt; {
-        <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Let, Token::Const])<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Let)<span class="question-mark">?</span>;
         <span class="kw">let </span>decl_span = <span class="self">self</span>.prev_token.span;
         <span class="kw">let </span>decl_type = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.prev_token.token {
             Token::Let =&gt; DeclarationType::Let,
-            Token::Const =&gt; DeclarationType::Const,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_definition_statement_ shouldn&#39;t produce this&quot;</span>),
+            <span class="comment">// Note: Reserving for `constant` declarations.
+            </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;parse_definition_statement_ shouldn&#39;t produce this&quot;</span>),
         };
 
         <span class="comment">// Parse variable name and type.

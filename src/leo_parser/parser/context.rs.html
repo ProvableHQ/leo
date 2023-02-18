@@ -377,8 +377,8 @@
         <span class="self">self</span>.handler.emit_err(err);
     }
 
-    <span class="doccomment">/// Emit the error `err`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: ParserWarning) {
+    <span class="doccomment">/// Emit the warning `warning`.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>_emit_warning(<span class="kw-2">&amp;</span><span class="self">self</span>, warning: ParserWarning) {
         <span class="self">self</span>.handler.emit_warning(warning.into());
     }
 
