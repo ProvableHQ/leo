@@ -89,7 +89,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 self.is_necessary = false;
 
                 (statement, Default::default())
-            },
+            }
             // Otherwise, we can eliminate it.
             false => (Statement::dummy(Default::default()), Default::default()),
         }
@@ -105,7 +105,8 @@ impl StatementReconstructor for DeadCodeEliminator {
             .map(|statement| {
                 println!("Reconstructing statement: {}", statement);
                 self.reconstruct_statement(statement).0
-            }).collect();
+            })
+            .collect();
 
         // Reverse the direction of `statements`.
         statements.reverse();
