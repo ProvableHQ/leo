@@ -80,7 +80,7 @@ struct Sample {
 /// A helper function to help create a Leo Compiler struct.
 fn new_compiler(handler: &Handler) -> Compiler<'_> {
     Compiler::new(
-        String::from("bench"),
+        String::from("test"),
         String::from("aleo"),
         handler,
         PathBuf::from(String::new()),
