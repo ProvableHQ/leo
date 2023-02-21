@@ -16,7 +16,7 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
+use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for DeadCodeEliminator {
     fn reconstruct_function(&mut self, input: Function) -> Function {

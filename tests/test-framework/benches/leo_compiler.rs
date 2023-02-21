@@ -248,7 +248,7 @@ impl Sample {
         });
     }
 
-    fn bench_inline(&self, c: &mut Criterion) {
+    fn bench_dce(&self, c: &mut Criterion) {
         self.bencher_after_parse(c, "inliner pass", |mut compiler| {
             let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
             let (symbol_table, _struct_graph, call_graph) = compiler
@@ -318,6 +318,7 @@ bench!(bench_unroll, BenchMode::Unroll);
 bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_flatten, BenchMode::Flatten);
 bench!(bench_inline, BenchMode::Inline);
+bench!(bench_dce, BenchMode::Dce);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -331,6 +332,7 @@ criterion_group!(
         bench_ssa,
         bench_flatten,
         bench_inline,
+        bench_dce,
         bench_full
 );
 criterion_main!(benches);
