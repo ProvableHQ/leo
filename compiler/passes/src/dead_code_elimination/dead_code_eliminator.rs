@@ -14,35 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
+use leo_span::Symbol;
 
-pub mod code_generation;
-pub use code_generation::*;
+use indexmap::IndexSet;
 
-pub mod common;
-pub use common::*;
+pub struct DeadCodeEliminator<'a> {
+    /// The set of used variables in the current function body.
+    pub(crate) used_variables: IndexSet<Symbol>,
+}
 
-pub mod dead_code_elimination;
-pub use dead_code_elimination::*;
-
-pub mod flattening;
-pub use flattening::*;
-
-pub mod function_inlining;
-pub use function_inlining::*;
-
-pub mod loop_unrolling;
-pub use self::loop_unrolling::*;
-
-pub mod pass;
-pub use self::pass::*;
-
-pub mod static_single_assignment;
-pub use static_single_assignment::*;
-
-pub mod symbol_table_creation;
-pub use symbol_table_creation::*;
-
-pub mod type_checking;
-pub use type_checking::*;
+impl<'a> DeadCodeEliminator<'a> {
+    /// Initializes a new `DeadCodeEliminator`.
+    pub fn new() -> Self {
+        Self {
+            used_variables: Default::default(),
+        }
+    }
+}
