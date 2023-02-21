@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DeadCodeEliminator};
+use crate::DeadCodeEliminator;
 
-use leo_ast::{
-    Expression, ExpressionReconstructor, Identifier,
-    StructExpression, StructVariableInitializer,
-};
+use leo_ast::{Expression, ExpressionReconstructor, Identifier, StructExpression, StructVariableInitializer};
 
 impl ExpressionReconstructor for DeadCodeEliminator {
     type AdditionalOutput = ();

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DeadCodeEliminator};
+use crate::DeadCodeEliminator;
 
 use leo_ast::{
     AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
@@ -69,9 +69,6 @@ impl StatementReconstructor for DeadCodeEliminator {
             ),
         };
 
-        println!("self.used_variables: {:?}", self.used_variables);
-        println!("Statement: {}, lhs_is_used: {:?}", input, lhs_is_used);
-
         match lhs_is_used {
             // If the lhs is used, then we return the original statement.
             true => {
@@ -102,10 +99,7 @@ impl StatementReconstructor for DeadCodeEliminator {
             .statements
             .into_iter()
             .rev()
-            .map(|statement| {
-                println!("Reconstructing statement: {}", statement);
-                self.reconstruct_statement(statement).0
-            })
+            .map(|statement| self.reconstruct_statement(statement).0)
             .collect();
 
         // Reverse the direction of `statements`.
