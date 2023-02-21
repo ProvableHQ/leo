@@ -18,16 +18,21 @@ use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-pub struct DeadCodeEliminator<'a> {
+#[derive(Default)]
+pub struct DeadCodeEliminator {
     /// The set of used variables in the current function body.
     pub(crate) used_variables: IndexSet<Symbol>,
+    /// Whether or not the variables are necessary.
+    pub(crate) is_necessary: bool,
 }
 
-impl<'a> DeadCodeEliminator<'a> {
+impl DeadCodeEliminator {
     /// Initializes a new `DeadCodeEliminator`.
     pub fn new() -> Self {
         Self {
             used_variables: Default::default(),
+            is_necessary: false,
         }
     }
 }
+

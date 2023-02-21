@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The Dead Code Elimination pass traverses the AST and eliminates unused code.
+//! The Dead Code Elimination pass traverses the AST and eliminates unused code,
+//! specifically assignment statements, within the boundary of `transition`s and `function`s.
+//! The pass is run after the Function Inlining pass.
+//!
 //! See https://en.wikipedia.org/wiki/Dead-code_elimination for more information.
 //!
 //! Consider the following flattened Leo code.
@@ -41,7 +44,10 @@
 //!     return value$3;
 //! }
 //! ```
-//!
+//! Note this pass relies on the following invariants:
+//! - No shadowing for all variables, struct names, function names, etc.
+//! - Unique variable names (provided by SSA)
+//! - Flattened code (provided by the flattening pass)
 
 mod eliminate_expression;
 
@@ -57,7 +63,7 @@ use crate::Pass;
 use leo_ast::{Ast, ProgramReconstructor};
 use leo_errors::Result;
 
-impl<'a> Pass for FunctionInliner<'a> {
+impl Pass for DeadCodeEliminator {
     type Input = Ast;
     type Output = Result<Ast>;
 
