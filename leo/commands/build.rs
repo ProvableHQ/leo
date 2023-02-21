@@ -256,7 +256,7 @@ fn compile_leo_file(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let (symbol_table, instructions) = compiler.compile_and_generate_instructions()?;
+    let (symbol_table, instructions) = compiler.compile()?;
 
     // Write the instructions.
     std::fs::File::create(&aleo_file_path)

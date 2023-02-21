@@ -226,6 +226,16 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
+    /// Runs the code generation pass.
+    pub fn code_generation_pass(
+        &mut self,
+        symbol_table: &SymbolTable,
+        struct_graph: &StructGraph,
+        call_graph: &CallGraph,
+    ) -> Result<String> {
+        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph))
+    }
+
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let st = self.symbol_table_pass()?;
@@ -246,21 +256,15 @@ impl<'a> Compiler<'a> {
         Ok((st, struct_graph, call_graph))
     }
 
-    /// Returns a compiled Leo program and prints the resulting bytecode.
-    // TODO: Remove when code generation is ready to be integrated into the compiler.
-    pub fn compile_and_generate_instructions(&mut self) -> Result<(SymbolTable, String)> {
-        self.parse_program()?;
-        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
-
-        let bytecode = CodeGenerator::do_pass((&self.ast, &symbol_table, &struct_graph, &call_graph))?;
-
-        Ok((symbol_table, bytecode))
-    }
-
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self) -> Result<SymbolTable> {
+    pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
+        // Parse the program.
         self.parse_program()?;
-        self.compiler_stages().map(|(st, _, _)| st)
+        // Run the intermediate compiler stages.
+        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
+        // Run code generation.
+        let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
+        Ok((symbol_table, bytecode))
     }
 
     /// Writes the AST to a JSON file.
