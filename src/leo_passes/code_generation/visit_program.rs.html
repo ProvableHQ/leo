@@ -292,6 +292,9 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -468,10 +471,13 @@
         <span class="self">self</span>.current_function = <span class="prelude-val">Some</span>(function);
 
         <span class="comment">// Construct the header of the function.
-        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span><span class="self">self</span>.is_transition_function {
-            <span class="bool-val">true </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, function.identifier),
-            <span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, function.identifier),
+        // If a function is a program function, generate an Aleo `function`,
+        // if it is a standard function generate an Aleo `closure`,
+        // otherwise, it is an inline function, in which case a function should not be generated.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span>function.variant {
+            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, function.identifier),
+            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, function.identifier),
+            Variant::Inline =&gt; <span class="kw">return </span>String::from(<span class="string">&quot;\n&quot;</span>),
         };
 
         <span class="comment">// Construct and append the input declarations of the function.
