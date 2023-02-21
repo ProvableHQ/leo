@@ -174,10 +174,13 @@ impl<'a> CodeGenerator<'a> {
         self.current_function = Some(function);
 
         // Construct the header of the function.
-        // If a function is a program function, generate an Aleo `function`, otherwise generate an Aleo `closure`.
-        let mut function_string = match self.is_transition_function {
-            true => format!("function {}:\n", function.identifier),
-            false => format!("closure {}:\n", function.identifier),
+        // If a function is a program function, generate an Aleo `function`,
+        // if it is a standard function generate an Aleo `closure`,
+        // otherwise, it is an inline function, in which case a function should not be generated.
+        let mut function_string = match function.variant {
+            Variant::Transition => format!("function {}:\n", function.identifier),
+            Variant::Standard => format!("closure {}:\n", function.identifier),
+            Variant::Inline => return String::from("\n"),
         };
 
         // Construct and append the input declarations of the function.
