@@ -220,7 +220,7 @@ impl<'a> Compiler<'a> {
         self.ast = DeadCodeEliminator::do_pass(std::mem::take(&mut self.ast))?;
 
         if self.output_options.dce_ast {
-            self.write_ast_to_json("dce_ast.json");
+            self.write_ast_to_json("dce_ast.json")?;
         }
 
         Ok(())

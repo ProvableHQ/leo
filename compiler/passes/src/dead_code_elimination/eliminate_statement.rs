@@ -69,9 +69,27 @@ impl StatementReconstructor for DeadCodeEliminator {
             ),
         };
 
+        println!("self.used_variables: {:?}", self.used_variables);
+        println!("Statement: {}, lhs_is_used: {:?}", input, lhs_is_used);
+
         match lhs_is_used {
             // If the lhs is used, then we return the original statement.
-            true => (Statement::Assign(Box::new(input)), Default::default()),
+            true => {
+                // Set the `is_necessary` flag.
+                self.is_necessary = true;
+
+                // Visit the statement.
+                let statement = Statement::Assign(Box::new(AssignStatement {
+                    place: input.place,
+                    value: self.reconstruct_expression(input.value).0,
+                    span: input.span,
+                }));
+
+                // Unset the `is_necessary` flag.
+                self.is_necessary = false;
+
+                (statement, Default::default())
+            },
             // Otherwise, we can eliminate it.
             false => (Statement::dummy(Default::default()), Default::default()),
         }
@@ -80,13 +98,17 @@ impl StatementReconstructor for DeadCodeEliminator {
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
         // Reconstruct each of the statements in reverse.
-        let statements = block
+        let mut statements: Vec<Statement> = block
             .statements
             .into_iter()
             .rev()
-            .map(|statement| self.reconstruct_statement(statement).0)
-            .rev()
-            .collect();
+            .map(|statement| {
+                println!("Reconstructing statement: {}", statement);
+                self.reconstruct_statement(statement).0
+            }).collect();
+
+        // Reverse the direction of `statements`.
+        statements.reverse();
 
         (
             Block {
