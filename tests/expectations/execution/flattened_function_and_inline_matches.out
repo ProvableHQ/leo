@@ -7,7 +7,7 @@ outputs:
     ssa_ast: 24bb584afbee563be7c24228473fd4e0d83cb76197f66b4c4a9ddb9c1c2c5c2e
     flattened_ast: 4352bd983b2778643e78bb8efc4b2ab9a728dc52f9bff605875d82b82b72a0fb
     inlined_ast: 87236ec1e5020ccdaec371ece97cac3d3c5873649ea7b8ac5df8390e46ff7405
-    bytecode: 1887edbf4dd13f3913bebb36b012a4513cb26d8a8570d99bd0ac542f4bdb1c73
+    bytecode: c39d053c9935e58f261a58c4055ac3e97f99ec58472f672417d87a0a8792cad7
     results:
       bar:
         - input: "[true, true, 1u8, 0u8]"
