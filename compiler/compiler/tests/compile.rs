@@ -54,6 +54,7 @@ struct CompileOutput {
     pub ssa_ast: String,
     pub flattened_ast: String,
     pub inlined_ast: String,
+    pub dce_ast: String,
     pub bytecode: String,
 }
 
@@ -75,7 +76,7 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
     handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
 
     // Hash the ast files.
-    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast) = hash_asts();
+    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
 
     // Clean up the output directory.
     if fs::read_dir("/tmp/output").is_ok() {
@@ -88,6 +89,7 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
         ssa_ast,
         flattened_ast,
         inlined_ast,
+        dce_ast,
         bytecode: hash_content(&bytecode),
     };
     Ok(serde_yaml::to_value(final_output).expect("serialization failed"))

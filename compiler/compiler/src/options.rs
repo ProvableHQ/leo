@@ -32,4 +32,6 @@ pub struct OutputOptions {
     pub flattened_ast: bool,
     /// If enabled writes the AST after inlining.
     pub inlined_ast: bool,
+    /// If enabled writes the AST after dead code elimination.
+    pub dce_ast: bool,
 }

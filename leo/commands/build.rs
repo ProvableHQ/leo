@@ -60,6 +60,8 @@ pub struct BuildOptions {
     pub enable_flattened_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot of the inlined AST.")]
     pub enable_inlined_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
+    pub enable_dce_ast_snapshot: bool,
 }
 
 impl From<BuildOptions> for OutputOptions {
@@ -72,6 +74,7 @@ impl From<BuildOptions> for OutputOptions {
             ssa_ast: options.enable_ssa_ast_snapshot,
             flattened_ast: options.enable_flattened_ast_snapshot,
             inlined_ast: options.enable_inlined_ast_snapshot,
+            dce_ast: options.enable_dce_ast_snapshot,
         };
         if options.enable_all_ast_snapshots {
             out_options.initial_input_ast = true;
@@ -80,6 +83,7 @@ impl From<BuildOptions> for OutputOptions {
             out_options.ssa_ast = true;
             out_options.flattened_ast = true;
             out_options.inlined_ast = true;
+            out_options.dce_ast = true;
         }
 
         out_options

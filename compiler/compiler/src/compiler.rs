@@ -215,6 +215,17 @@ impl<'a> Compiler<'a> {
         Ok(assigner)
     }
 
+    /// Runs the dead code elimination pass.
+    pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
+        self.ast = DeadCodeEliminator::do_pass(std::mem::take(&mut self.ast))?;
+
+        if self.output_options.dce_ast {
+            self.write_ast_to_json("dce_ast.json");
+        }
+
+        Ok(())
+    }
+
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let st = self.symbol_table_pass()?;
@@ -229,6 +240,8 @@ impl<'a> Compiler<'a> {
         let assigner = self.flattening_pass(&st, assigner)?;
 
         let _ = self.function_inlining_pass(&call_graph, assigner)?;
+
+        self.dead_code_elimination_pass()?;
 
         Ok((st, struct_graph, call_graph))
     }
