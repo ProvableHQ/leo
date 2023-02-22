@@ -198,11 +198,7 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     let _ = parsed.function_inlining_pass(&call_graph, assigner)?;
 
-    println!("Before dce: {:?}", &parsed.ast);
-
     parsed.dead_code_elimination_pass()?;
-
-    println!("After dce: {:?}", &parsed.ast);
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
