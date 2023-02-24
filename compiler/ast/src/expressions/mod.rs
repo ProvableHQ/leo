@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
-use leo_span::Span;
-
-use serde::{Deserialize, Serialize};
-use std::fmt;
-
 mod access;
 pub use access::*;
 
@@ -49,6 +43,12 @@ pub use unit::*;
 
 mod literal;
 pub use literal::*;
+
+use crate::{Identifier, Node};
+use leo_span::Span;
+
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -24,9 +24,6 @@
 #![doc = include_str!("../README.md")]
 extern crate core;
 
-pub mod access;
-pub use self::access::*;
-
 pub mod r#struct;
 pub use self::r#struct::*;
 
