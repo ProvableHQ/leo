@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod associated_constant_access;
-pub use associated_constant_access::*;
-
 mod associated_function_access;
 pub use associated_function_access::*;
 
