@@ -325,7 +325,7 @@ impl ExpressionReconstructor for Flattener<'_> {
     fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         // Reconstruct the tuple expression.
-        let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
+        let (expr, stmts) = self.reconstruct_expression(*input.tuple);
 
         // Accumulate any statements produced.
         statements.extend(stmts);
@@ -334,7 +334,7 @@ impl ExpressionReconstructor for Flattener<'_> {
         let expression = match expr {
             Expression::Identifier(identifier) => {
                 // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
-                self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
+                self.tuples.get(&identifier.name).unwrap().elements[input.index.to_usize()].clone()
             }
             _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
         };
