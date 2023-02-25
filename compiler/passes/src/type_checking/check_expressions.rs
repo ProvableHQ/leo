@@ -43,147 +43,164 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
 
 impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
-    type Output = Option<Type>;
+    type ExpressionOutput = Option<Type>;
 
-    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        match input {
-            AccessExpression::AssociatedFunction(access) => {
-                // Check core struct name and function.
-                if let Some(core_instruction) = self.check_core_function_call(&access.ty, &access.name) {
-                    // Check num input arguments.
-                    if core_instruction.num_args() != access.args.len() {
+    fn visit_associated_function(&mut self, input: &'a AssociatedFunction, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+        // Check core struct name and function.
+        if let Some(core_instruction) = self.check_core_function_call(&input.ty, &input.name) {
+            // Check num input arguments.
+            if core_instruction.num_args() != input.args.len() {
+                // TODO: Better error messages.
+                self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                    core_instruction.num_args(),
+                    input.args.len(),
+                    input.span(),
+                ));
+            }
+
+            // Check first argument type.
+            if let Some(first_arg) = input.args.get(0usize) {
+                if let Some(first_arg_type) = self.visit_expression(first_arg, &None) {
+                    if !core_instruction.first_arg_is_allowed_type(&first_arg_type) {
                         // TODO: Better error messages.
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            core_instruction.num_args(),
-                            access.args.len(),
-                            input.span(),
+                        self.emit_err(TypeCheckerError::invalid_type(
+                            &first_arg_type,
+                            input.args.get(0).unwrap().span(),
                         ));
                     }
-
-                    // Check first argument type.
-                    if let Some(first_arg) = access.args.get(0usize) {
-                        if let Some(first_arg_type) = self.visit_expression(first_arg, &None) {
-                            if !core_instruction.first_arg_is_allowed_type(&first_arg_type) {
-                                // TODO: Better error messages.
-                                self.emit_err(TypeCheckerError::invalid_type(
-                                    &first_arg_type,
-                                    access.args.get(0).unwrap().span(),
-                                ));
-                            }
-                        }
-                    }
-
-                    // Check second argument type.
-                    if let Some(second_arg) = access.args.get(1usize) {
-                        if let Some(second_arg_type) = self.visit_expression(second_arg, &None) {
-                            if !core_instruction.second_arg_is_allowed_type(&second_arg_type) {
-                                // TODO: Better error messages.
-                                self.emit_err(TypeCheckerError::invalid_type(
-                                    &second_arg_type,
-                                    access.args.get(1).unwrap().span(),
-                                ));
-                            }
-                        }
-                    }
-
-                    // Check return type.
-                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
-                } else {
-                    self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
-            AccessExpression::Tuple(access) => {
-                if let Some(type_) = self.visit_expression(&access.tuple, &None) {
-                    match type_ {
-                        Type::Tuple(tuple) => {
-                            // Check out of range access.
-                            let index = access.index.to_usize();
-                            if index > tuple.len() - 1 {
-                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
-                            } else {
-                                // Lookup type of tuple index.
-                                let actual = tuple.get(index).expect("failed to get tuple index").clone();
-                                if let Some(expected) = expected {
-                                    // Emit error for mismatched types.
-                                    if !actual.eq_flat(expected) {
-                                        self.emit_err(TypeCheckerError::type_should_be(
-                                            &actual,
-                                            expected,
-                                            access.span(),
-                                        ))
-                                    }
-                                }
 
-                                // Return type of tuple index.
-                                return Some(actual);
-                            }
-                        }
-                        type_ => {
-                            self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", access.span()));
-                        }
-                    }
-                    self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
-                }
-            }
-            AccessExpression::Member(access) => {
-                match *access.inner {
-                    // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                    Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                        sym::caller => return Some(Type::Address),
-                        _ => {
-                            self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
-                        }
-                    },
-                    _ => {
-                        // Check that the type of `inner` in `inner.name` is a struct.
-                        match self.visit_expression(&access.inner, &None) {
-                            Some(Type::Identifier(identifier)) => {
-                                // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
-                                if let Some(struct_) = struct_ {
-                                    // Check that `access.name` is a member of the struct.
-                                    match struct_.members.iter().find(|member| member.name() == access.name.name) {
-                                        // Case where `access.name` is a member of the struct.
-                                        Some(Member { type_, .. }) => {
-                                            // Check that the type of `access.name` is the same as `expected`.
-                                            return Some(self.assert_and_return_type(
-                                                type_.clone(),
-                                                expected,
-                                                access.span(),
-                                            ));
-                                        }
-                                        // Case where `access.name` is not a member of the struct.
-                                        None => {
-                                            self.emit_err(TypeCheckerError::invalid_struct_variable(
-                                                access.name,
-                                                &struct_,
-                                                access.name.span(),
-                                            ));
-                                        }
-                                    }
-                                } else {
-                                    self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
-                                }
-                            }
-                            Some(type_) => {
-                                self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));
-                            }
-                            None => {
-                                self.emit_err(TypeCheckerError::could_not_determine_type(
-                                    &access.inner,
-                                    access.inner.span(),
-                                ));
-                            }
-                        }
+            // Check second argument type.
+            if let Some(second_arg) = input.args.get(1usize) {
+                if let Some(second_arg_type) = self.visit_expression(second_arg, &None) {
+                    if !core_instruction.second_arg_is_allowed_type(&second_arg_type) {
+                        // TODO: Better error messages.
+                        self.emit_err(TypeCheckerError::invalid_type(
+                            &second_arg_type,
+                            input.args.get(1).unwrap().span(),
+                        ));
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
+
+            // Check return type.
+            return Some(self.assert_and_return_type(core_instruction.return_type(), expected, input.span()));
+        } else {
+            self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
         }
         None
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_member_access(&mut self, input: &'a MemberAccess, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+        match *input.inner {
+            // If the access expression is of the form `self.<name>`, then check the <name> is valid.
+            Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match input.name.name {
+                sym::caller => return Some(Type::Address),
+                _ => {
+                    self.emit_err(TypeCheckerError::invalid_self_access(input.name.span()));
+                }
+            },
+            _ => {
+                // Check that the type of `inner` in `inner.name` is a struct.
+                match self.visit_expression(&input.inner, &None) {
+                    Some(Type::Identifier(identifier)) => {
+                        // Retrieve the struct definition associated with `identifier`.
+                        let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                        if let Some(struct_) = struct_ {
+                            // Check that `access.name` is a member of the struct.
+                            match struct_.members.iter().find(|member| member.name() == input.name.name) {
+                                // Case where `access.name` is a member of the struct.
+                                Some(Member { type_, .. }) => {
+                                    // Check that the type of `access.name` is the same as `expected`.
+                                    return Some(self.assert_and_return_type(
+                                        type_.clone(),
+                                        expected,
+                                        input.span(),
+                                    ));
+                                }
+                                // Case where `access.name` is not a member of the struct.
+                                None => {
+                                    self.emit_err(TypeCheckerError::invalid_struct_variable(
+                                        input.name,
+                                        &struct_,
+                                        input.name.span(),
+                                    ));
+                                }
+                            }
+                        } else {
+                            self.emit_err(TypeCheckerError::undefined_type(&input.inner, input.inner.span()));
+                        }
+                    }
+                    Some(type_) => {
+                        self.emit_err(TypeCheckerError::type_should_be(type_, "struct", input.inner.span()));
+                    }
+                    None => {
+                        self.emit_err(TypeCheckerError::could_not_determine_type(
+                            &input.inner,
+                            input.inner.span(),
+                        ));
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn visit_tuple_access(&mut self, input: &'a TupleAccess, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+        if let Some(type_) = self.visit_expression(&input.tuple, &None) {
+            match type_ {
+                Type::Tuple(tuple) => {
+                    // Check out of range access.
+                    let index = input.index.to_usize();
+                    if index > tuple.len() - 1 {
+                        self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), input.span()));
+                    } else {
+                        // Lookup type of tuple index.
+                        let actual = tuple.get(index).expect("failed to get tuple index").clone();
+                        if let Some(expected) = expected {
+                            // Emit error for mismatched types.
+                            if !actual.eq_flat(expected) {
+                                self.emit_err(TypeCheckerError::type_should_be(
+                                    &actual,
+                                    expected,
+                                    input.span(),
+                                ))
+                            }
+                        }
+
+                        // Return type of tuple index.
+                        return Some(actual);
+                    }
+                }
+                type_ => {
+                    self.emit_err(TypeCheckerError::type_should_be(type_, "tuple", input.span()));
+                }
+            }
+            self.emit_err(TypeCheckerError::invalid_core_function_call(input, input.span()));
+        }
+        None
+    }
+
+
+    fn visit_access(
+        &mut self,
+        input: &'a AccessExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
+        match input {
+            AccessExpression::AssociatedFunction(access) => self.visit_associated_function(access, &expected),
+            AccessExpression::Tuple(access) => self.visit_tuple_access(access, &expected),
+            AccessExpression::Member(access) => self.visit_member_access(access, &expected),
+            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
+        }
+    }
+
+    fn visit_binary(
+        &mut self,
+        input: &'a BinaryExpression,
+        destination: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
                 // Only boolean types.
@@ -437,7 +454,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
         match &*input.function {
             // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
@@ -506,7 +523,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_struct_init(
+        &mut self,
+        input: &'a StructExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
@@ -556,11 +577,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
         if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name) {
             Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
@@ -569,7 +590,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
         fn parse_integer_literal<I: FromStr>(handler: &Handler, string: &String, span: Span, type_string: &str) {
             if string.parse::<I>().is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
@@ -631,7 +652,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         })
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_ternary(
+        &mut self,
+        input: &'a TernaryExpression,
+        expected: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let t1 = self.visit_expression(&input.if_true, expected);
@@ -640,7 +665,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         return_incorrect_type(t1, t2, expected)
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
+    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
         match input.elements.len() {
             0 | 1 => unreachable!("Parsing guarantees that tuple expressions have at least two elements."),
             _ => {
@@ -677,7 +702,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unary(
+        &mut self,
+        input: &'a UnaryExpression,
+        destination: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         match input.op {
             UnaryOperation::Abs => {
                 // Only signed integer types.
@@ -724,7 +753,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
+    fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
         // Unit expression are only allowed inside a return statement.
         if !self.is_return {
             self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(

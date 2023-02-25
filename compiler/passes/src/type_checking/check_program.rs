@@ -26,6 +26,8 @@ use std::collections::HashSet;
 // TODO: Cleanup logic for tuples.
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
+    type ProgramOutput = ();
+
     fn visit_program(&mut self, input: &'a Program) {
         match self.is_imported {
             // If the program is imported, then it is not allowed to import any other programs.
