@@ -281,9 +281,8 @@ impl<'a> ExpressionVisitor<'a> for CodeGenerator<'a> {
     ) -> Self::ExpressionOutput {
         match input {
             AccessExpression::Member(access) => self.visit_member_access(access, additional),
-            AccessExpression::AssociatedConstant(_) => todo!(), // Associated constants are not supported in AVM yet.
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
-            AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
+            AccessExpression::Tuple(_) => unreachable!("Tuples should have been flattened in previous compiler passes."),
         }
     }
 

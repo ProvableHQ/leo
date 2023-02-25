@@ -22,7 +22,7 @@ use leo_ast::{
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_span::{sym, Symbol};
+use leo_span::{sym};
 use std::fmt::Write as _;
 
 impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
@@ -37,8 +37,8 @@ impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
             program_string.push_str(
                 &input
                     .imports
-                    .iter()
-                    .map(|(identifier, (imported_program, _))| self.visit_import(identifier, imported_program))
+                    .values()
+                    .map(|(imported_program, _)| self.visit_import(imported_program))
                     .join("\n"),
             );
 
@@ -68,7 +68,7 @@ impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
                 .map(|name| {
                     match program_scope.structs.get(&name) {
                         // If the struct is found, it is a local struct.
-                        Some(struct_) => self.visit_struct_or_record(struct_),
+                        Some(struct_) => self.visit_struct(struct_),
                         // If the struct is not found, it is an imported struct.
                         None => String::new(),
                     }
@@ -112,61 +112,58 @@ impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
         program_string
     }
 
-    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> Self::ProgramOutput {
+    // TODO: Fix once imports are redesigned .
+    fn visit_import(&mut self, input: &'a Program) -> Self::ProgramOutput {
         // Load symbols into composite mapping.
-        let _import_program_string = self.visit_program(import_program);
+        let _ = self.visit_program(input);
         // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
 
         // Generate string for import statement.
-        format!("import {import_name}.aleo;")
-    }
-
-    fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> Self::ProgramOutput {
-        if struct_.is_record {
-            self.visit_record(struct_)
-        } else {
-            self.visit_struct(struct_)
-        }
+        // Note that the unwrap is safe since parsing guarantees that there is exactly one program scope.
+        format!("import {}.aleo;", input.program_scopes.keys().next().unwrap().name)
     }
 
     fn visit_struct(&mut self, struct_: &'a Struct) -> String {
-        // Add private symbol to composite types.
-        self.composite_mapping
-            .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
+        match struct_.is_record {
+            true => {
+                // Add record symbol to composite types.
+                let mut output_string = String::from("record");
+                self.composite_mapping
+                    .insert(&struct_.identifier.name, (true, output_string.clone()));
+                writeln!(output_string, " {}:", struct_.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
-        let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+                // Construct and append the record variables.
+                for var in struct_.members.iter() {
+                    let mode = match var.mode {
+                        Mode::Constant => "constant",
+                        Mode::Public => "public",
+                        Mode::None | Mode::Private => "private",
+                    };
+                    writeln!(
+                        output_string,
+                        "    {} as {}.{mode};", // todo: CAUTION private record variables only.
+                        var.identifier, var.type_
+                    )
+                        .expect("failed to write to string");
+                }
 
-        // Construct and append the record variables.
-        for var in struct_.members.iter() {
-            writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
+                output_string
+            },
+            false => {
+                // Add private symbol to composite types.
+                self.composite_mapping
+                    .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
+
+                let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
+
+                // Construct and append the record variables.
+                for var in struct_.members.iter() {
+                    writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
+                }
+
+                output_string
+            },
         }
-
-        output_string
-    }
-
-    fn visit_record(&mut self, record: &'a Struct) -> Self::ProgramOutput {
-        // Add record symbol to composite types.
-        let mut output_string = String::from("record");
-        self.composite_mapping
-            .insert(&record.identifier.name, (true, output_string.clone()));
-        writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
-
-        // Construct and append the record variables.
-        for var in record.members.iter() {
-            let mode = match var.mode {
-                Mode::Constant => "constant",
-                Mode::Public => "public",
-                Mode::None | Mode::Private => "private",
-            };
-            writeln!(
-                output_string,
-                "    {} as {}.{mode};", // todo: CAUTION private record variables only.
-                var.identifier, var.type_
-            )
-            .expect("failed to write to string");
-        }
-
-        output_string
     }
 
     fn visit_function(&mut self, function: &'a Function) -> Self::ProgramOutput {
