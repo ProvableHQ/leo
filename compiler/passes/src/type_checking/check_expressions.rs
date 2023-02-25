@@ -45,7 +45,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type ExpressionOutput = Option<Type>;
 
-    fn visit_associated_function(&mut self, input: &'a AssociatedFunction, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_associated_function(
+        &mut self,
+        input: &'a AssociatedFunction,
+        expected: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         // Check core struct name and function.
         if let Some(core_instruction) = self.check_core_function_call(&input.ty, &input.name) {
             // Check num input arguments.
@@ -92,7 +96,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_member_access(&mut self, input: &'a MemberAccess, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_member_access(
+        &mut self,
+        input: &'a MemberAccess,
+        expected: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         match *input.inner {
             // If the access expression is of the form `self.<name>`, then check the <name> is valid.
             Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match input.name.name {
@@ -113,11 +121,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 // Case where `access.name` is a member of the struct.
                                 Some(Member { type_, .. }) => {
                                     // Check that the type of `access.name` is the same as `expected`.
-                                    return Some(self.assert_and_return_type(
-                                        type_.clone(),
-                                        expected,
-                                        input.span(),
-                                    ));
+                                    return Some(self.assert_and_return_type(type_.clone(), expected, input.span()));
                                 }
                                 // Case where `access.name` is not a member of the struct.
                                 None => {
@@ -147,7 +151,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_tuple_access(&mut self, input: &'a TupleAccess, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_tuple_access(
+        &mut self,
+        input: &'a TupleAccess,
+        expected: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         if let Some(type_) = self.visit_expression(&input.tuple, &None) {
             match type_ {
                 Type::Tuple(tuple) => {
@@ -161,11 +169,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         if let Some(expected) = expected {
                             // Emit error for mismatched types.
                             if !actual.eq_flat(expected) {
-                                self.emit_err(TypeCheckerError::type_should_be(
-                                    &actual,
-                                    expected,
-                                    input.span(),
-                                ))
+                                self.emit_err(TypeCheckerError::type_should_be(&actual, expected, input.span()))
                             }
                         }
 
@@ -182,16 +186,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-
     fn visit_access(
         &mut self,
         input: &'a AccessExpression,
         expected: &Self::AdditionalInput,
     ) -> Self::ExpressionOutput {
         match input {
-            AccessExpression::AssociatedFunction(access) => self.visit_associated_function(access, &expected),
-            AccessExpression::Tuple(access) => self.visit_tuple_access(access, &expected),
-            AccessExpression::Member(access) => self.visit_member_access(access, &expected),
+            AccessExpression::AssociatedFunction(access) => self.visit_associated_function(access, expected),
+            AccessExpression::Tuple(access) => self.visit_tuple_access(access, expected),
+            AccessExpression::Member(access) => self.visit_member_access(access, expected),
         }
     }
 

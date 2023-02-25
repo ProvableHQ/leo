@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{
     AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
     DefinitionStatement, Expression, ExpressionStatement, ExpressionVisitor, IncrementStatement, IterationStatement,
-    Mode, ReturnStatement, Output, StatementVisitor,
+    Mode, Output, ReturnStatement, StatementVisitor,
 };
 
 use itertools::Itertools;

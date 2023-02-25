@@ -23,7 +23,7 @@ pub use member_access::*;
 pub mod tuple_access;
 pub use tuple_access::*;
 
-use crate::{Node};
+use crate::Node;
 
 use leo_span::Span;
 

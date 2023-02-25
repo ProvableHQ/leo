@@ -63,7 +63,9 @@ pub trait ExpressionVisitor<'a> {
         input: &'a AssociatedFunction,
         additional: &Self::AdditionalInput,
     ) -> Self::ExpressionOutput {
-        input.args.iter().for_each(|arg| { self.visit_expression(arg, additional); });
+        input.args.iter().for_each(|arg| {
+            self.visit_expression(arg, additional);
+        });
         Default::default()
     }
 
@@ -108,7 +110,11 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_member_access(&mut self, input: &'a MemberAccess, additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_member_access(
+        &mut self,
+        input: &'a MemberAccess,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         self.visit_expression(&input.inner, additional);
         Default::default()
     }
@@ -135,7 +141,11 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_tuple_access(&mut self, input: &'a TupleAccess, additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_tuple_access(
+        &mut self,
+        input: &'a TupleAccess,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         self.visit_expression(&input.tuple, additional);
         Default::default()
     }

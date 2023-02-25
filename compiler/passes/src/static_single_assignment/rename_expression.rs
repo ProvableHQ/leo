@@ -82,7 +82,6 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     statements,
                 )
             }
-            expr => (expr, Vec::new()),
         };
         let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Access(expr));
         statements.push(statement);

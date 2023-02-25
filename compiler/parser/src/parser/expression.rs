@@ -324,12 +324,14 @@ impl ParserContext<'_> {
             let (args, _, end) = self.parse_expr_tuple()?;
 
             // Return the struct function.
-            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                span: module_name.span() + end,
-                ty: type_,
-                name: member_name,
-                args,
-            })))
+            Ok(Expression::Access(AccessExpression::AssociatedFunction(
+                AssociatedFunction {
+                    span: module_name.span() + end,
+                    ty: type_,
+                    name: member_name,
+                    args,
+                },
+            )))
         } else {
             // Attempted to parse an associated constant, e.g `Foo::MAX`.
             // These are not supported in the Leo language.

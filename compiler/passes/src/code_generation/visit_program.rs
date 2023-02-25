@@ -22,7 +22,7 @@ use leo_ast::{
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_span::{sym};
+use leo_span::sym;
 use std::fmt::Write as _;
 
 impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
@@ -144,11 +144,11 @@ impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
                         "    {} as {}.{mode};", // todo: CAUTION private record variables only.
                         var.identifier, var.type_
                     )
-                        .expect("failed to write to string");
+                    .expect("failed to write to string");
                 }
 
                 output_string
-            },
+            }
             false => {
                 // Add private symbol to composite types.
                 self.composite_mapping
@@ -158,11 +158,12 @@ impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
 
                 // Construct and append the record variables.
                 for var in struct_.members.iter() {
-                    writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
+                    writeln!(output_string, "    {} as {};", var.identifier, var.type_,)
+                        .expect("failed to write to string");
                 }
 
                 output_string
-            },
+            }
         }
     }
 

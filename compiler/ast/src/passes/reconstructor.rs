@@ -60,7 +60,7 @@ pub trait ExpressionReconstructor {
                     .collect(),
                 span: input.span,
             })),
-            Default::default()
+            Default::default(),
         )
     }
 
@@ -115,7 +115,7 @@ pub trait ExpressionReconstructor {
                 name: input.name,
                 span: input.span,
             })),
-            Default::default()
+            Default::default(),
         )
     }
 
@@ -152,7 +152,7 @@ pub trait ExpressionReconstructor {
                 index: input.index,
                 span: input.span,
             })),
-            Default::default()
+            Default::default(),
         )
     }
 

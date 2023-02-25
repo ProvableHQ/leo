@@ -282,7 +282,9 @@ impl<'a> ExpressionVisitor<'a> for CodeGenerator<'a> {
         match input {
             AccessExpression::Member(access) => self.visit_member_access(access, additional),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
-            AccessExpression::Tuple(_) => unreachable!("Tuples should have been flattened in previous compiler passes."),
+            AccessExpression::Tuple(_) => {
+                unreachable!("Tuples should have been flattened in previous compiler passes.")
+            }
         }
     }
 

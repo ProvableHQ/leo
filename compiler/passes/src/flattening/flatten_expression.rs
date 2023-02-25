@@ -17,7 +17,10 @@
 use crate::Flattener;
 use itertools::Itertools;
 
-use leo_ast::{AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression};
+use leo_ast::{
+    AccessExpression, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression,
+    StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression,
+};
 
 // TODO: Clean up logic and verify statement accumulation. To be done in a follow-up PR
 
