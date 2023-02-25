@@ -41,33 +41,26 @@ pub trait ExpressionReconstructor {
     }
 
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        match input {
+            AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            AccessExpression::Member(member) => self.reconstruct_member_access(member),
+            AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
+        }
+    }
+
+    fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
         (
-            Expression::Access(match input {
-                AccessExpression::AssociatedFunction(function) => {
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
-                        span: function.span,
-                    })
-                }
-                AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
-                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
-                    name: member.name,
-                    span: member.span,
-                }),
-                AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
-                    tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
-                    index: tuple.index,
-                    span: tuple.span,
-                }),
-                expr => expr,
-            }),
-            Default::default(),
+            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: input.ty,
+                name: input.name,
+                args: input
+                    .args
+                    .into_iter()
+                    .map(|arg| self.reconstruct_expression(arg).0)
+                    .collect(),
+                span: input.span,
+            })),
+            Default::default()
         )
     }
 
@@ -115,6 +108,17 @@ pub trait ExpressionReconstructor {
         (Expression::Literal(input), Default::default())
     }
 
+    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::Member(MemberAccess {
+                inner: Box::new(self.reconstruct_expression(*input.inner).0),
+                name: input.name,
+                span: input.span,
+            })),
+            Default::default()
+        )
+    }
+
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Ternary(TernaryExpression {
@@ -138,6 +142,17 @@ pub trait ExpressionReconstructor {
                 span: input.span,
             }),
             Default::default(),
+        )
+    }
+
+    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::Tuple(TupleAccess {
+                tuple: Box::new(self.reconstruct_expression(*input.tuple).0),
+                index: input.index,
+                span: input.span,
+            })),
+            Default::default()
         )
     }
 
