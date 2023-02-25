@@ -17,8 +17,8 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
-    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation, UnitExpression,
+    ExpressionVisitor, Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type,
+    UnaryExpression, UnaryOperation, UnitExpression,
 };
 use leo_span::sym;
 use std::borrow::Borrow;
@@ -29,38 +29,33 @@ use std::fmt::Write as _;
 // Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
 // a post-order traversal of the AST. This is sufficient since this implementation is intended to be
 // a prototype. The production implementation will require a redesign of `Director`.
-impl<'a> CodeGenerator<'a> {
-    pub(crate) fn visit_expression(&mut self, input: &'a Expression) -> (String, String) {
-        match input {
-            Expression::Access(expr) => self.visit_access(expr),
-            Expression::Binary(expr) => self.visit_binary(expr),
-            Expression::Call(expr) => self.visit_call(expr),
-            Expression::Struct(expr) => self.visit_struct_init(expr),
-            Expression::Err(expr) => self.visit_err(expr),
-            Expression::Identifier(expr) => self.visit_identifier(expr),
-            Expression::Literal(expr) => self.visit_value(expr),
-            Expression::Ternary(expr) => self.visit_ternary(expr),
-            Expression::Tuple(expr) => self.visit_tuple(expr),
-            Expression::Unary(expr) => self.visit_unary(expr),
-            Expression::Unit(expr) => self.visit_unit(expr),
-        }
-    }
+impl<'a> ExpressionVisitor<'a> for CodeGenerator<'a> {
+    type AdditionalInput = ();
+    type ExpressionOutput = (String, String);
 
-    fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
+    fn visit_identifier(
+        &mut self,
+        input: &'a Identifier,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
     }
 
-    fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
         unreachable!("`ErrExpression`s should not be in the AST at this phase of compilation.")
     }
 
-    fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
+    fn visit_literal(&mut self, input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
         (format!("{input}"), String::new())
     }
 
-    fn visit_binary(&mut self, input: &'a BinaryExpression) -> (String, String) {
-        let (left_operand, left_instructions) = self.visit_expression(&input.left);
-        let (right_operand, right_instructions) = self.visit_expression(&input.right);
+    fn visit_binary(
+        &mut self,
+        input: &'a BinaryExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
+        let (left_operand, left_instructions) = self.visit_expression(&input.left, additional);
+        let (right_operand, right_instructions) = self.visit_expression(&input.right, additional);
 
         let opcode = match input.op {
             BinaryOperation::Add => String::from("add"),
@@ -109,8 +104,12 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_unary(&mut self, input: &'a UnaryExpression) -> (String, String) {
-        let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver);
+    fn visit_unary(
+        &mut self,
+        input: &'a UnaryExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
+        let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver, additional);
 
         let opcode = match input.op {
             UnaryOperation::Abs => String::from("abs"),
@@ -136,10 +135,14 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_ternary(&mut self, input: &'a TernaryExpression) -> (String, String) {
-        let (condition_operand, condition_instructions) = self.visit_expression(&input.condition);
-        let (if_true_operand, if_true_instructions) = self.visit_expression(&input.if_true);
-        let (if_false_operand, if_false_instructions) = self.visit_expression(&input.if_false);
+    fn visit_ternary(
+        &mut self,
+        input: &'a TernaryExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
+        let (condition_operand, condition_instructions) = self.visit_expression(&input.condition, additional);
+        let (if_true_operand, if_true_instructions) = self.visit_expression(&input.if_true, additional);
+        let (if_false_operand, if_false_instructions) = self.visit_expression(&input.if_false, additional);
 
         let destination_register = format!("r{}", self.next_register);
         let ternary_instruction = format!(
@@ -158,7 +161,11 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_struct_init(&mut self, input: &'a StructExpression) -> (String, String) {
+    fn visit_struct_init(
+        &mut self,
+        input: &'a StructExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         // Lookup struct or record.
         let name = if let Some((is_record, type_)) = self.composite_mapping.get(&input.name.name) {
             if *is_record {
@@ -180,13 +187,13 @@ impl<'a> CodeGenerator<'a> {
         for member in input.members.iter() {
             let operand = if let Some(expr) = member.expression.as_ref() {
                 // Visit variable expression.
-                let (variable_operand, variable_instructions) = self.visit_expression(expr);
+                let (variable_operand, variable_instructions) = self.visit_expression(expr, additional);
                 instructions.push_str(&variable_instructions);
 
                 variable_operand
             } else {
                 // Push operand identifier.
-                let (ident_operand, ident_instructions) = self.visit_identifier(&member.identifier);
+                let (ident_operand, ident_instructions) = self.visit_identifier(&member.identifier, additional);
                 instructions.push_str(&ident_instructions);
 
                 ident_operand
@@ -209,15 +216,23 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
-        let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner);
+    fn visit_member_access(
+        &mut self,
+        input: &'a MemberAccess,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
+        let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner, additional);
         let member_access_instruction = format!("{inner_struct}.{}", input.name);
 
         (member_access_instruction, String::new())
     }
 
     // Pedersen64::hash() -> hash.ped64
-    fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
+    fn visit_associated_function(
+        &mut self,
+        input: &'a AssociatedFunction,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         // Write identifier as opcode. `Pedersen64` -> `ped64`.
         let symbol: &str = if let Type::Identifier(identifier) = input.ty {
             match identifier.name {
@@ -242,7 +257,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Visit each function argument and accumulate instructions from expressions.
         for arg in input.args.iter() {
-            let (arg_string, arg_instructions) = self.visit_expression(arg);
+            let (arg_string, arg_instructions) = self.visit_expression(arg, additional);
             write!(associated_function_call, "{arg_string} ").expect("failed to write associated function argument");
             instructions.push_str(&arg_instructions);
         }
@@ -259,17 +274,21 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
+    fn visit_access(
+        &mut self,
+        input: &'a AccessExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         match input {
-            AccessExpression::Member(access) => self.visit_member_access(access),
+            AccessExpression::Member(access) => self.visit_member_access(access, additional),
             AccessExpression::AssociatedConstant(_) => todo!(), // Associated constants are not supported in AVM yet.
-            AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
+            AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function, additional),
             AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
         }
     }
 
     // TODO: Cleanup
-    fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
+    fn visit_call(&mut self, input: &'a CallExpression, additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
         let mut call_instruction = match &input.external {
             Some(external) => format!("    call {external}.aleo/{}", input.function),
             None => format!("    call {}", input.function),
@@ -277,7 +296,7 @@ impl<'a> CodeGenerator<'a> {
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
-            let (argument, argument_instructions) = self.visit_expression(argument);
+            let (argument, argument_instructions) = self.visit_expression(argument, additional);
             write!(call_instruction, " {argument}").expect("failed to write to string");
             instructions.push_str(&argument_instructions);
         }
@@ -330,7 +349,11 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {
+    fn visit_tuple(
+        &mut self,
+        input: &'a TupleExpression,
+        additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         // Need to return a single string here so we will join the tuple elements with ' '
         // and split them after this method is called.
         let mut tuple_elements = Vec::with_capacity(input.elements.len());
@@ -338,7 +361,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Visit each tuple element and accumulate instructions from expressions.
         for element in input.elements.iter() {
-            let (element, element_instructions) = self.visit_expression(element);
+            let (element, element_instructions) = self.visit_expression(element, additional);
             tuple_elements.push(element);
             instructions.push_str(&element_instructions);
         }
@@ -347,7 +370,11 @@ impl<'a> CodeGenerator<'a> {
         (tuple_elements.join(" "), instructions)
     }
 
-    fn visit_unit(&mut self, _input: &'a UnitExpression) -> (String, String) {
+    fn visit_unit(
+        &mut self,
+        _input: &'a UnitExpression,
+        _additional: &Self::AdditionalInput,
+    ) -> Self::ExpressionOutput {
         unreachable!("`UnitExpression`s should not be visited during code generation.")
     }
 }

@@ -16,15 +16,19 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
+use leo_ast::{
+    functions, Function, Mapping, Mode, Program, ProgramScope, ProgramVisitor, StatementVisitor, Struct, Type, Variant,
+};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
 use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
 
-impl<'a> CodeGenerator<'a> {
-    pub(crate) fn visit_program(&mut self, input: &'a Program) -> String {
+impl<'a> ProgramVisitor<'a> for CodeGenerator<'a> {
+    type ProgramOutput = String;
+
+    fn visit_program(&mut self, input: &'a Program) -> Self::ProgramOutput {
         // Accumulate instructions into a program string.
         let mut program_string = String::new();
 
@@ -108,7 +112,7 @@ impl<'a> CodeGenerator<'a> {
         program_string
     }
 
-    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> String {
+    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> Self::ProgramOutput {
         // Load symbols into composite mapping.
         let _import_program_string = self.visit_program(import_program);
         // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
@@ -117,7 +121,7 @@ impl<'a> CodeGenerator<'a> {
         format!("import {import_name}.aleo;")
     }
 
-    fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
+    fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> Self::ProgramOutput {
         if struct_.is_record {
             self.visit_record(struct_)
         } else {
@@ -140,7 +144,7 @@ impl<'a> CodeGenerator<'a> {
         output_string
     }
 
-    fn visit_record(&mut self, record: &'a Struct) -> String {
+    fn visit_record(&mut self, record: &'a Struct) -> Self::ProgramOutput {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
         self.composite_mapping
@@ -165,7 +169,7 @@ impl<'a> CodeGenerator<'a> {
         output_string
     }
 
-    fn visit_function(&mut self, function: &'a Function) -> String {
+    fn visit_function(&mut self, function: &'a Function) -> Self::ProgramOutput {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
@@ -263,7 +267,7 @@ impl<'a> CodeGenerator<'a> {
         function_string
     }
 
-    fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
+    fn visit_mapping(&mut self, mapping: &'a Mapping) -> Self::ProgramOutput {
         // Create the prefix of the mapping string, e.g. `mapping foo:`.
         let mut mapping_string = format!("mapping {}:\n", mapping.identifier);
 

@@ -28,7 +28,7 @@ mod visit_type;
 use crate::SymbolTable;
 use crate::{CallGraph, Pass, StructGraph};
 
-use leo_ast::Ast;
+use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::Result;
 
 impl<'a> Pass for CodeGenerator<'a> {
