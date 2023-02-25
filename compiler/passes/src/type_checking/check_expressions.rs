@@ -192,7 +192,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             AccessExpression::AssociatedFunction(access) => self.visit_associated_function(access, &expected),
             AccessExpression::Tuple(access) => self.visit_tuple_access(access, &expected),
             AccessExpression::Member(access) => self.visit_member_access(access, &expected),
-            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
         }
     }
 
