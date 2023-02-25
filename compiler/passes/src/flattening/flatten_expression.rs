@@ -17,59 +17,12 @@
 use crate::Flattener;
 use itertools::Itertools;
 
-use leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
-    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
-};
+use leo_ast::{AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression};
 
-// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
+// TODO: Clean up logic and verify statement accumulation. To be done in a follow-up PR
 
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
-
-    /// Replaces a tuple access expression with the appropriate expression.
-    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut statements = Vec::new();
-        (
-            match input {
-                AccessExpression::AssociatedFunction(function) => {
-                    Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
-                        span: function.span,
-                    }))
-                }
-                AccessExpression::Member(member) => Expression::Access(AccessExpression::Member(MemberAccess {
-                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
-                    name: member.name,
-                    span: member.span,
-                })),
-                AccessExpression::Tuple(tuple) => {
-                    // Reconstruct the tuple expression.
-                    let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
-
-                    // Accumulate any statements produced.
-                    statements.extend(stmts);
-
-                    // Lookup the expression in the tuple map.
-                    match expr {
-                        Expression::Identifier(identifier) => {
-                            // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
-                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
-                        }
-                        _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
-                    }
-                }
-                expr => Expression::Access(expr),
-            },
-            statements,
-        )
-    }
 
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
     fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
@@ -367,5 +320,24 @@ impl ExpressionReconstructor for Flattener<'_> {
                 (Expression::Identifier(identifier), statements)
             }
         }
+    }
+
+    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        let mut statements = Vec::new();
+        // Reconstruct the tuple expression.
+        let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
+
+        // Accumulate any statements produced.
+        statements.extend(stmts);
+
+        // Lookup the expression in the tuple map.
+        let expression = match expr {
+            Expression::Identifier(identifier) => {
+                // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
+                self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
+            }
+            _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
+        };
+        (expression, statements)
     }
 }
