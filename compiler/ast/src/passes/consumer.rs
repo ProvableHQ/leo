@@ -39,7 +39,15 @@ pub trait ExpressionConsumer {
         }
     }
 
-    fn consume_access(&mut self, _input: AccessExpression) -> Self::Output;
+    fn consume_access(&mut self, input: AccessExpression) -> Self::Output {
+        match input {
+            AccessExpression::AssociatedFunction(function) => self.consume_associated_function(function),
+            AccessExpression::Member(member) => self.consume_member_access(member),
+            AccessExpression::Tuple(tuple) => self.consume_tuple_access(tuple),
+        }
+    }
+
+    fn consume_associated_function(&mut self, _input: AssociatedFunction) -> Self::Output;
 
     fn consume_binary(&mut self, _input: BinaryExpression) -> Self::Output;
 
@@ -55,9 +63,13 @@ pub trait ExpressionConsumer {
 
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
 
+    fn consume_member_access(&mut self, _input: MemberAccess) -> Self::Output;
+
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;
 
     fn consume_tuple(&mut self, _input: TupleExpression) -> Self::Output;
+
+    fn consume_tuple_access(&mut self, _input: TupleAccess) -> Self::Output;
 
     fn consume_unary(&mut self, _input: UnaryExpression) -> Self::Output;
 
