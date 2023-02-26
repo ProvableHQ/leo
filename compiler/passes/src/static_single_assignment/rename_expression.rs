@@ -32,61 +32,35 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
     /// Consumes an access expression, accumulating any statements that are generated.
     fn consume_access(&mut self, input: AccessExpression) -> Self::Output {
         let (expr, mut statements) = match input {
-            AccessExpression::AssociatedFunction(function) => {
-                let mut statements = Vec::new();
-                (
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| {
-                                let (arg, mut stmts) = self.consume_expression(arg);
-                                statements.append(&mut stmts);
-                                arg
-                            })
-                            .collect(),
-                        span: function.span,
-                    }),
-                    statements,
-                )
-            }
-            AccessExpression::Member(member) => {
-                // TODO: Create AST node for native access expressions?
-                // If the access expression is of the form `self.<name>`, then don't rename it.
-                if let Expression::Identifier(Identifier { name, .. }) = *member.inner {
-                    if name == sym::SelfLower {
-                        return (Expression::Access(AccessExpression::Member(member)), Vec::new());
-                    }
-                }
-
-                let (expr, statements) = self.consume_expression(*member.inner);
-                (
-                    AccessExpression::Member(MemberAccess {
-                        inner: Box::new(expr),
-                        name: member.name,
-                        span: member.span,
-                    }),
-                    statements,
-                )
-            }
-            AccessExpression::Tuple(tuple) => {
-                let (expr, statements) = self.consume_expression(*tuple.tuple);
-                (
-                    AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index: tuple.index,
-                        span: tuple.span,
-                    }),
-                    statements,
-                )
-            }
+            AccessExpression::AssociatedFunction(function) => self.consume_associated_function(function),
+            AccessExpression::Member(member) => self.consume_member_access(member),
+            AccessExpression::Tuple(tuple) => self.consume_tuple_access(tuple),
         };
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Access(expr));
+        let (place, statement) = self.assigner.unique_simple_assign_statement(expr);
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
+    }
+
+    fn consume_associated_function(&mut self, input: AssociatedFunction) -> Self::Output {
+        let mut statements = Vec::new();
+        (
+            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: input.ty,
+                name: input.name,
+                args: input
+                    .args
+                    .into_iter()
+                    .map(|arg| {
+                        let (arg, mut stmts) = self.consume_expression(arg);
+                        statements.append(&mut stmts);
+                        arg
+                    })
+                    .collect(),
+                span: input.span,
+            })),
+            statements,
+        )
     }
 
     /// Consumes a binary expression, accumulating any statements that are generated.
@@ -250,6 +224,26 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         (Expression::Literal(input), Default::default())
     }
 
+    fn consume_member_access(&mut self, input: MemberAccess) -> Self::Output {
+        // TODO: Create AST node for native access expressions?
+        // If the access expression is of the form `self.<name>`, then don't rename it.
+        if let Expression::Identifier(Identifier { name, .. }) = *input.inner {
+            if name == sym::SelfLower {
+                return (Expression::Access(AccessExpression::Member(input)), Vec::new());
+            }
+        }
+
+        let (expr, statements) = self.consume_expression(*input.inner);
+        (
+            Expression::Access(AccessExpression::Member(MemberAccess {
+                inner: Box::new(expr),
+                name: input.name,
+                span: input.span,
+            })),
+            statements,
+        )
+    }
+
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {
         // Reconstruct the condition of the ternary expression.
@@ -302,6 +296,18 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
+    }
+
+    fn consume_tuple_access(&mut self, input: TupleAccess) -> Self::Output {
+        let (expr, statements) = self.consume_expression(*input.tuple);
+        (
+            Expression::Access(AccessExpression::Tuple(TupleAccess {
+                tuple: Box::new(expr),
+                index: input.index,
+                span: input.span,
+            })),
+            statements,
+        )
     }
 
     /// Consumes a unary expression, accumulating any statements that are generated.
