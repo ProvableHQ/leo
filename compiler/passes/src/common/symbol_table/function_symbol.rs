@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, Input, Type, Variant};
+use leo_ast::{Function, Input, Output, Type, Variant};
 use leo_span::Span;
 
 use crate::SymbolTable;
@@ -24,6 +24,8 @@ use crate::SymbolTable;
 pub struct FinalizeData {
     /// The inputs to the finalize block.
     pub(crate) input: Vec<Input>,
+    /// The outputs of the finalize block.
+    pub(crate) output: Vec<Output>,
     /// The output type of the finalize block.
     pub(crate) output_type: Type,
 }
@@ -41,6 +43,8 @@ pub struct FunctionSymbol {
     pub(crate) _span: Span,
     /// The inputs to the function.
     pub(crate) input: Vec<Input>,
+    /// The outputs of the funciton.
+    pub(crate) output: Vec<Output>,
     /// Metadata associated with the finalize block.
     pub(crate) finalize: Option<FinalizeData>,
 }
@@ -53,8 +57,10 @@ impl SymbolTable {
             variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
+            output: func.output.clone(),
             finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
                 input: finalize.input.clone(),
+                output: finalize.output.clone(),
                 output_type: finalize.output_type.clone(),
             }),
         }

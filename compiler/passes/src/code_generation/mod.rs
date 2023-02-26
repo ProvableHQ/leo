@@ -17,27 +17,25 @@
 pub mod generator;
 pub use generator::*;
 
-mod visit_expressions;
+mod generate_expressions;
 
-mod visit_program;
+mod generate_program;
 
-mod visit_statements;
-
-mod visit_type;
+mod generate_statements;
 
 use crate::SymbolTable;
 use crate::{CallGraph, Pass, StructGraph};
 
-use leo_ast::{Ast, ProgramVisitor};
+use leo_ast::{Ast, ProgramConsumer};
 use leo_errors::Result;
 
 impl<'a> Pass for CodeGenerator<'a> {
-    type Input = (&'a Ast, &'a SymbolTable, &'a StructGraph, &'a CallGraph);
+    type Input = (Ast, &'a SymbolTable, &'a StructGraph, &'a CallGraph);
     type Output = Result<String>;
 
     fn do_pass((ast, symbol_table, struct_graph, call_graph): Self::Input) -> Self::Output {
         let mut generator = Self::new(symbol_table, struct_graph, call_graph);
-        let bytecode = generator.visit_program(ast.as_repr());
+        let bytecode = generator.consume_program(ast.into_repr());
 
         Ok(bytecode)
     }
