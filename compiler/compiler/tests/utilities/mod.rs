@@ -197,7 +197,7 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
     let _ = parsed.function_inlining_pass(&call_graph, assigner)?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
+    let bytecode = CodeGenerator::do_pass((std::mem::take(&mut parsed.ast), &st, &struct_graph, &call_graph))?;
 
     Ok(bytecode)
 }
