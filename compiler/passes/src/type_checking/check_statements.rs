@@ -22,8 +22,6 @@ use leo_errors::TypeCheckerError;
 use leo_span::{Span, Symbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
-    type StatementOutput = ();
-
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
         if self.has_return {

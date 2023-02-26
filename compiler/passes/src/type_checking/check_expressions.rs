@@ -43,13 +43,13 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
 
 impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
-    type ExpressionOutput = Option<Type>;
+    type Output = Option<Type>;
 
     fn visit_associated_function(
         &mut self,
         input: &'a AssociatedFunction,
         expected: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    ) -> Self::Output {
         // Check core struct name and function.
         if let Some(core_instruction) = self.check_core_function_call(&input.ty, &input.name) {
             // Check num input arguments.
@@ -96,11 +96,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_member_access(
-        &mut self,
-        input: &'a MemberAccess,
-        expected: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_member_access(&mut self, input: &'a MemberAccess, expected: &Self::AdditionalInput) -> Self::Output {
         match *input.inner {
             // If the access expression is of the form `self.<name>`, then check the <name> is valid.
             Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match input.name.name {
@@ -151,11 +147,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_tuple_access(
-        &mut self,
-        input: &'a TupleAccess,
-        expected: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_tuple_access(&mut self, input: &'a TupleAccess, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(type_) = self.visit_expression(&input.tuple, &None) {
             match type_ {
                 Type::Tuple(tuple) => {
@@ -186,11 +178,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         None
     }
 
-    fn visit_access(
-        &mut self,
-        input: &'a AccessExpression,
-        expected: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(access) => self.visit_associated_function(access, expected),
             AccessExpression::Tuple(access) => self.visit_tuple_access(access, expected),
@@ -198,11 +186,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_binary(
-        &mut self,
-        input: &'a BinaryExpression,
-        destination: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor => {
                 // Only boolean types.
@@ -456,7 +440,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match &*input.function {
             // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
@@ -525,11 +509,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_struct_init(
-        &mut self,
-        input: &'a StructExpression,
-        additional: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
@@ -579,11 +559,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     // We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
-    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_err(&mut self, _input: &'a ErrExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 
-    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
         if let Some(var) = self.symbol_table.borrow().lookup_variable(input.name) {
             Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
@@ -592,7 +572,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
         fn parse_integer_literal<I: FromStr>(handler: &Handler, string: &String, span: Span, type_string: &str) {
             if string.parse::<I>().is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
@@ -654,11 +634,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         })
     }
 
-    fn visit_ternary(
-        &mut self,
-        input: &'a TernaryExpression,
-        expected: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {
         self.visit_expression(&input.condition, &Some(Type::Boolean));
 
         let t1 = self.visit_expression(&input.if_true, expected);
@@ -667,7 +643,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         return_incorrect_type(t1, t2, expected)
     }
 
-    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_tuple(&mut self, input: &'a TupleExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input.elements.len() {
             0 | 1 => unreachable!("Parsing guarantees that tuple expressions have at least two elements."),
             _ => {
@@ -704,11 +680,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_unary(
-        &mut self,
-        input: &'a UnaryExpression,
-        destination: &Self::AdditionalInput,
-    ) -> Self::ExpressionOutput {
+    fn visit_unary(&mut self, input: &'a UnaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
         match input.op {
             UnaryOperation::Abs => {
                 // Only signed integer types.
@@ -755,7 +727,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::ExpressionOutput {
+    fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Unit expression are only allowed inside a return statement.
         if !self.is_return {
             self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(
