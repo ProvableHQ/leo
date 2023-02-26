@@ -40,16 +40,12 @@ impl<'a> SymbolTableCreator<'a> {
 
 impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
     type AdditionalInput = ();
-    type ExpressionOutput = ();
+    type Output = ();
 }
 
-impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {
-    type StatementOutput = ();
-}
+impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
 impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
-    type ProgramOutput = ();
-
     fn visit_import(&mut self, input: &'a Program) {
         self.visit_program(input)
     }
