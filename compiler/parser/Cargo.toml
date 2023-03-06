@@ -69,3 +69,4 @@ version = "0.8"
 [features]
 default = [ ]
 ci_skip = [ ]
+wasm = [ "snarkvm-console/wasm" ]
