@@ -55,6 +55,11 @@ version = "1.10"
 [dependencies.tracing]
 version = "0.1"
 
+[dependencies.getrandom]
+optional = true
+version = "0.2"
+features = ["js"]
+
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 version = "1.4.0"
@@ -69,4 +74,4 @@ version = "0.8"
 [features]
 default = [ ]
 ci_skip = [ ]
-wasm = [ "snarkvm-console/wasm" ]
+wasm = [ "snarkvm-console/wasm","dep:getrandom" ]
