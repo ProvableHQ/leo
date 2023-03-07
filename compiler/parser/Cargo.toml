@@ -39,6 +39,11 @@ features = [ "account", "network" ]
 version = "3.2"
 features = [ "derive" ]
 
+[dependencies.getrandom]
+optional = true
+version = "0.2"
+features = ["js"]
+
 [dependencies.indexmap]
 version = "1.9"
 
@@ -54,11 +59,6 @@ version = "1.10"
 
 [dependencies.tracing]
 version = "0.1"
-
-[dependencies.getrandom]
-optional = true
-version = "0.2"
-features = ["js"]
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
