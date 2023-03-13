@@ -312,7 +312,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 pub fn get_benches() -> Vec<(String, String)> {
     let (mut cases, configs) = TestCases::new("compiler", |config| {
         (&config.namespace == "Bench" && config.expectation == TestExpectationMode::Pass)
-            || (&config.namespace == "Compile"
+            || ((&config.namespace == "Compile" || &config.namespace == "Execute")
                 && !matches!(
                     config.expectation,
                     TestExpectationMode::Fail | TestExpectationMode::Skip
