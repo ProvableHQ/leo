@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_compiler::{Compiler, OutputOptions};
+use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -95,8 +95,9 @@ pub fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> 
         handler,
         main_file_path,
         output_dir,
-        Some(OutputOptions {
+        Some(CompilerOptions {
             spans_enabled: false,
+            dce_enabled: true,
             initial_input_ast: true,
             initial_ast: true,
             unrolled_ast: true,

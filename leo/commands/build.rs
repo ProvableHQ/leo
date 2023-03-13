@@ -18,7 +18,7 @@ use crate::commands::ALEO_CLI_COMMAND;
 use crate::{commands::Command, context::Context};
 
 use leo_ast::Struct;
-use leo_compiler::{Compiler, InputAst, OutputOptions};
+use leo_compiler::{Compiler, CompilerOptions, InputAst};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
 use leo_package::source::SourceDirectory;
 use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
@@ -46,6 +46,8 @@ pub struct BuildOptions {
     pub offline: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
+    #[structopt(long, help = "Enables dead code elimination in the compiler.")]
+    pub enable_dce: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
     #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
@@ -64,10 +66,11 @@ pub struct BuildOptions {
     pub enable_dce_ast_snapshot: bool,
 }
 
-impl From<BuildOptions> for OutputOptions {
+impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         let mut out_options = Self {
             spans_enabled: options.enable_spans,
+            dce_enabled: options.enable_dce,
             initial_input_ast: options.enable_initial_input_ast_snapshot,
             initial_ast: options.enable_initial_ast_snapshot,
             unrolled_ast: options.enable_unrolled_ast_snapshot,
@@ -94,7 +97,7 @@ impl From<BuildOptions> for OutputOptions {
 #[derive(StructOpt, Debug)]
 pub struct Build {
     #[structopt(flatten)]
-    pub(crate) compiler_options: BuildOptions,
+    pub(crate) options: BuildOptions,
 }
 
 impl Command for Build {
@@ -144,7 +147,7 @@ impl Command for Build {
                 &outputs_directory,
                 &build_directory,
                 &handler,
-                self.compiler_options.clone(),
+                self.options.clone(),
                 false,
             )?);
         }
@@ -165,7 +168,7 @@ impl Command for Build {
                     &outputs_directory,
                     &build_imports_directory,
                     &handler,
-                    self.compiler_options.clone(),
+                    self.options.clone(),
                     true,
                 )?);
             }
@@ -197,7 +200,7 @@ impl Command for Build {
 
         // Call the `aleo build` command with the appropriate from the Aleo SDK.
         let mut args = vec![ALEO_CLI_COMMAND];
-        if self.compiler_options.offline {
+        if self.options.offline {
             args.push("--offline");
         }
         let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
