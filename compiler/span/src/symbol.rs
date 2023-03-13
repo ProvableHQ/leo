@@ -176,6 +176,7 @@ symbols! {
     True: "true",
 
     // general keywords
+    Asm: "asm",
     assert,
     assert_eq,
     assert_neq,
