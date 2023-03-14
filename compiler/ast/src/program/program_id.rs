@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Identifier;
+use crate::{Identifier, Node};
+
+use leo_span::Span;
 
 use core::fmt;
 use serde::de::Visitor;
@@ -28,6 +30,8 @@ pub struct ProgramId {
     pub name: Identifier,
     /// The network associated with the program.
     pub network: Identifier,
+    /// The span of the program identifier.
+    pub span: Span,
 }
 
 impl fmt::Display for ProgramId {
@@ -45,8 +49,9 @@ impl Serialize for ProgramId {
 
         // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
         let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.to_string());
+        key.insert("name".to_string(), to_json_string(&self.name)?);
         key.insert("network".to_string(), to_json_string(&self.network)?);
+        key.insert("span".to_string(), to_json_string(&self.span)?);
 
         // Convert the serialized object into a string for use as a key.
         serializer.serialize_str(&to_json_string(&key)?)
@@ -67,29 +72,36 @@ impl<'de> Deserialize<'de> for ProgramId {
             /// Implementation for recovering a string that serializes Identifier.
             fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
                 // Converts a serialized string into an element that implements Deserialize.
-                fn to_json_string<'a, D: Deserialize<'a>, Error: serde::de::Error>(
+                fn from_json_string<'a, D: Deserialize<'a>, Error: serde::de::Error>(
                     serialized: &'a str,
                 ) -> Result<D, Error> {
                     serde_json::from_str::<'a>(serialized).map_err(|e| Error::custom(e.to_string()))
                 }
 
                 // Convert the serialized string into a BTreeMap to recover ProgramId.
-                let key: BTreeMap<String, String> = to_json_string(value)?;
+                let key: BTreeMap<String, String> = from_json_string(value)?;
 
                 let name: Identifier = match key.get("name") {
-                    Some(name) => to_json_string(name)?,
+                    Some(name) => from_json_string(name)?,
                     None => return Err(E::custom("missing 'name' in serialized ProgramId struct")),
                 };
 
                 let network: Identifier = match key.get("network") {
-                    Some(network) => to_json_string(network)?,
+                    Some(network) => from_json_string(network)?,
                     None => return Err(E::custom("missing 'network' in serialized ProgramId struct")),
                 };
 
-                Ok(ProgramId { name, network })
+                let span: Span = match key.get("span") {
+                    Some(span) => from_json_string(span)?,
+                    None => return Err(E::custom("missing 'span' in serialized ProgramId struct")),
+                };
+
+                Ok(ProgramId { name, network, span })
             }
         }
 
         deserializer.deserialize_str(ProgramIdVisitor)
     }
 }
+
+crate::simple_node_impl!(ProgramId);
