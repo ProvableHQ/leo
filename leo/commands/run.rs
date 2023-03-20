@@ -54,7 +54,7 @@ impl Command for Run {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         (Build {
-            compiler_options: self.compiler_options.clone(),
+            options: self.compiler_options.clone(),
         })
         .execute(context)
     }
