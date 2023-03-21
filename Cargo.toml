@@ -93,7 +93,7 @@ version = "2.0"
 version = "0.15.5"
 
 [dependencies.dirs]
-version = "4.0.0"
+version = "5.0.0"
 
 [dependencies.indexmap]
 version = "1.9"
