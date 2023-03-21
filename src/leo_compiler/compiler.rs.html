@@ -268,6 +268,25 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -300,7 +319,7 @@
 <span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::path::PathBuf;
 
-<span class="kw">use </span><span class="kw">crate</span>::OutputOptions;
+<span class="kw">use </span><span class="kw">crate</span>::CompilerOptions;
 
 <span class="doccomment">/// The primary entry point of the Leo compiler.
 </span><span class="attr">#[derive(Clone)]
@@ -319,8 +338,8 @@
     </span><span class="kw">pub </span>ast: Ast,
     <span class="doccomment">/// The input ast for the program if it exists.
     </span><span class="kw">pub </span>input_ast: <span class="prelude-ty">Option</span>&lt;InputAst&gt;,
-    <span class="doccomment">/// Compiler options on some optional output files.
-    </span>output_options: OutputOptions,
+    <span class="doccomment">/// Options configuring compilation.
+    </span>compiler_options: CompilerOptions,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Compiler&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -331,7 +350,7 @@
         handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
         main_file_path: PathBuf,
         output_directory: PathBuf,
-        output_options: <span class="prelude-ty">Option</span>&lt;OutputOptions&gt;,
+        compiler_options: <span class="prelude-ty">Option</span>&lt;CompilerOptions&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             handler,
@@ -341,7 +360,7 @@
             network,
             ast: Ast::new(Program::default()),
             input_ast: <span class="prelude-val">None</span>,
-            output_options: output_options.unwrap_or_default(),
+            compiler_options: compiler_options.unwrap_or_default(),
         }
     }
 
@@ -381,7 +400,7 @@
             .into());
         }
 
-        <span class="kw">if </span><span class="self">self</span>.output_options.initial_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.initial_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;initial_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -406,9 +425,9 @@
 
             <span class="comment">// Parse and serialize it.
             </span><span class="kw">let </span>input_ast = leo_parser::parse_input(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)<span class="question-mark">?</span>;
-            <span class="kw">if </span><span class="self">self</span>.output_options.initial_ast {
+            <span class="kw">if </span><span class="self">self</span>.compiler_options.initial_ast {
                 <span class="comment">// Write the input AST snapshot post parsing.
-                </span><span class="kw">if </span><span class="self">self</span>.output_options.spans_enabled {
+                </span><span class="kw">if </span><span class="self">self</span>.compiler_options.spans_enabled {
                     input_ast.to_json_file(
                         <span class="self">self</span>.output_directory.clone(),
                         <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.initial_input_ast.json&quot;</span>, <span class="self">self</span>.program_name),
@@ -442,7 +461,7 @@
         <span class="kw">let </span>(ast, symbol_table) = Unroller::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="self">self</span>.handler, symbol_table))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.output_options.unrolled_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.unrolled_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;unrolled_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -454,7 +473,7 @@
         <span class="kw">let </span>(ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.output_options.ssa_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.ssa_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;ssa_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -466,7 +485,7 @@
         <span class="kw">let </span>(ast, assigner) = Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, assigner))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.output_options.flattened_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.flattened_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;flattened_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -478,11 +497,34 @@
         <span class="kw">let </span>(ast, assigner) = FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), call_graph, assigner))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.output_options.inlined_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.inlined_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;inlined_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(assigner)
+    }
+
+    <span class="doccomment">/// Runs the dead code elimination pass.
+    </span><span class="kw">pub fn </span>dead_code_elimination_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.dce_enabled {
+            <span class="self">self</span>.ast = DeadCodeEliminator::do_pass(std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast))<span class="question-mark">?</span>;
+        }
+
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.dce_ast {
+            <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;dce_ast.json&quot;</span>)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Runs the code generation pass.
+    </span><span class="kw">pub fn </span>code_generation_pass(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        symbol_table: <span class="kw-2">&amp;</span>SymbolTable,
+        struct_graph: <span class="kw-2">&amp;</span>StructGraph,
+        call_graph: <span class="kw-2">&amp;</span>CallGraph,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, symbol_table, struct_graph, call_graph))
     }
 
     <span class="doccomment">/// Runs the compiler stages.
@@ -500,30 +542,26 @@
 
         <span class="kw">let _ </span>= <span class="self">self</span>.function_inlining_pass(<span class="kw-2">&amp;</span>call_graph, assigner)<span class="question-mark">?</span>;
 
+        <span class="self">self</span>.dead_code_elimination_pass()<span class="question-mark">?</span>;
+
         <span class="prelude-val">Ok</span>((st, struct_graph, call_graph))
     }
 
-    <span class="doccomment">/// Returns a compiled Leo program and prints the resulting bytecode.
-    </span><span class="comment">// TODO: Remove when code generation is ready to be integrated into the compiler.
-    </span><span class="kw">pub fn </span>compile_and_generate_instructions(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, String)&gt; {
-        <span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
-        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>bytecode = CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="kw-2">&amp;</span>symbol_table, <span class="kw-2">&amp;</span>struct_graph, <span class="kw-2">&amp;</span>call_graph))<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>((symbol_table, bytecode))
-    }
-
     <span class="doccomment">/// Returns a compiled Leo program.
-    </span><span class="kw">pub fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
-        <span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
-        <span class="self">self</span>.compiler_stages().map(|(st, <span class="kw">_</span>, <span class="kw">_</span>)| st)
+    </span><span class="kw">pub fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, String)&gt; {
+        <span class="comment">// Parse the program.
+        </span><span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
+        <span class="comment">// Run the intermediate compiler stages.
+        </span><span class="kw">let </span>(symbol_table, struct_graph, call_graph) = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
+        <span class="comment">// Run code generation.
+        </span><span class="kw">let </span>bytecode = <span class="self">self</span>.code_generation_pass(<span class="kw-2">&amp;</span>symbol_table, <span class="kw-2">&amp;</span>struct_graph, <span class="kw-2">&amp;</span>call_graph)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>((symbol_table, bytecode))
     }
 
     <span class="doccomment">/// Writes the AST to a JSON file.
     </span><span class="kw">fn </span>write_ast_to_json(<span class="kw-2">&amp;</span><span class="self">self</span>, file_suffix: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// Remove `Span`s if they are not enabled.
-        </span><span class="kw">if </span><span class="self">self</span>.output_options.spans_enabled {
+        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.spans_enabled {
             <span class="self">self</span>.ast.to_json_file(
                 <span class="self">self</span>.output_directory.clone(),
                 <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.{file_suffix}&quot;</span>, <span class="self">self</span>.program_name),

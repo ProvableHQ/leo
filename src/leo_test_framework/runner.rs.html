@@ -637,8 +637,8 @@
 </span><span class="kw">pub fn </span>get_benches() -&gt; Vec&lt;(String, String)&gt; {
     <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(<span class="string">&quot;compiler&quot;</span>, |config| {
         (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Bench&quot; </span>&amp;&amp; config.expectation == TestExpectationMode::Pass)
-            || (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Compile&quot;
-                </span>&amp;&amp; !<span class="macro">matches!</span>(
+            || ((<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Compile&quot; </span>|| <span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Execute&quot;</span>)
+                &amp;&amp; !<span class="macro">matches!</span>(
                     config.expectation,
                     TestExpectationMode::Fail | TestExpectationMode::Skip
                 ))

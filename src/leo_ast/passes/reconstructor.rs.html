@@ -408,6 +408,8 @@
 <a href="#408" id="408">408</a>
 <a href="#409" id="409">409</a>
 <a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -475,7 +477,7 @@
                     index: tuple.index,
                     span: tuple.span,
                 }),
-                expr =&gt; expr,
+                AccessExpression::AssociatedConstant(constant) =&gt; AccessExpression::AssociatedConstant(constant),
             }),
             Default::default(),
         )
@@ -665,12 +667,13 @@
         )
     }
 
-    <span class="kw">fn </span>reconstruct_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+    <span class="comment">// TODO: Reconstructor should visit this.
+    </span><span class="kw">fn </span>reconstruct_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
             Statement::Decrement(DecrementStatement {
                 mapping: input.mapping,
-                index: input.index,
                 amount: input.amount,
+                index: input.index,
                 span: input.span,
             }),
             Default::default(),
@@ -700,7 +703,8 @@
         )
     }
 
-    <span class="kw">fn </span>reconstruct_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+    <span class="comment">// TODO: Reconstructor should visit this.
+    </span><span class="kw">fn </span>reconstruct_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         (
             Statement::Increment(IncrementStatement {
                 mapping: input.mapping,

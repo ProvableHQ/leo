@@ -268,6 +268,13 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -288,7 +295,7 @@
 <span class="kw">use crate</span>::{commands::Command, context::Context};
 
 <span class="kw">use </span>leo_ast::Struct;
-<span class="kw">use </span>leo_compiler::{Compiler, InputAst, OutputOptions};
+<span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, InputAst};
 <span class="kw">use </span>leo_errors::{CliError, CompilerError, PackageError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_package::source::SourceDirectory;
 <span class="kw">use </span>leo_package::{inputs::InputFile, outputs::OutputsDirectory};
@@ -316,6 +323,8 @@
     </span><span class="kw">pub </span>offline: bool,
     <span class="attr">#[structopt(long, help = <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]
     </span><span class="kw">pub </span>enable_spans: bool,
+    <span class="attr">#[structopt(long, help = <span class="string">&quot;Enables dead code elimination in the compiler.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_dce: bool,
     <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]
     </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
     <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]
@@ -330,18 +339,22 @@
     </span><span class="kw">pub </span>enable_flattened_ast_snapshot: bool,
     <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the inlined AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_inlined_ast_snapshot: bool,
+    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the dead code eliminated (DCE) AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_dce_ast_snapshot: bool,
 }
 
-<span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>OutputOptions {
+<span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>CompilerOptions {
     <span class="kw">fn </span>from(options: BuildOptions) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>out_options = <span class="self">Self </span>{
             spans_enabled: options.enable_spans,
+            dce_enabled: options.enable_dce,
             initial_input_ast: options.enable_initial_input_ast_snapshot,
             initial_ast: options.enable_initial_ast_snapshot,
             unrolled_ast: options.enable_unrolled_ast_snapshot,
             ssa_ast: options.enable_ssa_ast_snapshot,
             flattened_ast: options.enable_flattened_ast_snapshot,
             inlined_ast: options.enable_inlined_ast_snapshot,
+            dce_ast: options.enable_dce_ast_snapshot,
         };
         <span class="kw">if </span>options.enable_all_ast_snapshots {
             out_options.initial_input_ast = <span class="bool-val">true</span>;
@@ -350,6 +363,7 @@
             out_options.ssa_ast = <span class="bool-val">true</span>;
             out_options.flattened_ast = <span class="bool-val">true</span>;
             out_options.inlined_ast = <span class="bool-val">true</span>;
+            out_options.dce_ast = <span class="bool-val">true</span>;
         }
 
         out_options
@@ -360,7 +374,7 @@
 </span><span class="attr">#[derive(StructOpt, Debug)]
 </span><span class="kw">pub struct </span>Build {
     <span class="attr">#[structopt(flatten)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) options: BuildOptions,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Build {
@@ -410,7 +424,7 @@
                 <span class="kw-2">&amp;</span>outputs_directory,
                 <span class="kw-2">&amp;</span>build_directory,
                 <span class="kw-2">&amp;</span>handler,
-                <span class="self">self</span>.compiler_options.clone(),
+                <span class="self">self</span>.options.clone(),
                 <span class="bool-val">false</span>,
             )<span class="question-mark">?</span>);
         }
@@ -431,7 +445,7 @@
                     <span class="kw-2">&amp;</span>outputs_directory,
                     <span class="kw-2">&amp;</span>build_imports_directory,
                     <span class="kw-2">&amp;</span>handler,
-                    <span class="self">self</span>.compiler_options.clone(),
+                    <span class="self">self</span>.options.clone(),
                     <span class="bool-val">true</span>,
                 )<span class="question-mark">?</span>);
             }
@@ -463,7 +477,7 @@
 
         <span class="comment">// Call the `aleo build` command with the appropriate from the Aleo SDK.
         </span><span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[ALEO_CLI_COMMAND];
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
+        <span class="kw">if </span><span class="self">self</span>.options.offline {
             args.push(<span class="string">&quot;--offline&quot;</span>);
         }
         <span class="kw">let </span>command = AleoBuild::try_parse_from(<span class="kw-2">&amp;</span>args).map_err(CliError::failed_to_execute_aleo_build)<span class="question-mark">?</span>;
@@ -522,7 +536,7 @@
     );
 
     <span class="comment">// Compile the Leo program into Aleo instructions.
-    </span><span class="kw">let </span>(symbol_table, instructions) = compiler.compile_and_generate_instructions()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>(symbol_table, instructions) = compiler.compile()<span class="question-mark">?</span>;
 
     <span class="comment">// Write the instructions.
     </span>std::fs::File::create(<span class="kw-2">&amp;</span>aleo_file_path)
