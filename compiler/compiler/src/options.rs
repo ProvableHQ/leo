@@ -17,9 +17,11 @@
 // NOTE: If compiler passes are made optional, pass preconditions and invariants may not necessarily hold true.
 
 #[derive(Clone, Default)]
-pub struct OutputOptions {
+pub struct CompilerOptions {
     /// Whether spans are enabled in the output ASTs.
     pub spans_enabled: bool,
+    /// Whether to enable dead code elimination.
+    pub dce_enabled: bool,
     /// If enabled writes the AST after parsing.
     pub initial_ast: bool,
     /// If enabled writes the input AST after parsing.
@@ -32,4 +34,6 @@ pub struct OutputOptions {
     pub flattened_ast: bool,
     /// If enabled writes the AST after inlining.
     pub inlined_ast: bool,
+    /// If enabled writes the AST after dead code elimination.
+    pub dce_ast: bool,
 }

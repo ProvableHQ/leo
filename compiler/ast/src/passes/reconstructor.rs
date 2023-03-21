@@ -65,7 +65,7 @@ pub trait ExpressionReconstructor {
                     index: tuple.index,
                     span: tuple.span,
                 }),
-                expr => expr,
+                AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
             }),
             Default::default(),
         )
@@ -255,12 +255,13 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         )
     }
 
+    // TODO: Reconstructor should visit this.
     fn reconstruct_decrement(&mut self, input: DecrementStatement) -> (Statement, Self::AdditionalOutput) {
         (
             Statement::Decrement(DecrementStatement {
                 mapping: input.mapping,
-                index: input.index,
                 amount: input.amount,
+                index: input.index,
                 span: input.span,
             }),
             Default::default(),
@@ -290,6 +291,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         )
     }
 
+    // TODO: Reconstructor should visit this.
     fn reconstruct_increment(&mut self, input: IncrementStatement) -> (Statement, Self::AdditionalOutput) {
         (
             Statement::Increment(IncrementStatement {

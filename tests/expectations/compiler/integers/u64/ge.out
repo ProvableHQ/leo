@@ -7,4 +7,5 @@ outputs:
     ssa_ast: 5406211b916c820d0de1a68a927c7c49e8b3624e4a5b5f0daf2b83cd5af1a294
     flattened_ast: 8ecac1101bcaad31e826399a5be8f5e16bcee2be5cd920dec535cf3d95df6e2f
     inlined_ast: 8ecac1101bcaad31e826399a5be8f5e16bcee2be5cd920dec535cf3d95df6e2f
+    dce_ast: 8ecac1101bcaad31e826399a5be8f5e16bcee2be5cd920dec535cf3d95df6e2f
     bytecode: a614338051a535a74ee0794a7b2e1f4617263a3bca7be899ba2e68beae7748da

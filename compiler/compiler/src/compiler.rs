@@ -30,7 +30,7 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::path::PathBuf;
 
-use crate::OutputOptions;
+use crate::CompilerOptions;
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
@@ -49,8 +49,8 @@ pub struct Compiler<'a> {
     pub ast: Ast,
     /// The input ast for the program if it exists.
     pub input_ast: Option<InputAst>,
-    /// Compiler options on some optional output files.
-    output_options: OutputOptions,
+    /// Options configuring compilation.
+    compiler_options: CompilerOptions,
 }
 
 impl<'a> Compiler<'a> {
@@ -61,7 +61,7 @@ impl<'a> Compiler<'a> {
         handler: &'a Handler,
         main_file_path: PathBuf,
         output_directory: PathBuf,
-        output_options: Option<OutputOptions>,
+        compiler_options: Option<CompilerOptions>,
     ) -> Self {
         Self {
             handler,
@@ -71,7 +71,7 @@ impl<'a> Compiler<'a> {
             network,
             ast: Ast::new(Program::default()),
             input_ast: None,
-            output_options: output_options.unwrap_or_default(),
+            compiler_options: compiler_options.unwrap_or_default(),
         }
     }
 
@@ -111,7 +111,7 @@ impl<'a> Compiler<'a> {
             .into());
         }
 
-        if self.output_options.initial_ast {
+        if self.compiler_options.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;
         }
 
@@ -136,9 +136,9 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            if self.output_options.initial_ast {
+            if self.compiler_options.initial_ast {
                 // Write the input AST snapshot post parsing.
-                if self.output_options.spans_enabled {
+                if self.compiler_options.spans_enabled {
                     input_ast.to_json_file(
                         self.output_directory.clone(),
                         &format!("{}.initial_input_ast.json", self.program_name),
@@ -172,7 +172,7 @@ impl<'a> Compiler<'a> {
         let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
         self.ast = ast;
 
-        if self.output_options.unrolled_ast {
+        if self.compiler_options.unrolled_ast {
             self.write_ast_to_json("unrolled_ast.json")?;
         }
 
@@ -184,7 +184,7 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
         self.ast = ast;
 
-        if self.output_options.ssa_ast {
+        if self.compiler_options.ssa_ast {
             self.write_ast_to_json("ssa_ast.json")?;
         }
 
@@ -196,7 +196,7 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
         self.ast = ast;
 
-        if self.output_options.flattened_ast {
+        if self.compiler_options.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
         }
 
@@ -208,11 +208,34 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
         self.ast = ast;
 
-        if self.output_options.inlined_ast {
+        if self.compiler_options.inlined_ast {
             self.write_ast_to_json("inlined_ast.json")?;
         }
 
         Ok(assigner)
+    }
+
+    /// Runs the dead code elimination pass.
+    pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
+        if self.compiler_options.dce_enabled {
+            self.ast = DeadCodeEliminator::do_pass(std::mem::take(&mut self.ast))?;
+        }
+
+        if self.compiler_options.dce_ast {
+            self.write_ast_to_json("dce_ast.json")?;
+        }
+
+        Ok(())
+    }
+
+    /// Runs the code generation pass.
+    pub fn code_generation_pass(
+        &mut self,
+        symbol_table: &SymbolTable,
+        struct_graph: &StructGraph,
+        call_graph: &CallGraph,
+    ) -> Result<String> {
+        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph))
     }
 
     /// Runs the compiler stages.
@@ -230,30 +253,26 @@ impl<'a> Compiler<'a> {
 
         let _ = self.function_inlining_pass(&call_graph, assigner)?;
 
+        self.dead_code_elimination_pass()?;
+
         Ok((st, struct_graph, call_graph))
     }
 
-    /// Returns a compiled Leo program and prints the resulting bytecode.
-    // TODO: Remove when code generation is ready to be integrated into the compiler.
-    pub fn compile_and_generate_instructions(&mut self) -> Result<(SymbolTable, String)> {
-        self.parse_program()?;
-        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
-
-        let bytecode = CodeGenerator::do_pass((&self.ast, &symbol_table, &struct_graph, &call_graph))?;
-
-        Ok((symbol_table, bytecode))
-    }
-
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self) -> Result<SymbolTable> {
+    pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
+        // Parse the program.
         self.parse_program()?;
-        self.compiler_stages().map(|(st, _, _)| st)
+        // Run the intermediate compiler stages.
+        let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
+        // Run code generation.
+        let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
+        Ok((symbol_table, bytecode))
     }
 
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
-        if self.output_options.spans_enabled {
+        if self.compiler_options.spans_enabled {
             self.ast.to_json_file(
                 self.output_directory.clone(),
                 &format!("{}.{file_suffix}", self.program_name),

@@ -16,7 +16,7 @@
 
 //! This file contains tools for benchmarking the Leo compiler and its stages.
 
-use leo_compiler::Compiler;
+use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
 use leo_test_framework::get_benches;
@@ -43,7 +43,10 @@ enum BenchMode {
     Flatten,
     /// Benchmarks function inlining.
     Inline,
-    // TODO: Benchmark code generation
+    /// Benchmarks dead code elimination.
+    Dce,
+    /// Benchmarks code generation.
+    Codegen,
     /// Benchmarks all the above stages.
     Full,
 }
@@ -77,12 +80,22 @@ struct Sample {
 /// A helper function to help create a Leo Compiler struct.
 fn new_compiler(handler: &Handler) -> Compiler<'_> {
     Compiler::new(
-        String::from("bench"),
+        String::from("test"),
         String::from("aleo"),
         handler,
         PathBuf::from(String::new()),
         PathBuf::from(String::new()),
-        None,
+        Some(CompilerOptions {
+            spans_enabled: false,
+            dce_enabled: true,
+            initial_ast: false,
+            initial_input_ast: false,
+            unrolled_ast: false,
+            ssa_ast: false,
+            flattened_ast: false,
+            inlined_ast: false,
+            dce_ast: false,
+        }),
     )
 }
 
@@ -110,6 +123,8 @@ impl Sample {
             BenchMode::Ssa => self.bench_ssa(c),
             BenchMode::Flatten => self.bench_flattener(c),
             BenchMode::Inline => self.bench_inline(c),
+            BenchMode::Dce => self.bench_dce(c),
+            BenchMode::Codegen => self.bench_codegen(c),
             BenchMode::Full => self.bench_full(c),
         }
     }
@@ -245,6 +260,59 @@ impl Sample {
         });
     }
 
+    fn bench_dce(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "inliner pass", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let (symbol_table, _struct_graph, call_graph) = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            let symbol_table = compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            let assigner = compiler
+                .static_single_assignment_pass(&symbol_table)
+                .expect("failed to run ssa pass");
+            let assigner = compiler
+                .flattening_pass(&symbol_table, assigner)
+                .expect("failed to run flattener pass");
+            let _ = compiler
+                .function_inlining_pass(&call_graph, assigner)
+                .expect("failed to run inliner pass");
+            let start = Instant::now();
+            let out = compiler.dead_code_elimination_pass();
+            let time = start.elapsed();
+            out.expect("failed to run dce pass");
+            time
+        });
+    }
+
+    fn bench_codegen(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "inliner pass", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let (symbol_table, struct_graph, call_graph) = compiler
+                .type_checker_pass(symbol_table)
+                .expect("failed to run type check pass");
+            let symbol_table = compiler
+                .loop_unrolling_pass(symbol_table)
+                .expect("failed to run loop unrolling pass");
+            let assigner = compiler
+                .static_single_assignment_pass(&symbol_table)
+                .expect("failed to run ssa pass");
+            let assigner = compiler
+                .flattening_pass(&symbol_table, assigner)
+                .expect("failed to run flattener pass");
+            let _ = compiler
+                .function_inlining_pass(&call_graph, assigner)
+                .expect("failed to run inliner pass");
+            compiler.dead_code_elimination_pass().expect("failed to run dce pass");
+            let start = Instant::now();
+            let out = compiler.code_generation_pass(&symbol_table, &struct_graph, &call_graph);
+            let time = start.elapsed();
+            out.expect("failed to run codegen pass");
+            time
+        });
+    }
+
     fn bench_full(&self, c: &mut Criterion) {
         self.bencher(c, "full", |mut compiler| {
             let (input, name) = self.data();
@@ -253,7 +321,7 @@ impl Sample {
                 .parse_program_from_string(input, name)
                 .expect("Failed to parse program");
             let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
-            let (symbol_table, _struct_graph, call_graph) = compiler
+            let (symbol_table, struct_graph, call_graph) = compiler
                 .type_checker_pass(symbol_table)
                 .expect("failed to run type check pass");
             let symbol_table = compiler
@@ -268,6 +336,10 @@ impl Sample {
             compiler
                 .function_inlining_pass(&call_graph, assigner)
                 .expect("failed to run function inlining pass");
+            compiler.dead_code_elimination_pass().expect("failed to run dce pass");
+            compiler
+                .code_generation_pass(&symbol_table, &struct_graph, &call_graph)
+                .expect("failed to run codegen pass");
             start.elapsed()
         })
     }
@@ -288,6 +360,8 @@ bench!(bench_unroll, BenchMode::Unroll);
 bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_flatten, BenchMode::Flatten);
 bench!(bench_inline, BenchMode::Inline);
+bench!(bench_dce, BenchMode::Dce);
+bench!(bench_codegen, BenchMode::Codegen);
 bench!(bench_full, BenchMode::Full);
 
 criterion_group!(
@@ -301,6 +375,8 @@ criterion_group!(
         bench_ssa,
         bench_flatten,
         bench_inline,
+        bench_dce,
+        bench_codegen,
         bench_full
 );
 criterion_main!(benches);

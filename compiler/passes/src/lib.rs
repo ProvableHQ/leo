@@ -23,6 +23,9 @@ pub use code_generation::*;
 pub mod common;
 pub use common::*;
 
+pub mod dead_code_elimination;
+pub use dead_code_elimination::*;
+
 pub mod flattening;
 pub use flattening::*;
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_compiler::{Compiler, OutputOptions};
+use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError, LeoWarning,
@@ -39,14 +39,15 @@ pub type Network = Testnet3;
 #[allow(unused)]
 pub type Aleo = snarkvm::circuit::AleoV0;
 
-pub fn hash_asts() -> (String, String, String, String, String) {
+pub fn hash_asts() -> (String, String, String, String, String, String) {
     let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
     let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
     let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
     let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
     let inlined_ast = hash_file("/tmp/output/test.inlined_ast.json");
+    let dce_ast = hash_file("/tmp/output/test.dce_ast.json");
 
-    (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast)
+    (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast)
 }
 
 pub fn get_cwd_option(test: &Test) -> Option<PathBuf> {
@@ -94,14 +95,16 @@ pub fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> 
         handler,
         main_file_path,
         output_dir,
-        Some(OutputOptions {
+        Some(CompilerOptions {
             spans_enabled: false,
+            dce_enabled: true,
             initial_input_ast: true,
             initial_ast: true,
             unrolled_ast: true,
             ssa_ast: true,
             flattened_ast: true,
             inlined_ast: true,
+            dce_ast: true,
         }),
     )
 }
@@ -195,6 +198,8 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
     let assigner = parsed.flattening_pass(&st, assigner)?;
 
     let _ = parsed.function_inlining_pass(&call_graph, assigner)?;
+
+    parsed.dead_code_elimination_pass()?;
 
     // Compile Leo program to bytecode.
     let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
