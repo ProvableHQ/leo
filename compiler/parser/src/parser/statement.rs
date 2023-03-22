@@ -48,10 +48,26 @@ impl ParserContext<'_> {
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
             Token::Let => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
+            Token::Asm => Ok(Statement::AssemblyBlock(self.parse_assembly_block()?)),
             Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
             Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
         }
+    }
+
+    /// Returns a [`AssemblyBlock`] AST node if the next tokens represent an assembly block.
+    fn parse_assembly_block(&mut self) -> Result<AssemblyBlock> {
+        // Parse the span of the assembly block.
+        let start = self.expect(&Token::Asm)?;
+        // Parse the instructions in the assembly block, delimited by braces.
+        let (instructions, _, _) = self.parse_list(Delimiter::Brace, None, |p| p.parse_instruction().map(Some))?;
+        // Parse the semicolon token.
+        let end = self.expect(&Token::Semicolon)?;
+        // Return the assembly block.
+        Ok(AssemblyBlock {
+            instructions,
+            span: start + end,
+        })
     }
 
     /// Returns a [`AssertStatement`] AST node if the next tokens represent an assertion statement.

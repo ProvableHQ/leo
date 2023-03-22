@@ -36,6 +36,7 @@ pub(super) use context::ParserContext;
 mod expression;
 mod file;
 mod input;
+mod instruction;
 mod statement;
 pub(super) mod type_;
 

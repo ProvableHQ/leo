@@ -131,7 +131,11 @@ impl ParserContext<'_> {
         let network = self.expect_identifier()?;
 
         // Construct the program id.
-        let program_id = ProgramId { name, network, span: name.span + network.span };
+        let program_id = ProgramId {
+            name,
+            network,
+            span: name.span + network.span,
+        };
 
         // Check that the program network is valid.
         if network.name != sym::aleo {
