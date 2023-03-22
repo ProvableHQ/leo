@@ -97,6 +97,7 @@ macro_rules! symbols {
     };
 }
 
+
 symbols! {
     // unary operators
     abs,
@@ -216,6 +217,12 @@ symbols! {
     gates,
     _nonce,
     program,
+
+    // Aleo Instructions
+    call,
+    cast,
+    is,
+    ternary,
 
     // input file
     registers,
