@@ -55,7 +55,7 @@ default-features = false
 features = [ "aleo-cli", "circuit", "console", "parallel" ]
 
 [dev-dependencies.regex]
-version = "1.7.1"
+version = "1.7.2"
 
 [dev-dependencies.serde]
 version = "1.0.158"
