@@ -1,0 +1,5 @@
+---
+namespace: ParseInstruction
+expectation: Fail
+outputs:
+  - "Error [EPAR0370033]: Expected an identifier with name `into`.\n    --> test:1:9\n     |\n   1 | abs foo bax into bar;\n     |         ^^^"

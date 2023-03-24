@@ -1,0 +1,32 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - Cast:
+      arguments:
+        - Register:
+            Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":8}\"}"
+        - Register:
+            Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":12}\"}"
+        - Register:
+            Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+        - Register:
+            Access:
+              Member:
+                inner:
+                  Identifier: "{\"name\":\"bax\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":20}\"}"
+                name: "{\"name\":\"soup\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":25}\"}"
+                span:
+                  lo: 17
+                  hi: 25
+      destination: "{\"name\":\"fleeces\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":38}\"}"
+      register_type:
+        PlaintextType:
+          type_:
+            Identifier: "{\"name\":\"sheep\",\"span\":\"{\\\"lo\\\":42,\\\"hi\\\":47}\"}"
+          span:
+            lo: 42
+            hi: 47
+      span:
+        lo: 0
+        hi: 48

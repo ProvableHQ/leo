@@ -1,0 +1,20 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - Decrement:
+      mapping: "{\"name\":\"balances\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":18}\"}"
+      index:
+        Register:
+          Identifier: "{\"name\":\"sender\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":25}\"}"
+      amount:
+        Literal:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 30
+                hi: 33
+      span:
+        lo: 0
+        hi: 34

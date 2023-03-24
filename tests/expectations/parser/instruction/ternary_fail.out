@@ -1,0 +1,5 @@
+---
+namespace: ParseInstruction
+expectation: Fail
+outputs:
+  - "Error [EPAR0370033]: Expected an identifier with name `into`.\n    --> test:1:20\n     |\n   1 | ternary r0 r1 into r2;\n     |                    ^^"

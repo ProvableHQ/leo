@@ -1,0 +1,5 @@
+---
+namespace: ParseInstruction
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected [ -- found 'sender'\n    --> test:1:20\n     |\n   1 | decrement balances sender by 1u8;\n     |                    ^^^^^^"

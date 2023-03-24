@@ -1,0 +1,5 @@
+---
+namespace: ParseInstruction
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'\n    --> test:1:22\n     |\n   1 | cast foo bar into baz;\n     |                      ^"

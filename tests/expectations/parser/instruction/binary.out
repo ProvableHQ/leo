@@ -1,0 +1,15 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - Add:
+      first:
+        Register:
+          Identifier: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":6}\"}"
+      second:
+        Register:
+          Identifier: "{\"name\":\"tree\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
+      destination: "{\"name\":\"result\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":23}\"}"
+      span:
+        lo: 0
+        hi: 24

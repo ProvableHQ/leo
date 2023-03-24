@@ -1,0 +1,18 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - Ternary:
+      condition:
+        Register:
+          Identifier: "{\"name\":\"floo\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":12}\"}"
+      first:
+        Register:
+          Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+      second:
+        Register:
+          Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":20}\"}"
+      destination: "{\"name\":\"fax\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
+      span:
+        lo: 0
+        hi: 30

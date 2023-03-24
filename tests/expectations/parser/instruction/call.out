@@ -1,0 +1,16 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - Call:
+      function: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":8}\"}"
+      arguments:
+        - Register:
+            Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":12}\"}"
+        - Register:
+            Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+      destinations:
+        - "{\"name\":\"bax\",\"span\":\"{\\\"lo\\\":22,\\\"hi\\\":25}\"}"
+      span:
+        lo: 0
+        hi: 26

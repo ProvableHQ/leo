@@ -111,6 +111,24 @@ impl Namespace for ParseExpressionNamespace {
     }
 }
 
+struct ParseInstructionNamespace;
+
+impl Namespace for ParseInstructionNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Line
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        create_session_if_not_set_then(|s| {
+            let tokenizer = tokenize(test, s)?;
+            if all_are_comments(&tokenizer) {
+                return Ok(yaml_or_fail(""));
+            }
+            with_handler(tokenizer, |p| p.parse_instruction()).map(yaml_or_fail)
+        })
+    }
+}
+
 struct ParseStatementNamespace;
 
 impl Namespace for ParseStatementNamespace {
@@ -225,6 +243,7 @@ impl Runner for TestRunner {
         Some(match name {
             "Parse" => Box::new(ParseNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
+            "ParseInstruction" => Box::new(ParseInstructionNamespace),
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "Serialize" => Box::new(SerializeNamespace),
             "Input" => Box::new(InputNamespace),
