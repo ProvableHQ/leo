@@ -136,8 +136,8 @@ pub enum Token {
     Then,
     Transition,
     // For imports.
-    Leo,
 
+    Leo,
     // Meta Tokens
     Eof,
 }

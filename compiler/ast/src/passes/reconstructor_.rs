@@ -161,7 +161,8 @@ pub trait ExpressionReconstructor {
 pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_statement(&mut self, input: Statement) -> (Statement, Self::AdditionalOutput) {
         match input {
-            Statement::Assert(assert) => self.reconstruct_assert(assert),
+            Statement::AssemblyBlock(stmt) => self.reconstruct_assembly_block(stmt),
+            Statement::Assert(stmt) => self.reconstruct_assert(stmt),
             Statement::Assign(stmt) => self.reconstruct_assign(*stmt),
             Statement::Block(stmt) => {
                 let (stmt, output) = self.reconstruct_block(stmt);
@@ -176,6 +177,10 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
             Statement::Return(stmt) => self.reconstruct_return(stmt),
         }
+    }
+
+    fn reconstruct_assembly_block(&mut self, input: AssemblyBlock) -> (Statement, Self::AdditionalOutput) {
+        todo!()
     }
 
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {

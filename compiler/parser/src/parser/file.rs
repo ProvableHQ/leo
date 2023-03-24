@@ -118,29 +118,33 @@ impl ParserContext<'_> {
         Ok((import_name.name, (program_ast.into_repr(), start + end)))
     }
 
+    /// Parses a program id `foo.aleo`.
+    pub(crate) fn parse_program_id(&mut self) -> Result<ProgramId> {
+        // Parse the program name.
+        let name = self.expect_identifier()?;
+        // Parse `.`.
+        self.expect(&Token::Dot)?;
+        // Parse the program network.
+        let network = self.expect_identifier()?;
+        // Check that the program network is valid.
+        if network.name != sym::aleo {
+            return Err(ParserError::invalid_network(network.span).into());
+        }
+        // Construct the program id.
+        Ok(ProgramId {
+            name,
+            network,
+            span: name.span + network.span,
+        })
+    }
+
     /// Parsers a program scope `program foo.aleo { ... }`.
     fn parse_program_scope(&mut self) -> Result<ProgramScope> {
         // Parse `program` keyword.
         let start = self.expect(&Token::Program)?;
 
-        // Parse the program name.
-        let name = self.expect_identifier()?;
-
-        // Parse the program network.
-        self.expect(&Token::Dot)?;
-        let network = self.expect_identifier()?;
-
-        // Construct the program id.
-        let program_id = ProgramId {
-            name,
-            network,
-            span: name.span + network.span,
-        };
-
-        // Check that the program network is valid.
-        if network.name != sym::aleo {
-            return Err(ParserError::invalid_network(network.span).into());
-        }
+        // Parse the program id.
+        let program_id = self.parse_program_id()?;
 
         // Parse `{`.
         self.expect(&Token::LeftCurly)?;
