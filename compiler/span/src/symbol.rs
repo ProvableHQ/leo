@@ -219,10 +219,23 @@ symbols! {
     program,
 
     // Aleo Instructions
+    As: "as",
+    bhp256,
+    bhp512,
+    bhp768,
+    bhp1024,
+    by,
     call,
     cast,
+    into,
     is,
+    ped64,
+    ped128,
+    psd2,
+    psd4,
+    psd8,
     ternary,
+    w, // For wrapped operations
 
     // input file
     registers,

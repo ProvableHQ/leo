@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod assembly;
+pub use assembly::*;
+
 pub mod assert;
 pub use assert::*;
 
@@ -57,6 +60,8 @@ use std::fmt;
 /// Program statement that defines some action (or expression) to be carried out.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Statement {
+    /// An assembly block.
+    AssemblyBlock(AssemblyBlock),
     /// An assert statement.
     Assert(AssertStatement),
     /// An assignment statement.
@@ -94,6 +99,7 @@ impl Statement {
 impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Statement::AssemblyBlock(x) => x.fmt(f),
             Statement::Assert(x) => x.fmt(f),
             Statement::Assign(x) => x.fmt(f),
             Statement::Block(x) => x.fmt(f),
@@ -113,6 +119,7 @@ impl Node for Statement {
     fn span(&self) -> Span {
         use Statement::*;
         match self {
+            AssemblyBlock(n) => n.span(),
             Assert(n) => n.span(),
             Assign(n) => n.span(),
             Block(n) => n.span(),
@@ -130,6 +137,7 @@ impl Node for Statement {
     fn set_span(&mut self, span: Span) {
         use Statement::*;
         match self {
+            AssemblyBlock(n) => n.set_span(span),
             Assert(n) => n.set_span(span),
             Assign(n) => n.set_span(span),
             Block(n) => n.set_span(span),

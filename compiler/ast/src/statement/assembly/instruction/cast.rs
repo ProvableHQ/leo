@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Operand};
+use crate::{Identifier, Node, Operand, RegisterType};
 
 use leo_span::Span;
 
@@ -26,6 +26,7 @@ use serde::{Deserialize, Serialize};
 pub struct Cast {
     pub arguments: Vec<Operand>,
     pub destination: Identifier,
+    pub register_type: RegisterType,
     pub span: Span,
 }
 
@@ -33,9 +34,10 @@ impl fmt::Display for Cast {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "cast {} into {};",
+            "cast {} into {} as {};",
             self.arguments.iter().map(|arg| arg.to_string()).join(" "),
-            self.destination
+            self.destination,
+            self.register_type,
         )
     }
 }

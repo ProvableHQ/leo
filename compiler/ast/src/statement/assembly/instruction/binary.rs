@@ -21,6 +21,14 @@ use leo_span::Span;
 use core::fmt;
 use serde::{Deserialize, Serialize};
 
+/// A binary instruction.
+pub trait Binary {
+    /// Returns the opcode of the instruction.
+    fn opcode() -> &'static str;
+    /// Returns a new instance of the instruction.
+    fn new(first: Operand, second: Operand, destination: Identifier, span: Span) -> Self;
+}
+
 macro_rules! binary_instruction {
     ($name:ident, $opcode:expr) => {
         #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -29,6 +37,14 @@ macro_rules! binary_instruction {
             pub second: Operand,
             pub destination: Identifier,
             pub span: Span,
+        }
+
+        impl Binary for $name {
+            fn opcode() -> &'static str { $opcode }
+
+            fn new(first: Operand, second: Operand, destination: Identifier, span: Span) -> Self {
+                Self { first, second, destination, span }
+            }
         }
 
         impl fmt::Display for $name {

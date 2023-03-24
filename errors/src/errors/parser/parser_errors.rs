@@ -283,4 +283,11 @@ create_messages!(
         msg: format!("`console` statements are not yet supported."),
         help: Some("Consider using `assert`, `assert_eq`, or `assert_neq` instead.".to_string()),
     }
+
+    @formatted
+    expected_identifier_with_name {
+        args: (name: impl Display),
+        msg: format!("Expected an identifier with name `{name}`."),
+        help: None,
+    }
 );

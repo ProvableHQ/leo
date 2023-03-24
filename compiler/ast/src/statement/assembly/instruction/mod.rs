@@ -32,6 +32,9 @@ pub use increment::*;
 pub mod operand;
 pub use operand::*;
 
+pub mod register_type;
+pub use register_type::*;
+
 pub mod unary;
 pub use unary::*;
 

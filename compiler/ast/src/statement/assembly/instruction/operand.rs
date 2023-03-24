@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Literal, MemberAccess, Node, ProgramId};
+use crate::{Expression, Literal, MemberAccess, Node, ProgramId};
 
 use leo_span::Span;
 
@@ -28,7 +28,8 @@ pub enum Operand {
     /// The operand is a literal.
     Literal(Literal),
     /// The operand is a register.
-    Register(Identifier),
+    /// Note that parsing guarantees that the expression is either an `Identifier` or a `MemberAccess`.
+    Register(Expression),
     /// The operand is the program ID.
     ProgramID(ProgramId),
     /// The operand is the caller address.

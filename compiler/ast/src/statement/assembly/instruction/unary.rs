@@ -21,6 +21,14 @@ use leo_span::Span;
 use core::fmt;
 use serde::{Deserialize, Serialize};
 
+/// A unary instruction.
+pub trait Unary {
+    /// Returns the opcode of the instruction.
+    fn opcode() -> &'static str;
+    /// Returns a new instance of the instruction.
+    fn new(source: Operand, destination: Identifier, span: Span) -> Self;
+}
+
 macro_rules! unary_instruction {
     ($name:ident, $opcode:expr) => {
         #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -30,9 +38,17 @@ macro_rules! unary_instruction {
             pub span: Span,
         }
 
+        impl Unary for $name {
+            fn opcode() -> &'static str { $opcode }
+
+            fn new(source: Operand, destination: Identifier, span: Span) -> Self {
+                Self { source, destination, span, }
+            }
+        }
+
         impl fmt::Display for $name {
             fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                write!(f, "{} {} into {};", $opcode, self.source, self.destination)
+                write!(f, "{} {} into {};", Self::opcode(), self.source, self.destination)
             }
         }
 
