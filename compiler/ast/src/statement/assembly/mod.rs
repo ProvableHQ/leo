@@ -17,7 +17,10 @@
 pub mod instruction;
 pub use instruction::*;
 
-use crate::{Node};
+pub mod opcode;
+pub use opcode::*;
+
+use crate::Node;
 
 use leo_span::Span;
 
