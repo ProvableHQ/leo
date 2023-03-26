@@ -18,9 +18,9 @@ use core::fmt;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
-/// An AVM opcode, e.g. `add`, `add.w`, `cast`.
-// The body of `Opcode` must contain all instructions defined in `snarkVM/synthesizer/src/program/instruction/mod.rs`.
-// The body of `Opcode` must also contain `increment` and `decrement` commands, as long as they are still defined in snarkVM.
+/// An AVM opcode, e.g. `add`, `add.w`.
+/// Note that `cast`, `call`, `increment` and `decrement` are excluded.
+// The body of `Opcode` must contain the instructions defined in `snarkVM/synthesizer/src/program/instruction/mod.rs`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Opcode {
     /// Compute the absolute value of `first`, checking for overflow, and storing the outcome in `destination`.
@@ -37,10 +37,6 @@ pub enum Opcode {
     AssertEq,
     /// Asserts `first` and `second` are **not** equal.
     AssertNeq,
-    /// Calls a closure on the operands.
-    Call,
-    /// Casts the operands into the declared type.
-    Cast,
     /// Performs a BHP commitment on inputs of 256-bit chunks.
     CommitBHP256,
     /// Performs a BHP commitment on inputs of 512-bit chunks.
@@ -53,8 +49,6 @@ pub enum Opcode {
     CommitPED64,
     /// Performs a Pedersen commitment on up to a 128-bit input.
     CommitPED128,
-    /// Decrements the value in `mapping` at `key` by `value`.
-    Decrement,
     /// Divides `first` by `second`, storing the outcome in `destination`.
     Div,
     /// Divides `first` by `second`, wrapping around at the boundary of the type, and storing the outcome in `destination`.
@@ -83,8 +77,6 @@ pub enum Opcode {
     HashPSD4,
     /// Performs a Poseidon hash with an input rate of 8.
     HashPSD8,
-    /// Increments the value in `mapping` at `key` by `value`.
-    Increment,
     /// Computes the multiplicative inverse of `first`, storing the outcome in `destination`.
     Inv,
     /// Computes whether `first` equals `second` as a boolean, storing the outcome in `destination`.
@@ -151,15 +143,12 @@ impl fmt::Display for Opcode {
             Opcode::And => write!(f, "and"),
             Opcode::AssertEq => write!(f, "assert.eq"),
             Opcode::AssertNeq => write!(f, "assert.neq"),
-            Opcode::Call => write!(f, "call"),
-            Opcode::Cast => write!(f, "cast"),
             Opcode::CommitBHP256 => write!(f, "commit.bhp256"),
             Opcode::CommitBHP512 => write!(f, "commit.bhp512"),
             Opcode::CommitBHP768 => write!(f, "commit.bhp768"),
             Opcode::CommitBHP1024 => write!(f, "commit.bhp1024"),
             Opcode::CommitPED64 => write!(f, "commit.ped64"),
             Opcode::CommitPED128 => write!(f, "commit.ped128"),
-            Opcode::Decrement => write!(f, "decrement"),
             Opcode::Div => write!(f, "div"),
             Opcode::DivWrapped => write!(f, "div.w"),
             Opcode::Double => write!(f, "double"),
@@ -174,7 +163,6 @@ impl fmt::Display for Opcode {
             Opcode::HashPSD2 => write!(f, "hash.psd2"),
             Opcode::HashPSD4 => write!(f, "hash.psd4"),
             Opcode::HashPSD8 => write!(f, "hash.psd8"),
-            Opcode::Increment => write!(f, "increment"),
             Opcode::Inv => write!(f, "inv"),
             Opcode::IsEq => write!(f, "eq"),
             Opcode::IsNeq => write!(f, "neq"),

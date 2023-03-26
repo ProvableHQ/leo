@@ -23,49 +23,24 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 
 /// An AVM instruction, e.g. `add foo bar into baz;`.
+/// Note that `call` and `cast` are excluded.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct Instruction {
     pub opcode: Opcode,
     pub operands: Vec<Expression>,
     pub destinations: Vec<Expression>,
-    pub additional: Vec<Expression>,
     pub span: Span,
 }
 
 impl fmt::Display for Instruction {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self.opcode {
-            Opcode::Call => write!(
-                f,
-                "call {} with {} into {};",
-                self.additional[0],
-                self.operands[1..].iter().join(" "),
-                self.destinations[0]
-            ),
-            Opcode::Cast => write!(
-                f,
-                "cast {} into {};",
-                self.operands.iter().join(" "),
-                self.destinations[0]
-            ),
-            Opcode::Decrement => write!(
-                f,
-                "decrement {}[{}] by {};",
-                self.operands[0], self.operands[1], self.operands[2]
-            ),
-            Opcode::Increment => write!(
-                f,
-                "increment {}[{}] by {};",
-                self.operands[0], self.operands[1], self.operands[2]
-            ),
-            _ => write!(
-                f,
-                "{} {} into {};",
-                self.opcode,
-                self.operands.iter().join(" "),
-                self.destinations.iter().join(" ")
-            ),
-        }
+        write!(
+            f,
+            "{} {} into {};",
+            self.opcode,
+            self.operands.iter().join(" "),
+            self.destinations.iter().join(" ")
+        )
     }
 }
 

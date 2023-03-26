@@ -27,16 +27,7 @@ pub trait InstructionReconstructor: ExpressionReconstructor {
                     .into_iter()
                     .map(|expr| self.reconstruct_expression(expr).0)
                     .collect(),
-                destinations: input
-                    .destinations
-                    .into_iter()
-                    .map(|expr| self.reconstruct_expression(expr).0)
-                    .collect(),
-                additional: input
-                    .additional
-                    .into_iter()
-                    .map(|expr| self.reconstruct_expression(expr).0)
-                    .collect(),
+                destinations: input.destinations,
                 span: Default::default(),
             },
             Default::default(),

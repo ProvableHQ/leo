@@ -22,8 +22,5 @@ pub trait InstructionVisitor<'a>: ExpressionVisitor<'a> {
         instruction.operands.iter().for_each(|expr| {
             self.visit_expression(expr, &Default::default());
         });
-        instruction.destinations.iter().for_each(|expr| {
-            self.visit_expression(expr, &Default::default());
-        });
     }
 }
