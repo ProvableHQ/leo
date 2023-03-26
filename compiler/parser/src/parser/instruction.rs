@@ -162,7 +162,10 @@ impl ParserContext<'_> {
                 _ => parse_opcode!(self, Sub, &Token::Identifier(sym::sub)),
             },
             Token::Identifier(sym::ternary) => parse_opcode!(self, Ternary, &Token::Identifier(sym::ternary)),
-            _ => parse_opcode!(self, Xor, &Token::Identifier(sym::xor)),
+            Token::Identifier(sym::xor) => parse_opcode!(self, Xor, &Token::Identifier(sym::xor)),
+            _ => {
+                return Err(ParserError::invalid_opcode(self.token.span).into());
+            }
         }
     }
 

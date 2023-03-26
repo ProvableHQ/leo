@@ -573,4 +573,11 @@ create_messages!(
         msg: format!("Cannot call an external `inline` function."),
         help: None,
     }
+
+    @formatted
+    malformed_instruction {
+        args: (message: impl Display),
+        msg: format!("{message}"),
+        help: None,
+    }
 );

@@ -290,4 +290,11 @@ create_messages!(
         msg: format!("Expected an identifier with name `{name}`."),
         help: None,
     }
+
+    @formatted
+    invalid_opcode {
+        args: (),
+        msg: format!("Expected a valid opcode."),
+        help: None,
+    }
 );
