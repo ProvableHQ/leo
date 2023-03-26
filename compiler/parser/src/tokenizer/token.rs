@@ -108,6 +108,7 @@ pub enum Token {
     Record,
 
     // Regular Keywords
+    As,
     Asm,
     Assert,
     AssertEq,
@@ -136,7 +137,6 @@ pub enum Token {
     Then,
     Transition,
     // For imports.
-
     Leo,
     // Meta Tokens
     Eof,
@@ -147,6 +147,7 @@ pub enum Token {
 /// Adding true and false to the keywords of the ABNF grammar makes the lexical grammar ambiguous,
 /// because true and false are also boolean literals, which are different tokens from keywords.
 pub const KEYWORD_TOKENS: &[Token] = &[
+    Token::As,
     Token::Asm,
     Token::Address,
     Token::Assert,
@@ -203,6 +204,7 @@ impl Token {
     /// Converts `self` to the corresponding `Symbol` if it `is_keyword`.
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
+            Token::As => sym::As,
             Token::Asm => sym::Asm,
             Token::Address => sym::address,
             Token::Assert => sym::assert,
@@ -338,6 +340,7 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             Record => write!(f, "record"),
 
+            As => write!(f, "as"),
             Asm => write!(f, "asm"),
             Assert => write!(f, "assert"),
             AssertEq => write!(f, "assert_eq"),
