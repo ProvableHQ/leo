@@ -43,6 +43,14 @@ impl ParserContext<'_> {
         let mut destinations = Vec::new();
         // Parse the operands until the `into` keyword or `;` token.
         while !(self.check_identifier_with_name(sym::into) || self.check(&Token::Semicolon)) {
+            let expression = self.parse_expression()?;
+            // Check that the expression is valid.
+            match expression {
+                Expression::Identifier(_)
+                | Expression::Literal(_)
+                | Expression::Access(AccessExpression::Member(_)) => {} // Valid
+                _ => return Err(ParserError::invalid_instruction_operand(expression.span()).into()),
+            }
             operands.push(self.parse_expression()?);
         }
         if self.check_identifier_with_name(sym::into) {

@@ -297,4 +297,11 @@ create_messages!(
         msg: format!("Expected a valid opcode."),
         help: None,
     }
+
+    @formatted
+    invalid_instruction_operand {
+        args: (),
+        msg: format!("Invalid instruction operand. Expected a literal, identifier, struct/record access, `self.caller`, or program ID."),
+        help: None,
+    }
 );

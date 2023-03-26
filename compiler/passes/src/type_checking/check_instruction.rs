@@ -76,7 +76,12 @@ impl<'a> TypeChecker<'a> {
             Some(destination_types) => {
                 for (destination, destination_type) in instruction.destinations.iter().zip_eq(destination_types.iter())
                 {
-                   self.insert_variable(destination.name, destination_type.clone(), destination.span, VariableType::Mut);
+                    self.insert_variable(
+                        destination.name,
+                        destination_type.clone(),
+                        destination.span,
+                        VariableType::Mut,
+                    );
                 }
             }
             None => self.emit_err(TypeCheckerError::invalid_instruction_operand_types(
