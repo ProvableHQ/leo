@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable};
+use crate::{CallGraph, StructGraph, SymbolTable, VariableSymbol, VariableType};
 
-use leo_ast::{Identifier, IntegerType, Node, Type, Variant};
+use leo_ast::{Expression, ExpressionVisitor, Identifier, IntegerType, Node, Type, Variant};
 use leo_core::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
@@ -147,6 +147,29 @@ impl<'a> TypeChecker<'a> {
         self.handler.emit_err(err);
     }
 
+    /// Helper to insert the variables into the symbol table.
+    pub(crate) fn insert_variable(
+        &mut self,
+        symbol: Symbol,
+        type_: Type,
+        span: Span,
+        declaration: VariableType,
+    ) -> bool {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+            symbol,
+            VariableSymbol {
+                type_,
+                span,
+                declaration,
+            },
+        ) {
+            self.handler.emit_err(err);
+            false
+        } else {
+            true
+        }
+    }
+
     /// Emits an error to the handler if the given type is invalid.
     fn check_type(&self, is_valid: impl Fn(&Type) -> bool, error_string: String, type_: &Option<Type>, span: Span) {
         if let Some(type_) = type_ {
@@ -157,15 +180,18 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the two given types are not equal.
-    pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
+    /// Returns `true` if the types are equal, and `false` otherwise.
+    pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) -> bool {
         match (t1, t2) {
             (Some(t1), Some(t2)) if !Type::eq_flat(t1, t2) => {
-                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
+                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span));
+                false
             }
             (Some(type_), None) | (None, Some(type_)) => {
-                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
+                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span));
+                false
             }
-            _ => {}
+            _ => true,
         }
     }
 
@@ -429,6 +455,119 @@ impl<'a> TypeChecker<'a> {
             type_,
             span,
         )
+    }
+
+    // A helper to type check accesses to a mapping.
+    pub(crate) fn check_mapping_access(
+        &mut self,
+        mapping: &'a Identifier,
+        key: &'a Expression,
+        value: &'a Expression,
+        span: Span,
+    ) {
+        if !self.is_finalize {
+            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(span));
+        }
+
+        // Assert that the first operand is a mapping.
+        let mapping_type = self.visit_identifier(&mapping, &None);
+        self.assert_mapping_type(&mapping_type, span);
+
+        match mapping_type {
+            None => self.emit_err(TypeCheckerError::could_not_determine_type(mapping, mapping.span)),
+            Some(Type::Mapping(mapping_type)) => {
+                // Check that the key matches the key type of the mapping.
+                let key_type = self.visit_expression(key, &None);
+                self.assert_type(&key_type, &mapping_type.key, key.span());
+
+                // Check that the value matches the value type of the mapping.
+                let value_type = self.visit_expression(value, &None);
+                self.assert_type(&value_type, &mapping_type.value, value.span());
+
+                // Check that the amount type is incrementable.
+                self.assert_field_group_scalar_int_type(&value_type, value.span());
+            }
+            Some(mapping_type) => self.emit_err(TypeCheckerError::expected_one_type_of(
+                "mapping",
+                mapping_type,
+                mapping.span,
+            )),
+        }
+    }
+
+    // A helper to check function calls.
+    pub(crate) fn check_function_call(
+        &mut self,
+        function: &'a Expression,
+        arguments: &'a [Expression],
+        is_external: bool,
+        expected: &Option<Type>,
+        span: Span,
+    ) -> Option<Type> {
+        match function {
+            // Note that the parser guarantees that `input.function` is always an identifier.
+            Expression::Identifier(ident) => {
+                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
+                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
+                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
+
+                if let Some(func) = func {
+                    // Check that the call is valid.
+                    // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
+                    match self.variant.unwrap() {
+                        // If the function is not a transition function, it can only call "inline" functions.
+                        Variant::Inline | Variant::Standard => {
+                            if !matches!(func.variant, Variant::Inline) {
+                                self.emit_err(TypeCheckerError::can_only_call_inline_function(span));
+                            }
+                        }
+                        // If the function is a transition function, then check that the call is not to another local transition function.
+                        Variant::Transition => {
+                            if matches!(func.variant, Variant::Transition) && !is_external {
+                                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(span));
+                            }
+                        }
+                    }
+
+                    // Check that the call is not to an external `inline` function.
+                    if func.variant == Variant::Inline && is_external {
+                        self.emit_err(TypeCheckerError::cannot_call_external_inline_function(span));
+                    }
+
+                    let ret = self.assert_and_return_type(func.output_type, expected, span);
+
+                    // Check number of function arguments.
+                    if func.input.len() != arguments.len() {
+                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                            func.input.len(),
+                            arguments.len(),
+                            span,
+                        ));
+                    }
+
+                    // Check function argument types.
+                    func.input
+                        .iter()
+                        .zip(arguments.iter())
+                        .for_each(|(expected, argument)| {
+                            self.visit_expression(argument, &Some(expected.type_()));
+                        });
+
+                    // Add the call to the call graph.
+                    let caller_name = match self.function {
+                        None => unreachable!("`self.function` is set every time a function is visited."),
+                        Some(func) => func,
+                    };
+                    self.call_graph.add_edge(caller_name, ident.name);
+
+                    Some(ret)
+                } else {
+                    self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
+                    None
+                }
+            }
+            _ => unreachable!("Parser guarantees that `input.function` is always an identifier."),
+        }
     }
 }
 

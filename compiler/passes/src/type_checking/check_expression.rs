@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::TypeChecker;
+use std::borrow::Borrow;
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
@@ -438,72 +439,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        match &*input.function {
-            // Note that the parser guarantees that `input.function` is always an identifier.
-            Expression::Identifier(ident) => {
-                // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
-                // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
-
-                if let Some(func) = func {
-                    // Check that the call is valid.
-                    // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
-                    match self.variant.unwrap() {
-                        // If the function is not a transition function, it can only call "inline" functions.
-                        Variant::Inline | Variant::Standard => {
-                            if !matches!(func.variant, Variant::Inline) {
-                                self.emit_err(TypeCheckerError::can_only_call_inline_function(input.span));
-                            }
-                        }
-                        // If the function is a transition function, then check that the call is not to another local transition function.
-                        Variant::Transition => {
-                            if matches!(func.variant, Variant::Transition) && input.external.is_none() {
-                                self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
-                                    input.span,
-                                ));
-                            }
-                        }
-                    }
-
-                    // Check that the call is not to an external `inline` function.
-                    if func.variant == Variant::Inline && input.external.is_some() {
-                        self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
-                    }
-
-                    let ret = self.assert_and_return_type(func.output_type, expected, input.span());
-
-                    // Check number of function arguments.
-                    if func.input.len() != input.arguments.len() {
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            func.input.len(),
-                            input.arguments.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    // Check function argument types.
-                    func.input
-                        .iter()
-                        .zip(input.arguments.iter())
-                        .for_each(|(expected, argument)| {
-                            self.visit_expression(argument, &Some(expected.type_()));
-                        });
-
-                    // Add the call to the call graph.
-                    let caller_name = match self.function {
-                        None => unreachable!("`self.function` is set every time a function is visited."),
-                        Some(func) => func,
-                    };
-                    self.call_graph.add_edge(caller_name, ident.name);
-
-                    Some(ret)
-                } else {
-                    self.emit_err(TypeCheckerError::unknown_sym("function", ident.name, ident.span()));
-                    None
-                }
-            }
-            _ => unreachable!("Parser guarantees that `input.function` is always an identifier."),
-        }
+        self.check_function_call(
+            &input.function,
+            &input.arguments,
+            input.external.is_some(),
+            expected,
+            input.span,
+        )
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {

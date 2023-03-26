@@ -580,4 +580,11 @@ create_messages!(
         msg: format!("{message}"),
         help: None,
     }
+
+    @formatted
+    invalid_instruction_operand_types {
+        args: (op: impl Display, message: impl Display),
+        msg: format!("The operand types are invalid. {op} accepts one of the following: {message}"),
+        help: None,
+    }
 );

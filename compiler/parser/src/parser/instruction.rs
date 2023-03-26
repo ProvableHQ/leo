@@ -41,33 +41,25 @@ impl ParserContext<'_> {
         // Initialize storage for components of the instruction.
         let mut operands = Vec::new();
         let mut destinations = Vec::new();
-        let mut additional = Vec::new();
-        // Call instructions have the function name after the opcode.
-        if matches!(opcode, Opcode::Call) {
-            additional.push(Expression::Identifier(self.expect_identifier()?));
-        }
-        // Parse the operands until the `into` keyword.
-        while !self.check_identifier_with_name(sym::into) {
+        // Parse the operands until the `into` keyword or `;` token.
+        while !(self.check_identifier_with_name(sym::into) || self.check(&Token::Semicolon)) {
             operands.push(self.parse_expression()?);
         }
-        // Parse the `into` keyword.
-        self.expect_identifier_with_name(sym::into)?;
-        // Parse the destinations until the `;`.
-        while !(self.check(&Token::Semicolon) || self.check(&Token::As)) {
-            destinations.push(Expression::Identifier(self.expect_identifier()?));
-        }
-        // If the next token is `as`, parse the `as` keyword and register type.
-        // This handles the case where the instruction is a `cast` instruction.
-        if self.check(&Token::As) {
-            self.expect(&Token::As)?;
-            additional.push(self.parse_expression()?);
+        if self.check_identifier_with_name(sym::into) {
+            // Parse the `into` keyword.
+            self.expect_identifier_with_name(sym::into)?;
+            // Parse at least one destination register.
+            destinations.push(self.expect_identifier()?);
+            // Parse the destinations until the `;`.
+            while !self.check(&Token::Semicolon) {
+                destinations.push(self.expect_identifier()?);
+            }
         }
         let end = self.expect(&Token::Semicolon)?;
         Ok(Instruction {
             opcode,
             operands,
             destinations,
-            additional,
             span: start + end,
         })
     }
@@ -93,8 +85,6 @@ impl ParserContext<'_> {
                 (Token::Dot, Token::Identifier(sym::eq)) => parse_opcode!(self, AssertEq, &Token::Assert, &Token::Identifier(sym::eq)),
                 _ => parse_opcode!(self, AssertNeq, &Token::Assert, &Token::Identifier(sym::neq)),
             },
-            Token::Identifier(sym::call) => parse_opcode!(self, Call, &Token::Identifier(sym::call)),
-            Token::Identifier(sym::cast) => parse_opcode!(self, Cast, &Token::Identifier(sym::cast)),
             Token::Identifier(sym::commit) => match (second, third) {
                 (Token::Dot, Token::Identifier(sym::bhp256)) => parse_opcode!(self, CommitBHP256, &Token::Identifier(sym::commit), &Token::Identifier(sym::bhp256)),
                 (Token::Dot, Token::Identifier(sym::bhp512)) => parse_opcode!(self, CommitBHP512, &Token::Identifier(sym::commit), &Token::Identifier(sym::bhp512)),
@@ -103,7 +93,6 @@ impl ParserContext<'_> {
                 (Token::Dot, Token::Identifier(sym::ped64)) => parse_opcode!(self, CommitPED64, &Token::Identifier(sym::commit), &Token::Identifier(sym::ped64)),
                 _ => parse_opcode!(self, CommitPED128, &Token::Identifier(sym::commit), &Token::Identifier(sym::ped128)),
             }
-            Token::Decrement => parse_opcode!(self, Decrement, &Token::Decrement),
             Token::Identifier(sym::div) => match second {
                 Token::Dot => parse_opcode!(self, Div, &Token::Identifier(sym::div), &Token::Identifier(sym::w)),
                 _ => parse_opcode!(self, Div, &Token::Identifier(sym::div)),
@@ -122,7 +111,6 @@ impl ParserContext<'_> {
                 (Token::Dot, Token::Identifier(sym::psd4)) => parse_opcode!(self, HashPSD4, &Token::Identifier(sym::hash), &Token::Identifier(sym::psd4)),
                 _ => parse_opcode!(self, HashPSD8, &Token::Identifier(sym::hash), &Token::Identifier(sym::psd8)),
             }
-            Token::Increment => parse_opcode!(self, Increment, &Token::Increment),
             Token::Identifier(sym::inv) => parse_opcode!(self, Inv, &Token::Identifier(sym::inv)),
             Token::Identifier(sym::is) => match (second, third) {
                 (Token::Dot, Token::Identifier(sym::eq)) => parse_opcode!(self, IsEq, &Token::Identifier(sym::is), &Token::Identifier(sym::eq)),

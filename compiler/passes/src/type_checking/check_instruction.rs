@@ -15,18 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{TypeChecker, VariableSymbol, VariableType};
-use itertools::Itertools;
 
-use leo_ast::{Expression, ExpressionVisitor, Instruction, InstructionVisitor, IntegerType, Opcode, Type};
+use leo_ast::{Expression, ExpressionVisitor, Instruction, InstructionVisitor, IntegerType, Node, Opcode, Type};
 use leo_errors::TypeCheckerError;
+
+use itertools::Itertools;
 
 impl<'a> TypeChecker<'a> {
     // Helper to check that the structure of the instruction is well-formed.
-    fn check_instruction_is_well_formed<
-        const NUM_OPERANDS: usize,
-        const NUM_DESTINATIONS: usize,
-        const NUM_ADDITIONAL: usize,
-    >(
+    fn check_instruction_is_well_formed<const NUM_OPERANDS: usize, const NUM_DESTINATIONS: usize>(
         &mut self,
         instruction: &'a Instruction,
     ) {
@@ -44,13 +41,6 @@ impl<'a> TypeChecker<'a> {
                 instruction.span,
             ));
         }
-        // Check that the number of additional components is zero.
-        if instruction.additional.len() != 0 {
-            self.emit_err(TypeCheckerError::malformed_instruction(
-                "Invalid instruction.",
-                instruction.span,
-            ));
-        }
     }
 
     // Helper to type check standard instructions.
@@ -60,54 +50,56 @@ impl<'a> TypeChecker<'a> {
         expected_types: &[([Type; NUM_OPERANDS], [Type; NUM_DESTINATIONS])],
     ) {
         // Check that the structure of the instruction is well-formed.
-        self.check_instruction_is_well_formed::<NUM_OPERANDS, NUM_DESTINATIONS, 0>(instruction);
-        // Check that the types of the operands and destination match the expected types.
-        for (expected_operand_types, expected_destination_types) in expected_types {
-            // Check that the types of the operands match the expected types.
-            for (operand, expected_type) in instruction.operands.iter().zip_eq(expected_operand_types.iter()) {
-                self.visit_expression(operand, &Some(expected_type.clone()));
-            }
-            // Add the destination registers to the symbol table.
-            for (destination, expected_type) in instruction
-                .destinations
-                .iter()
-                .zip_eq(expected_destination_types.iter())
-            {
-                match destination {
-                    Expression::Identifier(identifier) => {
-                        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                            identifier.name.clone(),
-                            VariableSymbol {
-                                type_: expected_type.clone(),
-                                span: identifier.span,
-                                declaration: VariableType::Mut,
-                            },
-                        ) {
-                            self.handler.emit_err(err);
-                        }
-                    }
-                    _ => unreachable!("Parsing guarantees that all destinations are identifiers."),
+        self.check_instruction_is_well_formed::<NUM_OPERANDS, NUM_DESTINATIONS>(instruction);
+        // Get the types of the operands.
+        let operand_types = instruction
+            .operands
+            .iter()
+            .map(|operand| self.visit_expression(operand, &None))
+            .collect_vec();
+        // Check that the types of the operands match one of the expected operand types.
+        let destination_types = expected_types
+            .iter()
+            .find(|(expected_operand_types, _)| {
+                operand_types
+                    .iter()
+                    .zip_eq(expected_operand_types.iter())
+                    .all(|(operand_type, expected_type)| match operand_type {
+                        Some(operand_type) => operand_type.eq_flat(expected_type),
+                        None => false,
+                    })
+            })
+            .map(|(_, expected_destination_types)| expected_destination_types);
+        // If the destination types are found, add the destination registers to the symbol table.
+        // Otherwise, emit an error.
+        match destination_types {
+            Some(destination_types) => {
+                for (destination, destination_type) in instruction.destinations.iter().zip_eq(destination_types.iter())
+                {
+                   self.insert_variable(destination.name, destination_type.clone(), destination.span, VariableType::Mut);
                 }
             }
+            None => self.emit_err(TypeCheckerError::invalid_instruction_operand_types(
+                &instruction.opcode,
+                expected_types
+                    .iter()
+                    .map(|(operand_types, _)| format!("({})", operand_types.iter().join(", ")))
+                    .join(", "),
+                instruction.span,
+            )),
         }
     }
 
     // Helper to type check commit instructions.
     fn check_commit_instruction(&mut self, instruction: &'a Instruction, output_type: Type) {
         // Check that the structure of the instruction is well-formed.
-        self.check_instruction_is_well_formed::<2, 1, 0>(instruction);
+        self.check_instruction_is_well_formed::<2, 1>(instruction);
         // Check that the second operand is a scalar.
-        todo!();
+        let second_type = self.visit_expression(&instruction.operands[1], &None);
+        self.assert_type(&second_type, &Type::Scalar, instruction.operands[1].span());
         // Add the destination register to the symbol table.
-        todo!();
-    }
-
-    // Helper to type check hash instructions.
-    fn check_hash_instruction(&mut self, instruction: &'a Instruction) {
-        // Check that the structure of the instruction is well-formed.
-        self.check_instruction_is_well_formed::<1, 1, 0>(instruction);
-        // Add the destination register to the symbol table.
-        todo!();
+        let destination = &instruction.destinations[0];
+        self.insert_variable(destination.name, output_type, destination.span, VariableType::Mut);
     }
 }
 
@@ -165,23 +157,14 @@ impl<'a> InstructionVisitor<'a> for TypeChecker<'a> {
             )),
             Opcode::AssertEq | Opcode::AssertNeq => {
                 // Check that the instruction is well-formed.
-                self.check_instruction_is_well_formed::<2, 0, 0>(instruction);
+                self.check_instruction_is_well_formed::<2, 0>(instruction);
                 // Check that the operands are the same type.
+                let lhs = self.visit_expression(&instruction.operands[0], &None);
+                let rhs = self.visit_expression(&instruction.operands[1], &None);
+                self.check_eq_types(&lhs, &rhs, instruction.span);
             }
-            Opcode::Call => {}
-            Opcode::Cast => {}
             Opcode::CommitBHP256 | Opcode::CommitBHP512 | Opcode::CommitBHP768 | Opcode::CommitBHP1024 => self.check_commit_instruction(instruction, Type::Field),
             Opcode::CommitPED64 | Opcode::CommitPED128 => self.check_commit_instruction(instruction, Type::Group),
-            Opcode::Decrement | Opcode::Increment => {
-                // Check that the instruction is well-formed.
-                self.check_instruction_is_well_formed::<3, 0, 0>(instruction);
-                // Check that the first operand is a mapping.
-                todo!();
-                // Check that the second operand is a valid key.
-                todo!();
-                // Check that the third operand is a valid value.
-                todo!();
-            }
             Opcode::Double => self.check_instruction(instruction, declare_types!(
                 (Type::Field => Type::Field),
                 (Type::Group => Type::Group)
@@ -213,9 +196,10 @@ impl<'a> InstructionVisitor<'a> for TypeChecker<'a> {
             | Opcode::HashPSD4
             | Opcode::HashPSD8 => {
                 // Check that the instruction is well-formed.
-                self.check_instruction_is_well_formed::<1, 1, 0>(instruction);
+                self.check_instruction_is_well_formed::<1, 1>(instruction);
                 // Add the destination to the symbol table.
-                todo!()
+                let destination = &instruction.destinations[0];
+                self.insert_variable(destination.name, Type::Boolean, destination.span, VariableType::Mut);
             }
             Opcode::Inv
             | Opcode::Square
@@ -224,13 +208,15 @@ impl<'a> InstructionVisitor<'a> for TypeChecker<'a> {
             )),
             Opcode::IsEq | Opcode::IsNeq => {
                 // Check that the instruction is well formed.
-                self.check_instruction_is_well_formed::<2, 1, 0>(instruction);
+                self.check_instruction_is_well_formed::<2, 1>(instruction);
                 // Check that the operands are of the same type.
-                todo!();
+                let lhs = self.visit_expression(&instruction.operands[0], &None);
+                let rhs = self.visit_expression(&instruction.operands[1], &None);
+                self.check_eq_types(&lhs, &rhs, instruction.span);
                 // Add the destination to the symbol table.
-                todo!()
+                let destination = &instruction.destinations[0];
+                self.insert_variable(destination.name, Type::Boolean, destination.span, VariableType::Mut);
             }
-
             Opcode::Modulo => self.check_instruction(instruction, declare_types!(
                 (Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U8) => Type::Integer(IntegerType::U8)),
                 (Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U16) => Type::Integer(IntegerType::U16)),

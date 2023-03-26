@@ -158,37 +158,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_decrement(&mut self, input: &'a DecrementStatement) {
-        if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
-        }
-
-        // Assert that the first operand is a mapping.
-        let mapping_type = self.visit_identifier(&input.mapping, &None);
-        self.assert_mapping_type(&mapping_type, input.span());
-
-        match mapping_type {
-            None => self.emit_err(TypeCheckerError::could_not_determine_type(
-                input.mapping,
-                input.mapping.span,
-            )),
-            Some(Type::Mapping(mapping_type)) => {
-                // Check that the index matches the key type of the mapping.
-                let index_type = self.visit_expression(&input.index, &None);
-                self.assert_type(&index_type, &mapping_type.key, input.index.span());
-
-                // Check that the amount matches the value type of the mapping.
-                let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
-
-                // Check that the amount type is incrementable.
-                self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());
-            }
-            Some(mapping_type) => self.emit_err(TypeCheckerError::expected_one_type_of(
-                "mapping",
-                mapping_type,
-                input.mapping.span,
-            )),
-        }
+        self.check_mapping_access(&input.mapping, &input.index, &input.amount, input.span);
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
@@ -222,25 +192,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check the expression on the left-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        // TODO: Dedup with unrolling pass.
-        // Helper to insert the variables into the symbol table.
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                symbol,
-                VariableSymbol {
-                    type_,
-                    span,
-                    declaration,
-                },
-            ) {
-                self.handler.emit_err(err);
-            }
-        };
-
         // Insert the variables in the into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                self.insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration);
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -262,7 +217,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                                 ))
                             }
                         };
-                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                        self.insert_variable(identifier.name, type_.clone(), identifier.span, declaration);
                     });
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -283,37 +238,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_increment(&mut self, input: &'a IncrementStatement) {
-        if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
-        }
-
-        // Assert that the first operand is a mapping.
-        let mapping_type = self.visit_identifier(&input.mapping, &None);
-        self.assert_mapping_type(&mapping_type, input.span());
-
-        match mapping_type {
-            None => self.emit_err(TypeCheckerError::could_not_determine_type(
-                input.mapping,
-                input.mapping.span,
-            )),
-            Some(Type::Mapping(mapping_type)) => {
-                // Check that the index matches the key type of the mapping.
-                let index_type = self.visit_expression(&input.index, &None);
-                self.assert_type(&index_type, &mapping_type.key, input.index.span());
-
-                // Check that the amount matches the value type of the mapping.
-                let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
-
-                // Check that the amount type is incrementable.
-                self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());
-            }
-            Some(mapping_type) => self.emit_err(TypeCheckerError::expected_one_type_of(
-                "mapping",
-                mapping_type,
-                input.mapping.span,
-            )),
-        }
+        self.check_mapping_access(&input.mapping, &input.index, &input.amount, input.span);
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {
@@ -324,16 +249,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let scope_index = self.create_child_scope();
 
         // Add the loop variable to the scope of the loop body.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+        self.insert_variable(
             input.variable.name,
-            VariableSymbol {
-                type_: input.type_.clone(),
-                span: input.span(),
-                declaration: VariableType::Const,
-            },
-        ) {
-            self.handler.emit_err(err);
-        }
+            input.type_.clone(),
+            input.variable.span,
+            VariableType::Const,
+        );
 
         let prior_has_return = core::mem::take(&mut self.has_return);
         let prior_has_finalize = core::mem::take(&mut self.has_finalize);

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, Opcode};
+use crate::{Expression, Identifier, Node, Opcode};
 
 use core::fmt;
 use itertools::Itertools;
@@ -28,7 +28,7 @@ use std::fmt::Formatter;
 pub struct Instruction {
     pub opcode: Opcode,
     pub operands: Vec<Expression>,
-    pub destinations: Vec<Expression>,
+    pub destinations: Vec<Identifier>,
     pub span: Span,
 }
 
