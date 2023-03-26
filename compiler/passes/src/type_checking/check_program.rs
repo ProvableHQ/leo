@@ -300,6 +300,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
         });
 
+        self.is_top_level = true;
         self.visit_block(&function.block);
 
         // If the function has a return type, then check that it has a return.
@@ -391,6 +392,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
 
             // Type check the finalize block.
+            self.is_top_level = true;
             self.visit_block(&finalize.block);
 
             // Check that the return type is defined. Note that the component types are already checked.

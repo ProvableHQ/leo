@@ -48,6 +48,9 @@ pub struct TypeChecker<'a> {
     pub(crate) is_imported: bool,
     /// Whether or not we are currently traversing a return statement.
     pub(crate) is_return: bool,
+    /// Whether or not we are the top level of a function body.
+    /// This is used to check that assembly blocks are not nested.
+    pub(crate) is_top_level: bool,
 }
 
 const BOOLEAN_TYPE: Type = Type::Boolean;
@@ -113,6 +116,7 @@ impl<'a> TypeChecker<'a> {
             is_finalize: false,
             is_imported: false,
             is_return: false,
+            is_top_level: true,
         }
     }
 

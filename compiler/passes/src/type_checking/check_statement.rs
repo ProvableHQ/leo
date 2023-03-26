@@ -45,8 +45,19 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_assembly_block(&mut self, _input: &'a AssemblyBlock) {
-        todo!()
+    fn visit_assembly_block(&mut self, input: &'a AssemblyBlock) {
+        // Check that the assembly block is at the top level of the function body.
+        if !self.is_top_level {
+            self.emit_err(TypeCheckerError::asm_block_cannot_be_nested(input.span));
+        }
+        // Check that the assembly block is not in an `inline` function.
+        if matches!(self.variant, Some(Variant::Inline)) {
+            self.emit_err(TypeCheckerError::asm_block_cannot_be_in_inline_function(input.span));
+        }
+        // Type check the assembly block.
+        input.instructions.iter().for_each(|instruction| {
+            self.visit_instruction(instruction);
+        });
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) {
@@ -99,7 +110,34 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Create a new scope for the then-block.
         let scope_index = self.create_child_scope();
 
-        input.statements.iter().for_each(|stmt| self.visit_statement(stmt));
+        // Store the previous level.
+        let previous_is_top_level = self.is_top_level;
+
+        input.statements.iter().for_each(|stmt| {
+            match stmt {
+                Statement::AssemblyBlock(_) => {}
+                Statement::Assert(_) => {}
+                Statement::Assign(_) => {}
+                Statement::Block(_) => {}
+                Statement::Conditional(_) => {}
+                Statement::Console(_) => {}
+                Statement::Decrement(_) => {}
+                Statement::Definition(_) => {}
+                Statement::Expression(_) => {}
+                Statement::Increment(_) => {}
+                Statement::Iteration(_) => {}
+                Statement::Return(_) => {}
+            }
+            // Set the `is_top_level` flag.
+            self.is_top_level &= match stmt {
+                Statement::Block(_) | Statement::Conditional(_) | Statement::Iteration(_) => false,
+                _ => true,
+            };
+            // Visit the statement.
+            self.visit_statement(stmt);
+            // Reset the `is_top_level` flag.
+            self.is_top_level = previous_is_top_level;
+        });
 
         // Exit the scope for the then-block.
         self.exit_scope(scope_index);
