@@ -19,19 +19,37 @@ use crate::{RenameTable, StaticSingleAssigner};
 use leo_ast::{
     AssemblyBlock, AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement,
     ConsoleStatement, DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement,
-    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
-    TernaryExpression, TupleExpression,
+    Identifier, IncrementStatement, InstructionConsumer, IterationStatement, ReturnStatement, Statement,
+    StatementConsumer, TernaryExpression, TupleExpression,
 };
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
+use itertools::Itertools;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
 
     /// Consumes the instructions in an `AssemblyBlock`, returning the renamed instructions.
     fn consume_assembly_block(&mut self, input: AssemblyBlock) -> Self::Output {
-        todo!()
+        // Allocate a new vector to store the renamed statements.
+        let mut statements = Vec::new();
+        // Reconstruct each instruction in the assembly block.
+        let instructions = input
+            .instructions
+            .into_iter()
+            .map(|instruction| {
+                let (instruction, stmts) = self.consume_instruction(instruction);
+                statements.extend(stmts);
+                instruction
+            })
+            .collect_vec();
+        statements.push(Statement::AssemblyBlock(AssemblyBlock {
+            instructions,
+            span: input.span,
+        }));
+        // Return the renamed statements.
+        statements
     }
 
     /// Consumes the expressions in an `AssertStatement`, returning the list of simplified statements.

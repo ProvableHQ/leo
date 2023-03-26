@@ -21,7 +21,7 @@ pub mod expression;
 pub use expression::*;
 
 pub mod instruction;
-pub use expression::*;
+pub use instruction::*;
 
 pub mod program;
 pub use program::*;

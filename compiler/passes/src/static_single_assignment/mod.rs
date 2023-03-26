@@ -52,6 +52,8 @@
 
 mod rename_expression;
 
+mod rename_instruction;
+
 mod rename_program;
 
 mod rename_statement;
