@@ -20,9 +20,6 @@ pub(crate) use range_iterator::*;
 pub mod unroller;
 pub use unroller::*;
 
-pub mod unroll_expression;
-pub use unroll_expression::*;
-
 pub mod unroll_program;
 pub use unroll_program::*;
 

@@ -16,10 +16,7 @@
 
 use crate::{Assigner, SymbolTable};
 
-use leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
-    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
-};
+use leo_ast::*;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -241,3 +238,5 @@ impl<'a> Flattener<'a> {
         }
     }
 }
+
+impl InstructionReconstructor for Flattener<'_> {}

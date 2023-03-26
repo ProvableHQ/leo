@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{
-    Block, DeclarationType, DefinitionStatement, Expression, IntegerType, IterationStatement, Literal, Statement,
-    StatementReconstructor, Type, Value,
-};
-use std::cell::RefCell;
+use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable};
 
+use leo_ast::*;
 use leo_errors::emitter::Handler;
 
-use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable};
+use std::cell::RefCell;
 
 pub struct Unroller<'a> {
     /// The symbol table for the function being processed.
@@ -214,3 +211,9 @@ impl<'a> Unroller<'a> {
         block
     }
 }
+
+impl ExpressionReconstructor for Unroller<'_> {
+    type AdditionalOutput = ();
+}
+
+impl InstructionReconstructor for Unroller<'_> {}

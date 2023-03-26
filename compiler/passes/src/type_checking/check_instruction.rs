@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::*;
+use crate::TypeChecker;
 
-use crate::Unroller;
+use leo_ast::InstructionVisitor;
 
-impl ExpressionReconstructor for Unroller<'_> {
-    type AdditionalOutput = ();
-}
+impl<'a> InstructionVisitor<'a> for TypeChecker<'a> {}

@@ -97,7 +97,6 @@ macro_rules! symbols {
     };
 }
 
-
 symbols! {
     // unary operators
     abs,
@@ -234,6 +233,7 @@ symbols! {
     psd2,
     psd4,
     psd8,
+    sqrt,
     ternary,
     w, // For wrapped operations
 

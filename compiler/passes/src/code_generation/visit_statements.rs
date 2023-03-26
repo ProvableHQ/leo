@@ -17,9 +17,9 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement, Mode, Output,
-    ReturnStatement, Statement,
+    AssemblyBlock, AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement,
+    DecrementStatement, DefinitionStatement, Expression, ExpressionStatement, IncrementStatement, IterationStatement,
+    Mode, Output, ReturnStatement, Statement,
 };
 
 use itertools::Itertools;
@@ -28,6 +28,7 @@ use std::fmt::Write as _;
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
         match input {
+            Statement::AssemblyBlock(stmt) => self.visit_assembly_block(stmt),
             Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
@@ -40,6 +41,14 @@ impl<'a> CodeGenerator<'a> {
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
+    }
+
+    fn visit_assembly_block(&mut self, input: &'a AssemblyBlock) -> String {
+        let mut instructions = String::new();
+        for instruction in &input.instructions {
+            instructions.push_str(&instruction.to_string());
+        }
+        instructions
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) -> String {

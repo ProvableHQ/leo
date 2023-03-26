@@ -43,6 +43,8 @@ impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
     type Output = ();
 }
 
+impl<'a> InstructionVisitor<'a> for SymbolTableCreator<'a> {}
+
 impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
 impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {

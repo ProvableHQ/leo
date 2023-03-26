@@ -16,7 +16,7 @@
 
 use crate::{Assigner, AssignmentRenamer, CallGraph};
 
-use leo_ast::Function;
+use leo_ast::{Function, InstructionReconstructor};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -40,3 +40,5 @@ impl<'a> FunctionInliner<'a> {
         }
     }
 }
+
+impl InstructionReconstructor for FunctionInliner<'_> {}

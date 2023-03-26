@@ -17,10 +17,10 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
-    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
-    TupleExpression,
+    AssemblyBlock, AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement,
+    ConsoleStatement, DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement,
+    Identifier, IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer,
+    TernaryExpression, TupleExpression,
 };
 use leo_span::Symbol;
 
@@ -28,6 +28,11 @@ use indexmap::IndexSet;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
+
+    /// Consumes the instructions in an `AssemblyBlock`, returning the renamed instructions.
+    fn consume_assembly_block(&mut self, input: AssemblyBlock) -> Self::Output {
+        todo!()
+    }
 
     /// Consumes the expressions in an `AssertStatement`, returning the list of simplified statements.
     fn consume_assert(&mut self, input: AssertStatement) -> Self::Output {

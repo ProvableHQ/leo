@@ -30,6 +30,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         match input {
+            Statement::AssemblyBlock(stmt) => self.visit_assembly_block(stmt),
             Statement::Assert(stmt) => self.visit_assert(stmt),
             Statement::Assign(stmt) => self.visit_assign(stmt),
             Statement::Block(stmt) => self.visit_block(stmt),
@@ -42,6 +43,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
+    }
+
+    fn visit_assembly_block(&mut self, _input: &'a AssemblyBlock) {
+        todo!()
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) {

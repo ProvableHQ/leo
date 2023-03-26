@@ -17,8 +17,8 @@
 use crate::{Assigner, RenameTable};
 use leo_ast::{
     AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor,
-    Identifier, IterationStatement, ProgramReconstructor, Statement, StatementReconstructor, StructExpression,
-    StructVariableInitializer,
+    Identifier, InstructionReconstructor, IterationStatement, ProgramReconstructor, Statement, StatementReconstructor,
+    StructExpression, StructVariableInitializer,
 };
 use leo_span::Symbol;
 
@@ -102,6 +102,8 @@ impl ExpressionReconstructor for AssignmentRenamer {
         )
     }
 }
+
+impl InstructionReconstructor for AssignmentRenamer {}
 
 impl StatementReconstructor for AssignmentRenamer {
     /// Rename the left-hand side of the assignment statement.
