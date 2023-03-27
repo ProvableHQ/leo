@@ -30,10 +30,7 @@ pub struct RenameTable {
 impl RenameTable {
     /// Create a new `RenameTable` with the given parent.
     pub(crate) fn new(parent: Option<Box<RenameTable>>) -> Self {
-        Self {
-            parent,
-            mapping: IndexMap::new(),
-        }
+        Self { parent, mapping: IndexMap::new() }
     }
 
     /// Returns the symbols that were renamed in the current scope.

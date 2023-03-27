@@ -31,10 +31,7 @@ pub struct SymbolTableCreator<'a> {
 
 impl<'a> SymbolTableCreator<'a> {
     pub fn new(handler: &'a Handler) -> Self {
-        Self {
-            symbol_table: Default::default(),
-            handler,
-        }
+        Self { symbol_table: Default::default(), handler }
     }
 }
 
@@ -58,17 +55,14 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
 
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Add the variable associated with the mapping to the symbol table.
-        if let Err(err) = self.symbol_table.insert_variable(
-            input.identifier.name,
-            VariableSymbol {
-                type_: Type::Mapping(MappingType {
-                    key: Box::new(input.key_type.clone()),
-                    value: Box::new(input.value_type.clone()),
-                }),
-                span: input.span,
-                declaration: VariableType::Mut,
-            },
-        ) {
+        if let Err(err) = self.symbol_table.insert_variable(input.identifier.name, VariableSymbol {
+            type_: Type::Mapping(MappingType {
+                key: Box::new(input.key_type.clone()),
+                value: Box::new(input.value_type.clone()),
+            }),
+            span: input.span,
+            declaration: VariableType::Mut,
+        }) {
             self.handler.emit_err(err);
         }
     }

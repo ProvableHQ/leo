@@ -14,14 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::ALEO_CLI_COMMAND;
-use crate::{commands::Command, context::Context};
+use crate::{
+    commands::{Command, ALEO_CLI_COMMAND},
+    context::Context,
+};
 
 use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, InputAst};
 use leo_errors::{CliError, CompilerError, PackageError, Result};
-use leo_package::source::SourceDirectory;
-use leo_package::{inputs::InputFile, outputs::OutputsDirectory};
+use leo_package::{inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::symbol::with_session_globals;
 
 use aleo::commands::Build as AleoBuild;
@@ -29,12 +30,13 @@ use aleo::commands::Build as AleoBuild;
 use clap::StructOpt;
 use indexmap::IndexMap;
 use snarkvm::prelude::{ProgramID, Testnet3};
-use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::{
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use leo_errors::emitter::Handler;
-use leo_package::build::BuildDirectory;
-use leo_package::imports::ImportsDirectory;
+use leo_package::{build::BuildDirectory, imports::ImportsDirectory};
 use leo_span::Symbol;
 use tracing::span::Span;
 
@@ -226,19 +228,14 @@ fn compile_leo_file(
     is_import: bool,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
-    let file_name = file_path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .ok_or_else(PackageError::failed_to_get_file_name)?;
+    let file_name =
+        file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
 
     // If the program is an import, construct program name from file_path
     // Otherwise, use the program_id found in `package.json`.
     let program_name = match is_import {
         false => program_id.name().to_string(),
-        true => file_name
-            .strip_suffix(".leo")
-            .ok_or_else(PackageError::failed_to_get_file_name)?
-            .to_string(),
+        true => file_name.strip_suffix(".leo").ok_or_else(PackageError::failed_to_get_file_name)?.to_string(),
     };
 
     // Create the path to the Aleo file.

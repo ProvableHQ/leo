@@ -41,12 +41,7 @@ impl Package {
             return Err(PackageError::invalid_package_name(package_name).into());
         }
 
-        Ok(Self {
-            name: package_name.to_owned(),
-            version: "0.1.0".to_owned(),
-            description: None,
-            license: None,
-        })
+        Ok(Self { name: package_name.to_owned(), version: "0.1.0".to_owned(), description: None, license: None })
     }
 
     /// Returns `true` if the package name is valid.

@@ -46,8 +46,7 @@ impl Gitignore {
         }
 
         let mut file = File::create(&path).map_err(PackageError::io_error_gitignore_file)?;
-        file.write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_gitignore_file)?;
+        file.write_all(self.template().as_bytes()).map_err(PackageError::io_error_gitignore_file)?;
         Ok(())
     }
 

@@ -17,12 +17,10 @@
 use crate::{tokenizer::*, Token};
 
 use leo_ast::*;
-use leo_errors::emitter::Handler;
-use leo_errors::{ParserError, ParserWarning, Result};
+use leo_errors::{emitter::Handler, ParserError, ParserWarning, Result};
 use leo_span::{Span, Symbol};
 
-use std::fmt::Display;
-use std::mem;
+use std::{fmt::Display, mem};
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
@@ -44,10 +42,7 @@ pub(crate) struct ParserContext<'a> {
 }
 
 /// Dummy span used to appease borrow checker.
-const DUMMY_EOF: SpannedToken = SpannedToken {
-    token: Token::Eof,
-    span: Span::dummy(),
-};
+const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
 impl<'a> ParserContext<'a> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
@@ -81,10 +76,7 @@ impl<'a> ParserContext<'a> {
         }
 
         // Extract next token, or `Eof` if there was none.
-        let next_token = self.tokens.pop().unwrap_or(SpannedToken {
-            token: Token::Eof,
-            span: self.token.span,
-        });
+        let next_token = self.tokens.pop().unwrap_or(SpannedToken { token: Token::Eof, span: self.token.span });
 
         // Set the new token.
         self.prev_token = mem::replace(&mut self.token, next_token);
@@ -183,11 +175,7 @@ impl<'a> ParserContext<'a> {
 
     /// Eats the expected `token`, or errors.
     pub(super) fn expect(&mut self, token: &Token) -> Result<Span> {
-        if self.eat(token) {
-            Ok(self.prev_token.span)
-        } else {
-            self.unexpected(token)
-        }
+        if self.eat(token) { Ok(self.prev_token.span) } else { self.unexpected(token) }
     }
 
     /// Eats one of the expected `tokens`, or errors.

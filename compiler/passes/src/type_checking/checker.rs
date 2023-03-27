@@ -87,11 +87,8 @@ const UNSIGNED_INT_TYPES: [Type; 5] = [
     Type::Integer(IntegerType::U128),
 ];
 
-const MAGNITUDE_TYPES: [Type; 3] = [
-    Type::Integer(IntegerType::U8),
-    Type::Integer(IntegerType::U16),
-    Type::Integer(IntegerType::U32),
-];
+const MAGNITUDE_TYPES: [Type; 3] =
+    [Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U32)];
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
@@ -119,8 +116,7 @@ impl<'a> TypeChecker<'a> {
     /// Enters a child scope.
     pub(crate) fn enter_scope(&mut self, index: usize) {
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
     }
 
@@ -137,8 +133,7 @@ impl<'a> TypeChecker<'a> {
     /// Exits the current scope.
     pub(crate) fn exit_scope(&mut self, index: usize) {
         let previous_symbol_table = *self.symbol_table.borrow_mut().parent.take().unwrap();
-        self.symbol_table
-            .swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
+        self.symbol_table.swap(previous_symbol_table.lookup_scope_by_index(index).unwrap());
         self.symbol_table = RefCell::new(previous_symbol_table);
     }
 
@@ -183,22 +178,12 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
     pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
-        self.check_type(
-            |actual: &Type| actual.eq_flat(expected),
-            expected.to_string(),
-            actual,
-            span,
-        )
+        self.check_type(|actual: &Type| actual.eq_flat(expected), expected.to_string(), actual, span)
     }
 
     /// Emits an error to the handler if the given type is not a boolean.
     pub(crate) fn assert_bool_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_: &Type| BOOLEAN_TYPE.eq(type_),
-            BOOLEAN_TYPE.to_string(),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| BOOLEAN_TYPE.eq(type_), BOOLEAN_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a field.
@@ -213,22 +198,12 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error to the handler if the given type is not a scalar.
     pub(crate) fn assert_scalar_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_: &Type| SCALAR_TYPE.eq(type_),
-            SCALAR_TYPE.to_string(),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| SCALAR_TYPE.eq(type_), SCALAR_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not an integer.
     pub(crate) fn assert_int_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_: &Type| INT_TYPES.contains(type_),
-            types_to_string(&INT_TYPES),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| INT_TYPES.contains(type_), types_to_string(&INT_TYPES), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a signed integer.
@@ -253,12 +228,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error to the handler if the given type is not a magnitude (u8, u16, u32).
     pub(crate) fn assert_magnitude_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_: &Type| MAGNITUDE_TYPES.contains(type_),
-            types_to_string(&MAGNITUDE_TYPES),
-            type_,
-            span,
-        )
+        self.check_type(|type_: &Type| MAGNITUDE_TYPES.contains(type_), types_to_string(&MAGNITUDE_TYPES), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a boolean or an integer.
@@ -327,13 +297,7 @@ impl<'a> TypeChecker<'a> {
             |type_: &Type| {
                 FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SCALAR_TYPE.eq(type_) | INT_TYPES.contains(type_)
             },
-            format!(
-                "{}, {}, {}, {}",
-                FIELD_TYPE,
-                GROUP_TYPE,
-                SCALAR_TYPE,
-                types_to_string(&INT_TYPES),
-            ),
+            format!("{}, {}, {}, {}", FIELD_TYPE, GROUP_TYPE, SCALAR_TYPE, types_to_string(&INT_TYPES),),
             type_,
             span,
         )
@@ -347,11 +311,7 @@ impl<'a> TypeChecker<'a> {
             match CoreInstruction::from_symbols(ident.name, function.name) {
                 None => {
                     // Not a core library struct.
-                    self.emit_err(TypeCheckerError::invalid_core_function(
-                        ident.name,
-                        function.name,
-                        ident.span(),
-                    ));
+                    self.emit_err(TypeCheckerError::invalid_core_function(ident.name, function.name, ident.span()));
                 }
                 Some(core_instruction) => return Some(core_instruction),
             }
@@ -380,11 +340,7 @@ impl<'a> TypeChecker<'a> {
                     .lookup_struct(identifier.name)
                     .map_or(false, |struct_| struct_.is_record) =>
             {
-                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(
-                    parent,
-                    identifier.name,
-                    span,
-                ))
+                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, identifier.name, span))
             }
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
@@ -423,12 +379,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error if the type is not a mapping.
     pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(
-            |type_| matches!(type_, Type::Mapping(_)),
-            "mapping".to_string(),
-            type_,
-            span,
-        )
+        self.check_type(|type_| matches!(type_, Type::Mapping(_)), "mapping".to_string(), type_, span)
     }
 }
 

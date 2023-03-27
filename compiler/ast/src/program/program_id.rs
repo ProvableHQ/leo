@@ -17,8 +17,7 @@
 use crate::Identifier;
 
 use core::fmt;
-use serde::de::Visitor;
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::BTreeMap;
 
 /// An identifier for a program that is eventually deployed to the network.

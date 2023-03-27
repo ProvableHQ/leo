@@ -47,11 +47,7 @@ pub trait ExpressionReconstructor {
                     AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
+                        args: function.args.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                         span: function.span,
                     })
                 }
@@ -87,11 +83,7 @@ pub trait ExpressionReconstructor {
         (
             Expression::Call(CallExpression {
                 function: Box::new(self.reconstruct_expression(*input.function).0),
-                arguments: input
-                    .arguments
-                    .into_iter()
-                    .map(|arg| self.reconstruct_expression(arg).0)
-                    .collect(),
+                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 external: input.external,
                 span: input.span,
             }),
@@ -130,11 +122,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_tuple(&mut self, input: TupleExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Tuple(TupleExpression {
-                elements: input
-                    .elements
-                    .into_iter()
-                    .map(|element| self.reconstruct_expression(element).0)
-                    .collect(),
+                elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
                 span: input.span,
             }),
             Default::default(),
@@ -212,11 +200,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
         (
             Block {
-                statements: input
-                    .statements
-                    .into_iter()
-                    .map(|s| self.reconstruct_statement(s).0)
-                    .collect(),
+                statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
                 span: input.span,
             },
             Default::default(),
@@ -326,10 +310,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Statement::Return(ReturnStatement {
                 expression: self.reconstruct_expression(input.expression).0,
                 finalize_arguments: input.finalize_arguments.map(|arguments| {
-                    arguments
-                        .into_iter()
-                        .map(|argument| self.reconstruct_expression(argument).0)
-                        .collect()
+                    arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
                 }),
                 span: input.span,
             }),
@@ -358,21 +339,9 @@ pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         ProgramScope {
             program_id: input.program_id,
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, c)| (i, self.reconstruct_struct(c)))
-                .collect(),
-            mappings: input
-                .mappings
-                .into_iter()
-                .map(|(id, mapping)| (id, self.reconstruct_mapping(mapping)))
-                .collect(),
-            functions: input
-                .functions
-                .into_iter()
-                .map(|(i, f)| (i, self.reconstruct_function(f)))
-                .collect(),
+            structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
+            mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
             span: input.span,
         }
     }

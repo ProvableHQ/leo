@@ -16,8 +16,18 @@
 
 use crate::{Assigner, RenameTable};
 use leo_ast::{
-    AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor,
-    Identifier, IterationStatement, ProgramReconstructor, Statement, StatementReconstructor, StructExpression,
+    AssignStatement,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    ProgramReconstructor,
+    Statement,
+    StatementReconstructor,
+    StructExpression,
     StructVariableInitializer,
 };
 use leo_span::Symbol;
@@ -34,11 +44,7 @@ pub struct AssignmentRenamer {
 impl AssignmentRenamer {
     /// Initialize a new `AssignmentRenamer`.
     pub fn new(assigner: Assigner) -> Self {
-        Self {
-            assigner,
-            rename_table: RenameTable::new(None),
-            is_lhs: false,
-        }
+        Self { assigner, rename_table: RenameTable::new(None), is_lhs: false }
     }
 
     /// Load the internal rename table with a set of entries.
@@ -56,6 +62,7 @@ impl AssignmentRenamer {
 
 impl ExpressionReconstructor for AssignmentRenamer {
     type AdditionalOutput = ();
+
     /// Rename the identifier if it is the left-hand side of an assignment, otherwise look up for a new name in the internal rename table.
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         let name = match self.is_lhs {
@@ -72,10 +79,7 @@ impl ExpressionReconstructor for AssignmentRenamer {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (
-            Expression::Identifier(Identifier { name, span: input.span }),
-            Default::default(),
-        )
+        (Expression::Identifier(Identifier { name, span: input.span }), Default::default())
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -115,14 +119,7 @@ impl StatementReconstructor for AssignmentRenamer {
         let place = self.reconstruct_expression(input.place).0;
         self.is_lhs = false;
 
-        (
-            Statement::Assign(Box::new(AssignStatement {
-                place,
-                value,
-                span: input.span,
-            })),
-            Default::default(),
-        )
+        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), Default::default())
     }
 
     /// Flattening removes conditional statements from the program.

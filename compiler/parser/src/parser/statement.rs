@@ -133,10 +133,7 @@ impl ParserContext<'_> {
         } else {
             // Parse the expression as a statement.
             let end = self.expect(&Token::Semicolon)?;
-            Ok(Statement::Expression(ExpressionStatement {
-                span: place.span() + end,
-                expression: place,
-            }))
+            Ok(Statement::Expression(ExpressionStatement { span: place.span() + end, expression: place }))
         }
     }
 
@@ -174,11 +171,7 @@ impl ParserContext<'_> {
         };
         let end = self.expect(&Token::Semicolon)?;
         let span = start + end;
-        Ok(ReturnStatement {
-            span,
-            expression,
-            finalize_arguments: finalize_args,
-        })
+        Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args })
     }
 
     /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.
@@ -194,12 +187,7 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::RightParen)?;
         self.expect(&Token::Semicolon)?;
         let span = start + end;
-        Ok(DecrementStatement {
-            mapping,
-            index,
-            amount,
-            span,
-        })
+        Ok(DecrementStatement { mapping, index, amount, span })
     }
 
     /// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.
@@ -215,12 +203,7 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::RightParen)?;
         self.expect(&Token::Semicolon)?;
         let span = start + end;
-        Ok(IncrementStatement {
-            mapping,
-            index,
-            amount,
-            span,
-        })
+        Ok(IncrementStatement { mapping, index, amount, span })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
@@ -316,18 +299,13 @@ impl ParserContext<'_> {
                 ));
                 (
                     Default::default(),
-                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
-                        span: Default::default(),
-                    })),
+                    ConsoleFunction::Assert(Expression::Err(ErrExpression { span: Default::default() })),
                 )
             }
         };
         self.expect(&Token::Semicolon)?;
 
-        Ok(ConsoleStatement {
-            span: keyword + span,
-            function,
-        })
+        Ok(ConsoleStatement { span: keyword + span, function })
     }
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
@@ -349,12 +327,6 @@ impl ParserContext<'_> {
         let value = self.parse_expression()?;
         self.expect(&Token::Semicolon)?;
 
-        Ok(DefinitionStatement {
-            span: decl_span + value.span(),
-            declaration_type: decl_type,
-            place,
-            type_,
-            value,
-        })
+        Ok(DefinitionStatement { span: decl_span + value.span(), declaration_type: decl_type, place, type_, value })
     }
 }

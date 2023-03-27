@@ -146,11 +146,7 @@ impl SymbolTable {
     /// Returns true if the variable exists in any parent scope
     pub fn variable_in_parent_scope(&self, symbol: Symbol) -> bool {
         if let Some(parent) = self.parent.as_ref() {
-            if parent.variables.contains_key(&symbol) {
-                true
-            } else {
-                parent.variable_in_parent_scope(symbol)
-            }
+            if parent.variables.contains_key(&symbol) { true } else { parent.variable_in_parent_scope(symbol) }
         } else {
             false
         }

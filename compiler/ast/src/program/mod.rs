@@ -53,9 +53,6 @@ impl fmt::Display for Program {
 impl Default for Program {
     /// Constructs an empty program node.
     fn default() -> Self {
-        Self {
-            imports: IndexMap::new(),
-            program_scopes: IndexMap::new(),
-        }
+        Self { imports: IndexMap::new(), program_scopes: IndexMap::new() }
     }
 }

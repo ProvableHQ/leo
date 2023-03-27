@@ -157,10 +157,7 @@ impl AsRef<Program> for Ast {
 pub(crate) fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
         serde_json::Value::Object(map) => serde_json::Value::Object(
-            map.into_iter()
-                .filter(|(k, _)| k != key)
-                .map(|(k, v)| (k, remove_key_from_json(v, key)))
-                .collect(),
+            map.into_iter().filter(|(k, _)| k != key).map(|(k, v)| (k, remove_key_from_json(v, key))).collect(),
         ),
         serde_json::Value::Array(values) => {
             serde_json::Value::Array(values.into_iter().map(|v| remove_key_from_json(v, key)).collect())

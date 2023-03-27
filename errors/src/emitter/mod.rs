@@ -17,10 +17,8 @@
 use crate::LeoWarning;
 
 use super::LeoError;
-use core::default::Default;
-use core::fmt;
-use std::cell::RefCell;
-use std::rc::Rc;
+use core::{default::Default, fmt};
+use std::{cell::RefCell, rc::Rc};
 
 /// Types that are sinks for compiler errors.
 pub trait Emitter {
@@ -182,11 +180,7 @@ impl Default for Handler {
 impl Handler {
     /// Construct a `Handler` using the given `emitter`.
     pub fn new(emitter: Box<dyn Emitter>) -> Self {
-        let inner = RefCell::new(HandlerInner {
-            err_count: 0,
-            warn_count: 0,
-            emitter,
-        });
+        let inner = RefCell::new(HandlerInner { err_count: 0, warn_count: 0, emitter });
         Self { inner }
     }
 

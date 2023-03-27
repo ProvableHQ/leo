@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::SymbolTable;
-use crate::{CallGraph, StructGraph};
+use crate::{CallGraph, StructGraph, SymbolTable};
 
 use leo_ast::Function;
 use leo_span::Symbol;

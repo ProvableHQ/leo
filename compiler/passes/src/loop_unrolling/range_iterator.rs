@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use num_traits::One;
-use std::fmt::Display;
-use std::ops::Add;
+use std::{fmt::Display, ops::Add};
 
 use leo_ast::Value;
 use leo_errors::LeoError;
@@ -47,11 +46,7 @@ pub(crate) struct RangeIterator<I: LoopBound> {
 
 impl<I: LoopBound> RangeIterator<I> {
     pub(crate) fn new(start: I, end: I, clusivity: Clusivity) -> Self {
-        Self {
-            end,
-            current: Some(start),
-            clusivity,
-        }
+        Self { end, current: Some(start), clusivity }
     }
 }
 

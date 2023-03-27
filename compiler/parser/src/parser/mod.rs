@@ -22,8 +22,7 @@
 use crate::{tokenizer::*, Token};
 
 use leo_ast::*;
-use leo_errors::emitter::Handler;
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, Result};
 use leo_span::Span;
 
 use indexmap::IndexMap;

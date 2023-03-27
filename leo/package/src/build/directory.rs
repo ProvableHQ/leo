@@ -16,8 +16,11 @@
 
 use leo_errors::{PackageError, Result};
 
-use std::path::PathBuf;
-use std::{borrow::Cow, fs, path::Path};
+use std::{
+    borrow::Cow,
+    fs,
+    path::{Path, PathBuf},
+};
 
 pub static BUILD_DIRECTORY_NAME: &str = "build/";
 

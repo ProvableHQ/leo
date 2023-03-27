@@ -17,7 +17,9 @@
 use crate::span::{BytePos, CharPos, Pos, Span};
 use std::{
     cell::RefCell,
-    fmt, fs, io,
+    fmt,
+    fs,
+    io,
     path::{Path, PathBuf},
     rc::Rc,
 };
@@ -105,10 +107,7 @@ impl SourceMap {
         if loc.line_start == loc.line_stop {
             format!("{}:{}-{}", loc.line_start, loc.col_start, loc.col_stop)
         } else {
-            format!(
-                "{}:{}-{}:{}",
-                loc.line_start, loc.col_start, loc.line_stop, loc.col_stop
-            )
+            format!("{}:{}-{}:{}", loc.line_start, loc.col_start, loc.line_stop, loc.col_stop)
         }
     }
 
@@ -140,11 +139,7 @@ impl SourceMap {
         let idx_lo = begin.lookup_line(span.lo).unwrap_or(0);
         let idx_hi = begin.lookup_line(span.hi).unwrap_or(0) + 1;
         let lo_line_pos = begin.lines[idx_lo];
-        let hi_line_pos = if idx_hi < begin.lines.len() {
-            begin.lines[idx_hi]
-        } else {
-            begin.end_pos
-        };
+        let hi_line_pos = if idx_hi < begin.lines.len() { begin.lines[idx_hi] } else { begin.end_pos };
         Some(begin.contents_of_span(Span::new(lo_line_pos, hi_line_pos)))
     }
 }
@@ -183,11 +178,7 @@ impl fmt::Display for FileName {
 
 /// Is the env var `LEO_TESTFRAMEWORK` not enabled?
 pub fn is_not_test_framework() -> bool {
-    std::env::var("LEO_TESTFRAMEWORK")
-        .unwrap_or_default()
-        .trim()
-        .to_owned()
-        .is_empty()
+    std::env::var("LEO_TESTFRAMEWORK").unwrap_or_default().trim().to_owned().is_empty()
 }
 
 /// A single source in the [`SourceMap`].
@@ -215,14 +206,7 @@ impl SourceFile {
         normalize_src(&mut src);
         let end_pos = start_pos + BytePos::from_usize(src.len());
         let (lines, multibyte_chars) = analyze_source_file(&src, start_pos);
-        Self {
-            name,
-            src,
-            start_pos,
-            end_pos,
-            lines,
-            multibyte_chars,
-        }
+        Self { name, src, start_pos, end_pos, lines, multibyte_chars }
     }
 
     /// Converts an absolute `BytePos` to a `CharPos` relative to the `SourceFile`.

@@ -31,6 +31,7 @@ pub enum InputValue {
 
 impl TryFrom<(Type, Expression)> for InputValue {
     type Error = LeoError;
+
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
             (type_, Expression::Literal(lit)) => match (type_, lit) {

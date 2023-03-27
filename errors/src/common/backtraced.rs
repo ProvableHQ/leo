@@ -64,15 +64,7 @@ impl Backtraced {
     where
         S: ToString,
     {
-        Self {
-            message: message.to_string(),
-            help,
-            code,
-            code_identifier,
-            type_,
-            error,
-            backtrace,
-        }
+        Self { message: message.to_string(), help, code, code_identifier, type_, error, backtrace }
     }
 
     /// Gets the backtraced error exit code.
@@ -113,11 +105,7 @@ impl Backtraced {
 
 impl fmt::Display for Backtraced {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let (kind, code) = if self.error {
-            ("Error", self.error_code())
-        } else {
-            ("Warning", self.warning_code())
-        };
+        let (kind, code) = if self.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
         let message = format!("{kind} [{code}]: {message}", message = self.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
@@ -144,17 +132,13 @@ impl fmt::Display for Backtraced {
             "1" => {
                 let mut printer = BacktracePrinter::default();
                 printer = printer.lib_verbosity(Verbosity::Medium);
-                let trace = printer
-                    .format_trace_to_string(&self.backtrace)
-                    .map_err(|_| fmt::Error)?;
+                let trace = printer.format_trace_to_string(&self.backtrace).map_err(|_| fmt::Error)?;
                 write!(f, "{trace}")?;
             }
             "full" => {
                 let mut printer = BacktracePrinter::default();
                 printer = printer.lib_verbosity(Verbosity::Full);
-                let trace = printer
-                    .format_trace_to_string(&self.backtrace)
-                    .map_err(|_| fmt::Error)?;
+                let trace = printer.format_trace_to_string(&self.backtrace).map_err(|_| fmt::Error)?;
                 write!(f, "{trace}")?;
             }
             _ => {}

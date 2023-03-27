@@ -15,8 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{buffer_if_err, compile_and_process, parse_program, BufferEmitter};
-use utilities::{get_cwd_option, setup_build_directory, Aleo, Network};
+use utilities::{
+    buffer_if_err,
+    compile_and_process,
+    get_cwd_option,
+    parse_program,
+    setup_build_directory,
+    Aleo,
+    BufferEmitter,
+    Network,
+};
 
 use crate::utilities::{hash_asts, hash_content};
 
@@ -27,15 +35,13 @@ use leo_test_framework::{
     Test,
 };
 
-use snarkvm::console;
-use snarkvm::prelude::*;
+use snarkvm::{console, prelude::*};
 
 use leo_test_framework::test::TestExpectationMode;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use std::collections::BTreeMap;
-use std::{fs, path::Path, rc::Rc};
+use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
 
 // TODO: Evaluate namespace.
 struct ExecuteNamespace;
@@ -69,10 +75,7 @@ struct ExecuteOutput {
 fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
     // Check that config expectation is always pass.
     if test.config.expectation != TestExpectationMode::Pass {
-        buffer_if_err(
-            err_buf,
-            Err("Test expectation must be `Pass` for `Execute` tests.".to_string()),
-        )?;
+        buffer_if_err(err_buf, Err("Test expectation must be `Pass` for `Execute` tests.".to_string()))?;
     }
 
     // Check for CWD option:
@@ -86,13 +89,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
     // Extract the cases from the test config.
-    let all_cases = test
-        .config
-        .extra
-        .get("cases")
-        .expect("An `Execute` config must have a `cases` field.")
-        .as_mapping()
-        .unwrap();
+    let all_cases =
+        test.config.extra.get("cases").expect("An `Execute` config must have a `cases` field.").as_mapping().unwrap();
 
     // Initialize a map for the expected results.
     let mut results = BTreeMap::new();

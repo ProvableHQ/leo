@@ -17,8 +17,7 @@
 use super::*;
 use crate::parse_ast;
 use leo_errors::{CompilerError, ParserError, Result};
-use leo_span::source_map::FileName;
-use leo_span::symbol::with_session_globals;
+use leo_span::{source_map::FileName, symbol::with_session_globals};
 
 use std::fs;
 
@@ -57,10 +56,7 @@ impl ParserContext<'_> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program {
-            imports,
-            program_scopes,
-        })
+        Ok(Program { imports, program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -162,19 +158,16 @@ impl ParserContext<'_> {
                 }
                 Token::RightCurly => break,
                 _ => {
-                    return Err(Self::unexpected_item(
-                        &self.token,
-                        &[
-                            Token::Struct,
-                            Token::Record,
-                            Token::Mapping,
-                            Token::At,
-                            Token::Function,
-                            Token::Transition,
-                            Token::Inline,
-                        ],
-                    )
-                    .into())
+                    return Err(Self::unexpected_item(&self.token, &[
+                        Token::Struct,
+                        Token::Record,
+                        Token::Mapping,
+                        Token::At,
+                        Token::Function,
+                        Token::Transition,
+                        Token::Inline,
+                    ])
+                    .into());
                 }
             }
         }
@@ -182,13 +175,7 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok(ProgramScope {
-            program_id,
-            functions,
-            structs,
-            mappings,
-            span: start + end,
-        })
+        Ok(ProgramScope { program_id, functions, structs, mappings, span: start + end })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
@@ -236,12 +223,7 @@ impl ParserContext<'_> {
 
         let (identifier, type_, span) = self.parse_typed_ident()?;
 
-        Ok(Member {
-            mode,
-            identifier,
-            type_,
-            span,
-        })
+        Ok(Member { mode, identifier, type_, span })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -253,15 +235,7 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_struct_members()?;
 
-        Ok((
-            struct_name.name,
-            Struct {
-                identifier: struct_name,
-                members,
-                is_record,
-                span: start + end,
-            },
-        ))
+        Ok((struct_name.name, Struct { identifier: struct_name, members, is_record, span: start + end }))
     }
 
     /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
@@ -273,15 +247,7 @@ impl ParserContext<'_> {
         self.expect(&Token::BigArrow)?;
         let (value_type, _) = self.parse_type()?;
         let end = self.expect(&Token::Semicolon)?;
-        Ok((
-            identifier.name,
-            Mapping {
-                identifier,
-                key_type,
-                value_type,
-                span: start + end,
-            },
-        ))
+        Ok((identifier.name, Mapping { identifier, key_type, value_type, span: start + end }))
     }
 
     // TODO: Return a span associated with the mode.
@@ -332,21 +298,11 @@ impl ParserContext<'_> {
             self.eat(&Token::Record);
             span = span + self.prev_token.span;
 
-            Ok(functions::Input::External(External {
-                identifier: name,
-                program_name: external,
-                record,
-                span,
-            }))
+            Ok(functions::Input::External(External { identifier: name, program_name: external, record, span }))
         } else {
             let type_ = self.parse_type()?.0;
 
-            Ok(functions::Input::Internal(FunctionInput {
-                identifier: name,
-                mode,
-                type_,
-                span: name.span,
-            }))
+            Ok(functions::Input::Internal(FunctionInput { identifier: name, mode, type_, span: name.span }))
         }
     }
 
@@ -389,10 +345,7 @@ impl ParserContext<'_> {
     }
 
     fn peek_is_external(&self) -> bool {
-        matches!(
-            (&self.token.token, self.look_ahead(1, |t| &t.token)),
-            (Token::Identifier(_), Token::Dot)
-        )
+        matches!((&self.token.token, self.look_ahead(1, |t| &t.token)), (Token::Identifier(_), Token::Dot))
     }
 
     /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
@@ -400,10 +353,7 @@ impl ParserContext<'_> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
         let identifier = match self.token.token {
-            Token::Program => Identifier {
-                name: sym::program,
-                span: self.expect(&Token::Program)?,
-            },
+            Token::Program => Identifier { name: sym::program, span: self.expect(&Token::Program)? },
             _ => self.expect_identifier()?,
         };
         let span = start + identifier.span;
@@ -490,10 +440,7 @@ impl ParserContext<'_> {
         };
 
         let span = start + block.span;
-        Ok((
-            name.name,
-            Function::new(annotations, variant, name, inputs, output, block, finalize, span),
-        ))
+        Ok((name.name, Function::new(annotations, variant, name, inputs, output, block, finalize, span)))
     }
 }
 

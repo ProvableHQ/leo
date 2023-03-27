@@ -19,16 +19,13 @@
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 use leo_ast::Program;
 pub use leo_ast::{Ast, InputAst};
-use leo_errors::emitter::Handler;
-use leo_errors::{CompilerError, Result};
+use leo_errors::{emitter::Handler, CompilerError, Result};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
-use leo_span::source_map::FileName;
-use leo_span::symbol::with_session_globals;
+use leo_span::{source_map::FileName, symbol::with_session_globals};
 
 use sha2::{Digest, Sha256};
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 use crate::CompilerOptions;
 
@@ -273,10 +270,7 @@ impl<'a> Compiler<'a> {
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.compiler_options.spans_enabled {
-            self.ast.to_json_file(
-                self.output_directory.clone(),
-                &format!("{}.{file_suffix}", self.program_name),
-            )?;
+            self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
         } else {
             self.ast.to_json_file_without_keys(
                 self.output_directory.clone(),

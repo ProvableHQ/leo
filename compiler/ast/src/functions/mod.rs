@@ -97,18 +97,9 @@ impl Function {
             _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
         };
 
-        Function {
-            annotations,
-            variant,
-            identifier,
-            input,
-            output,
-            output_type,
-            block,
-            finalize,
-            span,
-        }
+        Function { annotations, variant, identifier, input, output, output_type, block, finalize, span }
     }
+
     /// Returns function name.
     pub fn name(&self) -> Symbol {
         self.identifier.name

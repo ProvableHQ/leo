@@ -16,8 +16,7 @@
 
 use crate::{commands::Command, context::Context};
 use leo_errors::Result;
-use leo_package::build::BuildDirectory;
-use leo_package::outputs::OutputsDirectory;
+use leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
 
 use clap::StructOpt;
 use colored::Colorize;

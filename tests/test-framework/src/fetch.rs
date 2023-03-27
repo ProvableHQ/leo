@@ -24,12 +24,9 @@ use walkdir::WalkDir;
 pub fn find_tests(path: &Path) -> impl Iterator<Item = (PathBuf, String)> {
     WalkDir::new(path).into_iter().flatten().filter_map(move |f| {
         let path = f.path();
-        path.extension().filter(|s| *s == "leo").map(|_| {
-            (
-                path.to_path_buf(),
-                fs::read_to_string(path).expect("failed to read test"),
-            )
-        })
+        path.extension()
+            .filter(|s| *s == "leo")
+            .map(|_| (path.to_path_buf(), fs::read_to_string(path).expect("failed to read test")))
     })
 }
 

@@ -62,11 +62,7 @@ fn main() -> Result<(), String> {
     }
 
     let out_path = if let Some(out_dir) = opt.out_dir_path {
-        format!(
-            "{}/{}.json",
-            out_dir.as_path().display(),
-            opt.input_path.file_stem().unwrap().to_str().unwrap()
-        )
+        format!("{}/{}.json", out_dir.as_path().display(), opt.input_path.file_stem().unwrap().to_str().unwrap())
     } else {
         format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
     };

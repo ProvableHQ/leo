@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::BuildOptions;
-use crate::commands::ALEO_CLI_COMMAND;
 use crate::{
-    commands::{Build, Command},
+    commands::{Build, Command, ALEO_CLI_COMMAND},
     context::Context,
 };
 use leo_errors::{CliError, PackageError, Result};
@@ -34,10 +33,7 @@ pub struct Run {
     #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(
-        name = "INPUTS",
-        help = "The inputs to the program. If none are provided, the input file is used."
-    )]
+    #[structopt(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
 
     #[structopt(flatten)]
@@ -53,10 +49,7 @@ impl Command for Run {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (Build {
-            options: self.compiler_options.clone(),
-        })
-        .execute(context)
+        (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {

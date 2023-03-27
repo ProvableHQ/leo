@@ -36,11 +36,7 @@ pub struct Mapping {
 
 impl fmt::Display for Mapping {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "mapping {}: {} => {}",
-            self.identifier, self.key_type, self.value_type
-        )
+        write!(f, "mapping {}: {} => {}", self.identifier, self.key_type, self.value_type)
     }
 }
 

@@ -201,26 +201,6 @@ pub enum Value {
 }
 
 impl Value {
-    // TODO: This is temporary since the currently unused code is used in constant folding.
-    #[allow(dead_code)]
-    pub(crate) fn is_supported_const_fold_type(&self) -> bool {
-        use Value::*;
-        matches!(
-            self,
-            Boolean(_, _)
-                | I8(_, _)
-                | I16(_, _)
-                | I32(_, _)
-                | I64(_, _)
-                | I128(_, _)
-                | U8(_, _)
-                | U16(_, _)
-                | U32(_, _)
-                | U64(_, _)
-                | U128(_, _)
-        )
-    }
-
     implement_const_unary!(
         @overflowing
         name: abs,
@@ -720,6 +700,26 @@ impl Value {
             [U128, [U128], U128, u128, u128]
         ]
     );
+
+    // TODO: This is temporary since the currently unused code is used in constant folding.
+    #[allow(dead_code)]
+    pub(crate) fn is_supported_const_fold_type(&self) -> bool {
+        use Value::*;
+        matches!(
+            self,
+            Boolean(_, _)
+                | I8(_, _)
+                | I16(_, _)
+                | I32(_, _)
+                | I64(_, _)
+                | I128(_, _)
+                | U8(_, _)
+                | U16(_, _)
+                | U32(_, _)
+                | U64(_, _)
+                | U128(_, _)
+        )
+    }
 }
 
 impl Display for Value {

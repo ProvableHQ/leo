@@ -33,16 +33,12 @@ pub enum Snapshot {
 
 impl fmt::Display for Snapshot {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Initial => "initial_ast",
-                Self::ImportsResolved => "imports_resolved_ast",
-                Self::TypeInference => "type_inferenced_ast",
-                Self::Canonicalization => "canonicalization_ast",
-            }
-        )
+        write!(f, "{}", match self {
+            Self::Initial => "initial_ast",
+            Self::ImportsResolved => "imports_resolved_ast",
+            Self::TypeInference => "type_inferenced_ast",
+            Self::Canonicalization => "canonicalization_ast",
+        })
     }
 }
 
@@ -58,10 +54,7 @@ pub struct SnapshotFile {
 
 impl SnapshotFile {
     pub fn new(package_name: &str, snapshot: Snapshot) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-            snapshot,
-        }
+        Self { package_name: package_name.to_string(), snapshot }
     }
 
     pub fn exists_at(&self, path: &Path) -> bool {
@@ -97,8 +90,7 @@ impl SnapshotFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.to_mut()
-                .push(format!("{}{AST_SNAPSHOT_FILE_EXTENSION}", self.snapshot));
+            path.to_mut().push(format!("{}{AST_SNAPSHOT_FILE_EXTENSION}", self.snapshot));
         }
         path
     }

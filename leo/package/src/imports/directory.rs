@@ -17,8 +17,11 @@
 use crate::parse_file_paths;
 use leo_errors::{PackageError, Result};
 
-use std::path::PathBuf;
-use std::{borrow::Cow, fs, path::Path};
+use std::{
+    borrow::Cow,
+    fs,
+    path::{Path, PathBuf},
+};
 
 pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 

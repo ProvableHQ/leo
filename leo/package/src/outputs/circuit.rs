@@ -23,7 +23,8 @@ use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::{
-        File, {self},
+        File,
+        {self},
     },
     io::Write,
     path::Path,
@@ -38,9 +39,7 @@ pub struct CircuitFile {
 
 impl CircuitFile {
     pub fn new(package_name: &str) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-        }
+        Self { package_name: package_name.to_string() }
     }
 
     pub fn exists_at(&self, path: &Path) -> bool {
@@ -62,8 +61,7 @@ impl CircuitFile {
         let path = self.setup_file_path(path);
         let mut file = File::create(path).map_err(PackageError::io_error_circuit_file)?;
 
-        file.write_all(circuit.as_bytes())
-            .map_err(PackageError::io_error_circuit_file)?;
+        file.write_all(circuit.as_bytes()).map_err(PackageError::io_error_circuit_file)?;
         Ok(())
     }
 
@@ -85,8 +83,7 @@ impl CircuitFile {
             if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.to_mut()
-                .push(format!("{}{CIRCUIT_FILE_EXTENSION}", self.package_name));
+            path.to_mut().push(format!("{}{CIRCUIT_FILE_EXTENSION}", self.package_name));
         }
         path
     }

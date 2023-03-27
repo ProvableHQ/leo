@@ -48,10 +48,7 @@ impl Assigner {
         // Create a new variable for the expression.
         let name = self.unique_symbol("$var", "$");
 
-        let place = Identifier {
-            name,
-            span: Default::default(),
-        };
+        let place = Identifier { name, span: Default::default() };
 
         (place, self.simple_assign_statement(place, expr))
     }

@@ -17,8 +17,17 @@
 use crate::FunctionInliner;
 
 use leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, ExpressionStatement, IterationStatement, Statement, StatementReconstructor,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    ExpressionStatement,
+    IterationStatement,
+    Statement,
+    StatementReconstructor,
 };
 
 impl StatementReconstructor for FunctionInliner<'_> {
@@ -29,29 +38,15 @@ impl StatementReconstructor for FunctionInliner<'_> {
         match (input.place, value) {
             // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
             (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
-                statements.extend(
-                    left.elements
-                        .into_iter()
-                        .zip(right.elements.into_iter())
-                        .map(|(lhs, rhs)| {
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: lhs,
-                                value: rhs,
-                                span: Default::default(),
-                            }))
-                        }),
-                );
+                statements.extend(left.elements.into_iter().zip(right.elements.into_iter()).map(|(lhs, rhs)| {
+                    Statement::Assign(Box::new(AssignStatement { place: lhs, value: rhs, span: Default::default() }))
+                }));
                 (Statement::dummy(Default::default()), statements)
             }
 
-            (place, value) => (
-                Statement::Assign(Box::new(AssignStatement {
-                    place,
-                    value,
-                    span: input.span,
-                })),
-                statements,
-            ),
+            (place, value) => {
+                (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), statements)
+            }
         }
     }
 
@@ -65,13 +60,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (
-            Block {
-                span: block.span,
-                statements,
-            },
-            Default::default(),
-        )
+        (Block { span: block.span, statements }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -98,10 +87,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
             Expression::Unit(_) => Statement::dummy(Default::default()),
-            _ => Statement::Expression(ExpressionStatement {
-                expression,
-                span: input.span,
-            }),
+            _ => Statement::Expression(ExpressionStatement { expression, span: input.span }),
         };
 
         (statement, additional_statements)

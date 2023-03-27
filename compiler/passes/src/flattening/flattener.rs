@@ -17,8 +17,19 @@
 use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
-    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
+    AccessExpression,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    Member,
+    ReturnStatement,
+    Statement,
+    TernaryExpression,
+    TupleExpression,
+    Type,
 };
 use leo_span::Symbol;
 
@@ -92,10 +103,7 @@ impl<'a> Flattener<'a> {
 
         // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            let place = Identifier {
-                name: self.assigner.unique_symbol(prefix, "$"),
-                span: Default::default(),
-            };
+            let place = Identifier { name: self.assigner.unique_symbol(prefix, "$"), span: Default::default() };
             let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
                 condition: Box::new(guard),
                 if_true: Box::new(if_true),
@@ -116,14 +124,11 @@ impl<'a> Flattener<'a> {
             }
         };
 
-        let expression = guards
-            .into_iter()
-            .rev()
-            .fold(last_expression, |acc, (guard, expr)| match guard {
-                None => unreachable!("All expressions except for the last one must have a guard."),
-                // Note that type checking guarantees that all expressions have the same type.
-                Some(guard) => construct_ternary_assignment(guard, expr, acc),
-            });
+        let expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| match guard {
+            None => unreachable!("All expressions except for the last one must have a guard."),
+            // Note that type checking guarantees that all expressions have the same type.
+            Some(guard) => construct_ternary_assignment(guard, expr, acc),
+        });
 
         (expression, statements)
     }
@@ -136,11 +141,8 @@ impl<'a> Flattener<'a> {
                 // The inner expression of an access expression is either an identifier or another access expression.
                 let name = self.lookup_struct_symbol(&access.inner).unwrap();
                 let struct_ = self.symbol_table.lookup_struct(name).unwrap();
-                let Member { type_, .. } = struct_
-                    .members
-                    .iter()
-                    .find(|member| member.name() == access.name.name)
-                    .unwrap();
+                let Member { type_, .. } =
+                    struct_.members.iter().find(|member| member.name() == access.name.name).unwrap();
                 match type_ {
                     Type::Identifier(identifier) => Some(identifier.name),
                     _ => None,

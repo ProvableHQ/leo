@@ -29,9 +29,6 @@ pub struct DeadCodeEliminator {
 impl DeadCodeEliminator {
     /// Initializes a new `DeadCodeEliminator`.
     pub fn new() -> Self {
-        Self {
-            used_variables: Default::default(),
-            is_necessary: false,
-        }
+        Self { used_variables: Default::default(), is_necessary: false }
     }
 }

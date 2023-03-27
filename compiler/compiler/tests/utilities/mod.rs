@@ -17,7 +17,8 @@
 use leo_compiler::{Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
-    LeoError, LeoWarning,
+    LeoError,
+    LeoWarning,
 };
 use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
@@ -25,12 +26,11 @@ use leo_test_framework::Test;
 
 use snarkvm::prelude::*;
 
-use snarkvm::file::Manifest;
-use snarkvm::package::Package;
-use std::fs::File;
+use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
     fs,
+    fs::File,
     path::{Path, PathBuf},
     rc::Rc,
 };
@@ -152,10 +152,7 @@ impl Display for LeoOrString {
 
 /// A buffer used to emit errors into.
 #[derive(Clone)]
-pub struct BufferEmitter(
-    pub Rc<RefCell<Buffer<LeoOrString>>>,
-    pub Rc<RefCell<Buffer<LeoWarning>>>,
-);
+pub struct BufferEmitter(pub Rc<RefCell<Buffer<LeoOrString>>>, pub Rc<RefCell<Buffer<LeoWarning>>>);
 
 impl Emitter for BufferEmitter {
     fn emit_err(&mut self, err: LeoError) {
@@ -181,9 +178,7 @@ pub fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T
 }
 
 pub fn temp_dir() -> PathBuf {
-    tempfile::tempdir()
-        .expect("Failed to open temporary directory")
-        .into_path()
+    tempfile::tempdir().expect("Failed to open temporary directory").into_path()
 }
 
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {

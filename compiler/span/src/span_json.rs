@@ -18,9 +18,12 @@
 
 use crate::Span;
 
-use serde::de::{MapAccess, Visitor};
-use serde::ser::SerializeMap;
-use serde::{Deserializer, Serializer};
+use serde::{
+    de::{MapAccess, Visitor},
+    ser::SerializeMap,
+    Deserializer,
+    Serializer,
+};
 use std::fmt;
 
 /// The AST contains a few tuple-like enum variants that contain spans.

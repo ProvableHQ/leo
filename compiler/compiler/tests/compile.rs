@@ -29,8 +29,7 @@ use snarkvm::prelude::*;
 use crate::utilities::{get_cwd_option, hash_asts, hash_content, setup_build_directory};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use std::rc::Rc;
-use std::{fs, path::Path};
+use std::{fs, path::Path, rc::Rc};
 
 struct CompileNamespace;
 

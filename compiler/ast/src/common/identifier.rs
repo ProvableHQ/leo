@@ -20,9 +20,13 @@ use leo_span::{Span, Symbol};
 use crate::{simple_node_impl, Node};
 use serde::{
     de::{
-        Visitor, {self},
+        Visitor,
+        {self},
     },
-    Deserialize, Deserializer, Serialize, Serializer,
+    Deserialize,
+    Deserializer,
+    Serialize,
+    Serializer,
 };
 use std::{
     collections::BTreeMap,
@@ -48,10 +52,7 @@ simple_node_impl!(Identifier);
 impl Identifier {
     /// Constructs a new identifier with `name` and a default span.
     pub fn new(name: Symbol) -> Self {
-        Self {
-            name,
-            span: Span::default(),
-        }
+        Self { name, span: Span::default() }
     }
 
     /// Check if the Identifier name matches the other name.

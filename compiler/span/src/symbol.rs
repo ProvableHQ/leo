@@ -16,12 +16,15 @@
 
 use crate::source_map::SourceMap;
 
-use core::borrow::Borrow;
-use core::cmp::PartialEq;
-use core::hash::{Hash, Hasher};
-use core::num::NonZeroU32;
-use core::ops::Deref;
-use core::{fmt, str};
+use core::{
+    borrow::Borrow,
+    cmp::PartialEq,
+    fmt,
+    hash::{Hash, Hasher},
+    num::NonZeroU32,
+    ops::Deref,
+    str,
+};
 use fxhash::FxBuildHasher;
 use indexmap::IndexSet;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -289,10 +292,7 @@ pub struct SessionGlobals {
 
 impl Default for SessionGlobals {
     fn default() -> Self {
-        Self {
-            symbol_interner: Interner::prefilled(),
-            source_map: SourceMap::default(),
-        }
+        Self { symbol_interner: Interner::prefilled(), source_map: SourceMap::default() }
     }
 }
 
@@ -381,9 +381,7 @@ impl Interner {
             // arena: <_>::default(),
             set: init.iter().copied().map(InternedStr::Static).collect(),
         };
-        Self {
-            inner: RefCell::new(inner),
-        }
+        Self { inner: RefCell::new(inner) }
     }
 
     /// Interns `string`, returning a `Symbol` corresponding to it.

@@ -17,8 +17,7 @@
 use leo_span::Symbol;
 
 use indexmap::{IndexMap, IndexSet};
-use std::fmt::Debug;
-use std::hash::Hash;
+use std::{fmt::Debug, hash::Hash};
 
 /// A struct dependency graph.
 pub type StructGraph = DiGraph<Symbol>;
@@ -54,10 +53,7 @@ pub struct DiGraph<N: Node> {
 impl<N: Node> DiGraph<N> {
     /// Initializes a new `DiGraph` from a vector of source nodes.
     pub fn new(nodes: IndexSet<N>) -> Self {
-        Self {
-            nodes,
-            edges: IndexMap::new(),
-        }
+        Self { nodes, edges: IndexMap::new() }
     }
 
     /// Adds an edge to the graph.

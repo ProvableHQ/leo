@@ -16,9 +16,23 @@
 
 use crate::CodeGenerator;
 use leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
-    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation, UnitExpression,
+    AccessExpression,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    MemberAccess,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
 };
 use leo_span::sym;
 use std::borrow::Borrow;
@@ -287,13 +301,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Identifier(identifier) => identifier.name,
             _ => unreachable!("Parsing guarantees that all `input.function` is always an identifier."),
         };
-        let return_type = &self
-            .symbol_table
-            .borrow()
-            .functions
-            .get(&function_name)
-            .unwrap()
-            .output_type;
+        let return_type = &self.symbol_table.borrow().functions.get(&function_name).unwrap().output_type;
         match return_type {
             Type::Unit => {
                 call_instruction.push(';');
