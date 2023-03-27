@@ -28,10 +28,7 @@ pub use self::common::*;
 
 /// Contains traits and types for channels through which errors go.
 pub mod emitter;
-/// Contains the errors for the Leo lang.
+
+/// Contains the errors and warnings for the Leo lang.
 pub mod errors;
 pub use self::errors::*;
-
-/// Contains the warnings for the Leo lang.
-pub mod warnings;
-pub use self::warnings::*;

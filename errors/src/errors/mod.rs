@@ -124,5 +124,25 @@ impl LeoError {
     }
 }
 
+/// The LeoWarning type that contains all sub error types.
+/// This allows a unified error type throughout the Leo crates.
+#[derive(Debug, Error)]
+pub enum LeoWarning {
+    /// Represents an Parser Error in a Leo Error.
+    #[error(transparent)]
+    ParserWarning(#[from] ParserWarning),
+}
+
+impl LeoWarning {
+    /// Implement warning code for each type of Warning.
+    pub fn error_code(&self) -> String {
+        use LeoWarning::*;
+
+        match self {
+            ParserWarning(warning) => warning.warning_code(),
+        }
+    }
+}
+
 /// A global result type for all Leo crates, that defaults the errors to be a LeoError.
 pub type Result<T, E = LeoError> = core::result::Result<T, E>;
