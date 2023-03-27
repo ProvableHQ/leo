@@ -26,6 +26,7 @@ commands:
       - restore_cache:
           keys:
             - << parameters.cache_key >>
+
   clear_environment:
     description: "Clear environment"
     parameters:
@@ -41,6 +42,11 @@ commands:
             - .cache/sccache
             - .cargo
 
+  install_rust_nightly:
+    description: "Install Rust nightly toolchain"
+    steps:
+      - run: rustup toolchain install nightly-x86_64-unknown-linux-gnu
+
 jobs:
   check-style:
     docker:
@@ -48,6 +54,7 @@ jobs:
     resource_class: xlarge
     steps:
       - checkout
+      - install_rust_nightly
       - setup_environment:
           cache_key: leo-fmt-cache
       - run:
