@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372017]: The type `Board` is not found in the current scope.\n    --> compiler-test:4:35\n     |\n   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {\n     |                                   ^\nError [ETYC0372017]: The type `u128bool` is not found in the current scope.\n    --> compiler-test:4:55\n     |\n   4 |     function aria192check_for_win(b: Board, p: u8) -> u128bool {\n     |                                                       ^^^^^^^^\nError [ETYC0372005]: Unknown variable `test`\n    --> compiler-test:5:16\n     |\n   5 |         return test;\n     |                ^^^^\n"
