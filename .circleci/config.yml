@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Check style
           no_output_timeout: 35m
-          command: cargo fmt --all -- --check
+          command: cargo +nightly fmt --all -- --check
       - clear_environment:
           cache_key: leo-fmt-cache
 
@@ -69,9 +69,8 @@ jobs:
           name: Clippy
           no_output_timeout: 35m
           command: |
-            rustup toolchain install nightly-x86_64-unknown-linux-gnu
-            cargo +nightly clippy --workspace --all-targets -- -D warnings
-            cargo +nightly clippy --workspace --all-targets --all-features -- -D warnings
+            cargo clippy --workspace --all-targets -- -D warnings
+            cargo clippy --workspace --all-targets --all-features -- -D warnings
       - clear_environment:
           cache_key: leo-clippy-cache
 
