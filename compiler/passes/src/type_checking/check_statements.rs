@@ -349,11 +349,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Exit the scope.
         self.exit_scope(scope_index);
 
+        // Check that the literal is valid.
         self.visit_expression(&input.start, iter_type);
 
-        // If `input.start` is a literal, instantiate it as a value.
+        // If `input.start` is a valid literal, instantiate it as a value.
         if let Expression::Literal(literal) = &input.start {
-            input.start_value.replace(Some(Value::from(literal)));
+            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+            if let Ok(value) = Value::try_from(literal) {
+                input.start_value.replace(Some(value));
+            }
         } else {
             self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
         }
@@ -362,7 +366,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // If `input.stop` is a literal, instantiate it as a value.
         if let Expression::Literal(literal) = &input.stop {
-            input.stop_value.replace(Some(Value::from(literal)));
+            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+            if let Ok(value) = Value::try_from(literal) {
+                input.stop_value.replace(Some(value));
+            }
         } else {
             self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
         }
