@@ -1,5 +1,5 @@
 [hooks]
-# pre-commit = "cargo clippy && cargo +nightly fmt --all -- --check"
-# temp disable for this branch
+pre-commit = "cargo clippy --workspace --all-targets --all-features && cargo +nightly fmt --all -- --check"
+
 [logging]
 verbose = true
