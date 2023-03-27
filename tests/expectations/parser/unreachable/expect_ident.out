@@ -30,7 +30,7 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '<='\n    --> test:1:4\n     |\n   1 | x::<=\n     |    ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '>'\n    --> test:1:4\n     |\n   1 | x::>\n     |    ^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '..'\n    --> test:1:4\n     |\n   1 | x::..\n     |    ^^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:4\n     |\n   1 | x::as\n     |    ^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'as'\n    --> test:1:4\n     |\n   1 | x::as\n     |    ^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'console'\n    --> test:1:4\n     |\n   1 | x::console\n     |    ^^^^^^^"
   - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:4\n     |\n   1 | x::const\n     |    ^^^^^"
   - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'\n    --> test:1:4\n     |\n   1 | x::let\n     |    ^^^"

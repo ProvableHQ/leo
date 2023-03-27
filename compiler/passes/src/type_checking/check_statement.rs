@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{TypeChecker, VariableSymbol, VariableType};
+use crate::{TypeChecker, VariableType};
 use itertools::Itertools;
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
-use leo_span::{Span, Symbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {

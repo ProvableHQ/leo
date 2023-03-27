@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- found 'return'\n    --> compiler-test:8:9\n     |\n   8 |         return a;\n     |         ^^^^^^"

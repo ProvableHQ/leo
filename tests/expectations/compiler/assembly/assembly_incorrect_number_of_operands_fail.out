@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- found 'let'\n    --> compiler-test:9:9\n     |\n   9 |         let f: u8 = d + 1u8;\n     |         ^^^"

@@ -2,4 +2,5 @@
 namespace: ParseInstruction
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ';'\n    --> test:1:22\n     |\n   1 | cast foo bar into baz;\n     |                      ^"
+  - "Error [EPAR0370034]: Expected a valid opcode.\n    --> test:1:1\n     |\n   1 | cast foo bar baz bax.soup into fleeces as sheep;\n     | ^^^^"
+  - "Error [EPAR0370034]: Expected a valid opcode.\n    --> test:1:1\n     |\n   1 | cast foo bar into baz;\n     | ^^^^"

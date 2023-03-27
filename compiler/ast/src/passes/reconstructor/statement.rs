@@ -39,7 +39,17 @@ pub trait StatementReconstructor: ExpressionReconstructor + InstructionReconstru
     }
 
     fn reconstruct_assembly_block(&mut self, input: AssemblyBlock) -> (Statement, Self::AdditionalOutput) {
-        todo!()
+        (
+            Statement::AssemblyBlock(AssemblyBlock {
+                instructions: input
+                    .instructions
+                    .into_iter()
+                    .map(|inst| self.reconstruct_instruction(inst).0)
+                    .collect(),
+                span: input.span,
+            }),
+            Default::default(),
+        )
     }
 
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {

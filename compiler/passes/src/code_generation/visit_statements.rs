@@ -44,11 +44,12 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_assembly_block(&mut self, input: &'a AssemblyBlock) -> String {
-        let mut instructions = String::new();
-        for instruction in &input.instructions {
-            instructions.push_str(&instruction.to_string());
-        }
-        instructions
+        // For each instruction in the block, visit it and add it to the program.
+        input
+            .instructions
+            .iter()
+            .map(|inst| self.visit_instruction(inst))
+            .join("")
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) -> String {

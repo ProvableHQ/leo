@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::TypeChecker;
-use std::borrow::Borrow;
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;

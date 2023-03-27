@@ -1,0 +1,59 @@
+---
+namespace: ParseInstruction
+expectation: Pass
+outputs:
+  - opcode: Add
+    operands:
+      - Identifier: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":6}\"}"
+      - Identifier: "{\"name\":\"tree\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
+    destinations:
+      - "{\"name\":\"result\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":23}\"}"
+    span:
+      lo: 0
+      hi: 24
+  - opcode: Add
+    operands:
+      - Identifier: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":6}\"}"
+      - Identifier: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":9}\"}"
+      - Identifier: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":12}\"}"
+    destinations:
+      - "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":20}\"}"
+    span:
+      lo: 0
+      hi: 21
+  - opcode: Ternary
+    operands:
+      - Identifier: "{\"name\":\"floo\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":12}\"}"
+      - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+      - Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":20}\"}"
+    destinations:
+      - "{\"name\":\"fax\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
+    span:
+      lo: 0
+      hi: 30
+  - opcode: Ternary
+    operands:
+      - Identifier: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":10}\"}"
+      - Identifier: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":13}\"}"
+    destinations:
+      - "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":19,\\\"hi\\\":21}\"}"
+    span:
+      lo: 0
+      hi: 22
+  - opcode: Abs
+    operands:
+      - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":7}\"}"
+    destinations:
+      - "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":16}\"}"
+    span:
+      lo: 0
+      hi: 17
+  - opcode: Abs
+    operands:
+      - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":7}\"}"
+      - Identifier: "{\"name\":\"bax\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":11}\"}"
+    destinations:
+      - "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":20}\"}"
+    span:
+      lo: 0
+      hi: 21

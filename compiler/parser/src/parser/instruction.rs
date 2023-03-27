@@ -51,7 +51,7 @@ impl ParserContext<'_> {
                 | Expression::Access(AccessExpression::Member(_)) => {} // Valid
                 _ => return Err(ParserError::invalid_instruction_operand(expression.span()).into()),
             }
-            operands.push(self.parse_expression()?);
+            operands.push(expression);
         }
         if self.check_identifier_with_name(sym::into) {
             // Parse the `into` keyword.

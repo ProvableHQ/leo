@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- found 'y'\n    --> compiler-test:11:13\n     |\n  11 |             y = z + z;\n     |             ^"

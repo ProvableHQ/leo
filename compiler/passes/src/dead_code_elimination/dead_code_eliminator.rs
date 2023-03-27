@@ -17,6 +17,7 @@
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
+use leo_ast::{Instruction, InstructionReconstructor};
 
 #[derive(Default)]
 pub struct DeadCodeEliminator {
@@ -33,5 +34,12 @@ impl DeadCodeEliminator {
             used_variables: Default::default(),
             is_necessary: false,
         }
+    }
+}
+
+impl InstructionReconstructor for DeadCodeEliminator {
+    /// Instructions in assembly blocks are not to be eliminated.
+    fn reconstruct_instruction(&mut self, input: Instruction) -> (Instruction, Self::AdditionalOutput) {
+        (input, Default::default())
     }
 }

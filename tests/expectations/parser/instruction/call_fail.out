@@ -2,4 +2,5 @@
 namespace: ParseInstruction
 expectation: Fail
 outputs:
-  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '.'\n    --> test:1:9\n     |\n   1 | call foo.aleo r0 r1 into r2;\n     |         ^"
+  - "Error [EPAR0370034]: Expected a valid opcode.\n    --> test:1:1\n     |\n   1 | call foo bar baz into bax;\n     | ^^^^"
+  - "Error [EPAR0370034]: Expected a valid opcode.\n    --> test:1:1\n     |\n   1 | call foo.aleo r0 r1 into r2;\n     | ^^^^"

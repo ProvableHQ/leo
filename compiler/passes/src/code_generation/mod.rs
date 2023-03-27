@@ -19,6 +19,8 @@ pub use generator::*;
 
 mod visit_expressions;
 
+mod visit_instruction;
+
 mod visit_program;
 
 mod visit_statements;
