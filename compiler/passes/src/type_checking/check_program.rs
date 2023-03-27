@@ -243,13 +243,19 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
                 Output::Internal(function_output) => {
                     // Check that the type of output is defined.
-                    self.assert_type_is_defined(&function_output.type_, function_output.span);
-                    // If the function is not a transition function, then it cannot output a record.
-                    if let Type::Identifier(identifier) = function_output.type_ {
-                        if !matches!(function.variant, Variant::Transition)
-                            && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
-                        {
-                            self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                    if self.assert_type_is_defined(&function_output.type_, function_output.span) {
+                        // If the function is not a transition function, then it cannot output a record.
+                        if let Type::Identifier(identifier) = function_output.type_ {
+                            if !matches!(function.variant, Variant::Transition)
+                                && self
+                                    .symbol_table
+                                    .borrow()
+                                    .lookup_struct(identifier.name)
+                                    .unwrap()
+                                    .is_record
+                            {
+                                self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                            }
                         }
                     }
                     // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.

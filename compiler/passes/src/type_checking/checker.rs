@@ -352,29 +352,33 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the type or its constituent types are not defined.
-    pub(crate) fn assert_type_is_defined(&self, type_: &Type, span: Span) {
+    pub(crate) fn assert_type_is_defined(&self, type_: &Type, span: Span) -> bool {
+        let mut is_defined = true;
         match type_ {
             // String types are temporarily disabled.
             Type::String => {
+                is_defined = false;
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
+                is_defined = false;
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
-                    self.assert_type_is_defined(type_, span)
+                    is_defined &= self.assert_type_is_defined(type_, span)
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                self.assert_type_is_defined(&mapping_type.key, span);
-                self.assert_type_is_defined(&mapping_type.value, span);
+                is_defined &= self.assert_type_is_defined(&mapping_type.key, span);
+                is_defined &= self.assert_type_is_defined(&mapping_type.value, span);
             }
             _ => {} // Do nothing.
         }
+        is_defined
     }
 
     /// Emits an error if the type is not a mapping.

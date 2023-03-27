@@ -201,7 +201,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     }
                 }
             },
-            Type::Mapping(_) | Type::Err => unreachable!(),
+            Type::Mapping(_) | Type::Err => unreachable!(
+                "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
+            ),
             // Otherwise, the type is valid.
             _ => (), // Do nothing
         }
