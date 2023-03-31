@@ -237,18 +237,6 @@
 <a href="#237" id="237">237</a>
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -268,12 +256,10 @@
 </span><span class="kw">use crate</span>::{tokenizer::<span class="kw-2">*</span>, Token};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::emitter::Handler;
-<span class="kw">use </span>leo_errors::{ParserError, ParserWarning, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{emitter::Handler, ParserError, ParserWarning, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use </span>std::fmt::Display;
-<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::{fmt::Display, mem};
 
 <span class="doccomment">/// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
@@ -295,10 +281,7 @@
 }
 
 <span class="doccomment">/// Dummy span used to appease borrow checker.
-</span><span class="kw">const </span>DUMMY_EOF: SpannedToken = SpannedToken {
-    token: Token::Eof,
-    span: Span::dummy(),
-};
+</span><span class="kw">const </span>DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
@@ -332,10 +315,7 @@
         }
 
         <span class="comment">// Extract next token, or `Eof` if there was none.
-        </span><span class="kw">let </span>next_token = <span class="self">self</span>.tokens.pop().unwrap_or(SpannedToken {
-            token: Token::Eof,
-            span: <span class="self">self</span>.token.span,
-        });
+        </span><span class="kw">let </span>next_token = <span class="self">self</span>.tokens.pop().unwrap_or(SpannedToken { token: Token::Eof, span: <span class="self">self</span>.token.span });
 
         <span class="comment">// Set the new token.
         </span><span class="self">self</span>.prev_token = mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.token, next_token);
@@ -434,11 +414,7 @@
 
     <span class="doccomment">/// Eats the expected `token`, or errors.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>expect(<span class="kw-2">&amp;mut </span><span class="self">self</span>, token: <span class="kw-2">&amp;</span>Token) -&gt; <span class="prelude-ty">Result</span>&lt;Span&gt; {
-        <span class="kw">if </span><span class="self">self</span>.eat(token) {
-            <span class="prelude-val">Ok</span>(<span class="self">self</span>.prev_token.span)
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.unexpected(token)
-        }
+        <span class="kw">if </span><span class="self">self</span>.eat(token) { <span class="prelude-val">Ok</span>(<span class="self">self</span>.prev_token.span) } <span class="kw">else </span>{ <span class="self">self</span>.unexpected(token) }
     }
 
     <span class="doccomment">/// Eats one of the expected `tokens`, or errors.
@@ -501,4 +477,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

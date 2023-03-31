@@ -153,22 +153,6 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -235,15 +219,7 @@
     </span><span class="kw">where
         </span>S: ToString,
     {
-        <span class="self">Self </span>{
-            message: message.to_string(),
-            help,
-            code,
-            code_identifier,
-            type_,
-            error,
-            backtrace,
-        }
+        <span class="self">Self </span>{ message: message.to_string(), help, code, code_identifier, type_, error, backtrace }
     }
 
     <span class="doccomment">/// Gets the backtraced error exit code.
@@ -284,11 +260,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Backtraced {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">let </span>(kind, code) = <span class="kw">if </span><span class="self">self</span>.error {
-            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.error_code())
-        } <span class="kw">else </span>{
-            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.warning_code())
-        };
+        <span class="kw">let </span>(kind, code) = <span class="kw">if </span><span class="self">self</span>.error { (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.error_code()) } <span class="kw">else </span>{ (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.warning_code()) };
         <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, message = <span class="self">self</span>.message,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
@@ -315,17 +287,13 @@
             <span class="string">&quot;1&quot; </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
                 printer = printer.lib_verbosity(Verbosity::Medium);
-                <span class="kw">let </span>trace = printer
-                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace)
-                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="string">&quot;full&quot; </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
                 printer = printer.lib_verbosity(Verbosity::Full);
-                <span class="kw">let </span>trace = printer
-                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace)
-                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; {}
@@ -341,4 +309,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

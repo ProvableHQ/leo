@@ -97,7 +97,6 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -170,10 +169,9 @@
             (Type::Mapping(left), Type::Mapping(right)) =&gt; {
                 left.key.eq_flat(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.len() == right.len() =&gt; left
-                .iter()
-                .zip_eq(right.iter())
-                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.len() == right.len() =&gt; {
+                left.iter().zip_eq(right.iter()).all(|(left_type, right_type)| left_type.eq_flat(right_type))
+            }
             (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
@@ -199,4 +197,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

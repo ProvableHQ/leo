@@ -73,12 +73,6 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -112,10 +106,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; SymbolTableCreator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            symbol_table: Default::default(),
-            handler,
-        }
+        <span class="self">Self </span>{ symbol_table: Default::default(), handler }
     }
 }
 
@@ -139,17 +130,14 @@
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) {
         <span class="comment">// Add the variable associated with the mapping to the symbol table.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_variable(
-            input.identifier.name,
-            VariableSymbol {
-                type_: Type::Mapping(MappingType {
-                    key: Box::new(input.key_type.clone()),
-                    value: Box::new(input.value_type.clone()),
-                }),
-                span: input.span,
-                declaration: VariableType::Mut,
-            },
-        ) {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_variable(input.identifier.name, VariableSymbol {
+            type_: Type::Mapping(MappingType {
+                key: Box::new(input.key_type.clone()),
+                value: Box::new(input.value_type.clone()),
+            }),
+            span: input.span,
+            declaration: VariableType::Mut,
+        }) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
@@ -161,4 +149,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

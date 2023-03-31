@@ -196,11 +196,6 @@
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -244,12 +239,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::invalid_package_name(package_name).into());
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            name: package_name.to_owned(),
-            version: <span class="string">&quot;0.1.0&quot;</span>.to_owned(),
-            description: <span class="prelude-val">None</span>,
-            license: <span class="prelude-val">None</span>,
-        })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name: package_name.to_owned(), version: <span class="string">&quot;0.1.0&quot;</span>.to_owned(), description: <span class="prelude-val">None</span>, license: <span class="prelude-val">None </span>})
     }
 
     <span class="doccomment">/// Returns `true` if the package name is valid.
@@ -405,4 +395,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

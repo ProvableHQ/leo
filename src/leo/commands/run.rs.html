@@ -93,13 +93,6 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -117,9 +110,8 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span><span class="kw">super</span>::build::BuildOptions;
-<span class="kw">use </span><span class="kw">crate</span>::commands::ALEO_CLI_COMMAND;
 <span class="kw">use crate</span>::{
-    commands::{Build, Command},
+    commands::{Build, Command, ALEO_CLI_COMMAND},
     context::Context,
 };
 <span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>};
@@ -136,10 +128,7 @@
     <span class="attr">#[structopt(name = <span class="string">&quot;NAME&quot;</span>, help = <span class="string">&quot;The name of the program to run.&quot;</span>, default_value = <span class="string">&quot;main&quot;</span>)]
     </span>name: String,
 
-    <span class="attr">#[structopt(
-        name = <span class="string">&quot;INPUTS&quot;</span>,
-        help = <span class="string">&quot;The inputs to the program. If none are provided, the input file is used.&quot;
-    </span>)]
+    <span class="attr">#[structopt(name = <span class="string">&quot;INPUTS&quot;</span>, help = <span class="string">&quot;The inputs to the program. If none are provided, the input file is used.&quot;</span>)]
     </span>inputs: Vec&lt;String&gt;,
 
     <span class="attr">#[structopt(flatten)]
@@ -155,10 +144,7 @@
     }
 
     <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
-        (Build {
-            options: <span class="self">self</span>.compiler_options.clone(),
-        })
-        .execute(context)
+        (Build { options: <span class="self">self</span>.compiler_options.clone() }).execute(context)
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
@@ -203,4 +189,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

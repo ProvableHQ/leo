@@ -596,33 +596,6 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -840,10 +813,7 @@
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     </span><span class="kw">fn </span>parse_multiplicative_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="self">self</span>.parse_bin_expr(
-            <span class="kw-2">&amp;</span>[Token::Mul, Token::Div, Token::Rem],
-            <span class="self">Self</span>::parse_exponential_expression,
-        )
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::Mul, Token::Div, Token::Rem], <span class="self">Self</span>::parse_exponential_expression)
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
@@ -891,11 +861,7 @@
                     Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span))
                 }
                 <span class="comment">// Otherwise, produce a unary expression.
-                </span><span class="kw">_ </span>=&gt; Expression::Unary(UnaryExpression {
-                    span: op_span + inner.span(),
-                    op,
-                    receiver: Box::new(inner),
-                }),
+                </span><span class="kw">_ </span>=&gt; Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) }),
             };
         }
         <span class="prelude-val">Ok</span>(inner)
@@ -910,11 +876,7 @@
 
         <span class="kw">if let </span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             <span class="comment">// Found an unary operator and the argument list is empty.
-            </span><span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression {
-                span,
-                op,
-                receiver: Box::new(receiver),
-            }))
+            </span><span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression { span, op, receiver: Box::new(receiver) }))
         } <span class="kw">else if let </span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             <span class="comment">// Found a binary operator and the argument list contains a single argument.
             </span><span class="prelude-val">Ok</span>(Expression::Binary(BinaryExpression {
@@ -984,11 +946,8 @@
                 <span class="kw">if </span><span class="self">self</span>.check_int() {
                     <span class="comment">// Eat a tuple member access.
                     </span><span class="kw">let </span>(index, span) = <span class="self">self</span>.eat_integer()<span class="question-mark">?</span>;
-                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index,
-                        span,
-                    }))
+                    expr =
+                        Expression::Access(AccessExpression::Tuple(TupleAccess { tuple: Box::new(expr), index, span }))
                 } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
                     <span class="comment">// Eat an external function call.
                     </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
@@ -1109,11 +1068,7 @@
         </span><span class="kw">let </span>end_span = check_ahead(dist, <span class="kw-2">&amp;</span>Token::Group)<span class="question-mark">?</span>;
         dist += <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.
 
-        </span><span class="kw">let </span>gt = GroupTuple {
-            span: start_span + <span class="kw-2">&amp;</span>end_span,
-            x: first_gc,
-            y: second_gc,
-        };
+        </span><span class="kw">let </span>gt = GroupTuple { span: start_span + <span class="kw-2">&amp;</span>end_span, x: first_gc, y: second_gc };
 
         <span class="comment">// Eat everything so that this isn&#39;t just peeking.
         </span><span class="kw">for _ in </span><span class="number">0</span>..dist {
@@ -1150,15 +1105,10 @@
     /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
     </span><span class="kw">pub fn </span>parse_struct_init_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="kw">let </span>(members, <span class="kw">_</span>, end) = <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">Some</span>(Token::Comma), |p| {
-            p.parse_struct_member().map(<span class="prelude-val">Some</span>)
-        })<span class="question-mark">?</span>;
+        <span class="kw">let </span>(members, <span class="kw">_</span>, end) =
+            <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">Some</span>(Token::Comma), |p| p.parse_struct_member().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Expression::Struct(StructExpression {
-            span: identifier.span + end,
-            name: identifier,
-            members,
-        }))
+        <span class="prelude-val">Ok</span>(Expression::Struct(StructExpression { span: identifier.span + end, name: identifier, members }))
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -1225,14 +1175,10 @@
                     Expression::Identifier(ident)
                 }
             }
-            Token::SelfLower =&gt; Expression::Identifier(Identifier {
-                name: sym::SelfLower,
-                span,
-            }),
-            t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; Expression::Identifier(Identifier {
-                name: t.keyword_to_symbol().unwrap(),
-                span,
-            }),
+            Token::SelfLower =&gt; Expression::Identifier(Identifier { name: sym::SelfLower, span }),
+            t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; {
+                Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span })
+            }
             token =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_str(token, <span class="string">&quot;expression&quot;</span>, span).into());
             }
@@ -1249,4 +1195,4 @@
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

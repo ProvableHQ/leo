@@ -98,20 +98,6 @@
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -131,8 +117,17 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::FunctionInliner;
 
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression,
-    ExpressionReconstructor, ExpressionStatement, IterationStatement, Statement, StatementReconstructor,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    ExpressionStatement,
+    IterationStatement,
+    Statement,
+    StatementReconstructor,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>FunctionInliner&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -143,29 +138,15 @@
         <span class="kw">match </span>(input.place, value) {
             <span class="comment">// If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
             </span>(Expression::Tuple(left), Expression::Tuple(right)) <span class="kw">if </span>left.elements.len() == right.elements.len() =&gt; {
-                statements.extend(
-                    left.elements
-                        .into_iter()
-                        .zip(right.elements.into_iter())
-                        .map(|(lhs, rhs)| {
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: lhs,
-                                value: rhs,
-                                span: Default::default(),
-                            }))
-                        }),
-                );
+                statements.extend(left.elements.into_iter().zip(right.elements.into_iter()).map(|(lhs, rhs)| {
+                    Statement::Assign(Box::new(AssignStatement { place: lhs, value: rhs, span: Default::default() }))
+                }));
                 (Statement::dummy(Default::default()), statements)
             }
 
-            (place, value) =&gt; (
-                Statement::Assign(Box::new(AssignStatement {
-                    place,
-                    value,
-                    span: input.span,
-                })),
-                statements,
-            ),
+            (place, value) =&gt; {
+                (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), statements)
+            }
         }
     }
 
@@ -179,13 +160,7 @@
             statements.push(reconstructed_statement);
         }
 
-        (
-            Block {
-                span: block.span,
-                statements,
-            },
-            Default::default(),
-        )
+        (Block { span: block.span, statements }, Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -212,10 +187,7 @@
         <span class="comment">// If the resulting expression is a unit expression, return a dummy statement.
         </span><span class="kw">let </span>statement = <span class="kw">match </span>expression {
             Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(Default::default()),
-            <span class="kw">_ </span>=&gt; Statement::Expression(ExpressionStatement {
-                expression,
-                span: input.span,
-            }),
+            <span class="kw">_ </span>=&gt; Statement::Expression(ExpressionStatement { expression, span: input.span }),
         };
 
         (statement, additional_statements)
@@ -227,4 +199,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

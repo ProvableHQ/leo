@@ -231,12 +231,6 @@
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -364,10 +358,7 @@
     ///
     /// [thread ID]: https://doc.rust-lang.org/stable/std/thread/struct.ThreadId.html
     </span><span class="kw">pub fn </span>with_thread_ids(<span class="self">self</span>, display_thread_id: bool) -&gt; Format&lt;F, T&gt; {
-        Format {
-            display_thread_id,
-            ..<span class="self">self
-        </span>}
+        Format { display_thread_id, ..<span class="self">self </span>}
     }
 
     <span class="doccomment">/// Sets whether or not the [name] of the current thread is displayed
@@ -375,10 +366,7 @@
     ///
     /// [name]: https://doc.rust-lang.org/stable/std/thread/index.html#naming-threads
     </span><span class="kw">pub fn </span>with_thread_names(<span class="self">self</span>, display_thread_name: bool) -&gt; Format&lt;F, T&gt; {
-        Format {
-            display_thread_name,
-            ..<span class="self">self
-        </span>}
+        Format { display_thread_name, ..<span class="self">self </span>}
     }
 }
 
@@ -477,4 +465,4 @@
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

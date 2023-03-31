@@ -55,11 +55,6 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -81,8 +76,7 @@
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
-<span class="kw">use </span>std::cell::RefCell;
-<span class="kw">use </span>std::fmt;
+<span class="kw">use </span>std::{cell::RefCell, fmt};
 
 <span class="doccomment">/// A bounded `for` loop statement `for variable in start .. =? stop block`.
 </span><span class="attr">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -113,14 +107,10 @@
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>IterationStatement {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">let </span>eq = <span class="kw">if </span><span class="self">self</span>.inclusive { <span class="string">&quot;=&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;&quot; </span>};
-        <span class="macro">write!</span>(
-            f,
-            <span class="string">&quot;for {} in {}..{eq}{} {}&quot;</span>,
-            <span class="self">self</span>.variable, <span class="self">self</span>.start, <span class="self">self</span>.stop, <span class="self">self</span>.block
-        )
+        <span class="macro">write!</span>(f, <span class="string">&quot;for {} in {}..{eq}{} {}&quot;</span>, <span class="self">self</span>.variable, <span class="self">self</span>.start, <span class="self">self</span>.stop, <span class="self">self</span>.block)
     }
 }
 
 <span class="macro">crate::simple_node_impl!</span>(IterationStatement);
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

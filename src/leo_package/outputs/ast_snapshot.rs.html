@@ -95,14 +95,6 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -138,16 +130,12 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Snapshot {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(
-            f,
-            <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Initial =&gt; <span class="string">&quot;initial_ast&quot;</span>,
-                <span class="self">Self</span>::ImportsResolved =&gt; <span class="string">&quot;imports_resolved_ast&quot;</span>,
-                <span class="self">Self</span>::TypeInference =&gt; <span class="string">&quot;type_inferenced_ast&quot;</span>,
-                <span class="self">Self</span>::Canonicalization =&gt; <span class="string">&quot;canonicalization_ast&quot;</span>,
-            }
-        )
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Initial =&gt; <span class="string">&quot;initial_ast&quot;</span>,
+            <span class="self">Self</span>::ImportsResolved =&gt; <span class="string">&quot;imports_resolved_ast&quot;</span>,
+            <span class="self">Self</span>::TypeInference =&gt; <span class="string">&quot;type_inferenced_ast&quot;</span>,
+            <span class="self">Self</span>::Canonicalization =&gt; <span class="string">&quot;canonicalization_ast&quot;</span>,
+        })
     }
 }
 
@@ -163,10 +151,7 @@
 
 <span class="kw">impl </span>SnapshotFile {
     <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str, snapshot: Snapshot) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            package_name: package_name.to_string(),
-            snapshot,
-        }
+        <span class="self">Self </span>{ package_name: package_name.to_string(), snapshot }
     }
 
     <span class="kw">pub fn </span>exists_at(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
@@ -202,11 +187,10 @@
             <span class="kw">if </span>!path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.to_mut()
-                .push(<span class="macro">format!</span>(<span class="string">&quot;{}{AST_SNAPSHOT_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.snapshot));
+            path.to_mut().push(<span class="macro">format!</span>(<span class="string">&quot;{}{AST_SNAPSHOT_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.snapshot));
         }
         path
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

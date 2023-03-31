@@ -298,31 +298,6 @@
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -467,12 +442,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         <span class="kw">for </span>((path, content), config) <span class="kw">in </span><span class="self">self</span>.tests.clone().iter().zip(configs.into_iter()) {
-            <span class="kw">let </span>test_name = path
-                .file_stem()
-                .expect(<span class="string">&quot;no file name for test&quot;</span>)
-                .to_str()
-                .unwrap()
-                .to_string();
+            <span class="kw">let </span>test_name = path.file_stem().expect(<span class="string">&quot;no file name for test&quot;</span>).to_str().unwrap().to_string();
 
             <span class="kw">let </span>end_of_header = content.find(<span class="string">&quot;*/&quot;</span>).expect(<span class="string">&quot;failed to find header block in test&quot;</span>);
             <span class="kw">let </span>content = <span class="kw-2">&amp;</span>content[end_of_header + <span class="number">2</span>..];
@@ -501,10 +471,7 @@
                 (expectation_path, <span class="prelude-val">None</span>)
             } <span class="kw">else </span>{
                 <span class="kw">let </span>raw = std::fs::read_to_string(<span class="kw-2">&amp;</span>expectation_path).expect(<span class="string">&quot;failed to read expectations file&quot;</span>);
-                (
-                    expectation_path,
-                    <span class="prelude-val">Some</span>(serde_yaml::from_str(<span class="kw-2">&amp;</span>raw).expect(<span class="string">&quot;invalid yaml in expectations file&quot;</span>)),
-                )
+                (expectation_path, <span class="prelude-val">Some</span>(serde_yaml::from_str(<span class="kw-2">&amp;</span>raw).expect(<span class="string">&quot;invalid yaml in expectations file&quot;</span>)))
             }
         } <span class="kw">else </span>{
             (expectation_path, <span class="prelude-val">None</span>)
@@ -529,10 +496,7 @@
         <span class="kw">let </span>(expectation_path, expectations) = cases.load_expectations(path);
 
         <span class="kw">let </span>tests = <span class="kw">match </span>namespace.parse_type() {
-            ParseType::Line =&gt; <span class="kw">crate</span>::fetch::split_tests_one_line(content)
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
+            ParseType::Line =&gt; <span class="kw">crate</span>::fetch::split_tests_one_line(content).into_iter().map(|x| x.to_string()).collect(),
             ParseType::ContinuousLines =&gt; <span class="kw">crate</span>::fetch::split_tests_two_line(content),
             ParseType::Whole =&gt; <span class="macro">vec!</span>[content.to_string()],
         };
@@ -576,30 +540,21 @@
 
         <span class="kw">if </span>errors.is_empty() {
             <span class="kw">if </span>expectations.is_none() {
-                outputs.push((
-                    expectation_path,
-                    TestExpectation {
-                        namespace: config.namespace,
-                        expectation: config.expectation,
-                        outputs: new_outputs,
-                    },
-                ));
+                outputs.push((expectation_path, TestExpectation {
+                    namespace: config.namespace,
+                    expectation: config.expectation,
+                    outputs: new_outputs,
+                }));
             }
             pass_categories += <span class="number">1</span>;
         } <span class="kw">else </span>{
-            cases.fail_categories.push(TestFailure {
-                path: path.to_str().unwrap().to_string(),
-                errors,
-            })
+            cases.fail_categories.push(TestFailure { path: path.to_str().unwrap().to_string(), errors })
         }
     });
 
     <span class="kw">if </span>!cases.fail_categories.is_empty() {
         <span class="kw">for </span>(i, fail) <span class="kw">in </span>cases.fail_categories.iter().enumerate() {
-            <span class="macro">println!</span>(
-                <span class="string">&quot;\n\n-----------------TEST #{} FAILED (and shouldn&#39;t have)-----------------&quot;</span>,
-                i + <span class="number">1
-            </span>);
+            <span class="macro">println!</span>(<span class="string">&quot;\n\n-----------------TEST #{} FAILED (and shouldn&#39;t have)-----------------&quot;</span>, i + <span class="number">1</span>);
             <span class="macro">println!</span>(<span class="string">&quot;File: {}&quot;</span>, fail.path);
             <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>fail.errors {
                 <span class="macro">println!</span>(<span class="string">&quot;{error}&quot;</span>);
@@ -638,15 +593,10 @@
     <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(<span class="string">&quot;compiler&quot;</span>, |config| {
         (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Bench&quot; </span>&amp;&amp; config.expectation == TestExpectationMode::Pass)
             || ((<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Compile&quot; </span>|| <span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Execute&quot;</span>)
-                &amp;&amp; !<span class="macro">matches!</span>(
-                    config.expectation,
-                    TestExpectationMode::Fail | TestExpectationMode::Skip
-                ))
+                &amp;&amp; !<span class="macro">matches!</span>(config.expectation, TestExpectationMode::Fail | TestExpectationMode::Skip))
     });
 
-    cases.process_tests(configs, |<span class="kw">_</span>, (<span class="kw">_</span>, content, test_name, <span class="kw">_</span>)| {
-        (test_name.to_string(), content.to_string())
-    })
+    cases.process_tests(configs, |<span class="kw">_</span>, (<span class="kw">_</span>, content, test_name, <span class="kw">_</span>)| (test_name.to_string(), content.to_string()))
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_test_framework" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_test_framework" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

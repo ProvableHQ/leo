@@ -126,6 +126,26 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -252,7 +272,27 @@
     }
 }
 
+<span class="doccomment">/// The LeoWarning type that contains all sub error types.
+/// This allows a unified error type throughout the Leo crates.
+</span><span class="attr">#[derive(Debug, Error)]
+</span><span class="kw">pub enum </span>LeoWarning {
+    <span class="doccomment">/// Represents an Parser Error in a Leo Error.
+    </span><span class="attr">#[error(transparent)]
+    </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
+}
+
+<span class="kw">impl </span>LeoWarning {
+    <span class="doccomment">/// Implement warning code for each type of Warning.
+    </span><span class="kw">pub fn </span>error_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">use </span>LeoWarning::<span class="kw-2">*</span>;
+
+        <span class="kw">match </span><span class="self">self </span>{
+            ParserWarning(warning) =&gt; warning.warning_code(),
+        }
+    }
+}
+
 <span class="doccomment">/// A global result type for all Leo crates, that defaults the errors to be a LeoError.
 </span><span class="kw">pub type </span><span class="prelude-ty">Result</span>&lt;T, E = LeoError&gt; = core::result::Result&lt;T, E&gt;;
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

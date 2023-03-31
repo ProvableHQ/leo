@@ -403,9 +403,6 @@
 <a href="#403" id="403">403</a>
 <a href="#404" id="404">404</a>
 <a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -427,9 +424,27 @@
 <span class="kw">use </span>std::borrow::Borrow;
 
 <span class="kw">use </span>leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
-    ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    Node,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
@@ -543,10 +558,7 @@
             {
                 <span class="comment">// Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                </span><span class="self">self</span>.tuples.insert(
-                    lhs_identifier.name,
-                    <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>rhs_identifier.name).unwrap().clone(),
-                );
+                </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>rhs_identifier.name).unwrap().clone());
                 <span class="comment">// Note that tuple assignments are removed from the AST.
                 </span>(Statement::dummy(Default::default()), statements)
             }
@@ -613,10 +625,7 @@
             }
             (Expression::Identifier(identifier), expression) =&gt; {
                 <span class="self">self</span>.update_structs(<span class="kw-2">&amp;</span>identifier, <span class="kw-2">&amp;</span>expression);
-                (
-                    <span class="self">self</span>.assigner.simple_assign_statement(identifier, expression),
-                    statements,
-                )
+                (<span class="self">self</span>.assigner.simple_assign_statement(identifier, expression), statements)
             }
             <span class="comment">// If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             </span>(Expression::Tuple(tuple), Expression::Call(call)) =&gt; {
@@ -634,22 +643,16 @@
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the output type is a tuple.&quot;</span>),
                 };
 
-                tuple
-                    .elements
-                    .iter()
-                    .zip_eq(output_type.<span class="number">0</span>.iter())
-                    .for_each(|(identifier, type_)| {
-                        <span class="kw">let </span>identifier = <span class="kw">match </span>identifier {
-                            Expression::Identifier(identifier) =&gt; identifier,
-                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                                <span class="string">&quot;Type checking guarantees that a tuple element on the lhs is an identifier.&quot;
-                            </span>),
-                        };
-                        <span class="comment">// If the output type is a struct, add it to `self.structs`.
-                        </span><span class="kw">if let </span>Type::Identifier(struct_name) = type_ {
-                            <span class="self">self</span>.structs.insert(identifier.name, struct_name.name);
-                        }
-                    });
+                tuple.elements.iter().zip_eq(output_type.<span class="number">0</span>.iter()).for_each(|(identifier, type_)| {
+                    <span class="kw">let </span>identifier = <span class="kw">match </span>identifier {
+                        Expression::Identifier(identifier) =&gt; identifier,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that a tuple element on the lhs is an identifier.&quot;</span>),
+                    };
+                    <span class="comment">// If the output type is a struct, add it to `self.structs`.
+                    </span><span class="kw">if let </span>Type::Identifier(struct_name) = type_ {
+                        <span class="self">self</span>.structs.insert(identifier.name, struct_name.name);
+                    }
+                });
 
                 (
                     Statement::Assign(Box::new(AssignStatement {
@@ -726,13 +729,7 @@
             statements.push(reconstructed_statement);
         }
 
-        (
-            Block {
-                span: block.span,
-                statements,
-            },
-            Default::default(),
-        )
+        (Block { span: block.span, statements }, Default::default())
     }
 
     <span class="doccomment">/// Flatten a conditional statement into a list of statements.
@@ -798,14 +795,11 @@
             </span>Expression::Identifier(identifier) <span class="kw">if </span><span class="self">self</span>.tuples.contains_key(<span class="kw-2">&amp;</span>identifier.name) =&gt; {
                 <span class="comment">// Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
                 </span><span class="kw">let </span>tuple = <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>identifier.name).unwrap().clone();
-                <span class="self">self</span>.returns.push((
-                    guard,
-                    ReturnStatement {
-                        span: input.span,
-                        expression: Expression::Tuple(tuple),
-                        finalize_arguments: input.finalize_arguments,
-                    },
-                ));
+                <span class="self">self</span>.returns.push((guard, ReturnStatement {
+                    span: input.span,
+                    expression: Expression::Tuple(tuple),
+                    finalize_arguments: input.finalize_arguments,
+                }));
             }
             <span class="comment">// Otherwise, add the expression directly.
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.returns.push((guard, input)),
@@ -815,4 +809,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

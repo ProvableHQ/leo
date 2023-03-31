@@ -212,8 +212,6 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -233,9 +231,22 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::DeadCodeEliminator;
 
 <span class="kw">use </span>leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, ExpressionStatement, IncrementStatement,
-    IterationStatement, ReturnStatement, Statement, StatementReconstructor,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DecrementStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    ExpressionStatement,
+    IncrementStatement,
+    IterationStatement,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
 };
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator {
@@ -247,14 +258,12 @@
         </span><span class="kw">let </span>statement = Statement::Assert(AssertStatement {
             variant: <span class="kw">match </span>input.variant {
                 AssertVariant::Assert(expr) =&gt; AssertVariant::Assert(<span class="self">self</span>.reconstruct_expression(expr).<span class="number">0</span>),
-                AssertVariant::AssertEq(left, right) =&gt; AssertVariant::AssertEq(
-                    <span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>,
-                    <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>,
-                ),
-                AssertVariant::AssertNeq(left, right) =&gt; AssertVariant::AssertNeq(
-                    <span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>,
-                    <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>,
-                ),
+                AssertVariant::AssertEq(left, right) =&gt; {
+                    AssertVariant::AssertEq(<span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>, <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>)
+                }
+                AssertVariant::AssertNeq(left, right) =&gt; {
+                    AssertVariant::AssertNeq(<span class="self">self</span>.reconstruct_expression(left).<span class="number">0</span>, <span class="self">self</span>.reconstruct_expression(right).<span class="number">0</span>)
+                }
             },
             span: input.span,
         });
@@ -311,23 +320,13 @@
     <span class="doccomment">/// Reconstructs the statements inside a basic block, eliminating any dead code.
     </span><span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Reconstruct each of the statements in reverse.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>statements: Vec&lt;Statement&gt; = block
-            .statements
-            .into_iter()
-            .rev()
-            .map(|statement| <span class="self">self</span>.reconstruct_statement(statement).<span class="number">0</span>)
-            .collect();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>statements: Vec&lt;Statement&gt; =
+            block.statements.into_iter().rev().map(|statement| <span class="self">self</span>.reconstruct_statement(statement).<span class="number">0</span>).collect();
 
         <span class="comment">// Reverse the direction of `statements`.
         </span>statements.reverse();
 
-        (
-            Block {
-                statements,
-                span: block.span,
-            },
-            Default::default(),
-        )
+        (Block { statements, span: block.span }, Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -416,10 +415,7 @@
         </span><span class="kw">let </span>statement = Statement::Return(ReturnStatement {
             expression: <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>,
             finalize_arguments: input.finalize_arguments.map(|arguments| {
-                arguments
-                    .into_iter()
-                    .map(|argument| <span class="self">self</span>.reconstruct_expression(argument).<span class="number">0</span>)
-                    .collect()
+                arguments.into_iter().map(|argument| <span class="self">self</span>.reconstruct_expression(argument).<span class="number">0</span>).collect()
             }),
             span: input.span,
         });
@@ -431,4 +427,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

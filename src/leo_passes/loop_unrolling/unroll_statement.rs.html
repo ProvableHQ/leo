@@ -106,19 +106,6 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -139,8 +126,7 @@
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use </span><span class="kw">crate</span>::unroller::Unroller;
-<span class="kw">use crate</span>::{VariableSymbol, VariableType};
+<span class="kw">use crate</span>::{unroller::Unroller, VariableSymbol, VariableType};
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
@@ -150,11 +136,7 @@
         </span><span class="kw">let </span>previous_scope_index = <span class="self">self</span>.enter_scope(scope_index);
 
         <span class="kw">let </span>block = Block {
-            statements: input
-                .statements
-                .into_iter()
-                .map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>)
-                .collect(),
+            statements: input.statements.into_iter().map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>).collect(),
             span: input.span,
         };
 
@@ -167,32 +149,28 @@
     <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// If we are unrolling a loop, then we need to repopulate the symbol table.
         </span><span class="kw">if </span><span class="self">self</span>.is_unrolling {
-            <span class="kw">let </span>declaration = <span class="kw">if </span>input.declaration_type == DeclarationType::Const {
-                VariableType::Const
-            } <span class="kw">else </span>{
-                VariableType::Mut
-            };
+            <span class="kw">let </span>declaration =
+                <span class="kw">if </span>input.declaration_type == DeclarationType::Const { VariableType::Const } <span class="kw">else </span>{ VariableType::Mut };
 
             <span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                    symbol,
-                    VariableSymbol {
-                        type_,
-                        span,
-                        declaration,
-                    },
-                ) {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                    <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
+                {
                     <span class="self">self</span>.handler.emit_err(err);
                 }
             };
 
             <span class="comment">// Insert the variables in the into the symbol table.
             </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
-                Expression::Identifier(identifier) =&gt; insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration),
+                Expression::Identifier(identifier) =&gt; {
+                    insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                }
                 Expression::Tuple(tuple_expression) =&gt; {
                     <span class="kw">let </span>tuple_type = <span class="kw">match </span>input.type_ {
                         Type::Tuple(<span class="kw-2">ref </span>tuple_type) =&gt; tuple_type,
-                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;</span>)
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                            <span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;
+                        </span>),
                     };
                     tuple_expression.elements.iter().zip_eq(tuple_type.<span class="number">0</span>.iter()).for_each(|(expression, type_)| {
                         <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
@@ -201,9 +179,10 @@
                         };
                         insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
                     });
-                },
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple.&quot;</span>)
-
+                }
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                    <span class="string">&quot;Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple.&quot;
+                </span>),
             }
         }
         (Statement::Definition(input), Default::default())
@@ -212,27 +191,22 @@
     <span class="kw">fn </span>reconstruct_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// We match on start and stop cause loops require
         // bounds to be constants.
-        </span><span class="kw">match </span>(
-            input.start_value.clone().into_inner(),
-            input.stop_value.clone().into_inner(),
-        ) {
+        </span><span class="kw">match </span>(input.start_value.clone().into_inner(), input.stop_value.clone().into_inner()) {
             (<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(stop)) =&gt; <span class="kw">match </span>(Type::from(<span class="kw-2">&amp;</span>start), Type::from(<span class="kw-2">&amp;</span>stop)) {
                 (Type::Integer(IntegerType::I8), Type::Integer(IntegerType::I8))
                 | (Type::Integer(IntegerType::I16), Type::Integer(IntegerType::I16))
                 | (Type::Integer(IntegerType::I32), Type::Integer(IntegerType::I32))
                 | (Type::Integer(IntegerType::I64), Type::Integer(IntegerType::I64))
-                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) =&gt; (
-                    <span class="self">self</span>.unroll_iteration_statement::&lt;i128&gt;(input, start, stop),
-                    Default::default(),
-                ),
+                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) =&gt; {
+                    (<span class="self">self</span>.unroll_iteration_statement::&lt;i128&gt;(input, start, stop), Default::default())
+                }
                 (Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U8))
                 | (Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U16))
                 | (Type::Integer(IntegerType::U32), Type::Integer(IntegerType::U32))
                 | (Type::Integer(IntegerType::U64), Type::Integer(IntegerType::U64))
-                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) =&gt; (
-                    <span class="self">self</span>.unroll_iteration_statement::&lt;u128&gt;(input, start, stop),
-                    Default::default(),
-                ),
+                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) =&gt; {
+                    (<span class="self">self</span>.unroll_iteration_statement::&lt;u128&gt;(input, start, stop), Default::default())
+                }
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking ensures that `start` and `stop` have the same type.&quot;</span>),
             },
             <span class="comment">// If both loop bounds are not constant, then the loop is not unrolled.
@@ -241,4 +215,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

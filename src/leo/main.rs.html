@@ -146,21 +146,6 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -182,14 +167,12 @@
 <span class="kw">pub mod </span>logger;
 <span class="kw">pub mod </span>updater;
 
-<span class="kw">use </span><span class="kw">crate</span>::commands::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::context::<span class="kw-2">*</span>;
+<span class="kw">use crate</span>::{commands::<span class="kw-2">*</span>, context::<span class="kw-2">*</span>};
 <span class="kw">use </span>leo_errors::Result;
 <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
 
 <span class="kw">use </span>clap::StructOpt;
-<span class="kw">use </span>std::path::PathBuf;
-<span class="kw">use </span>std::process::exit;
+<span class="kw">use </span>std::{path::PathBuf, process::exit};
 
 <span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
 </span><span class="attr">#[derive(StructOpt, Debug)]
@@ -207,12 +190,7 @@
     <span class="attr">#[structopt(help = <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, env = <span class="string">&quot;APM_URL&quot;</span>)]
     </span>api: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="attr">#[structopt(
-        long,
-        global = <span class="bool-val">true</span>,
-        help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>,
-        parse(from_os_str)
-    )]
+    <span class="attr">#[structopt(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>, parse(from_os_str))]
     </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
@@ -258,15 +236,13 @@
     <span class="attr">#[cfg(not(debug_assertions))]
     </span>std::panic::set_hook({
         Box::new(<span class="kw">move </span>|e| {
-            <span class="macro">eprintln!</span>(
-                <span class="string">&quot;thread `{}` {}&quot;</span>,
-                std::thread::current().name().unwrap_or(<span class="string">&quot;&lt;unnamed&gt;&quot;</span>),
-                e
-            );
+            <span class="macro">eprintln!</span>(<span class="string">&quot;thread `{}` {}&quot;</span>, std::thread::current().name().unwrap_or(<span class="string">&quot;&lt;unnamed&gt;&quot;</span>), e);
             <span class="macro">eprintln!</span>(<span class="string">&quot;stack backtrace: \n{:?}&quot;</span>, backtrace::Backtrace::new());
             <span class="macro">eprintln!</span>(<span class="string">&quot;error: internal compiler error: unexpected panic\n&quot;</span>);
             <span class="macro">eprintln!</span>(<span class="string">&quot;note: the compiler unexpectedly panicked. this is a bug.\n&quot;</span>);
-            <span class="macro">eprintln!</span>(<span class="string">&quot;note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&amp;template=bug.md&amp;title=[Bug]\n&quot;</span>);
+            <span class="macro">eprintln!</span>(
+                <span class="string">&quot;note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&amp;template=bug.md&amp;title=[Bug]\n&quot;
+            </span>);
             <span class="macro">eprintln!</span>(
                 <span class="string">&quot;note: {} {} running on {} {}\n&quot;</span>,
                 <span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_NAME&quot;</span>),
@@ -274,10 +250,7 @@
                 sys_info::os_type().unwrap_or_else(|e| e.to_string()),
                 sys_info::os_release().unwrap_or_else(|e| e.to_string()),
             );
-            <span class="macro">eprintln!</span>(
-                <span class="string">&quot;note: compiler args: {}\n&quot;</span>,
-                std::env::args().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot; &quot;</span>)
-            );
+            <span class="macro">eprintln!</span>(<span class="string">&quot;note: compiler args: {}\n&quot;</span>, std::env::args().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot; &quot;</span>));
             <span class="macro">eprintln!</span>(<span class="string">&quot;note: compiler flags: {:?}\n&quot;</span>, CLI::parse());
         })
     });
@@ -297,13 +270,10 @@
 </span><span class="kw">pub fn </span>run_with_args(cli: CLI) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">if </span>!cli.quiet {
         <span class="comment">// Init logger with optional debug flag.
-        </span>logger::init_logger(
-            <span class="string">&quot;leo&quot;</span>,
-            <span class="kw">match </span>cli.debug {
-                <span class="bool-val">false </span>=&gt; <span class="number">1</span>,
-                <span class="bool-val">true </span>=&gt; <span class="number">2</span>,
-            },
-        )<span class="question-mark">?</span>;
+        </span>logger::init_logger(<span class="string">&quot;leo&quot;</span>, <span class="kw">match </span>cli.debug {
+            <span class="bool-val">false </span>=&gt; <span class="number">1</span>,
+            <span class="bool-val">true </span>=&gt; <span class="number">2</span>,
+        })<span class="question-mark">?</span>;
     }
 
     <span class="comment">// Get custom root folder and create context for it.
@@ -325,4 +295,4 @@
     create_session_if_not_set_then(|<span class="kw">_</span>| handle_error(run_with_args(CLI::parse())));
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -42,8 +42,6 @@
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -70,6 +68,7 @@
 
 <span class="kw">impl </span>TryFrom&lt;InputAst&gt; <span class="kw">for </span>ProgramInput {
     <span class="kw">type </span>Error = LeoError;
+
     <span class="kw">fn </span>try_from(input: InputAst) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>main = IndexMap::new();
 
@@ -80,10 +79,7 @@
             };
 
             <span class="kw">for </span>definition <span class="kw">in </span>section.definitions {
-                target.insert(
-                    definition.name.name,
-                    InputValue::try_from((definition.type_, definition.value))<span class="question-mark">?</span>,
-                );
+                target.insert(definition.name.name, InputValue::try_from((definition.type_, definition.value))<span class="question-mark">?</span>);
             }
         }
 
@@ -91,4 +87,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

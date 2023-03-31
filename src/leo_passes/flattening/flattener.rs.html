@@ -241,6 +241,8 @@
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -260,8 +262,19 @@
 </span><span class="kw">use crate</span>::{Assigner, SymbolTable};
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier,
-    Member, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type,
+    AccessExpression,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    Member,
+    ReturnStatement,
+    Statement,
+    TernaryExpression,
+    TupleExpression,
+    Type,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
@@ -335,10 +348,7 @@
 
         <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
         </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            <span class="kw">let </span>place = Identifier {
-                name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>),
-                span: Default::default(),
-            };
+            <span class="kw">let </span>place = Identifier { name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>), span: Default::default() };
             <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
                 condition: Box::new(guard),
                 if_true: Box::new(if_true),
@@ -359,14 +369,11 @@
             }
         };
 
-        <span class="kw">let </span>expression = guards
-            .into_iter()
-            .rev()
-            .fold(last_expression, |acc, (guard, expr)| <span class="kw">match </span>guard {
-                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All expressions except for the last one must have a guard.&quot;</span>),
-                <span class="comment">// Note that type checking guarantees that all expressions have the same type.
-                </span><span class="prelude-val">Some</span>(guard) =&gt; construct_ternary_assignment(guard, expr, acc),
-            });
+        <span class="kw">let </span>expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| <span class="kw">match </span>guard {
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All expressions except for the last one must have a guard.&quot;</span>),
+            <span class="comment">// Note that type checking guarantees that all expressions have the same type.
+            </span><span class="prelude-val">Some</span>(guard) =&gt; construct_ternary_assignment(guard, expr, acc),
+        });
 
         (expression, statements)
     }
@@ -379,11 +386,8 @@
                 <span class="comment">// The inner expression of an access expression is either an identifier or another access expression.
                 </span><span class="kw">let </span>name = <span class="self">self</span>.lookup_struct_symbol(<span class="kw-2">&amp;</span>access.inner).unwrap();
                 <span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.lookup_struct(name).unwrap();
-                <span class="kw">let </span>Member { type_, .. } = struct_
-                    .members
-                    .iter()
-                    .find(|member| member.name() == access.name.name)
-                    .unwrap();
+                <span class="kw">let </span>Member { type_, .. } =
+                    struct_.members.iter().find(|member| member.name() == access.name.name).unwrap();
                 <span class="kw">match </span>type_ {
                     Type::Identifier(identifier) =&gt; <span class="prelude-val">Some</span>(identifier.name),
                     <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -485,4 +489,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

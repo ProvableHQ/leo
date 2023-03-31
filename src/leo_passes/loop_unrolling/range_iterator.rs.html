@@ -70,11 +70,6 @@
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -92,8 +87,7 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span>num_traits::One;
-<span class="kw">use </span>std::fmt::Display;
-<span class="kw">use </span>std::ops::Add;
+<span class="kw">use </span>std::{fmt::Display, ops::Add};
 
 <span class="kw">use </span>leo_ast::Value;
 <span class="kw">use </span>leo_errors::LeoError;
@@ -124,11 +118,7 @@
 
 <span class="kw">impl</span>&lt;I: LoopBound&gt; RangeIterator&lt;I&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(start: I, end: I, clusivity: Clusivity) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            end,
-            current: <span class="prelude-val">Some</span>(start),
-            clusivity,
-        }
+        <span class="self">Self </span>{ end, current: <span class="prelude-val">Some</span>(start), clusivity }
     }
 }
 
@@ -153,4 +143,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

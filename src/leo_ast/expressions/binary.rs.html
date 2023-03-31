@@ -180,10 +180,6 @@
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -272,42 +268,38 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>BinaryOperation {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(
-            f,
-            <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match </span><span class="self">self </span>{
-                <span class="self">Self</span>::Add =&gt; <span class="string">&quot;+&quot;</span>,
-                <span class="self">Self</span>::AddWrapped =&gt; <span class="string">&quot;add_wrapped&quot;</span>,
-                <span class="self">Self</span>::And =&gt; <span class="string">&quot;&amp;&amp;&quot;</span>,
-                <span class="self">Self</span>::BitwiseAnd =&gt; <span class="string">&quot;&amp;&quot;</span>,
-                <span class="self">Self</span>::Div =&gt; <span class="string">&quot;/&quot;</span>,
-                <span class="self">Self</span>::DivWrapped =&gt; <span class="string">&quot;div_wrapped&quot;</span>,
-                <span class="self">Self</span>::Eq =&gt; <span class="string">&quot;==&quot;</span>,
-                <span class="self">Self</span>::Gte =&gt; <span class="string">&quot;&gt;=&quot;</span>,
-                <span class="self">Self</span>::Gt =&gt; <span class="string">&quot;&gt;&quot;</span>,
-                <span class="self">Self</span>::Lte =&gt; <span class="string">&quot;&lt;=&quot;</span>,
-                <span class="self">Self</span>::Lt =&gt; <span class="string">&quot;&lt;&quot;</span>,
-                <span class="self">Self</span>::Mod =&gt; <span class="string">&quot;mod&quot;</span>,
-                <span class="self">Self</span>::Mul =&gt; <span class="string">&quot;*&quot;</span>,
-                <span class="self">Self</span>::MulWrapped =&gt; <span class="string">&quot;mul_wrapped&quot;</span>,
-                <span class="self">Self</span>::Nand =&gt; <span class="string">&quot;NAND&quot;</span>,
-                <span class="self">Self</span>::Neq =&gt; <span class="string">&quot;!=&quot;</span>,
-                <span class="self">Self</span>::Nor =&gt; <span class="string">&quot;NOR&quot;</span>,
-                <span class="self">Self</span>::Or =&gt; <span class="string">&quot;||&quot;</span>,
-                <span class="self">Self</span>::BitwiseOr =&gt; <span class="string">&quot;|&quot;</span>,
-                <span class="self">Self</span>::Pow =&gt; <span class="string">&quot;**&quot;</span>,
-                <span class="self">Self</span>::PowWrapped =&gt; <span class="string">&quot;pow_wrapped&quot;</span>,
-                <span class="self">Self</span>::Rem =&gt; <span class="string">&quot;%&quot;</span>,
-                <span class="self">Self</span>::RemWrapped =&gt; <span class="string">&quot;rem_wrapped&quot;</span>,
-                <span class="self">Self</span>::Shl =&gt; <span class="string">&quot;&lt;&lt;&quot;</span>,
-                <span class="self">Self</span>::ShlWrapped =&gt; <span class="string">&quot;shl_wrapped&quot;</span>,
-                <span class="self">Self</span>::Shr =&gt; <span class="string">&quot;&gt;&gt;&quot;</span>,
-                <span class="self">Self</span>::ShrWrapped =&gt; <span class="string">&quot;shr_wrapped&quot;</span>,
-                <span class="self">Self</span>::Sub =&gt; <span class="string">&quot;-&quot;</span>,
-                <span class="self">Self</span>::SubWrapped =&gt; <span class="string">&quot;sub_wrapped&quot;</span>,
-                <span class="self">Self</span>::Xor =&gt; <span class="string">&quot;^&quot;</span>,
-            }
-        )
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Add =&gt; <span class="string">&quot;+&quot;</span>,
+            <span class="self">Self</span>::AddWrapped =&gt; <span class="string">&quot;add_wrapped&quot;</span>,
+            <span class="self">Self</span>::And =&gt; <span class="string">&quot;&amp;&amp;&quot;</span>,
+            <span class="self">Self</span>::BitwiseAnd =&gt; <span class="string">&quot;&amp;&quot;</span>,
+            <span class="self">Self</span>::Div =&gt; <span class="string">&quot;/&quot;</span>,
+            <span class="self">Self</span>::DivWrapped =&gt; <span class="string">&quot;div_wrapped&quot;</span>,
+            <span class="self">Self</span>::Eq =&gt; <span class="string">&quot;==&quot;</span>,
+            <span class="self">Self</span>::Gte =&gt; <span class="string">&quot;&gt;=&quot;</span>,
+            <span class="self">Self</span>::Gt =&gt; <span class="string">&quot;&gt;&quot;</span>,
+            <span class="self">Self</span>::Lte =&gt; <span class="string">&quot;&lt;=&quot;</span>,
+            <span class="self">Self</span>::Lt =&gt; <span class="string">&quot;&lt;&quot;</span>,
+            <span class="self">Self</span>::Mod =&gt; <span class="string">&quot;mod&quot;</span>,
+            <span class="self">Self</span>::Mul =&gt; <span class="string">&quot;*&quot;</span>,
+            <span class="self">Self</span>::MulWrapped =&gt; <span class="string">&quot;mul_wrapped&quot;</span>,
+            <span class="self">Self</span>::Nand =&gt; <span class="string">&quot;NAND&quot;</span>,
+            <span class="self">Self</span>::Neq =&gt; <span class="string">&quot;!=&quot;</span>,
+            <span class="self">Self</span>::Nor =&gt; <span class="string">&quot;NOR&quot;</span>,
+            <span class="self">Self</span>::Or =&gt; <span class="string">&quot;||&quot;</span>,
+            <span class="self">Self</span>::BitwiseOr =&gt; <span class="string">&quot;|&quot;</span>,
+            <span class="self">Self</span>::Pow =&gt; <span class="string">&quot;**&quot;</span>,
+            <span class="self">Self</span>::PowWrapped =&gt; <span class="string">&quot;pow_wrapped&quot;</span>,
+            <span class="self">Self</span>::Rem =&gt; <span class="string">&quot;%&quot;</span>,
+            <span class="self">Self</span>::RemWrapped =&gt; <span class="string">&quot;rem_wrapped&quot;</span>,
+            <span class="self">Self</span>::Shl =&gt; <span class="string">&quot;&lt;&lt;&quot;</span>,
+            <span class="self">Self</span>::ShlWrapped =&gt; <span class="string">&quot;shl_wrapped&quot;</span>,
+            <span class="self">Self</span>::Shr =&gt; <span class="string">&quot;&gt;&gt;&quot;</span>,
+            <span class="self">Self</span>::ShrWrapped =&gt; <span class="string">&quot;shr_wrapped&quot;</span>,
+            <span class="self">Self</span>::Sub =&gt; <span class="string">&quot;-&quot;</span>,
+            <span class="self">Self</span>::SubWrapped =&gt; <span class="string">&quot;sub_wrapped&quot;</span>,
+            <span class="self">Self</span>::Xor =&gt; <span class="string">&quot;^&quot;</span>,
+        })
     }
 }
 
@@ -371,4 +363,4 @@
 
 <span class="macro">crate::simple_node_impl!</span>(BinaryExpression);
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

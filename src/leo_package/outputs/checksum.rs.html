@@ -88,9 +88,6 @@
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -116,7 +113,8 @@
 <span class="kw">use </span>std::{
     borrow::Cow,
     fs::{
-        File, {<span class="self">self</span>},
+        File,
+        {<span class="self">self</span>},
     },
     io::Write,
     path::Path,
@@ -131,9 +129,7 @@
 
 <span class="kw">impl </span>ChecksumFile {
     <span class="kw">pub fn </span>new(package_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            package_name: package_name.to_string(),
-        }
+        <span class="self">Self </span>{ package_name: package_name.to_string() }
     }
 
     <span class="kw">pub fn </span>exists_at(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
@@ -155,8 +151,7 @@
         <span class="kw">let </span>path = <span class="self">self</span>.setup_file_path(path);
         <span class="kw">let </span><span class="kw-2">mut </span>file = File::create(path).map_err(PackageError::io_error_checksum_file)<span class="question-mark">?</span>;
 
-        file.write_all(checksum.as_bytes())
-            .map_err(PackageError::io_error_checksum_file)<span class="question-mark">?</span>;
+        file.write_all(checksum.as_bytes()).map_err(PackageError::io_error_checksum_file)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -178,11 +173,10 @@
             <span class="kw">if </span>!path.ends_with(OUTPUTS_DIRECTORY_NAME) {
                 path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
             }
-            path.to_mut()
-                .push(<span class="macro">format!</span>(<span class="string">&quot;{}{CHECKSUM_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.package_name));
+            path.to_mut().push(<span class="macro">format!</span>(<span class="string">&quot;{}{CHECKSUM_FILE_EXTENSION}&quot;</span>, <span class="self">self</span>.package_name));
         }
         path
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_package" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

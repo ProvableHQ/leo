@@ -96,6 +96,7 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -115,8 +116,15 @@
 </span><span class="kw">use crate</span>::{FunctionInliner, Replacer};
 
 <span class="kw">use </span>leo_ast::{
-    CallExpression, Expression, ExpressionReconstructor, Identifier, ReturnStatement, Statement,
-    StatementReconstructor, UnitExpression, Variant,
+    CallExpression,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+    UnitExpression,
+    Variant,
 };
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -154,12 +162,8 @@
                     .collect::&lt;IndexMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
                 <span class="comment">// Initializer `self.assignment_renamer` with the function parameters.
-                </span><span class="self">self</span>.assignment_renamer.load(
-                    callee
-                        .input
-                        .iter()
-                        .map(|input| (input.identifier().name, input.identifier().name)),
-                );
+                </span><span class="self">self</span>.assignment_renamer
+                    .load(callee.input.iter().map(|input| (input.identifier().name, input.identifier().name)));
 
                 <span class="comment">// Duplicate the body of the callee and create a unique assignment statement for each assignment in the body.
                 // This is necessary to ensure the inlined variables do not conflict with variables in the caller.
@@ -184,9 +188,7 @@
                             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;This branch checks that the last statement is a return statement.&quot;</span>),
                         }
                     }
-                    <span class="kw">_ </span>=&gt; Expression::Unit(UnitExpression {
-                        span: Default::default(),
-                    }),
+                    <span class="kw">_ </span>=&gt; Expression::Unit(UnitExpression { span: Default::default() }),
                 };
 
                 (result, inlined_statements)
@@ -195,4 +197,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

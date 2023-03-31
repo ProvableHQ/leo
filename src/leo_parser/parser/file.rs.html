@@ -445,59 +445,6 @@
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
 <a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
-<a href="#493" id="493">493</a>
-<a href="#494" id="494">494</a>
-<a href="#495" id="495">495</a>
-<a href="#496" id="496">496</a>
-<a href="#497" id="497">497</a>
-<a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -517,8 +464,7 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::parse_ast;
 <span class="kw">use </span>leo_errors::{CompilerError, ParserError, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>leo_span::source_map::FileName;
-<span class="kw">use </span>leo_span::symbol::with_session_globals;
+<span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals};
 
 <span class="kw">use </span>std::fs;
 
@@ -557,10 +503,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::missing_program_scope(<span class="self">self</span>.token.span).into());
         }
 
-        <span class="prelude-val">Ok</span>(Program {
-            imports,
-            program_scopes,
-        })
+        <span class="prelude-val">Ok</span>(Program { imports, program_scopes })
     }
 
     <span class="kw">fn </span>unexpected_item(token: <span class="kw-2">&amp;</span>SpannedToken, expected: <span class="kw-2">&amp;</span>[Token]) -&gt; ParserError {
@@ -662,19 +605,16 @@
                 }
                 Token::RightCurly =&gt; <span class="kw">break</span>,
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">Self</span>::unexpected_item(
-                        <span class="kw-2">&amp;</span><span class="self">self</span>.token,
-                        <span class="kw-2">&amp;</span>[
-                            Token::Struct,
-                            Token::Record,
-                            Token::Mapping,
-                            Token::At,
-                            Token::Function,
-                            Token::Transition,
-                            Token::Inline,
-                        ],
-                    )
-                    .into())
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="self">Self</span>::unexpected_item(<span class="kw-2">&amp;</span><span class="self">self</span>.token, <span class="kw-2">&amp;</span>[
+                        Token::Struct,
+                        Token::Record,
+                        Token::Mapping,
+                        Token::At,
+                        Token::Function,
+                        Token::Transition,
+                        Token::Inline,
+                    ])
+                    .into());
                 }
             }
         }
@@ -682,13 +622,7 @@
         <span class="comment">// Parse `}`.
         </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightCurly)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ProgramScope {
-            program_id,
-            functions,
-            structs,
-            mappings,
-            span: start + end,
-        })
+        <span class="prelude-val">Ok</span>(ProgramScope { program_id, functions, structs, mappings, span: start + end })
     }
 
     <span class="doccomment">/// Returns a [`Vec&lt;Member&gt;`] AST node if the next tokens represent a struct member.
@@ -736,12 +670,7 @@
 
         <span class="kw">let </span>(identifier, type_, span) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Member {
-            mode,
-            identifier,
-            type_,
-            span,
-        })
+        <span class="prelude-val">Ok</span>(Member { mode, identifier, type_, span })
     }
 
     <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -753,15 +682,7 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span>(members, end) = <span class="self">self</span>.parse_struct_members()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((
-            struct_name.name,
-            Struct {
-                identifier: struct_name,
-                members,
-                is_record,
-                span: start + end,
-            },
-        ))
+        <span class="prelude-val">Ok</span>((struct_name.name, Struct { identifier: struct_name, members, is_record, span: start + end }))
     }
 
     <span class="doccomment">/// Parses a mapping declaration, e.g. `mapping balances: address =&gt; u128`.
@@ -773,15 +694,7 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::BigArrow)<span class="question-mark">?</span>;
         <span class="kw">let </span>(value_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>((
-            identifier.name,
-            Mapping {
-                identifier,
-                key_type,
-                value_type,
-                span: start + end,
-            },
-        ))
+        <span class="prelude-val">Ok</span>((identifier.name, Mapping { identifier, key_type, value_type, span: start + end }))
     }
 
     <span class="comment">// TODO: Return a span associated with the mode.
@@ -832,21 +745,11 @@
             <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Record);
             span = span + <span class="self">self</span>.prev_token.span;
 
-            <span class="prelude-val">Ok</span>(functions::Input::External(External {
-                identifier: name,
-                program_name: external,
-                record,
-                span,
-            }))
+            <span class="prelude-val">Ok</span>(functions::Input::External(External { identifier: name, program_name: external, record, span }))
         } <span class="kw">else </span>{
             <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
 
-            <span class="prelude-val">Ok</span>(functions::Input::Internal(FunctionInput {
-                identifier: name,
-                mode,
-                type_,
-                span: name.span,
-            }))
+            <span class="prelude-val">Ok</span>(functions::Input::Internal(FunctionInput { identifier: name, mode, type_, span: name.span }))
         }
     }
 
@@ -889,10 +792,7 @@
     }
 
     <span class="kw">fn </span>peek_is_external(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(
-            (<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token)),
-            (Token::Identifier(<span class="kw">_</span>), Token::Dot)
-        )
+        <span class="macro">matches!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token)), (Token::Identifier(<span class="kw">_</span>), Token::Dot))
     }
 
     <span class="doccomment">/// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
@@ -900,10 +800,7 @@
         <span class="comment">// Parse the `@` symbol and identifier.
         </span><span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::At)<span class="question-mark">?</span>;
         <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.token.token {
-            Token::Program =&gt; Identifier {
-                name: sym::program,
-                span: <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Program)<span class="question-mark">?</span>,
-            },
+            Token::Program =&gt; Identifier { name: sym::program, span: <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Program)<span class="question-mark">? </span>},
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>,
         };
         <span class="kw">let </span>span = start + identifier.span;
@@ -990,13 +887,10 @@
         };
 
         <span class="kw">let </span>span = start + block.span;
-        <span class="prelude-val">Ok</span>((
-            name.name,
-            Function::new(annotations, variant, name, inputs, output, block, finalize, span),
-        ))
+        <span class="prelude-val">Ok</span>((name.name, Function::new(annotations, variant, name, inputs, output, block, finalize, span)))
     }
 }
 
 <span class="kw">use </span>leo_span::{sym, Symbol};
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

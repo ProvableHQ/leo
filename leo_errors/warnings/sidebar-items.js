@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["LeoWarning","The LeoWarning type that contains all sub error types. This allows a unified error type throughout the Leo crates."]],"mod":[["parser","Contains the Parser warning definitions."]]};

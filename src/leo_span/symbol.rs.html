@@ -402,8 +402,6 @@
 <a href="#402" id="402">402</a>
 <a href="#403" id="403">403</a>
 <a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -422,12 +420,15 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::source_map::SourceMap;
 
-<span class="kw">use </span>core::borrow::Borrow;
-<span class="kw">use </span>core::cmp::PartialEq;
-<span class="kw">use </span>core::hash::{Hash, Hasher};
-<span class="kw">use </span>core::num::NonZeroU32;
-<span class="kw">use </span>core::ops::Deref;
-<span class="kw">use </span>core::{fmt, str};
+<span class="kw">use </span>core::{
+    borrow::Borrow,
+    cmp::PartialEq,
+    fmt,
+    hash::{Hash, Hasher},
+    num::NonZeroU32,
+    ops::Deref,
+    str,
+};
 <span class="kw">use </span>fxhash::FxBuildHasher;
 <span class="kw">use </span>indexmap::IndexSet;
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -695,10 +696,7 @@
 
 <span class="kw">impl </span>Default <span class="kw">for </span>SessionGlobals {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            symbol_interner: Interner::prefilled(),
-            source_map: SourceMap::default(),
-        }
+        <span class="self">Self </span>{ symbol_interner: Interner::prefilled(), source_map: SourceMap::default() }
     }
 }
 
@@ -787,9 +785,7 @@
             <span class="comment">// arena: &lt;_&gt;::default(),
             </span>set: init.iter().copied().map(InternedStr::Static).collect(),
         };
-        <span class="self">Self </span>{
-            inner: RefCell::new(inner),
-        }
+        <span class="self">Self </span>{ inner: RefCell::new(inner) }
     }
 
     <span class="doccomment">/// Interns `string`, returning a `Symbol` corresponding to it.
@@ -811,4 +807,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -194,9 +194,6 @@
 <a href="#194" id="194">194</a>
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -356,10 +353,7 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>remove_key_from_json(value: serde_json::Value, key: <span class="kw-2">&amp;</span>str) -&gt; serde_json::Value {
     <span class="kw">match </span>value {
         serde_json::Value::Object(map) =&gt; serde_json::Value::Object(
-            map.into_iter()
-                .filter(|(k, <span class="kw">_</span>)| k != key)
-                .map(|(k, v)| (k, remove_key_from_json(v, key)))
-                .collect(),
+            map.into_iter().filter(|(k, <span class="kw">_</span>)| k != key).map(|(k, v)| (k, remove_key_from_json(v, key))).collect(),
         ),
         serde_json::Value::Array(values) =&gt; {
             serde_json::Value::Array(values.into_iter().map(|v| remove_key_from_json(v, key)).collect())
@@ -397,4 +391,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

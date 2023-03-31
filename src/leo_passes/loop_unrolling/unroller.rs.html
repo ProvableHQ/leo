@@ -208,12 +208,6 @@
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -231,8 +225,17 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use </span>leo_ast::{
-    Block, DeclarationType, DefinitionStatement, Expression, IntegerType, IterationStatement, Literal, Statement,
-    StatementReconstructor, Type, Value,
+    Block,
+    DeclarationType,
+    DefinitionStatement,
+    Expression,
+    IntegerType,
+    IterationStatement,
+    Literal,
+    Statement,
+    StatementReconstructor,
+    Type,
+    Value,
 };
 <span class="kw">use </span>std::cell::RefCell;
 
@@ -253,29 +256,19 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(symbol_table: SymbolTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            symbol_table: RefCell::new(symbol_table),
-            scope_index: <span class="number">0</span>,
-            handler,
-            is_unrolling: <span class="bool-val">false</span>,
-        }
+        <span class="self">Self </span>{ symbol_table: RefCell::new(symbol_table), scope_index: <span class="number">0</span>, handler, is_unrolling: <span class="bool-val">false </span>}
     }
 
     <span class="doccomment">/// Returns the index of the current scope.
     /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current_scope_index(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">if </span><span class="self">self</span>.is_unrolling {
-            <span class="self">self</span>.symbol_table.borrow_mut().insert_block()
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.scope_index
-        }
+        <span class="kw">if </span><span class="self">self</span>.is_unrolling { <span class="self">self</span>.symbol_table.borrow_mut().insert_block() } <span class="kw">else </span>{ <span class="self">self</span>.scope_index }
     }
 
     <span class="doccomment">/// Enters a child scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; usize {
         <span class="kw">let </span>previous_symbol_table = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.symbol_table);
-        <span class="self">self</span>.symbol_table
-            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        <span class="self">self</span>.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         <span class="self">self</span>.symbol_table.borrow_mut().parent = <span class="prelude-val">Some</span>(Box::new(previous_symbol_table.into_inner()));
         core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_index, <span class="number">0</span>)
     }
@@ -337,13 +330,11 @@
             statements: <span class="kw">match </span>input.inclusive {
                 <span class="bool-val">true </span>=&gt; {
                     <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
-                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count))
-                        .collect()
+                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
                 }
                 <span class="bool-val">false </span>=&gt; {
                     <span class="kw">let </span>iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
-                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count))
-                        .collect()
+                    iter.map(|iteration_count| <span class="self">self</span>.unroll_single_iteration(<span class="kw-2">&amp;</span>input, iteration_count)).collect()
                 }
             },
         });
@@ -417,10 +408,7 @@
             statements.push(<span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>);
         });
 
-        <span class="kw">let </span>block = Statement::Block(Block {
-            statements,
-            span: input.block.span,
-        });
+        <span class="kw">let </span>block = Statement::Block(Block { statements, span: input.block.span });
 
         <span class="self">self</span>.is_unrolling = prior_is_unrolling;
 
@@ -431,4 +419,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

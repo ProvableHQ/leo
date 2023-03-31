@@ -713,27 +713,6 @@
 <a href="#713" id="713">713</a>
 <a href="#714" id="714">714</a>
 <a href="#715" id="715">715</a>
-<a href="#716" id="716">716</a>
-<a href="#717" id="717">717</a>
-<a href="#718" id="718">718</a>
-<a href="#719" id="719">719</a>
-<a href="#720" id="720">720</a>
-<a href="#721" id="721">721</a>
-<a href="#722" id="722">722</a>
-<a href="#723" id="723">723</a>
-<a href="#724" id="724">724</a>
-<a href="#725" id="725">725</a>
-<a href="#726" id="726">726</a>
-<a href="#727" id="727">727</a>
-<a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
-<a href="#730" id="730">730</a>
-<a href="#731" id="731">731</a>
-<a href="#732" id="732">732</a>
-<a href="#733" id="733">733</a>
-<a href="#734" id="734">734</a>
-<a href="#735" id="735">735</a>
-<a href="#736" id="736">736</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -753,8 +732,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::TypeChecker;
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::emitter::Handler;
-<span class="kw">use </span>leo_errors::TypeCheckerError;
+<span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
 <span class="kw">use </span>leo_span::{sym, Span};
 
 <span class="kw">use </span>std::str::FromStr;
@@ -764,11 +742,7 @@
         (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) <span class="kw">if </span>t1 == t2 =&gt; <span class="prelude-val">Some</span>(t1),
         (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) =&gt; {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
-                <span class="kw">if </span><span class="kw-2">&amp;</span>t1 != expected {
-                    <span class="prelude-val">Some</span>(t1)
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(t2)
-                }
+                <span class="kw">if </span><span class="kw-2">&amp;</span>t1 != expected { <span class="prelude-val">Some</span>(t1) } <span class="kw">else </span>{ <span class="prelude-val">Some</span>(t2) }
             } <span class="kw">else </span>{
                 <span class="prelude-val">Some</span>(t1)
             }
@@ -1218,12 +1192,9 @@
                     }
 
                     <span class="comment">// Check function argument types.
-                    </span>func.input
-                        .iter()
-                        .zip(input.arguments.iter())
-                        .for_each(|(expected, argument)| {
-                            <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
-                        });
+                    </span>func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
+                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
+                    });
 
                     <span class="comment">// Add the call to the call graph.
                     </span><span class="kw">let </span>caller_name = <span class="kw">match </span><span class="self">self</span>.function {
@@ -1260,11 +1231,7 @@
             <span class="comment">// Check struct member types.
             </span>struct_.members.iter().for_each(|Member { identifier, type_, .. }| {
                 <span class="comment">// Lookup struct variable name.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(actual) = input
-                    .members
-                    .iter()
-                    .find(|member| member.identifier.name == identifier.name)
-                {
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(actual) = input.members.iter().find(|member| member.identifier.name == identifier.name) {
                     <span class="kw">match </span><span class="kw-2">&amp;</span>actual.expression {
                         <span class="comment">// If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
                         </span><span class="prelude-val">None </span>=&gt; <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>actual.identifier, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(type_.clone())),
@@ -1282,11 +1249,7 @@
 
             <span class="prelude-val">Some</span>(ret)
         } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(
-                <span class="string">&quot;struct&quot;</span>,
-                input.name.name,
-                input.name.span(),
-            ));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;struct&quot;</span>, input.name.name, input.name.span()));
             <span class="prelude-val">None
         </span>}
     }
@@ -1391,16 +1354,13 @@
                         ));
                     }
 
-                    expected_types
-                        .iter()
-                        .zip(input.elements.iter())
-                        .for_each(|(expected, expr)| {
-                            <span class="comment">// Check that the component expression is not a tuple.
-                            </span><span class="kw">if </span><span class="macro">matches!</span>(expr, Expression::Tuple(<span class="kw">_</span>)) {
-                                <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
-                            }
-                            <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()));
-                        });
+                    expected_types.iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
+                        <span class="comment">// Check that the component expression is not a tuple.
+                        </span><span class="kw">if </span><span class="macro">matches!</span>(expr, Expression::Tuple(<span class="kw">_</span>)) {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+                        }
+                        <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()));
+                    });
 
                     <span class="prelude-val">Some</span>(Type::Tuple(expected_types.clone()))
                 } <span class="kw">else </span>{
@@ -1463,12 +1423,10 @@
     <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Unit expression are only allowed inside a return statement.
         </span><span class="kw">if </span>!<span class="self">self</span>.is_return {
-            <span class="self">self</span>.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(
-                input.span(),
-            ));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
         }
         <span class="prelude-val">Some</span>(Type::Unit)
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

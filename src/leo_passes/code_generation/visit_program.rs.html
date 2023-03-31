@@ -279,22 +279,6 @@
 <a href="#279" id="279">279</a>
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -373,13 +357,7 @@
         </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
         <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        </span>program_string.push_str(
-            <span class="kw-2">&amp;</span>program_scope
-                .mappings
-                .values()
-                .map(|mapping| <span class="self">self</span>.visit_mapping(mapping))
-                .join(<span class="string">&quot;\n&quot;</span>),
-        );
+        </span>program_string.push_str(<span class="kw-2">&amp;</span>program_scope.mappings.values().map(|mapping| <span class="self">self</span>.visit_mapping(mapping)).join(<span class="string">&quot;\n&quot;</span>));
 
         <span class="comment">// Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -415,17 +393,12 @@
     }
 
     <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
-        <span class="kw">if </span>struct_.is_record {
-            <span class="self">self</span>.visit_record(struct_)
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.visit_struct(struct_)
-        }
+        <span class="kw">if </span>struct_.is_record { <span class="self">self</span>.visit_record(struct_) } <span class="kw">else </span>{ <span class="self">self</span>.visit_struct(struct_) }
     }
 
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
         <span class="comment">// Add private symbol to composite types.
-        </span><span class="self">self</span>.composite_mapping
-            .insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.
+        </span><span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.
 
         </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">&quot;struct {}:\n&quot;</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
 
@@ -440,8 +413,7 @@
     <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
         <span class="comment">// Add record symbol to composite types.
         </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = String::from(<span class="string">&quot;record&quot;</span>);
-        <span class="self">self</span>.composite_mapping
-            .insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));
+        <span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));
         <span class="macro">writeln!</span>(output_string, <span class="string">&quot; {}:&quot;</span>, record.identifier).expect(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
@@ -487,8 +459,7 @@
 
             <span class="kw">let </span>type_string = <span class="kw">match </span>input {
                 functions::Input::Internal(input) =&gt; {
-                    <span class="self">self</span>.variable_mapping
-                        .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
                     <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
                         (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
                         <span class="kw">_ </span>=&gt; input.mode,
@@ -496,8 +467,7 @@
                     <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
                 }
                 functions::Input::External(input) =&gt; {
-                    <span class="self">self</span>.variable_mapping
-                        .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
                     <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
                 }
             };
@@ -531,8 +501,7 @@
                 <span class="comment">// TODO: Dedup code.
                 </span><span class="kw">let </span>type_string = <span class="kw">match </span>input {
                     functions::Input::Internal(input) =&gt; {
-                        <span class="self">self</span>.variable_mapping
-                            .insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                        <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
 
                         <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
                             (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Public,
@@ -541,8 +510,7 @@
                         <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
                     }
                     functions::Input::External(input) =&gt; {
-                        <span class="self">self</span>.variable_mapping
-                            .insert(<span class="kw-2">&amp;</span>input.program_name.name, register_string.clone());
+                        <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.program_name.name, register_string.clone());
                         <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
                     }
                 };
@@ -593,4 +561,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -219,12 +219,6 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -295,13 +289,7 @@
         <span class="comment">// we need a hashmap to pull rules easily
         </span><span class="kw">let </span>rules: HashMap&lt;String, Rule&gt; = abnf.into_iter().map(|rule| (rule.name().to_string(), rule)).collect();
 
-        Processor {
-            grammar,
-            line: <span class="number">0</span>,
-            out: String::new(),
-            rules,
-            scope: Scope::Free,
-        }
+        Processor { grammar, line: <span class="number">0</span>, out: String::new(), rules, scope: Scope::Free }
     }
 
     <span class="doccomment">/// Main function for this struct.
@@ -453,4 +441,4 @@
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_abnf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_abnf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

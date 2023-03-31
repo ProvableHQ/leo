@@ -143,6 +143,7 @@
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -165,9 +166,13 @@
 <span class="kw">use crate</span>::{simple_node_impl, Node};
 <span class="kw">use </span>serde::{
     de::{
-        Visitor, {<span class="self">self</span>},
+        Visitor,
+        {<span class="self">self</span>},
     },
-    Deserialize, Deserializer, Serialize, Serializer,
+    Deserialize,
+    Deserializer,
+    Serialize,
+    Serializer,
 };
 <span class="kw">use </span>std::{
     collections::BTreeMap,
@@ -193,10 +198,7 @@
 <span class="kw">impl </span>Identifier {
     <span class="doccomment">/// Constructs a new identifier with `name` and a default span.
     </span><span class="kw">pub fn </span>new(name: Symbol) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            name,
-            span: Span::default(),
-        }
+        <span class="self">Self </span>{ name, span: Span::default() }
     }
 
     <span class="doccomment">/// Check if the Identifier name matches the other name.
@@ -289,4 +291,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

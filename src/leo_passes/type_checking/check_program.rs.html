@@ -374,46 +374,6 @@
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -464,10 +424,7 @@
         }
 
         <span class="comment">// Typecheck the program scopes.
-        </span>input
-            .program_scopes
-            .values()
-            .for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
+        </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
@@ -510,18 +467,11 @@
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
         <span class="comment">// TODO: Better span to target duplicate member.
-        </span><span class="kw">if </span>!input.members.iter().all(
-            |Member {
-                 identifier,
-                 type_,
-                 span,
-                 ..
-             }| {
-                <span class="comment">// Check that the member types are defined.
-                </span><span class="self">self</span>.assert_type_is_defined(type_, <span class="kw-2">*</span>span);
-                used.insert(identifier.name)
-            },
-        ) {
+        </span><span class="kw">if </span>!input.members.iter().all(|Member { identifier, type_, span, .. }| {
+            <span class="comment">// Check that the member types are defined.
+            </span><span class="self">self</span>.assert_type_is_defined(type_, <span class="kw-2">*</span>span);
+            used.insert(identifier.name)
+        }) {
             <span class="self">self</span>.emit_err(<span class="kw">if </span>input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } <span class="kw">else </span>{
@@ -537,31 +487,17 @@
                 }) {
                     <span class="prelude-val">Some</span>((<span class="kw">_</span>, actual_ty)) <span class="kw">if </span>expected_ty.eq_flat(actual_ty) =&gt; {} <span class="comment">// All good, found + right type!
                     </span><span class="prelude-val">Some</span>((field, <span class="kw">_</span>)) =&gt; {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::record_var_wrong_type(
-                            field,
-                            expected_ty,
-                            input.span(),
-                        ));
+                        <span class="self">self</span>.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
                     }
                     <span class="prelude-val">None </span>=&gt; {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::required_record_variable(
-                            need,
-                            expected_ty,
-                            input.span(),
-                        ));
+                        <span class="self">self</span>.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
                     }
                 };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        <span class="kw">for </span>Member {
-            mode,
-            identifier,
-            type_,
-            span,
-        } <span class="kw">in </span>input.members.iter()
-        {
+        <span class="kw">for </span>Member { mode, identifier, type_, span } <span class="kw">in </span>input.members.iter() {
             <span class="comment">// Check that the member type is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
@@ -617,12 +553,7 @@
 
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_fn_symbol(function.identifier.name)
-            .unwrap()
-            .id;
+        </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
 
         <span class="comment">// Enter the function&#39;s scope.
         </span><span class="self">self</span>.enter_scope(function_index);
@@ -651,25 +582,24 @@
             <span class="comment">// Note that this unwrap is safe since we assign to `self.variant` above.
             </span><span class="kw">match </span><span class="self">self</span>.variant.unwrap() {
                 <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
-                </span>Variant::Transition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; <span class="self">self</span>.emit_err(
-                    TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
-                ),
+                </span>Variant::Transition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                }
                 <span class="comment">// If the function is not a transition function, then check that the parameters do not have an associated mode.
-                </span>Variant::Standard | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; <span class="self">self</span>.emit_err(
-                    TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
-                ),
+                </span>Variant::Standard | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
                 <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
             </span>}
 
             <span class="comment">// Check for conflicting variable names.
-            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                input_var.identifier().name,
-                VariableSymbol {
+            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
                     type_: input_var.type_(),
                     span: input_var.identifier().span(),
                     declaration: VariableType::Input(input_var.mode()),
-                },
-            ) {
+                })
+            {
                 <span class="self">self</span>.handler.emit_err(err);
             }
         });
@@ -693,12 +623,7 @@
                     <span class="comment">// If the function is not a transition function, then it cannot output a record.
                     </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
                         <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
-                            &amp;&amp; <span class="self">self
-                                </span>.symbol_table
-                                .borrow()
-                                .lookup_struct(identifier.name)
-                                .unwrap()
-                                .is_record
+                            &amp;&amp; <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
                         {
                             <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
                         }
@@ -741,9 +666,7 @@
 
             <span class="comment">// Check that the function is a transition function.
             </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(
-                    finalize.span,
-                ));
+                <span class="self">self</span>.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
             }
 
             <span class="comment">// Check that the name of the finalize block matches the function name.
@@ -770,14 +693,13 @@
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
                 <span class="comment">// Check for conflicting variable names.
-                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
-                    input_var.identifier().name,
-                    VariableSymbol {
+                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                    <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
-                    },
-                ) {
+                    })
+                {
                     <span class="self">self</span>.handler.emit_err(err);
                 }
             });
@@ -794,9 +716,7 @@
                 <span class="comment">// Check that the mode of the output is valid.
                 // Note that a finalize block can have only public outputs.
                 </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Constant | Mode::Private) {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
-                        output_type.span(),
-                    ));
+                    <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
                 }
             });
 
@@ -831,4 +751,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

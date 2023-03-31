@@ -153,15 +153,6 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -181,8 +172,18 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::StaticSingleAssigner;
 
 <span class="kw">use </span>leo_ast::{
-    Block, Finalize, Function, FunctionConsumer, Member, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
-    StatementConsumer, Struct, StructConsumer,
+    Block,
+    Finalize,
+    Function,
+    FunctionConsumer,
+    Member,
+    Program,
+    ProgramConsumer,
+    ProgramScope,
+    ProgramScopeConsumer,
+    StatementConsumer,
+    Struct,
+    StructConsumer,
 };
 <span class="kw">use </span>leo_span::{sym, Symbol};
 
@@ -197,11 +198,8 @@
             <span class="bool-val">false </span>=&gt; struct_,
             <span class="bool-val">true </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>members = Vec::with_capacity(struct_.members.len());
-                <span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, Member&gt; = struct_
-                    .members
-                    .into_iter()
-                    .map(|member| (member.identifier.name, member))
-                    .collect();
+                <span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, Member&gt; =
+                    struct_.members.into_iter().map(|member| (member.identifier.name, member)).collect();
 
                 <span class="comment">// Add the owner field to the beginning of the members list.
                 // Note that type checking ensures that the owner field exists.
@@ -231,14 +229,10 @@
         <span class="comment">// There is no need to reconstruct `function.inputs`.
         // However, for each input, we must add each symbol to the rename table.
         </span><span class="kw">for </span>input_variable <span class="kw">in </span>function.input.iter() {
-            <span class="self">self</span>.rename_table
-                .update(input_variable.identifier().name, input_variable.identifier().name);
+            <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
-        <span class="kw">let </span>block = Block {
-            span: function.block.span,
-            statements: <span class="self">self</span>.consume_block(function.block),
-        };
+        <span class="kw">let </span>block = Block { span: function.block.span, statements: <span class="self">self</span>.consume_block(function.block) };
 
         <span class="comment">// Remove the `RenameTable` for the function.
         </span><span class="self">self</span>.pop();
@@ -250,14 +244,10 @@
             <span class="comment">// There is no need to reconstruct `finalize.inputs`.
             // However, for each input, we must add each symbol to the rename table.
             </span><span class="kw">for </span>input_variable <span class="kw">in </span>finalize.input.iter() {
-                <span class="self">self</span>.rename_table
-                    .update(input_variable.identifier().name, input_variable.identifier().name);
+                <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
-            <span class="kw">let </span>block = Block {
-                span: finalize.block.span,
-                statements: <span class="self">self</span>.consume_block(finalize.block),
-            };
+            <span class="kw">let </span>block = Block { span: finalize.block.span, statements: <span class="self">self</span>.consume_block(finalize.block) };
 
             <span class="comment">// Remove the `RenameTable` for the finalize block.
             </span><span class="self">self</span>.pop();
@@ -292,17 +282,9 @@
     <span class="kw">fn </span>consume_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; <span class="self">Self</span>::Output {
         ProgramScope {
             program_id: input.program_id,
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, s)| (i, <span class="self">self</span>.consume_struct(s)))
-                .collect(),
+            structs: input.structs.into_iter().map(|(i, s)| (i, <span class="self">self</span>.consume_struct(s))).collect(),
             mappings: input.mappings,
-            functions: input
-                .functions
-                .into_iter()
-                .map(|(i, f)| (i, <span class="self">self</span>.consume_function(f)))
-                .collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, <span class="self">self</span>.consume_function(f))).collect(),
             span: input.span,
         }
     }
@@ -327,4 +309,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

@@ -297,12 +297,6 @@
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -322,10 +316,8 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::LeoWarning;
 
 <span class="kw">use </span><span class="kw">super</span>::LeoError;
-<span class="kw">use </span>core::default::Default;
-<span class="kw">use </span>core::fmt;
-<span class="kw">use </span>std::cell::RefCell;
-<span class="kw">use </span>std::rc::Rc;
+<span class="kw">use </span>core::{default::Default, fmt};
+<span class="kw">use </span>std::{cell::RefCell, rc::Rc};
 
 <span class="doccomment">/// Types that are sinks for compiler errors.
 </span><span class="kw">pub trait </span>Emitter {
@@ -487,11 +479,7 @@
 <span class="kw">impl </span>Handler {
     <span class="doccomment">/// Construct a `Handler` using the given `emitter`.
     </span><span class="kw">pub fn </span>new(emitter: Box&lt;<span class="kw">dyn </span>Emitter&gt;) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>inner = RefCell::new(HandlerInner {
-            err_count: <span class="number">0</span>,
-            warn_count: <span class="number">0</span>,
-            emitter,
-        });
+        <span class="kw">let </span>inner = RefCell::new(HandlerInner { err_count: <span class="number">0</span>, warn_count: <span class="number">0</span>, emitter });
         <span class="self">Self </span>{ inner }
     }
 
@@ -609,4 +597,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

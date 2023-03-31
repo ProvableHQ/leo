@@ -352,9 +352,6 @@
 <a href="#352" id="352">352</a>
 <a href="#353" id="353">353</a>
 <a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -374,9 +371,25 @@
 </span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
-    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    CallExpression,
+    ConditionalStatement,
+    ConsoleStatement,
+    DecrementStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionConsumer,
+    ExpressionStatement,
+    Identifier,
+    IncrementStatement,
+    IterationStatement,
+    ReturnStatement,
+    Statement,
+    StatementConsumer,
+    TernaryExpression,
     TupleExpression,
 };
 <span class="kw">use </span>leo_span::Symbol;
@@ -416,10 +429,7 @@
         };
 
         <span class="comment">// Add the assert statement to the list of produced statements.
-        </span>statements.push(Statement::Assert(AssertStatement {
-            variant,
-            span: input.span,
-        }));
+        </span>statements.push(Statement::Assert(AssertStatement { variant, span: input.span }));
 
         statements
     }
@@ -445,11 +455,7 @@
 
     <span class="doccomment">/// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
     </span><span class="kw">fn </span>consume_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: Block) -&gt; <span class="self">Self</span>::Output {
-        block
-            .statements
-            .into_iter()
-            .flat_map(|statement| <span class="self">self</span>.consume_statement(statement))
-            .collect()
+        block.statements.into_iter().flat_map(|statement| <span class="self">self</span>.consume_statement(statement)).collect()
     }
 
     <span class="doccomment">/// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.
@@ -467,10 +473,7 @@
         </span><span class="self">self</span>.push();
 
         <span class="comment">// Consume the then-block.
-        </span><span class="kw">let </span>then = Block {
-            span: conditional.then.span,
-            statements: <span class="self">self</span>.consume_block(conditional.then),
-        };
+        </span><span class="kw">let </span>then = Block { span: conditional.then.span, statements: <span class="self">self</span>.consume_block(conditional.then) };
 
         <span class="comment">// Remove the `RenameTable` for the then-block.
         </span><span class="kw">let </span>if_table = <span class="self">self</span>.pop();
@@ -513,13 +516,9 @@
             </span><span class="kw">if </span><span class="self">self</span>.rename_table.lookup(<span class="kw-2">**</span>symbol).is_some() {
                 <span class="comment">// Helper to lookup a symbol and create an argument for the phi function.
                 </span><span class="kw">let </span>create_phi_argument = |table: <span class="kw-2">&amp;</span>RenameTable, symbol: Symbol| {
-                    <span class="kw">let </span>name = <span class="kw-2">*</span>table
-                        .lookup(symbol)
-                        .unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Symbol {symbol} should exist in the program.&quot;</span>));
-                    Box::new(Expression::Identifier(Identifier {
-                        name,
-                        span: Default::default(),
-                    }))
+                    <span class="kw">let </span>name =
+                        <span class="kw-2">*</span>table.lookup(symbol).unwrap_or_else(|| <span class="macro">panic!</span>(<span class="string">&quot;Symbol {symbol} should exist in the program.&quot;</span>));
+                    Box::new(Expression::Identifier(Identifier { name, span: Default::default() }))
                 };
 
                 <span class="comment">// Create a new name for the variable written to in the `ConditionalStatement`.
@@ -535,13 +534,9 @@
                 statements.extend(stmts);
 
                 <span class="comment">// Create a new `AssignStatement` for the phi function.
-                </span><span class="kw">let </span>assignment = <span class="self">self</span>.assigner.simple_assign_statement(
-                    Identifier {
-                        name: new_name,
-                        span: Default::default(),
-                    },
-                    value,
-                );
+                </span><span class="kw">let </span>assignment = <span class="self">self
+                    </span>.assigner
+                    .simple_assign_statement(Identifier { name: new_name, span: Default::default() }, value);
 
                 <span class="comment">// Update the `RenameTable` with the new name of the variable.
                 </span><span class="self">self</span>.rename_table.update(<span class="kw-2">*</span>(<span class="kw-2">*</span>symbol), new_name);
@@ -608,15 +603,14 @@
                     }
                 }).collect();
                 statements.push(Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(TupleExpression {
-                        elements,
-                        span: Default::default()
-                    }),
+                    place: Expression::Tuple(TupleExpression { elements, span: Default::default() }),
                     value,
-                    span: Default::default()
+                    span: Default::default(),
                 })));
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
+                <span class="string">&quot;Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple.&quot;
+            </span>),
         }
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
@@ -713,4 +707,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

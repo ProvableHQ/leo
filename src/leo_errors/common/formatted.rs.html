@@ -190,22 +190,6 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -317,32 +301,20 @@
 
         <span class="kw">let </span>(loc, contents) = with_session_globals(|s| {
             (
-                s.source_map
-                    .span_to_location(<span class="self">self</span>.span)
-                    .unwrap_or_else(SpanLocation::dummy),
-                s.source_map
-                    .line_contents_of_span(<span class="self">self</span>.span)
-                    .unwrap_or_else(|| <span class="string">&quot;&lt;contents unavailable&gt;&quot;</span>.to_owned()),
+                s.source_map.span_to_location(<span class="self">self</span>.span).unwrap_or_else(SpanLocation::dummy),
+                s.source_map.line_contents_of_span(<span class="self">self</span>.span).unwrap_or_else(|| <span class="string">&quot;&lt;contents unavailable&gt;&quot;</span>.to_owned()),
             )
         });
 
         <span class="kw">let </span>underlined = underline(loc.col_start, loc.col_stop);
 
-        <span class="kw">let </span>(kind, code) = <span class="kw">if </span><span class="self">self</span>.backtrace.error {
-            (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.error_code())
-        } <span class="kw">else </span>{
-            (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.warning_code())
-        };
+        <span class="kw">let </span>(kind, code) =
+            <span class="kw">if </span><span class="self">self</span>.backtrace.error { (<span class="string">&quot;Error&quot;</span>, <span class="self">self</span>.error_code()) } <span class="kw">else </span>{ (<span class="string">&quot;Warning&quot;</span>, <span class="self">self</span>.warning_code()) };
 
         <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">&quot;{kind} [{code}]: {message}&quot;</span>, message = <span class="self">self</span>.backtrace.message,);
 
         <span class="comment">// To avoid the color enabling characters for comparison with test expectations.
-        </span><span class="kw">if </span>std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
-            .unwrap_or_default()
-            .trim()
-            .to_owned()
-            .is_empty()
-        {
+        </span><span class="kw">if </span>std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>).unwrap_or_default().trim().to_owned().is_empty() {
             <span class="kw">if </span><span class="self">self</span>.backtrace.error {
                 <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, message.bold().red())<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
@@ -388,18 +360,14 @@
                 <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Medium);
                 printer = printer.lib_verbosity(Verbosity::Medium);
-                <span class="kw">let </span>trace = printer
-                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace)
-                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;\n{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="string">&quot;full&quot; </span>=&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Full);
                 printer = printer.lib_verbosity(Verbosity::Full);
-                <span class="kw">let </span>trace = printer
-                    .format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace)
-                    .map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
+                <span class="kw">let </span>trace = printer.format_trace_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>.backtrace.backtrace).map_err(|<span class="kw">_</span>| fmt::Error)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;\n{trace}&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="kw">_ </span>=&gt; {}
@@ -415,4 +383,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

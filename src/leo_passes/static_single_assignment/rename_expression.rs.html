@@ -318,15 +318,6 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -346,9 +337,24 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::StaticSingleAssigner;
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, Expression, ExpressionConsumer, Identifier,
-    Literal, MemberAccess, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression,
-    TupleAccess, TupleExpression, UnaryExpression, UnitExpression,
+    AccessExpression,
+    AssociatedFunction,
+    BinaryExpression,
+    CallExpression,
+    Expression,
+    ExpressionConsumer,
+    Identifier,
+    Literal,
+    MemberAccess,
+    Statement,
+    Struct,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleAccess,
+    TupleExpression,
+    UnaryExpression,
+    UnitExpression,
 };
 <span class="kw">use </span>leo_span::{sym, Symbol};
 
@@ -429,14 +435,12 @@
         </span>statements.append(<span class="kw-2">&amp;mut </span>right_statements);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self
-            </span>.assigner
-            .unique_simple_assign_statement(Expression::Binary(BinaryExpression {
-                left: Box::new(left_expression),
-                right: Box::new(right_expression),
-                op: input.op,
-                span: input.span,
-            }));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+            left: Box::new(left_expression),
+            right: Box::new(right_expression),
+            op: input.op,
+            span: input.span,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -458,16 +462,14 @@
             .collect();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the call expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self
-            </span>.assigner
-            .unique_simple_assign_statement(Expression::Call(CallExpression {
-                <span class="comment">// Note that we do not rename the function name.
-                </span>function: input.function,
-                <span class="comment">// Consume the arguments.
-                </span>arguments,
-                external: input.external,
-                span: input.span,
-            }));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Call(CallExpression {
+            <span class="comment">// Note that we do not rename the function name.
+            </span>function: input.function,
+            <span class="comment">// Consume the arguments.
+            </span>arguments,
+            external: input.external,
+            span: input.span,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -494,10 +496,7 @@
                 </span>statements.append(<span class="kw-2">&amp;mut </span>stmts);
 
                 <span class="comment">// Return the new member.
-                </span>StructVariableInitializer {
-                    identifier: arg.identifier,
-                    expression: <span class="prelude-val">Some</span>(expression),
-                }
+                </span>StructVariableInitializer { identifier: arg.identifier, expression: <span class="prelude-val">Some</span>(expression) }
             })
             .collect();
 
@@ -511,10 +510,8 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());
 
         <span class="comment">// Collect the members of the init expression into a map.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, StructVariableInitializer&gt; = members
-            .into_iter()
-            .map(|member| (member.identifier.name, member))
-            .collect();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, StructVariableInitializer&gt; =
+            members.into_iter().map(|member| (member.identifier.name, member)).collect();
 
         <span class="comment">// If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.
         // Note that type checking guarantees that the above fields exist.
@@ -538,13 +535,11 @@
         }
 
         <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self
-            </span>.assigner
-            .unique_simple_assign_statement(Expression::Struct(StructExpression {
-                name: input.name,
-                span: input.span,
-                members: reordered_members,
-            }));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Struct(StructExpression {
+            name: input.name,
+            span: input.span,
+            members: reordered_members,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -566,13 +561,7 @@
             </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(identifier.name).unwrap_or(<span class="kw-2">&amp;</span>identifier.name),
         };
 
-        (
-            Expression::Identifier(Identifier {
-                name,
-                span: identifier.span,
-            }),
-            Default::default(),
-        )
+        (Expression::Identifier(Identifier { name, span: identifier.span }), Default::default())
     }
 
     <span class="doccomment">/// Consumes and returns the literal without making any modifications.
@@ -594,14 +583,12 @@
         statements.append(<span class="kw-2">&amp;mut </span>if_false_statements);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self
-            </span>.assigner
-            .unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
-                condition: Box::new(cond_expr),
-                if_true: Box::new(if_true_expr),
-                if_false: Box::new(if_false_expr),
-                span: input.span,
-            }));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+            condition: Box::new(cond_expr),
+            if_true: Box::new(if_true_expr),
+            if_false: Box::new(if_false_expr),
+            span: input.span,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -625,10 +612,7 @@
         <span class="comment">// Construct and accumulate a new assignment statement for the tuple expression.
         </span><span class="kw">let </span>(place, statement) = <span class="self">self
             </span>.assigner
-            .unique_simple_assign_statement(Expression::Tuple(TupleExpression {
-                elements,
-                span: input.span,
-            }));
+            .unique_simple_assign_statement(Expression::Tuple(TupleExpression { elements, span: input.span }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -640,13 +624,11 @@
         </span><span class="kw">let </span>(receiver, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.receiver);
 
         <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self
-            </span>.assigner
-            .unique_simple_assign_statement(Expression::Unary(UnaryExpression {
-                op: input.op,
-                receiver: Box::new(receiver),
-                span: input.span,
-            }));
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+            op: input.op,
+            receiver: Box::new(receiver),
+            span: input.span,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -657,4 +639,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

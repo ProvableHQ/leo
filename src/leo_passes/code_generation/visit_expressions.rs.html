@@ -351,6 +351,14 @@
 <a href="#351" id="351">351</a>
 <a href="#352" id="352">352</a>
 <a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -369,9 +377,23 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, ErrExpression, Expression,
-    Identifier, Literal, MemberAccess, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression,
-    UnaryOperation, UnitExpression,
+    AccessExpression,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    MemberAccess,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
 };
 <span class="kw">use </span>leo_span::sym;
 <span class="kw">use </span>std::borrow::Borrow;
@@ -640,13 +662,7 @@
             Expression::Identifier(identifier) =&gt; identifier.name,
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that all `input.function` is always an identifier.&quot;</span>),
         };
-        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .functions
-            .get(<span class="kw-2">&amp;</span>function_name)
-            .unwrap()
-            .output_type;
+        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().functions.get(<span class="kw-2">&amp;</span>function_name).unwrap().output_type;
         <span class="kw">match </span>return_type {
             Type::Unit =&gt; {
                 call_instruction.push(<span class="string">&#39;;&#39;</span>);
@@ -705,4 +721,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

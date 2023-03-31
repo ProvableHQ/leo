@@ -144,9 +144,6 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -165,8 +162,18 @@
 
 </span><span class="kw">use crate</span>::{Assigner, RenameTable};
 <span class="kw">use </span>leo_ast::{
-    AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor,
-    Identifier, IterationStatement, ProgramReconstructor, Statement, StatementReconstructor, StructExpression,
+    AssignStatement,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    ProgramReconstructor,
+    Statement,
+    StatementReconstructor,
+    StructExpression,
     StructVariableInitializer,
 };
 <span class="kw">use </span>leo_span::Symbol;
@@ -183,11 +190,7 @@
 <span class="kw">impl </span>AssignmentRenamer {
     <span class="doccomment">/// Initialize a new `AssignmentRenamer`.
     </span><span class="kw">pub fn </span>new(assigner: Assigner) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            assigner,
-            rename_table: RenameTable::new(<span class="prelude-val">None</span>),
-            is_lhs: <span class="bool-val">false</span>,
-        }
+        <span class="self">Self </span>{ assigner, rename_table: RenameTable::new(<span class="prelude-val">None</span>), is_lhs: <span class="bool-val">false </span>}
     }
 
     <span class="doccomment">/// Load the internal rename table with a set of entries.
@@ -205,6 +208,7 @@
 
 <span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>AssignmentRenamer {
     <span class="kw">type </span>AdditionalOutput = ();
+
     <span class="doccomment">/// Rename the identifier if it is the left-hand side of an assignment, otherwise look up for a new name in the internal rename table.
     </span><span class="kw">fn </span>reconstruct_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Identifier) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span>name = <span class="kw">match </span><span class="self">self</span>.is_lhs {
@@ -221,10 +225,7 @@
             </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(input.name).unwrap_or(<span class="kw-2">&amp;</span>input.name),
         };
 
-        (
-            Expression::Identifier(Identifier { name, span: input.span }),
-            Default::default(),
-        )
+        (Expression::Identifier(Identifier { name, span: input.span }), Default::default())
     }
 
     <span class="doccomment">/// Rename the variable initializers in the struct expression.
@@ -264,14 +265,7 @@
         <span class="kw">let </span>place = <span class="self">self</span>.reconstruct_expression(input.place).<span class="number">0</span>;
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        (
-            Statement::Assign(Box::new(AssignStatement {
-                place,
-                value,
-                span: input.span,
-            })),
-            Default::default(),
-        )
+        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -297,4 +291,4 @@
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>AssignmentRenamer {}
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

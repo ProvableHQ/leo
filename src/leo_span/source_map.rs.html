@@ -435,22 +435,6 @@
 <a href="#435" id="435">435</a>
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -470,7 +454,9 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::span::{BytePos, CharPos, Pos, Span};
 <span class="kw">use </span>std::{
     cell::RefCell,
-    fmt, fs, io,
+    fmt,
+    fs,
+    io,
     path::{Path, PathBuf},
     rc::Rc,
 };
@@ -558,10 +544,7 @@
         <span class="kw">if </span>loc.line_start == loc.line_stop {
             <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}&quot;</span>, loc.line_start, loc.col_start, loc.col_stop)
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(
-                <span class="string">&quot;{}:{}-{}:{}&quot;</span>,
-                loc.line_start, loc.col_start, loc.line_stop, loc.col_stop
-            )
+            <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}:{}&quot;</span>, loc.line_start, loc.col_start, loc.line_stop, loc.col_stop)
         }
     }
 
@@ -593,11 +576,7 @@
         <span class="kw">let </span>idx_lo = begin.lookup_line(span.lo).unwrap_or(<span class="number">0</span>);
         <span class="kw">let </span>idx_hi = begin.lookup_line(span.hi).unwrap_or(<span class="number">0</span>) + <span class="number">1</span>;
         <span class="kw">let </span>lo_line_pos = begin.lines[idx_lo];
-        <span class="kw">let </span>hi_line_pos = <span class="kw">if </span>idx_hi &lt; begin.lines.len() {
-            begin.lines[idx_hi]
-        } <span class="kw">else </span>{
-            begin.end_pos
-        };
+        <span class="kw">let </span>hi_line_pos = <span class="kw">if </span>idx_hi &lt; begin.lines.len() { begin.lines[idx_hi] } <span class="kw">else </span>{ begin.end_pos };
         <span class="prelude-val">Some</span>(begin.contents_of_span(Span::new(lo_line_pos, hi_line_pos)))
     }
 }
@@ -636,11 +615,7 @@
 
 <span class="doccomment">/// Is the env var `LEO_TESTFRAMEWORK` not enabled?
 </span><span class="kw">pub fn </span>is_not_test_framework() -&gt; bool {
-    std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
-        .unwrap_or_default()
-        .trim()
-        .to_owned()
-        .is_empty()
+    std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>).unwrap_or_default().trim().to_owned().is_empty()
 }
 
 <span class="doccomment">/// A single source in the [`SourceMap`].
@@ -668,14 +643,7 @@
         normalize_src(<span class="kw-2">&amp;mut </span>src);
         <span class="kw">let </span>end_pos = start_pos + BytePos::from_usize(src.len());
         <span class="kw">let </span>(lines, multibyte_chars) = analyze_source_file(<span class="kw-2">&amp;</span>src, start_pos);
-        <span class="self">Self </span>{
-            name,
-            src,
-            start_pos,
-            end_pos,
-            lines,
-            multibyte_chars,
-        }
+        <span class="self">Self </span>{ name, src, start_pos, end_pos, lines, multibyte_chars }
     }
 
     <span class="doccomment">/// Converts an absolute `BytePos` to a `CharPos` relative to the `SourceFile`.
@@ -905,4 +873,4 @@
     (lines, multi_byte_chars)
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

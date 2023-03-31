@@ -357,18 +357,6 @@
 <a href="#357" id="357">357</a>
 <a href="#358" id="358">358</a>
 <a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -389,8 +377,17 @@
 <span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">use </span>leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
-    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
+    AccessExpression,
+    AssociatedFunction,
+    Expression,
+    ExpressionReconstructor,
+    Member,
+    MemberAccess,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleExpression,
 };
 
 <span class="comment">// TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
@@ -407,11 +404,7 @@
                     Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
-                            .collect(),
+                        args: function.args.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                         span: function.span,
                     }))
                 }
@@ -454,20 +447,10 @@
             <span class="comment">// Accumulate any statements produced.
             </span>statements.extend(stmts);
             <span class="comment">// Accumulate the struct members.
-            </span>members.push(StructVariableInitializer {
-                identifier: member.identifier,
-                expression: <span class="prelude-val">Some</span>(expr),
-            });
+            </span>members.push(StructVariableInitializer { identifier: member.identifier, expression: <span class="prelude-val">Some</span>(expr) });
         }
 
-        (
-            Expression::Struct(StructExpression {
-                name: input.name,
-                members,
-                span: input.span,
-            }),
-            statements,
-        )
+        (Expression::Struct(StructExpression { name: input.name, members, span: input.span }), statements)
     }
 
     <span class="doccomment">/// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
@@ -595,8 +578,7 @@
                         </span><span class="kw">let </span>(identifier, statement) = <span class="self">self</span>.unique_simple_assign_statement(expr);
 
                         <span class="comment">// Mark the lhs of the assignment as a struct.
-                        </span><span class="self">self</span>.structs
-                            .insert(identifier.name, first_member_struct.identifier.name);
+                        </span><span class="self">self</span>.structs.insert(identifier.name, first_member_struct.identifier.name);
 
                         statements.push(statement);
 
@@ -632,14 +614,8 @@
             </span>(Expression::Identifier(first), Expression::Identifier(second))
                 <span class="kw">if </span><span class="self">self</span>.structs.contains_key(<span class="kw-2">&amp;</span>first.name) &amp;&amp; <span class="self">self</span>.structs.contains_key(<span class="kw-2">&amp;</span>second.name) =&gt;
             {
-                <span class="kw">let </span>first_struct = <span class="self">self
-                    </span>.symbol_table
-                    .lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>first.name).unwrap())
-                    .unwrap();
-                <span class="kw">let </span>second_struct = <span class="self">self
-                    </span>.symbol_table
-                    .lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>second.name).unwrap())
-                    .unwrap();
+                <span class="kw">let </span>first_struct = <span class="self">self</span>.symbol_table.lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>first.name).unwrap()).unwrap();
+                <span class="kw">let </span>second_struct = <span class="self">self</span>.symbol_table.lookup_struct(<span class="kw-2">*</span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>second.name).unwrap()).unwrap();
                 <span class="comment">// Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
                 </span><span class="macro">assert_eq!</span>(first_struct, second_struct);
 
@@ -741,4 +717,4 @@
     }
 }
 </code></pre></div>
-</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.1 (8460ca823 2023-03-20)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
+</section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>
