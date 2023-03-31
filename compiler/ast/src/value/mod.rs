@@ -870,26 +870,26 @@ impl TryFrom<&Literal> for Value {
 
     /// Converts a literal to a value.
     fn try_from(literal: &Literal) -> Result<Self, Self::Error> {
-        match literal {
-            Literal::Address(string, span) => Ok(Self::Address(string.clone(), *span)),
-            Literal::Boolean(bool, span) => Ok(Self::Boolean(*bool, *span)),
-            Literal::Field(string, span) => Ok(Self::Field(string.clone(), *span)),
-            Literal::Group(group_literal) => Ok(Self::Group(group_literal.clone())),
-            Literal::Scalar(string, span) => Ok(Self::Scalar(string.clone(), *span)),
-            Literal::String(string, span) => Ok(Self::String(string.clone(), *span)),
+        Ok(match literal {
+            Literal::Address(string, span) => Self::Address(string.clone(), *span),
+            Literal::Boolean(bool, span) => Self::Boolean(*bool, *span),
+            Literal::Field(string, span) => Self::Field(string.clone(), *span),
+            Literal::Group(group_literal) => Self::Group(group_literal.clone()),
+            Literal::Scalar(string, span) => Self::Scalar(string.clone(), *span),
+            Literal::String(string, span) => Self::String(string.clone(), *span),
             Literal::Integer(integer_type, string, span) => match integer_type {
-                IntegerType::U8 => Ok(Self::U8(string.parse()?, *span)),
-                IntegerType::U16 => Ok(Self::U16(string.parse()?, *span)),
-                IntegerType::U32 => Ok(Self::U32(string.parse()?, *span)),
-                IntegerType::U64 => Ok(Self::U64(string.parse()?, *span)),
-                IntegerType::U128 => Ok(Self::U128(string.parse()?, *span)),
-                IntegerType::I8 => Ok(Self::I8(string.parse()?, *span)),
-                IntegerType::I16 => Ok(Self::I16(string.parse()?, *span)),
-                IntegerType::I32 => Ok(Self::I32(string.parse()?, *span)),
-                IntegerType::I64 => Ok(Self::I64(string.parse()?, *span)),
-                IntegerType::I128 => Ok(Self::I128(string.parse()?, *span)),
+                IntegerType::U8 => Self::U8(string.parse()?, *span),
+                IntegerType::U16 => Self::U16(string.parse()?, *span),
+                IntegerType::U32 => Self::U32(string.parse()?, *span),
+                IntegerType::U64 => Self::U64(string.parse()?, *span),
+                IntegerType::U128 => Self::U128(string.parse()?, *span),
+                IntegerType::I8 => Self::I8(string.parse()?, *span),
+                IntegerType::I16 => Self::I16(string.parse()?, *span),
+                IntegerType::I32 => Self::I32(string.parse()?, *span),
+                IntegerType::I64 => Self::I64(string.parse()?, *span),
+                IntegerType::I128 => Self::I128(string.parse()?, *span),
             },
-        }
+        })
     }
 }
 
