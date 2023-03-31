@@ -17,9 +17,25 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, CallExpression, ConditionalStatement, ConsoleStatement,
-    DecrementStatement, DefinitionStatement, Expression, ExpressionConsumer, ExpressionStatement, Identifier,
-    IncrementStatement, IterationStatement, ReturnStatement, Statement, StatementConsumer, TernaryExpression,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    CallExpression,
+    ConditionalStatement,
+    ConsoleStatement,
+    DecrementStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionConsumer,
+    ExpressionStatement,
+    Identifier,
+    IncrementStatement,
+    IterationStatement,
+    ReturnStatement,
+    Statement,
+    StatementConsumer,
+    TernaryExpression,
     TupleExpression,
 };
 use leo_span::Symbol;
@@ -59,10 +75,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
 
         // Add the assert statement to the list of produced statements.
-        statements.push(Statement::Assert(AssertStatement {
-            variant,
-            span: input.span,
-        }));
+        statements.push(Statement::Assert(AssertStatement { variant, span: input.span }));
 
         statements
     }
@@ -88,11 +101,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes a `Block`, flattening its constituent `ConditionalStatement`s.
     fn consume_block(&mut self, block: Block) -> Self::Output {
-        block
-            .statements
-            .into_iter()
-            .flat_map(|statement| self.consume_statement(statement))
-            .collect()
+        block.statements.into_iter().flat_map(|statement| self.consume_statement(statement)).collect()
     }
 
     /// Consumes a `ConditionalStatement`, producing phi functions (assign statements) for variables written in the then-block and otherwise-block.
@@ -110,10 +119,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.push();
 
         // Consume the then-block.
-        let then = Block {
-            span: conditional.then.span,
-            statements: self.consume_block(conditional.then),
-        };
+        let then = Block { span: conditional.then.span, statements: self.consume_block(conditional.then) };
 
         // Remove the `RenameTable` for the then-block.
         let if_table = self.pop();
@@ -156,13 +162,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             if self.rename_table.lookup(**symbol).is_some() {
                 // Helper to lookup a symbol and create an argument for the phi function.
                 let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
-                    let name = *table
-                        .lookup(symbol)
-                        .unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
-                    Box::new(Expression::Identifier(Identifier {
-                        name,
-                        span: Default::default(),
-                    }))
+                    let name =
+                        *table.lookup(symbol).unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
+                    Box::new(Expression::Identifier(Identifier { name, span: Default::default() }))
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
@@ -178,13 +180,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 statements.extend(stmts);
 
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = self.assigner.simple_assign_statement(
-                    Identifier {
-                        name: new_name,
-                        span: Default::default(),
-                    },
-                    value,
-                );
+                let assignment = self
+                    .assigner
+                    .simple_assign_statement(Identifier { name: new_name, span: Default::default() }, value);
 
                 // Update the `RenameTable` with the new name of the variable.
                 self.rename_table.update(*(*symbol), new_name);
@@ -251,15 +249,14 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     }
                 }).collect();
                 statements.push(Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(TupleExpression {
-                        elements,
-                        span: Default::default()
-                    }),
+                    place: Expression::Tuple(TupleExpression { elements, span: Default::default() }),
                     value,
-                    span: Default::default()
+                    span: Default::default(),
                 })));
             }
-            _ => unreachable!("Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."),
+            _ => unreachable!(
+                "Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."
+            ),
         }
         self.is_lhs = false;
 

@@ -19,8 +19,7 @@ use crate::{Block, Expression, Identifier, Node, Type, Value};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::fmt;
+use std::{cell::RefCell, fmt};
 
 /// A bounded `for` loop statement `for variable in start .. =? stop block`.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -51,11 +50,7 @@ pub struct IterationStatement {
 impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let eq = if self.inclusive { "=" } else { "" };
-        write!(
-            f,
-            "for {} in {}..{eq}{} {}",
-            self.variable, self.start, self.stop, self.block
-        )
+        write!(f, "for {} in {}..{eq}{} {}", self.variable, self.start, self.stop, self.block)
     }
 }
 

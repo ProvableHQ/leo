@@ -215,10 +215,7 @@ impl ParserContext<'_> {
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(
-            &[Token::Mul, Token::Div, Token::Rem],
-            Self::parse_exponential_expression,
-        )
+        self.parse_bin_expr(&[Token::Mul, Token::Div, Token::Rem], Self::parse_exponential_expression)
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -266,11 +263,7 @@ impl ParserContext<'_> {
                     Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span))
                 }
                 // Otherwise, produce a unary expression.
-                _ => Expression::Unary(UnaryExpression {
-                    span: op_span + inner.span(),
-                    op,
-                    receiver: Box::new(inner),
-                }),
+                _ => Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) }),
             };
         }
         Ok(inner)
@@ -285,11 +278,7 @@ impl ParserContext<'_> {
 
         if let (true, Some(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
-            Ok(Expression::Unary(UnaryExpression {
-                span,
-                op,
-                receiver: Box::new(receiver),
-            }))
+            Ok(Expression::Unary(UnaryExpression { span, op, receiver: Box::new(receiver) }))
         } else if let (1, Some(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
             Ok(Expression::Binary(BinaryExpression {
@@ -359,11 +348,8 @@ impl ParserContext<'_> {
                 if self.check_int() {
                     // Eat a tuple member access.
                     let (index, span) = self.eat_integer()?;
-                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index,
-                        span,
-                    }))
+                    expr =
+                        Expression::Access(AccessExpression::Tuple(TupleAccess { tuple: Box::new(expr), index, span }))
                 } else if self.eat(&Token::Leo) {
                     // Eat an external function call.
                     self.eat(&Token::Div); // todo: Make `/` a more general token.
@@ -484,11 +470,7 @@ impl ParserContext<'_> {
         let end_span = check_ahead(dist, &Token::Group)?;
         dist += 1; // Standing at `)` so advance one for 'group'.
 
-        let gt = GroupTuple {
-            span: start_span + &end_span,
-            x: first_gc,
-            y: second_gc,
-        };
+        let gt = GroupTuple { span: start_span + &end_span, x: first_gc, y: second_gc };
 
         // Eat everything so that this isn't just peeking.
         for _ in 0..dist {
@@ -525,15 +507,10 @@ impl ParserContext<'_> {
     /// struct initialization expression.
     /// let foo = Foo { x: 1u8 };
     pub fn parse_struct_init_expression(&mut self, identifier: Identifier) -> Result<Expression> {
-        let (members, _, end) = self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| {
-            p.parse_struct_member().map(Some)
-        })?;
+        let (members, _, end) =
+            self.parse_list(Delimiter::Brace, Some(Token::Comma), |p| p.parse_struct_member().map(Some))?;
 
-        Ok(Expression::Struct(StructExpression {
-            span: identifier.span + end,
-            name: identifier,
-            members,
-        }))
+        Ok(Expression::Struct(StructExpression { span: identifier.span + end, name: identifier, members }))
     }
 
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -600,14 +577,10 @@ impl ParserContext<'_> {
                     Expression::Identifier(ident)
                 }
             }
-            Token::SelfLower => Expression::Identifier(Identifier {
-                name: sym::SelfLower,
-                span,
-            }),
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
-                name: t.keyword_to_symbol().unwrap(),
-                span,
-            }),
+            Token::SelfLower => Expression::Identifier(Identifier { name: sym::SelfLower, span }),
+            t if crate::type_::TYPE_TOKENS.contains(&t) => {
+                Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span })
+            }
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", span).into());
             }

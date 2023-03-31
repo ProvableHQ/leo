@@ -17,8 +17,7 @@
 use crate::TypeChecker;
 
 use leo_ast::*;
-use leo_errors::emitter::Handler;
-use leo_errors::TypeCheckerError;
+use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
 use std::str::FromStr;
@@ -28,11 +27,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
         (Some(t1), Some(t2)) if t1 == t2 => Some(t1),
         (Some(t1), Some(t2)) => {
             if let Some(expected) = expected {
-                if &t1 != expected {
-                    Some(t1)
-                } else {
-                    Some(t2)
-                }
+                if &t1 != expected { Some(t1) } else { Some(t2) }
             } else {
                 Some(t1)
             }
@@ -482,12 +477,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Check function argument types.
-                    func.input
-                        .iter()
-                        .zip(input.arguments.iter())
-                        .for_each(|(expected, argument)| {
-                            self.visit_expression(argument, &Some(expected.type_()));
-                        });
+                    func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
+                        self.visit_expression(argument, &Some(expected.type_()));
+                    });
 
                     // Add the call to the call graph.
                     let caller_name = match self.function {
@@ -524,11 +516,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             // Check struct member types.
             struct_.members.iter().for_each(|Member { identifier, type_, .. }| {
                 // Lookup struct variable name.
-                if let Some(actual) = input
-                    .members
-                    .iter()
-                    .find(|member| member.identifier.name == identifier.name)
-                {
+                if let Some(actual) = input.members.iter().find(|member| member.identifier.name == identifier.name) {
                     match &actual.expression {
                         // If `expression` is None, then the member uses the identifier shorthand, e.g. `Foo { a }`
                         None => self.visit_identifier(&actual.identifier, &Some(type_.clone())),
@@ -546,11 +534,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
             Some(ret)
         } else {
-            self.emit_err(TypeCheckerError::unknown_sym(
-                "struct",
-                input.name.name,
-                input.name.span(),
-            ));
+            self.emit_err(TypeCheckerError::unknown_sym("struct", input.name.name, input.name.span()));
             None
         }
     }
@@ -655,16 +639,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         ));
                     }
 
-                    expected_types
-                        .iter()
-                        .zip(input.elements.iter())
-                        .for_each(|(expected, expr)| {
-                            // Check that the component expression is not a tuple.
-                            if matches!(expr, Expression::Tuple(_)) {
-                                self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
-                            }
-                            self.visit_expression(expr, &Some(expected.clone()));
-                        });
+                    expected_types.iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
+                        // Check that the component expression is not a tuple.
+                        if matches!(expr, Expression::Tuple(_)) {
+                            self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
+                        }
+                        self.visit_expression(expr, &Some(expected.clone()));
+                    });
 
                     Some(Type::Tuple(expected_types.clone()))
                 } else {
@@ -727,9 +708,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Unit expression are only allowed inside a return statement.
         if !self.is_return {
-            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(
-                input.span(),
-            ));
+            self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
         }
         Some(Type::Unit)
     }

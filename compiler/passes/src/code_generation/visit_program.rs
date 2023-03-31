@@ -76,13 +76,7 @@ impl<'a> CodeGenerator<'a> {
         program_string.push('\n');
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        program_string.push_str(
-            &program_scope
-                .mappings
-                .values()
-                .map(|mapping| self.visit_mapping(mapping))
-                .join("\n"),
-        );
+        program_string.push_str(&program_scope.mappings.values().map(|mapping| self.visit_mapping(mapping)).join("\n"));
 
         // Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -118,17 +112,12 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
-        if struct_.is_record {
-            self.visit_record(struct_)
-        } else {
-            self.visit_struct(struct_)
-        }
+        if struct_.is_record { self.visit_record(struct_) } else { self.visit_struct(struct_) }
     }
 
     fn visit_struct(&mut self, struct_: &'a Struct) -> String {
         // Add private symbol to composite types.
-        self.composite_mapping
-            .insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
+        self.composite_mapping.insert(&struct_.identifier.name, (false, String::from("private"))); // todo: private by default here.
 
         let mut output_string = format!("struct {}:\n", struct_.identifier); // todo: check if this is safe from name conflicts.
 
@@ -143,8 +132,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_record(&mut self, record: &'a Struct) -> String {
         // Add record symbol to composite types.
         let mut output_string = String::from("record");
-        self.composite_mapping
-            .insert(&record.identifier.name, (true, output_string.clone()));
+        self.composite_mapping.insert(&record.identifier.name, (true, output_string.clone()));
         writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
@@ -190,8 +178,7 @@ impl<'a> CodeGenerator<'a> {
 
             let type_string = match input {
                 functions::Input::Internal(input) => {
-                    self.variable_mapping
-                        .insert(&input.identifier.name, register_string.clone());
+                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
                     let visibility = match (self.is_transition_function, input.mode) {
                         (true, Mode::None) => Mode::Private,
                         _ => input.mode,
@@ -199,8 +186,7 @@ impl<'a> CodeGenerator<'a> {
                     self.visit_type_with_visibility(&input.type_, visibility)
                 }
                 functions::Input::External(input) => {
-                    self.variable_mapping
-                        .insert(&input.identifier.name, register_string.clone());
+                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
                     format!("{}.aleo/{}.record", input.program_name, input.record)
                 }
             };
@@ -234,8 +220,7 @@ impl<'a> CodeGenerator<'a> {
                 // TODO: Dedup code.
                 let type_string = match input {
                     functions::Input::Internal(input) => {
-                        self.variable_mapping
-                            .insert(&input.identifier.name, register_string.clone());
+                        self.variable_mapping.insert(&input.identifier.name, register_string.clone());
 
                         let visibility = match (self.is_transition_function, input.mode) {
                             (true, Mode::None) => Mode::Public,
@@ -244,8 +229,7 @@ impl<'a> CodeGenerator<'a> {
                         self.visit_type_with_visibility(&input.type_, visibility)
                     }
                     functions::Input::External(input) => {
-                        self.variable_mapping
-                            .insert(&input.program_name.name, register_string.clone());
+                        self.variable_mapping.insert(&input.program_name.name, register_string.clone());
                         format!("{}.aleo/{}.record", input.program_name, input.record)
                     }
                 };

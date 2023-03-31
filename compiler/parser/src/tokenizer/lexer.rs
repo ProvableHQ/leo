@@ -196,11 +196,7 @@ impl Token {
         // Otherwise, return the `first_token` that matches the one character.
         let match_two = |input: &mut Peekable<_>, first_token, second_char, second_token| {
             input.next();
-            Ok(if input.next_if_eq(&second_char).is_some() {
-                (2, second_token)
-            } else {
-                (1, first_token)
-            })
+            Ok(if input.next_if_eq(&second_char).is_some() { (2, second_token) } else { (1, first_token) })
         };
 
         // Returns one token matching one or two characters.
@@ -281,7 +277,7 @@ impl Token {
                     Token::And,
                     '=',
                     Token::AndAssign,
-                )
+                );
             }
             '(' => return match_one(&mut input, Token::LeftParen),
             ')' => return match_one(&mut input, Token::RightParen),
@@ -296,7 +292,7 @@ impl Token {
                     Token::Pow,
                     '=',
                     Token::PowAssign,
-                )
+                );
             }
             '+' => return match_two(&mut input, Token::Add, '=', Token::AddAssign),
             ',' => return match_one(&mut input, Token::Comma),
@@ -350,30 +346,8 @@ impl Token {
             '%' => return match_two(&mut input, Token::Rem, '=', Token::RemAssign),
             ':' => return match_two(&mut input, Token::Colon, ':', Token::DoubleColon),
             ';' => return match_one(&mut input, Token::Semicolon),
-            '<' => {
-                return match_four(
-                    &mut input,
-                    Token::Lt,
-                    '=',
-                    Token::LtEq,
-                    '<',
-                    Token::Shl,
-                    '=',
-                    Token::ShlAssign,
-                )
-            }
-            '>' => {
-                return match_four(
-                    &mut input,
-                    Token::Gt,
-                    '=',
-                    Token::GtEq,
-                    '>',
-                    Token::Shr,
-                    '=',
-                    Token::ShrAssign,
-                )
-            }
+            '<' => return match_four(&mut input, Token::Lt, '=', Token::LtEq, '<', Token::Shl, '=', Token::ShlAssign),
+            '>' => return match_four(&mut input, Token::Gt, '=', Token::GtEq, '>', Token::Shr, '=', Token::ShrAssign),
             '=' => return match_three(&mut input, Token::Assign, '=', Token::Eq, '>', Token::BigArrow),
             '[' => return match_one(&mut input, Token::LeftSquare),
             ']' => return match_one(&mut input, Token::RightSquare),
@@ -389,7 +363,7 @@ impl Token {
                     Token::Or,
                     '=',
                     Token::OrAssign,
-                )
+                );
             }
             '^' => return match_two(&mut input, Token::BitXor, '=', Token::BitXorAssign),
             '@' => return Ok((1, Token::At)),
@@ -451,12 +425,8 @@ impl Token {
             ));
         }
 
-        Err(ParserError::could_not_lex(
-            input
-                .take_while(|c| *c != ';' && !c.is_whitespace())
-                .collect::<String>(),
-        )
-        .into())
+        Err(ParserError::could_not_lex(input.take_while(|c| *c != ';' && !c.is_whitespace()).collect::<String>())
+            .into())
     }
 }
 
@@ -469,10 +439,7 @@ pub struct SpannedToken {
 impl SpannedToken {
     /// Returns a dummy token at a dummy span.
     pub const fn dummy() -> Self {
-        Self {
-            token: Token::Question,
-            span: Span::dummy(),
-        }
+        Self { token: Token::Question, span: Span::dummy() }
     }
 }
 

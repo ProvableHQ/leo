@@ -40,13 +40,7 @@ impl Namespace for TokenNamespace {
     fn run_test(&self, test: Test) -> Result<Value, String> {
         create_session_if_not_set_then(|s| {
             tokenize(test, s).map(|tokens| {
-                Value::String(
-                    tokens
-                        .into_iter()
-                        .map(|x| x.to_string())
-                        .collect::<Vec<String>>()
-                        .join(","),
-                )
+                Value::String(tokens.into_iter().map(|x| x.to_string()).collect::<Vec<String>>().join(","))
             })
         })
     }
@@ -71,9 +65,7 @@ fn with_handler<T>(
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
     let mut tokens = ParserContext::new(&handler, tokens);
-    let parsed = handler
-        .extend_if_error(logic(&mut tokens))
-        .map_err(|_| buf.extract_errs().to_string())?;
+    let parsed = handler.extend_if_error(logic(&mut tokens)).map_err(|_| buf.extract_errs().to_string())?;
     not_fully_consumed(&mut tokens)?;
     Ok(parsed)
 }
@@ -84,9 +76,7 @@ fn tokenize(test: Test, s: &SessionGlobals) -> Result<Vec<SpannedToken>, String>
 }
 
 fn all_are_comments(tokens: &[SpannedToken]) -> bool {
-    tokens
-        .iter()
-        .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
+    tokens.iter().all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
 }
 
 fn yaml_or_fail<T: Serialize>(value: T) -> Value {

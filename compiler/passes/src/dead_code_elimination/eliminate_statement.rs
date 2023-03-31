@@ -17,9 +17,22 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DecrementStatement,
-    DefinitionStatement, Expression, ExpressionReconstructor, ExpressionStatement, IncrementStatement,
-    IterationStatement, ReturnStatement, Statement, StatementReconstructor,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DecrementStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    ExpressionStatement,
+    IncrementStatement,
+    IterationStatement,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
 };
 
 impl StatementReconstructor for DeadCodeEliminator {
@@ -31,14 +44,12 @@ impl StatementReconstructor for DeadCodeEliminator {
         let statement = Statement::Assert(AssertStatement {
             variant: match input.variant {
                 AssertVariant::Assert(expr) => AssertVariant::Assert(self.reconstruct_expression(expr).0),
-                AssertVariant::AssertEq(left, right) => AssertVariant::AssertEq(
-                    self.reconstruct_expression(left).0,
-                    self.reconstruct_expression(right).0,
-                ),
-                AssertVariant::AssertNeq(left, right) => AssertVariant::AssertNeq(
-                    self.reconstruct_expression(left).0,
-                    self.reconstruct_expression(right).0,
-                ),
+                AssertVariant::AssertEq(left, right) => {
+                    AssertVariant::AssertEq(self.reconstruct_expression(left).0, self.reconstruct_expression(right).0)
+                }
+                AssertVariant::AssertNeq(left, right) => {
+                    AssertVariant::AssertNeq(self.reconstruct_expression(left).0, self.reconstruct_expression(right).0)
+                }
             },
             span: input.span,
         });
@@ -95,23 +106,13 @@ impl StatementReconstructor for DeadCodeEliminator {
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
     fn reconstruct_block(&mut self, block: Block) -> (Block, Self::AdditionalOutput) {
         // Reconstruct each of the statements in reverse.
-        let mut statements: Vec<Statement> = block
-            .statements
-            .into_iter()
-            .rev()
-            .map(|statement| self.reconstruct_statement(statement).0)
-            .collect();
+        let mut statements: Vec<Statement> =
+            block.statements.into_iter().rev().map(|statement| self.reconstruct_statement(statement).0).collect();
 
         // Reverse the direction of `statements`.
         statements.reverse();
 
-        (
-            Block {
-                statements,
-                span: block.span,
-            },
-            Default::default(),
-        )
+        (Block { statements, span: block.span }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -200,10 +201,7 @@ impl StatementReconstructor for DeadCodeEliminator {
         let statement = Statement::Return(ReturnStatement {
             expression: self.reconstruct_expression(input.expression).0,
             finalize_arguments: input.finalize_arguments.map(|arguments| {
-                arguments
-                    .into_iter()
-                    .map(|argument| self.reconstruct_expression(argument).0)
-                    .collect()
+                arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
             }),
             span: input.span,
         });

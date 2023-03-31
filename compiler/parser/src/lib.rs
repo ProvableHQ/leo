@@ -32,8 +32,7 @@ pub mod parser;
 pub use parser::*;
 
 use leo_ast::{input::InputData, Ast, ProgramInput};
-use leo_errors::emitter::Handler;
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, Result};
 
 #[cfg(test)]
 mod test;

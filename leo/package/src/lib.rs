@@ -27,8 +27,7 @@ pub mod source;
 
 use leo_errors::{PackageError, Result};
 
-use std::fs::ReadDir;
-use std::{fs, path::PathBuf};
+use std::{fs, fs::ReadDir, path::PathBuf};
 
 pub static LEO_FILE_EXTENSION: &str = ".leo";
 

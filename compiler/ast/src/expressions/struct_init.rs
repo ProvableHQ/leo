@@ -82,15 +82,7 @@ impl StructExpression {
 
 impl fmt::Display for StructExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{{{}}}",
-            self.members
-                .iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
+        write!(f, "{{{}}}", self.members.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", "))
     }
 }
 

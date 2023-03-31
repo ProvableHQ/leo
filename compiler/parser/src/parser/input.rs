@@ -55,11 +55,7 @@ impl ParserContext<'_> {
             definitions.push(self.parse_input_definition()?);
         }
 
-        Ok(Section {
-            name: section.name,
-            span: section.span,
-            definitions,
-        })
+        Ok(Section { name: section.name, span: section.span, definitions })
     }
 
     /// Parses a single parameter definition:
@@ -75,12 +71,6 @@ impl ParserContext<'_> {
         let value = self.parse_unary_expression()?;
         self.expect(&Token::Semicolon)?;
 
-        Ok(Definition {
-            mode,
-            name,
-            type_,
-            value,
-            span,
-        })
+        Ok(Definition { mode, name, type_, value, span })
     }
 }

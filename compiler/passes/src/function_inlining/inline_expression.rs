@@ -17,8 +17,15 @@
 use crate::{FunctionInliner, Replacer};
 
 use leo_ast::{
-    CallExpression, Expression, ExpressionReconstructor, Identifier, ReturnStatement, Statement,
-    StatementReconstructor, UnitExpression, Variant,
+    CallExpression,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+    UnitExpression,
+    Variant,
 };
 
 use indexmap::IndexMap;
@@ -56,12 +63,8 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                     .collect::<IndexMap<_, _>>();
 
                 // Initializer `self.assignment_renamer` with the function parameters.
-                self.assignment_renamer.load(
-                    callee
-                        .input
-                        .iter()
-                        .map(|input| (input.identifier().name, input.identifier().name)),
-                );
+                self.assignment_renamer
+                    .load(callee.input.iter().map(|input| (input.identifier().name, input.identifier().name)));
 
                 // Duplicate the body of the callee and create a unique assignment statement for each assignment in the body.
                 // This is necessary to ensure the inlined variables do not conflict with variables in the caller.
@@ -86,9 +89,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                             _ => unreachable!("This branch checks that the last statement is a return statement."),
                         }
                     }
-                    _ => Expression::Unit(UnitExpression {
-                        span: Default::default(),
-                    }),
+                    _ => Expression::Unit(UnitExpression { span: Default::default() }),
                 };
 
                 (result, inlined_statements)

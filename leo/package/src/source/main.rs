@@ -31,9 +31,7 @@ pub struct MainFile {
 
 impl MainFile {
     pub fn new(package_name: &str) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-        }
+        Self { package_name: package_name.to_string() }
     }
 
     pub fn filename() -> String {
@@ -61,9 +59,7 @@ impl MainFile {
         }
 
         let mut file = File::create(&path).map_err(PackageError::io_error_main_file)?;
-        Ok(file
-            .write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_main_file)?)
+        Ok(file.write_all(self.template().as_bytes()).map_err(PackageError::io_error_main_file)?)
     }
 
     // TODO: Generalize to other networks.

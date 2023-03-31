@@ -48,10 +48,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Typecheck the program scopes.
-        input
-            .program_scopes
-            .values()
-            .for_each(|scope| self.visit_program_scope(scope));
+        input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -94,18 +91,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         // TODO: Better span to target duplicate member.
-        if !input.members.iter().all(
-            |Member {
-                 identifier,
-                 type_,
-                 span,
-                 ..
-             }| {
-                // Check that the member types are defined.
-                self.assert_type_is_defined(type_, *span);
-                used.insert(identifier.name)
-            },
-        ) {
+        if !input.members.iter().all(|Member { identifier, type_, span, .. }| {
+            // Check that the member types are defined.
+            self.assert_type_is_defined(type_, *span);
+            used.insert(identifier.name)
+        }) {
             self.emit_err(if input.is_record {
                 TypeCheckerError::duplicate_record_variable(input.name(), input.span())
             } else {
@@ -121,31 +111,17 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }) {
                     Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
                     Some((field, _)) => {
-                        self.emit_err(TypeCheckerError::record_var_wrong_type(
-                            field,
-                            expected_ty,
-                            input.span(),
-                        ));
+                        self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
                     }
                     None => {
-                        self.emit_err(TypeCheckerError::required_record_variable(
-                            need,
-                            expected_ty,
-                            input.span(),
-                        ));
+                        self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
                     }
                 };
             check_has_field(sym::owner, Type::Address);
             check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
-        for Member {
-            mode,
-            identifier,
-            type_,
-            span,
-        } in input.members.iter()
-        {
+        for Member { mode, identifier, type_, span } in input.members.iter() {
             // Check that the member type is not a tuple.
             if matches!(type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
@@ -201,12 +177,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(function.identifier.name)
-            .unwrap()
-            .id;
+        let function_index = self.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -235,25 +206,24 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Note that this unwrap is safe since we assign to `self.variant` above.
             match self.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition if input_var.mode() == Mode::Constant => self.emit_err(
-                    TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()),
-                ),
+                Variant::Transition if input_var.mode() == Mode::Constant => {
+                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                }
                 // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => self.emit_err(
-                    TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()),
-                ),
+                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
+                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
                 _ => {} // Do nothing.
             }
 
             // Check for conflicting variable names.
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                input_var.identifier().name,
-                VariableSymbol {
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
                     type_: input_var.type_(),
                     span: input_var.identifier().span(),
                     declaration: VariableType::Input(input_var.mode()),
-                },
-            ) {
+                })
+            {
                 self.handler.emit_err(err);
             }
         });
@@ -277,12 +247,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     // If the function is not a transition function, then it cannot output a record.
                     if let Type::Identifier(identifier) = function_output.type_ {
                         if !matches!(function.variant, Variant::Transition)
-                            && self
-                                .symbol_table
-                                .borrow()
-                                .lookup_struct(identifier.name)
-                                .unwrap()
-                                .is_record
+                            && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
                         {
                             self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
                         }
@@ -325,9 +290,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // Check that the function is a transition function.
             if !matches!(function.variant, Variant::Transition) {
-                self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(
-                    finalize.span,
-                ));
+                self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
             }
 
             // Check that the name of the finalize block matches the function name.
@@ -354,14 +317,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
                 // Check for conflicting variable names.
-                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                    input_var.identifier().name,
-                    VariableSymbol {
+                if let Err(err) =
+                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
-                    },
-                ) {
+                    })
+                {
                     self.handler.emit_err(err);
                 }
             });
@@ -378,9 +340,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 // Check that the mode of the output is valid.
                 // Note that a finalize block can have only public outputs.
                 if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
-                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(
-                        output_type.span(),
-                    ));
+                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
                 }
             });
 

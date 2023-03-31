@@ -17,8 +17,18 @@
 use crate::StaticSingleAssigner;
 
 use leo_ast::{
-    Block, Finalize, Function, FunctionConsumer, Member, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer,
-    StatementConsumer, Struct, StructConsumer,
+    Block,
+    Finalize,
+    Function,
+    FunctionConsumer,
+    Member,
+    Program,
+    ProgramConsumer,
+    ProgramScope,
+    ProgramScopeConsumer,
+    StatementConsumer,
+    Struct,
+    StructConsumer,
 };
 use leo_span::{sym, Symbol};
 
@@ -33,11 +43,8 @@ impl StructConsumer for StaticSingleAssigner<'_> {
             false => struct_,
             true => {
                 let mut members = Vec::with_capacity(struct_.members.len());
-                let mut member_map: IndexMap<Symbol, Member> = struct_
-                    .members
-                    .into_iter()
-                    .map(|member| (member.identifier.name, member))
-                    .collect();
+                let mut member_map: IndexMap<Symbol, Member> =
+                    struct_.members.into_iter().map(|member| (member.identifier.name, member)).collect();
 
                 // Add the owner field to the beginning of the members list.
                 // Note that type checking ensures that the owner field exists.
@@ -67,14 +74,10 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
         // There is no need to reconstruct `function.inputs`.
         // However, for each input, we must add each symbol to the rename table.
         for input_variable in function.input.iter() {
-            self.rename_table
-                .update(input_variable.identifier().name, input_variable.identifier().name);
+            self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
-        let block = Block {
-            span: function.block.span,
-            statements: self.consume_block(function.block),
-        };
+        let block = Block { span: function.block.span, statements: self.consume_block(function.block) };
 
         // Remove the `RenameTable` for the function.
         self.pop();
@@ -86,14 +89,10 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             // There is no need to reconstruct `finalize.inputs`.
             // However, for each input, we must add each symbol to the rename table.
             for input_variable in finalize.input.iter() {
-                self.rename_table
-                    .update(input_variable.identifier().name, input_variable.identifier().name);
+                self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
-            let block = Block {
-                span: finalize.block.span,
-                statements: self.consume_block(finalize.block),
-            };
+            let block = Block { span: finalize.block.span, statements: self.consume_block(finalize.block) };
 
             // Remove the `RenameTable` for the finalize block.
             self.pop();
@@ -128,17 +127,9 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
         ProgramScope {
             program_id: input.program_id,
-            structs: input
-                .structs
-                .into_iter()
-                .map(|(i, s)| (i, self.consume_struct(s)))
-                .collect(),
+            structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
             mappings: input.mappings,
-            functions: input
-                .functions
-                .into_iter()
-                .map(|(i, f)| (i, self.consume_function(f)))
-                .collect(),
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
             span: input.span,
         }
     }

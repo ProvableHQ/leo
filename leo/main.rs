@@ -19,14 +19,12 @@ pub mod context;
 pub mod logger;
 pub mod updater;
 
-use crate::commands::*;
-use crate::context::*;
+use crate::{commands::*, context::*};
 use leo_errors::Result;
 use leo_span::symbol::create_session_if_not_set_then;
 
 use clap::StructOpt;
-use std::path::PathBuf;
-use std::process::exit;
+use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
@@ -44,12 +42,7 @@ pub struct CLI {
     #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
     api: Option<String>,
 
-    #[structopt(
-        long,
-        global = true,
-        help = "Optional path to Leo program root folder",
-        parse(from_os_str)
-    )]
+    #[structopt(long, global = true, help = "Optional path to Leo program root folder", parse(from_os_str))]
     path: Option<PathBuf>,
 }
 
@@ -95,15 +88,13 @@ fn set_panic_hook() {
     #[cfg(not(debug_assertions))]
     std::panic::set_hook({
         Box::new(move |e| {
-            eprintln!(
-                "thread `{}` {}",
-                std::thread::current().name().unwrap_or("<unnamed>"),
-                e
-            );
+            eprintln!("thread `{}` {}", std::thread::current().name().unwrap_or("<unnamed>"), e);
             eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
             eprintln!("error: internal compiler error: unexpected panic\n");
             eprintln!("note: the compiler unexpectedly panicked. this is a bug.\n");
-            eprintln!("note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n");
+            eprintln!(
+                "note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n"
+            );
             eprintln!(
                 "note: {} {} running on {} {}\n",
                 env!("CARGO_PKG_NAME"),
@@ -111,10 +102,7 @@ fn set_panic_hook() {
                 sys_info::os_type().unwrap_or_else(|e| e.to_string()),
                 sys_info::os_release().unwrap_or_else(|e| e.to_string()),
             );
-            eprintln!(
-                "note: compiler args: {}\n",
-                std::env::args().collect::<Vec<_>>().join(" ")
-            );
+            eprintln!("note: compiler args: {}\n", std::env::args().collect::<Vec<_>>().join(" "));
             eprintln!("note: compiler flags: {:?}\n", CLI::parse());
         })
     });
@@ -134,13 +122,10 @@ pub fn handle_error<T>(res: Result<T>) -> T {
 pub fn run_with_args(cli: CLI) -> Result<()> {
     if !cli.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger(
-            "leo",
-            match cli.debug {
-                false => 1,
-                true => 2,
-            },
-        )?;
+        logger::init_logger("leo", match cli.debug {
+            false => 1,
+            true => 2,
+        })?;
     }
 
     // Get custom root folder and create context for it.

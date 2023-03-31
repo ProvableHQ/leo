@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 /// A number string guaranteed to be positive.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]

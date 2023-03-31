@@ -42,10 +42,7 @@ impl Span {
     /// Generates a dummy span with all defaults.
     /// Should only be used in temporary situations.
     pub const fn dummy() -> Self {
-        Self {
-            lo: BytePos(0),
-            hi: BytePos(0),
-        }
+        Self { lo: BytePos(0), hi: BytePos(0) }
     }
 
     /// Is the span a dummy?

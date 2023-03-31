@@ -109,32 +109,20 @@ impl fmt::Display for Formatted {
 
         let (loc, contents) = with_session_globals(|s| {
             (
-                s.source_map
-                    .span_to_location(self.span)
-                    .unwrap_or_else(SpanLocation::dummy),
-                s.source_map
-                    .line_contents_of_span(self.span)
-                    .unwrap_or_else(|| "<contents unavailable>".to_owned()),
+                s.source_map.span_to_location(self.span).unwrap_or_else(SpanLocation::dummy),
+                s.source_map.line_contents_of_span(self.span).unwrap_or_else(|| "<contents unavailable>".to_owned()),
             )
         });
 
         let underlined = underline(loc.col_start, loc.col_stop);
 
-        let (kind, code) = if self.backtrace.error {
-            ("Error", self.error_code())
-        } else {
-            ("Warning", self.warning_code())
-        };
+        let (kind, code) =
+            if self.backtrace.error { ("Error", self.error_code()) } else { ("Warning", self.warning_code()) };
 
         let message = format!("{kind} [{code}]: {message}", message = self.backtrace.message,);
 
         // To avoid the color enabling characters for comparison with test expectations.
-        if std::env::var("LEO_TESTFRAMEWORK")
-            .unwrap_or_default()
-            .trim()
-            .to_owned()
-            .is_empty()
-        {
+        if std::env::var("LEO_TESTFRAMEWORK").unwrap_or_default().trim().to_owned().is_empty() {
             if self.backtrace.error {
                 write!(f, "{}", message.bold().red())?;
             } else {
@@ -180,18 +168,14 @@ impl fmt::Display for Formatted {
                 let mut printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Medium);
                 printer = printer.lib_verbosity(Verbosity::Medium);
-                let trace = printer
-                    .format_trace_to_string(&self.backtrace.backtrace)
-                    .map_err(|_| fmt::Error)?;
+                let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
                 write!(f, "\n{trace}")?;
             }
             "full" => {
                 let mut printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Full);
                 printer = printer.lib_verbosity(Verbosity::Full);
-                let trace = printer
-                    .format_trace_to_string(&self.backtrace.backtrace)
-                    .map_err(|_| fmt::Error)?;
+                let trace = printer.format_trace_to_string(&self.backtrace.backtrace).map_err(|_| fmt::Error)?;
                 write!(f, "\n{trace}")?;
             }
             _ => {}

@@ -30,12 +30,7 @@ pub struct StaticSingleAssigner<'a> {
 impl<'a> StaticSingleAssigner<'a> {
     /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
     pub(crate) fn new(symbol_table: &'a SymbolTable) -> Self {
-        Self {
-            symbol_table,
-            rename_table: RenameTable::new(None),
-            is_lhs: false,
-            assigner: Assigner::default(),
-        }
+        Self { symbol_table, rename_table: RenameTable::new(None), is_lhs: false, assigner: Assigner::default() }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.

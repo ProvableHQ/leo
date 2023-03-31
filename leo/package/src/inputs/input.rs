@@ -24,7 +24,8 @@ use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::{
-        File, {self},
+        File,
+        {self},
     },
     io::Write,
     path::Path,
@@ -39,9 +40,7 @@ pub struct InputFile {
 
 impl InputFile {
     pub fn new(package_name: &str) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-        }
+        Self { package_name: package_name.to_string() }
     }
 
     pub fn filename(&self) -> String {
@@ -67,8 +66,7 @@ impl InputFile {
         let path = self.setup_file_path(path);
         let mut file = File::create(path).map_err(PackageError::io_error_input_file)?;
 
-        file.write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_input_file)?;
+        file.write_all(self.template().as_bytes()).map_err(PackageError::io_error_input_file)?;
         Ok(())
     }
 
@@ -89,8 +87,7 @@ b: u32 = 2u32;
             if !path.ends_with(INPUTS_DIRECTORY_NAME) {
                 path.to_mut().push(INPUTS_DIRECTORY_NAME);
             }
-            path.to_mut()
-                .push(format!("{}{INPUT_FILE_EXTENSION}", self.package_name));
+            path.to_mut().push(format!("{}{INPUT_FILE_EXTENSION}", self.package_name));
         }
         path
     }

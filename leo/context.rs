@@ -19,10 +19,10 @@ use leo_errors::{CliError, PackageError, Result};
 use snarkvm::file::Manifest;
 
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
-use std::fs::File;
-use std::io::Write;
 use std::{
     env::current_dir,
+    fs::File,
+    io::Write,
     path::{Path, PathBuf},
 };
 

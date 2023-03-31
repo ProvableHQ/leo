@@ -125,10 +125,7 @@ impl<F, T> Format<F, T> {
     ///
     /// [thread ID]: https://doc.rust-lang.org/stable/std/thread/struct.ThreadId.html
     pub fn with_thread_ids(self, display_thread_id: bool) -> Format<F, T> {
-        Format {
-            display_thread_id,
-            ..self
-        }
+        Format { display_thread_id, ..self }
     }
 
     /// Sets whether or not the [name] of the current thread is displayed
@@ -136,10 +133,7 @@ impl<F, T> Format<F, T> {
     ///
     /// [name]: https://doc.rust-lang.org/stable/std/thread/index.html#naming-threads
     pub fn with_thread_names(self, display_thread_name: bool) -> Format<F, T> {
-        Format {
-            display_thread_name,
-            ..self
-        }
+        Format { display_thread_name, ..self }
     }
 }
 

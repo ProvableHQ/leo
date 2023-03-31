@@ -27,32 +27,11 @@ pub struct TestFailure {
 
 #[derive(Debug)]
 pub enum TestError {
-    Panicked {
-        test: String,
-        index: usize,
-        error: String,
-    },
-    UnexpectedOutput {
-        test: String,
-        index: usize,
-        expected: Value,
-        output: Value,
-    },
-    PassedAndShouldntHave {
-        test: String,
-        index: usize,
-    },
-    FailedAndShouldntHave {
-        test: String,
-        index: usize,
-        error: String,
-    },
-    UnexpectedError {
-        test: String,
-        index: usize,
-        expected: String,
-        output: String,
-    },
+    Panicked { test: String, index: usize, error: String },
+    UnexpectedOutput { test: String, index: usize, expected: Value, output: Value },
+    PassedAndShouldntHave { test: String, index: usize },
+    FailedAndShouldntHave { test: String, index: usize, error: String },
+    UnexpectedError { test: String, index: usize, expected: String, output: String },
     MismatchedTestExpectationLength,
     MissingTestConfig,
 }
@@ -60,28 +39,13 @@ pub enum TestError {
 impl fmt::Display for TestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let format_test = |test: &str| -> String {
-            if test.len() > 50 {
-                String::new()
-            } else {
-                format!("\n\n{test}\n\n")
-            }
+            if test.len() > 50 { String::new() } else { format!("\n\n{test}\n\n") }
         };
         match self {
             TestError::Panicked { test, index, error } => {
-                write!(
-                    f,
-                    "test #{}: {}encountered a rust panic:\n{}",
-                    index + 1,
-                    format_test(test),
-                    error
-                )
+                write!(f, "test #{}: {}encountered a rust panic:\n{}", index + 1, format_test(test), error)
             }
-            TestError::UnexpectedOutput {
-                test,
-                index,
-                expected,
-                output,
-            } => {
+            TestError::UnexpectedOutput { test, index, expected, output } => {
                 write!(
                     f,
                     "test #{}: {}expected\n{}\ngot\n{}",
@@ -95,28 +59,10 @@ impl fmt::Display for TestError {
                 write!(f, "test #{}: {}passed and shouldn't have", index + 1, format_test(test))
             }
             TestError::FailedAndShouldntHave { test, index, error } => {
-                write!(
-                    f,
-                    "test #{}: {}failed and shouldn't have:\n{}",
-                    index + 1,
-                    format_test(test),
-                    error
-                )
+                write!(f, "test #{}: {}failed and shouldn't have:\n{}", index + 1, format_test(test), error)
             }
-            TestError::UnexpectedError {
-                test,
-                expected,
-                output,
-                index,
-            } => {
-                write!(
-                    f,
-                    "test #{}: {}expected error\n{}\ngot\n{}",
-                    index + 1,
-                    format_test(test),
-                    expected,
-                    output
-                )
+            TestError::UnexpectedError { test, expected, output, index } => {
+                write!(f, "test #{}: {}expected error\n{}\ngot\n{}", index + 1, format_test(test), expected, output)
             }
             TestError::MismatchedTestExpectationLength => write!(f, "invalid number of test expectations"),
             TestError::MissingTestConfig => write!(f, "missing test config"),
@@ -132,11 +78,7 @@ pub fn emit_errors(
     test_index: usize,
 ) -> Option<TestError> {
     match (output, mode) {
-        (Err(e), _) => Some(TestError::Panicked {
-            test: test.to_string(),
-            index: test_index,
-            error: e.to_string(),
-        }),
+        (Err(e), _) => Some(TestError::Panicked { test: test.to_string(), index: test_index, error: e.to_string() }),
         (Ok(Ok(output)), TestExpectationMode::Pass) => {
             // passed and should have
             if let Some(expected_output) = expected_output.as_ref() {
@@ -152,15 +94,12 @@ pub fn emit_errors(
             }
             None
         }
-        (Ok(Ok(_tokens)), TestExpectationMode::Fail) => Some(TestError::PassedAndShouldntHave {
-            test: test.to_string(),
-            index: test_index,
-        }),
-        (Ok(Err(err)), TestExpectationMode::Pass) => Some(TestError::FailedAndShouldntHave {
-            test: test.to_string(),
-            error: err.to_string(),
-            index: test_index,
-        }),
+        (Ok(Ok(_tokens)), TestExpectationMode::Fail) => {
+            Some(TestError::PassedAndShouldntHave { test: test.to_string(), index: test_index })
+        }
+        (Ok(Err(err)), TestExpectationMode::Pass) => {
+            Some(TestError::FailedAndShouldntHave { test: test.to_string(), error: err.to_string(), index: test_index })
+        }
         (Ok(Err(err)), TestExpectationMode::Fail) => {
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));

@@ -18,8 +18,17 @@ use crate::Flattener;
 use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, Statement,
-    StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression,
+    AccessExpression,
+    AssociatedFunction,
+    Expression,
+    ExpressionReconstructor,
+    Member,
+    MemberAccess,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleExpression,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
@@ -36,11 +45,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function
-                            .args
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
+                        args: function.args.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                         span: function.span,
                     }))
                 }
@@ -83,20 +88,10 @@ impl ExpressionReconstructor for Flattener<'_> {
             // Accumulate any statements produced.
             statements.extend(stmts);
             // Accumulate the struct members.
-            members.push(StructVariableInitializer {
-                identifier: member.identifier,
-                expression: Some(expr),
-            });
+            members.push(StructVariableInitializer { identifier: member.identifier, expression: Some(expr) });
         }
 
-        (
-            Expression::Struct(StructExpression {
-                name: input.name,
-                members,
-                span: input.span,
-            }),
-            statements,
-        )
+        (Expression::Struct(StructExpression { name: input.name, members, span: input.span }), statements)
     }
 
     /// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
@@ -224,8 +219,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
                         // Mark the lhs of the assignment as a struct.
-                        self.structs
-                            .insert(identifier.name, first_member_struct.identifier.name);
+                        self.structs.insert(identifier.name, first_member_struct.identifier.name);
 
                         statements.push(statement);
 
@@ -261,14 +255,8 @@ impl ExpressionReconstructor for Flattener<'_> {
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
             {
-                let first_struct = self
-                    .symbol_table
-                    .lookup_struct(*self.structs.get(&first.name).unwrap())
-                    .unwrap();
-                let second_struct = self
-                    .symbol_table
-                    .lookup_struct(*self.structs.get(&second.name).unwrap())
-                    .unwrap();
+                let first_struct = self.symbol_table.lookup_struct(*self.structs.get(&first.name).unwrap()).unwrap();
+                let second_struct = self.symbol_table.lookup_struct(*self.structs.get(&second.name).unwrap()).unwrap();
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
                 assert_eq!(first_struct, second_struct);
 

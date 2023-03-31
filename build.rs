@@ -26,17 +26,8 @@ use walkdir::WalkDir;
 const EXPECTED_LICENSE_TEXT: &str = include_str!(".resources/license_header");
 
 // The following directories will be excluded from the license scan.
-const DIRS_TO_SKIP: [&str; 9] = [
-    ".cargo",
-    ".circleci",
-    ".git",
-    ".github",
-    ".resources",
-    "docs",
-    "examples",
-    "target",
-    "tests",
-];
+const DIRS_TO_SKIP: [&str; 9] =
+    [".cargo", ".circleci", ".git", ".github", ".resources", "docs", "examples", "target", "tests"];
 
 fn compare_license_text(path: &Path, expected_lines: &[&str]) {
     let file = File::open(path).unwrap();

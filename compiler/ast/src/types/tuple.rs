@@ -35,10 +35,6 @@ impl Deref for Tuple {
 
 impl fmt::Display for Tuple {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "({})",
-            self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
-        )
+        write!(f, "({})", self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
 }

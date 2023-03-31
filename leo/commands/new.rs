@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::Network;
 use crate::{
-    commands::{Command, ALEO_CLI_COMMAND},
+    commands::{Command, Network, ALEO_CLI_COMMAND},
     context::Context,
 };
 use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::BUILD_DIRECTORY_NAME;
-use leo_package::package::Package;
+use leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
 use snarkvm::file::AleoFile;
 
 use aleo::commands::New as AleoNew;
@@ -97,9 +95,7 @@ impl Command for New {
         aleo_file_path.push(AleoFile::<Network>::main_file_name());
 
         // Remove the Aleo file from the package directory.
-        aleo_file
-            .remove(&aleo_file_path)
-            .map_err(PackageError::failed_to_remove_aleo_file)?;
+        aleo_file.remove(&aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)?;
 
         Ok(())
     }

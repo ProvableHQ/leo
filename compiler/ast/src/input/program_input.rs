@@ -24,6 +24,7 @@ pub struct ProgramInput {
 
 impl TryFrom<InputAst> for ProgramInput {
     type Error = LeoError;
+
     fn try_from(input: InputAst) -> Result<Self> {
         let mut main = IndexMap::new();
 
@@ -34,10 +35,7 @@ impl TryFrom<InputAst> for ProgramInput {
             };
 
             for definition in section.definitions {
-                target.insert(
-                    definition.name.name,
-                    InputValue::try_from((definition.type_, definition.value))?,
-                );
+                target.insert(definition.name.name, InputValue::try_from((definition.type_, definition.value))?);
             }
         }
 

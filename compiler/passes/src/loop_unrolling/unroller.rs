@@ -15,8 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{
-    Block, DeclarationType, DefinitionStatement, Expression, IntegerType, IterationStatement, Literal, Statement,
-    StatementReconstructor, Type, Value,
+    Block,
+    DeclarationType,
+    DefinitionStatement,
+    Expression,
+    IntegerType,
+    IterationStatement,
+    Literal,
+    Statement,
+    StatementReconstructor,
+    Type,
+    Value,
 };
 use std::cell::RefCell;
 
@@ -37,29 +46,19 @@ pub struct Unroller<'a> {
 
 impl<'a> Unroller<'a> {
     pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
-        Self {
-            symbol_table: RefCell::new(symbol_table),
-            scope_index: 0,
-            handler,
-            is_unrolling: false,
-        }
+        Self { symbol_table: RefCell::new(symbol_table), scope_index: 0, handler, is_unrolling: false }
     }
 
     /// Returns the index of the current scope.
     /// Note that if we are in the midst of unrolling an IterationStatement, a new scope is created.
     pub(crate) fn current_scope_index(&mut self) -> usize {
-        if self.is_unrolling {
-            self.symbol_table.borrow_mut().insert_block()
-        } else {
-            self.scope_index
-        }
+        if self.is_unrolling { self.symbol_table.borrow_mut().insert_block() } else { self.scope_index }
     }
 
     /// Enters a child scope.
     pub(crate) fn enter_scope(&mut self, index: usize) -> usize {
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
-        self.symbol_table
-            .swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
         core::mem::replace(&mut self.scope_index, 0)
     }
@@ -121,13 +120,11 @@ impl<'a> Unroller<'a> {
             statements: match input.inclusive {
                 true => {
                     let iter = RangeIterator::new(start, stop, Clusivity::Inclusive);
-                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count))
-                        .collect()
+                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
                 }
                 false => {
                     let iter = RangeIterator::new(start, stop, Clusivity::Exclusive);
-                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count))
-                        .collect()
+                    iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
                 }
             },
         });
@@ -201,10 +198,7 @@ impl<'a> Unroller<'a> {
             statements.push(self.reconstruct_statement(s).0);
         });
 
-        let block = Statement::Block(Block {
-            statements,
-            span: input.block.span,
-        });
+        let block = Statement::Block(Block { statements, span: input.block.span });
 
         self.is_unrolling = prior_is_unrolling;
 

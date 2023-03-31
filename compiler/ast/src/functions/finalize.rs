@@ -47,14 +47,7 @@ impl Finalize {
             _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
         };
 
-        Self {
-            identifier,
-            input,
-            output,
-            output_type,
-            block,
-            span,
-        }
+        Self { identifier, input, output, output_type, block, span }
     }
 }
 
@@ -64,16 +57,9 @@ impl fmt::Display for Finalize {
         let returns = match self.output.len() {
             0 => "()".to_string(),
             1 => self.output[0].to_string(),
-            _ => format!(
-                "({})",
-                self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
-            ),
+            _ => format!("({})", self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")),
         };
-        write!(
-            f,
-            " finalize {}({parameters}) -> {returns} {}",
-            self.identifier, self.block
-        )
+        write!(f, " finalize {}({parameters}) -> {returns} {}", self.identifier, self.block)
     }
 }
 

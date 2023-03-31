@@ -29,10 +29,7 @@ pub fn serialize<S: Serializer>(
     let joined: IndexMap<String, DefinitionStatement> = global_consts
         .into_iter()
         .map(|(idents, program)| {
-            (
-                idents.iter().map(|i| i.name.to_string()).collect::<Vec<_>>().join(","),
-                program.clone(),
-            )
+            (idents.iter().map(|i| i.name.to_string()).collect::<Vec<_>>().join(","), program.clone())
         })
         .collect();
 
@@ -47,10 +44,7 @@ pub fn deserialize<'de, D: Deserializer<'de>>(
         .map(|(name, program)| {
             (
                 name.split(',')
-                    .map(|ident_name| Identifier {
-                        name: Symbol::intern(ident_name),
-                        span: Default::default(),
-                    })
+                    .map(|ident_name| Identifier { name: Symbol::intern(ident_name), span: Default::default() })
                     .collect::<Vec<Identifier>>(),
                 program,
             )

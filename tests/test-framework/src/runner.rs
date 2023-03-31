@@ -142,12 +142,7 @@ impl TestCases {
 
         let mut output = Vec::new();
         for ((path, content), config) in self.tests.clone().iter().zip(configs.into_iter()) {
-            let test_name = path
-                .file_stem()
-                .expect("no file name for test")
-                .to_str()
-                .unwrap()
-                .to_string();
+            let test_name = path.file_stem().expect("no file name for test").to_str().unwrap().to_string();
 
             let end_of_header = content.find("*/").expect("failed to find header block in test");
             let content = &content[end_of_header + 2..];
@@ -176,10 +171,7 @@ impl TestCases {
                 (expectation_path, None)
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
-                (
-                    expectation_path,
-                    Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")),
-                )
+                (expectation_path, Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file")))
             }
         } else {
             (expectation_path, None)
@@ -204,10 +196,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         let (expectation_path, expectations) = cases.load_expectations(path);
 
         let tests = match namespace.parse_type() {
-            ParseType::Line => crate::fetch::split_tests_one_line(content)
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
+            ParseType::Line => crate::fetch::split_tests_one_line(content).into_iter().map(|x| x.to_string()).collect(),
             ParseType::ContinuousLines => crate::fetch::split_tests_two_line(content),
             ParseType::Whole => vec![content.to_string()],
         };
@@ -251,30 +240,21 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         if errors.is_empty() {
             if expectations.is_none() {
-                outputs.push((
-                    expectation_path,
-                    TestExpectation {
-                        namespace: config.namespace,
-                        expectation: config.expectation,
-                        outputs: new_outputs,
-                    },
-                ));
+                outputs.push((expectation_path, TestExpectation {
+                    namespace: config.namespace,
+                    expectation: config.expectation,
+                    outputs: new_outputs,
+                }));
             }
             pass_categories += 1;
         } else {
-            cases.fail_categories.push(TestFailure {
-                path: path.to_str().unwrap().to_string(),
-                errors,
-            })
+            cases.fail_categories.push(TestFailure { path: path.to_str().unwrap().to_string(), errors })
         }
     });
 
     if !cases.fail_categories.is_empty() {
         for (i, fail) in cases.fail_categories.iter().enumerate() {
-            println!(
-                "\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------",
-                i + 1
-            );
+            println!("\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------", i + 1);
             println!("File: {}", fail.path);
             for error in &fail.errors {
                 println!("{error}");
@@ -313,13 +293,8 @@ pub fn get_benches() -> Vec<(String, String)> {
     let (mut cases, configs) = TestCases::new("compiler", |config| {
         (&config.namespace == "Bench" && config.expectation == TestExpectationMode::Pass)
             || ((&config.namespace == "Compile" || &config.namespace == "Execute")
-                && !matches!(
-                    config.expectation,
-                    TestExpectationMode::Fail | TestExpectationMode::Skip
-                ))
+                && !matches!(config.expectation, TestExpectationMode::Fail | TestExpectationMode::Skip))
     });
 
-    cases.process_tests(configs, |_, (_, content, test_name, _)| {
-        (test_name.to_string(), content.to_string())
-    })
+    cases.process_tests(configs, |_, (_, content, test_name, _)| (test_name.to_string(), content.to_string()))
 }

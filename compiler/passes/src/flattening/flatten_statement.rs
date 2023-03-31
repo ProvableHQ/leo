@@ -19,9 +19,27 @@ use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
-    AssertStatement, AssertVariant, AssignStatement, BinaryExpression, BinaryOperation, Block, ConditionalStatement,
-    ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, Node,
-    ReturnStatement, Statement, StatementReconstructor, TupleExpression, Type, UnaryExpression, UnaryOperation,
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    Node,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
 };
 
 impl StatementReconstructor for Flattener<'_> {
@@ -135,10 +153,7 @@ impl StatementReconstructor for Flattener<'_> {
             {
                 // Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
-                self.tuples.insert(
-                    lhs_identifier.name,
-                    self.tuples.get(&rhs_identifier.name).unwrap().clone(),
-                );
+                self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
                 // Note that tuple assignments are removed from the AST.
                 (Statement::dummy(Default::default()), statements)
             }
@@ -205,10 +220,7 @@ impl StatementReconstructor for Flattener<'_> {
             }
             (Expression::Identifier(identifier), expression) => {
                 self.update_structs(&identifier, &expression);
-                (
-                    self.assigner.simple_assign_statement(identifier, expression),
-                    statements,
-                )
+                (self.assigner.simple_assign_statement(identifier, expression), statements)
             }
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Call(call)) => {
@@ -226,22 +238,16 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Type checking guarantees that the output type is a tuple."),
                 };
 
-                tuple
-                    .elements
-                    .iter()
-                    .zip_eq(output_type.0.iter())
-                    .for_each(|(identifier, type_)| {
-                        let identifier = match identifier {
-                            Expression::Identifier(identifier) => identifier,
-                            _ => unreachable!(
-                                "Type checking guarantees that a tuple element on the lhs is an identifier."
-                            ),
-                        };
-                        // If the output type is a struct, add it to `self.structs`.
-                        if let Type::Identifier(struct_name) = type_ {
-                            self.structs.insert(identifier.name, struct_name.name);
-                        }
-                    });
+                tuple.elements.iter().zip_eq(output_type.0.iter()).for_each(|(identifier, type_)| {
+                    let identifier = match identifier {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("Type checking guarantees that a tuple element on the lhs is an identifier."),
+                    };
+                    // If the output type is a struct, add it to `self.structs`.
+                    if let Type::Identifier(struct_name) = type_ {
+                        self.structs.insert(identifier.name, struct_name.name);
+                    }
+                });
 
                 (
                     Statement::Assign(Box::new(AssignStatement {
@@ -318,13 +324,7 @@ impl StatementReconstructor for Flattener<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (
-            Block {
-                span: block.span,
-                statements,
-            },
-            Default::default(),
-        )
+        (Block { span: block.span, statements }, Default::default())
     }
 
     /// Flatten a conditional statement into a list of statements.
@@ -390,14 +390,11 @@ impl StatementReconstructor for Flattener<'_> {
             Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
                 let tuple = self.tuples.get(&identifier.name).unwrap().clone();
-                self.returns.push((
-                    guard,
-                    ReturnStatement {
-                        span: input.span,
-                        expression: Expression::Tuple(tuple),
-                        finalize_arguments: input.finalize_arguments,
-                    },
-                ));
+                self.returns.push((guard, ReturnStatement {
+                    span: input.span,
+                    expression: Expression::Tuple(tuple),
+                    finalize_arguments: input.finalize_arguments,
+                }));
             }
             // Otherwise, add the expression directly.
             _ => self.returns.push((guard, input)),

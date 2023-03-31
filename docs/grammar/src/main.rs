@@ -68,13 +68,7 @@ impl<'a> Processor<'a> {
         // we need a hashmap to pull rules easily
         let rules: HashMap<String, Rule> = abnf.into_iter().map(|rule| (rule.name().to_string(), rule)).collect();
 
-        Processor {
-            grammar,
-            line: 0,
-            out: String::new(),
-            rules,
-            scope: Scope::Free,
-        }
+        Processor { grammar, line: 0, out: String::new(), rules, scope: Scope::Free }
     }
 
     /// Main function for this struct.

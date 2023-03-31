@@ -26,10 +26,7 @@ use std::{
 };
 
 #[derive(Debug, StructOpt)]
-#[structopt(
-    name = "input parser",
-    about = "Parse an Input file and save its JSON representation"
-)]
+#[structopt(name = "input parser", about = "Parse an Input file and save its JSON representation")]
 struct Opt {
     /// Path to the input file.
     #[structopt(parse(from_os_str))]
@@ -47,10 +44,7 @@ struct Opt {
 fn main() -> Result<(), String> {
     let opt = Opt::parse();
     let input_tree = create_session_if_not_set_then(|s| {
-        let input_string = s
-            .source_map
-            .load_file(&opt.input_path)
-            .expect("failed to open an input file");
+        let input_string = s.source_map.load_file(&opt.input_path).expect("failed to open an input file");
 
         Handler::with(|handler| {
             let input = leo_parser::parse_program_inputs(handler, &input_string.src, input_string.start_pos)?;
@@ -64,11 +58,7 @@ fn main() -> Result<(), String> {
     }
 
     let out_path = if let Some(out_dir) = opt.out_dir_path {
-        format!(
-            "{}/{}.json",
-            out_dir.as_path().display(),
-            opt.input_path.file_stem().unwrap().to_str().unwrap()
-        )
+        format!("{}/{}.json", out_dir.as_path().display(), opt.input_path.file_stem().unwrap().to_str().unwrap())
     } else {
         format!("./{}.json", opt.input_path.file_stem().unwrap().to_str().unwrap())
     };
