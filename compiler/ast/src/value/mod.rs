@@ -20,6 +20,7 @@ use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
+use std::num::ParseIntError;
 use std::{
     fmt::Display,
     ops::{BitAnd, BitOr, BitXor, Not},
@@ -864,12 +865,12 @@ impl From<&Value> for Type {
     }
 }
 
-// TODO: Consider making this `Option<Value>` instead of `Value`.
-impl From<&Literal> for Value {
+impl TryFrom<&Literal> for Value {
+    type Error = ParseIntError;
+
     /// Converts a literal to a value.
-    /// This should only be invoked on literals that are known to be valid.
-    fn from(literal: &Literal) -> Self {
-        match literal {
+    fn try_from(literal: &Literal) -> Result<Self, Self::Error> {
+        Ok(match literal {
             Literal::Address(string, span) => Self::Address(string.clone(), *span),
             Literal::Boolean(bool, span) => Self::Boolean(*bool, *span),
             Literal::Field(string, span) => Self::Field(string.clone(), *span),
@@ -877,18 +878,18 @@ impl From<&Literal> for Value {
             Literal::Scalar(string, span) => Self::Scalar(string.clone(), *span),
             Literal::String(string, span) => Self::String(string.clone(), *span),
             Literal::Integer(integer_type, string, span) => match integer_type {
-                IntegerType::U8 => Self::U8(string.parse().unwrap(), *span),
-                IntegerType::U16 => Self::U16(string.parse().unwrap(), *span),
-                IntegerType::U32 => Self::U32(string.parse().unwrap(), *span),
-                IntegerType::U64 => Self::U64(string.parse().unwrap(), *span),
-                IntegerType::U128 => Self::U128(string.parse().unwrap(), *span),
-                IntegerType::I8 => Self::I8(string.parse().unwrap(), *span),
-                IntegerType::I16 => Self::I16(string.parse().unwrap(), *span),
-                IntegerType::I32 => Self::I32(string.parse().unwrap(), *span),
-                IntegerType::I64 => Self::I64(string.parse().unwrap(), *span),
-                IntegerType::I128 => Self::I128(string.parse().unwrap(), *span),
+                IntegerType::U8 => Self::U8(string.parse()?, *span),
+                IntegerType::U16 => Self::U16(string.parse()?, *span),
+                IntegerType::U32 => Self::U32(string.parse()?, *span),
+                IntegerType::U64 => Self::U64(string.parse()?, *span),
+                IntegerType::U128 => Self::U128(string.parse()?, *span),
+                IntegerType::I8 => Self::I8(string.parse()?, *span),
+                IntegerType::I16 => Self::I16(string.parse()?, *span),
+                IntegerType::I32 => Self::I32(string.parse()?, *span),
+                IntegerType::I64 => Self::I64(string.parse()?, *span),
+                IntegerType::I128 => Self::I128(string.parse()?, *span),
             },
-        }
+        })
     }
 }
 
