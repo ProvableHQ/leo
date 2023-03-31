@@ -32,10 +32,10 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.9.13"
+version = "0.9.15"
 
 [workspace.dependencies.snarkvm-console]
-version = "0.9.13"
+version = "0.9.15"
 
 [lib]
 path = "leo/lib.rs"
@@ -50,7 +50,7 @@ ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
 [dependencies.aleo]
-version = "=0.3.5"
+version = "=0.3.6"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
