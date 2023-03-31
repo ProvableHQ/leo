@@ -247,12 +247,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                         // If the function is not a transition function, then it cannot output a record.
                         if let Type::Identifier(identifier) = function_output.type_ {
                             if !matches!(function.variant, Variant::Transition)
-                                && self
-                                    .symbol_table
-                                    .borrow()
-                                    .lookup_struct(identifier.name)
-                                    .unwrap()
-                                    .is_record
+                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
                             {
                                 self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
                             }
