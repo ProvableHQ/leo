@@ -374,6 +374,7 @@
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -619,13 +620,14 @@
                 </span>}
                 Output::Internal(function_output) =&gt; {
                     <span class="comment">// Check that the type of output is defined.
-                    </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>function_output.type_, function_output.span);
-                    <span class="comment">// If the function is not a transition function, then it cannot output a record.
-                    </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
-                        <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
-                            &amp;&amp; <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
-                        {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                    </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
+                        <span class="comment">// If the function is not a transition function, then it cannot output a record.
+                        </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
+                            <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
+                                &amp;&amp; <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
+                            {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                            }
                         }
                     }
                     <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
