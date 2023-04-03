@@ -65,7 +65,9 @@ fn with_handler<T>(
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
     let mut tokens = ParserContext::new(&handler, tokens);
-    let parsed = handler.extend_if_error(logic(&mut tokens)).map_err(|_| buf.extract_errs().to_string())?;
+    let parsed = handler
+        .extend_if_error(logic(&mut tokens))
+        .map_err(|_| buf.extract_errs().to_string() + &buf.extract_warnings().to_string())?;
     not_fully_consumed(&mut tokens)?;
     Ok(parsed)
 }
