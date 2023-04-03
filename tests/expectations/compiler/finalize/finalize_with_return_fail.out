@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown function `increment`\n    --> compiler-test:12:9\n     |\n  12 |         increment(account, receiver, amount);\n     |         ^^^^^^^^^\n"

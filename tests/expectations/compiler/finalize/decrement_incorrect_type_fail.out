@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:18:9\n     |\n  18 |         decrement(tokens, addr, amount);\n     |         ^^^^^^^^^\nError [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:19:9\n     |\n  19 |         decrement(amounts, 1u8, amount);\n     |         ^^^^^^^^^\nError [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:20:9\n     |\n  20 |         decrement(amounts, addr, 1u8);\n     |         ^^^^^^^^^\nError [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:21:9\n     |\n  21 |         decrement(tokens, addr, Token { owner: addr, gates: 1u8, amount: 1u8 });\n     |         ^^^^^^^^^\nError [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:22:9\n     |\n  22 |         decrement(foo, addr, amount);\n     |         ^^^^^^^^^\n"
