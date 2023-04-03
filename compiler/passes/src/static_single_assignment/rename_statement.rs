@@ -24,13 +24,11 @@ use leo_ast::{
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
     ExpressionStatement,
     Identifier,
-    IncrementStatement,
     IterationStatement,
     ReturnStatement,
     Statement,
@@ -200,25 +198,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         unreachable!("Parsing guarantees that console statements are not present in the program.")
     }
 
-    /// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.
-    fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output {
-        // First consume the expression associated with the amount.
-        let (amount, mut statements) = self.consume_expression(input.amount);
-
-        // Then, consume the expression associated with the index.
-        let (index, index_statements) = self.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Decrement(DecrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
-            span: input.span,
-        }));
-
-        statements
-    }
-
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
         // First consume the right-hand-side of the definition.
@@ -293,25 +272,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 external: call.external,
                 span: call.span,
             }),
-            span: input.span,
-        }));
-
-        statements
-    }
-
-    /// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
-    fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output {
-        // First consume the expression associated with the amount.
-        let (amount, mut statements) = self.consume_expression(input.amount);
-
-        // Then, consume the expression associated with the index.
-        let (index, index_statements) = self.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Increment(IncrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
             span: input.span,
         }));
 

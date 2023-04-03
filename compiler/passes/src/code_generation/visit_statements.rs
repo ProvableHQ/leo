@@ -23,11 +23,9 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionStatement,
-    IncrementStatement,
     IterationStatement,
     Mode,
     Output,
@@ -46,10 +44,8 @@ impl<'a> CodeGenerator<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
-            Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
@@ -174,24 +170,6 @@ impl<'a> CodeGenerator<'a> {
             }
             _ => unreachable!("ExpressionStatement's can only contain CallExpression's."),
         }
-    }
-
-    fn visit_increment(&mut self, input: &'a IncrementStatement) -> String {
-        let (index, mut instructions) = self.visit_expression(&input.index);
-        let (amount, amount_instructions) = self.visit_expression(&input.amount);
-        instructions.push_str(&amount_instructions);
-        instructions.push_str(&format!("    increment {}[{index}] by {amount};\n", input.mapping));
-
-        instructions
-    }
-
-    fn visit_decrement(&mut self, input: &'a DecrementStatement) -> String {
-        let (index, mut instructions) = self.visit_expression(&input.index);
-        let (amount, amount_instructions) = self.visit_expression(&input.amount);
-        instructions.push_str(&amount_instructions);
-        instructions.push_str(&format!("    decrement {}[{index}] by {amount};\n", input.mapping));
-
-        instructions
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
