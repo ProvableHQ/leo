@@ -36,6 +36,10 @@ pub enum CoreFunction {
     Poseidon2Hash,
     Poseidon4Hash,
     Poseidon8Hash,
+
+    MappingGet,
+    MappingGetOr,
+    MappingPut,
 }
 
 impl CoreFunction {
@@ -59,6 +63,10 @@ impl CoreFunction {
             (sym::Poseidon2, sym::hash) => Self::Poseidon2Hash,
             (sym::Poseidon4, sym::hash) => Self::Poseidon4Hash,
             (sym::Poseidon8, sym::hash) => Self::Poseidon8Hash,
+
+            (sym::Mapping, sym::get) => Self::MappingGet,
+            (sym::Mapping, sym::get_or) => Self::MappingGetOr,
+            (sym::Mapping, sym::put) => Self::MappingPut,
             _ => return None,
         })
     }
@@ -83,6 +91,10 @@ impl CoreFunction {
             Self::Poseidon2Hash => 1,
             Self::Poseidon4Hash => 1,
             Self::Poseidon8Hash => 1,
+
+            Self::MappingGet => 2,
+            Self::MappingGetOr => 3,
+            Self::MappingPut => 3,
         }
     }
 }
