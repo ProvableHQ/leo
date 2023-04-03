@@ -16,7 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable};
 
-use leo_ast::{CoreFunction, Identifier, IntegerType, Node, Type, Variant};
+use leo_ast::{CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -432,6 +432,43 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
+            CoreFunction::MappingGet => {
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Return the value type of the mapping.
+                    Some(*mapping_type.value)
+                } else {
+                    None
+                }
+            }
+            CoreFunction::MappingGetOr => {
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Check that the third argument matches the value type of the mapping.
+                    self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                    // Return the value type of the mapping.
+                    Some(*mapping_type.value)
+                } else {
+                    None
+                }
+            }
+            CoreFunction::MappingPut => {
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Check that the third argument matches the value type of the mapping.
+                    self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                    // Return the mapping type.
+                    Some(Type::Unit)
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -497,8 +534,12 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the type is not a mapping.
-    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(|type_| matches!(type_, Type::Mapping(_)), "mapping".to_string(), type_, span)
+    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) -> Option<MappingType> {
+        self.check_type(|type_| matches!(type_, Type::Mapping(_)), "mapping".to_string(), type_, span);
+        match type_ {
+            Some(Type::Mapping(mapping_type)) => Some(mapping_type.clone()),
+            _ => None,
+        }
     }
 }
 
