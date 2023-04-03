@@ -283,4 +283,11 @@ create_messages!(
         msg: format!("`console` statements are not yet supported."),
         help: Some("Consider using `assert`, `assert_eq`, or `assert_neq` instead.".to_string()),
     }
+
+    @formatted
+    deprecated {
+        args: (keyword: impl Display, help: impl Display),
+        msg: format!("The keyword `{keyword}` is deprecated."),
+        help: Some(help.to_string()),
+    }
 );
