@@ -41,8 +41,8 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::Increment => Ok(Statement::Increment(self.parse_increment_statement()?)),
-            Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
+            Token::Increment => Ok(self.parse_increment_statement()?),
+            Token::Decrement => Ok(self.parse_decrement_statement()?),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
@@ -174,36 +174,46 @@ impl ParserContext<'_> {
         Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args })
     }
 
-    /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.
-    fn parse_decrement_statement(&mut self) -> Result<DecrementStatement> {
-        let start = self.expect(&Token::Decrement)?;
-        self.expect(&Token::LeftParen)?;
-        let mapping = self.expect_identifier()?;
-        self.expect(&Token::Comma)?;
-        let index = self.parse_expression()?;
-        self.expect(&Token::Comma)?;
-        let amount = self.parse_expression()?;
-        self.eat(&Token::Comma);
-        let end = self.expect(&Token::RightParen)?;
-        self.expect(&Token::Semicolon)?;
-        let span = start + end;
-        Ok(DecrementStatement { mapping, index, amount, span })
+    /// Returns a dummy [`Statement`] AST node and emits and error if the next tokens represent a decrement statement.
+    fn parse_decrement_statement(&mut self) -> Result<Statement> {
+        // Parse the decrement token.
+        let span = self.expect(&Token::Decrement)?;
+        // Emit a deprecation error.
+        self.handler.emit_err(ParserError::deprecated(
+            "decrement",
+            "Consider using `Mapping::{get, get_or, set}` instead",
+            span,
+        ));
+        // Skip tokens until after next semi-colon.
+        while self.has_next() {
+            if self.check(&Token::Semicolon) {
+                self.bump();
+                break;
+            }
+            self.bump();
+        }
+        Ok(Statement::dummy(Default::default()))
     }
 
-    /// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.
-    fn parse_increment_statement(&mut self) -> Result<IncrementStatement> {
-        let start = self.expect(&Token::Increment)?;
-        self.expect(&Token::LeftParen)?;
-        let mapping = self.expect_identifier()?;
-        self.expect(&Token::Comma)?;
-        let index = self.parse_expression()?;
-        self.expect(&Token::Comma)?;
-        let amount = self.parse_expression()?;
-        self.eat(&Token::Comma);
-        let end = self.expect(&Token::RightParen)?;
-        self.expect(&Token::Semicolon)?;
-        let span = start + end;
-        Ok(IncrementStatement { mapping, index, amount, span })
+    /// Returns a dummy [`Statement`] AST node and emits an error if the next tokens represent an increment statement.
+    fn parse_increment_statement(&mut self) -> Result<Statement> {
+        // Parse the increment token.
+        let span = self.expect(&Token::Increment)?;
+        // Emit a deprecation error.
+        self.handler.emit_err(ParserError::deprecated(
+            "increment",
+            "Consider using `Mapping::{get, get_or, set}` instead",
+            span,
+        ));
+        // Skip tokens until after the next semi-colon.
+        while self.has_next() {
+            if self.check(&Token::Semicolon) {
+                self.bump();
+                break;
+            }
+            self.bump();
+        }
+        Ok(Statement::dummy(Default::default()))
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
