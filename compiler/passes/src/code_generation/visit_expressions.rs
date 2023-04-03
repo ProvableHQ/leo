@@ -244,6 +244,7 @@ impl<'a> CodeGenerator<'a> {
                 sym::Poseidon2 => "psd2",
                 sym::Poseidon4 => "psd4",
                 sym::Poseidon8 => "psd8",
+                sym::Mapping => "",
                 _ => unreachable!("All core function calls should be known at this time."),
             }
         } else {
