@@ -75,10 +75,8 @@ pub trait StatementConsumer {
             Statement::Block(stmt) => self.consume_block(stmt),
             Statement::Conditional(stmt) => self.consume_conditional(stmt),
             Statement::Console(stmt) => self.consume_console(stmt),
-            Statement::Decrement(stmt) => self.consume_decrement(stmt),
             Statement::Definition(stmt) => self.consume_definition(stmt),
             Statement::Expression(stmt) => self.consume_expression_statement(stmt),
-            Statement::Increment(stmt) => self.consume_increment(stmt),
             Statement::Iteration(stmt) => self.consume_iteration(*stmt),
             Statement::Return(stmt) => self.consume_return(stmt),
         }
@@ -94,13 +92,9 @@ pub trait StatementConsumer {
 
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output;
 
-    fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output;
-
     fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
 
     fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output;
-
-    fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output;
 
     fn consume_iteration(&mut self, input: IterationStatement) -> Self::Output;
 

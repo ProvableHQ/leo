@@ -23,12 +23,10 @@ use leo_ast::{
     Block,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
     ExpressionStatement,
-    IncrementStatement,
     IterationStatement,
     ReturnStatement,
     Statement,
@@ -125,24 +123,6 @@ impl StatementReconstructor for DeadCodeEliminator {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_decrement(&mut self, input: DecrementStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Decrement(DecrementStatement {
-            mapping: input.mapping,
-            index: self.reconstruct_expression(input.index).0,
-            amount: self.reconstruct_expression(input.amount).0,
-            span: input.span,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
-    }
-
     /// Static single assignment replaces definition statements with assignment statements.
     fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
@@ -172,24 +152,6 @@ impl StatementReconstructor for DeadCodeEliminator {
             // Note: array access expressions will have side effects and need to be handled here.
             _ => (Statement::dummy(Default::default()), Default::default()),
         }
-    }
-
-    fn reconstruct_increment(&mut self, input: IncrementStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Increment(IncrementStatement {
-            mapping: input.mapping,
-            index: self.reconstruct_expression(input.index).0,
-            amount: self.reconstruct_expression(input.amount).0,
-            span: input.span,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.
