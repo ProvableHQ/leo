@@ -9,3 +9,4 @@ outputs:
       inlined_ast: e600d74aa281e08c42dde9953ab63bc5f53bf5318cbac3df21be079ea8e1c1d4
       dce_ast: e600d74aa281e08c42dde9953ab63bc5f53bf5318cbac3df21be079ea8e1c1d4
       bytecode: a933fea3a225baaab4b8d1290eb57e8146b2c9d5b5f26d93c1d9e7b75f4ce004
+      warnings: ""

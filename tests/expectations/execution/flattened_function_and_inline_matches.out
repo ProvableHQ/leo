@@ -9,6 +9,7 @@ outputs:
       inlined_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
       dce_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
       bytecode: 134abb1ec51eefe80a4a7f4303572abfec238a5adb6a9b5aad1e73ea66860eac
+      warnings: ""
       results:
         bar:
           - input: "[true, true, 1u8, 0u8]"

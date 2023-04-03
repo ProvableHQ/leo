@@ -9,3 +9,4 @@ outputs:
       inlined_ast: fade4ff2c114cdcdfd31ebfa3879fcf2efc43f1cf4cc069647e3684b04cc9e2f
       dce_ast: fade4ff2c114cdcdfd31ebfa3879fcf2efc43f1cf4cc069647e3684b04cc9e2f
       bytecode: 03f172c9475df39921cf7bb70ce0544793ca7d90e3d57397cc5e425ef94c32b3
+      warnings: ""

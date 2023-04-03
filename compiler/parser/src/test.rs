@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{tokenizer, ParserContext, SpannedToken};
+
 use leo_ast::Statement;
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::{
@@ -29,6 +30,8 @@ use leo_test_framework::{
 use serde::Serialize;
 use serde_yaml::Value;
 use tokenizer::Token;
+
+// TODO: Enable parser warnings for passing tests
 
 struct TokenNamespace;
 
