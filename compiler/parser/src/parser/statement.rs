@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, ParserWarning, Result};
 use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
@@ -41,8 +41,6 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::Increment => Ok(self.parse_increment_statement()?),
-            Token::Decrement => Ok(self.parse_decrement_statement()?),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
@@ -89,6 +87,7 @@ impl ParserContext<'_> {
 
     /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
+        // Look ahead and
         let place = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
@@ -131,6 +130,27 @@ impl ParserContext<'_> {
 
             Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
+            // Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
+            if let Expression::Call(call_expression) = &place {
+                match *call_expression.function {
+                    Expression::Identifier(Identifier { name: sym::decrement, .. }) => {
+                        self.emit_warning(ParserWarning::deprecated(
+                            "decrement",
+                            "Use `Mapping::{get, get_or, put}` for manipulating on-chain mappings.",
+                            place.span(),
+                        ));
+                    }
+                    Expression::Identifier(Identifier { name: sym::increment, .. }) => {
+                        self.emit_warning(ParserWarning::deprecated(
+                            "increment",
+                            "Use `Mapping::{get, get_or, put}` for manipulating on-chain mappings.",
+                            place.span(),
+                        ));
+                    }
+                    _ => (),
+                }
+            }
+
             // Parse the expression as a statement.
             let end = self.expect(&Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement { span: place.span() + end, expression: place }))
@@ -172,48 +192,6 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::Semicolon)?;
         let span = start + end;
         Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args })
-    }
-
-    /// Returns a dummy [`Statement`] AST node and emits and error if the next tokens represent a decrement statement.
-    fn parse_decrement_statement(&mut self) -> Result<Statement> {
-        // Parse the decrement token.
-        let span = self.expect(&Token::Decrement)?;
-        // Emit a deprecation error.
-        self.handler.emit_err(ParserError::deprecated(
-            "decrement",
-            "Consider using `Mapping::{get, get_or, set}` instead",
-            span,
-        ));
-        // Skip tokens until after next semi-colon.
-        while self.has_next() {
-            if self.check(&Token::Semicolon) {
-                self.bump();
-                break;
-            }
-            self.bump();
-        }
-        Ok(Statement::dummy(Default::default()))
-    }
-
-    /// Returns a dummy [`Statement`] AST node and emits an error if the next tokens represent an increment statement.
-    fn parse_increment_statement(&mut self) -> Result<Statement> {
-        // Parse the increment token.
-        let span = self.expect(&Token::Increment)?;
-        // Emit a deprecation error.
-        self.handler.emit_err(ParserError::deprecated(
-            "increment",
-            "Consider using `Mapping::{get, get_or, set}` instead",
-            span,
-        ));
-        // Skip tokens until after the next semi-colon.
-        while self.has_next() {
-            if self.check(&Token::Semicolon) {
-                self.bump();
-                break;
-            }
-            self.bump();
-        }
-        Ok(Statement::dummy(Default::default()))
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.

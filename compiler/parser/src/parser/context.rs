@@ -119,7 +119,7 @@ impl<'a> ParserContext<'a> {
     }
 
     /// Emit the warning `warning`.
-    pub(super) fn _emit_warning(&self, warning: ParserWarning) {
+    pub(super) fn emit_warning(&self, warning: ParserWarning) {
         self.handler.emit_warning(warning.into());
     }
 
