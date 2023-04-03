@@ -327,9 +327,9 @@ create_messages!(
     }
 
     @formatted
-    increment_or_decrement_outside_finalize {
-        args: (),
-        msg: format!("`increment` or `decrement` statements must be inside a finalize block."),
+    invalid_operation_outside_finalize {
+        args: (operation: impl Display),
+        msg: format!("`{operation}` must be inside a finalize block."),
         help: None,
     }
 

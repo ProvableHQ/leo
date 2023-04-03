@@ -154,7 +154,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_decrement(&mut self, input: &'a DecrementStatement) {
         if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
+            self.emit_err(TypeCheckerError::invalid_operation_outside_finalize("decrement", input.span()));
         }
 
         // Assert that the first operand is a mapping.
@@ -262,7 +262,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_increment(&mut self, input: &'a IncrementStatement) {
         if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
+            self.emit_err(TypeCheckerError::invalid_operation_outside_finalize("increment", input.span()));
         }
 
         // Assert that the first operand is a mapping.
