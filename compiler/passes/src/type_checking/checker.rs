@@ -433,6 +433,11 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Field)
             }
             CoreFunction::MappingGet => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::get", function_span))
+                }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
@@ -444,6 +449,13 @@ impl<'a> TypeChecker<'a> {
                 }
             }
             CoreFunction::MappingGetOr => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                        "Mapping::get_or",
+                        function_span,
+                    ))
+                }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
@@ -457,6 +469,11 @@ impl<'a> TypeChecker<'a> {
                 }
             }
             CoreFunction::MappingPut => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::put", function_span))
+                }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
