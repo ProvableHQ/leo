@@ -20,9 +20,9 @@ use leo_errors::{type_name, FlattenError, LeoError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use std::num::ParseIntError;
 use std::{
     fmt::Display,
+    num::ParseIntError,
     ops::{BitAnd, BitOr, BitXor, Not},
 };
 
