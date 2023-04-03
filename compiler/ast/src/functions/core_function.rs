@@ -14,21 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
-
-mod algorithms;
-pub use algorithms::*;
-
-mod utilities;
-pub use utilities::*;
-
-use leo_ast::Type;
 use leo_span::{sym, Symbol};
 
 /// A core instruction that maps directly to an AVM bytecode instruction.
 #[derive(Clone, PartialEq, Eq)]
-pub enum CoreInstruction {
+pub enum CoreFunction {
     BHP256Commit,
     BHP256Hash,
     BHP512Commit,
@@ -48,8 +38,8 @@ pub enum CoreInstruction {
     Poseidon8Hash,
 }
 
-impl CoreInstruction {
-    /// Returns a `CoreInstruction` from the given module and method symbols.
+impl CoreFunction {
+    /// Returns a `CoreFunction` from the given module and method symbols.
     pub fn from_symbols(module: Symbol, function: Symbol) -> Option<Self> {
         Some(match (module, function) {
             (sym::BHP256, sym::commit) => Self::BHP256Commit,
@@ -76,29 +66,23 @@ impl CoreInstruction {
     /// Returns the number of arguments required by the instruction.
     pub fn num_args(&self) -> usize {
         match self {
-            Self::BHP256Commit => BHP256Commit::NUM_ARGS,
-            Self::BHP256Hash => BHP256Hash::NUM_ARGS,
-            Self::BHP512Commit => BHP512Commit::NUM_ARGS,
-            Self::BHP512Hash => BHP512Hash::NUM_ARGS,
-            Self::BHP768Commit => BHP768Commit::NUM_ARGS,
-            Self::BHP768Hash => BHP768Hash::NUM_ARGS,
-            Self::BHP1024Commit => BHP1024Commit::NUM_ARGS,
-            Self::BHP1024Hash => BHP1024Hash::NUM_ARGS,
+            Self::BHP256Commit => 2,
+            Self::BHP256Hash => 1,
+            Self::BHP512Commit => 2,
+            Self::BHP512Hash => 1,
+            Self::BHP768Commit => 2,
+            Self::BHP768Hash => 1,
+            Self::BHP1024Commit => 2,
+            Self::BHP1024Hash => 1,
 
-            Self::Pedersen64Commit => Pedersen64Commit::NUM_ARGS,
-            Self::Pedersen64Hash => Pedersen64Hash::NUM_ARGS,
-            Self::Pedersen128Commit => Pedersen128Commit::NUM_ARGS,
-            Self::Pedersen128Hash => Pedersen128Hash::NUM_ARGS,
+            Self::Pedersen64Commit => 2,
+            Self::Pedersen64Hash => 1,
+            Self::Pedersen128Commit => 2,
+            Self::Pedersen128Hash => 1,
 
-            Self::Poseidon2Hash => Poseidon2Hash::NUM_ARGS,
-            Self::Poseidon4Hash => Poseidon4Hash::NUM_ARGS,
-            Self::Poseidon8Hash => Poseidon8Hash::NUM_ARGS,
+            Self::Poseidon2Hash => 1,
+            Self::Poseidon4Hash => 1,
+            Self::Poseidon8Hash => 1,
         }
     }
-}
-
-/// A core function of a core struct, e.g. `hash` or `commit`
-/// Provides required type information to the type checker.
-trait CoreFunction {
-    const NUM_INPUTS: usize;
 }
