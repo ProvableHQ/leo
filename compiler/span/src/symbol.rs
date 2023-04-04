@@ -150,13 +150,13 @@ symbols! {
     get,
     get_or,
     hash,
-    put,
     Mapping,
     Pedersen64,
     Pedersen128,
     Poseidon2,
     Poseidon4,
     Poseidon8,
+    set,
 
     // types
     address,
