@@ -42,7 +42,7 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                     match (&function.ty, function.name.name) {
                         (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get)
                         | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or)
-                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::put) => {
+                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) => {
                             self.is_necessary = true;
                         }
                         _ => {}

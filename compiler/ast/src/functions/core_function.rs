@@ -39,7 +39,7 @@ pub enum CoreFunction {
 
     MappingGet,
     MappingGetOr,
-    MappingPut,
+    MappingSet,
 }
 
 impl CoreFunction {
@@ -66,7 +66,7 @@ impl CoreFunction {
 
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or) => Self::MappingGetOr,
-            (sym::Mapping, sym::put) => Self::MappingPut,
+            (sym::Mapping, sym::set) => Self::MappingSet,
             _ => return None,
         })
     }
@@ -94,7 +94,7 @@ impl CoreFunction {
 
             Self::MappingGet => 2,
             Self::MappingGetOr => 3,
-            Self::MappingPut => 3,
+            Self::MappingSet => 3,
         }
     }
 }

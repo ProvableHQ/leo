@@ -468,7 +468,7 @@ impl<'a> TypeChecker<'a> {
                     None
                 }
             }
-            CoreFunction::MappingPut => {
+            CoreFunction::MappingSet => {
                 // Check that the operation is invoked in a `finalize` block.
                 if !self.is_finalize {
                     self.handler
