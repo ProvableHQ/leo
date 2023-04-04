@@ -24,5 +24,4 @@ program test.aleo {
     mapping real_tokens: address => RealToken;
 
     mapping owners: RealToken => address;
-
 }

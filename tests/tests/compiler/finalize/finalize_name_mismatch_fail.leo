@@ -12,7 +12,7 @@ program test.aleo {
     }
     
     finalize mint_private (public receiver: address, public amount: u64) {
-        increment(account, receiver, amount);
+        Mapping::set(account, receiver, amount);
     }
     
 }

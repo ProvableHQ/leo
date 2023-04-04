@@ -26,6 +26,4 @@ program test.aleo {
     }
     
     mapping foo: Bar => Baz;
-    
-
 }

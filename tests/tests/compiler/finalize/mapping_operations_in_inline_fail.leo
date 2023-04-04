@@ -8,13 +8,15 @@ program test.aleo {
     mapping values: u8 => u8;
 
     inline foo() {
-        increment(values, 0u8, 1u8);
-        increment(account, self.caller, 1u64);
+        Mapping::set(values, 0u8, 1u8);
+        Mapping::get_or(account, self.caller, 1u64);
+        Mapping::get(values, 1u8);
     }
 
     inline bar() {
-        decrement(values, 0u8, 1u8);
-        decrement(account, self.caller, 1u64);
+        Mapping::set(values, 0u8, 1u8);
+        Mapping::get_or(account, self.caller, 1u64);
+        Mapping::get(values, 0u8);
     }
 
     finalize finalize_no_params() {
