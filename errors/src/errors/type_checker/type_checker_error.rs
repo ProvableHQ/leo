@@ -573,4 +573,18 @@ create_messages!(
         msg: format!("Cannot call an external `inline` function."),
         help: None,
     }
+
+    @formatted
+    finalize_cannot_take_record_as_input {
+        args: (),
+        msg: format!("A finalize block cannot take in a record as input."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_output_record {
+        args: (),
+        msg: format!("A finalize block cannot output a record."),
+        help: None,
+    }
 );
