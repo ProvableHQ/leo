@@ -51,7 +51,7 @@ program basic_bank.aleo {
     // - `amount`: The amount of tokens that were deposited.
     finalize deposit(hash: field, amount: u64) {
         let current_amount: u64 = Mapping::get_or(balances, hash, 0u64);
-        Mapping::put(balances, hash, current_amount + amount);
+        Mapping::set(balances, hash, current_amount + amount);
     }
 
     // Returns a new Token containing the amount of money withdrawn.
@@ -80,7 +80,7 @@ program basic_bank.aleo {
     // - `amount`: The amount of tokens that were withdrawn.
     finalize withdraw(hash: field, amount: u64) {
         let current_amount: u64 = Mapping::get_or(balances, hash, 0u64);
-        Mapping::put(balances, hash, current_amount - amount);
+        Mapping::set(balances, hash, current_amount - amount);
     }
 
     // Returns the total amount of tokens after compounding interest.
