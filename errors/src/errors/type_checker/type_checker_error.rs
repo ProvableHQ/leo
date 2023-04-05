@@ -118,7 +118,7 @@ create_messages!(
     invalid_core_function {
         args: (struct_: impl Display, function: impl Display),
         msg: format!(
-            "The instruction {struct_}::{function} is not a valid core function.",
+            "{struct_}::{function} is not a valid core function.",
         ),
         help: None,
     }
