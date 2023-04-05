@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
@@ -164,8 +165,8 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
         match input.expression {
-            Expression::Call(_) => {
-                // Note that codegen for CallExpression in an expression statement does not return any destination registers.
+            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_)) => {
+                // Note that codegen for the expression contained in an expression statement does not return any destination registers.
                 self.visit_expression(&input.expression).1
             }
             _ => unreachable!("ExpressionStatement's can only contain CallExpression's."),

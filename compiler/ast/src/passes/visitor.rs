@@ -44,7 +44,7 @@ pub trait ExpressionVisitor<'a> {
     fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(function) => {
-                function.args.iter().for_each(|arg| {
+                function.arguments.iter().for_each(|arg| {
                     self.visit_expression(arg, &Default::default());
                 });
             }

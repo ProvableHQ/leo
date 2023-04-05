@@ -53,8 +53,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function
-                            .args
+                        arguments: function
+                            .arguments
                             .into_iter()
                             .map(|arg| {
                                 let (arg, mut stmts) = self.consume_expression(arg);

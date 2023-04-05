@@ -51,7 +51,11 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                     let result = AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function.args.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                        arguments: function
+                            .arguments
+                            .into_iter()
+                            .map(|arg| self.reconstruct_expression(arg).0)
+                            .collect(),
                         span: function.span,
                     });
                     // Unset `self.is_necessary`.

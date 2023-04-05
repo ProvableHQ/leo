@@ -276,6 +276,9 @@ impl<'a> CodeGenerator<'a> {
         // Create the value string, e.g. `    value as address.public`.
         mapping_string.push_str(&format!("\tvalue right as {};\n", create_type(&mapping.value_type)));
 
+        // Add the mapping to the variable mapping.
+        self.global_mapping.insert(&mapping.identifier.name, mapping.identifier.to_string());
+
         mapping_string
     }
 }

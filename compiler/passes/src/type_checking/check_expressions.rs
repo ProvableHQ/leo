@@ -47,7 +47,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {
                     // Get the types of the arguments.
                     let argument_types = access
-                        .args
+                        .arguments
                         .iter()
                         .map(|arg| (self.visit_expression(arg, &None), arg.span()))
                         .collect::<Vec<_>>();
@@ -55,8 +55,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Check that the types of the arguments are valid.
                     let return_type = self.check_core_function_call(core_instruction, &argument_types, input.span());
 
-                    // Check return type.
-                    self.check_eq_types(&return_type, expected, input.span());
+                    // Check return type if the expected type is known.
+                    if let Some(expected) = expected {
+                        self.assert_type(&return_type, expected, input.span());
+                    }
                     return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));

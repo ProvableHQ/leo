@@ -17,9 +17,11 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
+    AssociatedFunction,
     Block,
     CallExpression,
     ConditionalStatement,
@@ -246,34 +248,52 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
         let mut statements = Vec::new();
 
-        // Extract the call expression.
-        let call = match input.expression {
-            Expression::Call(call) => call,
-            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        // Helper to process the arguments of a function call, accumulating any statements produced.
+        let mut process_arguments = |arguments: Vec<Expression>| {
+            arguments
+                .into_iter()
+                .map(|argument| {
+                    let (argument, mut stmts) = self.consume_expression(argument);
+                    statements.append(&mut stmts);
+                    argument
+                })
+                .collect::<Vec<_>>()
         };
 
-        // Process the arguments, accumulating any statements produced.
-        let arguments = call
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                let (argument, mut stmts) = self.consume_expression(argument);
-                statements.append(&mut stmts);
-                argument
-            })
-            .collect();
+        match input.expression {
+            Expression::Call(call) => {
+                // Process the arguments.
+                let arguments = process_arguments(call.arguments);
+                // Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
+                statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Call(CallExpression {
+                        function: call.function,
+                        arguments,
+                        external: call.external,
+                        span: call.span,
+                    }),
+                    span: input.span,
+                }));
+            }
+            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+                // Process the arguments.
+                let arguments = process_arguments(associated_function.arguments);
+                // Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
+                statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: associated_function.ty,
+                        name: associated_function.name,
+                        arguments,
+                        span: associated_function.span,
+                    })),
+                    span: input.span,
+                }))
+            }
 
-        // Create and accumulate the new expression statement.
-        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
-        statements.push(Statement::Expression(ExpressionStatement {
-            expression: Expression::Call(CallExpression {
-                function: call.function,
-                arguments,
-                external: call.external,
-                span: call.span,
-            }),
-            span: input.span,
-        }));
+            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        }
 
         statements
     }

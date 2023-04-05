@@ -317,7 +317,7 @@ impl ParserContext<'_> {
                 span: module_name.span() + end,
                 ty: type_,
                 name: member_name,
-                args,
+                arguments: args,
             })
         } else {
             // Return the struct constant.

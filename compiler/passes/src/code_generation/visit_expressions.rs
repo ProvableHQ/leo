@@ -61,7 +61,10 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
-        (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
+        (
+            self.variable_mapping.get(&input.name).or_else(|| self.global_mapping.get(&input.name)).unwrap().clone(),
+            String::new(),
+        )
     }
 
     fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
@@ -256,7 +259,7 @@ impl<'a> CodeGenerator<'a> {
         let mut instructions = String::new();
 
         // Visit each function argument and accumulate instructions from expressions.
-        for arg in input.args.iter() {
+        for arg in input.arguments.iter() {
             let (arg_string, arg_instructions) = self.visit_expression(arg);
             write!(associated_function_call, "{arg_string} ").expect("failed to write associated function argument");
             instructions.push_str(&arg_instructions);
