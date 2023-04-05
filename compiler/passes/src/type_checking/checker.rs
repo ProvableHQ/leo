@@ -472,7 +472,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the operation is invoked in a `finalize` block.
                 if !self.is_finalize {
                     self.handler
-                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::put", function_span))
+                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::set", function_span))
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {

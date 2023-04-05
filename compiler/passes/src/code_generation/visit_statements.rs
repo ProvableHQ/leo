@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,

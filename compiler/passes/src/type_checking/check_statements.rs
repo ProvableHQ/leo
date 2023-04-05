@@ -220,11 +220,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_)) {
+        if !matches!(
+            input.expression,
+            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_))
+        ) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.
-            // TODO: Should the output type be restricted to unit types?
             self.visit_expression(&input.expression, &None);
         }
     }

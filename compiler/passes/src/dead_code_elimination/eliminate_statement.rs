@@ -17,6 +17,7 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
@@ -147,6 +148,18 @@ impl StatementReconstructor for DeadCodeEliminator {
                 self.is_necessary = false;
 
                 (statement, Default::default())
+            }
+            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+                // Visit the expression.
+                (
+                    Statement::Expression(ExpressionStatement {
+                        expression: self
+                            .reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
+                            .0,
+                        span: input.span,
+                    }),
+                    Default::default(),
+                )
             }
             // Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
