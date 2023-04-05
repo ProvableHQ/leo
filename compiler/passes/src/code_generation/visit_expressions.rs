@@ -238,13 +238,17 @@ impl<'a> CodeGenerator<'a> {
         let mut instructions = String::new();
 
         // Visit each function argument and accumulate instructions from expressions.
-        let arguments = input.arguments.iter().map(|argument| {
-            let (arg_string, arg_instructions) = self.visit_expression(argument);
-            instructions.push_str(&arg_instructions);
-            arg_string
-        }).collect::<Vec<_>>();
+        let arguments = input
+            .arguments
+            .iter()
+            .map(|argument| {
+                let (arg_string, arg_instructions) = self.visit_expression(argument);
+                instructions.push_str(&arg_instructions);
+                arg_string
+            })
+            .collect::<Vec<_>>();
 
-             // Helper function to get a destination register for a function call.
+        // Helper function to get a destination register for a function call.
         let mut get_destination_register = || {
             let destination_register = format!("r{}", self.next_register);
             self.next_register += 1;
@@ -265,16 +269,34 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct the instruction.
         let (destination, instruction) = match input.ty {
-            Type::Identifier(Identifier{ name: sym::BHP256, .. }) => construct_simple_function_call(&input.name, "bhp256", arguments),
-            Type::Identifier(Identifier{ name: sym::BHP512, .. }) => construct_simple_function_call(&input.name, "bhp512", arguments),
-            Type::Identifier(Identifier{ name: sym::BHP768, .. }) => construct_simple_function_call(&input.name, "bhp768", arguments),
-            Type::Identifier(Identifier{ name: sym::BHP1024, .. }) => construct_simple_function_call(&input.name, "bhp1024", arguments),
-            Type::Identifier(Identifier{ name: sym::Pedersen64, .. }) => construct_simple_function_call(&input.name, "ped64", arguments),
-            Type::Identifier(Identifier{ name: sym::Pedersen128, .. }) => construct_simple_function_call(&input.name, "ped128", arguments),
-            Type::Identifier(Identifier{ name: sym::Poseidon2, .. }) => construct_simple_function_call(&input.name, "psd2", arguments),
-            Type::Identifier(Identifier{ name: sym::Poseidon4, .. }) => construct_simple_function_call(&input.name, "psd4", arguments),
-            Type::Identifier(Identifier{ name: sym::Poseidon8, .. }) => construct_simple_function_call(&input.name, "psd8", arguments),
-            Type::Identifier(Identifier{ name: sym::Mapping, .. }) => match input.name.name {
+            Type::Identifier(Identifier { name: sym::BHP256, .. }) => {
+                construct_simple_function_call(&input.name, "bhp256", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP512, .. }) => {
+                construct_simple_function_call(&input.name, "bhp512", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP768, .. }) => {
+                construct_simple_function_call(&input.name, "bhp768", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP1024, .. }) => {
+                construct_simple_function_call(&input.name, "bhp1024", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen64, .. }) => {
+                construct_simple_function_call(&input.name, "ped64", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen128, .. }) => {
+                construct_simple_function_call(&input.name, "ped128", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon2, .. }) => {
+                construct_simple_function_call(&input.name, "psd2", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon4, .. }) => {
+                construct_simple_function_call(&input.name, "psd4", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon8, .. }) => {
+                construct_simple_function_call(&input.name, "psd8", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Mapping, .. }) => match input.name.name {
                 sym::get => {
                     let mut instruction = "    get ".to_string();
                     // Write the mapping name and the key.
@@ -286,7 +308,8 @@ impl<'a> CodeGenerator<'a> {
                 sym::get_or => {
                     let mut instruction = "    get_or ".to_string();
                     // Write the mapping name, the key, and the default value.
-                    write!(instruction, " {}[{}] {}", arguments[0], arguments[1], arguments[2]).expect("failed to write to string");
+                    write!(instruction, " {}[{}] {}", arguments[0], arguments[1], arguments[2])
+                        .expect("failed to write to string");
                     let destination_register = get_destination_register();
                     write!(instruction, " into {destination_register};").expect("failed to write to string");
                     (destination_register, instruction)
@@ -295,11 +318,12 @@ impl<'a> CodeGenerator<'a> {
                     // TODO: Fix when `put` is renamed to `set` in snarkVM
                     let mut instruction = "    put ".to_string();
                     // Write the value, mapping name, and the key.
-                    write!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1]).expect("failed to write to string");
+                    write!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
+                        .expect("failed to write to string");
                     (String::new(), instruction)
                 }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
-            }
+            },
             _ => unreachable!("All core functions should be known at this phase of compilation"),
         };
         // Add the instruction to the list of instructions.
