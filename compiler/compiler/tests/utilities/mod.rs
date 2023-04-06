@@ -195,6 +195,7 @@ pub fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }
 
+#[allow(unused)]
 pub fn temp_dir() -> PathBuf {
     tempfile::tempdir().expect("Failed to open temporary directory").into_path()
 }
