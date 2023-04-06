@@ -258,7 +258,7 @@ impl<'a> CodeGenerator<'a> {
         // Helper function to construct the instruction associated with a simple function call.
         // This assumes that the function call has one output.
         let mut construct_simple_function_call = |opcode: &Identifier, variant: &str, arguments: Vec<String>| {
-            let mut instruction = format!("    {opcode}.{variant} ");
+            let mut instruction = format!("    {opcode}.{variant}");
             for argument in arguments {
                 write!(instruction, " {argument}").expect("failed to write to string");
             }
@@ -298,27 +298,30 @@ impl<'a> CodeGenerator<'a> {
             }
             Type::Identifier(Identifier { name: sym::Mapping, .. }) => match input.name.name {
                 sym::get => {
-                    let mut instruction = "    get ".to_string();
-                    // Write the mapping name and the key.
-                    write!(instruction, " {}[{}]", arguments[0], arguments[1]).expect("failed to write to string");
+                    let mut instruction = "    get".to_string();
                     let destination_register = get_destination_register();
-                    write!(instruction, " into {destination_register};").expect("failed to write to string");
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
                     (destination_register, instruction)
                 }
                 sym::get_or => {
-                    let mut instruction = "    get_or ".to_string();
-                    // Write the mapping name, the key, and the default value.
-                    write!(instruction, " {}[{}] {}", arguments[0], arguments[1], arguments[2])
-                        .expect("failed to write to string");
+                    let mut instruction = "    get_or".to_string();
                     let destination_register = get_destination_register();
-                    write!(instruction, " into {destination_register};").expect("failed to write to string");
+                    // Write the mapping name, the key, and the default value.
+                    writeln!(
+                        instruction,
+                        " {}[{}] {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
                     (destination_register, instruction)
                 }
                 sym::set => {
                     // TODO: Fix when `put` is renamed to `set` in snarkVM
-                    let mut instruction = "    put ".to_string();
+                    let mut instruction = "    put".to_string();
                     // Write the value, mapping name, and the key.
-                    write!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
+                    writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
                         .expect("failed to write to string");
                     (String::new(), instruction)
                 }
