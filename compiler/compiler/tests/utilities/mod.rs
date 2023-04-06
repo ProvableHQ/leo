@@ -92,6 +92,7 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
     }
 }
 
+#[allow(unused)]
 pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Handler) -> Result<Package<Network>, ()> {
     // Initialize a temporary directory.
     let directory = temp_dir();

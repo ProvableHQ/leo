@@ -17,7 +17,7 @@
 mod utilities;
 use utilities::{buffer_if_err, compile_and_process, get_cwd_option, parse_program, BufferEmitter, Network};
 
-use crate::utilities::{hash_asts, hash_content, Aleo};
+use crate::utilities::{hash_asts, hash_content, Aleo, get_build_options};
 
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
@@ -33,6 +33,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
+use leo_compiler::{CompilerOptions, OutputOptions};
 
 struct FinalizeNamespace;
 
@@ -74,146 +75,168 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     // Check for CWD option:
     let cwd = get_cwd_option(&test);
 
-    // Parse the program.
-    let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
+    // Extract the compiler build configurations from the config file.
+    let build_options = get_build_options(&test.config);
 
-    // Compile the program to bytecode.
-    let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
-    println!("Bytecode: {}", bytecode);
-    let program = Program::<Network>::from_str(&bytecode).unwrap();
-    let program_id = program.id();
+    let mut outputs = Vec::with_capacity(build_options.len());
 
-    // Extract the cases from the test config.
-    let all_cases =
-        test.config.extra.get("cases").expect("An `Finalize` config must have a `cases` field.").as_mapping().unwrap();
+    for build in build_options {
+        let compiler_options = CompilerOptions {
+            build,
+            output: OutputOptions {
+                spans_enabled: false,
+                initial_input_ast: true,
+                initial_ast: true,
+                unrolled_ast: true,
+                ssa_ast: true,
+                flattened_ast: true,
+                inlined_ast: true,
+                dce_ast: true,
+            },
+        };
 
-    // Extract the initial state from the test config.
-    let initial_state = test
-        .config
-        .extra
-        .get("initial_state")
-        .expect("A `Finalize` config must have a `initial_state` field.")
-        .as_mapping()
-        .unwrap();
+        // Parse the program.
+        let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
 
-    // Initialize the program storage.
-    let store = ProgramStore::<_, ProgramMemory<Network>>::open(None).unwrap();
-    for (mapping_id, key_value_pairs) in initial_state {
-        // Initialize the mapping.
-        let mapping_name = Identifier::from_str(mapping_id.as_str().unwrap()).unwrap();
-        store.initialize_mapping(program_id, &mapping_name).unwrap();
+        // Compile the program to bytecode.
+        let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+        println!("Bytecode: {}", bytecode);
+        let program = Program::<Network>::from_str(&bytecode).unwrap();
+        let program_id = program.id();
 
-        // Insert the key value pairs.
-        let key_value_pairs = key_value_pairs.as_sequence().unwrap();
-        for pair in key_value_pairs {
-            let pair = pair.as_sequence().unwrap();
-            assert!(pair.len() == 2);
-            store
-                .insert_key_value(
-                    program_id,
-                    &mapping_name,
-                    Plaintext::<Network>::from_str(pair[0].as_str().unwrap()).unwrap(),
-                    console::program::Value::<Network>::from_str(pair[1].as_str().unwrap()).unwrap(),
-                )
-                .unwrap();
+        // Extract the cases from the test config.
+        let all_cases =
+            test.config.extra.get("cases").expect("An `Finalize` config must have a `cases` field.").as_mapping().unwrap();
+
+        // Extract the initial state from the test config.
+        let initial_state = test
+            .config
+            .extra
+            .get("initial_state")
+            .expect("A `Finalize` config must have a `initial_state` field.")
+            .as_mapping()
+            .unwrap();
+
+        // Initialize the program storage.
+        let store = ProgramStore::<_, ProgramMemory<Network>>::open(None).unwrap();
+        for (mapping_id, key_value_pairs) in initial_state {
+            // Initialize the mapping.
+            let mapping_name = Identifier::from_str(mapping_id.as_str().unwrap()).unwrap();
+            store.initialize_mapping(program_id, &mapping_name).unwrap();
+
+            // Insert the key value pairs.
+            let key_value_pairs = key_value_pairs.as_sequence().unwrap();
+            for pair in key_value_pairs {
+                let pair = pair.as_sequence().unwrap();
+                assert!(pair.len() == 2);
+                store
+                    .insert_key_value(
+                        program_id,
+                        &mapping_name,
+                        Plaintext::<Network>::from_str(pair[0].as_str().unwrap()).unwrap(),
+                        console::program::Value::<Network>::from_str(pair[1].as_str().unwrap()).unwrap(),
+                    )
+                    .unwrap();
+            }
         }
-    }
 
-    // Initialize a process.
-    let mut process = Process::load().unwrap();
-    process.add_program(&program).unwrap();
+        // Initialize a process.
+        let mut process = Process::load().unwrap();
+        process.add_program(&program).unwrap();
 
-    // Initialize an rng.
-    let rng = &mut rand::thread_rng();
+        // Initialize an rng.
+        let rng = &mut rand::thread_rng();
 
-    // Initialize a private key.
-    let private_key = PrivateKey::<Network>::new(rng).unwrap();
+        // Initialize a private key.
+        let private_key = PrivateKey::<Network>::new(rng).unwrap();
 
-    // Initialize a map for the expected results.
-    let mut results = BTreeMap::new();
+        // Initialize a map for the expected results.
+        let mut results = BTreeMap::new();
 
-    // Run each test case for each function.
-    for (function_name, function_cases) in all_cases {
-        let function_name = Identifier::from_str(function_name.as_str().unwrap()).unwrap();
-        let cases = function_cases.as_sequence().unwrap();
-        let mut function_results = Vec::with_capacity(cases.len());
+        // Run each test case for each function.
+        for (function_name, function_cases) in all_cases {
+            let function_name = Identifier::from_str(function_name.as_str().unwrap()).unwrap();
+            let cases = function_cases.as_sequence().unwrap();
+            let mut function_results = Vec::with_capacity(cases.len());
 
-        for case in cases {
-            let case = case.as_mapping().unwrap();
-            let inputs: Vec<_> = case
-                .get(&Value::from("input"))
-                .unwrap()
-                .as_sequence()
-                .unwrap()
-                .iter()
-                .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
-                .collect();
-            let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
-
-            // Authorize the function call.
-            let authorization =
-                process.authorize::<Aleo, _>(&private_key, program_id, function_name, inputs.iter(), rng).unwrap();
-            // Execute the function call.
-            let (response, execution, _, _) = process.execute::<Aleo, _>(authorization, rng).unwrap();
-            // Finalize the function call.
-            let finalize_output_string = match process.finalize_execution(&store, &execution) {
-                Ok(_) => "Finalize was successful.".to_string(),
-                Err(err) => format!("SnarkVMError({err})"),
-            };
-
-            // TODO: Add support for custom config like custom private keys.
-            // Execute the program and get the outputs.
-            let execute_output = format!(
-                "[{}]",
-                response
-                    .outputs()
+            for case in cases {
+                let case = case.as_mapping().unwrap();
+                let inputs: Vec<_> = case
+                    .get(&Value::from("input"))
+                    .unwrap()
+                    .as_sequence()
+                    .unwrap()
                     .iter()
-                    .map(|output| {
-                        match output {
-                            // Remove the `_nonce` from the record string.
-                            console::program::Value::Record(record) => {
-                                let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
-                                pattern.replace(&record.to_string(), "").to_string()
+                    .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
+                    .collect();
+                let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
+
+                // Authorize the function call.
+                let authorization =
+                    process.authorize::<Aleo, _>(&private_key, program_id, function_name, inputs.iter(), rng).unwrap();
+                // Execute the function call.
+                let (response, execution, _, _) = process.execute::<Aleo, _>(authorization, rng).unwrap();
+                // Finalize the function call.
+                let finalize_output_string = match process.finalize_execution(&store, &execution) {
+                    Ok(_) => "Finalize was successful.".to_string(),
+                    Err(err) => format!("SnarkVMError({err})"),
+                };
+
+                // TODO: Add support for custom config like custom private keys.
+                // Execute the program and get the outputs.
+                let execute_output = format!(
+                    "[{}]",
+                    response
+                        .outputs()
+                        .iter()
+                        .map(|output| {
+                            match output {
+                                // Remove the `_nonce` from the record string.
+                                console::program::Value::Record(record) => {
+                                    let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
+                                    pattern.replace(&record.to_string(), "").to_string()
+                                }
+                                _ => output.to_string(),
                             }
-                            _ => output.to_string(),
-                        }
-                    })
-                    .join(", ")
-            );
+                        })
+                        .join(", ")
+                );
 
-            // Store the inputs and outputs in a map.
-            let mut result = BTreeMap::new();
-            result.insert("input".to_string(), input_string);
-            result.insert("execute_output".to_string(), execute_output);
-            result.insert("finalize_output".to_string(), finalize_output_string);
+                // Store the inputs and outputs in a map.
+                let mut result = BTreeMap::new();
+                result.insert("input".to_string(), input_string);
+                result.insert("execute_output".to_string(), execute_output);
+                result.insert("finalize_output".to_string(), finalize_output_string);
 
-            // Add the hashes of the inputs and outputs to the function results.
-            function_results.push(result);
+                // Add the hashes of the inputs and outputs to the function results.
+                function_results.push(result);
+            }
+            results.insert(function_name.to_string(), function_results);
         }
-        results.insert(function_name.to_string(), function_results);
+
+        // Hash the ast files.
+        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
+
+        // Clean up the output directory.
+        if fs::read_dir("/tmp/output").is_ok() {
+            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+        }
+
+        let final_output = FinalizeOutput {
+            initial_ast,
+            unrolled_ast,
+            ssa_ast,
+            flattened_ast,
+            inlined_ast,
+            dce_ast,
+            bytecode: hash_content(&bytecode),
+            warnings: err_buf.1.take().to_string(),
+            initial_state: hash_content(&serde_yaml::to_string(&initial_state).unwrap()),
+            results,
+        };
+        outputs.push(final_output)
     }
-
-    // Hash the ast files.
-    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
-
-    // Clean up the output directory.
-    if fs::read_dir("/tmp/output").is_ok() {
-        fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
-    }
-
-    let final_output = FinalizeOutput {
-        initial_ast,
-        unrolled_ast,
-        ssa_ast,
-        flattened_ast,
-        inlined_ast,
-        dce_ast,
-        bytecode: hash_content(&bytecode),
-        warnings: err_buf.1.take().to_string(),
-        initial_state: hash_content(&serde_yaml::to_string(&initial_state).unwrap()),
-        results,
-    };
-    Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
+    Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

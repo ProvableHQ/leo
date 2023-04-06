@@ -1,0 +1,27 @@
+---
+namespace: Finalize
+expectation: Pass
+outputs:
+  - - initial_ast: 84038e78e5860a9373916c96a5c1ed68f374f2d4b49dc2164430a651b0dc2648
+      unrolled_ast: 84038e78e5860a9373916c96a5c1ed68f374f2d4b49dc2164430a651b0dc2648
+      ssa_ast: 268eec2aaa591e6525c1cff34fe848a43976c23b0a0ea0d785e0560c9b16e762
+      flattened_ast: 13b3d968f30d531def7fa0919a9de9a4e5e6bba0e751eb7eb3200807cea046db
+      inlined_ast: 13b3d968f30d531def7fa0919a9de9a4e5e6bba0e751eb7eb3200807cea046db
+      dce_ast: 13b3d968f30d531def7fa0919a9de9a4e5e6bba0e751eb7eb3200807cea046db
+      bytecode: 91529a093203dc3fa72a3aabf0cf1d5d4cf36b5dffc46ff2d4b57e077526318a
+      warnings: ""
+      initial_state: c9ec5ff008d56bc287af2e780cc50f7132cc8c1feea397a90f86ed825e782454
+      results:
+        dubble:
+          - execute_output: "[]"
+            finalize_output: Finalize was successful.
+            input: "[]"
+          - execute_output: "[]"
+            finalize_output: Finalize was successful.
+            input: "[]"
+          - execute_output: "[]"
+            finalize_output: Finalize was successful.
+            input: "[]"
+          - execute_output: "[]"
+            finalize_output: Finalize was successful.
+            input: "[]"
