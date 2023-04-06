@@ -321,12 +321,11 @@ impl<'a> TypeChecker<'a> {
 
     /// Returns the `struct` type and emits an error if the `expected` type does not match.
     pub(crate) fn check_expected_struct(&mut self, struct_: Identifier, expected: &Option<Type>, span: Span) -> Type {
-        if let Some(Type::Identifier(expected)) = expected {
-            if !struct_.matches(expected) {
-                self.emit_err(TypeCheckerError::type_should_be(struct_.name, expected.name, span));
+        if let Some(expected) = expected {
+            if !Type::Identifier(struct_).eq_flat(expected) {
+                self.emit_err(TypeCheckerError::type_should_be(struct_.name, expected, span));
             }
         }
-
         Type::Identifier(struct_)
     }
 
