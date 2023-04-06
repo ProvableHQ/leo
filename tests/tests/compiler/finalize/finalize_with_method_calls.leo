@@ -1,0 +1,39 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
+program test.aleo {
+    mapping account: address => u64;
+    mapping values: u8 => u8;
+
+    transition mint_public(public receiver: address, public amount: u64) {
+        return then finalize(receiver, amount);
+    }
+
+    finalize mint_public (public receiver: address, public amount: u64) {
+        let current_amount: u64 = account.get_or(receiver, 0u64);
+        account.set(receiver, current_amount + amount);
+    }
+
+    transition public_adder(public a: u8, public b: u8) {
+        return then finalize(a, b);
+    }
+
+    finalize public_adder(a: u8, b: u8) -> public u8 {
+        return a + b;
+    }
+
+    transition finalize_no_params() {
+        return then finalize();
+    }
+
+    finalize finalize_no_params() {
+        let current_value: u8 = values.get_or(0u8, 0u8);
+        values.set(0u8, current_value + 1u8);
+        let current_amount: u64 = account.get_or(self.caller, 0u64);
+        account.set(self.caller, current_amount + 1u64);
+        current_amount = account.get(self.caller);
+        account.set(self.caller, current_amount + 1u64);
+    }
+}

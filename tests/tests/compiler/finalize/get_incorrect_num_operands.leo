@@ -18,9 +18,9 @@ program test.aleo {
     }
     
     finalize decrease_self(addr: address, amount: u128) {
-        Mapping::get(tokens, true);
-        tokens.get(true);
-        Mapping::get(amounts, 1u8);
-        amounts.get(1u8);
+        Mapping::get(tokens, true, true);
+        tokens.get(true, true);
+        Mapping::get(amounts);
+        amounts.get();
     }
 }
