@@ -47,13 +47,13 @@ program token.aleo {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public` is reverted.
-        let current_amount: u64 = Mapping::get_or(account, sender, 0u64);
-        Mapping::set(account, sender, current_amount - amount);
+        let sender_amount: u64 = Mapping::get_or(account, sender, 0u64);
+        Mapping::set(account, sender, sender_amount - amount);
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_public` is reverted.
-        let current_amount: u64 = Mapping::get_or(account, receiver, 0u64);
-        Mapping::set(account, receiver, current_amount + amount);
+        let receiver_amount: u64 = Mapping::get_or(account, receiver, 0u64);
+        Mapping::set(account, receiver, receiver_amount + amount);
     }
 
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
