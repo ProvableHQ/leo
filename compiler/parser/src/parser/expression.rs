@@ -273,14 +273,14 @@ impl ParserContext<'_> {
                     // Construct a negative scalar literal.
                     inner = Expression::Literal(Literal::Scalar(format!("-{string}"), op_span + span));
                 }
-                _ => () // Do nothing.
+                _ => (), // Do nothing.
             }
         }
 
         // Apply the operations in reverse order, constructing a unary expression.
         for (op, op_span) in ops.into_iter().rev() {
             inner = Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) });
-        };
+        }
 
         Ok(inner)
     }
