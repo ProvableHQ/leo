@@ -52,11 +52,11 @@ version = "1.7"
 
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
-version = "1.5.3"
+version = "1.6.3"
 
 [dev-dependencies.leo-span]
 path = "../../compiler/span"
-version = "1.5.3"
+version = "1.6.3"
 
 [dev-dependencies.criterion]
 version = "0.4"
