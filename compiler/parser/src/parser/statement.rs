@@ -87,7 +87,6 @@ impl ParserContext<'_> {
 
     /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
     fn parse_assign_statement(&mut self) -> Result<Statement> {
-        // Look ahead and
         let place = self.parse_expression()?;
 
         if self.eat_any(ASSIGN_TOKENS) {
