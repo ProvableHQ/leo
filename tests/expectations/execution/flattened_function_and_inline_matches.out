@@ -6,9 +6,9 @@ outputs:
     unrolled_ast: fe735d4b87fc695a7a68a059af8d769a3b1d257a924c08e7490f61575d843230
     ssa_ast: 24bb584afbee563be7c24228473fd4e0d83cb76197f66b4c4a9ddb9c1c2c5c2e
     flattened_ast: 4352bd983b2778643e78bb8efc4b2ab9a728dc52f9bff605875d82b82b72a0fb
-    inlined_ast: 87236ec1e5020ccdaec371ece97cac3d3c5873649ea7b8ac5df8390e46ff7405
-    dce_ast: a5706593c11da3c7b703dc111b365cb18f3bdba093f04547babf5959410391f4
-    bytecode: 39c8353dc4af7a70a8156ada8b429104819e5291f8847de9560eeb752ba3b6a4
+    inlined_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
+    dce_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
+    bytecode: 134abb1ec51eefe80a4a7f4303572abfec238a5adb6a9b5aad1e73ea66860eac
     results:
       bar:
         - input: "[true, true, 1u8, 0u8]"
@@ -16,7 +16,7 @@ outputs:
         - input: "[true, false, 1u8, 1u8]"
           output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
         - input: "[false, true, 2u8, 1u8]"
-          output: "[3u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+          output: "[1u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
         - input: "[false, false, 2u8, 2u8]"
           output: "[2u8, 2u8, {\n  a: 2u8,\n  b: 2u8,\n  c: {\n    c: 2u8\n  }\n}]"
       blar:
