@@ -267,6 +267,18 @@ impl ParserContext<'_> {
                     // Construct a negative field literal.
                     inner = Expression::Literal(Literal::Field(format!("-{string}"), op_span + span));
                 }
+                Expression::Literal(Literal::Group(group_literal)) => {
+                    // Remove the negation from the operations.
+                    let (_, op_span) = ops.pop().unwrap();
+                    // Construct a negative group literal.
+                    // Note that we only handle the case where the group literal is a single integral value.
+                    inner = Expression::Literal(Literal::Group(Box::new(match *group_literal {
+                        GroupLiteral::Single(string, span) => {
+                            GroupLiteral::Single(format!("-{string}"), op_span + span)
+                        }
+                        GroupLiteral::Tuple(tuple) => GroupLiteral::Tuple(tuple),
+                    })));
+                }
                 Expression::Literal(Literal::Scalar(string, span)) => {
                     // Remove the negation from the operations.
                     let (_, op_span) = ops.pop().unwrap();
