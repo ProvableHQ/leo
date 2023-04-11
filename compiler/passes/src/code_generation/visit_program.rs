@@ -166,8 +166,8 @@ impl<'a> CodeGenerator<'a> {
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
         let mut function_string = match function.variant {
-            Variant::Transition => format!("function {}:\n", function.identifier),
-            Variant::Standard => format!("closure {}:\n", function.identifier),
+            Variant::Transition => format!("\nfunction {}:\n", function.identifier),
+            Variant::Standard => format!("\nclosure {}:\n", function.identifier),
             Variant::Inline => return String::from("\n"),
         };
 
@@ -249,7 +249,7 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_mapping(&mut self, mapping: &'a Mapping) -> String {
         // Create the prefix of the mapping string, e.g. `mapping foo:`.
-        let mut mapping_string = format!("mapping {}:\n", mapping.identifier);
+        let mut mapping_string = format!("\nmapping {}:\n", mapping.identifier);
 
         // Helper to construct the string associated with the type.
         let create_type = |type_: &Type| {
@@ -275,6 +275,9 @@ impl<'a> CodeGenerator<'a> {
 
         // Create the value string, e.g. `    value as address.public`.
         mapping_string.push_str(&format!("\tvalue right as {};\n", create_type(&mapping.value_type)));
+
+        // Add the mapping to the variable mapping.
+        self.global_mapping.insert(&mapping.identifier.name, mapping.identifier.to_string());
 
         mapping_string
     }

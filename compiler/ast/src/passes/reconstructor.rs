@@ -47,7 +47,11 @@ pub trait ExpressionReconstructor {
                     AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function.args.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                        arguments: function
+                            .arguments
+                            .into_iter()
+                            .map(|arg| self.reconstruct_expression(arg).0)
+                            .collect(),
                         span: function.span,
                     })
                 }
@@ -157,10 +161,8 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             }
             Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
             Statement::Console(stmt) => self.reconstruct_console(stmt),
-            Statement::Decrement(stmt) => self.reconstruct_decrement(stmt),
             Statement::Definition(stmt) => self.reconstruct_definition(stmt),
             Statement::Expression(stmt) => self.reconstruct_expression_statement(stmt),
-            Statement::Increment(stmt) => self.reconstruct_increment(stmt),
             Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
             Statement::Return(stmt) => self.reconstruct_return(stmt),
         }
@@ -239,19 +241,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         )
     }
 
-    // TODO: Reconstructor should visit this.
-    fn reconstruct_decrement(&mut self, input: DecrementStatement) -> (Statement, Self::AdditionalOutput) {
-        (
-            Statement::Decrement(DecrementStatement {
-                mapping: input.mapping,
-                amount: input.amount,
-                index: input.index,
-                span: input.span,
-            }),
-            Default::default(),
-        )
-    }
-
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         (
             Statement::Definition(DefinitionStatement {
@@ -269,19 +258,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Expression(ExpressionStatement {
                 expression: self.reconstruct_expression(input.expression).0,
-                span: input.span,
-            }),
-            Default::default(),
-        )
-    }
-
-    // TODO: Reconstructor should visit this.
-    fn reconstruct_increment(&mut self, input: IncrementStatement) -> (Statement, Self::AdditionalOutput) {
-        (
-            Statement::Increment(IncrementStatement {
-                mapping: input.mapping,
-                index: input.index,
-                amount: input.amount,
                 span: input.span,
             }),
             Default::default(),

@@ -17,18 +17,17 @@
 use crate::DeadCodeEliminator;
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
     Block,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
     ExpressionStatement,
-    IncrementStatement,
     IterationStatement,
     ReturnStatement,
     Statement,
@@ -125,24 +124,6 @@ impl StatementReconstructor for DeadCodeEliminator {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    fn reconstruct_decrement(&mut self, input: DecrementStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Decrement(DecrementStatement {
-            mapping: input.mapping,
-            index: self.reconstruct_expression(input.index).0,
-            amount: self.reconstruct_expression(input.amount).0,
-            span: input.span,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
-    }
-
     /// Static single assignment replaces definition statements with assignment statements.
     fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
@@ -166,26 +147,20 @@ impl StatementReconstructor for DeadCodeEliminator {
 
                 (statement, Default::default())
             }
+            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+                // Visit the expression.
+                (
+                    Statement::Expression(ExpressionStatement {
+                        expression: self
+                            .reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
+                            .0,
+                        span: input.span,
+                    }),
+                    Default::default(),
+                )
+            }
             _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
         }
-    }
-
-    fn reconstruct_increment(&mut self, input: IncrementStatement) -> (Statement, Self::AdditionalOutput) {
-        // Set the `is_necessary` flag.
-        self.is_necessary = true;
-
-        // Visit the statement.
-        let statement = Statement::Increment(IncrementStatement {
-            mapping: input.mapping,
-            index: self.reconstruct_expression(input.index).0,
-            amount: self.reconstruct_expression(input.amount).0,
-            span: input.span,
-        });
-
-        // Unset the `is_necessary` flag.
-        self.is_necessary = false;
-
-        (statement, Default::default())
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.

@@ -20,10 +20,6 @@
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
 
-#![forbid(unsafe_code)]
-#![doc = include_str!("../README.md")]
-extern crate core;
-
 pub mod access;
 pub use self::access::*;
 

@@ -54,8 +54,9 @@ impl Namespace for ExecuteNamespace {
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let buf = BufferEmitter(Rc::default(), Rc::default());
         let handler = Handler::new(Box::new(buf.clone()));
-
-        create_session_if_not_set_then(|_| run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string()))
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string() + &buf.1.take().to_string())
+        })
     }
 }
 
@@ -69,6 +70,7 @@ struct ExecuteOutput {
     pub inlined_ast: String,
     pub dce_ast: String,
     pub bytecode: String,
+    pub warnings: String,
     pub results: BTreeMap<String, Vec<BTreeMap<String, String>>>,
 }
 
@@ -175,6 +177,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         inlined_ast,
         dce_ast,
         bytecode: hash_content(&bytecode),
+        warnings: err_buf.1.take().to_string(),
         results,
     };
     Ok(serde_yaml::to_value(final_output).expect("serialization failed"))

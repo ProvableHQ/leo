@@ -40,10 +40,6 @@ version = "1.6.3"
 path = "../span"
 version = "1.6.3"
 
-[dependencies.leo-core]
-path = "../core"
-version = "1.6.3"
-
 [dependencies.itertools]
 version = "0.10.5"
 

@@ -35,10 +35,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
-            Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
@@ -152,35 +150,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
-    fn visit_decrement(&mut self, input: &'a DecrementStatement) {
-        if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
-        }
-
-        // Assert that the first operand is a mapping.
-        let mapping_type = self.visit_identifier(&input.mapping, &None);
-        self.assert_mapping_type(&mapping_type, input.span());
-
-        match mapping_type {
-            None => self.emit_err(TypeCheckerError::could_not_determine_type(input.mapping, input.mapping.span)),
-            Some(Type::Mapping(mapping_type)) => {
-                // Check that the index matches the key type of the mapping.
-                let index_type = self.visit_expression(&input.index, &None);
-                self.assert_type(&index_type, &mapping_type.key, input.index.span());
-
-                // Check that the amount matches the value type of the mapping.
-                let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
-
-                // Check that the amount type is incrementable.
-                self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());
-            }
-            Some(mapping_type) => {
-                self.emit_err(TypeCheckerError::expected_one_type_of("mapping", mapping_type, input.mapping.span))
-            }
-        }
-    }
-
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         let declaration =
             if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
@@ -251,41 +220,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
         // Expression statements can only be function calls.
-        if !matches!(input.expression, Expression::Call(_)) {
+        if !matches!(
+            input.expression,
+            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_))
+        ) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.
-            // TODO: Should the output type be restricted to unit types?
             self.visit_expression(&input.expression, &None);
-        }
-    }
-
-    fn visit_increment(&mut self, input: &'a IncrementStatement) {
-        if !self.is_finalize {
-            self.emit_err(TypeCheckerError::increment_or_decrement_outside_finalize(input.span()));
-        }
-
-        // Assert that the first operand is a mapping.
-        let mapping_type = self.visit_identifier(&input.mapping, &None);
-        self.assert_mapping_type(&mapping_type, input.span());
-
-        match mapping_type {
-            None => self.emit_err(TypeCheckerError::could_not_determine_type(input.mapping, input.mapping.span)),
-            Some(Type::Mapping(mapping_type)) => {
-                // Check that the index matches the key type of the mapping.
-                let index_type = self.visit_expression(&input.index, &None);
-                self.assert_type(&index_type, &mapping_type.key, input.index.span());
-
-                // Check that the amount matches the value type of the mapping.
-                let amount_type = self.visit_expression(&input.amount, &None);
-                self.assert_type(&amount_type, &mapping_type.value, input.amount.span());
-
-                // Check that the amount type is incrementable.
-                self.assert_field_group_scalar_int_type(&amount_type, input.amount.span());
-            }
-            Some(mapping_type) => {
-                self.emit_err(TypeCheckerError::expected_one_type_of("mapping", mapping_type, input.mapping.span))
-            }
         }
     }
 
