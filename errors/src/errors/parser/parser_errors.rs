@@ -202,8 +202,8 @@ create_messages!(
     /// Parsed an unknown method call on the type of an expression.
     @formatted
     invalid_method_call {
-        args: (expr: impl Display, func: impl Display),
-        msg: format!("The type of `{expr}` has no associated function `{func}`"),
+        args: (expr: impl Display, func: impl Display, num_args: impl Display),
+        msg: format!("The type of `{expr}` has no associated function `{func}` that takes {num_args} argument(s)."),
         help: None,
     }
 
