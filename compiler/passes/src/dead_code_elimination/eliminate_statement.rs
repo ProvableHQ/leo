@@ -151,6 +151,8 @@ impl StatementReconstructor for DeadCodeEliminator {
     /// Reconstructs expression statements by eliminating any dead code.
     fn reconstruct_expression_statement(&mut self, input: ExpressionStatement) -> (Statement, Self::AdditionalOutput) {
         match input.expression {
+            // If the expression is a function call, then we reconstruct it.
+            // Note that we preserve function calls because they may have side effects.
             Expression::Call(expression) => {
                 // Set the `is_necessary` flag.
                 self.is_necessary = true;
@@ -166,7 +168,17 @@ impl StatementReconstructor for DeadCodeEliminator {
 
                 (statement, Default::default())
             }
-            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+            // Any other expression is dead code, since they do not have side effects.
+            Expression::Access(_)
+            | Expression::Binary(_)
+            | Expression::Struct(_)
+            | Expression::Err(_)
+            | Expression::Identifier(_)
+            | Expression::Literal(_)
+            | Expression::Ternary(_)
+            | Expression::Tuple(_)
+            | Expression::Unary(_)
+            | Expression::Unit(_) => (Statement::dummy(Default::default()), Default::default()),
         }
     }
 
