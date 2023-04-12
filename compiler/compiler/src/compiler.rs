@@ -108,7 +108,7 @@ impl<'a> Compiler<'a> {
             .into());
         }
 
-        if self.compiler_options.initial_ast {
+        if self.compiler_options.output.initial_ast {
             self.write_ast_to_json("initial_ast.json")?;
         }
 
@@ -133,9 +133,9 @@ impl<'a> Compiler<'a> {
 
             // Parse and serialize it.
             let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
-            if self.compiler_options.initial_ast {
+            if self.compiler_options.output.initial_ast {
                 // Write the input AST snapshot post parsing.
-                if self.compiler_options.spans_enabled {
+                if self.compiler_options.output.spans_enabled {
                     input_ast.to_json_file(
                         self.output_directory.clone(),
                         &format!("{}.initial_input_ast.json", self.program_name),
@@ -169,7 +169,7 @@ impl<'a> Compiler<'a> {
         let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
         self.ast = ast;
 
-        if self.compiler_options.unrolled_ast {
+        if self.compiler_options.output.unrolled_ast {
             self.write_ast_to_json("unrolled_ast.json")?;
         }
 
@@ -181,7 +181,7 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
         self.ast = ast;
 
-        if self.compiler_options.ssa_ast {
+        if self.compiler_options.output.ssa_ast {
             self.write_ast_to_json("ssa_ast.json")?;
         }
 
@@ -193,7 +193,7 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
         self.ast = ast;
 
-        if self.compiler_options.flattened_ast {
+        if self.compiler_options.output.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
         }
 
@@ -205,7 +205,7 @@ impl<'a> Compiler<'a> {
         let (ast, assigner) = FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
         self.ast = ast;
 
-        if self.compiler_options.inlined_ast {
+        if self.compiler_options.output.inlined_ast {
             self.write_ast_to_json("inlined_ast.json")?;
         }
 
@@ -214,11 +214,11 @@ impl<'a> Compiler<'a> {
 
     /// Runs the dead code elimination pass.
     pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
-        if self.compiler_options.dce_enabled {
+        if self.compiler_options.build.dce_enabled {
             self.ast = DeadCodeEliminator::do_pass(std::mem::take(&mut self.ast))?;
         }
 
-        if self.compiler_options.dce_ast {
+        if self.compiler_options.output.dce_ast {
             self.write_ast_to_json("dce_ast.json")?;
         }
 
@@ -269,7 +269,7 @@ impl<'a> Compiler<'a> {
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
-        if self.compiler_options.spans_enabled {
+        if self.compiler_options.output.spans_enabled {
             self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
         } else {
             self.ast.to_json_file_without_keys(
