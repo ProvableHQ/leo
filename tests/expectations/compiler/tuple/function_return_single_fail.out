@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370029]: A tuple expression must have at least two elements.\n    --> compiler-test:9:16\n     |\n   9 |         return (b,);\n     |                ^^^^"

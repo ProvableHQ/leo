@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown variable `z`\n    --> compiler-test:5:23\n     |\n   5 |     \tlet b: u8 = 1u8**z;\n     |                       ^\n"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372007]: struct `bar` shadowed by\n    --> compiler-test:5:5\n     |\n   5 |     mapping bar: u8 => u8;\n     |     ^^^^^^^^^^^^^^^^^^^^^^\nError [EAST0372007]: struct `bar` shadowed by\n    --> compiler-test:7:5\n     |\n   7 |     transition bar(a: u8) -> u8 {\n   8 |         return a + 1u8;\n   9 |     }\n     |     ^\n"

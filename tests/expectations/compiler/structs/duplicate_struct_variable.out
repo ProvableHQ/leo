@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372015]: Struct Bar defined with more than one member with the same name.\n    --> compiler-test:4:5\n     |\n   4 |     struct Bar {\n   5 |         x: u32,\n   6 |         x: u32,\n   7 |     }\n     |     ^\n"

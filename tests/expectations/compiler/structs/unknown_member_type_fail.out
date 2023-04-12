@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372017]: The type `Bar` is not found in the current scope.\n    --> compiler-test:6:9\n     |\n   6 |         bar: Bar,\n     |         ^^^^^^^^\n"

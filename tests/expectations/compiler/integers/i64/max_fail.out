@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 9223372036854775808 is not a valid `i64`\n    --> compiler-test:5:22\n     |\n   5 |         let a: i64 = 9223372036854775808i64;\n     |                      ^^^^^^^^^^^^^^^^^^^^^^\n"

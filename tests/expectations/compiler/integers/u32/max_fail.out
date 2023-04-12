@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 4294967296 is not a valid `u32`\n    --> compiler-test:5:22\n     |\n   5 |         let a: u32 = 4294967296u32;\n     |                      ^^^^^^^^^^^^^\n"

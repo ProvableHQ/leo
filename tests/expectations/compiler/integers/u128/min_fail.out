@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value -1 is not a valid `u128`\n    --> compiler-test:5:23\n     |\n   5 |         let a: u128 = -1u128;\n     |                       ^^^^^^\n"

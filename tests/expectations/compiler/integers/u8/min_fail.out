@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value -1 is not a valid `u8`\n    --> compiler-test:5:21\n     |\n   5 |         let a: u8 = -1u8;\n     |                     ^^^^\n"

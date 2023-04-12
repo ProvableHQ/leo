@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372007]: Expected one type from `field, i8, i16, i32, i64, i128, u8, u16, u32, u64, u128`, but got `scalar`\n    --> compiler-test:5:16\n     |\n   5 |         return a / b; // division not supported for scalar types.\n     |                ^^^^^\n"

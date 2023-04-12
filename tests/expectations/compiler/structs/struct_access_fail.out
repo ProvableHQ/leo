@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `i8` but type `u32` was found\n    --> compiler-test:11:21\n     |\n  11 |         let x: i8 = s.f1;\n     |                     ^^^^\n"

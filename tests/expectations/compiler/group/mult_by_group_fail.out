@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372007]: Expected one type from `scalar`, but got `group`\n    --> compiler-test:5:30\n     |\n   5 |         return (_, _)group * a;\n     |                              ^\n"

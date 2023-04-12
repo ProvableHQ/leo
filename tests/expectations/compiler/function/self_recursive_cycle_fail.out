@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372047]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:20\n     |\n   8 |             return fib(n - 1u8) + fib(n - 2u8);\n     |                    ^^^^^^^^^^^^\nError [ETYC0372047]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:35\n     |\n   8 |             return fib(n - 1u8) + fib(n - 2u8);\n     |                                   ^^^^^^^^^^^^\nError [ETYC0372048]: Cannot call a local transition function from a transition function.\n    --> compiler-test:16:20\n     |\n  16 |             return foo(n - 1u8) + foo(n - 2u8);\n     |                    ^^^^^^^^^^^^\nError [ETYC0372048]: Cannot call a local transition function from a transition function.\n    --> compiler-test:16:35\n     |\n  16 |             return foo(n - 1u8) + foo(n - 2u8);\n     |                                   ^^^^^^^^^^^^\nError [ETYC0372066]: Cyclic dependency between functions: `fib` --> `fib`\n"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:6:12\n     |\n   6 |       \tlet x: bool = true;\n     |            ^\n"

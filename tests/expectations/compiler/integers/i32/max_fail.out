@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 2147483648 is not a valid `i32`\n    --> compiler-test:5:22\n     |\n   5 |         let a: i32 = 2147483648i32;\n     |                      ^^^^^^^^^^^^^\n"

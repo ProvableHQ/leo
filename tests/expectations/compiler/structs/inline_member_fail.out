@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370017]: Could not parse the implicit value: 1.\n    --> compiler-test:9:21\n     |\n   9 |         let y: u8 = 1;\n     |                     ^"

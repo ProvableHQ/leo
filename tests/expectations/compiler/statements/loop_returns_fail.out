@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372026]: Loop body contains a return statement or always returns.\n    --> compiler-test:6:9\n     |\n   6 |         for i: u32 in 0u32..9u32 {\n   7 |             return false;\n   8 |         }\n     |         ^\n     |\n     = Remove the code in the loop body that always returns.\nError [ETYC0372026]: Loop body contains a return statement or always returns.\n    --> compiler-test:10:9\n     |\n  10 |         for i: u32 in 0u32..9u32 {\n  11 |             if (x == 0u32) {\n  12 |                 return false;\n  13 |             } else {\n  14 |                 return true;\n  15 |             }\n  16 |         }\n     |         ^\n     |\n     = Remove the code in the loop body that always returns.\n"

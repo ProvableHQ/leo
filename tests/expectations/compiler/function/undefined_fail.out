@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown function `my_function`\n    --> compiler-test:5:9\n     |\n   5 |         my_function();\n     |         ^^^^^^^^^^^\n"

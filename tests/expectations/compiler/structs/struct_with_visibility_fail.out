@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372067]: A struct cannot have a member with mode `constant`, `private`, or `public`.\n    --> compiler-test:5:18\n     |\n   5 |         constant a: u8,\n     |                  ^^^^^\nError [ETYC0372067]: A struct cannot have a member with mode `constant`, `private`, or `public`.\n    --> compiler-test:6:17\n     |\n   6 |         private bar: bool,\n     |                 ^^^^^^^^^\nError [ETYC0372067]: A struct cannot have a member with mode `constant`, `private`, or `public`.\n    --> compiler-test:7:16\n     |\n   7 |         public bax: u16,\n     |                ^^^^^^^^\n"

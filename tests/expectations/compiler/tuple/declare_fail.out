@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `boolean` but type `u64` was found\n    --> compiler-test:5:35\n     |\n   5 |         let t: (bool, bool) = (a, 1u64); // We should be declaring to a boolean, not a u64.\n     |                                   ^^^^\n"

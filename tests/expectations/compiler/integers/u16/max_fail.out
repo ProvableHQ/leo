@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 65536 is not a valid `u16`\n    --> compiler-test:5:22\n     |\n   5 |         let a: u16 = 65536u16;\n     |                      ^^^^^^^^\n"

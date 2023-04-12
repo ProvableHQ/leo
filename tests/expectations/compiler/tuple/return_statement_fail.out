@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `u64` but type `boolean` was found\n    --> compiler-test:7:24\n     |\n   7 |         return (t.0, t.1); // The second element should be type u64 as in the function declaration.\n     |                        ^\n"

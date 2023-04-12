@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372029]: A struct or record cannot contain another record.\n    --> compiler-test:6:9\n     |\n   6 |         token: Token,\n     |         ^^^^^\n     |\n     = Remove the record `Token` from `Foo`.\nError [ETYC0372065]: Cyclic dependency between structs: `Foo` --> `Token` --> `Foo`\n"

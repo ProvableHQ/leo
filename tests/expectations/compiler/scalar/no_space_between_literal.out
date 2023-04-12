@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected : -- found '='\n    --> compiler-test:5:13\n     |\n   5 |       let f = 1 scalar;\n     |             ^"

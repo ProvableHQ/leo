@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 340282366920938463463374607431768211456 is not a valid `u128`\n    --> compiler-test:5:23\n     |\n   5 |         let a: u128 = 340282366920938463463374607431768211456u128;\n     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

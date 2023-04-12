@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found 'let'\n    --> compiler-test:8:19\n     |\n   8 |     function main(let x: u8, y: bool) -> bool {\n     |                   ^^^"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown variable `x`\n    --> compiler-test:5:18\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                  ^\nError [ETYC0372005]: Unknown variable `z`\n    --> compiler-test:5:20\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                    ^\nError [ETYC0372004]: Could not determine the type of `x`\n    --> compiler-test:5:18\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                  ^\nError [ETYC0372004]: Could not determine the type of `z`\n    --> compiler-test:5:20\n     |\n   5 |     \tlet b: u8 = x*z;\n     |                    ^\n"

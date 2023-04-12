@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372047]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:6:19\n     |\n   6 |            return adder(a, b);\n     |                   ^^^^^^^^^^^\nError [ETYC0372047]: Only `inline` can be called from a `function` or `inline`.\n    --> compiler-test:8:20\n     |\n   8 |             return subber(a, b);\n     |                    ^^^^^^^^^^^^\n"

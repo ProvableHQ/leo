@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370032]: `console` statements are not yet supported.\n    --> compiler-test:5:9\n     |\n   5 |         console.log(\"{}\", 1u8);\n     |         ^^^^^^^\n     |\n     = Consider using `assert`, `assert_eq`, or `assert_neq` instead."

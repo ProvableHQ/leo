@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372008]: The value 170141183460469231731687303715884105728 is not a valid `i128`\n    --> compiler-test:5:23\n     |\n   5 |         let a: i128 = 170141183460469231731687303715884105728i128;\n     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
