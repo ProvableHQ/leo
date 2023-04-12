@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Failed to parse string. Remaining invalid string is: \"closure main:\n    output true as boolean;\n\""
