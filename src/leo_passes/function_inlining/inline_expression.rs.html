@@ -157,7 +157,7 @@
                 </span><span class="kw">let </span>parameter_to_argument = callee
                     .input
                     .iter()
-                    .map(|input| input.identifier())
+                    .map(|input| input.identifier().name)
                     .zip_eq(input.arguments.into_iter())
                     .collect::&lt;IndexMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
@@ -173,7 +173,7 @@
                 </span><span class="self">self</span>.assignment_renamer.clear();
 
                 <span class="comment">// Replace each input variable with the appropriate parameter.
-                </span><span class="kw">let </span>replace = |identifier: <span class="kw-2">&amp;</span>Identifier| <span class="kw">match </span>parameter_to_argument.get(identifier) {
+                </span><span class="kw">let </span>replace = |identifier: <span class="kw-2">&amp;</span>Identifier| <span class="kw">match </span>parameter_to_argument.get(<span class="kw-2">&amp;</span>identifier.name) {
                     <span class="prelude-val">Some</span>(expression) =&gt; expression.clone(),
                     <span class="prelude-val">None </span>=&gt; Expression::Identifier(<span class="kw-2">*</span>identifier),
                 };
