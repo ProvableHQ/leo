@@ -169,16 +169,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 (statement, Default::default())
             }
             // Any other expression is dead code, since they do not have side effects.
-            Expression::Access(_)
-            | Expression::Binary(_)
-            | Expression::Struct(_)
-            | Expression::Err(_)
-            | Expression::Identifier(_)
-            | Expression::Literal(_)
-            | Expression::Ternary(_)
-            | Expression::Tuple(_)
-            | Expression::Unary(_)
-            | Expression::Unit(_) => (Statement::dummy(Default::default()), Default::default()),
+            _ => (Statement::dummy(Default::default()), Default::default()),
         }
     }
 
