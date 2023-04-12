@@ -18,7 +18,10 @@ mod utilities;
 use utilities::{
     buffer_if_err,
     compile_and_process,
+    get_build_options,
     get_cwd_option,
+    hash_asts,
+    hash_content,
     parse_program,
     setup_build_directory,
     Aleo,
@@ -26,19 +29,17 @@ use utilities::{
     Network,
 };
 
-use crate::utilities::{get_build_options, hash_asts, hash_content};
-
+use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
+    test::TestExpectationMode,
     Test,
 };
 
 use snarkvm::{console, prelude::*};
 
-use leo_compiler::{CompilerOptions, OutputOptions};
-use leo_test_framework::test::TestExpectationMode;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;

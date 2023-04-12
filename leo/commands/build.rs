@@ -21,9 +21,15 @@ use crate::{
 
 use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-use leo_errors::{CliError, CompilerError, PackageError, Result};
-use leo_package::{inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_span::symbol::with_session_globals;
+use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
+use leo_package::{
+    build::BuildDirectory,
+    imports::ImportsDirectory,
+    inputs::InputFile,
+    outputs::OutputsDirectory,
+    source::SourceDirectory,
+};
+use leo_span::{symbol::with_session_globals, Symbol};
 
 use aleo::commands::Build as AleoBuild;
 
@@ -35,9 +41,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use leo_errors::emitter::Handler;
-use leo_package::{build::BuildDirectory, imports::ImportsDirectory};
-use leo_span::Symbol;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which

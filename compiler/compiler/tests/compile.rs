@@ -15,8 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{compile_and_process, parse_program, BufferEmitter};
+use utilities::{
+    compile_and_process,
+    get_build_options,
+    get_cwd_option,
+    hash_asts,
+    hash_content,
+    parse_program,
+    setup_build_directory,
+    BufferEmitter,
+};
 
+use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
@@ -26,8 +36,6 @@ use leo_test_framework::{
 
 use snarkvm::prelude::*;
 
-use crate::utilities::{get_build_options, get_cwd_option, hash_asts, hash_content, setup_build_directory};
-use leo_compiler::{CompilerOptions, OutputOptions};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{fs, path::Path, rc::Rc};
