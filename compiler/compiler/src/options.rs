@@ -49,5 +49,3 @@ pub struct OutputOptions {
     /// If enabled writes the AST after dead code elimination.
     pub dce_ast: bool,
 }
-
-

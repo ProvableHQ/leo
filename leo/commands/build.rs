@@ -71,9 +71,7 @@ pub struct BuildOptions {
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         let mut out_options = Self {
-            build: leo_compiler::BuildOptions {
-                dce_enabled: options.enable_dce,
-            },
+            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
             output: OutputOptions {
                 spans_enabled: options.enable_spans,
                 initial_input_ast: options.enable_initial_input_ast_snapshot,
@@ -83,7 +81,7 @@ impl From<BuildOptions> for CompilerOptions {
                 flattened_ast: options.enable_flattened_ast_snapshot,
                 inlined_ast: options.enable_inlined_ast_snapshot,
                 dce_ast: options.enable_dce_ast_snapshot,
-            }
+            },
         };
         if options.enable_all_ast_snapshots {
             out_options.output.initial_input_ast = true;

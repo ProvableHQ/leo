@@ -86,9 +86,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
         PathBuf::from(String::new()),
         PathBuf::from(String::new()),
         Some(CompilerOptions {
-            build: BuildOptions {
-                dce_enabled: true,
-            },
+            build: BuildOptions { dce_enabled: true },
             output: OutputOptions {
                 spans_enabled: false,
                 initial_ast: false,
@@ -98,7 +96,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
                 flattened_ast: false,
                 inlined_ast: false,
                 dce_ast: false,
-            }
+            },
         }),
     )
 }

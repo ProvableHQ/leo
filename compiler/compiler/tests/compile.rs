@@ -27,10 +27,10 @@ use leo_test_framework::{
 use snarkvm::prelude::*;
 
 use crate::utilities::{get_build_options, get_cwd_option, hash_asts, hash_content, setup_build_directory};
+use leo_compiler::{CompilerOptions, OutputOptions};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{fs, path::Path, rc::Rc};
-use leo_compiler::{CompilerOptions, OutputOptions};
 
 struct CompileNamespace;
 
@@ -79,11 +79,12 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
                 flattened_ast: true,
                 inlined_ast: true,
                 dce_ast: true,
-            }
+            },
         };
 
         // Parse the program.
-        let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        let mut parsed =
+            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
 
         // Compile the program to bytecode.
         let program_name = format!("{}.{}", parsed.program_name, parsed.network);

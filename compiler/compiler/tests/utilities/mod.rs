@@ -26,6 +26,7 @@ use leo_test_framework::Test;
 
 use snarkvm::prelude::*;
 
+use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -34,7 +35,6 @@ use std::{
     path::{Path, PathBuf},
     rc::Rc,
 };
-use leo_test_framework::test::TestConfig;
 
 pub type Network = Testnet3;
 #[allow(unused)]
@@ -67,15 +67,28 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
     match test_config.extra.get("configs") {
         Some(configs) => {
             // Parse the sequence of compiler configurations.
-            configs.as_sequence().unwrap().iter().map(|config| {
-                let config = config.as_mapping().unwrap();
-                assert_eq!(config.len(), 1, "A compiler configuration must have exactly one key-value pair. e.g. `dce_enabled`: true");
-                BuildOptions {
-                    dce_enabled: config.get(&serde_yaml::Value::String("dce_enabled".to_string())).expect("Expected key `dce_enabled`").as_bool().unwrap(),
-                }
-            }).collect()
+            configs
+                .as_sequence()
+                .unwrap()
+                .iter()
+                .map(|config| {
+                    let config = config.as_mapping().expect("Expected the compiler configuration to be a mapping.");
+                    assert_eq!(
+                        config.len(),
+                        1,
+                        "A compiler configuration must have exactly one key-value pair. e.g. `dce_enabled`: true"
+                    );
+                    BuildOptions {
+                        dce_enabled: config
+                            .get(&serde_yaml::Value::String("dce_enabled".to_string()))
+                            .expect("Expected key `dce_enabled`")
+                            .as_bool()
+                            .expect("Expected value to be a boolean."),
+                    }
+                })
+                .collect()
         }
-        None => vec![ BuildOptions { dce_enabled: true } ],
+        None => vec![BuildOptions { dce_enabled: true }],
     }
 }
 
@@ -102,18 +115,15 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))
 }
 
-pub fn new_compiler(handler: &Handler, main_file_path: PathBuf, compiler_options: Option<CompilerOptions>) -> Compiler<'_> {
+pub fn new_compiler(
+    handler: &Handler,
+    main_file_path: PathBuf,
+    compiler_options: Option<CompilerOptions>,
+) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(
-        String::from("test"),
-        String::from("aleo"),
-        handler,
-        main_file_path,
-        output_dir,
-        compiler_options
-    )
+    Compiler::new(String::from("test"), String::from("aleo"), handler, main_file_path, output_dir, compiler_options)
 }
 
 pub fn parse_program<'a>(

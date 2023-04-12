@@ -37,12 +37,12 @@ use leo_test_framework::{
 
 use snarkvm::{console, prelude::*};
 
+use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_test_framework::test::TestExpectationMode;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
-use leo_compiler::{CompilerOptions, OutputOptions};
 
 // TODO: Evaluate namespace.
 struct ExecuteNamespace;
@@ -99,19 +99,25 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 flattened_ast: true,
                 inlined_ast: true,
                 dce_ast: true,
-            }
+            },
         };
 
         // Parse the program.
-        let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        let mut parsed =
+            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
 
         // Compile the program to bytecode.
         let program_name = format!("{}.{}", parsed.program_name, parsed.network);
         let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
         // Extract the cases from the test config.
-        let all_cases =
-            test.config.extra.get("cases").expect("An `Execute` config must have a `cases` field.").as_mapping().unwrap();
+        let all_cases = test
+            .config
+            .extra
+            .get("cases")
+            .expect("An `Execute` config must have a `cases` field.")
+            .as_mapping()
+            .unwrap();
 
         // Initialize a map for the expected results.
         let mut results = BTreeMap::new();
