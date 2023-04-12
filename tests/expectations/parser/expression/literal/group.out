@@ -427,16 +427,10 @@ outputs:
           - span:
               lo: 0
               hi: 6
-  - Unary:
-      receiver:
-        Literal:
-          Group:
-            Single:
-              - "1"
-              - span:
-                  lo: 1
-                  hi: 7
-      op: Negate
-      span:
-        lo: 0
-        hi: 7
+  - Literal:
+      Group:
+        Single:
+          - "-1"
+          - span:
+              lo: 0
+              hi: 7

@@ -248,24 +248,52 @@ impl ParserContext<'_> {
             ops.push((operation, self.prev_token.span));
         }
 
-        // This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.
-        let inner_is_integer = matches!(self.token.token, Token::Integer(..));
-
         let mut inner = self.parse_postfix_expression()?;
-        for (op, op_span) in ops.into_iter().rev() {
-            inner = match inner {
-                // If the unary operation is a negate, and the inner expression is a signed integer literal,
-                // then produce a negative integer literal.
-                // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn't.
-                Expression::Literal(Literal::Integer(integer_type, string, span))
-                    if op == UnaryOperation::Negate && inner_is_integer =>
-                {
-                    Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span))
+
+        // If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
+        if let Some((UnaryOperation::Negate, _)) = ops.last() {
+            match inner {
+                Expression::Literal(Literal::Integer(integer_type, string, span)) => {
+                    // Remove the negation from the operations.
+                    // Note that this unwrap is safe because there is at least one operation in `ops`.
+                    let (_, op_span) = ops.pop().unwrap();
+                    // Construct a negative integer literal.
+                    inner = Expression::Literal(Literal::Integer(integer_type, format!("-{string}"), op_span + span));
                 }
-                // Otherwise, produce a unary expression.
-                _ => Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) }),
-            };
+                Expression::Literal(Literal::Field(string, span)) => {
+                    // Remove the negation from the operations.
+                    // Note that
+                    let (_, op_span) = ops.pop().unwrap();
+                    // Construct a negative field literal.
+                    inner = Expression::Literal(Literal::Field(format!("-{string}"), op_span + span));
+                }
+                Expression::Literal(Literal::Group(group_literal)) => {
+                    // Remove the negation from the operations.
+                    let (_, op_span) = ops.pop().unwrap();
+                    // Construct a negative group literal.
+                    // Note that we only handle the case where the group literal is a single integral value.
+                    inner = Expression::Literal(Literal::Group(Box::new(match *group_literal {
+                        GroupLiteral::Single(string, span) => {
+                            GroupLiteral::Single(format!("-{string}"), op_span + span)
+                        }
+                        GroupLiteral::Tuple(tuple) => GroupLiteral::Tuple(tuple),
+                    })));
+                }
+                Expression::Literal(Literal::Scalar(string, span)) => {
+                    // Remove the negation from the operations.
+                    let (_, op_span) = ops.pop().unwrap();
+                    // Construct a negative scalar literal.
+                    inner = Expression::Literal(Literal::Scalar(format!("-{string}"), op_span + span));
+                }
+                _ => (), // Do nothing.
+            }
         }
+
+        // Apply the operations in reverse order, constructing a unary expression.
+        for (op, op_span) in ops.into_iter().rev() {
+            inner = Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) });
+        }
+
         Ok(inner)
     }
 

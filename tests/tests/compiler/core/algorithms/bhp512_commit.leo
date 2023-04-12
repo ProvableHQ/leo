@@ -46,6 +46,7 @@ program test.aleo {
         let o: field = BHP512::commit(scalar_value, 1scalar);
         // let p: field = BHP512::commit(string_value, 1scalar);
         let q: field = BHP512::commit(Foo { a: 1u128, b: 2u128 }, 1scalar);
+        let r: field = BHP512::commit(Foo { a: 1u128, b: 2u128 }, -1scalar);
     
         return a + o;
     }}
