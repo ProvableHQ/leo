@@ -58,7 +58,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                 let parameter_to_argument = callee
                     .input
                     .iter()
-                    .map(|input| input.identifier())
+                    .map(|input| input.identifier().name)
                     .zip_eq(input.arguments.into_iter())
                     .collect::<IndexMap<_, _>>();
 
@@ -74,7 +74,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                 self.assignment_renamer.clear();
 
                 // Replace each input variable with the appropriate parameter.
-                let replace = |identifier: &Identifier| match parameter_to_argument.get(identifier) {
+                let replace = |identifier: &Identifier| match parameter_to_argument.get(&identifier.name) {
                     Some(expression) => expression.clone(),
                     None => Expression::Identifier(*identifier),
                 };
