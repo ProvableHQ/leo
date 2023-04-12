@@ -596,6 +596,34 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -846,24 +874,52 @@
             ops.push((operation, <span class="self">self</span>.prev_token.span));
         }
 
-        <span class="comment">// This is needed to ensure that only the token sequence `-`, `Token::Integer(..)` is parsed as a negative integer literal.
-        </span><span class="kw">let </span>inner_is_integer = <span class="macro">matches!</span>(<span class="self">self</span>.token.token, Token::Integer(..));
-
         <span class="kw">let </span><span class="kw-2">mut </span>inner = <span class="self">self</span>.parse_postfix_expression()<span class="question-mark">?</span>;
-        <span class="kw">for </span>(op, op_span) <span class="kw">in </span>ops.into_iter().rev() {
-            inner = <span class="kw">match </span>inner {
-                <span class="comment">// If the unary operation is a negate, and the inner expression is a signed integer literal,
-                // then produce a negative integer literal.
-                // This helps handle a special case where -128i8, treated as a unary expression, overflows, but -128i8, treated as an integer literal doesn&#39;t.
-                </span>Expression::Literal(Literal::Integer(integer_type, string, span))
-                    <span class="kw">if </span>op == UnaryOperation::Negate &amp;&amp; inner_is_integer =&gt;
-                {
-                    Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span))
+
+        <span class="comment">// If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((UnaryOperation::Negate, <span class="kw">_</span>)) = ops.last() {
+            <span class="kw">match </span>inner {
+                Expression::Literal(Literal::Integer(integer_type, string, span)) =&gt; {
+                    <span class="comment">// Remove the negation from the operations.
+                    // Note that this unwrap is safe because there is at least one operation in `ops`.
+                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
+                    <span class="comment">// Construct a negative integer literal.
+                    </span>inner = Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
                 }
-                <span class="comment">// Otherwise, produce a unary expression.
-                </span><span class="kw">_ </span>=&gt; Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) }),
-            };
+                Expression::Literal(Literal::Field(string, span)) =&gt; {
+                    <span class="comment">// Remove the negation from the operations.
+                    // Note that
+                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
+                    <span class="comment">// Construct a negative field literal.
+                    </span>inner = Expression::Literal(Literal::Field(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
+                }
+                Expression::Literal(Literal::Group(group_literal)) =&gt; {
+                    <span class="comment">// Remove the negation from the operations.
+                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
+                    <span class="comment">// Construct a negative group literal.
+                    // Note that we only handle the case where the group literal is a single integral value.
+                    </span>inner = Expression::Literal(Literal::Group(Box::new(<span class="kw">match </span><span class="kw-2">*</span>group_literal {
+                        GroupLiteral::Single(string, span) =&gt; {
+                            GroupLiteral::Single(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span)
+                        }
+                        GroupLiteral::Tuple(tuple) =&gt; GroupLiteral::Tuple(tuple),
+                    })));
+                }
+                Expression::Literal(Literal::Scalar(string, span)) =&gt; {
+                    <span class="comment">// Remove the negation from the operations.
+                    </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
+                    <span class="comment">// Construct a negative scalar literal.
+                    </span>inner = Expression::Literal(Literal::Scalar(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
+                }
+                <span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing.
+            </span>}
         }
+
+        <span class="comment">// Apply the operations in reverse order, constructing a unary expression.
+        </span><span class="kw">for </span>(op, op_span) <span class="kw">in </span>ops.into_iter().rev() {
+            inner = Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) });
+        }
+
         <span class="prelude-val">Ok</span>(inner)
     }
 
