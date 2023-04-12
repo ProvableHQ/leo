@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 configs:
     - dce_enabled : true
-    #- dce_enabled : false
+    - dce_enabled : false
 */
 
 program test.aleo {
