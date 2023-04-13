@@ -20,10 +20,16 @@ use crate::{
 };
 
 use leo_ast::Struct;
-use leo_compiler::{Compiler, CompilerOptions, InputAst};
-use leo_errors::{CliError, CompilerError, PackageError, Result};
-use leo_package::{inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_span::symbol::with_session_globals;
+use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
+use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
+use leo_package::{
+    build::BuildDirectory,
+    imports::ImportsDirectory,
+    inputs::InputFile,
+    outputs::OutputsDirectory,
+    source::SourceDirectory,
+};
+use leo_span::{symbol::with_session_globals, Symbol};
 
 use aleo::commands::Build as AleoBuild;
 
@@ -35,9 +41,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use leo_errors::emitter::Handler;
-use leo_package::{build::BuildDirectory, imports::ImportsDirectory};
-use leo_span::Symbol;
 use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
@@ -71,24 +74,26 @@ pub struct BuildOptions {
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         let mut out_options = Self {
-            spans_enabled: options.enable_spans,
-            dce_enabled: options.enable_dce,
-            initial_input_ast: options.enable_initial_input_ast_snapshot,
-            initial_ast: options.enable_initial_ast_snapshot,
-            unrolled_ast: options.enable_unrolled_ast_snapshot,
-            ssa_ast: options.enable_ssa_ast_snapshot,
-            flattened_ast: options.enable_flattened_ast_snapshot,
-            inlined_ast: options.enable_inlined_ast_snapshot,
-            dce_ast: options.enable_dce_ast_snapshot,
+            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
+            output: OutputOptions {
+                spans_enabled: options.enable_spans,
+                initial_input_ast: options.enable_initial_input_ast_snapshot,
+                initial_ast: options.enable_initial_ast_snapshot,
+                unrolled_ast: options.enable_unrolled_ast_snapshot,
+                ssa_ast: options.enable_ssa_ast_snapshot,
+                flattened_ast: options.enable_flattened_ast_snapshot,
+                inlined_ast: options.enable_inlined_ast_snapshot,
+                dce_ast: options.enable_dce_ast_snapshot,
+            },
         };
         if options.enable_all_ast_snapshots {
-            out_options.initial_input_ast = true;
-            out_options.initial_ast = true;
-            out_options.unrolled_ast = true;
-            out_options.ssa_ast = true;
-            out_options.flattened_ast = true;
-            out_options.inlined_ast = true;
-            out_options.dce_ast = true;
+            out_options.output.initial_input_ast = true;
+            out_options.output.initial_ast = true;
+            out_options.output.unrolled_ast = true;
+            out_options.output.ssa_ast = true;
+            out_options.output.flattened_ast = true;
+            out_options.output.inlined_ast = true;
+            out_options.output.dce_ast = true;
         }
 
         out_options

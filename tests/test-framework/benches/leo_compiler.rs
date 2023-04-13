@@ -16,7 +16,7 @@
 
 //! This file contains tools for benchmarking the Leo compiler and its stages.
 
-use leo_compiler::{Compiler, CompilerOptions};
+use leo_compiler::{BuildOptions, Compiler, CompilerOptions, OutputOptions};
 use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
 use leo_test_framework::get_benches;
@@ -86,15 +86,17 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
         PathBuf::from(String::new()),
         PathBuf::from(String::new()),
         Some(CompilerOptions {
-            spans_enabled: false,
-            dce_enabled: true,
-            initial_ast: false,
-            initial_input_ast: false,
-            unrolled_ast: false,
-            ssa_ast: false,
-            flattened_ast: false,
-            inlined_ast: false,
-            dce_ast: false,
+            build: BuildOptions { dce_enabled: true },
+            output: OutputOptions {
+                spans_enabled: false,
+                initial_ast: false,
+                initial_input_ast: false,
+                unrolled_ast: false,
+                ssa_ast: false,
+                flattened_ast: false,
+                inlined_ast: false,
+                dce_ast: false,
+            },
         }),
     )
 }

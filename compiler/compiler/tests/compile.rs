@@ -15,8 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 mod utilities;
-use utilities::{compile_and_process, parse_program, BufferEmitter};
+use utilities::{
+    compile_and_process,
+    get_build_options,
+    get_cwd_option,
+    hash_asts,
+    hash_content,
+    parse_program,
+    setup_build_directory,
+    BufferEmitter,
+};
 
+use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
@@ -26,7 +36,6 @@ use leo_test_framework::{
 
 use snarkvm::prelude::*;
 
-use crate::utilities::{get_cwd_option, hash_asts, hash_content, setup_build_directory};
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{fs, path::Path, rc::Rc};
@@ -61,37 +70,61 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
     // Check for CWD option:
     let cwd = get_cwd_option(&test);
 
-    // Parse the program.
-    let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd))?;
+    // Extract the compiler build configurations from the config file.
+    let build_options = get_build_options(&test.config);
 
-    // Compile the program to bytecode.
-    let program_name = format!("{}.{}", parsed.program_name, parsed.network);
-    let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+    let mut outputs = Vec::with_capacity(build_options.len());
 
-    // Set up the build directory.
-    let package = setup_build_directory(&program_name, &bytecode, handler)?;
+    for build in build_options {
+        let compiler_options = CompilerOptions {
+            build,
+            output: OutputOptions {
+                spans_enabled: false,
+                initial_input_ast: true,
+                initial_ast: true,
+                unrolled_ast: true,
+                ssa_ast: true,
+                flattened_ast: true,
+                inlined_ast: true,
+                dce_ast: true,
+            },
+        };
 
-    // Get the program process and check all instructions.
-    handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+        // Parse the program.
+        let mut parsed =
+            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
 
-    // Hash the ast files.
-    let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
+        // Compile the program to bytecode.
+        let program_name = format!("{}.{}", parsed.program_name, parsed.network);
+        let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-    // Clean up the output directory.
-    if fs::read_dir("/tmp/output").is_ok() {
-        fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+        // Set up the build directory.
+        let package = setup_build_directory(&program_name, &bytecode, handler)?;
+
+        // Get the program process and check all instructions.
+        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+
+        // Hash the ast files.
+        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
+
+        // Clean up the output directory.
+        if fs::read_dir("/tmp/output").is_ok() {
+            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+        }
+
+        let final_output = CompileOutput {
+            initial_ast,
+            unrolled_ast,
+            ssa_ast,
+            flattened_ast,
+            inlined_ast,
+            dce_ast,
+            bytecode: hash_content(&bytecode),
+        };
+
+        outputs.push(final_output);
     }
-
-    let final_output = CompileOutput {
-        initial_ast,
-        unrolled_ast,
-        ssa_ast,
-        flattened_ast,
-        inlined_ast,
-        dce_ast,
-        bytecode: hash_content(&bytecode),
-    };
-    Ok(serde_yaml::to_value(final_output).expect("serialization failed"))
+    Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

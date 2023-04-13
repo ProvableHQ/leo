@@ -18,10 +18,22 @@
 
 #[derive(Clone, Default)]
 pub struct CompilerOptions {
-    /// Whether spans are enabled in the output ASTs.
-    pub spans_enabled: bool,
+    /// Build options.
+    pub build: BuildOptions,
+    /// Output options.
+    pub output: OutputOptions,
+}
+
+#[derive(Clone, Default)]
+pub struct BuildOptions {
     /// Whether to enable dead code elimination.
     pub dce_enabled: bool,
+}
+
+#[derive(Clone, Default)]
+pub struct OutputOptions {
+    /// Whether spans are enabled in the output ASTs.
+    pub spans_enabled: bool,
     /// If enabled writes the AST after parsing.
     pub initial_ast: bool,
     /// If enabled writes the input AST after parsing.

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_compiler::{Compiler, CompilerOptions};
+use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
     LeoError,
@@ -26,6 +26,7 @@ use leo_test_framework::Test;
 
 use snarkvm::prelude::*;
 
+use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -62,6 +63,35 @@ pub fn get_cwd_option(test: &Test) -> Option<PathBuf> {
     })
 }
 
+pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
+    match test_config.extra.get("configs") {
+        Some(configs) => {
+            // Parse the sequence of compiler configurations.
+            configs
+                .as_sequence()
+                .unwrap()
+                .iter()
+                .map(|config| {
+                    let config = config.as_mapping().expect("Expected the compiler configuration to be a mapping.");
+                    assert_eq!(
+                        config.len(),
+                        1,
+                        "A compiler configuration must have exactly one key-value pair. e.g. `dce_enabled`: true"
+                    );
+                    BuildOptions {
+                        dce_enabled: config
+                            .get(&serde_yaml::Value::String("dce_enabled".to_string()))
+                            .expect("Expected key `dce_enabled`")
+                            .as_bool()
+                            .expect("Expected value to be a boolean."),
+                    }
+                })
+                .collect()
+        }
+        None => vec![BuildOptions { dce_enabled: true }],
+    }
+}
+
 pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Handler) -> Result<Package<Network>, ()> {
     // Initialize a temporary directory.
     let directory = temp_dir();
@@ -85,36 +115,24 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))
 }
 
-pub fn new_compiler(handler: &Handler, main_file_path: PathBuf) -> Compiler<'_> {
+pub fn new_compiler(
+    handler: &Handler,
+    main_file_path: PathBuf,
+    compiler_options: Option<CompilerOptions>,
+) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(
-        String::from("test"),
-        String::from("aleo"),
-        handler,
-        main_file_path,
-        output_dir,
-        Some(CompilerOptions {
-            spans_enabled: false,
-            dce_enabled: true,
-            initial_input_ast: true,
-            initial_ast: true,
-            unrolled_ast: true,
-            ssa_ast: true,
-            flattened_ast: true,
-            inlined_ast: true,
-            dce_ast: true,
-        }),
-    )
+    Compiler::new(String::from("test"), String::from("aleo"), handler, main_file_path, output_dir, compiler_options)
 }
 
 pub fn parse_program<'a>(
     handler: &'a Handler,
     program_string: &str,
     cwd: Option<PathBuf>,
+    compiler_options: Option<CompilerOptions>,
 ) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()));
+    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()), compiler_options);
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 

@@ -2,20 +2,20 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - initial_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    unrolled_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    ssa_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    flattened_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    inlined_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    dce_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-    bytecode: e82dc85d86570ddd2ae71f8a7f9e150e43061697a6d0152a0c354fecd6bfd15d
-    results:
-      main:
-        - input: "[0u32, 1u32]"
-          output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
-        - input: "[1u32, 1u32]"
-          output: "[]"
-        - input: "[1u32, 2u32]"
-          output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
-        - input: "[2u32, 2u32]"
-          output: "[]"
+  - - initial_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      unrolled_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      ssa_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      flattened_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      inlined_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      dce_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
+      bytecode: e82dc85d86570ddd2ae71f8a7f9e150e43061697a6d0152a0c354fecd6bfd15d
+      results:
+        main:
+          - input: "[0u32, 1u32]"
+            output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
+          - input: "[1u32, 1u32]"
+            output: "[]"
+          - input: "[1u32, 2u32]"
+            output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
+          - input: "[2u32, 2u32]"
+            output: "[]"
