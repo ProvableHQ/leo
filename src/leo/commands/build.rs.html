@@ -272,6 +272,11 @@
 <a href="#272" id="272">272</a>
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -294,10 +299,16 @@
 };
 
 <span class="kw">use </span>leo_ast::Struct;
-<span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, InputAst};
-<span class="kw">use </span>leo_errors::{CliError, CompilerError, PackageError, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>leo_package::{inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
-<span class="kw">use </span>leo_span::symbol::with_session_globals;
+<span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
+<span class="kw">use </span>leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_package::{
+    build::BuildDirectory,
+    imports::ImportsDirectory,
+    inputs::InputFile,
+    outputs::OutputsDirectory,
+    source::SourceDirectory,
+};
+<span class="kw">use </span>leo_span::{symbol::with_session_globals, Symbol};
 
 <span class="kw">use </span>aleo::commands::Build <span class="kw">as </span>AleoBuild;
 
@@ -309,9 +320,6 @@
     path::{Path, PathBuf},
 };
 
-<span class="kw">use </span>leo_errors::emitter::Handler;
-<span class="kw">use </span>leo_package::{build::BuildDirectory, imports::ImportsDirectory};
-<span class="kw">use </span>leo_span::Symbol;
 <span class="kw">use </span>tracing::span::Span;
 
 <span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which
@@ -345,24 +353,26 @@
 <span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>CompilerOptions {
     <span class="kw">fn </span>from(options: BuildOptions) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>out_options = <span class="self">Self </span>{
-            spans_enabled: options.enable_spans,
-            dce_enabled: options.enable_dce,
-            initial_input_ast: options.enable_initial_input_ast_snapshot,
-            initial_ast: options.enable_initial_ast_snapshot,
-            unrolled_ast: options.enable_unrolled_ast_snapshot,
-            ssa_ast: options.enable_ssa_ast_snapshot,
-            flattened_ast: options.enable_flattened_ast_snapshot,
-            inlined_ast: options.enable_inlined_ast_snapshot,
-            dce_ast: options.enable_dce_ast_snapshot,
+            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
+            output: OutputOptions {
+                spans_enabled: options.enable_spans,
+                initial_input_ast: options.enable_initial_input_ast_snapshot,
+                initial_ast: options.enable_initial_ast_snapshot,
+                unrolled_ast: options.enable_unrolled_ast_snapshot,
+                ssa_ast: options.enable_ssa_ast_snapshot,
+                flattened_ast: options.enable_flattened_ast_snapshot,
+                inlined_ast: options.enable_inlined_ast_snapshot,
+                dce_ast: options.enable_dce_ast_snapshot,
+            },
         };
         <span class="kw">if </span>options.enable_all_ast_snapshots {
-            out_options.initial_input_ast = <span class="bool-val">true</span>;
-            out_options.initial_ast = <span class="bool-val">true</span>;
-            out_options.unrolled_ast = <span class="bool-val">true</span>;
-            out_options.ssa_ast = <span class="bool-val">true</span>;
-            out_options.flattened_ast = <span class="bool-val">true</span>;
-            out_options.inlined_ast = <span class="bool-val">true</span>;
-            out_options.dce_ast = <span class="bool-val">true</span>;
+            out_options.output.initial_input_ast = <span class="bool-val">true</span>;
+            out_options.output.initial_ast = <span class="bool-val">true</span>;
+            out_options.output.unrolled_ast = <span class="bool-val">true</span>;
+            out_options.output.ssa_ast = <span class="bool-val">true</span>;
+            out_options.output.flattened_ast = <span class="bool-val">true</span>;
+            out_options.output.inlined_ast = <span class="bool-val">true</span>;
+            out_options.output.dce_ast = <span class="bool-val">true</span>;
         }
 
         out_options

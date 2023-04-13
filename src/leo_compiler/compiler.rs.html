@@ -391,7 +391,7 @@
             .into());
         }
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.initial_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.initial_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;initial_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -416,9 +416,9 @@
 
             <span class="comment">// Parse and serialize it.
             </span><span class="kw">let </span>input_ast = leo_parser::parse_input(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)<span class="question-mark">?</span>;
-            <span class="kw">if </span><span class="self">self</span>.compiler_options.initial_ast {
+            <span class="kw">if </span><span class="self">self</span>.compiler_options.output.initial_ast {
                 <span class="comment">// Write the input AST snapshot post parsing.
-                </span><span class="kw">if </span><span class="self">self</span>.compiler_options.spans_enabled {
+                </span><span class="kw">if </span><span class="self">self</span>.compiler_options.output.spans_enabled {
                     input_ast.to_json_file(
                         <span class="self">self</span>.output_directory.clone(),
                         <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.initial_input_ast.json&quot;</span>, <span class="self">self</span>.program_name),
@@ -452,7 +452,7 @@
         <span class="kw">let </span>(ast, symbol_table) = Unroller::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="self">self</span>.handler, symbol_table))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.unrolled_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;unrolled_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -464,7 +464,7 @@
         <span class="kw">let </span>(ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.ssa_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.ssa_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;ssa_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -476,7 +476,7 @@
         <span class="kw">let </span>(ast, assigner) = Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, assigner))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.flattened_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.flattened_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;flattened_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -488,7 +488,7 @@
         <span class="kw">let </span>(ast, assigner) = FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), call_graph, assigner))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.inlined_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.inlined_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;inlined_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -497,11 +497,11 @@
 
     <span class="doccomment">/// Runs the dead code elimination pass.
     </span><span class="kw">pub fn </span>dead_code_elimination_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.dce_enabled {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.build.dce_enabled {
             <span class="self">self</span>.ast = DeadCodeEliminator::do_pass(std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast))<span class="question-mark">?</span>;
         }
 
-        <span class="kw">if </span><span class="self">self</span>.compiler_options.dce_ast {
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.dce_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;dce_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
@@ -552,7 +552,7 @@
     <span class="doccomment">/// Writes the AST to a JSON file.
     </span><span class="kw">fn </span>write_ast_to_json(<span class="kw-2">&amp;</span><span class="self">self</span>, file_suffix: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// Remove `Span`s if they are not enabled.
-        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.spans_enabled {
+        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.output.spans_enabled {
             <span class="self">self</span>.ast.to_json_file(<span class="self">self</span>.output_directory.clone(), <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}.{file_suffix}&quot;</span>, <span class="self">self</span>.program_name))<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="self">self</span>.ast.to_json_file_without_keys(

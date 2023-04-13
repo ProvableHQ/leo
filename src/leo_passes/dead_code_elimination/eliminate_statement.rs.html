@@ -212,6 +212,10 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -365,7 +369,9 @@
     <span class="doccomment">/// Reconstructs expression statements by eliminating any dead code.
     </span><span class="kw">fn </span>reconstruct_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">match </span>input.expression {
-            Expression::Call(expression) =&gt; {
+            <span class="comment">// If the expression is a function call, then we reconstruct it.
+            // Note that we preserve function calls because they may have side effects.
+            </span>Expression::Call(expression) =&gt; {
                 <span class="comment">// Set the `is_necessary` flag.
                 </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
 
@@ -380,7 +386,9 @@
 
                 (statement, Default::default())
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that expression statements are always function calls.&quot;</span>),
+            <span class="comment">// Any other expression is dead code, since they do not have side effects.
+            // Note: array access expressions will have side effects and need to be handled here.
+            </span><span class="kw">_ </span>=&gt; (Statement::dummy(Default::default()), Default::default()),
         }
     }
 

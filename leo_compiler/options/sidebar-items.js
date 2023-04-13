@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["CompilerOptions",""]]};
+window.SIDEBAR_ITEMS = {"struct":[["BuildOptions",""],["CompilerOptions",""],["OutputOptions",""]]};
