@@ -169,6 +169,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 (statement, Default::default())
             }
             // Any other expression is dead code, since they do not have side effects.
+            // Note: array access expressions will have side effects and need to be handled here.
             _ => (Statement::dummy(Default::default()), Default::default()),
         }
     }
