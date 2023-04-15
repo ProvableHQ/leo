@@ -148,7 +148,7 @@ symbols! {
     BHP1024,
     commit,
     get,
-    get_or,
+    get_or_init,
     hash,
     Mapping,
     Pedersen64,
