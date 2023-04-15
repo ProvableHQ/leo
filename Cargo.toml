@@ -33,12 +33,12 @@ members = [
 [workspace.dependencies.snarkvm]
 # version = "0.9.15"
 git = "https://github.com/AleoHQ/snarkVM"
-rev = "74ff5ed"
+rev = "b6ea332"
 
 [workspace.dependencies.snarkvm-console]
 # version = "0.9.15"
 git = "https://github.com/AleoHQ/snarkVM"
-rev = "74ff5ed"
+rev = "b6ea332"
 
 [lib]
 path = "leo/lib.rs"
@@ -130,7 +130,7 @@ version = "1.0"
 
 [dependencies.snarkvm]
 workspace = true
-features = [ "aleo-cli", "circuit", "console", "parallel" ]
+features = [ "circuit", "console" ]
 
 [dependencies.sys-info]
 version = "0.9.1"

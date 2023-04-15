@@ -29,6 +29,7 @@ use snarkvm::prelude::*;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
+    fmt,
     fs,
     fs::File,
     path::{Path, PathBuf},

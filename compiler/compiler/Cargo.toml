@@ -52,7 +52,7 @@ default-features = false
 [dev-dependencies.snarkvm]
 workspace = true
 default-features = false
-features = [ "aleo-cli", "circuit", "console", "parallel" ]
+features = [ "circuit", "console", ]
 
 [dev-dependencies.regex]
 version = "1.7.3"

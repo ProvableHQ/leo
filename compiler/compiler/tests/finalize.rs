@@ -124,7 +124,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
     process.add_program(&program).unwrap();
 
     // Initialize an rng.
-    let rng = &mut rand::thread_rng();
+    let rng = &mut TestRng::default();
 
     // Initialize a private key.
     let private_key = PrivateKey::<Network>::new(rng).unwrap();
