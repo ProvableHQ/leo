@@ -320,7 +320,7 @@ impl ParserContext<'_> {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
                 (1, Some(CoreFunction::MappingGet))
-                | (2, Some(CoreFunction::MappingGetOr))
+                | (2, Some(CoreFunction::MappingGetOrInit))
                 | (2, Some(CoreFunction::MappingSet)) => {
                     // Found an instance of `<mapping>.get`, `<mapping>.get_or`, or `<mapping>.set`
                     Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {

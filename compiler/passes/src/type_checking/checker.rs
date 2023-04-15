@@ -448,7 +448,7 @@ impl<'a> TypeChecker<'a> {
                     None
                 }
             }
-            CoreFunction::MappingGetOr => {
+            CoreFunction::MappingGetOrInit => {
                 // Check that the operation is invoked in a `finalize` block.
                 if !self.is_finalize {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(

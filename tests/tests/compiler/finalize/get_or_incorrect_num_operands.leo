@@ -18,11 +18,11 @@ program test.aleo {
     }
     
     finalize decrease_self(addr: address, amount: u128) {
-        Mapping::get_or(tokens, addr, amount, 1u128);
-        tokens.get_or(addr, amount, 1u128);
-        Mapping::get_or(amounts, 1u8);
-        amounts.get_or(1u8);
-        Mapping::get_or(amounts);
-        amounts.get_or();
+        Mapping::get_or_init(tokens, addr, amount, 1u128);
+        tokens.get_or_init(addr, amount, 1u128);
+        Mapping::get_or_init(amounts, 1u8);
+        amounts.get_or_init(1u8);
+        Mapping::get_or_init(amounts);
+        amounts.get_or_init();
     }
 }
