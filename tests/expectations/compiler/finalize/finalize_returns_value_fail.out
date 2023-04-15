@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372071]: A finalize block cannot return a value.\n    --> compiler-test:8:5\n     |\n   8 |     finalize public_adder(a: u8, b: u8) -> public u8 {\n   9 |         return a + b;\n  10 |     }\n     |     ^\n"
