@@ -11,7 +11,7 @@ program test.aleo {
     mapping balances: address => u128;
     
     struct Token {
-        owner: address;
+        Owner: address;
         balance: u128;
     }
     

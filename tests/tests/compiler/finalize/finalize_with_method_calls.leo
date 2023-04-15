@@ -16,14 +16,6 @@ program test.aleo {
         account.set(receiver, current_amount + amount);
     }
 
-    transition public_adder(public a: u8, public b: u8) {
-        return then finalize(a, b);
-    }
-
-    finalize public_adder(a: u8, b: u8) -> public u8 {
-        return a + b;
-    }
-
     transition finalize_no_params() {
         return then finalize();
     }
