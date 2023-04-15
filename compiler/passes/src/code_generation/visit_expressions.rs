@@ -318,8 +318,7 @@ impl<'a> CodeGenerator<'a> {
                     (destination_register, instruction)
                 }
                 sym::set => {
-                    // TODO: Fix when `put` is renamed to `set` in snarkVM
-                    let mut instruction = "    put".to_string();
+                    let mut instruction = "    set".to_string();
                     // Write the value, mapping name, and the key.
                     writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
                         .expect("failed to write to string");
