@@ -584,7 +584,14 @@ create_messages!(
     @formatted
     finalize_cannot_output_record {
         args: (),
-        msg: format!("A finalize block cannot output a record."),
+        msg: format!("A finalize block cannot return a record."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_return_value {
+        args: (),
+        msg: format!("A finalize block cannot return a value."),
         help: None,
     }
 );
