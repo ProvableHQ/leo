@@ -77,11 +77,11 @@ enum Commands {
     },
     // #[structopt(subcommand)]
     // Node(Node),
-    #[structopt(about = "Deploy a program")]
-    Deploy {
-        #[structopt(flatten)]
-        command: Deploy,
-    },
+    // #[structopt(about = "Deploy a program")]
+    // Deploy {
+    //     #[structopt(flatten)]
+    //     command: Deploy,
+    // },
 }
 
 fn set_panic_hook() {
@@ -138,7 +138,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         // Commands::Node(command) => command.try_execute(context),
-        Commands::Deploy { command } => command.try_execute(context),
+        // Commands::Deploy { command } => command.try_execute(context),
     }
 }
 
