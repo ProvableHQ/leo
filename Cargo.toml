@@ -52,11 +52,6 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
-[dependencies.aleo]
-# version = "=0.3.6"
-git = "https://github.com/AleoHQ/aleo"
-rev = "d311d4e"
-
 [dependencies.leo-ast]
 path = "./compiler/ast"
 version = "1.6.3"
