@@ -129,7 +129,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         let package = setup_build_directory(&program_name, &bytecode, handler)?;
 
         // Initialize an rng.
-        let rng = &mut rand::thread_rng();
+        let rng = &mut TestRng::default();
 
         // Run each test case for each function.
         for (function_name, function_cases) in all_cases {

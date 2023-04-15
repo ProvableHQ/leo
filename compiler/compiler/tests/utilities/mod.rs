@@ -30,6 +30,7 @@ use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
+    fmt,
     fs,
     fs::File,
     path::{Path, PathBuf},
