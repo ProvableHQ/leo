@@ -25,7 +25,7 @@ use leo_errors::{CliError, CompilerError, PackageError, Result};
 use leo_package::{inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::symbol::with_session_globals;
 
-use aleo::commands::Build as AleoBuild;
+use snarkvm::cli::Build as AleoBuild;
 
 use clap::StructOpt;
 use indexmap::IndexMap;

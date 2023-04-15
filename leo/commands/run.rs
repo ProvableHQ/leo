@@ -22,7 +22,7 @@ use crate::{
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
-use aleo::commands::Run as AleoRun;
+use snarkvm::cli::Run as AleoRun;
 
 use clap::StructOpt;
 use tracing::span::Span;
