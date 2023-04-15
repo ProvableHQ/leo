@@ -351,7 +351,15 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             });
 
-            // Type check the function's return type.
+            // Check that the finalize block's return type is a unit type.
+            // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
+            // Note: This restriction may be lifted in the future.
+            // Note: This check is still compatible with the other checks below.
+            if finalize.output_type != Type::Unit {
+                self.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
+            }
+
+            // Type check the finalize block's return type.
             // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             finalize.output.iter().for_each(|output_type| {
                 // Check that the type of output is defined.
