@@ -16,19 +16,11 @@ program test.aleo {
         Mapping::set(account, receiver, current_amount + amount);
     }
 
-    transition public_adder(public a: u8, public b: u8) {
-        return then finalize(a, b);
-    }
-
-    finalize public_adder(a: u8, b: u8) -> public u8 {
-        return a + b;
-    }
-
-    transition finalize_no_params() {
+    transition finalize_no_params() -> () {
         return then finalize();
     }
 
-    finalize finalize_no_params() {
+    finalize finalize_no_params() -> () {
         let current_value: u8 = Mapping::get_or_init(values, 0u8, 0u8);
         Mapping::set(values, 0u8, current_value + 1u8);
         let current_amount: u64 = Mapping::get_or_init(account, self.caller, 0u64);
