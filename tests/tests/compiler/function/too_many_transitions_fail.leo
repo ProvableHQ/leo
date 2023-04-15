@@ -68,4 +68,68 @@ program test.aleo {
     transition sixteen() -> u8 {
         return 16u8 + 16u8;
     }
+
+    transition seventeen() -> u8 {
+        return 17u8 + 17u8;
+    }
+
+    transition eighteen() -> u8 {
+        return 18u8 + 18u8;
+    }
+
+    transition nineteen() -> u8 {
+        return 19u8 + 19u8;
+    }
+
+    transition twenty() -> u8 {
+        return 20u8 + 20u8;
+    }
+
+    transition twenty_one() -> u8 {
+        return 21u8 + 21u8;
+    }
+
+    transition twenty_two() -> u8 {
+        return 22u8 + 22u8;
+    }
+
+    transition twenty_three() -> u8 {
+        return 23u8 + 23u8;
+    }
+
+    transition twenty_four() -> u8 {
+        return 24u8 + 24u8;
+    }
+
+    transition twenty_five() -> u8 {
+        return 25u8 + 25u8;
+    }
+
+    transition twenty_six() -> u8 {
+        return 26u8 + 26u8;
+    }
+
+    transition twenty_seven() -> u8 {
+        return 27u8 + 27u8;
+    }
+
+    transition twenty_eight() -> u8 {
+        return 28u8 + 28u8;
+    }
+
+    transition twenty_nine() -> u8 {
+        return 29u8 + 29u8;
+    }
+
+    transition thirty() -> u8 {
+        return 30u8 + 30u8;
+    }
+
+    transition thirty_one() -> u8 {
+        return 31u8 + 31u8;
+    }
+
+    transition thirty_two() -> u8 {
+        return 32u8 + 32u8;
+    }
 }

@@ -18,8 +18,9 @@ use crate::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
-
 use leo_span::sym;
+
+use snarkvm_console::network::{Network, Testnet3};
 
 use std::collections::HashSet;
 
@@ -77,11 +78,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
         }
 
-        // TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
+        // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > 15 {
+        if transition_count > Testnet3::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                15,
+                31,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }

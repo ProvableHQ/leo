@@ -1326,6 +1326,7 @@ dependencies = [
  "leo-parser",
  "leo-span",
  "num-traits",
+ "snarkvm-console",
 ]
 
 [[package]]
