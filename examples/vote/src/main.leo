@@ -70,7 +70,7 @@ program vote.aleo {
     }
     // Create a new ticket on a proposal in the "tickets" mapping.
     finalize new_ticket(public pid: field) {
-        let current: u64 = Mapping::get_or(tickets, pid, 0u64);
+        let current: u64 = Mapping::get_or_init(tickets, pid, 0u64);
         Mapping::set(tickets, pid, current + 1u64);
     }
 
@@ -81,7 +81,7 @@ program vote.aleo {
     }
     finalize agree(public pid: field) {
         // Publicly increment the number of agree votes.
-        let current: u64 = Mapping::get_or(agree_votes, pid, 0u64);
+        let current: u64 = Mapping::get_or_init(agree_votes, pid, 0u64);
         Mapping::set(agree_votes, pid, current + 1u64);
     }
 
@@ -92,7 +92,7 @@ program vote.aleo {
     }
     finalize disagree(pid: field) {
         // Publicly increment the number of disagree votes.
-        let current: u64 = Mapping::get_or(disagree_votes, pid, 0u64);
+        let current: u64 = Mapping::get_or_init(disagree_votes, pid, 0u64);
         Mapping::set(disagree_votes, pid, current + 1u64);
     }
 }
