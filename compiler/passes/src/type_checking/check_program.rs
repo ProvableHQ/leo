@@ -119,7 +119,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     }
                 };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
         for Member { mode, identifier, type_, span } in input.members.iter() {
