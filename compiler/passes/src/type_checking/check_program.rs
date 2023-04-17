@@ -82,7 +82,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that the number of transitions does not exceed the maximum.
         if transition_count > Testnet3::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                31,
+                Testnet3::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
