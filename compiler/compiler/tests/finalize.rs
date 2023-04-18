@@ -17,7 +17,7 @@
 mod utilities;
 use utilities::{buffer_if_err, compile_and_process, get_cwd_option, parse_program, BufferEmitter, Network};
 
-use crate::utilities::{hash_asts, hash_content, Aleo, get_build_options};
+use crate::utilities::{get_build_options, hash_asts, hash_content, Aleo};
 
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
@@ -28,12 +28,12 @@ use leo_test_framework::{
 
 use snarkvm::{console, prelude::*};
 
+use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_test_framework::test::TestExpectationMode;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
-use leo_compiler::{CompilerOptions, OutputOptions};
 
 struct FinalizeNamespace;
 
@@ -96,7 +96,8 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         };
 
         // Parse the program.
-        let mut parsed = handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        let mut parsed =
+            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
 
         // Compile the program to bytecode.
         let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
@@ -105,8 +106,13 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         let program_id = program.id();
 
         // Extract the cases from the test config.
-        let all_cases =
-            test.config.extra.get("cases").expect("An `Finalize` config must have a `cases` field.").as_mapping().unwrap();
+        let all_cases = test
+            .config
+            .extra
+            .get("cases")
+            .expect("An `Finalize` config must have a `cases` field.")
+            .as_mapping()
+            .unwrap();
 
         // Extract the initial state from the test config.
         let initial_state = test
