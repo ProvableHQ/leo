@@ -31,10 +31,10 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.10.1"
+version = "0.10.2"
 
 [workspace.dependencies.snarkvm-console]
-version = "0.10.1"
+version = "0.10.2"
 
 [lib]
 path = "leo/lib.rs"
