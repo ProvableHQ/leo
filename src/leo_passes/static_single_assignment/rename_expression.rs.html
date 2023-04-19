@@ -373,8 +373,8 @@
                     AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
                         name: function.name,
-                        args: function
-                            .args
+                        arguments: function
+                            .arguments
                             .into_iter()
                             .map(|arg| {
                                 <span class="kw">let </span>(arg, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(arg);

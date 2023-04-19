@@ -125,22 +125,6 @@
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -172,17 +156,11 @@
 <span class="kw">pub mod </span>console;
 <span class="kw">pub use </span>console::<span class="kw-2">*</span>;
 
-<span class="kw">pub mod </span>decrement;
-<span class="kw">pub use </span>decrement::<span class="kw-2">*</span>;
-
 <span class="kw">pub mod </span>definition;
 <span class="kw">pub use </span>definition::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>expression;
 <span class="kw">pub use </span>expression::<span class="kw-2">*</span>;
-
-<span class="kw">pub mod </span>increment;
-<span class="kw">pub use </span>increment::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>iteration;
 <span class="kw">pub use </span>iteration::<span class="kw-2">*</span>;
@@ -210,14 +188,10 @@
     </span>Conditional(ConditionalStatement),
     <span class="doccomment">/// A console logging statement.
     </span>Console(ConsoleStatement),
-    <span class="doccomment">/// A decrement statement.
-    </span>Decrement(DecrementStatement),
     <span class="doccomment">/// A binding or set of bindings / variables to declare.
     </span>Definition(DefinitionStatement),
     <span class="doccomment">/// An expression statement
     </span>Expression(ExpressionStatement),
-    <span class="doccomment">/// An increment statement.
-    </span>Increment(IncrementStatement),
     <span class="doccomment">/// A `for` statement.
     </span>Iteration(Box&lt;IterationStatement&gt;),
     <span class="doccomment">/// A return statement `return expr;`.
@@ -239,10 +213,8 @@
             Statement::Block(x) =&gt; x.fmt(f),
             Statement::Conditional(x) =&gt; x.fmt(f),
             Statement::Console(x) =&gt; x.fmt(f),
-            Statement::Decrement(x) =&gt; x.fmt(f),
             Statement::Definition(x) =&gt; x.fmt(f),
             Statement::Expression(x) =&gt; x.fmt(f),
-            Statement::Increment(x) =&gt; x.fmt(f),
             Statement::Iteration(x) =&gt; x.fmt(f),
             Statement::Return(x) =&gt; x.fmt(f),
         }
@@ -258,10 +230,8 @@
             Block(n) =&gt; n.span(),
             Conditional(n) =&gt; n.span(),
             Console(n) =&gt; n.span(),
-            Decrement(n) =&gt; n.span(),
             Definition(n) =&gt; n.span(),
             Expression(n) =&gt; n.span(),
-            Increment(n) =&gt; n.span(),
             Iteration(n) =&gt; n.span(),
             Return(n) =&gt; n.span(),
         }
@@ -275,10 +245,8 @@
             Block(n) =&gt; n.set_span(span),
             Conditional(n) =&gt; n.set_span(span),
             Console(n) =&gt; n.set_span(span),
-            Decrement(n) =&gt; n.set_span(span),
             Definition(n) =&gt; n.set_span(span),
             Expression(n) =&gt; n.set_span(span),
-            Increment(n) =&gt; n.set_span(span),
             Iteration(n) =&gt; n.set_span(span),
             Return(n) =&gt; n.set_span(span),
         }

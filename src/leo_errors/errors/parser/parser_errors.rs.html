@@ -488,8 +488,8 @@
     <span class="doccomment">/// Parsed an unknown method call on the type of an expression.
     </span>@formatted
     invalid_method_call {
-        args: (expr: <span class="kw">impl </span>Display, func: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;The type of `{expr}` has no associated function `{func}`&quot;</span>),
+        args: (expr: <span class="kw">impl </span>Display, func: <span class="kw">impl </span>Display, num_args: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The type of `{expr}` has no associated function `{func}` that takes {num_args} argument(s).&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 

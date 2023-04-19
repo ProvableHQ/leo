@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["CoreFunction","A core instruction that maps directly to an AVM bytecode instruction."]]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["IncrementStatement","An increment statement `increment(foo, bar, 1);`."]]};

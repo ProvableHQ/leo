@@ -225,12 +225,12 @@
     },
     <span class="comment">// #[structopt(subcommand)]
     // Node(Node),
-    </span><span class="attr">#[structopt(about = <span class="string">&quot;Deploy a program&quot;</span>)]
-    </span>Deploy {
-        <span class="attr">#[structopt(flatten)]
-        </span>command: Deploy,
-    },
-}
+    // #[structopt(about = &quot;Deploy a program&quot;)]
+    // Deploy {
+    //     #[structopt(flatten)]
+    //     command: Deploy,
+    // },
+</span>}
 
 <span class="kw">fn </span>set_panic_hook() {
     <span class="attr">#[cfg(not(debug_assertions))]
@@ -286,8 +286,8 @@
         Commands::Clean { command } =&gt; command.try_execute(context),
         Commands::Run { command } =&gt; command.try_execute(context),
         <span class="comment">// Commands::Node(command) =&gt; command.try_execute(context),
-        </span>Commands::Deploy { command } =&gt; command.try_execute(context),
-    }
+        // Commands::Deploy { command } =&gt; command.try_execute(context),
+    </span>}
 }
 
 <span class="kw">fn </span>main() {

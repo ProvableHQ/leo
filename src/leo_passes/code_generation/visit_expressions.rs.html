@@ -359,6 +359,67 @@
 <a href="#359" id="359">359</a>
 <a href="#360" id="360">360</a>
 <a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -422,7 +483,10 @@
     }
 
     <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier) -&gt; (String, String) {
-        (<span class="self">self</span>.variable_mapping.get(<span class="kw-2">&amp;</span>input.name).unwrap().clone(), String::new())
+        (
+            <span class="self">self</span>.variable_mapping.get(<span class="kw-2">&amp;</span>input.name).or_else(|| <span class="self">self</span>.global_mapping.get(<span class="kw-2">&amp;</span>input.name)).unwrap().clone(),
+            String::new(),
+        )
     }
 
     <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrExpression) -&gt; (String, String) {
@@ -593,45 +657,103 @@
 
     <span class="comment">// Pedersen64::hash() -&gt; hash.ped64
     </span><span class="kw">fn </span>visit_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssociatedFunction) -&gt; (String, String) {
-        <span class="comment">// Write identifier as opcode. `Pedersen64` -&gt; `ped64`.
-        </span><span class="kw">let </span>symbol: <span class="kw-2">&amp;</span>str = <span class="kw">if let </span>Type::Identifier(identifier) = input.ty {
-            <span class="kw">match </span>identifier.name {
-                sym::BHP256 =&gt; <span class="string">&quot;bhp256&quot;</span>,
-                sym::BHP512 =&gt; <span class="string">&quot;bhp512&quot;</span>,
-                sym::BHP768 =&gt; <span class="string">&quot;bhp768&quot;</span>,
-                sym::BHP1024 =&gt; <span class="string">&quot;bhp1024&quot;</span>,
-                sym::Pedersen64 =&gt; <span class="string">&quot;ped64&quot;</span>,
-                sym::Pedersen128 =&gt; <span class="string">&quot;ped128&quot;</span>,
-                sym::Poseidon2 =&gt; <span class="string">&quot;psd2&quot;</span>,
-                sym::Poseidon4 =&gt; <span class="string">&quot;psd4&quot;</span>,
-                sym::Poseidon8 =&gt; <span class="string">&quot;psd8&quot;</span>,
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All core function calls should be known at this time.&quot;</span>),
-            }
-        } <span class="kw">else </span>{
-            <span class="macro">unreachable!</span>(<span class="string">&quot;All core function should be known at this time.&quot;</span>)
-        };
-
-        <span class="comment">// Construct associated function call.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>associated_function_call = <span class="macro">format!</span>(<span class="string">&quot;    {}.{symbol} &quot;</span>, input.name);
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="comment">// Visit each function argument and accumulate instructions from expressions.
-        </span><span class="kw">for </span>arg <span class="kw">in </span>input.args.iter() {
-            <span class="kw">let </span>(arg_string, arg_instructions) = <span class="self">self</span>.visit_expression(arg);
-            <span class="macro">write!</span>(associated_function_call, <span class="string">&quot;{arg_string} &quot;</span>).expect(<span class="string">&quot;failed to write associated function argument&quot;</span>);
-            instructions.push_str(<span class="kw-2">&amp;</span>arg_instructions);
-        }
+        </span><span class="kw">let </span>arguments = input
+            .arguments
+            .iter()
+            .map(|argument| {
+                <span class="kw">let </span>(arg_string, arg_instructions) = <span class="self">self</span>.visit_expression(argument);
+                instructions.push_str(<span class="kw-2">&amp;</span>arg_instructions);
+                arg_string
+            })
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-        <span class="comment">// Push destination register to associated function call instruction.
-        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-        <span class="macro">writeln!</span>(associated_function_call, <span class="string">&quot;into {destination_register};&quot;</span>)
-            .expect(<span class="string">&quot;failed to write dest register for associated function&quot;</span>);
-        instructions.push_str(<span class="kw-2">&amp;</span>associated_function_call);
+        <span class="comment">// Helper function to get a destination register for a function call.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>get_destination_register = || {
+            <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            <span class="self">self</span>.next_register += <span class="number">1</span>;
+            destination_register
+        };
 
-        <span class="comment">// Increment the register counter.
-        </span><span class="self">self</span>.next_register += <span class="number">1</span>;
+        <span class="comment">// Helper function to construct the instruction associated with a simple function call.
+        // This assumes that the function call has one output.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>construct_simple_function_call = |opcode: <span class="kw-2">&amp;</span>Identifier, variant: <span class="kw-2">&amp;</span>str, arguments: Vec&lt;String&gt;| {
+            <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode}.{variant}&quot;</span>);
+            <span class="kw">for </span>argument <span class="kw">in </span>arguments {
+                <span class="macro">write!</span>(instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            }
+            <span class="kw">let </span>destination_register = get_destination_register();
+            <span class="macro">write!</span>(instruction, <span class="string">&quot; into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            (destination_register, instruction)
+        };
 
-        (destination_register, instructions)
+        <span class="comment">// Construct the instruction.
+        </span><span class="kw">let </span>(destination, instruction) = <span class="kw">match </span>input.ty {
+            Type::Identifier(Identifier { name: sym::BHP256, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp256&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP512, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp512&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP768, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp768&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP1024, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp1024&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen64, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;ped64&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen128, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;ped128&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon2, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd2&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon4, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd4&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon8, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd8&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Mapping, .. }) =&gt; <span class="kw">match </span>input.name.name {
+                sym::get =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get&quot;</span>.to_string();
+                    <span class="kw">let </span>destination_register = get_destination_register();
+                    <span class="comment">// Write the mapping name and the key.
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {}[{}] into {destination_register};&quot;</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
+                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    (destination_register, instruction)
+                }
+                sym::get_or_init =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get.or_init&quot;</span>.to_string();
+                    <span class="kw">let </span>destination_register = get_destination_register();
+                    <span class="comment">// Write the mapping name, the key, and the default value.
+                    </span><span class="macro">writeln!</span>(
+                        instruction,
+                        <span class="string">&quot; {}[{}] {} into {destination_register};&quot;</span>,
+                        arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
+                    )
+                    .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    (destination_register, instruction)
+                }
+                sym::set =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    set&quot;</span>.to_string();
+                    <span class="comment">// Write the value, mapping name, and the key.
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {} into {}[{}];&quot;</span>, arguments[<span class="number">2</span>], arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
+                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    (String::new(), instruction)
+                }
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The only variants of Mapping are get, get_or, and set&quot;</span>),
+            },
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All core functions should be known at this phase of compilation&quot;</span>),
+        };
+        <span class="comment">// Add the instruction to the list of instructions.
+        </span>instructions.push_str(<span class="kw-2">&amp;</span>instruction);
+
+        (destination, instructions)
     }
 
     <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression) -&gt; (String, String) {

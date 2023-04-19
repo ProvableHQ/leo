@@ -141,12 +141,6 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -224,10 +218,8 @@
             Statement::Block(stmt) =&gt; <span class="self">self</span>.consume_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.consume_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.consume_console(stmt),
-            Statement::Decrement(stmt) =&gt; <span class="self">self</span>.consume_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.consume_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.consume_expression_statement(stmt),
-            Statement::Increment(stmt) =&gt; <span class="self">self</span>.consume_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.consume_iteration(<span class="kw-2">*</span>stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.consume_return(stmt),
         }
@@ -243,13 +235,9 @@
 
     <span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; <span class="self">Self</span>::Output;
 
-    <span class="kw">fn </span>consume_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; <span class="self">Self</span>::Output;
-
     <span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output;
-
-    <span class="kw">fn </span>consume_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IterationStatement) -&gt; <span class="self">Self</span>::Output;
 

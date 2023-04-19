@@ -376,14 +376,6 @@
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -499,7 +491,6 @@
     AssertNeq,
     Console,
     Constant,
-    Decrement,
     Else,
     Finalize,
     For,
@@ -507,7 +498,6 @@
     If,
     Import,
     In,
-    Increment,
     Inline,
     Let,
     Mapping,
@@ -539,7 +529,6 @@
     Token::Bool,
     Token::Console,
     Token::Constant,
-    Token::Decrement,
     Token::Else,
     Token::False,
     Token::Field,
@@ -555,7 +544,6 @@
     Token::If,
     Token::Import,
     Token::In,
-    Token::Increment,
     Token::Inline,
     Token::Let,
     Token::Mapping,
@@ -594,7 +582,6 @@
             Token::Bool =&gt; sym::bool,
             Token::Console =&gt; sym::console,
             Token::Constant =&gt; sym::constant,
-            Token::Decrement =&gt; sym::decrement,
             Token::Else =&gt; sym::Else,
             Token::False =&gt; sym::False,
             Token::Field =&gt; sym::field,
@@ -610,7 +597,6 @@
             Token::If =&gt; sym::If,
             Token::Import =&gt; sym::import,
             Token::In =&gt; sym::In,
-            Token::Increment =&gt; sym::increment,
             Token::Inline =&gt; sym::inline,
             Token::Let =&gt; sym::Let,
             Token::Leo =&gt; sym::leo,
@@ -726,7 +712,6 @@
             AssertNeq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_neq&quot;</span>),
             Console =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;console&quot;</span>),
             Constant =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constant&quot;</span>),
-            Decrement =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;decrement&quot;</span>),
             Else =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;else&quot;</span>),
             Finalize =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;finalize&quot;</span>),
             For =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;for&quot;</span>),
@@ -734,7 +719,6 @@
             If =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;if&quot;</span>),
             Import =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;import&quot;</span>),
             In =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;in&quot;</span>),
-            Increment =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;increment&quot;</span>),
             Inline =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;inline&quot;</span>),
             Let =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;let&quot;</span>),
             Mapping =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;mapping&quot;</span>),

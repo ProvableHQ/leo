@@ -332,26 +332,6 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
-<a href="#342" id="342">342</a>
-<a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -371,20 +351,20 @@
 </span><span class="kw">use crate</span>::{RenameTable, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
+    AssociatedFunction,
     Block,
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
     ExpressionStatement,
     Identifier,
-    IncrementStatement,
     IterationStatement,
     ReturnStatement,
     Statement,
@@ -554,25 +534,6 @@
         <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the program.&quot;</span>)
     }
 
-    <span class="doccomment">/// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.
-    </span><span class="kw">fn </span>consume_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DecrementStatement) -&gt; <span class="self">Self</span>::Output {
-        <span class="comment">// First consume the expression associated with the amount.
-        </span><span class="kw">let </span>(amount, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.amount);
-
-        <span class="comment">// Then, consume the expression associated with the index.
-        </span><span class="kw">let </span>(index, index_statements) = <span class="self">self</span>.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Decrement(DecrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
-            span: input.span,
-        }));
-
-        statements
-    }
-
     <span class="doccomment">/// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     </span><span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, definition: DefinitionStatement) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// First consume the right-hand-side of the definition.
@@ -621,53 +582,52 @@
     </span><span class="kw">fn </span>consume_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ExpressionStatement) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
 
-        <span class="comment">// Extract the call expression.
-        </span><span class="kw">let </span>call = <span class="kw">match </span>input.expression {
-            Expression::Call(call) =&gt; call,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that expression statements are always function calls.&quot;</span>),
+        <span class="comment">// Helper to process the arguments of a function call, accumulating any statements produced.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>process_arguments = |arguments: Vec&lt;Expression&gt;| {
+            arguments
+                .into_iter()
+                .map(|argument| {
+                    <span class="kw">let </span>(argument, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(argument);
+                    statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                    argument
+                })
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
         };
 
-        <span class="comment">// Process the arguments, accumulating any statements produced.
-        </span><span class="kw">let </span>arguments = call
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                <span class="kw">let </span>(argument, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(argument);
-                statements.append(<span class="kw-2">&amp;mut </span>stmts);
-                argument
-            })
-            .collect();
+        <span class="kw">match </span>input.expression {
+            Expression::Call(call) =&gt; {
+                <span class="comment">// Process the arguments.
+                </span><span class="kw">let </span>arguments = process_arguments(call.arguments);
+                <span class="comment">// Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
+                </span>statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Call(CallExpression {
+                        function: call.function,
+                        arguments,
+                        external: call.external,
+                        span: call.span,
+                    }),
+                    span: input.span,
+                }));
+            }
+            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) =&gt; {
+                <span class="comment">// Process the arguments.
+                </span><span class="kw">let </span>arguments = process_arguments(associated_function.arguments);
+                <span class="comment">// Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
+                </span>statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: associated_function.ty,
+                        name: associated_function.name,
+                        arguments,
+                        span: associated_function.span,
+                    })),
+                    span: input.span,
+                }))
+            }
 
-        <span class="comment">// Create and accumulate the new expression statement.
-        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
-        </span>statements.push(Statement::Expression(ExpressionStatement {
-            expression: Expression::Call(CallExpression {
-                function: call.function,
-                arguments,
-                external: call.external,
-                span: call.span,
-            }),
-            span: input.span,
-        }));
-
-        statements
-    }
-
-    <span class="doccomment">/// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
-    </span><span class="kw">fn </span>consume_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: IncrementStatement) -&gt; <span class="self">Self</span>::Output {
-        <span class="comment">// First consume the expression associated with the amount.
-        </span><span class="kw">let </span>(amount, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.amount);
-
-        <span class="comment">// Then, consume the expression associated with the index.
-        </span><span class="kw">let </span>(index, index_statements) = <span class="self">self</span>.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Increment(IncrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
-            span: input.span,
-        }));
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that expression statements are always function calls.&quot;</span>),
+        }
 
         statements
     }

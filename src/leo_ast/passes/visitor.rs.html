@@ -226,20 +226,6 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -286,7 +272,7 @@
     <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             AccessExpression::AssociatedFunction(function) =&gt; {
-                function.args.iter().for_each(|arg| {
+                function.arguments.iter().for_each(|arg| {
                     <span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span>Default::default());
                 });
             }
@@ -364,10 +350,8 @@
             Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
-            Statement::Decrement(stmt) =&gt; <span class="self">self</span>.visit_decrement(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
-            Statement::Increment(stmt) =&gt; <span class="self">self</span>.visit_increment(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
             Statement::Return(stmt) =&gt; <span class="self">self</span>.visit_return(stmt),
         }
@@ -415,24 +399,12 @@
         };
     }
 
-    <span class="kw">fn </span>visit_decrement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DecrementStatement) {
-        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount, <span class="kw-2">&amp;</span>Default::default());
-        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Default::default());
-        <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>input.mapping, <span class="kw-2">&amp;</span>Default::default());
-    }
-
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span>Default::default());
     }
 
     <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
-    }
-
-    <span class="kw">fn </span>visit_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IncrementStatement) {
-        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.amount, <span class="kw-2">&amp;</span>Default::default());
-        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.index, <span class="kw-2">&amp;</span>Default::default());
-        <span class="self">self</span>.visit_identifier(<span class="kw-2">&amp;</span>input.mapping, <span class="kw-2">&amp;</span>Default::default());
     }
 
     <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IterationStatement) {

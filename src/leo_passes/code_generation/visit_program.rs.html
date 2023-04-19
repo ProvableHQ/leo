@@ -279,6 +279,9 @@
 <a href="#279" id="279">279</a>
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -447,8 +450,8 @@
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
         </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span>function.variant {
-            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">&quot;function {}:\n&quot;</span>, function.identifier),
-            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">&quot;closure {}:\n&quot;</span>, function.identifier),
+            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">&quot;\nfunction {}:\n&quot;</span>, function.identifier),
+            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">&quot;\nclosure {}:\n&quot;</span>, function.identifier),
             Variant::Inline =&gt; <span class="kw">return </span>String::from(<span class="string">&quot;\n&quot;</span>),
         };
 
@@ -530,7 +533,7 @@
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) -&gt; String {
         <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">&quot;mapping {}:\n&quot;</span>, mapping.identifier);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">&quot;\nmapping {}:\n&quot;</span>, mapping.identifier);
 
         <span class="comment">// Helper to construct the string associated with the type.
         </span><span class="kw">let </span>create_type = |type_: <span class="kw-2">&amp;</span>Type| {
@@ -556,6 +559,9 @@
 
         <span class="comment">// Create the value string, e.g. `    value as address.public`.
         </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue right as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
+
+        <span class="comment">// Add the mapping to the variable mapping.
+        </span><span class="self">self</span>.global_mapping.insert(<span class="kw-2">&amp;</span>mapping.identifier.name, mapping.identifier.to_string());
 
         mapping_string
     }

@@ -690,29 +690,6 @@
 <a href="#690" id="690">690</a>
 <a href="#691" id="691">691</a>
 <a href="#692" id="692">692</a>
-<a href="#693" id="693">693</a>
-<a href="#694" id="694">694</a>
-<a href="#695" id="695">695</a>
-<a href="#696" id="696">696</a>
-<a href="#697" id="697">697</a>
-<a href="#698" id="698">698</a>
-<a href="#699" id="699">699</a>
-<a href="#700" id="700">700</a>
-<a href="#701" id="701">701</a>
-<a href="#702" id="702">702</a>
-<a href="#703" id="703">703</a>
-<a href="#704" id="704">704</a>
-<a href="#705" id="705">705</a>
-<a href="#706" id="706">706</a>
-<a href="#707" id="707">707</a>
-<a href="#708" id="708">708</a>
-<a href="#709" id="709">709</a>
-<a href="#710" id="710">710</a>
-<a href="#711" id="711">711</a>
-<a href="#712" id="712">712</a>
-<a href="#713" id="713">713</a>
-<a href="#714" id="714">714</a>
-<a href="#715" id="715">715</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -759,45 +736,22 @@
         <span class="kw">match </span>input {
             AccessExpression::AssociatedFunction(access) =&gt; {
                 <span class="comment">// Check core struct name and function.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.check_core_function_call(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
-                    <span class="comment">// Check num input arguments.
-                    </span><span class="kw">if </span>core_instruction.num_args() != access.args.len() {
-                        <span class="comment">// TODO: Better error messages.
-                        </span><span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            core_instruction.num_args(),
-                            access.args.len(),
-                            input.span(),
-                        ));
-                    }
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
+                    <span class="comment">// Get the types of the arguments.
+                    </span><span class="kw">let </span>argument_types = access
+                        .arguments
+                        .iter()
+                        .map(|arg| (<span class="self">self</span>.visit_expression(arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>), arg.span()))
+                        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
-                    <span class="comment">// Check first argument type.
-                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(first_arg) = access.args.get(<span class="number">0usize</span>) {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(first_arg_type) = <span class="self">self</span>.visit_expression(first_arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="kw">if </span>!core_instruction.first_arg_is_allowed_type(<span class="kw-2">&amp;</span>first_arg_type) {
-                                <span class="comment">// TODO: Better error messages.
-                                </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_type(
-                                    <span class="kw-2">&amp;</span>first_arg_type,
-                                    access.args.get(<span class="number">0</span>).unwrap().span(),
-                                ));
-                            }
-                        }
-                    }
+                    <span class="comment">// Check that the types of the arguments are valid.
+                    </span><span class="kw">let </span>return_type = <span class="self">self</span>.check_core_function_call(core_instruction, <span class="kw-2">&amp;</span>argument_types, input.span());
 
-                    <span class="comment">// Check second argument type.
-                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(second_arg) = access.args.get(<span class="number">1usize</span>) {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(second_arg_type) = <span class="self">self</span>.visit_expression(second_arg, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="kw">if </span>!core_instruction.second_arg_is_allowed_type(<span class="kw-2">&amp;</span>second_arg_type) {
-                                <span class="comment">// TODO: Better error messages.
-                                </span><span class="self">self</span>.emit_err(TypeCheckerError::invalid_type(
-                                    <span class="kw-2">&amp;</span>second_arg_type,
-                                    access.args.get(<span class="number">1</span>).unwrap().span(),
-                                ));
-                            }
-                        }
+                    <span class="comment">// Check return type if the expected type is known.
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
+                        <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>return_type, expected, input.span());
                     }
-
-                    <span class="comment">// Check return type.
-                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
+                    <span class="kw">return </span>return_type;
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }

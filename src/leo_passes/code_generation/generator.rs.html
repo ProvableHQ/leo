@@ -61,6 +61,9 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -101,6 +104,8 @@
     /// The first element of the tuple indicate whether the composite is a record or not.
     /// The second element of the tuple is a string modifier used for code generation.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) composite_mapping: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Symbol, (bool, String)&gt;,
+    <span class="doccomment">/// Mapping of global identifiers to their associated names.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) global_mapping: IndexMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Symbol, String&gt;,
     <span class="doccomment">/// Are we traversing a transition function?
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_transition_function: bool,
     <span class="doccomment">/// Are we traversing a finalize block?
@@ -119,6 +124,7 @@
             current_function: <span class="prelude-val">None</span>,
             variable_mapping: IndexMap::new(),
             composite_mapping: IndexMap::new(),
+            global_mapping: IndexMap::new(),
             is_transition_function: <span class="bool-val">false</span>,
             in_finalize: <span class="bool-val">false</span>,
         }
