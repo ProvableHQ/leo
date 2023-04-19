@@ -30,6 +30,7 @@ use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
+    fmt,
     fs,
     fs::File,
     path::{Path, PathBuf},
@@ -92,6 +93,7 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
     }
 }
 
+#[allow(unused)]
 pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Handler) -> Result<Package<Network>, ()> {
     // Initialize a temporary directory.
     let directory = temp_dir();
@@ -195,6 +197,7 @@ pub fn buffer_if_err<T>(buf: &BufferEmitter, res: Result<T, String>) -> Result<T
     res.map_err(|err| buf.0.borrow_mut().push(LeoOrString::String(err)))
 }
 
+#[allow(unused)]
 pub fn temp_dir() -> PathBuf {
     tempfile::tempdir().expect("Failed to open temporary directory").into_path()
 }

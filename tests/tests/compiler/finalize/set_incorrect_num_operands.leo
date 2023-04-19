@@ -18,10 +18,11 @@ program test.aleo {
     }
     
     finalize decrease_self(addr: address, amount: u128) {
-        decrement(tokens, addr, amount);
-        decrement(amounts, 1u8, amount);
-        decrement(amounts, addr, 1u8);
-        decrement(tokens, addr, Token { owner: addr, gates: 1u8, amount: 1u8 });
-        decrement(foo, addr, amount);
+        Mapping::set(tokens, addr, amount, 1u128);
+        tokens.set(addr, amount, 1u128);
+        Mapping::set(amounts, 1u8);
+        amounts.set(1u8);
+        Mapping::set(amounts);
+        amounts.set();
     }
 }

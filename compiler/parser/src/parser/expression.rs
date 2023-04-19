@@ -297,6 +297,7 @@ impl ParserContext<'_> {
         Ok(inner)
     }
 
+    // TODO: Parse method call expressions directly and later put them into a canonical form.
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// method call expression.
     fn parse_method_call_expression(&mut self, receiver: Expression, method: Identifier) -> Result<Expression> {
@@ -316,9 +317,29 @@ impl ParserContext<'_> {
                 right: Box::new(args.swap_remove(0)),
             }))
         } else {
-            // Either an invalid unary/binary operator, or more arguments given.
-            self.emit_err(ParserError::invalid_method_call(receiver, method, span));
-            Ok(Expression::Err(ErrExpression { span }))
+            // Attempt to parse the method call as a mapping operation.
+            match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
+                (1, Some(CoreFunction::MappingGet))
+                | (2, Some(CoreFunction::MappingGetOrInit))
+                | (2, Some(CoreFunction::MappingSet)) => {
+                    // Found an instance of `<mapping>.get`, `<mapping>.get_or`, or `<mapping>.set`
+                    Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: Type::Identifier(Identifier::new(sym::Mapping)),
+                        name: method,
+                        arguments: {
+                            let mut arguments = vec![receiver];
+                            arguments.extend(args);
+                            arguments
+                        },
+                        span,
+                    })))
+                }
+                _ => {
+                    // Either an invalid unary/binary operator, or more arguments given.
+                    self.emit_err(ParserError::invalid_method_call(receiver, method, args.len(), span));
+                    Ok(Expression::Err(ErrExpression { span }))
+                }
+            }
         }
     }
 
@@ -345,7 +366,7 @@ impl ParserContext<'_> {
                 span: module_name.span() + end,
                 ty: type_,
                 name: member_name,
-                args,
+                arguments: args,
             })
         } else {
             // Return the struct constant.

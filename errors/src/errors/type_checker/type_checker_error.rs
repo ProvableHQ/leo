@@ -118,7 +118,7 @@ create_messages!(
     invalid_core_function {
         args: (struct_: impl Display, function: impl Display),
         msg: format!(
-            "The instruction {struct_}::{function} is not a valid core function.",
+            "{struct_}::{function} is not a valid core function.",
         ),
         help: None,
     }
@@ -327,9 +327,9 @@ create_messages!(
     }
 
     @formatted
-    increment_or_decrement_outside_finalize {
-        args: (),
-        msg: format!("`increment` or `decrement` statements must be inside a finalize block."),
+    invalid_operation_outside_finalize {
+        args: (operation: impl Display),
+        msg: format!("`{operation}` must be inside a finalize block."),
         help: None,
     }
 
@@ -571,6 +571,27 @@ create_messages!(
     cannot_call_external_inline_function {
         args: (),
         msg: format!("Cannot call an external `inline` function."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_take_record_as_input {
+        args: (),
+        msg: format!("A finalize block cannot take in a record as input."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_output_record {
+        args: (),
+        msg: format!("A finalize block cannot return a record."),
+        help: None,
+    }
+
+    @formatted
+    finalize_cannot_return_value {
+        args: (),
+        msg: format!("A finalize block cannot return a value."),
         help: None,
     }
 );

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370021]: The type of `tokens` has no associated function `set` that takes 3 argument(s).\n    --> compiler-test:19:9\n     |\n  19 |         tokens.set(addr, amount, 1u128);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 1 argument(s).\n    --> compiler-test:21:9\n     |\n  21 |         amounts.set(1u8);\n     |         ^^^^^^^^^^^^^^^^\nError [EPAR0370021]: The type of `amounts` has no associated function `set` that takes 0 argument(s).\n    --> compiler-test:23:9\n     |\n  23 |         amounts.set();\n     |         ^^^^^^^^^^^^^"

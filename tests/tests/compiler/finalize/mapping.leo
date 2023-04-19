@@ -11,7 +11,7 @@ program test.aleo {
     mapping balances: address => u128;
     
     struct Token {
-        owner: address;
+        Owner: address;
         balance: u128;
     }
     
@@ -26,17 +26,4 @@ program test.aleo {
     }
     
     mapping foo: Bar => Baz;
-    
-    record RealToken {
-        // The token owner.
-        owner: address,
-        // The Aleo balance (in gates).
-        gates: u64,
-        // The token amount.
-        amount: u64,
-    }
-    
-    mapping real_tokens: address => RealToken;
-    
-    mapping owners: RealToken => address;
 }

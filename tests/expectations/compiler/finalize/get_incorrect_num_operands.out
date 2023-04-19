@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370021]: The type of `tokens` has no associated function `get` that takes 2 argument(s).\n    --> compiler-test:19:9\n     |\n  19 |         tokens.get(true, true);\n     |         ^^^^^^^^^^^^^^^^^^^^^^\nError [EPAR0370021]: The type of `amounts` has no associated function `get` that takes 0 argument(s).\n    --> compiler-test:21:9\n     |\n  21 |         amounts.get();\n     |         ^^^^^^^^^^^^^"

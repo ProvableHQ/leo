@@ -44,7 +44,7 @@ pub trait ExpressionVisitor<'a> {
     fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             AccessExpression::AssociatedFunction(function) => {
-                function.args.iter().for_each(|arg| {
+                function.arguments.iter().for_each(|arg| {
                     self.visit_expression(arg, &Default::default());
                 });
             }
@@ -122,10 +122,8 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
-            Statement::Decrement(stmt) => self.visit_decrement(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
-            Statement::Increment(stmt) => self.visit_increment(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
             Statement::Return(stmt) => self.visit_return(stmt),
         }
@@ -173,24 +171,12 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         };
     }
 
-    fn visit_decrement(&mut self, input: &'a DecrementStatement) {
-        self.visit_expression(&input.amount, &Default::default());
-        self.visit_expression(&input.index, &Default::default());
-        self.visit_identifier(&input.mapping, &Default::default());
-    }
-
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) {
         self.visit_expression(&input.expression, &Default::default());
-    }
-
-    fn visit_increment(&mut self, input: &'a IncrementStatement) {
-        self.visit_expression(&input.amount, &Default::default());
-        self.visit_expression(&input.index, &Default::default());
-        self.visit_identifier(&input.mapping, &Default::default());
     }
 
     fn visit_iteration(&mut self, input: &'a IterationStatement) {

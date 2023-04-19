@@ -16,10 +16,67 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{Expression, ExpressionReconstructor, Identifier, StructExpression, StructVariableInitializer};
+use leo_ast::{
+    AccessExpression,
+    AssociatedFunction,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    MemberAccess,
+    StructExpression,
+    StructVariableInitializer,
+    TupleAccess,
+    Type,
+};
+use leo_span::sym;
 
 impl ExpressionReconstructor for DeadCodeEliminator {
     type AdditionalOutput = ();
+
+    /// Reconstructs the components of an access expression.
+    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(match input {
+                AccessExpression::AssociatedFunction(function) => {
+                    // If the associated function manipulates a mapping, mark the statement as necessary.
+                    match (&function.ty, function.name.name) {
+                        (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get)
+                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_init)
+                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) => {
+                            self.is_necessary = true;
+                        }
+                        _ => {}
+                    };
+                    // Reconstruct the access expression.
+                    let result = AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: function.ty,
+                        name: function.name,
+                        arguments: function
+                            .arguments
+                            .into_iter()
+                            .map(|arg| self.reconstruct_expression(arg).0)
+                            .collect(),
+                        span: function.span,
+                    });
+                    // Unset `self.is_necessary`.
+                    self.is_necessary = false;
+                    result
+                }
+                AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
+                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
+                    name: member.name,
+                    span: member.span,
+                }),
+                AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
+                    tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
+                    index: tuple.index,
+                    span: tuple.span,
+                }),
+                AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
+            }),
+            Default::default(),
+        )
+    }
 
     /// Reconstruct the components of the struct init expression.
     /// This is necessary since the reconstructor does not explicitly visit each component of the expression.

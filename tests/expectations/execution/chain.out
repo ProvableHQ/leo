@@ -8,7 +8,8 @@ outputs:
       flattened_ast: 38dd6655713ffd14ce11592d2cd71d4c5db7da452cf1eb00baa4275e79da7794
       inlined_ast: 38dd6655713ffd14ce11592d2cd71d4c5db7da452cf1eb00baa4275e79da7794
       dce_ast: f8191a72493f6cdb4829e929d34ab79a6681713d0e74891129efeb1de4dd3959
-      bytecode: b26e7efafe9624ccaa5ebe73afb04f718bffd1dd4094724a1a040dffd96ee6e8
+      bytecode: f6aaf7f7a13fb233511385db7479f2612e7a77734ee6a189f063bd3d33a7afaa
+      warnings: ""
       results:
         main:
           - input: "[1u32]"

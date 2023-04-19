@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372009]: Mapping::has_key is not a valid core function.\n    --> compiler-test:12:30\n     |\n  12 |          let has_key: bool = Mapping::has_key(account, receiver);\n     |                              ^^^^^^^\nError [ETYC0372014]: Mapping::has_key is not a valid core function call.\n    --> compiler-test:12:30\n     |\n  12 |          let has_key: bool = Mapping::has_key(account, receiver);\n     |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

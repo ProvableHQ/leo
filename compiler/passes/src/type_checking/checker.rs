@@ -16,8 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable};
 
-use leo_ast::{Identifier, IntegerType, Node, Type, Variant};
-use leo_core::*;
+use leo_ast::{CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -305,10 +304,10 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error if the `struct` is not a core library struct.
     /// Emits an error if the `function` is not supported by the struct.
-    pub(crate) fn check_core_function_call(&self, struct_: &Type, function: &Identifier) -> Option<CoreInstruction> {
+    pub(crate) fn get_core_function_call(&self, struct_: &Type, function: &Identifier) -> Option<CoreFunction> {
         if let Type::Identifier(ident) = struct_ {
             // Lookup core struct
-            match CoreInstruction::from_symbols(ident.name, function.name) {
+            match CoreFunction::from_symbols(ident.name, function.name) {
                 None => {
                     // Not a core library struct.
                     self.emit_err(TypeCheckerError::invalid_core_function(ident.name, function.name, ident.span()));
@@ -317,6 +316,177 @@ impl<'a> TypeChecker<'a> {
             }
         }
         None
+    }
+
+    /// Type checks the inputs to a core function call and returns the expected output type.
+    /// Emits an error if the correct number of arguments are not provided.
+    /// Emits an error if the arguments are not of the correct type.
+    pub(crate) fn check_core_function_call(
+        &self,
+        core_function: CoreFunction,
+        arguments: &[(Option<Type>, Span)],
+        function_span: Span,
+    ) -> Option<Type> {
+        // Check that the number of arguments is correct.
+        if arguments.len() != core_function.num_args() {
+            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
+                core_function.num_args(),
+                arguments.len(),
+                function_span,
+            ));
+            return None;
+        }
+
+        // Helper to check that the type of argument is not a mapping, tuple, err, or unit type.
+        let check_not_mapping_tuple_err_unit = |type_: &Option<Type>, span: &Span| {
+            self.check_type(
+                |type_: &Type| !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit),
+                "address, boolean, field, group, struct, integer, scalar, scalar, string".to_string(),
+                type_,
+                *span,
+            );
+        };
+
+        // Helper to check that the type of the argument is a valid input to a Pedersen hash/commit with 64-bit inputs.
+        let check_pedersen_64_bit_input = |type_: &Option<Type>, span: &Span| {
+            self.check_type(
+                |type_: &Type| {
+                    matches!(
+                        type_,
+                        Type::Boolean
+                            | Type::Integer(IntegerType::I8)
+                            | Type::Integer(IntegerType::I16)
+                            | Type::Integer(IntegerType::I32)
+                            | Type::Integer(IntegerType::I64)
+                            | Type::Integer(IntegerType::U8)
+                            | Type::Integer(IntegerType::U16)
+                            | Type::Integer(IntegerType::U32)
+                            | Type::Integer(IntegerType::U64)
+                            | Type::String
+                    )
+                },
+                "boolean, integer (up to 64 bits), string".to_string(),
+                type_,
+                *span,
+            );
+        };
+
+        // Helper to check that the type of the argument is a valid input to a Pedersen hash/commit with 128-bit inputs.
+        let check_pedersen_128_bit_input = |type_: &Option<Type>, span: &Span| {
+            self.check_type(
+                |type_: &Type| matches!(type_, Type::Boolean | Type::Integer(_) | Type::String),
+                "boolean, integer, string".to_string(),
+                type_,
+                *span,
+            );
+        };
+
+        // Check that the arguments are of the correct type.
+        match core_function {
+            CoreFunction::BHP256Commit
+            | CoreFunction::BHP512Commit
+            | CoreFunction::BHP768Commit
+            | CoreFunction::BHP1024Commit => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+                Some(Type::Field)
+            }
+            CoreFunction::BHP256Hash
+            | CoreFunction::BHP512Hash
+            | CoreFunction::BHP768Hash
+            | CoreFunction::BHP1024Hash => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Field)
+            }
+            CoreFunction::Pedersen64Commit => {
+                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Group)
+            }
+            CoreFunction::Pedersen64Hash => {
+                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Field)
+            }
+            CoreFunction::Pedersen128Commit => {
+                // Check that the first argument is either a boolean, integer, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Group)
+            }
+            CoreFunction::Pedersen128Hash => {
+                // Check that the first argument is either a boolean, integer, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Field)
+            }
+            CoreFunction::Poseidon2Hash | CoreFunction::Poseidon4Hash | CoreFunction::Poseidon8Hash => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Field)
+            }
+            CoreFunction::MappingGet => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::get", function_span))
+                }
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Return the value type of the mapping.
+                    Some(*mapping_type.value)
+                } else {
+                    None
+                }
+            }
+            CoreFunction::MappingGetOrInit => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                        "Mapping::get_or",
+                        function_span,
+                    ))
+                }
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Check that the third argument matches the value type of the mapping.
+                    self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                    // Return the value type of the mapping.
+                    Some(*mapping_type.value)
+                } else {
+                    None
+                }
+            }
+            CoreFunction::MappingSet => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler
+                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::set", function_span))
+                }
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Check that the third argument matches the value type of the mapping.
+                    self.assert_type(&arguments[2].0, &mapping_type.value, arguments[2].1);
+                    // Return the mapping type.
+                    Some(Type::Unit)
+                } else {
+                    None
+                }
+            }
+        }
     }
 
     /// Returns the `struct` type and emits an error if the `expected` type does not match.
@@ -381,8 +551,12 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the type is not a mapping.
-    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) {
-        self.check_type(|type_| matches!(type_, Type::Mapping(_)), "mapping".to_string(), type_, span)
+    pub(crate) fn assert_mapping_type(&self, type_: &Option<Type>, span: Span) -> Option<MappingType> {
+        self.check_type(|type_| matches!(type_, Type::Mapping(_)), "mapping".to_string(), type_, span);
+        match type_ {
+            Some(Type::Mapping(mapping_type)) => Some(mapping_type.clone()),
+            _ => None,
+        }
     }
 }
 

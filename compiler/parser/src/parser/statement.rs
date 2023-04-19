@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, ParserWarning, Result};
 use leo_span::sym;
 
 const ASSIGN_TOKENS: &[Token] = &[
@@ -41,8 +41,6 @@ impl ParserContext<'_> {
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
-            Token::Increment => Ok(Statement::Increment(self.parse_increment_statement()?)),
-            Token::Decrement => Ok(Statement::Decrement(self.parse_decrement_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
@@ -131,6 +129,27 @@ impl ParserContext<'_> {
 
             Ok(Statement::Assign(Box::new(AssignStatement { span, place, value })))
         } else {
+            // Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
+            if let Expression::Call(call_expression) = &place {
+                match *call_expression.function {
+                    Expression::Identifier(Identifier { name: sym::decrement, .. }) => {
+                        self.emit_warning(ParserWarning::deprecated(
+                            "decrement",
+                            "Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.",
+                            place.span(),
+                        ));
+                    }
+                    Expression::Identifier(Identifier { name: sym::increment, .. }) => {
+                        self.emit_warning(ParserWarning::deprecated(
+                            "increment",
+                            "Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.",
+                            place.span(),
+                        ));
+                    }
+                    _ => (),
+                }
+            }
+
             // Parse the expression as a statement.
             let end = self.expect(&Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement { span: place.span() + end, expression: place }))
@@ -172,38 +191,6 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::Semicolon)?;
         let span = start + end;
         Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args })
-    }
-
-    /// Returns a [`DecrementStatement`] AST node if the next tokens represent a decrement statement.
-    fn parse_decrement_statement(&mut self) -> Result<DecrementStatement> {
-        let start = self.expect(&Token::Decrement)?;
-        self.expect(&Token::LeftParen)?;
-        let mapping = self.expect_identifier()?;
-        self.expect(&Token::Comma)?;
-        let index = self.parse_expression()?;
-        self.expect(&Token::Comma)?;
-        let amount = self.parse_expression()?;
-        self.eat(&Token::Comma);
-        let end = self.expect(&Token::RightParen)?;
-        self.expect(&Token::Semicolon)?;
-        let span = start + end;
-        Ok(DecrementStatement { mapping, index, amount, span })
-    }
-
-    /// Returns an [`IncrementStatement`] AST node if the next tokens represent an increment statement.
-    fn parse_increment_statement(&mut self) -> Result<IncrementStatement> {
-        let start = self.expect(&Token::Increment)?;
-        self.expect(&Token::LeftParen)?;
-        let mapping = self.expect_identifier()?;
-        self.expect(&Token::Comma)?;
-        let index = self.parse_expression()?;
-        self.expect(&Token::Comma)?;
-        let amount = self.parse_expression()?;
-        self.eat(&Token::Comma);
-        let end = self.expect(&Token::RightParen)?;
-        self.expect(&Token::Semicolon)?;
-        let span = start + end;
-        Ok(IncrementStatement { mapping, index, amount, span })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.

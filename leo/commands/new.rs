@@ -22,7 +22,7 @@ use leo_errors::{CliError, PackageError, Result};
 use leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
 use snarkvm::file::AleoFile;
 
-use aleo::commands::New as AleoNew;
+use snarkvm::cli::New as AleoNew;
 
 use clap::StructOpt;
 use tracing::span::Span;

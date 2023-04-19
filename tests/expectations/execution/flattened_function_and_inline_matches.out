@@ -8,7 +8,8 @@ outputs:
       flattened_ast: 4352bd983b2778643e78bb8efc4b2ab9a728dc52f9bff605875d82b82b72a0fb
       inlined_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
       dce_ast: c719c0c8b4d1904caf8526e56434f8824153c9a5aceab2e8d0dd3729687114f0
-      bytecode: 134abb1ec51eefe80a4a7f4303572abfec238a5adb6a9b5aad1e73ea66860eac
+      bytecode: 05437006a7a0a278a18c8ff76e9fec336ec4f86f6ff8abfb06b816256babef45
+      warnings: ""
       results:
         bar:
           - input: "[true, true, 1u8, 0u8]"

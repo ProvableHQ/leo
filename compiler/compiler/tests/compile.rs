@@ -50,8 +50,9 @@ impl Namespace for CompileNamespace {
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let buf = BufferEmitter(Rc::default(), Rc::default());
         let handler = Handler::new(Box::new(buf.clone()));
-
-        create_session_if_not_set_then(|_| run_test(test, &handler).map_err(|()| buf.0.take().to_string()))
+        create_session_if_not_set_then(|_| {
+            run_test(test, &handler, &buf).map_err(|()| buf.0.take().to_string() + &buf.1.take().to_string())
+        })
     }
 }
 
@@ -64,9 +65,10 @@ struct CompileOutput {
     pub inlined_ast: String,
     pub dce_ast: String,
     pub bytecode: String,
+    pub warnings: String,
 }
 
-fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
+fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value, ()> {
     // Check for CWD option:
     let cwd = get_cwd_option(&test);
 
@@ -120,6 +122,7 @@ fn run_test(test: Test, handler: &Handler) -> Result<Value, ()> {
             inlined_ast,
             dce_ast,
             bytecode: hash_content(&bytecode),
+            warnings: buf.1.take().to_string(),
         };
 
         outputs.push(final_output);

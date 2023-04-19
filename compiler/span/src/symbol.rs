@@ -147,12 +147,16 @@ symbols! {
     BHP768,
     BHP1024,
     commit,
+    get,
+    get_or_init,
     hash,
+    Mapping,
     Pedersen64,
     Pedersen128,
     Poseidon2,
     Poseidon4,
     Poseidon8,
+    set,
 
     // types
     address,

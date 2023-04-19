@@ -61,7 +61,10 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier) -> (String, String) {
-        (self.variable_mapping.get(&input.name).unwrap().clone(), String::new())
+        (
+            self.variable_mapping.get(&input.name).or_else(|| self.global_mapping.get(&input.name)).unwrap().clone(),
+            String::new(),
+        )
     }
 
     fn visit_err(&mut self, _input: &'a ErrExpression) -> (String, String) {
@@ -232,45 +235,103 @@ impl<'a> CodeGenerator<'a> {
 
     // Pedersen64::hash() -> hash.ped64
     fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
-        // Write identifier as opcode. `Pedersen64` -> `ped64`.
-        let symbol: &str = if let Type::Identifier(identifier) = input.ty {
-            match identifier.name {
-                sym::BHP256 => "bhp256",
-                sym::BHP512 => "bhp512",
-                sym::BHP768 => "bhp768",
-                sym::BHP1024 => "bhp1024",
-                sym::Pedersen64 => "ped64",
-                sym::Pedersen128 => "ped128",
-                sym::Poseidon2 => "psd2",
-                sym::Poseidon4 => "psd4",
-                sym::Poseidon8 => "psd8",
-                _ => unreachable!("All core function calls should be known at this time."),
-            }
-        } else {
-            unreachable!("All core function should be known at this time.")
-        };
-
-        // Construct associated function call.
-        let mut associated_function_call = format!("    {}.{symbol} ", input.name);
         let mut instructions = String::new();
 
         // Visit each function argument and accumulate instructions from expressions.
-        for arg in input.args.iter() {
-            let (arg_string, arg_instructions) = self.visit_expression(arg);
-            write!(associated_function_call, "{arg_string} ").expect("failed to write associated function argument");
-            instructions.push_str(&arg_instructions);
-        }
+        let arguments = input
+            .arguments
+            .iter()
+            .map(|argument| {
+                let (arg_string, arg_instructions) = self.visit_expression(argument);
+                instructions.push_str(&arg_instructions);
+                arg_string
+            })
+            .collect::<Vec<_>>();
 
-        // Push destination register to associated function call instruction.
-        let destination_register = format!("r{}", self.next_register);
-        writeln!(associated_function_call, "into {destination_register};")
-            .expect("failed to write dest register for associated function");
-        instructions.push_str(&associated_function_call);
+        // Helper function to get a destination register for a function call.
+        let mut get_destination_register = || {
+            let destination_register = format!("r{}", self.next_register);
+            self.next_register += 1;
+            destination_register
+        };
 
-        // Increment the register counter.
-        self.next_register += 1;
+        // Helper function to construct the instruction associated with a simple function call.
+        // This assumes that the function call has one output.
+        let mut construct_simple_function_call = |opcode: &Identifier, variant: &str, arguments: Vec<String>| {
+            let mut instruction = format!("    {opcode}.{variant}");
+            for argument in arguments {
+                write!(instruction, " {argument}").expect("failed to write to string");
+            }
+            let destination_register = get_destination_register();
+            write!(instruction, " into {destination_register};").expect("failed to write to string");
+            (destination_register, instruction)
+        };
 
-        (destination_register, instructions)
+        // Construct the instruction.
+        let (destination, instruction) = match input.ty {
+            Type::Identifier(Identifier { name: sym::BHP256, .. }) => {
+                construct_simple_function_call(&input.name, "bhp256", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP512, .. }) => {
+                construct_simple_function_call(&input.name, "bhp512", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP768, .. }) => {
+                construct_simple_function_call(&input.name, "bhp768", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::BHP1024, .. }) => {
+                construct_simple_function_call(&input.name, "bhp1024", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen64, .. }) => {
+                construct_simple_function_call(&input.name, "ped64", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Pedersen128, .. }) => {
+                construct_simple_function_call(&input.name, "ped128", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon2, .. }) => {
+                construct_simple_function_call(&input.name, "psd2", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon4, .. }) => {
+                construct_simple_function_call(&input.name, "psd4", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Poseidon8, .. }) => {
+                construct_simple_function_call(&input.name, "psd8", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Mapping, .. }) => match input.name.name {
+                sym::get => {
+                    let mut instruction = "    get".to_string();
+                    let destination_register = get_destination_register();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                sym::get_or_init => {
+                    let mut instruction = "    get.or_init".to_string();
+                    let destination_register = get_destination_register();
+                    // Write the mapping name, the key, and the default value.
+                    writeln!(
+                        instruction,
+                        " {}[{}] {} into {destination_register};",
+                        arguments[0], arguments[1], arguments[2]
+                    )
+                    .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
+                sym::set => {
+                    let mut instruction = "    set".to_string();
+                    // Write the value, mapping name, and the key.
+                    writeln!(instruction, " {} into {}[{}];", arguments[2], arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
+            },
+            _ => unreachable!("All core functions should be known at this phase of compilation"),
+        };
+        // Add the instruction to the list of instructions.
+        instructions.push_str(&instruction);
+
+        (destination, instructions)
     }
 
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {

@@ -28,7 +28,7 @@ pub struct AssociatedFunction {
     /// The static struct member function that is being accessed.
     pub name: Identifier,
     /// The arguments passed to the function `name`.
-    pub args: Vec<Expression>,
+    pub arguments: Vec<Expression>,
     /// The span for the entire expression `Foo::bar()`.
     pub span: Span,
 }

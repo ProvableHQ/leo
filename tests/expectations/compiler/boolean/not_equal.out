@@ -8,4 +8,5 @@ outputs:
       flattened_ast: 84fd34b95b75f6d72b28164a9cb2ac80fa4149564c8c187b0ead1e14d2299a63
       inlined_ast: 84fd34b95b75f6d72b28164a9cb2ac80fa4149564c8c187b0ead1e14d2299a63
       dce_ast: 84fd34b95b75f6d72b28164a9cb2ac80fa4149564c8c187b0ead1e14d2299a63
-      bytecode: 1db874ad15d9bb70df7372ed3250cc6d0f65992e17788cd90c656ef1e1ceb63e
+      bytecode: 990eee0b87d70df046bad969201ad8afabff10162eb70c00f837fde81fed4104
+      warnings: ""

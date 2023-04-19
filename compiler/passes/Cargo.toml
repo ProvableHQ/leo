@@ -21,8 +21,10 @@ rust-version = "1.65"
 [lib]
 path = "src/lib.rs"
 
-[dependencies.indexmap]
-version = "1.9"
+[dependencies.snarkvm-console]
+workspace = true
+default-features = false
+features = [ "network" ]
 
 [dependencies.leo-ast]
 path = "../ast"
@@ -40,9 +42,8 @@ version = "1.6.3"
 path = "../span"
 version = "1.6.3"
 
-[dependencies.leo-core]
-path = "../core"
-version = "1.6.3"
+[dependencies.indexmap]
+version = "1.9"
 
 [dependencies.itertools]
 version = "0.10.5"

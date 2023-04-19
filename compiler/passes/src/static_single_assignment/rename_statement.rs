@@ -17,20 +17,20 @@
 use crate::{RenameTable, StaticSingleAssigner};
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
+    AssociatedFunction,
     Block,
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
-    DecrementStatement,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
     ExpressionStatement,
     Identifier,
-    IncrementStatement,
     IterationStatement,
     ReturnStatement,
     Statement,
@@ -200,25 +200,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         unreachable!("Parsing guarantees that console statements are not present in the program.")
     }
 
-    /// Consumes the expressions associated with the `DecrementStatement`, returning the simplified `DecrementStatement`.
-    fn consume_decrement(&mut self, input: DecrementStatement) -> Self::Output {
-        // First consume the expression associated with the amount.
-        let (amount, mut statements) = self.consume_expression(input.amount);
-
-        // Then, consume the expression associated with the index.
-        let (index, index_statements) = self.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Decrement(DecrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
-            span: input.span,
-        }));
-
-        statements
-    }
-
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.
     fn consume_definition(&mut self, definition: DefinitionStatement) -> Self::Output {
         // First consume the right-hand-side of the definition.
@@ -267,53 +248,52 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     fn consume_expression_statement(&mut self, input: ExpressionStatement) -> Self::Output {
         let mut statements = Vec::new();
 
-        // Extract the call expression.
-        let call = match input.expression {
-            Expression::Call(call) => call,
-            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        // Helper to process the arguments of a function call, accumulating any statements produced.
+        let mut process_arguments = |arguments: Vec<Expression>| {
+            arguments
+                .into_iter()
+                .map(|argument| {
+                    let (argument, mut stmts) = self.consume_expression(argument);
+                    statements.append(&mut stmts);
+                    argument
+                })
+                .collect::<Vec<_>>()
         };
 
-        // Process the arguments, accumulating any statements produced.
-        let arguments = call
-            .arguments
-            .into_iter()
-            .map(|argument| {
-                let (argument, mut stmts) = self.consume_expression(argument);
-                statements.append(&mut stmts);
-                argument
-            })
-            .collect();
+        match input.expression {
+            Expression::Call(call) => {
+                // Process the arguments.
+                let arguments = process_arguments(call.arguments);
+                // Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
+                statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Call(CallExpression {
+                        function: call.function,
+                        arguments,
+                        external: call.external,
+                        span: call.span,
+                    }),
+                    span: input.span,
+                }));
+            }
+            Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
+                // Process the arguments.
+                let arguments = process_arguments(associated_function.arguments);
+                // Create and accumulate the new expression statement.
+                // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
+                statements.push(Statement::Expression(ExpressionStatement {
+                    expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                        ty: associated_function.ty,
+                        name: associated_function.name,
+                        arguments,
+                        span: associated_function.span,
+                    })),
+                    span: input.span,
+                }))
+            }
 
-        // Create and accumulate the new expression statement.
-        // Note that we do not create a new assignment for the call expression; this is necessary for correct code generation.
-        statements.push(Statement::Expression(ExpressionStatement {
-            expression: Expression::Call(CallExpression {
-                function: call.function,
-                arguments,
-                external: call.external,
-                span: call.span,
-            }),
-            span: input.span,
-        }));
-
-        statements
-    }
-
-    /// Consumes the expressions associated with the `IncrementStatement`, returning a simplified `IncrementStatement`.
-    fn consume_increment(&mut self, input: IncrementStatement) -> Self::Output {
-        // First consume the expression associated with the amount.
-        let (amount, mut statements) = self.consume_expression(input.amount);
-
-        // Then, consume the expression associated with the index.
-        let (index, index_statements) = self.consume_expression(input.index);
-        statements.extend(index_statements);
-
-        statements.push(Statement::Increment(IncrementStatement {
-            mapping: input.mapping,
-            index,
-            amount,
-            span: input.span,
-        }));
+            _ => unreachable!("Type checking guarantees that expression statements are always function calls."),
+        }
 
         statements
     }

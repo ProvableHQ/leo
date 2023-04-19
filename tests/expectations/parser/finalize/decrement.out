@@ -2,33 +2,75 @@
 namespace: ParseStatement
 expectation: Pass
 outputs:
-  - Decrement:
-      mapping: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
-      index:
-        Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
-      amount:
-        Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"decrement\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":9}\"}"
+          arguments:
+            - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
+            - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+            - Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
+          external: ~
+          span:
+            lo: 0
+            hi: 24
       span:
         lo: 0
-        hi: 24
-  - Decrement:
-      mapping: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
-      index:
-        Literal:
-          Integer:
-            - U8
-            - "2"
-            - span:
-                lo: 15
-                hi: 18
-      amount:
-        Literal:
-          Integer:
-            - U8
-            - "3"
-            - span:
-                lo: 20
-                hi: 23
+        hi: 25
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"decrement\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":9}\"}"
+          arguments:
+            - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
+            - Literal:
+                Integer:
+                  - U8
+                  - "2"
+                  - span:
+                      lo: 15
+                      hi: 18
+            - Literal:
+                Integer:
+                  - U8
+                  - "3"
+                  - span:
+                      lo: 20
+                      hi: 23
+          external: ~
+          span:
+            lo: 0
+            hi: 24
       span:
         lo: 0
-        hi: 24
+        hi: 25
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"decrement\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":9}\"}"
+          arguments:
+            - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
+            - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
+          external: ~
+          span:
+            lo: 0
+            hi: 19
+      span:
+        lo: 0
+        hi: 20
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"decrement\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":9}\"}"
+          arguments: []
+          external: ~
+          span:
+            lo: 0
+            hi: 11
+      span:
+        lo: 0
+        hi: 12

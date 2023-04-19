@@ -1,5 +1,12 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [ETYC0372020]: The field `gates` in a `record` must have type `u64`.\n    --> compiler-test:5:5\n     |\n   5 |     record Token {\n   6 |         gates: address,\n   7 |         owner: address,\n   8 |     }\n     |     ^\n"
+  - - initial_ast: bc6c3d26d53e50c2d9e55ca513f9f9ca5a51243e168abdabc519b6ab284ab4ca
+      unrolled_ast: bc6c3d26d53e50c2d9e55ca513f9f9ca5a51243e168abdabc519b6ab284ab4ca
+      ssa_ast: 9dec3f9ffc327edcbca8cd41fc43ed0ea547b2a21a83011561dcfa4eddc6f805
+      flattened_ast: 14a0045dc7123f83d6ab8563c0ea931de77226a5debb18eb4f897e3a94c271ed
+      inlined_ast: 14a0045dc7123f83d6ab8563c0ea931de77226a5debb18eb4f897e3a94c271ed
+      dce_ast: 14a0045dc7123f83d6ab8563c0ea931de77226a5debb18eb4f897e3a94c271ed
+      bytecode: 4352ef3dcfd2e624a555a365a9f307cee9a66cf0efb3c7681eb4c0b0014fa403
+      warnings: ""

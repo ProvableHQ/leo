@@ -44,45 +44,22 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         match input {
             AccessExpression::AssociatedFunction(access) => {
                 // Check core struct name and function.
-                if let Some(core_instruction) = self.check_core_function_call(&access.ty, &access.name) {
-                    // Check num input arguments.
-                    if core_instruction.num_args() != access.args.len() {
-                        // TODO: Better error messages.
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                            core_instruction.num_args(),
-                            access.args.len(),
-                            input.span(),
-                        ));
-                    }
+                if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {
+                    // Get the types of the arguments.
+                    let argument_types = access
+                        .arguments
+                        .iter()
+                        .map(|arg| (self.visit_expression(arg, &None), arg.span()))
+                        .collect::<Vec<_>>();
 
-                    // Check first argument type.
-                    if let Some(first_arg) = access.args.get(0usize) {
-                        if let Some(first_arg_type) = self.visit_expression(first_arg, &None) {
-                            if !core_instruction.first_arg_is_allowed_type(&first_arg_type) {
-                                // TODO: Better error messages.
-                                self.emit_err(TypeCheckerError::invalid_type(
-                                    &first_arg_type,
-                                    access.args.get(0).unwrap().span(),
-                                ));
-                            }
-                        }
-                    }
+                    // Check that the types of the arguments are valid.
+                    let return_type = self.check_core_function_call(core_instruction, &argument_types, input.span());
 
-                    // Check second argument type.
-                    if let Some(second_arg) = access.args.get(1usize) {
-                        if let Some(second_arg_type) = self.visit_expression(second_arg, &None) {
-                            if !core_instruction.second_arg_is_allowed_type(&second_arg_type) {
-                                // TODO: Better error messages.
-                                self.emit_err(TypeCheckerError::invalid_type(
-                                    &second_arg_type,
-                                    access.args.get(1).unwrap().span(),
-                                ));
-                            }
-                        }
+                    // Check return type if the expected type is known.
+                    if let Some(expected) = expected {
+                        self.assert_type(&return_type, expected, input.span());
                     }
-
-                    // Check return type.
-                    return Some(self.assert_and_return_type(core_instruction.return_type(), expected, access.span()));
+                    return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }

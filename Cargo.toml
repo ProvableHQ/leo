@@ -21,7 +21,6 @@ edition = "2021"
 members = [
   "compiler/ast",
   "compiler/compiler",
-  "compiler/core",
   "compiler/parser",
   "compiler/passes",
   "compiler/span",
@@ -32,10 +31,10 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.9.15"
+version = "0.10.2"
 
 [workspace.dependencies.snarkvm-console]
-version = "0.9.15"
+version = "0.10.2"
 
 [lib]
 path = "leo/lib.rs"
@@ -48,9 +47,6 @@ path = "leo/main.rs"
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
-
-[dependencies.aleo]
-version = "=0.3.6"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
@@ -125,7 +121,7 @@ version = "1.0"
 
 [dependencies.snarkvm]
 workspace = true
-features = [ "aleo-cli", "circuit", "console", "parallel" ]
+features = [ "circuit", "console" ]
 
 [dependencies.sys-info]
 version = "0.9.1"

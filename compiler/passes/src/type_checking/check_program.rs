@@ -18,8 +18,9 @@ use crate::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
-
 use leo_span::sym;
+
+use snarkvm_console::network::{Network, Testnet3};
 
 use std::collections::HashSet;
 
@@ -77,11 +78,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::cyclic_function_dependency(path));
         }
 
-        // TODO: Use the snarkVM configurations to parameterize the check, need similar checks for structs (all in separate PR)
+        // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > 15 {
+        if transition_count > Testnet3::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                15,
+                Testnet3::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -118,7 +119,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     }
                 };
             check_has_field(sym::owner, Type::Address);
-            check_has_field(sym::gates, Type::Integer(IntegerType::U64));
         }
 
         for Member { mode, identifier, type_, span } in input.members.iter() {
@@ -146,9 +146,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Check that a mapping's key type is valid.
         self.assert_type_is_defined(&input.key_type, input.span);
-        // Check that a mapping's key type is not tuple types or mapping types.
+        // Check that a mapping's key type is not a tuple, record, or mapping.
         match input.key_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
+            Type::Identifier(identifier) => {
+                if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                    if struct_.is_record {
+                        self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
+                    }
+                }
+            }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "mapping", input.span)),
             _ => {}
@@ -156,9 +163,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Check that a mapping's value type is valid.
         self.assert_type_is_defined(&input.value_type, input.span);
-        // Check that a mapping's value type is not tuple types or mapping types.
+        // Check that a mapping's value type is not a tuple, record or mapping.
         match input.value_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
+            Type::Identifier(identifier) => {
+                if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                    if struct_.is_record {
+                        self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
+                    }
+                }
+            }
             // Note that this is not possible since the parser does not currently accept mapping types.
             Type::Mapping(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "mapping", input.span)),
             _ => {}
@@ -308,40 +322,64 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             finalize.input.iter().for_each(|input_var| {
                 // Check that the type of input parameter is defined.
-                self.assert_type_is_defined(&input_var.type_(), input_var.span());
-                // Check that the type of input parameter is not a tuple.
-                if matches!(input_var.type_(), Type::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
-                }
-                // Check that the input parameter is not constant or private.
-                if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
-                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-                }
-                // Check for conflicting variable names.
-                if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                        type_: input_var.type_(),
-                        span: input_var.identifier().span(),
-                        declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
-                    self.handler.emit_err(err);
+                if self.assert_type_is_defined(&input_var.type_(), input_var.span()) {
+                    // Check that the input parameter is not a tuple.
+                    if matches!(input_var.type_(), Type::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
+                    }
+                    // Check that the input parameter is not a record.
+                    if let Type::Identifier(identifier) = input_var.type_() {
+                        // Note that this unwrap is safe, as the type is defined.
+                        if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                            self.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
+                        }
+                    }
+                    // Check that the input parameter is not constant or private.
+                    if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
+                        self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
+                    }
+                    // Check for conflicting variable names.
+                    if let Err(err) =
+                        self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                            type_: input_var.type_(),
+                            span: input_var.identifier().span(),
+                            declaration: VariableType::Input(input_var.mode()),
+                        })
+                    {
+                        self.handler.emit_err(err);
+                    }
                 }
             });
 
-            // Type check the function's return type.
+            // Check that the finalize block's return type is a unit type.
+            // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
+            // Note: This restriction may be lifted in the future.
+            // Note: This check is still compatible with the other checks below.
+            if finalize.output_type != Type::Unit {
+                self.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
+            }
+
+            // Type check the finalize block's return type.
             // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             finalize.output.iter().for_each(|output_type| {
                 // Check that the type of output is defined.
-                self.assert_type_is_defined(&output_type.type_(), output_type.span());
-                // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                if matches!(&output_type.type_(), Type::Tuple(_)) {
-                    self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
-                }
-                // Check that the mode of the output is valid.
-                // Note that a finalize block can have only public outputs.
-                if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
-                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
+                if self.assert_type_is_defined(&output_type.type_(), output_type.span()) {
+                    // Check that the output is not a tuple. This is necessary to forbid nested tuples.
+                    if matches!(&output_type.type_(), Type::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
+                    }
+                    // Check that the output is not a record.
+                    if let Type::Identifier(identifier) = output_type.type_() {
+                        // Note that this unwrap is safe, as the type is defined.
+                        if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                            self.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
+                        }
+                    }
+                    // Check that the mode of the output is valid.
+                    // Note that a finalize block can have only public outputs.
+                    if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
+                        self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
+                    }
                 }
             });
 

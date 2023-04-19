@@ -31,7 +31,7 @@ use leo_package::{
 };
 use leo_span::{symbol::with_session_globals, Symbol};
 
-use aleo::commands::Build as AleoBuild;
+use snarkvm::cli::Build as AleoBuild;
 
 use clap::StructOpt;
 use indexmap::IndexMap;

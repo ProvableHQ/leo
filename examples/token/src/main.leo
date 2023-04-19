@@ -24,7 +24,8 @@ program token.aleo {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `mint_public` is reverted.
-        increment(account, receiver, amount);
+        let current_amount: u64 = Mapping::get_or_init(account, receiver, 0u64);
+        Mapping::set(account, receiver, current_amount + amount);
     }
 
     // The function `mint_private` initializes a new record with the specified amount of tokens for the receiver.
@@ -46,11 +47,13 @@ program token.aleo {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public` is reverted.
-        decrement(account, sender, amount);
+        let sender_amount: u64 = Mapping::get_or_init(account, sender, 0u64);
+        Mapping::set(account, sender, sender_amount - amount);
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_public` is reverted.
-        increment(account, receiver, amount);
+        let receiver_amount: u64 = Mapping::get_or_init(account, receiver, 0u64);
+        Mapping::set(account, receiver, receiver_amount + amount);
     }
 
     // The function `transfer_private` sends the specified token amount to the token receiver from the specified token record.
@@ -102,7 +105,8 @@ program token.aleo {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
-        increment(account, receiver, amount);
+        let current_amount: u64 = Mapping::get_or_init(account, receiver, 0u64);
+        Mapping::set(account, receiver, current_amount + amount);
     }
 
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
@@ -124,7 +128,8 @@ program token.aleo {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
-        decrement(account, sender, amount);
+        let current_amount: u64 = Mapping::get_or_init(account, sender, 0u64);
+        Mapping::set(account, sender, current_amount - amount);
     }
 
 }

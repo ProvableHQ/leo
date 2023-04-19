@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 */
 
 program test.aleo {    
@@ -12,7 +12,7 @@ program test.aleo {
     }
     
     finalize mint_public (public receiver: address, public amount: u64) -> u64 {
-        increment(account, receiver, amount);
+        Mapping::set(account, receiver, amount);
         return amount;
     }
     
