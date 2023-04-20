@@ -1,6 +1,6 @@
 [package]
 name = "leo-span"
-version = "1.6.3"
+version = "1.7.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Span handling for the Leo programming language"
 homepage = "https://aleo.org"
