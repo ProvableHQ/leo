@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["GroupCoordinate","A coordinate in a affine group literal."]]};
+window.SIDEBAR_ITEMS = {"enum":["GroupCoordinate"]};

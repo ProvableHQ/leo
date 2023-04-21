@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["dead_code_eliminator",""],["eliminate_expression",""],["eliminate_program",""],["eliminate_statement",""]]};
+window.SIDEBAR_ITEMS = {"mod":["dead_code_eliminator","eliminate_expression","eliminate_program","eliminate_statement"]};

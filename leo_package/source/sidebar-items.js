@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["directory",""],["main","The `main.leo` file."]]};
+window.SIDEBAR_ITEMS = {"mod":["directory","main"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["InputAst","A raw unprocessed input or state file data. Used for future conversion into [`ProgramInput`]."],["InputData","Input data which includes [`ProgramInput`]."]]};
+window.SIDEBAR_ITEMS = {"struct":["InputAst","InputData"]};

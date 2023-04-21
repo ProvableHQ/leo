@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["FinalizeData","Metadata associated with the finalize block."],["FunctionSymbol","An entry for a function in the symbol table."]]};
+window.SIDEBAR_ITEMS = {"struct":["FinalizeData","FunctionSymbol"]};

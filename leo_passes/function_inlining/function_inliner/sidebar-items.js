@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["FunctionInliner",""]]};
+window.SIDEBAR_ITEMS = {"struct":["FunctionInliner"]};

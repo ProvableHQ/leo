@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Assigner","A struct used to create assignment statements."]]};
+window.SIDEBAR_ITEMS = {"struct":["Assigner"]};

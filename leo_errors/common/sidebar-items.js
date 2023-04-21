@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["backtraced","This module contains a backtraced error and its methods."],["formatted","This module contains a formatted error and its methods."],["macros","This module contains the macros for making errors easily."],["traits","This module contains traits for making errors easily."]]};
+window.SIDEBAR_ITEMS = {"mod":["backtraced","formatted","macros","traits"]};

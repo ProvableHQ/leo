@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Tuple","A type list of at least two types."]]};
+window.SIDEBAR_ITEMS = {"struct":["Tuple"]};

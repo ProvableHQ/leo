@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["VariableType","An enumeration of the different types of variable type."]],"struct":[["VariableSymbol","An entry for a variable in the symbol table."]]};
+window.SIDEBAR_ITEMS = {"enum":["VariableType"],"struct":["VariableSymbol"]};

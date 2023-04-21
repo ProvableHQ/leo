@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":[["create_messages","A macro that given an enum, exit code mask, error code string prefix, and error methods generated through a DSL creates and generates errors with a unique error code."]],"mod":[["common","Contains the common functionalities for defining errors.."],["emitter","Contains traits and types for channels through which errors go."],["errors","Contains the errors and warnings for the Leo lang."]]};
+window.SIDEBAR_ITEMS = {"macro":["create_messages"],"mod":["common","emitter","errors"]};

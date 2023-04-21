@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["INDENT","The indent for an error message."]],"struct":[["Backtraced","Backtraced compiler ouput type undefined value `x` –> file.leo: 2:8 = help: Initialize a variable `x` first."]]};
+window.SIDEBAR_ITEMS = {"constant":["INDENT"],"struct":["Backtraced"]};

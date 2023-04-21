@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["ast_snapshot","The serialized struct output file."],["checksum","The build checksum file."],["circuit","The serialized struct output file."],["directory",""]],"static":[["MAIN_ALEO_FILE_NAME",""]]};
+window.SIDEBAR_ITEMS = {"mod":["ast_snapshot","checksum","circuit","directory"],"static":["MAIN_ALEO_FILE_NAME"]};

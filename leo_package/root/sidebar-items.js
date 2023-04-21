@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["gitignore","The `.gitignore` file."]]};
+window.SIDEBAR_ITEMS = {"mod":["gitignore"]};

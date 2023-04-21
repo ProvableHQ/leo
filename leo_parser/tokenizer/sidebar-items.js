@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["tokenize","Creates a new vector of spanned tokens from a given file path and source code text."],["tokenize_iter","Yields spanned tokens from the given source code text."]],"mod":[["lexer",""],["token",""]]};
+window.SIDEBAR_ITEMS = {"fn":["tokenize","tokenize_iter"],"mod":["lexer","token"]};

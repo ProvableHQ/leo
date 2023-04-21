@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["GroupLiteral","A group literal."]],"struct":[["GroupTuple","An affine group literal, e.g., `(42, 24)group`."]]};
+window.SIDEBAR_ITEMS = {"enum":["GroupLiteral"],"struct":["GroupTuple"]};

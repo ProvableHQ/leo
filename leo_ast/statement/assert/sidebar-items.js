@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["AssertVariant","A variant of an assert statement."]],"struct":[["AssertStatement","An assert statement, `assert(<expr>)`, `assert_eq(<expr>)` or `assert_neq(<expr>)`."]]};
+window.SIDEBAR_ITEMS = {"enum":["AssertVariant"],"struct":["AssertStatement"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ParseType",""]],"fn":[["get_benches","returns (name, content) for all benchmark samples"],["is_env_var_set",""],["run_tests",""],["set_hook",""],["take_hook",""]],"struct":[["Test",""],["TestCases",""]],"trait":[["Namespace",""],["Runner",""]]};
+window.SIDEBAR_ITEMS = {"enum":["ParseType"],"fn":["get_benches","is_env_var_set","run_tests","set_hook","take_hook"],"struct":["Test","TestCases"],"trait":["Namespace","Runner"]};

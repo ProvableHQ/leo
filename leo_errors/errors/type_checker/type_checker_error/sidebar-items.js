@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["TypeCheckerError","InputError enum that represents all the errors for the inputs part of `leo-ast` crate."]]};
+window.SIDEBAR_ITEMS = {"enum":["TypeCheckerError"]};

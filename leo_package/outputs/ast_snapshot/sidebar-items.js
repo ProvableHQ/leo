@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Snapshot","Enum to handle all 3 types of snapshots."]],"static":[["AST_SNAPSHOT_FILE_EXTENSION",""]],"struct":[["SnapshotFile","Generic Snapshot file wrapper. Each package can have up to 3 different snapshots: initial_ast, canonicalization_ast and type_inferenced_ast;"]]};
+window.SIDEBAR_ITEMS = {"enum":["Snapshot"],"static":["AST_SNAPSHOT_FILE_EXTENSION"],"struct":["SnapshotFile"]};

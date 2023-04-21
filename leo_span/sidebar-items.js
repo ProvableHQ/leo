@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["source_map",""],["span","Defines the `Span` type used to track where code comes from."],["span_json","Provides custom serialize/deserialize implementations for `Span`."],["symbol",""]]};
+window.SIDEBAR_ITEMS = {"mod":["source_map","span","span_json","symbol"]};

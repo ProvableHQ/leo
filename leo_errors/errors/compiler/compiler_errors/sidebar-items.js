@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["CompilerError","CompilerError enum that represents all the errors for the `leo-compiler` crate."]]};
+window.SIDEBAR_ITEMS = {"enum":["CompilerError"]};

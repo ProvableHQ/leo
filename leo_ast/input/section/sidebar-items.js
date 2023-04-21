@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Section","A single section in an input or a state file. An example of a section would be: `[main]`."]]};
+window.SIDEBAR_ITEMS = {"struct":["Section"]};

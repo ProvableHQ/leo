@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["integer_type",""],["mapping",""],["tuple",""],["type_",""]]};
+window.SIDEBAR_ITEMS = {"mod":["integer_type","mapping","tuple","type_"]};

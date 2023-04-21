@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Clusivity","Whether or not a bound is inclusive or exclusive."]],"struct":[["RangeIterator","An iterator over a range of values."]],"trait":[["LoopBound","A trait for whose implementors are concrete values for loop bounds."]]};
+window.SIDEBAR_ITEMS = {"enum":["Clusivity"],"struct":["RangeIterator"],"trait":["LoopBound"]};

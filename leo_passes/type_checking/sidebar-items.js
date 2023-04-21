@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["check_expressions",""],["check_program",""],["check_statements",""],["checker",""]]};
+window.SIDEBAR_ITEMS = {"mod":["check_expressions","check_program","check_statements","checker"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["directory",""],["input","The `program.in` file."]]};
+window.SIDEBAR_ITEMS = {"mod":["directory","input"]};

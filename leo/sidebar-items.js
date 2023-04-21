@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Commands","Leo compiler and package manager"]],"fn":[["handle_error",""],["main",""],["run_with_args","Run command with custom build arguments."],["set_panic_hook",""]],"mod":[["commands",""],["context",""],["logger",""],["updater",""]],"struct":[["CLI","CLI Arguments entry point - includes global parameters and subcommands"]]};
+window.SIDEBAR_ITEMS = {"enum":["Commands"],"fn":["handle_error","main","run_with_args","set_panic_hook"],"mod":["commands","context","logger","updater"],"struct":["CLI"]};

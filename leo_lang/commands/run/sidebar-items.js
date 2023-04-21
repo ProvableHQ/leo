@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Run","Build, Prove and Run Leo program with inputs"]]};
+window.SIDEBAR_ITEMS = {"static":["CALLSITE","META"],"struct":["Run"]};

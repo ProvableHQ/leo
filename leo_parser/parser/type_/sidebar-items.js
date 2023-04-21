@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["TYPE_TOKENS",""]]};
+window.SIDEBAR_ITEMS = {"constant":["TYPE_TOKENS"]};

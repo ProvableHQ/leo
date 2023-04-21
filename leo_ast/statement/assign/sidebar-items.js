@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["AssignStatement","An assignment statement, `assignee = value`. Note that there is no operation associated with the assignment."]]};
+window.SIDEBAR_ITEMS = {"struct":["AssignStatement"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["DeadCodeEliminator",""]]};
+window.SIDEBAR_ITEMS = {"struct":["DeadCodeEliminator"]};

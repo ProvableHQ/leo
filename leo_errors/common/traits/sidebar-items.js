@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["LeoMessageCode","MessageCode trait that all Errors should implement."]]};
+window.SIDEBAR_ITEMS = {"trait":["LeoMessageCode"]};

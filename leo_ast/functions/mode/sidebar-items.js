@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["Mode","The mode associated with a type."]]};
+window.SIDEBAR_ITEMS = {"enum":["Mode"]};

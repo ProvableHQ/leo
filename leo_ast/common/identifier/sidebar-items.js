@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Identifier","An identifier in a program."]]};
+window.SIDEBAR_ITEMS = {"fn":["to_json_string"],"struct":["Identifier","IdentifierVisitor"]};

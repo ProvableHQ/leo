@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["parser_errors","This module contains the Parser error definitions."],["parser_warnings","This module contains the Parser warning definitions."]]};
+window.SIDEBAR_ITEMS = {"mod":["parser_errors","parser_warnings"]};

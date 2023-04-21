@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Unroller",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Unroller"]};

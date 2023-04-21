@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Member","A member of a structured data type, e.g `foobar: u8` or `private baz: bool` ."]]};
+window.SIDEBAR_ITEMS = {"struct":["Member"]};

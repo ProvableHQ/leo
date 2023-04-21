@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["StaticSingleAssigner",""]]};
+window.SIDEBAR_ITEMS = {"struct":["StaticSingleAssigner"]};

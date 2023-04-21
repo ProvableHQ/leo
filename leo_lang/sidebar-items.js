@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["commands",""],["context",""],["logger",""],["updater",""]]};
+window.SIDEBAR_ITEMS = {"mod":["commands","context","logger","updater"]};

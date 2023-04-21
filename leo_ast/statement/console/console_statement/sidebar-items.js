@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ConsoleStatement","A console logging statement like `console.log(...);`."]]};
+window.SIDEBAR_ITEMS = {"struct":["ConsoleStatement"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["compile_leo_file","Compiles a Leo file in the `src/` directory."]],"struct":[["Build","Compile and build program command."],["BuildOptions","Compiler Options wrapper for Build command. Also used by other commands which require Build command output as their input."]]};
+window.SIDEBAR_ITEMS = {"fn":["compile_leo_file"],"static":["CALLSITE","META"],"struct":["Build","BuildOptions"]};

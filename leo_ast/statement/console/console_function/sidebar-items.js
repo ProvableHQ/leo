@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["ConsoleFunction","A console logging function to invoke."]]};
+window.SIDEBAR_ITEMS = {"enum":["ConsoleFunction"]};

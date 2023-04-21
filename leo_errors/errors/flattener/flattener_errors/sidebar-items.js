@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":[["FlattenError","CliError enum that represents all the errors for the `leo-lang` crate."]],"fn":[["type_name","Generates the type name of a value."]]};
+window.SIDEBAR_ITEMS = {"enum":["FlattenError"],"fn":["type_name"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["ast_errors","This module contains the AST error definitions."]]};
+window.SIDEBAR_ITEMS = {"mod":["ast_errors"]};

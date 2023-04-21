@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Ast","The abstract syntax tree (AST) for a Leo program."],["Compiler","The primary entry point of the Leo compiler."],["InputAst","A raw unprocessed input or state file data. Used for future conversion into [`ProgramInput`]."],["SymbolTable",""]]};
+window.SIDEBAR_ITEMS = {"struct":["Ast","Compiler","InputAst","SymbolTable"]};

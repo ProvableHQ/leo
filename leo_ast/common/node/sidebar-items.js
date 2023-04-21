@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Node","A node in the AST."]]};
+window.SIDEBAR_ITEMS = {"trait":["Node"]};

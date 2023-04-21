@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["TupleAccess","A tuple access expression, e.g., `tuple.index`."]]};
+window.SIDEBAR_ITEMS = {"struct":["TupleAccess"]};

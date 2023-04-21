@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["PositiveNumber","A number string guaranteed to be positive."]]};
+window.SIDEBAR_ITEMS = {"struct":["PositiveNumber"]};

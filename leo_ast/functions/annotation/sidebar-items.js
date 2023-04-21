@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Annotation","An annotation, e.g. @program."]]};
+window.SIDEBAR_ITEMS = {"struct":["Annotation"]};

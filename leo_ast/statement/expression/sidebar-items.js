@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ExpressionStatement","An expression statement, `foo(a);`."]]};
+window.SIDEBAR_ITEMS = {"struct":["ExpressionStatement"]};

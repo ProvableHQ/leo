@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["ReturnStatement","A return statement `return expression;`."]]};
+window.SIDEBAR_ITEMS = {"struct":["ReturnStatement"]};

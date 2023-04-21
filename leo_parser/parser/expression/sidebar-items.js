@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["INT_TYPES",""]],"fn":[["assert_no_whitespace",""]]};
+window.SIDEBAR_ITEMS = {"constant":["INT_TYPES"],"fn":["assert_no_whitespace"]};
