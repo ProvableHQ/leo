@@ -133,7 +133,7 @@ version = "0.7"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.3.16"
+version = "0.3.17"
 features = [ "fmt" ]
 
 [dependencies.zip]
