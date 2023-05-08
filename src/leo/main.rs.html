@@ -176,7 +176,7 @@
 
 <span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
 </span><span class="attr">#[derive(StructOpt, Debug)]
-#[structopt(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>)]
+#[structopt(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>, version)]
 </span><span class="kw">pub struct </span>CLI {
     <span class="attr">#[structopt(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Print additional information for debugging&quot;</span>)]
     </span>debug: bool,
