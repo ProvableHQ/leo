@@ -28,7 +28,7 @@ use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]
-#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>")]
+#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct CLI {
     #[structopt(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
