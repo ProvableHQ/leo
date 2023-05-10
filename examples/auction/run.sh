@@ -112,14 +112,12 @@ echo "
 "
 leo run resolve "{
         owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.private,
-        gates: 0u64.private,
         bidder: aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke.private,
         amount: 10u64.private,
         is_winner: false.private,
         _nonce: 4668394794828730542675887906815309351994017139223602571716627453741502624516group.public
     }" "{
         owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.private,
-        gates: 0u64.private,
         bidder: aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4.private,
         amount: 90u64.private,
         is_winner: false.private,
@@ -142,7 +140,6 @@ echo "
 "
 leo run finish "{
         owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh.private,
-        gates: 0u64.private,
         bidder: aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4.private,
         amount: 90u64.private,
         is_winner: false.private,

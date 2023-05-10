@@ -1,11 +1,9 @@
 program basic_bank.aleo {
     // A token, issued by a bank.
     // - 'owner'  : The address of the account that owns the record associated with this token.
-    // - 'gates'  : The value associated with the record (always zero).
     // - 'amount' : The amount of tokens owned by the account.
     record Token {
         owner: address,
-        gates: u64,
         amount: u64,
     }
 
@@ -22,7 +20,6 @@ program basic_bank.aleo {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
         return Token {
             owner: owner,
-            gates: 0u64,
             amount: amount,
         };
     }
@@ -36,7 +33,6 @@ program basic_bank.aleo {
 
         let remaining: Token = Token {
             owner: token.owner,
-            gates: token.gates,
             amount: difference,
         };
 
@@ -68,7 +64,6 @@ program basic_bank.aleo {
 
         let token: Token = Token {
             owner: recipient,
-            gates: 0u64,
             amount: total,
         };
 
