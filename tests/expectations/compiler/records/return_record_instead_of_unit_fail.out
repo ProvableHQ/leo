@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372003]: Expected type `()` but type `test_credits` was found\n    --> compiler-test:11:16\n     |\n  11 |         return test_credits {\n     |                ^^^^^^^^^^^^\n"
+  - "Error [ETYC0372003]: Expected type `()` but type `test_credits` was found\n    --> compiler-test:10:16\n     |\n  10 |         return test_credits {\n     |                ^^^^^^^^^^^^\n"
