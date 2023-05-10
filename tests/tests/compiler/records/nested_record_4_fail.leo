@@ -6,7 +6,6 @@ expectation: Fail
 program test.aleo {    
     record Token3 {
         owner: address,
-        gates: u64,
         bar: (Bar, Bar),
     }
     
@@ -16,7 +15,6 @@ program test.aleo {
     
     record Token {
         owner: address,
-        gates: u64,
         amount: u64,
     }
     

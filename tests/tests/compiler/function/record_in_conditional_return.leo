@@ -6,7 +6,6 @@ expectation: Pass
 program test.aleo {    
     record Token {
         owner: address,
-        gates: u64,
         amount: u64
     }
     
@@ -18,14 +17,12 @@ program test.aleo {
         if(password_hash == password_hash_from_input){
             return Token {
                 owner: owner,
-                gates: 0u64,
                 amount: amount
             };
         }
         else {
             return Token {
                 owner: owner,
-                gates: 0u64,
                 amount: 0u64
             };
         }
@@ -39,14 +36,12 @@ program test.aleo {
         if(password_hash == password_hash_from_input){
             let token: Token = Token {
                 owner: owner,
-                gates: 0u64,
                 amount: amount
             };
             return token;
         }
         return Token {
             owner: owner,
-            gates: 0u64,
             amount: 0u64
         };
     }

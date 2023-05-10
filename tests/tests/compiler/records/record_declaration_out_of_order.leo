@@ -7,8 +7,6 @@ program test.aleo {
     record Token {
         // The token amount.
         amount: u64,
-        // The Aleo balance (in gates).
-        gates: u64,
         // The token owner.
         owner: address,
     }

@@ -10,7 +10,6 @@ program test.aleo;
 
 record dummy:
     owner as address.private;
-    gates as u64.private;
     data as u8.private;
 
 closure eliminate_unused_function_call:
@@ -30,7 +29,6 @@ program test.aleo {
 
     record dummy {
         owner: address,
-        gates: u64,
         data: u8,
     }
 
@@ -51,7 +49,6 @@ program test.aleo {
         }
         let f: dummy = dummy {
             owner: self.caller,
-            gates: 0u64,
             data: e,
         };
         return a + b;
