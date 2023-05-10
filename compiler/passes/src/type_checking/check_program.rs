@@ -104,7 +104,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             });
         }
 
-        // For records, enforce presence of `owner: Address` and `gates: u64` members.
+        // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
             let check_has_field =
                 |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {

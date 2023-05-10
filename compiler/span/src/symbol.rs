@@ -219,7 +219,6 @@ symbols! {
     public,
     private,
     owner,
-    gates,
     _nonce,
     program,
 

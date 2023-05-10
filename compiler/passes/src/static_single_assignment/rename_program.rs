@@ -37,7 +37,7 @@ use indexmap::IndexMap;
 impl StructConsumer for StaticSingleAssigner<'_> {
     type Output = Struct;
 
-    /// Reconstructs records in the program, ordering its fields such that `owner` and `gates` are the first and second fields, respectively.
+    /// Reconstructs records in the program, ordering its fields such that `owner` and is the first field.
     fn consume_struct(&mut self, struct_: Struct) -> Self::Output {
         match struct_.is_record {
             false => struct_,
@@ -49,10 +49,6 @@ impl StructConsumer for StaticSingleAssigner<'_> {
                 // Add the owner field to the beginning of the members list.
                 // Note that type checking ensures that the owner field exists.
                 members.push(member_map.shift_remove(&sym::owner).unwrap());
-
-                // Add the gates field to the beginning of the members list.
-                // Note that type checking ensures that the gates field exists.
-                members.push(member_map.shift_remove(&sym::gates).unwrap());
 
                 // Add the remaining fields to the members list.
                 members.extend(member_map.into_iter().map(|(_, member)| member));
