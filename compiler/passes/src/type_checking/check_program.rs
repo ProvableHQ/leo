@@ -62,7 +62,19 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Typecheck each mapping definition.
-        input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
+        let mut mapping_count = 0;
+        for mapping in input.mappings.values() {
+            self.visit_mapping(mapping);
+            mapping_count += 1;
+        }
+
+        // Check that the number of mappings does not exceed the maximum.
+        if mapping_count > Testnet3::MAX_MAPPINGS {
+            self.emit_err(TypeCheckerError::too_many_mappings(
+                Testnet3::MAX_MAPPINGS,
+                input.program_id.name.span + input.program_id.network.span,
+            ));
+        }
 
         // Typecheck each function definitions.
         let mut transition_count = 0;

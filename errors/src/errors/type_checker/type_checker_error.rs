@@ -594,4 +594,11 @@ create_messages!(
         msg: format!("A finalize block cannot return a value."),
         help: None,
     }
+
+    @formatted
+    too_many_mappings {
+        args: (max: impl Display),
+        msg: format!("The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."),
+        help: None,
+    }
 );
