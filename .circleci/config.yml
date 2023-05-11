@@ -50,7 +50,7 @@ commands:
 jobs:
   check-style:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - checkout
@@ -66,7 +66,7 @@ jobs:
 
   clippy:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - checkout
@@ -83,7 +83,7 @@ jobs:
 
   leo-executable:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - checkout
@@ -102,7 +102,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -115,7 +115,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -128,7 +128,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.65
+      - image: cimg/rust:1.69
     resource_class: xlarge
     steps:
       - attach_workspace:
