@@ -4,8 +4,6 @@ program simple_token.aleo {
     record Token {
         // The token owner.
         owner: address,
-        // The Aleo balance (in gates).
-        gates: u64,
         // The token amount.
         amount: u64,
     }
@@ -15,7 +13,6 @@ program simple_token.aleo {
     transition mint(owner: address, amount: u64) -> Token {
         return Token {
             owner: owner,
-            gates: 0u64,
             amount: amount,
         };
     }
@@ -33,14 +30,12 @@ program simple_token.aleo {
         // Produce a token record with the change amount for the sender.
         let remaining: Token = Token {
             owner: token.owner,
-            gates: token.gates,
             amount: difference,
         };
 
         // Produce a token record for the specified receiver.
         let transferred: Token = Token {
             owner: to,
-            gates: 0u64,
             amount: amount,
         };
 

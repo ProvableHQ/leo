@@ -118,7 +118,6 @@ echo "
 "
 leo run deposit "{
     owner: aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg.private,
-    gates: 0u64.private,
     amount: 100u64.private,
     _nonce: 4668394794828730542675887906815309351994017139223602571716627453741502624516group.public
 }"  50u64 || exit

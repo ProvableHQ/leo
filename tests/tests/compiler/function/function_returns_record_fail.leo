@@ -6,20 +6,18 @@ expectation: Fail
 program test.aleo {
     record Board {
         owner: address,
-        gates: u64,
         data: u8,
     }
 
     function foo(board: Board, data: u8) -> Board {
         return Board {
             owner: board.owner,
-            gates: board.gates,
             data: data,
         };
     }
 
     function bar(board: Board) {
-        assert_eq(board.gates, 0u64);
+        assert_eq(board.data, 0u8);
     }
 
     transition main(board: Board) -> Board {

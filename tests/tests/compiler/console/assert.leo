@@ -11,8 +11,6 @@ program test.aleo {
     record Token {
         // The token owner.
         owner: address,
-        // The Aleo balance (in gates).
-        gates: u64,
         // The token amount.
         amount: u64,
     }
@@ -27,7 +25,6 @@ program test.aleo {
     
         assert_neq(token, Token {
             owner: aleo1lfapwg53y5enqpt0d8cnef4g8lj7l6g9uhkkma23qyv6jm4ppyfq50regr,
-            gates: 0u64,
             amount: 0u64,
         });
         return a == true;

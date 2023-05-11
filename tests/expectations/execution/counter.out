@@ -1,5 +1,5 @@
 ---
-namespace: Finalize
+namespace: Execute
 expectation: Pass
 outputs:
   - - initial_ast: 26abbb0ef61c47bd69f82f4ed0357583bad2ba031ee028400504bfc1f856e0bb
@@ -10,18 +10,13 @@ outputs:
       dce_ast: 5cef23d00b994c5f0dc715ede94edae006730bebec809d1425d83418b287a811
       bytecode: 2f96ec3248782d1a90f9b223eb25bce3770fb9894ecd8ee89d685936ba1ea86b
       warnings: ""
-      initial_state: c9ec5ff008d56bc287af2e780cc50f7132cc8c1feea397a90f86ed825e782454
       results:
         dubble:
-          - execute_output: "[]"
-            finalize_output: Finalize was successful.
-            input: "[]"
-          - execute_output: "[]"
-            finalize_output: Finalize was successful.
-            input: "[]"
-          - execute_output: "[]"
-            finalize_output: Finalize was successful.
-            input: "[]"
-          - execute_output: "[]"
-            finalize_output: Finalize was successful.
-            input: "[]"
+          - input: "[]"
+            output: "[]"
+          - input: "[]"
+            output: "[]"
+          - input: "[]"
+            output: "[]"
+          - input: "[]"
+            output: "[]"

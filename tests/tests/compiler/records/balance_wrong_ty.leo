@@ -5,7 +5,6 @@ expectation: Pass
 
 program test.aleo {    
     record Token {
-        gates: address,
         owner: address,
     }
     

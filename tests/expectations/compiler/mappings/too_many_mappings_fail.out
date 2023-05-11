@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372072]: The number of mappings exceeds the maximum. snarkVM allows up to 31 mappings within a single program.\n    --> compiler-test:3:9\n     |\n   3 | program test.aleo {\n     |         ^^^^^^^^^\n"

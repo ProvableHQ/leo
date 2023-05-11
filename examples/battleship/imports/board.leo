@@ -8,7 +8,6 @@ program board.aleo {
     // unplayed squares.
     record board_state {
         owner: address,
-        gates: u64,
         // The hits and misses registered on the opponent's board.
         hits_and_misses: u64,
         // The squares that have been played on the opponent's board.
@@ -27,7 +26,6 @@ program board.aleo {
     ) -> board_state {
         return board_state {
             owner: self.caller,
-            gates: 0u64,
             hits_and_misses: 0u64,
             played_tiles: 0u64,
             ships,
@@ -48,7 +46,6 @@ program board.aleo {
 
         return board_state {
             owner: board.owner,
-            gates: board.gates,
             hits_and_misses: board.hits_and_misses,
             played_tiles: board.played_tiles,
             ships: board.ships,
@@ -81,7 +78,6 @@ program board.aleo {
 
         return board_state {
             owner: board.owner,
-            gates: board.gates,
             hits_and_misses: board.hits_and_misses,
             played_tiles,
             ships: board.ships,
@@ -103,7 +99,6 @@ program board.aleo {
 
         return board_state {
             owner: board.owner,
-            gates: board.gates,
             hits_and_misses,
             played_tiles: board.played_tiles,
             ships: board.ships,

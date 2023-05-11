@@ -6,7 +6,6 @@ expectation: Fail
 program test.aleo {    
     record Token {
         owner: address,
-        gates: u64,
         amount: u128,
     }
     
@@ -24,8 +23,8 @@ program test.aleo {
         amounts.get_or_init(1u8, amount);
         Mapping::get_or_init(amounts, addr, 1u8);
         amounts.get_or_init(addr, 1u8);
-        Mapping::get_or_init(tokens, addr, Token { owner: addr, gates: 1u8, amount: 1u8 });
-        tokens.get_or_init(addr, Token { owner: addr, gates: 1u8, amount: 1u8 });
+        Mapping::get_or_init(tokens, addr, Token { owner: addr, amount: 1u8 });
+        tokens.get_or_init(addr, Token { owner: addr, amount: 1u8 });
         Mapping::get_or_init(foo, addr, amount);
         foo.get_or_init(addr, amount);
     }

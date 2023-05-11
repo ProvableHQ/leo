@@ -9,7 +9,6 @@ amount: u64 = 90u64;
 [resolve]
 first: Bid = Bid {
      owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
-     gates: 0u64,
      bidder: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
      amount: 10u64,
      is_winner: false,
@@ -17,7 +16,6 @@ first: Bid = Bid {
 };
 second: Bid = Bid {
     owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
-    gates: 0u64,
     bidder: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
     amount: 90u64,
     is_winner: false,
@@ -27,7 +25,6 @@ second: Bid = Bid {
 [finish]
 bid: Bid = Bid {
     owner: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
-    gates: 0u64,
     bidder: aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh,
     amount: 90u64,
     is_winner: false,

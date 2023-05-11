@@ -1,5 +1,5 @@
 /*
-namespace: Finalize
+namespace: Execute
 expectation: Pass
 initial_state:
     counter: []

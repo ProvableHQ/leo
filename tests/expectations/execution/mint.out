@@ -2,17 +2,17 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_ast: e192c70186fda9dc009e023b648bf336b7ebdfed0ec157fdaa7990776a3cbd89
-      unrolled_ast: e192c70186fda9dc009e023b648bf336b7ebdfed0ec157fdaa7990776a3cbd89
-      ssa_ast: 558e95d5d2b7baa877a0ad1278dfda0df761be90c58721fe3210fe4a89469a73
-      flattened_ast: 23880e52eb60934d5bbf37d7a404435ff54f12eba673787df7c844dc37035f80
-      inlined_ast: 23880e52eb60934d5bbf37d7a404435ff54f12eba673787df7c844dc37035f80
-      dce_ast: 23880e52eb60934d5bbf37d7a404435ff54f12eba673787df7c844dc37035f80
-      bytecode: d1f79755d5d49e093fefa3bed2a2e81482a103f4f0411fe8989868a3ac4fcf4c
+  - - initial_ast: d280acb4697e7a9ec03f4d4e59857240a0e5da3eabd475b0c24d3f40fc3eed92
+      unrolled_ast: d280acb4697e7a9ec03f4d4e59857240a0e5da3eabd475b0c24d3f40fc3eed92
+      ssa_ast: 1e5b51578e41dff5543775bf266034e7b502d48393a7c841e07583fac9949755
+      flattened_ast: 808ad6aad5b5dc657fd57540169f09b9dcbace46e39df88a4ce9e31802273aff
+      inlined_ast: 808ad6aad5b5dc657fd57540169f09b9dcbace46e39df88a4ce9e31802273aff
+      dce_ast: 808ad6aad5b5dc657fd57540169f09b9dcbace46e39df88a4ce9e31802273aff
+      bytecode: d47819ba59e730eb159ee9e33fef5a35aac6062e70c743a749157d54824a45d9
       warnings: ""
       results:
         mint:
           - input: "[aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs, 0u64]"
-            output: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  gates: 0u64.public,\n  amount: 0u64.private,\n  flag: true.constant,\n  \n}]"
+            output: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  amount: 0u64.private,\n  flag: true.constant,\n  \n}]"
           - input: "[aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q, 1u64]"
-            output: "[{\n  owner: aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q.private,\n  gates: 0u64.public,\n  amount: 1u64.private,\n  flag: true.constant,\n  \n}]"
+            output: "[{\n  owner: aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q.private,\n  amount: 1u64.private,\n  flag: true.constant,\n  \n}]"

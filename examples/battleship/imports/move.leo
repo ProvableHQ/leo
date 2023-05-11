@@ -1,7 +1,6 @@
 program move.aleo {
     record move {
         owner: address,
-        gates: u64,
         incoming_fire_coordinate: u64,
         player_1: address,
         player_2: address,
@@ -24,7 +23,6 @@ program move.aleo {
 
         return move {
             owner: opponent,
-            gates: move_record.gates,
             incoming_fire_coordinate,
             player_1: move_record.player_2,
             player_2: move_record.player_1,
@@ -37,7 +35,6 @@ program move.aleo {
     transition start_game(player_2: address) -> move {
         return move {
             owner: player_2,
-            gates: 0u64,
             incoming_fire_coordinate: 0u64,
             player_1: self.caller,
             player_2: player_2,

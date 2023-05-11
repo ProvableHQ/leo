@@ -9,8 +9,6 @@ program test.aleo {
     record Token {
         // The token owner.
         owner: address,
-        // The Aleo balance (in gates).
-        gates: u64,
         // The token amount.
         amount: u64,
     }
@@ -19,7 +17,6 @@ program test.aleo {
         let amount: u64 = a * a;
         return Token {
             amount,
-            gates: 0u64,
             owner,
         };
     }

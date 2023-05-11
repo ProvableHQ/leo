@@ -12,8 +12,6 @@ program test.aleo {
     record Token {
         // The token owner.
         private owner: address,
-        // The Aleo balance (in gates).
-        public gates: u64,
         // The token amount.
         amount: u64,
         // The flag.
@@ -23,7 +21,6 @@ program test.aleo {
     transition mint(owner: address, amount: u64) -> Token {
         return Token {
             owner,
-            gates: 0u64,
             amount: amount,
             flag: true,
         };

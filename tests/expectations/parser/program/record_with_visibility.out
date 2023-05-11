@@ -16,19 +16,12 @@ outputs:
                 span:
                   lo: 57
                   hi: 71
-              - mode: Private
-                identifier: "{\"name\":\"gates\",\"span\":\"{\\\"lo\\\":89,\\\"hi\\\":94}\"}"
-                type_:
-                  Integer: U64
-                span:
-                  lo: 89
-                  hi: 99
             is_record: true
             span:
               lo: 26
-              hi: 106
+              hi: 78
         mappings: {}
         functions: {}
         span:
           lo: 2
-          hi: 108
+          hi: 80

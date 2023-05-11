@@ -57,7 +57,7 @@ impl StructExpression {
     pub fn check_record(&self) -> bool {
         let has_member = |symbol| self.members.iter().any(|variable| variable.identifier.name == symbol);
 
-        has_member(sym::owner) && has_member(sym::gates) && has_member(sym::_nonce)
+        has_member(sym::owner) && has_member(sym::_nonce)
     }
 
     /// Returns the struct as a record interface with visibility.
