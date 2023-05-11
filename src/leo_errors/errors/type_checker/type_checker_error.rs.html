@@ -595,6 +595,13 @@
 <a href="#595" id="595">595</a>
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1189,6 +1196,13 @@
     finalize_cannot_return_value {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot return a value.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    too_many_mappings {
+        args: (max: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

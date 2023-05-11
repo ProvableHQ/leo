@@ -413,6 +413,18 @@
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
 <a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -477,7 +489,19 @@
         }
 
         <span class="comment">// Typecheck each mapping definition.
-        </span>input.mappings.values().for_each(|mapping| <span class="self">self</span>.visit_mapping(mapping));
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_count = <span class="number">0</span>;
+        <span class="kw">for </span>mapping <span class="kw">in </span>input.mappings.values() {
+            <span class="self">self</span>.visit_mapping(mapping);
+            mapping_count += <span class="number">1</span>;
+        }
+
+        <span class="comment">// Check that the number of mappings does not exceed the maximum.
+        </span><span class="kw">if </span>mapping_count &gt; Testnet3::MAX_MAPPINGS {
+            <span class="self">self</span>.emit_err(TypeCheckerError::too_many_mappings(
+                Testnet3::MAX_MAPPINGS,
+                input.program_id.name.span + input.program_id.network.span,
+            ));
+        }
 
         <span class="comment">// Typecheck each function definitions.
         </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
@@ -519,7 +543,7 @@
             });
         }
 
-        <span class="comment">// For records, enforce presence of `owner: Address` and `gates: u64` members.
+        <span class="comment">// For records, enforce presence of the `owner: Address` member.
         </span><span class="kw">if </span>input.is_record {
             <span class="kw">let </span>check_has_field =
                 |need, expected_ty: Type| <span class="kw">match </span>input.members.iter().find_map(|Member { identifier, type_, .. }| {

@@ -315,9 +315,6 @@
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -513,21 +510,18 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, StructVariableInitializer&gt; =
             members.into_iter().map(|member| (member.identifier.name, member)).collect();
 
-        <span class="comment">// If we are initializing a record, add the `owner` and `gates` fields, first and second respectively.
+        <span class="comment">// If we are initializing a record, add the `owner` first.
         // Note that type checking guarantees that the above fields exist.
         </span><span class="kw">if </span>struct_definition.is_record {
             <span class="comment">// Add the `owner` field.
             // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
             </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>sym::owner).unwrap());
-            <span class="comment">// Add the `gates` field.
-            // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
-            </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>sym::gates).unwrap());
         }
 
         <span class="comment">// For each member of the struct definition, push the corresponding member of the init expression.
         </span><span class="kw">for </span>member <span class="kw">in </span><span class="kw-2">&amp;</span>struct_definition.members {
-            <span class="comment">// If the member is part of a record and it is `owner` or `gates`, then we have already added it.
-            </span><span class="kw">if </span>!(struct_definition.is_record &amp;&amp; <span class="macro">matches!</span>(member.identifier.name, sym::owner | sym::gates)) {
+            <span class="comment">// If the member is part of a record and it is `owner` then we have already added it.
+            </span><span class="kw">if </span>!(struct_definition.is_record &amp;&amp; <span class="macro">matches!</span>(member.identifier.name, sym::owner)) {
                 <span class="comment">// Lookup and push the member of the init expression.
                 // Note that the `unwrap` is safe, since type checking guarantees that the member exists.
                 </span>reordered_members.push(member_map.remove(<span class="kw-2">&amp;</span>member.identifier.name).unwrap());
