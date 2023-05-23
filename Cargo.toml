@@ -86,7 +86,7 @@ version = "0.5.1"
 version = "2.0"
 
 [dependencies.console]
-version = "0.15.5"
+version = "0.15.7"
 
 [dependencies.dirs]
 version = "5.0.0"
