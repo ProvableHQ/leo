@@ -393,7 +393,10 @@ impl<'a> TypeChecker<'a> {
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
                 Some(Type::Field)
             }
-            CoreFunction::BHP256CommitToGroup => {
+            CoreFunction::BHP256CommitToGroup
+            | CoreFunction::BHP512CommitToGroup
+            | CoreFunction::BHP768CommitToGroup
+            | CoreFunction::BHP1024CommitToGroup => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
