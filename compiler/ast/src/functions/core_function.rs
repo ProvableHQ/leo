@@ -20,6 +20,7 @@ use leo_span::{sym, Symbol};
 #[derive(Clone, PartialEq, Eq)]
 pub enum CoreFunction {
     BHP256Commit,
+    BHP256CommitToGroup,
     BHP256Hash,
     BHP512Commit,
     BHP512Hash,
@@ -47,6 +48,7 @@ impl CoreFunction {
     pub fn from_symbols(module: Symbol, function: Symbol) -> Option<Self> {
         Some(match (module, function) {
             (sym::BHP256, sym::commit) => Self::BHP256Commit,
+            (sym::BHP256, sym::commit_to_group) => Self::BHP256CommitToGroup,
             (sym::BHP256, sym::hash) => Self::BHP256Hash,
             (sym::BHP512, sym::commit) => Self::BHP512Commit,
             (sym::BHP512, sym::hash) => Self::BHP512Hash,
@@ -75,6 +77,7 @@ impl CoreFunction {
     pub fn num_args(&self) -> usize {
         match self {
             Self::BHP256Commit => 2,
+            Self::BHP256CommitToGroup => 2,
             Self::BHP256Hash => 1,
             Self::BHP512Commit => 2,
             Self::BHP512Hash => 1,
