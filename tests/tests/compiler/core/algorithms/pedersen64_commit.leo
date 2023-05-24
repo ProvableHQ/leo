@@ -18,16 +18,16 @@ program test.aleo {
         // let string_value: string = "helloworld";
     
         // Pedersen64 hash tests
-        let a: group = Pedersen64::commit(bool_value, 1scalar);
-        let b: group = Pedersen64::commit(i8_value, 1scalar);
-        let c: group = Pedersen64::commit(i16_value, 1scalar);
-        let d: group = Pedersen64::commit(i32_value, 1scalar);
-        let e: group = Pedersen64::commit(i64_value, 1scalar);
-        let f: group = Pedersen64::commit(u8_value, 1scalar);
-        let g: group = Pedersen64::commit(u16_value, 1scalar);
-        let h: group = Pedersen64::commit(u32_value, 1scalar);
-        let i: group = Pedersen64::commit(u64_value, 1scalar);
-        // let j11: group = Pedersen64::commit(string_value, 1scalar);
+        let a: field = Pedersen64::commit(bool_value, 1scalar);
+        let b: field = Pedersen64::commit(i8_value, 1scalar);
+        let c: field = Pedersen64::commit(i16_value, 1scalar);
+        let d: field = Pedersen64::commit(i32_value, 1scalar);
+        let e: field = Pedersen64::commit(i64_value, 1scalar);
+        let f: field = Pedersen64::commit(u8_value, 1scalar);
+        let g: field = Pedersen64::commit(u16_value, 1scalar);
+        let h: field = Pedersen64::commit(u32_value, 1scalar);
+        let i: field = Pedersen64::commit(u64_value, 1scalar);
+        // let j11: field = Pedersen64::commit(string_value, 1scalar);
     
         return a == i;
     }}

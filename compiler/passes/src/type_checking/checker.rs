@@ -407,7 +407,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
 
-                Some(Type::Group)
+                Some(Type::Field)
             }
             CoreFunction::Pedersen64Hash => {
                 // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
@@ -420,7 +420,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
 
-                Some(Type::Group)
+                Some(Type::Field)
             }
             CoreFunction::Pedersen128Hash => {
                 // Check that the first argument is either a boolean, integer, or field element.
