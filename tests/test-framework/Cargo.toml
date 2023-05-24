@@ -59,4 +59,4 @@ path = "../../compiler/span"
 version = "1.6.3"
 
 [dev-dependencies.criterion]
-version = "0.4"
+version = "0.5"
