@@ -22,15 +22,22 @@ pub enum CoreFunction {
     BHP256Commit,
     BHP256CommitToGroup,
     BHP256Hash,
+    BHP256HashToGroup,
+
     BHP512Commit,
     BHP512CommitToGroup,
     BHP512Hash,
+    BHP512HashToGroup,
+
     BHP768Commit,
     BHP768CommitToGroup,
     BHP768Hash,
+    BHP768HashToGroup,
+
     BHP1024Commit,
     BHP1024CommitToGroup,
     BHP1024Hash,
+    BHP1024HashToGroup,
 
     Pedersen64Commit,
     Pedersen64Hash,
@@ -53,15 +60,22 @@ impl CoreFunction {
             (sym::BHP256, sym::commit) => Self::BHP256Commit,
             (sym::BHP256, sym::commit_to_group) => Self::BHP256CommitToGroup,
             (sym::BHP256, sym::hash) => Self::BHP256Hash,
+            (sym::BHP256, sym::hash_to_group) => Self::BHP256HashToGroup,
+
             (sym::BHP512, sym::commit) => Self::BHP512Commit,
             (sym::BHP512, sym::commit_to_group) => Self::BHP512CommitToGroup,
             (sym::BHP512, sym::hash) => Self::BHP512Hash,
+            (sym::BHP512, sym::hash_to_group) => Self::BHP512HashToGroup,
+
             (sym::BHP768, sym::commit) => Self::BHP768Commit,
             (sym::BHP768, sym::commit_to_group) => Self::BHP768CommitToGroup,
             (sym::BHP768, sym::hash) => Self::BHP768Hash,
+            (sym::BHP768, sym::hash_to_group) => Self::BHP768HashToGroup,
+
             (sym::BHP1024, sym::commit) => Self::BHP1024Commit,
             (sym::BHP1024, sym::commit_to_group) => Self::BHP1024CommitToGroup,
             (sym::BHP1024, sym::hash) => Self::BHP1024Hash,
+            (sym::BHP1024, sym::hash_to_group) => Self::BHP1024HashToGroup,
 
             (sym::Pedersen64, sym::commit) => Self::Pedersen64Commit,
             (sym::Pedersen64, sym::hash) => Self::Pedersen64Hash,
@@ -85,15 +99,22 @@ impl CoreFunction {
             Self::BHP256Commit => 2,
             Self::BHP256CommitToGroup => 2,
             Self::BHP256Hash => 1,
+            Self::BHP256HashToGroup => 1,
+
             Self::BHP512Commit => 2,
             Self::BHP512CommitToGroup => 2,
             Self::BHP512Hash => 1,
+            Self::BHP512HashToGroup => 1,
+
             Self::BHP768Commit => 2,
             Self::BHP768CommitToGroup => 2,
             Self::BHP768Hash => 1,
+            Self::BHP768HashToGroup => 1,
+
             Self::BHP1024Commit => 2,
             Self::BHP1024CommitToGroup => 2,
             Self::BHP1024Hash => 1,
+            Self::BHP1024HashToGroup => 1,
 
             Self::Pedersen64Commit => 2,
             Self::Pedersen64Hash => 1,

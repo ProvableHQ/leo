@@ -411,6 +411,14 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
+            CoreFunction::BHP256HashToGroup
+            | CoreFunction::BHP512HashToGroup
+            | CoreFunction::BHP768HashToGroup
+            | CoreFunction::BHP1024HashToGroup => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Group)
+            }
             CoreFunction::Pedersen64Commit => {
                 // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
