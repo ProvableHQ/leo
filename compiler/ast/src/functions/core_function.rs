@@ -40,9 +40,14 @@ pub enum CoreFunction {
     BHP1024HashToGroup,
 
     Pedersen64Commit,
+    Pedersen64CommitToGroup,
     Pedersen64Hash,
+    Pedersen64HashToGroup,
+
     Pedersen128Commit,
+    Pedersen128CommitToGroup,
     Pedersen128Hash,
+    Pedersen128HashToGroup,
 
     Poseidon2Hash,
     Poseidon4Hash,
@@ -78,9 +83,14 @@ impl CoreFunction {
             (sym::BHP1024, sym::hash_to_group) => Self::BHP1024HashToGroup,
 
             (sym::Pedersen64, sym::commit) => Self::Pedersen64Commit,
+            (sym::Pedersen64, sym::commit_to_group) => Self::Pedersen64CommitToGroup,
             (sym::Pedersen64, sym::hash) => Self::Pedersen64Hash,
+            (sym::Pedersen64, sym::hash_to_group) => Self::Pedersen64HashToGroup,
+
             (sym::Pedersen128, sym::commit) => Self::Pedersen128Commit,
+            (sym::Pedersen128, sym::commit_to_group) => Self::Pedersen128CommitToGroup,
             (sym::Pedersen128, sym::hash) => Self::Pedersen128Hash,
+            (sym::Pedersen128, sym::hash_to_group) => Self::Pedersen128HashToGroup,
 
             (sym::Poseidon2, sym::hash) => Self::Poseidon2Hash,
             (sym::Poseidon4, sym::hash) => Self::Poseidon4Hash,
@@ -117,9 +127,14 @@ impl CoreFunction {
             Self::BHP1024HashToGroup => 1,
 
             Self::Pedersen64Commit => 2,
+            Self::Pedersen64CommitToGroup => 2,
             Self::Pedersen64Hash => 1,
+            Self::Pedersen64HashToGroup => 1,
+
             Self::Pedersen128Commit => 2,
+            Self::Pedersen128CommitToGroup => 2,
             Self::Pedersen128Hash => 1,
+            Self::Pedersen128HashToGroup => 1,
 
             Self::Poseidon2Hash => 1,
             Self::Poseidon4Hash => 1,

@@ -427,10 +427,23 @@ impl<'a> TypeChecker<'a> {
 
                 Some(Type::Field)
             }
+            CoreFunction::Pedersen64CommitToGroup => {
+                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Group)
+            }
             CoreFunction::Pedersen64Hash => {
                 // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
+            }
+            CoreFunction::Pedersen64HashToGroup => {
+                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Group)
             }
             CoreFunction::Pedersen128Commit => {
                 // Check that the first argument is either a boolean, integer, or field element.
@@ -440,10 +453,23 @@ impl<'a> TypeChecker<'a> {
 
                 Some(Type::Field)
             }
+            CoreFunction::Pedersen128CommitToGroup => {
+                // Check that the first argument is either a boolean, integer, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Group)
+            }
             CoreFunction::Pedersen128Hash => {
                 // Check that the first argument is either a boolean, integer, or field element.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
+            }
+            CoreFunction::Pedersen128HashToGroup => {
+                // Check that the first argument is either a boolean, integer, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Group)
             }
             CoreFunction::Poseidon2Hash | CoreFunction::Poseidon4Hash | CoreFunction::Poseidon8Hash => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
