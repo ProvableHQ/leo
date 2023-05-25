@@ -50,8 +50,16 @@ pub enum CoreFunction {
     Pedersen128HashToGroup,
 
     Poseidon2Hash,
+    Poseidon2HashToGroup,
+    Poseidon2HashToScalar,
+
     Poseidon4Hash,
+    Poseidon4HashToGroup,
+    Poseidon4HashToScalar,
+
     Poseidon8Hash,
+    Poseidon8HashToGroup,
+    Poseidon8HashToScalar,
 
     MappingGet,
     MappingGetOrInit,
@@ -93,8 +101,16 @@ impl CoreFunction {
             (sym::Pedersen128, sym::hash_to_group) => Self::Pedersen128HashToGroup,
 
             (sym::Poseidon2, sym::hash) => Self::Poseidon2Hash,
+            (sym::Poseidon2, sym::hash_to_group) => Self::Poseidon2HashToGroup,
+            (sym::Poseidon2, sym::hash_to_scalar) => Self::Poseidon2HashToScalar,
+
             (sym::Poseidon4, sym::hash) => Self::Poseidon4Hash,
+            (sym::Poseidon4, sym::hash_to_group) => Self::Poseidon4HashToGroup,
+            (sym::Poseidon4, sym::hash_to_scalar) => Self::Poseidon4HashToScalar,
+
             (sym::Poseidon8, sym::hash) => Self::Poseidon8Hash,
+            (sym::Poseidon8, sym::hash_to_group) => Self::Poseidon8HashToGroup,
+            (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
 
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_init) => Self::MappingGetOrInit,
@@ -137,8 +153,16 @@ impl CoreFunction {
             Self::Pedersen128HashToGroup => 1,
 
             Self::Poseidon2Hash => 1,
+            Self::Poseidon2HashToGroup => 1,
+            Self::Poseidon2HashToScalar => 1,
+
             Self::Poseidon4Hash => 1,
+            Self::Poseidon4HashToGroup => 1,
+            Self::Poseidon4HashToScalar => 1,
+
             Self::Poseidon8Hash => 1,
+            Self::Poseidon8HashToGroup => 1,
+            Self::Poseidon8HashToScalar => 1,
 
             Self::MappingGet => 2,
             Self::MappingGetOrInit => 3,

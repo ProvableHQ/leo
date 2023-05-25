@@ -476,6 +476,20 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
+            CoreFunction::Poseidon2HashToGroup
+            | CoreFunction::Poseidon4HashToGroup
+            | CoreFunction::Poseidon8HashToGroup => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Group)
+            }
+            CoreFunction::Poseidon2HashToScalar
+            | CoreFunction::Poseidon4HashToScalar
+            | CoreFunction::Poseidon8HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
+            }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.
                 if !self.is_finalize {
