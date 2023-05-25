@@ -151,7 +151,6 @@ symbols! {
     get,
     get_or_init,
     hash,
-    hash_many,
     hash_to_group,
     hash_to_scalar,
     Mapping,
