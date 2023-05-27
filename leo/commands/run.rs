@@ -24,19 +24,19 @@ use leo_package::build::BuildDirectory;
 
 use snarkvm::cli::Run as AleoRun;
 
-use clap::StructOpt;
+use clap::Parser;
 use tracing::span::Span;
 
 /// Build, Prove and Run Leo program with inputs
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct Run {
-    #[structopt(name = "NAME", help = "The name of the program to run.", default_value = "main")]
+    #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[structopt(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
+    #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
 
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
 }
 

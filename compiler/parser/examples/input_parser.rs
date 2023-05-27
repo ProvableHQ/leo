@@ -19,25 +19,23 @@
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
-use clap::StructOpt;
+use clap::Parser;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
 
-#[derive(Debug, StructOpt)]
-#[structopt(name = "input parser", about = "Parse an Input file and save its JSON representation")]
+#[derive(Debug, Parser)]
+#[clap(name = "input parser", about = "Parse an Input file and save its JSON representation")]
 struct Opt {
     /// Path to the input file.
-    #[structopt(parse(from_os_str))]
     input_path: PathBuf,
 
     /// Optional path to the output directory.
-    #[structopt(parse(from_os_str))]
     out_dir_path: Option<PathBuf>,
 
     /// Whether to print result to STDOUT.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     print_stdout: bool,
 }
 

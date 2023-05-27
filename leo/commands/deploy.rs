@@ -24,11 +24,11 @@ use leo_package::build::BuildDirectory;
 
 use aleo::commands::Deploy as AleoDeploy;
 
-use clap::StructOpt;
+use clap::Parser;
 use tracing::span::Span;
 
 /// Deploys an Aleo program.
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct Deploy;
 
 impl Command for Deploy {

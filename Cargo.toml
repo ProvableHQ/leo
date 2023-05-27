@@ -31,10 +31,10 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "=0.11.2"
+version = "=0.11.3"
 
 [workspace.dependencies.snarkvm-console]
-version = "=0.11.2"
+version = "=0.11.3"
 
 [lib]
 path = "leo/lib.rs"
@@ -76,8 +76,8 @@ version = "1.7.1"
 version = "0.3.67"
 
 [dependencies.clap]
-version = "3.2"
-features = [ "derive", "env" ]
+version = "4.3"
+features = [ "derive", "env", "color", "unstable-styles"]
 
 [dependencies.color-backtrace]
 version = "0.5.1"
