@@ -31,11 +31,13 @@ use leo_package::{
 };
 use leo_span::{symbol::with_session_globals, Symbol};
 
-use snarkvm::cli::Build as AleoBuild;
+use snarkvm::{
+    cli::Build as AleoBuild,
+    prelude::{ProgramID, Testnet3},
+};
 
-use clap::StructOpt;
+use clap::Parser;
 use indexmap::IndexMap;
-use snarkvm::prelude::{ProgramID, Testnet3};
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -45,29 +47,29 @@ use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(StructOpt, Clone, Debug, Default)]
+#[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Enables offline mode.")]
+    #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
-    #[structopt(long, help = "Enable spans in AST snapshots.")]
+    #[clap(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
-    #[structopt(long, help = "Enables dead code elimination in the compiler.")]
+    #[clap(long, help = "Enables dead code elimination in the compiler.")]
     pub enable_dce: bool,
-    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
-    #[structopt(long, help = "Writes Input AST snapshot of the initial parse.")]
+    #[clap(long, help = "Writes Input AST snapshot of the initial parse.")]
     pub enable_initial_input_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
+    #[clap(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the unrolled AST.")]
+    #[clap(long, help = "Writes AST snapshot of the unrolled AST.")]
     pub enable_unrolled_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the SSA AST.")]
+    #[clap(long, help = "Writes AST snapshot of the SSA AST.")]
     pub enable_ssa_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the flattened AST.")]
+    #[clap(long, help = "Writes AST snapshot of the flattened AST.")]
     pub enable_flattened_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the inlined AST.")]
+    #[clap(long, help = "Writes AST snapshot of the inlined AST.")]
     pub enable_inlined_ast_snapshot: bool,
-    #[structopt(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
+    #[clap(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
     pub enable_dce_ast_snapshot: bool,
 }
 
@@ -101,9 +103,9 @@ impl From<BuildOptions> for CompilerOptions {
 }
 
 /// Compile and build program command.
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct Build {
-    #[structopt(flatten)]
+    #[clap(flatten)]
     pub(crate) options: BuildOptions,
 }
 

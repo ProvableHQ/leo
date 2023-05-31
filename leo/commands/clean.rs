@@ -18,12 +18,12 @@ use crate::{commands::Command, context::Context};
 use leo_errors::Result;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
 
-use clap::StructOpt;
+use clap::Parser;
 use colored::Colorize;
 use tracing::span::Span;
 
 /// Clean outputs folder command
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct Clean {}
 
 impl Command for Clean {
