@@ -113,6 +113,16 @@ create_messages!(
         help: None,
     }
 
+    /// For when an invalid core constant is called.
+    @formatted
+    invalid_core_constant {
+        args: (type_: impl Display, constant: impl Display),
+        msg: format! (
+            "{type_}::{constant} is not a valid core constant.",
+        ),
+        help: None,
+    }
+
     /// For when an invalid core function is used.
     @formatted
     invalid_core_function {
@@ -163,7 +173,17 @@ create_messages!(
         help: None,
     }
 
-    /// An invalid access call is made e.g., `bool::MAX`
+    /// A call to an invalid associated constant is made e.g., `bool::MAX`
+    @formatted
+    invalid_associated_constant {
+        args: (expr: impl Display),
+        msg: format!(
+            "{expr} is not a valid associated constant."
+        ),
+        help: None,
+    }
+
+    /// An invalid access call is made e.g., `SHA256::hash()
     @formatted
     invalid_core_function_call {
         args: (expr: impl Display),

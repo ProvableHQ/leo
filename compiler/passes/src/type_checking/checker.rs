@@ -16,7 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable};
 
-use leo_ast::{CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
+use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -300,6 +300,21 @@ impl<'a> TypeChecker<'a> {
             type_,
             span,
         )
+    }
+
+    /// Type checks the inputs to an associated constant and returns the expected output type.
+    pub(crate) fn get_core_constant(&self, type_: &Type, constant: &Identifier) -> Option<CoreConstant> {
+        if let Type::Identifier(ident) = type_ {
+            // Lookup core constant
+            match CoreConstant::from_symbols(ident.name, constant.name) {
+                None => {
+                    // Not a core constant.
+                    self.emit_err(TypeCheckerError::invalid_core_constant(ident.name, constant.name, ident.span()));
+                }
+                Some(core_constant) => return Some(core_constant),
+            }
+        }
+        None
     }
 
     /// Emits an error if the `struct` is not a core library struct.

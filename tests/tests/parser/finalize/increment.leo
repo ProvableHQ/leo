@@ -1,6 +1,6 @@
 /*
 namespace: ParseStatement
-expectation: Pass
+expectation: Fail
 */
 
 increment(foo, bar, baz);

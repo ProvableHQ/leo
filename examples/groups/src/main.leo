@@ -4,13 +4,16 @@ program groups.aleo {
 
     transition main(a: group) -> group {
         // unary
-        let e: group = a.double(); // 2a
-        let g: group = e.neg();    // -2a
+        let b: group = a.double(); // 2a
+        let c: group = b.neg();    // -2a
 
         // binary
-        let j: group = (a * 2scalar).add(g);
+        let d: group = (a * 2scalar).add(c);
 
-        return j;
+        // generator
+        let e: group = group::GEN;
+
+        return d + e;
     }
 }
 
