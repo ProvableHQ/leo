@@ -154,7 +154,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Check associated constant type and constant name
                 if let Some(core_constant) = self.get_core_constant(&access.ty, &access.name) {
                     // Check return type if the expected type is known.
-                    let return_type = Some(core_constant.return_type());
+                    let return_type = Some(core_constant.to_type());
                     if let Some(expected) = expected {
                         self.assert_type(&return_type, expected, input.span());
                     }

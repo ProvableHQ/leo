@@ -1,0 +1,51 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings: {}
+        functions:
+          x:
+            annotations: []
+            variant: Standard
+            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            input: []
+            output:
+              - Internal:
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 46
+                    hi: 49
+            output_type:
+              Integer: U32
+            block:
+              statements:
+                - Return:
+                    expression:
+                      Literal:
+                        Integer:
+                          - U8
+                          - "0"
+                          - span:
+                              lo: 67
+                              hi: 70
+                    finalize_arguments: ~
+                    span:
+                      lo: 60
+                      hi: 71
+              span:
+                lo: 50
+                hi: 77
+            finalize: ~
+            span:
+              lo: 30
+              hi: 77
+        span:
+          lo: 2
+          hi: 78

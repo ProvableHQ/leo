@@ -1,0 +1,43 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Assign:
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":8}\"}"
+      span:
+        lo: 0
+        hi: 8
+  - Assign:
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          op: Add
+          span:
+            lo: 4
+            hi: 7
+      span:
+        lo: 0
+        hi: 7
+  - Assign:
+      place:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      value:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+          arguments: []
+          external: ~
+          span:
+            lo: 4
+            hi: 7
+      span:
+        lo: 0
+        hi: 7

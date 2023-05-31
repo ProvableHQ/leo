@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected 'function', 'transition', or 'inline' -- found '('\n    --> test:4:9\n     |\n   4 |     @foo(?, bar, ?)\n     |         ^"

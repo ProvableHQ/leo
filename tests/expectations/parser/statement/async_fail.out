@@ -1,0 +1,5 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected ; -- found 'finalize'\n    --> test:1:7\n     |\n   1 | async finalize(foo);\n     |       ^^^^^^^^"

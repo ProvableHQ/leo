@@ -1,0 +1,334 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Binary:
+      left:
+        Literal:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 0
+                hi: 3
+      right:
+        Literal:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 6
+                hi: 9
+      op: Gt
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Literal:
+          Integer:
+            - U8
+            - "2"
+            - span:
+                lo: 0
+                hi: 3
+      right:
+        Literal:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 4
+                hi: 7
+      op: Gt
+      span:
+        lo: 0
+        hi: 7
+  - Binary:
+      left:
+        Binary:
+          left:
+            Literal:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    lo: 0
+                    hi: 3
+          right:
+            Literal:
+              Integer:
+                - U8
+                - "2"
+                - span:
+                    lo: 6
+                    hi: 9
+          op: Add
+          span:
+            lo: 0
+            hi: 9
+      right:
+        Binary:
+          left:
+            Literal:
+              Integer:
+                - U8
+                - "3"
+                - span:
+                    lo: 12
+                    hi: 15
+          right:
+            Literal:
+              Integer:
+                - U8
+                - "4"
+                - span:
+                    lo: 18
+                    hi: 21
+          op: Add
+          span:
+            lo: 12
+            hi: 21
+      op: Gt
+      span:
+        lo: 0
+        hi: 21
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Gt
+              span:
+                lo: 2
+                hi: 9
+          op: Negate
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              op: Gt
+              span:
+                lo: 0
+                hi: 7
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+          op: Gt
+          span:
+            lo: 0
+            hi: 13
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+      op: Gt
+      span:
+        lo: 0
+        hi: 19
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          op: Gt
+          span:
+            lo: 1
+            hi: 8
+      op: Negate
+      span:
+        lo: 0
+        hi: 8
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+      op: Gt
+      span:
+        lo: 1
+        hi: 10
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Gt
+          span:
+            lo: 2
+            hi: 9
+      op: Negate
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Gt
+              span:
+                lo: 2
+                hi: 9
+          op: Negate
+          span:
+            lo: 1
+            hi: 9
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+      op: Gt
+      span:
+        lo: 1
+        hi: 16
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+          op: Gt
+          span:
+            lo: 1
+            hi: 8
+      op: Not
+      span:
+        lo: 0
+        hi: 8
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+      op: Gt
+      span:
+        lo: 1
+        hi: 10
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Gt
+          span:
+            lo: 2
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Gt
+              span:
+                lo: 2
+                hi: 9
+          op: Not
+          span:
+            lo: 1
+            hi: 9
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+      op: Gt
+      span:
+        lo: 1
+        hi: 16
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+              op: Gt
+              span:
+                lo: 1
+                hi: 8
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+              op: Gt
+              span:
+                lo: 11
+                hi: 18
+          op: Gt
+          span:
+            lo: 1
+            hi: 18
+      right:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
+              op: Gt
+              span:
+                lo: 23
+                hi: 30
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
+              op: Gt
+              span:
+                lo: 33
+                hi: 40
+          op: Gt
+          span:
+            lo: 23
+            hi: 40
+      op: Gt
+      span:
+        lo: 1
+        hi: 41

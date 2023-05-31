@@ -1,0 +1,50 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Call:
+      function:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      arguments: []
+      external: ~
+      span:
+        lo: 0
+        hi: 3
+  - Call:
+      function:
+        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      arguments: []
+      external: ~
+      span:
+        lo: 0
+        hi: 3
+  - Call:
+      function:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      arguments:
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+      external: ~
+      span:
+        lo: 0
+        hi: 4
+  - Call:
+      function:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      arguments:
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+      external: ~
+      span:
+        lo: 0
+        hi: 7
+  - Call:
+      function:
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      arguments:
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+      external: ~
+      span:
+        lo: 0
+        hi: 10

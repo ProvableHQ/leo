@@ -1,0 +1,40 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs:
+          foo:
+            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":36}\"}"
+            members:
+              - mode: Public
+                identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":54,\\\"hi\\\":57}\"}"
+                type_: Address
+                span:
+                  lo: 54
+                  hi: 66
+              - mode: Private
+                identifier: "{\"name\":\"floo\",\"span\":\"{\\\"lo\\\":84,\\\"hi\\\":88}\"}"
+                type_:
+                  Integer: U64
+                span:
+                  lo: 84
+                  hi: 93
+              - mode: None
+                identifier: "{\"name\":\"data\",\"span\":\"{\\\"lo\\\":103,\\\"hi\\\":107}\"}"
+                type_: Boolean
+                span:
+                  lo: 103
+                  hi: 113
+            is_record: false
+            span:
+              lo: 26
+              hi: 120
+        mappings: {}
+        functions: {}
+        span:
+          lo: 2
+          hi: 122

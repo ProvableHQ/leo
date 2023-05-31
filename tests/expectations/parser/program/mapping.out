@@ -1,0 +1,31 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    program_scopes:
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        structs: {}
+        mappings:
+          balances:
+            identifier: "{\"name\":\"balances\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":46}\"}"
+            key_type: Address
+            value_type:
+              Integer: U128
+            span:
+              lo: 30
+              hi: 64
+          foo:
+            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":82,\\\"hi\\\":85}\"}"
+            key_type:
+              Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
+            value_type:
+              Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
+            span:
+              lo: 74
+              hi: 98
+        functions: {}
+        span:
+          lo: 2
+          hi: 100

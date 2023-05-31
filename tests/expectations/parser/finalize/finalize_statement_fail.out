@@ -1,0 +1,11 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> test:1:1\n     |\n   1 | finalize(;\n     | ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> test:1:1\n     |\n   1 | finalize(foo, ,);\n     | ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> test:1:1\n     |\n   1 | finalize(foo, bar)\n     | ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370005]: expected ; -- found 'async'\n    --> test:1:7\n     |\n   1 | async async finalize(foo);\n     |       ^^^^^"
+  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> test:1:1\n     |\n   1 | finalize;\n     | ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370005]: expected ; -- found 'finalize'\n    --> test:1:6\n     |\n   1 | asyn finalize(foo);\n     |      ^^^^^^^^"
+  - "Error [EPAR0370005]: expected finalize -- found 'fin'\n    --> test:1:13\n     |\n   1 | return then fin;\n     |             ^^^"

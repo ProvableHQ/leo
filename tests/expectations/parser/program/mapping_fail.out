@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected 'struct', 'record', 'mapping', '@', 'function', 'transition', 'inline' -- found 'mappin'\n    --> test:4:5\n     |\n   4 |     mappin balances: address => u128;\n     |     ^^^^^^"

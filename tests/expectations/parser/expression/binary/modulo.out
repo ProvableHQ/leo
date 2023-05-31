@@ -1,0 +1,243 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Mod
+              span:
+                lo: 2
+                hi: 10
+          op: Negate
+          span:
+            lo: 1
+            hi: 10
+      op: Not
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+              op: Mod
+              span:
+                lo: 0
+                hi: 8
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+          op: Mod
+          span:
+            lo: 0
+            hi: 15
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
+      op: Mod
+      span:
+        lo: 0
+        hi: 22
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Mod
+          span:
+            lo: 1
+            hi: 9
+      op: Negate
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Negate
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+      op: Mod
+      span:
+        lo: 1
+        hi: 11
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Mod
+          span:
+            lo: 2
+            hi: 10
+      op: Negate
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Mod
+              span:
+                lo: 2
+                hi: 10
+          op: Negate
+          span:
+            lo: 1
+            hi: 10
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+      op: Mod
+      span:
+        lo: 1
+        hi: 18
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+          op: Mod
+          span:
+            lo: 1
+            hi: 9
+      op: Not
+      span:
+        lo: 0
+        hi: 9
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          op: Not
+          span:
+            lo: 1
+            hi: 3
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+      op: Mod
+      span:
+        lo: 1
+        hi: 11
+  - Unary:
+      receiver:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+          op: Mod
+          span:
+            lo: 2
+            hi: 10
+      op: Not
+      span:
+        lo: 0
+        hi: 10
+  - Binary:
+      left:
+        Unary:
+          receiver:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+              op: Mod
+              span:
+                lo: 2
+                hi: 10
+          op: Not
+          span:
+            lo: 1
+            hi: 10
+      right:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+      op: Mod
+      span:
+        lo: 1
+        hi: 18
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+              op: Mod
+              span:
+                lo: 1
+                hi: 9
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":18,\\\"hi\\\":19}\"}"
+              op: Mod
+              span:
+                lo: 12
+                hi: 20
+          op: Div
+          span:
+            lo: 1
+            hi: 20
+      right:
+        Binary:
+          left:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":27}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
+              op: Mod
+              span:
+                lo: 26
+                hi: 34
+          right:
+            Binary:
+              left:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
+              right:
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":44}\"}"
+              op: Mod
+              span:
+                lo: 37
+                hi: 45
+          op: Div
+          span:
+            lo: 26
+            hi: 45
+      op: Mod
+      span:
+        lo: 1
+        hi: 46
