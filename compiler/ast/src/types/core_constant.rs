@@ -13,17 +13,29 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-pub mod core_constant;
-pub use core_constant::*;
 
-pub mod integer_type;
-pub use integer_type::*;
+use crate::Type;
+use leo_span::{sym, Symbol};
 
-pub mod mapping;
-pub use mapping::*;
+/// A core constant that maps directly to an AVM bytecode constant.
+#[derive(Clone, PartialEq, Eq)]
+pub enum CoreConstant {
+    GroupGenerator,
+}
 
-pub mod tuple;
-pub use tuple::*;
+impl CoreConstant {
+    /// Returns a `CoreConstant` from the given type and constant symbols.
+    pub fn from_symbols(type_: Symbol, constant: Symbol) -> Option<Self> {
+        Some(match (type_, constant) {
+            (sym::group, sym::GEN) => Self::GroupGenerator,
+            _ => return None,
+        })
+    }
 
-pub mod type_;
-pub use type_::*;
+    /// Returns the `Type` of the `CoreConstant`.
+    pub fn to_type(&self) -> Type {
+        match self {
+            Self::GroupGenerator => Type::Group,
+        }
+    }
+}

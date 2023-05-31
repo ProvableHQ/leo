@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression,
+    AssociatedConstant,
     AssociatedFunction,
     BinaryExpression,
     BinaryOperation,
@@ -233,6 +234,11 @@ impl<'a> CodeGenerator<'a> {
         (member_access_instruction, String::new())
     }
 
+    // group::GEN -> group::GEN
+    fn visit_associated_constant(&mut self, input: &'a AssociatedConstant) -> (String, String) {
+        (format!("{input}"), String::new())
+    }
+
     // Pedersen64::hash() -> hash.ped64
     fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
         let mut instructions = String::new();
@@ -337,7 +343,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
         match input {
             AccessExpression::Member(access) => self.visit_member_access(access),
-            AccessExpression::AssociatedConstant(_) => todo!(), // Associated constants are not supported in AVM yet.
+            AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
             AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
         }

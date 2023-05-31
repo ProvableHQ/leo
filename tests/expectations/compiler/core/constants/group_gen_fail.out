@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372074]: group::GENERATOR is not a valid core constant.\n    --> compiler-test:7:24\n     |\n   7 |         let a: group = group::GENERATOR;\n     |                        ^^^^^\nError [ETYC0372073]: group::GENERATOR is not a valid associated constant.\n    --> compiler-test:7:24\n     |\n   7 |         let a: group = group::GENERATOR;\n     |                        ^^^^^^^^^^^^^^^^\n"
