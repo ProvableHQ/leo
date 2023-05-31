@@ -113,16 +113,6 @@ create_messages!(
         help: None,
     }
 
-    /// For when an invalid core constant is called.
-    @formatted
-    invalid_core_constant {
-        args: (type_: impl Display, constant: impl Display),
-        msg: format! (
-            "{type_}::{constant} is not a valid core constant.",
-        ),
-        help: None,
-    }
-
     /// For when an invalid core function is used.
     @formatted
     invalid_core_function {
@@ -169,16 +159,6 @@ create_messages!(
         args: (struct_: impl Display, member: impl Display),
         msg: format!(
             "Struct initialization expression for `{struct_}` is missing member `{member}`.",
-        ),
-        help: None,
-    }
-
-    /// A call to an invalid associated constant is made e.g., `bool::MAX`
-    @formatted
-    invalid_associated_constant {
-        args: (expr: impl Display),
-        msg: format!(
-            "{expr} is not a valid associated constant."
         ),
         help: None,
     }
@@ -614,11 +594,30 @@ create_messages!(
         msg: format!("A finalize block cannot return a value."),
         help: None,
     }
-
     @formatted
     too_many_mappings {
         args: (max: impl Display),
         msg: format!("The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."),
+        help: None,
+    }
+
+    /// A call to an invalid associated constant is made e.g., `bool::MAX`
+    @formatted
+    invalid_associated_constant {
+        args: (expr: impl Display),
+        msg: format!(
+            "{expr} is not a valid associated constant."
+        ),
+        help: None,
+    }
+
+    /// For when an invalid core constant is called.
+    @formatted
+    invalid_core_constant {
+        args: (type_: impl Display, constant: impl Display),
+        msg: format! (
+            "{type_}::{constant} is not a valid core constant.",
+        ),
         help: None,
     }
 );
