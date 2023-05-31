@@ -690,6 +690,18 @@
 <a href="#690" id="690">690</a>
 <a href="#691" id="691">691</a>
 <a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -842,8 +854,20 @@
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(..) =&gt; {} <span class="comment">// todo: Add support for associated constants (u8::MAX).
-        </span>}
+            AccessExpression::AssociatedConstant(access) =&gt; {
+                <span class="comment">// Check associated constant type and constant name
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_constant) = <span class="self">self</span>.get_core_constant(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
+                    <span class="comment">// Check return type if the expected type is known.
+                    </span><span class="kw">let </span>return_type = <span class="prelude-val">Some</span>(core_constant.to_type());
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
+                        <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>return_type, expected, input.span());
+                    }
+                    <span class="kw">return </span>return_type;
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.emit_err(TypeCheckerError::invalid_associated_constant(access, access.span))
+                }
+            }
+        }
         <span class="prelude-val">None
     </span>}
 

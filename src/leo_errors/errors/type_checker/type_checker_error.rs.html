@@ -602,6 +602,25 @@
 <a href="#602" id="602">602</a>
 <a href="#603" id="603">603</a>
 <a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -767,7 +786,7 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// An invalid access call is made e.g., `bool::MAX`
+    <span class="doccomment">/// An invalid access call is made e.g., `SHA256::hash()
     </span>@formatted
     invalid_core_function_call {
         args: (expr: <span class="kw">impl </span>Display),
@@ -1198,11 +1217,30 @@
         msg: <span class="macro">format!</span>(<span class="string">&quot;A finalize block cannot return a value.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
-
     @formatted
     too_many_mappings {
         args: (max: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// A call to an invalid associated constant is made e.g., `bool::MAX`
+    </span>@formatted
+    invalid_associated_constant {
+        args: (expr: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(
+            <span class="string">&quot;{expr} is not a valid associated constant.&quot;
+        </span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when an invalid core constant is called.
+    </span>@formatted
+    invalid_core_constant {
+        args: (type_: <span class="kw">impl </span>Display, constant: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format! </span>(
+            <span class="string">&quot;{type_}::{constant} is not a valid core constant.&quot;</span>,
+        ),
         help: <span class="prelude-val">None</span>,
     }
 );
