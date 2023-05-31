@@ -55,7 +55,7 @@ default-features = false
 features = [ "circuit", "console" ]
 
 [dev-dependencies.regex]
-version = "1.8.2"
+version = "1.8.3"
 
 [dev-dependencies.serde]
 version = "1.0.163"
