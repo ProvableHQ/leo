@@ -266,12 +266,12 @@
 // use serde_yaml::Value;
 // use std::collections::{BTreeMap, HashSet};
 // use std::{error::Error, fs, io, path::PathBuf};
-// use structopt::{clap::AppSettings, StructOpt};
+// use clap::{clap::AppSettings, Parser};
 
-// #[derive(StructOpt)]
-// #[structopt(name = &quot;error-coverage&quot;, author = &quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;, setting = AppSettings::ColoredHelp)]
+// #[derive(Parser)]
+// #[clap(name = &quot;error-coverage&quot;, author = &quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;, setting = AppSettings::ColoredHelp)]
 // struct Opt {
-//     #[structopt(
+//     #[clap(
 //         short,
 //         long,
 //         help = &quot;Path to the output file, defaults to stdout.&quot;,

@@ -72,12 +72,12 @@
 <span class="kw">use </span>leo_errors::Result;
 <span class="kw">use </span>leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
 
-<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>colored::Colorize;
 <span class="kw">use </span>tracing::span::Span;
 
 <span class="doccomment">/// Clean outputs folder command
-</span><span class="attr">#[derive(StructOpt, Debug)]
+</span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>Clean {}
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Clean {

@@ -171,63 +171,63 @@
 <span class="kw">use </span>leo_errors::Result;
 <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
 
-<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>std::{path::PathBuf, process::exit};
 
 <span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
-</span><span class="attr">#[derive(StructOpt, Debug)]
-#[structopt(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>, version)]
+</span><span class="attr">#[derive(Parser, Debug)]
+#[clap(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>, version)]
 </span><span class="kw">pub struct </span>CLI {
-    <span class="attr">#[structopt(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Print additional information for debugging&quot;</span>)]
+    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Print additional information for debugging&quot;</span>)]
     </span>debug: bool,
 
-    <span class="attr">#[structopt(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Suppress CLI output&quot;</span>)]
+    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Suppress CLI output&quot;</span>)]
     </span>quiet: bool,
 
-    <span class="attr">#[structopt(subcommand)]
+    <span class="attr">#[clap(subcommand)]
     </span>command: Commands,
 
-    <span class="attr">#[structopt(help = <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, env = <span class="string">&quot;APM_URL&quot;</span>)]
+    <span class="attr">#[clap(help = <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, env = <span class="string">&quot;APM_URL&quot;</span>)]
     </span>api: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="attr">#[structopt(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>, parse(from_os_str))]
+    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>)]
     </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
 <span class="doccomment">///Leo compiler and package manager
-</span><span class="attr">#[derive(StructOpt, Debug)]
+</span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">enum </span>Commands {
-    <span class="comment">// #[structopt(about = &quot;Create a new Leo package in an existing directory&quot;)]
+    <span class="comment">// #[clap(about = &quot;Create a new Leo package in an existing directory&quot;)]
     // Init {
-    //     #[structopt(flatten)]
+    //     #[clap(flatten)]
     //     command: Init,
     // },
     //
-    </span><span class="attr">#[structopt(about = <span class="string">&quot;Create a new Leo package in a new directory&quot;</span>)]
+    </span><span class="attr">#[clap(about = <span class="string">&quot;Create a new Leo package in a new directory&quot;</span>)]
     </span>New {
-        <span class="attr">#[structopt(flatten)]
+        <span class="attr">#[clap(flatten)]
         </span>command: New,
     },
-    <span class="attr">#[structopt(about = <span class="string">&quot;Compile the current package as a program&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">&quot;Compile the current package as a program&quot;</span>)]
     </span>Build {
-        <span class="attr">#[structopt(flatten)]
+        <span class="attr">#[clap(flatten)]
         </span>command: Build,
     },
-    <span class="attr">#[structopt(about = <span class="string">&quot;Clean the output directory&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">&quot;Clean the output directory&quot;</span>)]
     </span>Clean {
-        <span class="attr">#[structopt(flatten)]
+        <span class="attr">#[clap(flatten)]
         </span>command: Clean,
     },
-    <span class="attr">#[structopt(about = <span class="string">&quot;Run a program with input variables&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">&quot;Run a program with input variables&quot;</span>)]
     </span>Run {
-        <span class="attr">#[structopt(flatten)]
+        <span class="attr">#[clap(flatten)]
         </span>command: Run,
     },
-    <span class="comment">// #[structopt(subcommand)]
+    <span class="comment">// #[clap(subcommand)]
     // Node(Node),
-    // #[structopt(about = &quot;Deploy a program&quot;)]
+    // #[clap(about = &quot;Deploy a program&quot;)]
     // Deploy {
-    //     #[structopt(flatten)]
+    //     #[clap(flatten)]
     //     command: Deploy,
     // },
 </span>}

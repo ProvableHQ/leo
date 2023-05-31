@@ -277,6 +277,8 @@
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
 <a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -310,11 +312,13 @@
 };
 <span class="kw">use </span>leo_span::{symbol::with_session_globals, Symbol};
 
-<span class="kw">use </span>snarkvm::cli::Build <span class="kw">as </span>AleoBuild;
+<span class="kw">use </span>snarkvm::{
+    cli::Build <span class="kw">as </span>AleoBuild,
+    prelude::{ProgramID, Testnet3},
+};
 
-<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>indexmap::IndexMap;
-<span class="kw">use </span>snarkvm::prelude::{ProgramID, Testnet3};
 <span class="kw">use </span>std::{
     io::Write,
     path::{Path, PathBuf},
@@ -324,29 +328,29 @@
 
 <span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-</span><span class="attr">#[derive(StructOpt, Clone, Debug, Default)]
+</span><span class="attr">#[derive(Parser, Clone, Debug, Default)]
 </span><span class="kw">pub struct </span>BuildOptions {
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Enables offline mode.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Enables offline mode.&quot;</span>)]
     </span><span class="kw">pub </span>offline: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]
     </span><span class="kw">pub </span>enable_spans: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Enables dead code elimination in the compiler.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Enables dead code elimination in the compiler.&quot;</span>)]
     </span><span class="kw">pub </span>enable_dce: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]
     </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]
     </span><span class="kw">pub </span>enable_initial_input_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]
     </span><span class="kw">pub </span>enable_initial_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the unrolled AST.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the unrolled AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_unrolled_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the SSA AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_ssa_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_flattened_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the inlined AST.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the inlined AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_inlined_ast_snapshot: bool,
-    <span class="attr">#[structopt(long, help = <span class="string">&quot;Writes AST snapshot of the dead code eliminated (DCE) AST.&quot;</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the dead code eliminated (DCE) AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_dce_ast_snapshot: bool,
 }
 
@@ -380,9 +384,9 @@
 }
 
 <span class="doccomment">/// Compile and build program command.
-</span><span class="attr">#[derive(StructOpt, Debug)]
+</span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>Build {
-    <span class="attr">#[structopt(flatten)]
+    <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) options: BuildOptions,
 }
 

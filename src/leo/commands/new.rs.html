@@ -99,7 +99,6 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -122,17 +121,16 @@
 };
 <span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
-<span class="kw">use </span>snarkvm::file::AleoFile;
 
-<span class="kw">use </span>snarkvm::cli::New <span class="kw">as </span>AleoNew;
+<span class="kw">use </span>snarkvm::{cli::New <span class="kw">as </span>AleoNew, file::AleoFile};
 
-<span class="kw">use </span>clap::StructOpt;
+<span class="kw">use </span>clap::Parser;
 <span class="kw">use </span>tracing::span::Span;
 
 <span class="doccomment">/// Create new Leo project
-</span><span class="attr">#[derive(StructOpt, Debug)]
+</span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>New {
-    <span class="attr">#[structopt(name = <span class="string">&quot;NAME&quot;</span>, help = <span class="string">&quot;Set package name&quot;</span>)]
+    <span class="attr">#[clap(name = <span class="string">&quot;NAME&quot;</span>, help = <span class="string">&quot;Set package name&quot;</span>)]
     </span>name: String,
 }
 
