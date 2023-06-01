@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "1.7.1"
+version = "1.7.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Abstract syntax tree (AST) for the Leo programming language"
 homepage = "https://aleo.org"
@@ -20,11 +20,11 @@ rust-version = "1.69"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.7.1"
+version = "1.7.2"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.7.1"
+version = "1.7.2"
 
 [dependencies.indexmap]
 version = "1.9"
