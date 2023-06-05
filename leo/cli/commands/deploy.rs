@@ -45,7 +45,7 @@ impl Command for Deploy {
         let _ = std::panic::take_hook();
 
         // Call the `node` command.
-        println!();
+        tracing::info!("");
         let command = SnarkVMDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 

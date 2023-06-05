@@ -90,7 +90,7 @@ impl Command for Run {
         let _ = std::panic::take_hook();
 
         // Call the `run` command.
-        println!();
+        tracing::info!("");
         let command = SnarkVMRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_run)?;
 
