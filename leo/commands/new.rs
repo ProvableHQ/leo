@@ -20,17 +20,16 @@ use crate::{
 };
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
-use snarkvm::file::AleoFile;
 
-use snarkvm::cli::New as AleoNew;
+use snarkvm::{cli::New as AleoNew, file::AleoFile};
 
-use clap::StructOpt;
+use clap::Parser;
 use tracing::span::Span;
 
 /// Create new Leo project
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub struct New {
-    #[structopt(name = "NAME", help = "Set package name")]
+    #[clap(name = "NAME", help = "Set package name")]
     name: String,
 }
 

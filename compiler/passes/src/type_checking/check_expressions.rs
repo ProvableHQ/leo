@@ -150,7 +150,19 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
                 }
             }
-            AccessExpression::AssociatedConstant(..) => {} // todo: Add support for associated constants (u8::MAX).
+            AccessExpression::AssociatedConstant(access) => {
+                // Check associated constant type and constant name
+                if let Some(core_constant) = self.get_core_constant(&access.ty, &access.name) {
+                    // Check return type if the expected type is known.
+                    let return_type = Some(core_constant.to_type());
+                    if let Some(expected) = expected {
+                        self.assert_type(&return_type, expected, input.span());
+                    }
+                    return return_type;
+                } else {
+                    self.emit_err(TypeCheckerError::invalid_associated_constant(access, access.span))
+                }
+            }
         }
         None
     }

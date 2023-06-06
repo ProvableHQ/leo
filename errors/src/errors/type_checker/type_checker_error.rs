@@ -163,7 +163,7 @@ create_messages!(
         help: None,
     }
 
-    /// An invalid access call is made e.g., `bool::MAX`
+    /// An invalid access call is made e.g., `SHA256::hash()
     @formatted
     invalid_core_function_call {
         args: (expr: impl Display),
@@ -594,11 +594,30 @@ create_messages!(
         msg: format!("A finalize block cannot return a value."),
         help: None,
     }
-
     @formatted
     too_many_mappings {
         args: (max: impl Display),
         msg: format!("The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."),
+        help: None,
+    }
+
+    /// A call to an invalid associated constant is made e.g., `bool::MAX`
+    @formatted
+    invalid_associated_constant {
+        args: (expr: impl Display),
+        msg: format!(
+            "{expr} is not a valid associated constant."
+        ),
+        help: None,
+    }
+
+    /// For when an invalid core constant is called.
+    @formatted
+    invalid_core_constant {
+        args: (type_: impl Display, constant: impl Display),
+        msg: format! (
+            "{type_}::{constant} is not a valid core constant.",
+        ),
         help: None,
     }
 );

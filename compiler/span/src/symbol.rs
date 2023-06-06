@@ -141,6 +141,9 @@ symbols! {
     sub_wrapped,
     xor,
 
+    // core constants
+    GEN,
+
     // core functions
     BHP256,
     BHP512,

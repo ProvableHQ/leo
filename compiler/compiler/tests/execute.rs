@@ -158,7 +158,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                     &inputs,
                     rng,
                 ) {
-                    Ok((response, _, _, _)) => format!(
+                    Ok((response, _)) => format!(
                         "[{}]",
                         response
                             .outputs()

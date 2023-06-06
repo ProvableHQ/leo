@@ -23,63 +23,63 @@ use crate::{commands::*, context::*};
 use leo_errors::Result;
 use leo_span::symbol::create_session_if_not_set_then;
 
-use clap::StructOpt;
+use clap::Parser;
 use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
-#[derive(StructOpt, Debug)]
-#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
+#[derive(Parser, Debug)]
+#[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct CLI {
-    #[structopt(short, global = true, help = "Print additional information for debugging")]
+    #[clap(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
 
-    #[structopt(short, global = true, help = "Suppress CLI output")]
+    #[clap(short, global = true, help = "Suppress CLI output")]
     quiet: bool,
 
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     command: Commands,
 
-    #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
+    #[clap(help = "Custom Aleo PM backend URL", env = "APM_URL")]
     api: Option<String>,
 
-    #[structopt(long, global = true, help = "Optional path to Leo program root folder", parse(from_os_str))]
+    #[clap(long, global = true, help = "Optional path to Leo program root folder")]
     path: Option<PathBuf>,
 }
 
 ///Leo compiler and package manager
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 enum Commands {
-    // #[structopt(about = "Create a new Leo package in an existing directory")]
+    // #[clap(about = "Create a new Leo package in an existing directory")]
     // Init {
-    //     #[structopt(flatten)]
+    //     #[clap(flatten)]
     //     command: Init,
     // },
     //
-    #[structopt(about = "Create a new Leo package in a new directory")]
+    #[clap(about = "Create a new Leo package in a new directory")]
     New {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         command: New,
     },
-    #[structopt(about = "Compile the current package as a program")]
+    #[clap(about = "Compile the current package as a program")]
     Build {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         command: Build,
     },
-    #[structopt(about = "Clean the output directory")]
+    #[clap(about = "Clean the output directory")]
     Clean {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         command: Clean,
     },
-    #[structopt(about = "Run a program with input variables")]
+    #[clap(about = "Run a program with input variables")]
     Run {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         command: Run,
     },
-    // #[structopt(subcommand)]
+    // #[clap(subcommand)]
     // Node(Node),
-    // #[structopt(about = "Deploy a program")]
+    // #[clap(about = "Deploy a program")]
     // Deploy {
-    //     #[structopt(flatten)]
+    //     #[clap(flatten)]
     //     command: Deploy,
     // },
 }

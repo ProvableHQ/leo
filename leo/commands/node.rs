@@ -14,23 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::ALEO_CLI_COMMAND;
-use crate::{commands::Command, context::Context};
+use crate::{
+    commands::{Command, ALEO_CLI_COMMAND},
+    context::Context,
+};
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
 use aleo::commands::Node as AleoNode;
 
-use clap::StructOpt;
+use clap::Parser;
 use tracing::span::Span;
 
 /// Commands to operate a local development node.
-#[derive(StructOpt, Debug)]
+#[derive(Parser, Debug)]
 pub enum Node {
     /// Starts a local development node
     Start {
         /// Skips deploying the local program at genesis.
-        #[structopt(long)]
+        #[clap(long)]
         nodeploy: bool,
     },
 }

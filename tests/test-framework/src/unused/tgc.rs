@@ -24,23 +24,18 @@ use leo_test_framework::{
 };
 
 use std::{error::Error, fs, path::PathBuf};
-use structopt::{clap::AppSettings, StructOpt};
+use structopt::{clap::AppSettings, Parser};
 
-#[derive(StructOpt)]
-#[structopt(name = "ast-stages-generator", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+#[derive(Parser)]
+#[clap(name = "ast-stages-generator", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
 struct Opt {
-    #[structopt(
-        short,
-        long,
-        help = "Path to the output folder (auto generated)",
-        default_value = "tmp/tgc"
-    )]
+    #[clap(short, long, help = "Path to the output folder (auto generated)", default_value = "tmp/tgc")]
     path: PathBuf,
 
-    #[structopt(short, long, help = "Run only for test that match pattern")]
+    #[clap(short, long, help = "Run only for test that match pattern")]
     filter: Option<String>,
 
-    #[structopt(short, long, help = "Skip tests matching pattern")]
+    #[clap(short, long, help = "Skip tests matching pattern")]
     skip: Option<Vec<String>>,
 }
 
@@ -67,11 +62,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                 continue;
             }
 
-            let mut test_name = path
-                .split("tests/")
-                .last()
-                .unwrap()
-                .replace(std::path::MAIN_SEPARATOR, "_");
+            let mut test_name = path.split("tests/").last().unwrap().replace(std::path::MAIN_SEPARATOR, "_");
 
             // Filter out the tests that do not match pattern, if pattern is set.
             if let Some(filter) = &opt.filter {
