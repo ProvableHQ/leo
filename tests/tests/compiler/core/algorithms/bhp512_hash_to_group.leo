@@ -28,24 +28,24 @@ program test.aleo {
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
     
-        // BHP256 hash_to_group tests
-        let a: group = BHP256::hash_to_group(addr_value);
-        let b: group = BHP256::hash_to_group(bool_value);
-        let c: group = BHP256::hash_to_group(field_value);
-        // let d: group = BHP256::hash_to_group(group_value);
-        let e: group = BHP256::hash_to_group(i8_value);
-        let f: group = BHP256::hash_to_group(i16_value);
-        let g: group = BHP256::hash_to_group(i32_value);
-        let h: group = BHP256::hash_to_group(i64_value);
-        let i: group = BHP256::hash_to_group(i128_value);
-        let j: group = BHP256::hash_to_group(u8_value);
-        let k: group = BHP256::hash_to_group(u16_value);
-        let l: group = BHP256::hash_to_group(u32_value);
-        let m: group = BHP256::hash_to_group(u64_value);
-        let n: group = BHP256::hash_to_group(u128_value);
-        let o: group = BHP256::hash_to_group(scalar_value);
-        // let p: group = BHP256::hash_to_group(string_value);
-        let q: group = BHP256::hash_to_group(Foo { a: 1u128, b: 1u128 });
+        // BHP512 hash_to_group tests
+        let a: group = BHP512::hash_to_group(addr_value);
+        let b: group = BHP512::hash_to_group(bool_value);
+        let c: group = BHP512::hash_to_group(field_value);
+        // let d: group = BHP512::hash_to_group(group_value);
+        let e: group = BHP512::hash_to_group(i8_value);
+        let f: group = BHP512::hash_to_group(i16_value);
+        let g: group = BHP512::hash_to_group(i32_value);
+        let h: group = BHP512::hash_to_group(i64_value);
+        let i: group = BHP512::hash_to_group(i128_value);
+        let j: group = BHP512::hash_to_group(u8_value);
+        let k: group = BHP512::hash_to_group(u16_value);
+        let l: group = BHP512::hash_to_group(u32_value);
+        let m: group = BHP512::hash_to_group(u64_value);
+        let n: group = BHP512::hash_to_group(u128_value);
+        let o: group = BHP512::hash_to_group(scalar_value);
+        // let p: group = BHP512::hash_to_group(string_value);
+        let q: group = BHP512::hash_to_group(Foo { a: 1u128, b: 1u128 });
     
         return a + o;
     }}
