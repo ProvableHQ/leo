@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![forbid(unsafe_code)]
+#![allow(clippy::module_inception)]
 #![doc = include_str!("../README.md")]
 
 pub mod cli;
