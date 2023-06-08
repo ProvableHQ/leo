@@ -16,9 +16,6 @@
 
 use super::*;
 
-use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::BuildDirectory;
-
 use aleo::commands::Deploy as AleoDeploy;
 
 /// Deploys an Aleo program.

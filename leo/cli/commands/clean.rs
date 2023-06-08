@@ -15,8 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_errors::Result;
-use leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
 
 /// Clean outputs folder command
 #[derive(Parser, Debug)]

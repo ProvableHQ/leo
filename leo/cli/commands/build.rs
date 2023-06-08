@@ -18,7 +18,6 @@ use super::*;
 
 use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
 use leo_package::{
     build::BuildDirectory,
     imports::ImportsDirectory,
@@ -38,8 +37,6 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-use tracing::span::Span;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {

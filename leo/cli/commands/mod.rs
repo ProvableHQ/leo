@@ -37,7 +37,8 @@ pub use update::Update;
 
 use super::*;
 use crate::cli::helpers::context::*;
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
+use leo_package::{build::*, outputs::OutputsDirectory, package::*};
 
 use clap::Parser;
 use colored::Colorize;

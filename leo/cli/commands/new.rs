@@ -15,8 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_errors::{CliError, PackageError, Result};
-use leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
 
 use snarkvm::{cli::New as AleoNew, file::AleoFile};
 
