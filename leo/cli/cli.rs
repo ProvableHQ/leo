@@ -14,14 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod commands;
-pub mod context;
-pub mod logger;
-pub mod updater;
-
-use crate::{commands::*, context::*};
+use crate::cli::{commands::*, context::*, helpers::*};
 use leo_errors::Result;
-use leo_span::symbol::create_session_if_not_set_then;
 
 use clap::Parser;
 use std::{path::PathBuf, process::exit};
@@ -75,6 +69,11 @@ enum Commands {
         #[clap(flatten)]
         command: Run,
     },
+    #[clap(about = "Update the Leo CLI")]
+    Update {
+        #[clap(flatten)]
+        command: Update,
+    },
     // #[clap(subcommand)]
     // Node(Node),
     // #[clap(about = "Deploy a program")]
@@ -82,30 +81,6 @@ enum Commands {
     //     #[clap(flatten)]
     //     command: Deploy,
     // },
-}
-
-fn set_panic_hook() {
-    #[cfg(not(debug_assertions))]
-    std::panic::set_hook({
-        Box::new(move |e| {
-            eprintln!("thread `{}` {}", std::thread::current().name().unwrap_or("<unnamed>"), e);
-            eprintln!("stack backtrace: \n{:?}", backtrace::Backtrace::new());
-            eprintln!("error: internal compiler error: unexpected panic\n");
-            eprintln!("note: the compiler unexpectedly panicked. this is a bug.\n");
-            eprintln!(
-                "note: we would appreciate a bug report: https://github.com/AleoHQ/leo/issues/new?labels=bug,panic&template=bug.md&title=[Bug]\n"
-            );
-            eprintln!(
-                "note: {} {} running on {} {}\n",
-                env!("CARGO_PKG_NAME"),
-                env!("CARGO_PKG_VERSION"),
-                sys_info::os_type().unwrap_or_else(|e| e.to_string()),
-                sys_info::os_release().unwrap_or_else(|e| e.to_string()),
-            );
-            eprintln!("note: compiler args: {}\n", std::env::args().collect::<Vec<_>>().join(" "));
-            eprintln!("note: compiler flags: {:?}\n", CLI::parse());
-        })
-    });
 }
 
 pub fn handle_error<T>(res: Result<T>) -> T {
@@ -137,12 +112,8 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Build { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
+        Commands::Update { command } => command.try_execute(context),
         // Commands::Node(command) => command.try_execute(context),
         // Commands::Deploy { command } => command.try_execute(context),
     }
-}
-
-fn main() {
-    set_panic_hook();
-    create_session_if_not_set_then(|_| handle_error(run_with_args(CLI::parse())));
 }

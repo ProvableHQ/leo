@@ -30,7 +30,7 @@ impl Updater {
     const LEO_REPO_OWNER: &'static str = "AleoHQ";
 
     /// Show all available releases for `leo`.
-    pub fn show_available_releases() -> Result<()> {
+    pub fn show_available_releases() -> Result<String> {
         let releases = github::ReleaseList::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
@@ -44,10 +44,7 @@ impl Updater {
             let _ = writeln!(output, "  * {}", release.version);
         }
 
-        // Forgo using tracing to list the available versions without a log status.
-        println!("{output}");
-
-        Ok(())
+        Ok(output)
     }
 
     /// Update `leo` to the latest release.

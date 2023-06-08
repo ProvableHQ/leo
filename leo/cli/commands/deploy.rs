@@ -14,18 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    commands::{Command, ALEO_CLI_COMMAND},
-    context::Context,
-};
+use super::*;
 
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::BuildDirectory;
 
 use aleo::commands::Deploy as AleoDeploy;
-
-use clap::Parser;
-use tracing::span::Span;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]

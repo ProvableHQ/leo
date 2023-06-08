@@ -31,12 +31,12 @@ static START: Once = Once::new();
 pub struct Format<F = Full, T = SystemTime> {
     format: F,
     #[allow(dead_code)] // todo: revisit this after merging span module
-    pub(crate) timer: T,
-    pub(crate) ansi: bool,
-    pub(crate) display_target: bool,
-    pub(crate) display_level: bool,
-    pub(crate) display_thread_id: bool,
-    pub(crate) display_thread_name: bool,
+    pub timer: T,
+    pub ansi: bool,
+    pub display_target: bool,
+    pub display_level: bool,
+    pub display_thread_id: bool,
+    pub display_thread_name: bool,
 }
 
 impl<F, T> Format<F, T> {

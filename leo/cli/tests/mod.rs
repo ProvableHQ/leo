@@ -33,13 +33,13 @@ use leo_errors::Result;
 
 #[test]
 pub fn init_logger() -> Result<()> {
-    crate::logger::init_logger("test_init_logger", 1)?;
+    crate::cli::helpers::logger::init_logger("test_init_logger", 1)?;
     Ok(())
 }
 
 #[test]
 pub fn format_event() -> Result<()> {
-    crate::logger::init_logger("test_format_event", 1)?;
+    crate::cli::helpers::logger::init_logger("test_format_event", 1)?;
     tracing::info!("test");
     Ok(())
 }

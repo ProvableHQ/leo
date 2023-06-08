@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use super::*;
 use leo_errors::Result;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
-
-use clap::Parser;
-use colored::Colorize;
-use tracing::span::Span;
 
 /// Clean outputs folder command
 #[derive(Parser, Debug)]
