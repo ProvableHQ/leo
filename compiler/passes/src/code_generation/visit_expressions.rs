@@ -312,7 +312,7 @@ impl<'a> CodeGenerator<'a> {
                     (destination_register, instruction)
                 }
                 sym::get_or_use => {
-                    let mut instruction = "    get.or_init".to_string();
+                    let mut instruction = "    get.or_use".to_string();
                     let destination_register = get_destination_register();
                     // Write the mapping name, the key, and the default value.
                     writeln!(
