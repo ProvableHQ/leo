@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Commands"],"fn":["handle_error","main","run_with_args","set_panic_hook"],"mod":["commands","context","logger","updater"],"struct":["CLI"]};
+window.SIDEBAR_ITEMS = {"fn":["main","set_panic_hook"]};

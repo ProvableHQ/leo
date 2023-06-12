@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ALEO_CLI_COMMAND"],"mod":["build","clean","new","run"],"static":["CALLSITE","META"],"trait":["Command"],"type":["Network"]};
