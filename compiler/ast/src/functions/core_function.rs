@@ -113,7 +113,7 @@ impl CoreFunction {
             (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
 
             (sym::Mapping, sym::get) => Self::MappingGet,
-            (sym::Mapping, sym::get_or_init) => Self::MappingGetOrInit,
+            (sym::Mapping, sym::get_or_use) => Self::MappingGetOrInit,
             (sym::Mapping, sym::set) => Self::MappingSet,
             _ => return None,
         })

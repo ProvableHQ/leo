@@ -135,14 +135,14 @@ impl ParserContext<'_> {
                     Expression::Identifier(Identifier { name: sym::decrement, .. }) => {
                         self.emit_warning(ParserWarning::deprecated(
                             "decrement",
-                            "Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.",
+                            "Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings.",
                             place.span(),
                         ));
                     }
                     Expression::Identifier(Identifier { name: sym::increment, .. }) => {
                         self.emit_warning(ParserWarning::deprecated(
                             "increment",
-                            "Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.",
+                            "Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings.",
                             place.span(),
                         ));
                     }

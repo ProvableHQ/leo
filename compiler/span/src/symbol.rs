@@ -152,7 +152,7 @@ symbols! {
     commit,
     commit_to_group,
     get,
-    get_or_init,
+    get_or_use,
     hash,
     hash_to_group,
     hash_to_scalar,

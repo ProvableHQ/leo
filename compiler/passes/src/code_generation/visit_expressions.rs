@@ -311,7 +311,7 @@ impl<'a> CodeGenerator<'a> {
                         .expect("failed to write to string");
                     (destination_register, instruction)
                 }
-                sym::get_or_init => {
+                sym::get_or_use => {
                     let mut instruction = "    get.or_init".to_string();
                     let destination_register = get_destination_register();
                     // Write the mapping name, the key, and the default value.
