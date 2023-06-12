@@ -32,7 +32,6 @@ version = "1.7.2"
 
 [dependencies.snarkvm-console]
 workspace = true
-default-features = false
 features = [ "account", "network" ]
 
 [dependencies.clap]
