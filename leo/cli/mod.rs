@@ -14,8 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#![forbid(unsafe_code)]
-#![allow(clippy::module_inception)]
-#![doc = include_str!("../README.md")]
+mod cli;
+pub use cli::*;
 
-pub mod cli;
+mod commands;
+pub use commands::*;
+
+mod helpers;
+pub use helpers::*;
+
+pub(crate) type Network = snarkvm::prelude::Testnet3;
+pub(crate) const ALEO_CLI_COMMAND: &str = "snarkvm";
+
+#[cfg(test)]
+mod tests;

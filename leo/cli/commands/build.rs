@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    commands::{Command, ALEO_CLI_COMMAND},
-    context::Context,
-};
+use super::*;
 
 use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
 use leo_package::{
     build::BuildDirectory,
     imports::ImportsDirectory,
@@ -36,42 +32,11 @@ use snarkvm::{
     prelude::{ProgramID, Testnet3},
 };
 
-use clap::Parser;
 use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-use tracing::span::Span;
-
-/// Compiler Options wrapper for Build command. Also used by other commands which
-/// require Build command output as their input.
-#[derive(Parser, Clone, Debug, Default)]
-pub struct BuildOptions {
-    #[clap(long, help = "Enables offline mode.")]
-    pub offline: bool,
-    #[clap(long, help = "Enable spans in AST snapshots.")]
-    pub enable_spans: bool,
-    #[clap(long, help = "Enables dead code elimination in the compiler.")]
-    pub enable_dce: bool,
-    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
-    pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Writes Input AST snapshot of the initial parse.")]
-    pub enable_initial_input_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the initial parse.")]
-    pub enable_initial_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the unrolled AST.")]
-    pub enable_unrolled_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the SSA AST.")]
-    pub enable_ssa_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the flattened AST.")]
-    pub enable_flattened_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the inlined AST.")]
-    pub enable_inlined_ast_snapshot: bool,
-    #[clap(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
-    pub enable_dce_ast_snapshot: bool,
-}
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {

@@ -45,7 +45,7 @@ path = "leo/lib.rs"
 
 [[bin]]
 name = "leo"
-path = "leo/main.rs"
+path = "leo/cli/main.rs"
 
 [features]
 default = [ ]

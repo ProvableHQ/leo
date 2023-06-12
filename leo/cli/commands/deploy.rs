@@ -14,19 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-use leo_errors::Result;
-use leo_package::{build::BuildDirectory, outputs::OutputsDirectory};
+use super::*;
 
-use clap::Parser;
-use colored::Colorize;
-use tracing::span::Span;
+use aleo::commands::Deploy as AleoDeploy;
 
-/// Clean outputs folder command
+/// Deploys an Aleo program.
 #[derive(Parser, Debug)]
-pub struct Clean {}
+pub struct Deploy;
 
-impl Command for Clean {
+impl Command for Deploy {
     type Input = ();
     type Output = ();
 
@@ -39,15 +35,24 @@ impl Command for Clean {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Open the Leo build/ directory
         let path = context.dir()?;
+        let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build())?;
 
-        // Removes the outputs/ directory.
-        let outputs_path = OutputsDirectory::remove(&path)?;
-        tracing::info!("cleaned the outputs directory {}", outputs_path.dimmed());
+        // Change the cwd to the Leo build/ directory to deploy aleo files.
+        std::env::set_current_dir(&build_directory)
+            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Removes the build/ directory.
-        let build_path = BuildDirectory::remove(&path)?;
-        tracing::info!("cleaned the build directory {}", build_path.dimmed());
+        // Unset the Leo panic hook.
+        let _ = std::panic::take_hook();
+
+        // Call the `aleo node` command from the Aleo SDK.
+        println!();
+        let command = AleoDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
+        let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
+
+        // Log the output of the `aleo node` command.
+        tracing::info!("{}", res);
 
         Ok(())
     }

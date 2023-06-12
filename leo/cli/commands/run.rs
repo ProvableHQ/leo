@@ -14,18 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::build::BuildOptions;
-use crate::{
-    commands::{Build, Command, ALEO_CLI_COMMAND},
-    context::Context,
-};
-use leo_errors::{CliError, PackageError, Result};
-use leo_package::build::BuildDirectory;
+use super::*;
 
 use snarkvm::cli::Run as AleoRun;
-
-use clap::Parser;
-use tracing::span::Span;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]

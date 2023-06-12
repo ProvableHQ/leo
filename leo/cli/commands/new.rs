@@ -14,17 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    commands::{Command, Network, ALEO_CLI_COMMAND},
-    context::Context,
-};
-use leo_errors::{CliError, PackageError, Result};
-use leo_package::{build::BUILD_DIRECTORY_NAME, package::Package};
+use super::*;
 
 use snarkvm::{cli::New as AleoNew, file::AleoFile};
-
-use clap::Parser;
-use tracing::span::Span;
 
 /// Create new Leo project
 #[derive(Parser, Debug)]

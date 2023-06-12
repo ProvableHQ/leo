@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// local program commands
 pub mod build;
 pub use build::Build;
 
@@ -33,13 +32,17 @@ pub use new::New;
 pub mod run;
 pub use run::Run;
 
-use crate::context::*;
-use leo_errors::Result;
+pub mod update;
+pub use update::Update;
 
+use super::*;
+use crate::cli::helpers::context::*;
+use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
+use leo_package::{build::*, outputs::OutputsDirectory, package::*};
+
+use clap::Parser;
+use colored::Colorize;
 use tracing::span::Span;
-
-pub(crate) type Network = snarkvm::prelude::Testnet3;
-pub(crate) const ALEO_CLI_COMMAND: &str = "snarkvm";
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
@@ -101,4 +104,32 @@ pub trait Command {
     {
         self.execute(context).map(|_| Ok(()))?
     }
+}
+
+/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct BuildOptions {
+    #[clap(long, help = "Enables offline mode.")]
+    pub offline: bool,
+    #[clap(long, help = "Enable spans in AST snapshots.")]
+    pub enable_spans: bool,
+    #[clap(long, help = "Enables dead code elimination in the compiler.")]
+    pub enable_dce: bool,
+    #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    pub enable_all_ast_snapshots: bool,
+    #[clap(long, help = "Writes Input AST snapshot of the initial parse.")]
+    pub enable_initial_input_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the initial parse.")]
+    pub enable_initial_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the unrolled AST.")]
+    pub enable_unrolled_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the SSA AST.")]
+    pub enable_ssa_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the flattened AST.")]
+    pub enable_flattened_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the inlined AST.")]
+    pub enable_inlined_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
+    pub enable_dce_ast_snapshot: bool,
 }
