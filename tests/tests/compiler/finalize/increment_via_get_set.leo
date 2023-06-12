@@ -11,7 +11,7 @@ program test.aleo {
     }
 
     finalize increase_self(addr: address, amount: u128) {
-        let current_amount: u128 = Mapping::get_or_init(amounts, addr, 0u128);
+        let current_amount: u128 = Mapping::get_or_use(amounts, addr, 0u128);
         Mapping::set(amounts, addr, current_amount + amount);
     }
 }
