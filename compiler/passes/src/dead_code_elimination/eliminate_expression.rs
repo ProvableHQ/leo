@@ -41,7 +41,7 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                     // If the associated function manipulates a mapping, mark the statement as necessary.
                     match (&function.ty, function.name.name) {
                         (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get)
-                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_init)
+                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_use)
                         | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) => {
                             self.is_necessary = true;
                         }

@@ -51,7 +51,6 @@ default-features = false
 
 [dev-dependencies.snarkvm]
 workspace = true
-default-features = false
 features = [ "circuit", "console" ]
 
 [dev-dependencies.regex]

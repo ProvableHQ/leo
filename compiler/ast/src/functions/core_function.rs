@@ -62,7 +62,7 @@ pub enum CoreFunction {
     Poseidon8HashToScalar,
 
     MappingGet,
-    MappingGetOrInit,
+    MappingGetOrUse,
     MappingSet,
 }
 
@@ -113,7 +113,7 @@ impl CoreFunction {
             (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
 
             (sym::Mapping, sym::get) => Self::MappingGet,
-            (sym::Mapping, sym::get_or_init) => Self::MappingGetOrInit,
+            (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
             (sym::Mapping, sym::set) => Self::MappingSet,
             _ => return None,
         })
@@ -165,7 +165,7 @@ impl CoreFunction {
             Self::Poseidon8HashToScalar => 1,
 
             Self::MappingGet => 2,
-            Self::MappingGetOrInit => 3,
+            Self::MappingGetOrUse => 3,
             Self::MappingSet => 3,
         }
     }

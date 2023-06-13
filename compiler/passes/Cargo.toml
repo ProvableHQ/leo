@@ -23,7 +23,6 @@ path = "src/lib.rs"
 
 [dependencies.snarkvm-console]
 workspace = true
-default-features = false
 features = [ "network" ]
 
 [dependencies.leo-ast]

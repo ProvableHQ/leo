@@ -3,5 +3,5 @@ namespace: ParseStatement
 expectation: Fail
 outputs:
   - "Error [EPAR0370005]: expected ; -- found '['\n    --> test:1:10\n     |\n   1 | increment[foo, bar, baz];\n     |          ^"
-  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:15\n     |\n   1 | increment(floo)\n     |               ^Warning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> test:1:1\n     |\n   1 | increment(floo)\n     | ^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings."
+  - "Error [EPAR0370005]: expected ; -- found '<eof>'\n    --> test:1:15\n     |\n   1 | increment(floo)\n     |               ^Warning [WPAR0370001]: The keyword `increment` is deprecated.\n    --> test:1:1\n     |\n   1 | increment(floo)\n     | ^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings."
   - "Error [EPAR0370005]: expected ; -- found 'foo'\n    --> test:1:11\n     |\n   1 | increment foo[bar] by baz;\n     |           ^^^"
