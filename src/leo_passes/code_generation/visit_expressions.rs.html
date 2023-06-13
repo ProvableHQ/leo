@@ -739,8 +739,8 @@
                         .expect(<span class="string">&quot;failed to write to string&quot;</span>);
                     (destination_register, instruction)
                 }
-                sym::get_or_init =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get.or_init&quot;</span>.to_string();
+                sym::get_or_use =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get.or_use&quot;</span>.to_string();
                     <span class="kw">let </span>destination_register = get_destination_register();
                     <span class="comment">// Write the mapping name, the key, and the default value.
                     </span><span class="macro">writeln!</span>(

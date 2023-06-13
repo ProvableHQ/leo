@@ -190,6 +190,8 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -211,6 +213,8 @@
 //! This module contains the [`Ast`] type, a wrapper around the [`Program`] type.
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
+
+</span><span class="attr">#![allow(ambiguous_glob_reexports)]
 
 </span><span class="kw">pub mod </span>access;
 <span class="kw">pub use </span><span class="self">self</span>::access::<span class="kw-2">*</span>;

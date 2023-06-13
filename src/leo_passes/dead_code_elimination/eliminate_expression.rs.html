@@ -156,7 +156,7 @@
                     <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
                     </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>function.ty, function.name.name) {
                         (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get)
-                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_init)
+                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_use)
                         | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) =&gt; {
                             <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
                         }

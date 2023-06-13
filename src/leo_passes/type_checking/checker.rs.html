@@ -1159,7 +1159,7 @@
                     <span class="prelude-val">None
                 </span>}
             }
-            CoreFunction::MappingGetOrInit =&gt; {
+            CoreFunction::MappingGetOrUse =&gt; {
                 <span class="comment">// Check that the operation is invoked in a `finalize` block.
                 </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
                     <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(

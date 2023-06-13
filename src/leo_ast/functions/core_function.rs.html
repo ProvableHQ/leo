@@ -234,7 +234,7 @@
     Poseidon8HashToScalar,
 
     MappingGet,
-    MappingGetOrInit,
+    MappingGetOrUse,
     MappingSet,
 }
 
@@ -285,7 +285,7 @@
             (sym::Poseidon8, sym::hash_to_scalar) =&gt; <span class="self">Self</span>::Poseidon8HashToScalar,
 
             (sym::Mapping, sym::get) =&gt; <span class="self">Self</span>::MappingGet,
-            (sym::Mapping, sym::get_or_init) =&gt; <span class="self">Self</span>::MappingGetOrInit,
+            (sym::Mapping, sym::get_or_use) =&gt; <span class="self">Self</span>::MappingGetOrUse,
             (sym::Mapping, sym::set) =&gt; <span class="self">Self</span>::MappingSet,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
@@ -337,7 +337,7 @@
             <span class="self">Self</span>::Poseidon8HashToScalar =&gt; <span class="number">1</span>,
 
             <span class="self">Self</span>::MappingGet =&gt; <span class="number">2</span>,
-            <span class="self">Self</span>::MappingGetOrInit =&gt; <span class="number">3</span>,
+            <span class="self">Self</span>::MappingGetOrUse =&gt; <span class="number">3</span>,
             <span class="self">Self</span>::MappingSet =&gt; <span class="number">3</span>,
         }
     }

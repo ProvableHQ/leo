@@ -967,9 +967,9 @@
             <span class="comment">// Attempt to parse the method call as a mapping operation.
             </span><span class="kw">match </span>(args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
                 (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingGet))
-                | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingGetOrInit))
+                | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingGetOrUse))
                 | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingSet)) =&gt; {
-                    <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or`, or `&lt;mapping&gt;.set`
+                    <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or_use`, or `&lt;mapping&gt;.set`
                     </span><span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: Type::Identifier(Identifier::new(sym::Mapping)),
                         name: method,

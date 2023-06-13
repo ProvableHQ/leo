@@ -454,14 +454,14 @@
                     Expression::Identifier(Identifier { name: sym::decrement, .. }) =&gt; {
                         <span class="self">self</span>.emit_warning(ParserWarning::deprecated(
                             <span class="string">&quot;decrement&quot;</span>,
-                            <span class="string">&quot;Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.&quot;</span>,
+                            <span class="string">&quot;Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings.&quot;</span>,
                             place.span(),
                         ));
                     }
                     Expression::Identifier(Identifier { name: sym::increment, .. }) =&gt; {
                         <span class="self">self</span>.emit_warning(ParserWarning::deprecated(
                             <span class="string">&quot;increment&quot;</span>,
-                            <span class="string">&quot;Use `Mapping::{get, get_or_init, set}` for manipulating on-chain mappings.&quot;</span>,
+                            <span class="string">&quot;Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings.&quot;</span>,
                             place.span(),
                         ));
                     }
