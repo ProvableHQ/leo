@@ -322,7 +322,7 @@ impl ParserContext<'_> {
                 (1, Some(CoreFunction::MappingGet))
                 | (2, Some(CoreFunction::MappingGetOrUse))
                 | (2, Some(CoreFunction::MappingSet)) => {
-                    // Found an instance of `<mapping>.get`, `<mapping>.get_or`, or `<mapping>.set`
+                    // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, or `<mapping>.set`
                     Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: Type::Identifier(Identifier::new(sym::Mapping)),
                         name: method,
