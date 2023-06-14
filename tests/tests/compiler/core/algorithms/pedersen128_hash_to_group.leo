@@ -27,7 +27,7 @@ program test.aleo {
         let g: group = Pedersen128::hash_to_group(u16_value);
         let h: group = Pedersen128::hash_to_group(u32_value);
         let i: group = Pedersen128::hash_to_group(u64_value);
-        // let j11: group = Pedersen128::hash(string_value);
+        // let j11: group = Pedersen128::hash_to_group(string_value);
     
         return a + i;
     }}

@@ -150,6 +150,7 @@ symbols! {
     BHP768,
     BHP1024,
     commit,
+    commit_to_field,
     commit_to_group,
     get,
     get_or_use,
