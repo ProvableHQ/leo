@@ -154,6 +154,7 @@ symbols! {
     get,
     get_or_use,
     hash,
+    hash_to_field,
     hash_to_group,
     hash_to_scalar,
     Mapping,

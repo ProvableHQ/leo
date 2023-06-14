@@ -418,10 +418,10 @@ impl<'a> TypeChecker<'a> {
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
                 Some(Type::Group)
             }
-            CoreFunction::BHP256Hash
-            | CoreFunction::BHP512Hash
-            | CoreFunction::BHP768Hash
-            | CoreFunction::BHP1024Hash => {
+            CoreFunction::BHP256HashToField
+            | CoreFunction::BHP512HashToField
+            | CoreFunction::BHP768HashToField
+            | CoreFunction::BHP1024HashToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
@@ -450,7 +450,7 @@ impl<'a> TypeChecker<'a> {
 
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen64Hash => {
+            CoreFunction::Pedersen64HashToField => {
                 // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
@@ -476,7 +476,7 @@ impl<'a> TypeChecker<'a> {
 
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen128Hash => {
+            CoreFunction::Pedersen128HashToField => {
                 // Check that the first argument is either a boolean, integer, or field element.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
@@ -486,7 +486,9 @@ impl<'a> TypeChecker<'a> {
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
-            CoreFunction::Poseidon2Hash | CoreFunction::Poseidon4Hash | CoreFunction::Poseidon8Hash => {
+            CoreFunction::Poseidon2HashToField
+            | CoreFunction::Poseidon4HashToField
+            | CoreFunction::Poseidon8HashToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
