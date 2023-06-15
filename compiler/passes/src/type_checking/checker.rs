@@ -356,7 +356,7 @@ impl<'a> TypeChecker<'a> {
         let check_not_mapping_tuple_err_unit = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit),
-                "address, boolean, field, group, struct, integer, scalar, struct, string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
