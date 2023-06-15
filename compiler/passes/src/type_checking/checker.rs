@@ -453,52 +453,132 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
-            CoreFunction::BHP256HashToI8 => {
+            CoreFunction::BHP256HashToI8
+            | CoreFunction::BHP512HashToI8
+            | CoreFunction::BHP768HashToI8
+            | CoreFunction::BHP1024HashToI8
+            | CoreFunction::Pedersen64HashToI8
+            | CoreFunction::Pedersen128HashToI8
+            | CoreFunction::Poseidon2HashToI8
+            | CoreFunction::Poseidon4HashToI8
+            | CoreFunction::Poseidon8HashToI8 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::I8))
             }
-            CoreFunction::BHP256HashToI16 => {
+            CoreFunction::BHP256HashToI16
+            | CoreFunction::BHP512HashToI16
+            | CoreFunction::BHP768HashToI16
+            | CoreFunction::BHP1024HashToI16
+            | CoreFunction::Pedersen64HashToI16
+            | CoreFunction::Pedersen128HashToI16
+            | CoreFunction::Poseidon2HashToI16
+            | CoreFunction::Poseidon4HashToI16
+            | CoreFunction::Poseidon8HashToI16 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::I16))
             }
-            CoreFunction::BHP256HashToI32 => {
+            CoreFunction::BHP256HashToI32
+            | CoreFunction::BHP512HashToI32
+            | CoreFunction::BHP768HashToI32
+            | CoreFunction::BHP1024HashToI32
+            | CoreFunction::Pedersen64HashToI32
+            | CoreFunction::Pedersen128HashToI32
+            | CoreFunction::Poseidon2HashToI32
+            | CoreFunction::Poseidon4HashToI32
+            | CoreFunction::Poseidon8HashToI32 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::I32))
             }
-            CoreFunction::BHP256HashToI64 => {
+            CoreFunction::BHP256HashToI64
+            | CoreFunction::BHP512HashToI64
+            | CoreFunction::BHP768HashToI64
+            | CoreFunction::BHP1024HashToI64
+            | CoreFunction::Pedersen64HashToI64
+            | CoreFunction::Pedersen128HashToI64
+            | CoreFunction::Poseidon2HashToI64
+            | CoreFunction::Poseidon4HashToI64
+            | CoreFunction::Poseidon8HashToI64 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::I64))
             }
-            CoreFunction::BHP256HashToI128 => {
+            CoreFunction::BHP256HashToI128
+            | CoreFunction::BHP512HashToI128
+            | CoreFunction::BHP768HashToI128
+            | CoreFunction::BHP1024HashToI128
+            | CoreFunction::Pedersen64HashToI128
+            | CoreFunction::Pedersen128HashToI128
+            | CoreFunction::Poseidon2HashToI128
+            | CoreFunction::Poseidon4HashToI128
+            | CoreFunction::Poseidon8HashToI128 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::I128))
             }
-            CoreFunction::BHP256HashToU8 => {
+            CoreFunction::BHP256HashToU8
+            | CoreFunction::BHP512HashToU8
+            | CoreFunction::BHP768HashToU8
+            | CoreFunction::BHP1024HashToU8
+            | CoreFunction::Pedersen64HashToU8
+            | CoreFunction::Pedersen128HashToU8
+            | CoreFunction::Poseidon2HashToU8
+            | CoreFunction::Poseidon4HashToU8
+            | CoreFunction::Poseidon8HashToU8 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::U8))
             }
-            CoreFunction::BHP256HashToU16 => {
+            CoreFunction::BHP256HashToU16
+            | CoreFunction::BHP512HashToU16
+            | CoreFunction::BHP768HashToU16
+            | CoreFunction::BHP1024HashToU16
+            | CoreFunction::Pedersen64HashToU16
+            | CoreFunction::Pedersen128HashToU16
+            | CoreFunction::Poseidon2HashToU16
+            | CoreFunction::Poseidon4HashToU16
+            | CoreFunction::Poseidon8HashToU16 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::U16))
             }
-            CoreFunction::BHP256HashToU32 => {
+            CoreFunction::BHP256HashToU32
+            | CoreFunction::BHP512HashToU32
+            | CoreFunction::BHP768HashToU32
+            | CoreFunction::BHP1024HashToU32
+            | CoreFunction::Pedersen64HashToU32
+            | CoreFunction::Pedersen128HashToU32
+            | CoreFunction::Poseidon2HashToU32
+            | CoreFunction::Poseidon4HashToU32
+            | CoreFunction::Poseidon8HashToU32 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::U32))
             }
-            CoreFunction::BHP256HashToU64 => {
+            CoreFunction::BHP256HashToU64
+            | CoreFunction::BHP512HashToU64
+            | CoreFunction::BHP768HashToU64
+            | CoreFunction::BHP1024HashToU64
+            | CoreFunction::Pedersen64HashToU64
+            | CoreFunction::Pedersen128HashToU64
+            | CoreFunction::Poseidon2HashToU64
+            | CoreFunction::Poseidon4HashToU64
+            | CoreFunction::Poseidon8HashToU64 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::U64))
             }
-            CoreFunction::BHP256HashToU128 => {
+            CoreFunction::BHP256HashToU128
+            | CoreFunction::BHP512HashToU128
+            | CoreFunction::BHP768HashToU128
+            | CoreFunction::BHP1024HashToU128
+            | CoreFunction::Pedersen64HashToU128
+            | CoreFunction::Pedersen128HashToU128
+            | CoreFunction::Poseidon2HashToU128
+            | CoreFunction::Poseidon4HashToU128
+            | CoreFunction::Poseidon8HashToU128 => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Integer(IntegerType::U128))
