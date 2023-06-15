@@ -149,7 +149,7 @@ symbols! {
     BHP512,
     BHP768,
     BHP1024,
-    commit,
+    commit_to_address,
     commit_to_field,
     commit_to_group,
     get,

@@ -398,6 +398,16 @@ impl<'a> TypeChecker<'a> {
 
         // Check that the arguments are of the correct type.
         match core_function {
+            CoreFunction::BHP256CommitToAddress
+            | CoreFunction::BHP512CommitToAddress
+            | CoreFunction::BHP768CommitToAddress
+            | CoreFunction::BHP1024CommitToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+                Some(Type::Address)
+            }
             CoreFunction::BHP256CommitToField
             | CoreFunction::BHP512CommitToField
             | CoreFunction::BHP768CommitToField
@@ -434,6 +444,14 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
+            CoreFunction::Pedersen64CommitToAddress => {
+                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Address)
+            }
             CoreFunction::Pedersen64CommitToField => {
                 // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
@@ -460,8 +478,16 @@ impl<'a> TypeChecker<'a> {
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
+            CoreFunction::Pedersen128CommitToAddress => {
+                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Address)
+            }
             CoreFunction::Pedersen128CommitToField => {
-                // Check that the first argument is either a boolean, integer, or field element.
+                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -469,7 +495,7 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Field)
             }
             CoreFunction::Pedersen128CommitToGroup => {
-                // Check that the first argument is either a boolean, integer, or field element.
+                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
