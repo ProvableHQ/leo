@@ -5,8 +5,8 @@ expectation: Pass
 
 program test.aleo {
     struct Foo {
-        a: u128,
-        b: u128,
+        a: u16,
+        b: u16,
     }
 
     transition main(
@@ -34,14 +34,12 @@ program test.aleo {
         let e: field = Pedersen64::hash_to_field(i8_value);
         let f: field = Pedersen64::hash_to_field(i16_value);
         let g: field = Pedersen64::hash_to_field(i32_value);
-        let h: field = Pedersen64::hash_to_field(i64_value);
         let i: field = Pedersen64::hash_to_field(u8_value);
         let j: field = Pedersen64::hash_to_field(u16_value);
         let k: field = Pedersen64::hash_to_field(u32_value);
-        let l: field = Pedersen64::hash_to_field(u64_value);
         let m: field = Pedersen64::hash_to_field(scalar_value);
         // let j11: field = Pedersen64::hash_to_field(string_value);
-        let n: field = Pedersen64::hash_to_field(Foo { a: 1u128, b: 1u128 });
+        let n: field = Pedersen64::hash_to_field(Foo { a: 1u16, b: 1u16 });
 
         return a;
     }

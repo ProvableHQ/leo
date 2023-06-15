@@ -5,8 +5,8 @@ expectation: Pass
 
 program test.aleo {
     struct Foo {
-        a: u128,
-        b: u128,
+        a: u16,
+        b: u16,
     }
 
     transition main(
@@ -34,14 +34,12 @@ program test.aleo {
         let e: group = Pedersen64::commit_to_group(i8_value, scalar_value);
         let f: group = Pedersen64::commit_to_group(i16_value, scalar_value);
         let g: group = Pedersen64::commit_to_group(i32_value, scalar_value);
-        let h: group = Pedersen64::commit_to_group(i64_value, scalar_value);
         let i: group = Pedersen64::commit_to_group(u8_value, scalar_value);
         let j: group = Pedersen64::commit_to_group(u16_value, scalar_value);
         let k: group = Pedersen64::commit_to_group(u32_value, scalar_value);
-        let l: group = Pedersen64::commit_to_group(u64_value, scalar_value);
         let m: group = Pedersen64::commit_to_group(scalar_value, scalar_value);
         // let j11: group = Pedersen64::commit_to_group(string_value);
-        let n: group = Pedersen64::commit_to_group(Foo { a: 1u128, b: 1u128 }, scalar_value);
+        let n: group = Pedersen64::commit_to_group(Foo { a: 1u16, b: 1u16 }, scalar_value);
 
         return a == i;
     }}

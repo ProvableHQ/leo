@@ -5,8 +5,8 @@ expectation: Pass
 
 program test.aleo {
     struct Foo {
-        a: u128,
-        b: u128,
+        a: u32,
+        b: u32,
     }
 
     transition main(
@@ -37,15 +37,13 @@ program test.aleo {
         let f: address = Pedersen128::commit_to_address(i16_value, scalar_value);
         let g: address = Pedersen128::commit_to_address(i32_value, scalar_value);
         let h: address = Pedersen128::commit_to_address(i64_value, scalar_value);
-        let i: address = Pedersen128::commit_to_address(i128_value, scalar_value);
         let j: address = Pedersen128::commit_to_address(u8_value, scalar_value);
         let k: address = Pedersen128::commit_to_address(u16_value, scalar_value);
         let l: address = Pedersen128::commit_to_address(u32_value, scalar_value);
         let m: address = Pedersen128::commit_to_address(u64_value, scalar_value);
-        let n: address = Pedersen128::commit_to_address(u128_value, scalar_value);
         let o: address = Pedersen128::commit_to_address(scalar_value, scalar_value);
         // let j11: address = Pedersen128::commit_to_address(string_value);
-        let p: address = Pedersen128::commit_to_address(Foo { a: 1u128, b: 1u128 }, scalar_value);
+        let p: address = Pedersen128::commit_to_address(Foo { a: 1u32, b: 1u32 }, scalar_value);
 
-        return a == i;
+        return a == j;
     }}
