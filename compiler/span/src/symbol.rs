@@ -157,6 +157,16 @@ symbols! {
     hash_to_address,
     hash_to_field,
     hash_to_group,
+    hash_to_i8,
+    hash_to_i16,
+    hash_to_i32,
+    hash_to_i64,
+    hash_to_i128,
+    hash_to_u8,
+    hash_to_u16,
+    hash_to_u32,
+    hash_to_u64,
+    hash_to_u128,
     hash_to_scalar,
     Mapping,
     Pedersen64,
@@ -217,8 +227,6 @@ symbols! {
     SelfLower: "self",
     SelfUpper: "Self",
     Star: "*",
-    std,
-    test,
     then,
     transition,
     Type: "type",
@@ -229,11 +237,6 @@ symbols! {
     owner,
     _nonce,
     program,
-
-    // input file
-    registers,
-    state,
-    state_leaf,
 }
 
 /// An interned string.

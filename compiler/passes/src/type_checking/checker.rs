@@ -453,6 +453,56 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
+            CoreFunction::BHP256HashToI8 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I8))
+            }
+            CoreFunction::BHP256HashToI16 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I16))
+            }
+            CoreFunction::BHP256HashToI32 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I32))
+            }
+            CoreFunction::BHP256HashToI64 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I64))
+            }
+            CoreFunction::BHP256HashToI128 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I128))
+            }
+            CoreFunction::BHP256HashToU8 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U8))
+            }
+            CoreFunction::BHP256HashToU16 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U16))
+            }
+            CoreFunction::BHP256HashToU32 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U32))
+            }
+            CoreFunction::BHP256HashToU64 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U64))
+            }
+            CoreFunction::BHP256HashToU128 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U128))
+            }
             CoreFunction::BHP256HashToScalar
             | CoreFunction::BHP512HashToScalar
             | CoreFunction::BHP768HashToScalar
