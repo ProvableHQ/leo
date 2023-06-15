@@ -27,7 +27,7 @@ Can you find any others?
 ## Language Features and Concepts
 - `record` declarations
 - `assert_eq`
-- core functions, e.g. `BHP256::hash`
+- core functions, e.g. `BHP256::hash_to_field`
 - record ownership
 - loops and bounded iteration
 - mappings
