@@ -356,7 +356,7 @@ impl<'a> TypeChecker<'a> {
         let check_not_mapping_tuple_err_unit = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit),
-                "address, boolean, field, group, struct, integer, scalar, scalar, string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct, string".to_string(),
                 type_,
                 *span,
             );
@@ -366,21 +366,17 @@ impl<'a> TypeChecker<'a> {
         let check_pedersen_64_bit_input = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| {
-                    matches!(
+                    !matches!(
                         type_,
-                        Type::Boolean
-                            | Type::Integer(IntegerType::I8)
-                            | Type::Integer(IntegerType::I16)
-                            | Type::Integer(IntegerType::I32)
-                            | Type::Integer(IntegerType::I64)
-                            | Type::Integer(IntegerType::U8)
-                            | Type::Integer(IntegerType::U16)
-                            | Type::Integer(IntegerType::U32)
-                            | Type::Integer(IntegerType::U64)
-                            | Type::String
+                        Type::Integer(IntegerType::U128)
+                            | Type::Integer(IntegerType::I128)
+                            | Type::Mapping(_)
+                            | Type::Tuple(_)
+                            | Type::Err
+                            | Type::Unit
                     )
                 },
-                "boolean, integer (up to 64 bits), string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct, string".to_string(),
                 type_,
                 *span,
             );
@@ -452,8 +448,16 @@ impl<'a> TypeChecker<'a> {
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
+            CoreFunction::BHP256HashToScalar
+            | CoreFunction::BHP512HashToScalar
+            | CoreFunction::BHP768HashToScalar
+            | CoreFunction::BHP1024HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
+            }
             CoreFunction::Pedersen64CommitToAddress => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -461,7 +465,7 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Address)
             }
             CoreFunction::Pedersen64CommitToField => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -469,7 +473,7 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Field)
             }
             CoreFunction::Pedersen64CommitToGroup => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -477,19 +481,24 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Group)
             }
             CoreFunction::Pedersen64HashToAddress => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Address)
             }
             CoreFunction::Pedersen64HashToField => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
             CoreFunction::Pedersen64HashToGroup => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
+            }
+            CoreFunction::Pedersen64HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
             }
             CoreFunction::Pedersen128CommitToAddress => {
                 // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
@@ -529,6 +538,11 @@ impl<'a> TypeChecker<'a> {
                 // Check that the first argument is either a boolean, integer, or field element.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
+            }
+            CoreFunction::Pedersen128HashToScalar => {
+                // Check that the first argument is either a boolean, integer, or field element.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
             }
             CoreFunction::Poseidon2HashToAddress
             | CoreFunction::Poseidon4HashToAddress

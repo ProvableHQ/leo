@@ -25,6 +25,7 @@ pub enum CoreFunction {
     BHP256HashToAddress,
     BHP256HashToField,
     BHP256HashToGroup,
+    BHP256HashToScalar,
 
     BHP512CommitToAddress,
     BHP512CommitToField,
@@ -32,6 +33,7 @@ pub enum CoreFunction {
     BHP512HashToAddress,
     BHP512HashToField,
     BHP512HashToGroup,
+    BHP512HashToScalar,
 
     BHP768CommitToAddress,
     BHP768CommitToField,
@@ -39,6 +41,7 @@ pub enum CoreFunction {
     BHP768HashToAddress,
     BHP768HashToField,
     BHP768HashToGroup,
+    BHP768HashToScalar,
 
     BHP1024CommitToAddress,
     BHP1024CommitToField,
@@ -46,6 +49,7 @@ pub enum CoreFunction {
     BHP1024HashToAddress,
     BHP1024HashToField,
     BHP1024HashToGroup,
+    BHP1024HashToScalar,
 
     Pedersen64CommitToAddress,
     Pedersen64CommitToField,
@@ -53,6 +57,7 @@ pub enum CoreFunction {
     Pedersen64HashToAddress,
     Pedersen64HashToField,
     Pedersen64HashToGroup,
+    Pedersen64HashToScalar,
 
     Pedersen128CommitToAddress,
     Pedersen128CommitToField,
@@ -60,6 +65,7 @@ pub enum CoreFunction {
     Pedersen128HashToAddress,
     Pedersen128HashToField,
     Pedersen128HashToGroup,
+    Pedersen128HashToScalar,
 
     Poseidon2HashToAddress,
     Poseidon2HashToField,
@@ -91,6 +97,7 @@ impl CoreFunction {
             (sym::BHP256, sym::hash_to_address) => Self::BHP256HashToAddress,
             (sym::BHP256, sym::hash_to_field) => Self::BHP256HashToField,
             (sym::BHP256, sym::hash_to_group) => Self::BHP256HashToGroup,
+            (sym::BHP256, sym::hash_to_scalar) => Self::BHP256HashToScalar,
 
             (sym::BHP512, sym::commit_to_address) => Self::BHP512CommitToAddress,
             (sym::BHP512, sym::commit_to_field) => Self::BHP512CommitToField,
@@ -98,6 +105,7 @@ impl CoreFunction {
             (sym::BHP512, sym::hash_to_address) => Self::BHP512HashToAddress,
             (sym::BHP512, sym::hash_to_field) => Self::BHP512HashToField,
             (sym::BHP512, sym::hash_to_group) => Self::BHP512HashToGroup,
+            (sym::BHP512, sym::hash_to_scalar) => Self::BHP512HashToScalar,
 
             (sym::BHP768, sym::commit_to_address) => Self::BHP768CommitToAddress,
             (sym::BHP768, sym::commit_to_field) => Self::BHP768CommitToField,
@@ -105,6 +113,7 @@ impl CoreFunction {
             (sym::BHP768, sym::hash_to_address) => Self::BHP768HashToAddress,
             (sym::BHP768, sym::hash_to_field) => Self::BHP768HashToField,
             (sym::BHP768, sym::hash_to_group) => Self::BHP768HashToGroup,
+            (sym::BHP768, sym::hash_to_scalar) => Self::BHP768HashToScalar,
 
             (sym::BHP1024, sym::commit_to_address) => Self::BHP1024CommitToAddress,
             (sym::BHP1024, sym::commit_to_field) => Self::BHP1024CommitToField,
@@ -112,6 +121,7 @@ impl CoreFunction {
             (sym::BHP1024, sym::hash_to_address) => Self::BHP1024HashToAddress,
             (sym::BHP1024, sym::hash_to_field) => Self::BHP1024HashToField,
             (sym::BHP1024, sym::hash_to_group) => Self::BHP1024HashToGroup,
+            (sym::BHP1024, sym::hash_to_scalar) => Self::BHP1024HashToScalar,
 
             (sym::Pedersen64, sym::commit_to_address) => Self::Pedersen64CommitToAddress,
             (sym::Pedersen64, sym::commit_to_field) => Self::Pedersen64CommitToField,
@@ -119,6 +129,7 @@ impl CoreFunction {
             (sym::Pedersen64, sym::hash_to_address) => Self::Pedersen64HashToAddress,
             (sym::Pedersen64, sym::hash_to_field) => Self::Pedersen64HashToField,
             (sym::Pedersen64, sym::hash_to_group) => Self::Pedersen64HashToGroup,
+            (sym::Pedersen64, sym::hash_to_scalar) => Self::Pedersen64HashToScalar,
 
             (sym::Pedersen128, sym::commit_to_address) => Self::Pedersen128CommitToAddress,
             (sym::Pedersen128, sym::commit_to_field) => Self::Pedersen128CommitToField,
@@ -126,6 +137,7 @@ impl CoreFunction {
             (sym::Pedersen128, sym::hash_to_address) => Self::Pedersen128HashToAddress,
             (sym::Pedersen128, sym::hash_to_field) => Self::Pedersen128HashToField,
             (sym::Pedersen128, sym::hash_to_group) => Self::Pedersen128HashToGroup,
+            (sym::Pedersen128, sym::hash_to_scalar) => Self::Pedersen128HashToScalar,
 
             (sym::Poseidon2, sym::hash_to_address) => Self::Poseidon2HashToAddress,
             (sym::Poseidon2, sym::hash_to_field) => Self::Poseidon2HashToField,
@@ -158,6 +170,7 @@ impl CoreFunction {
             Self::BHP256HashToAddress => 1,
             Self::BHP256HashToField => 1,
             Self::BHP256HashToGroup => 1,
+            Self::BHP256HashToScalar => 1,
 
             Self::BHP512CommitToAddress => 2,
             Self::BHP512CommitToField => 2,
@@ -165,6 +178,7 @@ impl CoreFunction {
             Self::BHP512HashToAddress => 1,
             Self::BHP512HashToField => 1,
             Self::BHP512HashToGroup => 1,
+            Self::BHP512HashToScalar => 1,
 
             Self::BHP768CommitToAddress => 2,
             Self::BHP768CommitToField => 2,
@@ -172,6 +186,7 @@ impl CoreFunction {
             Self::BHP768HashToAddress => 1,
             Self::BHP768HashToField => 1,
             Self::BHP768HashToGroup => 1,
+            Self::BHP768HashToScalar => 1,
 
             Self::BHP1024CommitToAddress => 2,
             Self::BHP1024CommitToField => 2,
@@ -179,6 +194,7 @@ impl CoreFunction {
             Self::BHP1024HashToAddress => 1,
             Self::BHP1024HashToField => 1,
             Self::BHP1024HashToGroup => 1,
+            Self::BHP1024HashToScalar => 1,
 
             Self::Pedersen64CommitToAddress => 2,
             Self::Pedersen64CommitToField => 2,
@@ -186,6 +202,7 @@ impl CoreFunction {
             Self::Pedersen64HashToAddress => 1,
             Self::Pedersen64HashToField => 1,
             Self::Pedersen64HashToGroup => 1,
+            Self::Pedersen64HashToScalar => 1,
 
             Self::Pedersen128CommitToAddress => 2,
             Self::Pedersen128CommitToField => 2,
@@ -193,6 +210,7 @@ impl CoreFunction {
             Self::Pedersen128HashToAddress => 1,
             Self::Pedersen128HashToField => 1,
             Self::Pedersen128HashToGroup => 1,
+            Self::Pedersen128HashToScalar => 1,
 
             Self::Poseidon2HashToAddress => 1,
             Self::Poseidon2HashToField => 1,

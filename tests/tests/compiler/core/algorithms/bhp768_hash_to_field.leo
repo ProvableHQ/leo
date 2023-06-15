@@ -22,7 +22,7 @@ program test.aleo {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
-        // let group_value: group = (0, 1)group;
+        let group_value: group = group::GEN;
         let i128_value: i128 = 1i128;
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
@@ -32,7 +32,7 @@ program test.aleo {
         let a: field = BHP768::hash_to_field(addr_value);
         let b: field = BHP768::hash_to_field(bool_value);
         let c: field = BHP768::hash_to_field(field_value);
-        // let d: field = BHP768::hash_to_field(group_value);
+        let d: field = BHP768::hash_to_field(group_value);
         let e: field = BHP768::hash_to_field(i8_value);
         let f: field = BHP768::hash_to_field(i16_value);
         let g: field = BHP768::hash_to_field(i32_value);
