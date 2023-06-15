@@ -376,7 +376,7 @@ impl<'a> TypeChecker<'a> {
                             | Type::Unit
                     )
                 },
-                "address, boolean, field, group, struct, integer, scalar, struct, string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
