@@ -382,22 +382,13 @@ impl<'a> TypeChecker<'a> {
             );
         };
 
-        // Helper to check that the type of the argument is a valid input to a Pedersen hash/commit with 128-bit inputs.
-        let check_pedersen_128_bit_input = |type_: &Option<Type>, span: &Span| {
-            self.check_type(
-                |type_: &Type| matches!(type_, Type::Boolean | Type::Integer(_) | Type::String),
-                "boolean, integer, string".to_string(),
-                type_,
-                *span,
-            );
-        };
-
         // Check that the arguments are of the correct type.
         match core_function {
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP512CommitToAddress
             | CoreFunction::BHP768CommitToAddress
-            | CoreFunction::BHP1024CommitToAddress => {
+            | CoreFunction::BHP1024CommitToAddress
+            | CoreFunction::Pedersen128CommitToAddress => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
@@ -407,7 +398,8 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256CommitToField
             | CoreFunction::BHP512CommitToField
             | CoreFunction::BHP768CommitToField
-            | CoreFunction::BHP1024CommitToField => {
+            | CoreFunction::BHP1024CommitToField
+            | CoreFunction::Pedersen128CommitToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
@@ -417,7 +409,8 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256CommitToGroup
             | CoreFunction::BHP512CommitToGroup
             | CoreFunction::BHP768CommitToGroup
-            | CoreFunction::BHP1024CommitToGroup => {
+            | CoreFunction::BHP1024CommitToGroup
+            | CoreFunction::Pedersen128CommitToGroup => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
@@ -427,7 +420,11 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256HashToAddress
             | CoreFunction::BHP512HashToAddress
             | CoreFunction::BHP768HashToAddress
-            | CoreFunction::BHP1024HashToAddress => {
+            | CoreFunction::BHP1024HashToAddress
+            | CoreFunction::Pedersen128HashToAddress
+            | CoreFunction::Poseidon2HashToAddress
+            | CoreFunction::Poseidon4HashToAddress
+            | CoreFunction::Poseidon8HashToAddress => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Address)
@@ -435,7 +432,11 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256HashToField
             | CoreFunction::BHP512HashToField
             | CoreFunction::BHP768HashToField
-            | CoreFunction::BHP1024HashToField => {
+            | CoreFunction::BHP1024HashToField
+            | CoreFunction::Pedersen128HashToField
+            | CoreFunction::Poseidon2HashToField
+            | CoreFunction::Poseidon4HashToField
+            | CoreFunction::Poseidon8HashToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
@@ -443,7 +444,11 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256HashToGroup
             | CoreFunction::BHP512HashToGroup
             | CoreFunction::BHP768HashToGroup
-            | CoreFunction::BHP1024HashToGroup => {
+            | CoreFunction::BHP1024HashToGroup
+            | CoreFunction::Pedersen128HashToGroup
+            | CoreFunction::Poseidon2HashToGroup
+            | CoreFunction::Poseidon4HashToGroup
+            | CoreFunction::Poseidon8HashToGroup => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
@@ -451,7 +456,11 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256HashToScalar
             | CoreFunction::BHP512HashToScalar
             | CoreFunction::BHP768HashToScalar
-            | CoreFunction::BHP1024HashToScalar => {
+            | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::Pedersen128HashToScalar
+            | CoreFunction::Poseidon2HashToScalar
+            | CoreFunction::Poseidon4HashToScalar
+            | CoreFunction::Poseidon8HashToScalar => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Scalar)
@@ -498,78 +507,6 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::Pedersen64HashToScalar => {
                 // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
-                Some(Type::Scalar)
-            }
-            CoreFunction::Pedersen128CommitToAddress => {
-                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                // Check that the second argument is a scalar.
-                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
-
-                Some(Type::Address)
-            }
-            CoreFunction::Pedersen128CommitToField => {
-                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                // Check that the second argument is a scalar.
-                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
-
-                Some(Type::Field)
-            }
-            CoreFunction::Pedersen128CommitToGroup => {
-                // Check that the first argument is either a boolean, integer up to 128 bits, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                // Check that the second argument is a scalar.
-                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
-
-                Some(Type::Group)
-            }
-            CoreFunction::Pedersen128HashToAddress => {
-                // Check that the first argument is either a boolean, integer, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                Some(Type::Address)
-            }
-            CoreFunction::Pedersen128HashToField => {
-                // Check that the first argument is either a boolean, integer, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                Some(Type::Field)
-            }
-            CoreFunction::Pedersen128HashToGroup => {
-                // Check that the first argument is either a boolean, integer, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                Some(Type::Group)
-            }
-            CoreFunction::Pedersen128HashToScalar => {
-                // Check that the first argument is either a boolean, integer, or field element.
-                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
-                Some(Type::Scalar)
-            }
-            CoreFunction::Poseidon2HashToAddress
-            | CoreFunction::Poseidon4HashToAddress
-            | CoreFunction::Poseidon8HashToAddress => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
-                Some(Type::Address)
-            }
-            CoreFunction::Poseidon2HashToField
-            | CoreFunction::Poseidon4HashToField
-            | CoreFunction::Poseidon8HashToField => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
-                Some(Type::Field)
-            }
-            CoreFunction::Poseidon2HashToGroup
-            | CoreFunction::Poseidon4HashToGroup
-            | CoreFunction::Poseidon8HashToGroup => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
-                Some(Type::Group)
-            }
-            CoreFunction::Poseidon2HashToScalar
-            | CoreFunction::Poseidon4HashToScalar
-            | CoreFunction::Poseidon8HashToScalar => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Scalar)
             }
             CoreFunction::MappingGet => {

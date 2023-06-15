@@ -45,7 +45,7 @@ program test.aleo {
         let n: field = BHP1024::hash_to_field(u128_value);
         let o: field = BHP1024::hash_to_field(scalar_value);
         // let p: field = BHP1024::hash_to_field(string_value);
-        let q: field = BHP256::hash_to_field(Foo { a: 1u128, b: 1u128 });
+        let q: field = BHP1024::hash_to_field(Foo { a: 1u128, b: 1u128 });
     
         return a + o;
     }}
