@@ -154,7 +154,7 @@ symbols! {
     commit_to_group,
     get,
     get_or_use,
-    hash,
+    hash_to_address,
     hash_to_field,
     hash_to_group,
     hash_to_scalar,
