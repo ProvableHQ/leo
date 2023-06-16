@@ -36,7 +36,7 @@ program vote.aleo {
         assert_eq(self.caller, info.proposer);
 
         // Generate a new proposal id.
-        let id: field = BHP256::hash(info.title);
+        let id: field = BHP256::hash_to_field(info.title);
 
 
         // Return a new record for the proposal.

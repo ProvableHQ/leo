@@ -263,13 +263,19 @@ impl<'a> CodeGenerator<'a> {
 
         // Helper function to construct the instruction associated with a simple function call.
         // This assumes that the function call has one output.
-        let mut construct_simple_function_call = |opcode: &Identifier, variant: &str, arguments: Vec<String>| {
+        let mut construct_simple_function_call = |function: &Identifier, variant: &str, arguments: Vec<String>| {
+            // Split function into [opcode, return type] e.g. hash_to_field -> [hash, field]
+            let function_name = function.name.to_string();
+            let mut names = function_name.split("_to_");
+            let opcode = names.next().expect("failed to get opcode");
+            let return_type = names.next().expect("failed to get type");
+
             let mut instruction = format!("    {opcode}.{variant}");
             for argument in arguments {
                 write!(instruction, " {argument}").expect("failed to write to string");
             }
             let destination_register = get_destination_register();
-            write!(instruction, " into {destination_register};").expect("failed to write to string");
+            write!(instruction, " into {destination_register} as {return_type};").expect("failed to write to string");
             (destination_register, instruction)
         };
 

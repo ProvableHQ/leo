@@ -356,41 +356,51 @@ impl<'a> TypeChecker<'a> {
         let check_not_mapping_tuple_err_unit = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit),
-                "address, boolean, field, group, struct, integer, scalar, scalar, string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
         };
 
         // Helper to check that the type of the argument is a valid input to a Pedersen hash/commit with 64-bit inputs.
+        // The console types in snarkVM have some overhead in their bitwise representation. Consequently, Pedersen64 cannot accept a u64.
         let check_pedersen_64_bit_input = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| {
-                    matches!(
+                    !matches!(
                         type_,
-                        Type::Boolean
-                            | Type::Integer(IntegerType::I8)
-                            | Type::Integer(IntegerType::I16)
-                            | Type::Integer(IntegerType::I32)
+                        Type::Integer(IntegerType::U64)
                             | Type::Integer(IntegerType::I64)
-                            | Type::Integer(IntegerType::U8)
-                            | Type::Integer(IntegerType::U16)
-                            | Type::Integer(IntegerType::U32)
-                            | Type::Integer(IntegerType::U64)
-                            | Type::String
+                            | Type::Integer(IntegerType::U128)
+                            | Type::Integer(IntegerType::I128)
+                            | Type::Mapping(_)
+                            | Type::Tuple(_)
+                            | Type::Err
+                            | Type::Unit
                     )
                 },
-                "boolean, integer (up to 64 bits), string".to_string(),
+                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
         };
 
         // Helper to check that the type of the argument is a valid input to a Pedersen hash/commit with 128-bit inputs.
+        // The console types in snarkVM have some overhead in their bitwise representation. Consequently, Pedersen128 cannot accept a u128.
         let check_pedersen_128_bit_input = |type_: &Option<Type>, span: &Span| {
             self.check_type(
-                |type_: &Type| matches!(type_, Type::Boolean | Type::Integer(_) | Type::String),
-                "boolean, integer, string".to_string(),
+                |type_: &Type| {
+                    !matches!(
+                        type_,
+                        Type::Integer(IntegerType::U128)
+                            | Type::Integer(IntegerType::I128)
+                            | Type::Mapping(_)
+                            | Type::Tuple(_)
+                            | Type::Err
+                            | Type::Unit
+                    )
+                },
+                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
@@ -398,10 +408,20 @@ impl<'a> TypeChecker<'a> {
 
         // Check that the arguments are of the correct type.
         match core_function {
-            CoreFunction::BHP256Commit
-            | CoreFunction::BHP512Commit
-            | CoreFunction::BHP768Commit
-            | CoreFunction::BHP1024Commit => {
+            CoreFunction::BHP256CommitToAddress
+            | CoreFunction::BHP512CommitToAddress
+            | CoreFunction::BHP768CommitToAddress
+            | CoreFunction::BHP1024CommitToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+                Some(Type::Address)
+            }
+            CoreFunction::BHP256CommitToField
+            | CoreFunction::BHP512CommitToField
+            | CoreFunction::BHP768CommitToField
+            | CoreFunction::BHP1024CommitToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
@@ -418,10 +438,24 @@ impl<'a> TypeChecker<'a> {
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
                 Some(Type::Group)
             }
-            CoreFunction::BHP256Hash
-            | CoreFunction::BHP512Hash
-            | CoreFunction::BHP768Hash
-            | CoreFunction::BHP1024Hash => {
+            CoreFunction::BHP256HashToAddress
+            | CoreFunction::BHP512HashToAddress
+            | CoreFunction::BHP768HashToAddress
+            | CoreFunction::BHP1024HashToAddress
+            | CoreFunction::Poseidon2HashToAddress
+            | CoreFunction::Poseidon4HashToAddress
+            | CoreFunction::Poseidon8HashToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Address)
+            }
+            CoreFunction::BHP256HashToField
+            | CoreFunction::BHP512HashToField
+            | CoreFunction::BHP768HashToField
+            | CoreFunction::BHP1024HashToField
+            | CoreFunction::Poseidon2HashToField
+            | CoreFunction::Poseidon4HashToField
+            | CoreFunction::Poseidon8HashToField => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
@@ -429,13 +463,145 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::BHP256HashToGroup
             | CoreFunction::BHP512HashToGroup
             | CoreFunction::BHP768HashToGroup
-            | CoreFunction::BHP1024HashToGroup => {
+            | CoreFunction::BHP1024HashToGroup
+            | CoreFunction::Poseidon2HashToGroup
+            | CoreFunction::Poseidon4HashToGroup
+            | CoreFunction::Poseidon8HashToGroup => {
                 // Check that the first argument is not a mapping, tuple, err, or unit type.
                 check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen64Commit => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+            CoreFunction::BHP256HashToI8
+            | CoreFunction::BHP512HashToI8
+            | CoreFunction::BHP768HashToI8
+            | CoreFunction::BHP1024HashToI8
+            | CoreFunction::Poseidon2HashToI8
+            | CoreFunction::Poseidon4HashToI8
+            | CoreFunction::Poseidon8HashToI8 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I8))
+            }
+            CoreFunction::BHP256HashToI16
+            | CoreFunction::BHP512HashToI16
+            | CoreFunction::BHP768HashToI16
+            | CoreFunction::BHP1024HashToI16
+            | CoreFunction::Poseidon2HashToI16
+            | CoreFunction::Poseidon4HashToI16
+            | CoreFunction::Poseidon8HashToI16 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I16))
+            }
+            CoreFunction::BHP256HashToI32
+            | CoreFunction::BHP512HashToI32
+            | CoreFunction::BHP768HashToI32
+            | CoreFunction::BHP1024HashToI32
+            | CoreFunction::Poseidon2HashToI32
+            | CoreFunction::Poseidon4HashToI32
+            | CoreFunction::Poseidon8HashToI32 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I32))
+            }
+            CoreFunction::BHP256HashToI64
+            | CoreFunction::BHP512HashToI64
+            | CoreFunction::BHP768HashToI64
+            | CoreFunction::BHP1024HashToI64
+            | CoreFunction::Poseidon2HashToI64
+            | CoreFunction::Poseidon4HashToI64
+            | CoreFunction::Poseidon8HashToI64 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I64))
+            }
+            CoreFunction::BHP256HashToI128
+            | CoreFunction::BHP512HashToI128
+            | CoreFunction::BHP768HashToI128
+            | CoreFunction::BHP1024HashToI128
+            | CoreFunction::Poseidon2HashToI128
+            | CoreFunction::Poseidon4HashToI128
+            | CoreFunction::Poseidon8HashToI128 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I128))
+            }
+            CoreFunction::BHP256HashToU8
+            | CoreFunction::BHP512HashToU8
+            | CoreFunction::BHP768HashToU8
+            | CoreFunction::BHP1024HashToU8
+            | CoreFunction::Poseidon2HashToU8
+            | CoreFunction::Poseidon4HashToU8
+            | CoreFunction::Poseidon8HashToU8 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U8))
+            }
+            CoreFunction::BHP256HashToU16
+            | CoreFunction::BHP512HashToU16
+            | CoreFunction::BHP768HashToU16
+            | CoreFunction::BHP1024HashToU16
+            | CoreFunction::Poseidon2HashToU16
+            | CoreFunction::Poseidon4HashToU16
+            | CoreFunction::Poseidon8HashToU16 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U16))
+            }
+            CoreFunction::BHP256HashToU32
+            | CoreFunction::BHP512HashToU32
+            | CoreFunction::BHP768HashToU32
+            | CoreFunction::BHP1024HashToU32
+            | CoreFunction::Poseidon2HashToU32
+            | CoreFunction::Poseidon4HashToU32
+            | CoreFunction::Poseidon8HashToU32 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U32))
+            }
+            CoreFunction::BHP256HashToU64
+            | CoreFunction::BHP512HashToU64
+            | CoreFunction::BHP768HashToU64
+            | CoreFunction::BHP1024HashToU64
+            | CoreFunction::Poseidon2HashToU64
+            | CoreFunction::Poseidon4HashToU64
+            | CoreFunction::Poseidon8HashToU64 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U64))
+            }
+            CoreFunction::BHP256HashToU128
+            | CoreFunction::BHP512HashToU128
+            | CoreFunction::BHP768HashToU128
+            | CoreFunction::BHP1024HashToU128
+            | CoreFunction::Poseidon2HashToU128
+            | CoreFunction::Poseidon4HashToU128
+            | CoreFunction::Poseidon8HashToU128 => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U128))
+            }
+            CoreFunction::BHP256HashToScalar
+            | CoreFunction::BHP512HashToScalar
+            | CoreFunction::BHP768HashToScalar
+            | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::Poseidon2HashToScalar
+            | CoreFunction::Poseidon4HashToScalar
+            | CoreFunction::Poseidon8HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, or unit type.
+                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
+            }
+            CoreFunction::Pedersen64CommitToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Address)
+            }
+            CoreFunction::Pedersen64CommitToField => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -443,25 +609,93 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Field)
             }
             CoreFunction::Pedersen64CommitToGroup => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
 
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen64Hash => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+            CoreFunction::Pedersen64HashToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Address)
+            }
+            CoreFunction::Pedersen64HashToField => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
             CoreFunction::Pedersen64HashToGroup => {
-                // Check that the first argument is either a boolean, integer up to 64 bits, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
                 check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen128Commit => {
-                // Check that the first argument is either a boolean, integer, or field element.
+            CoreFunction::Pedersen64HashToI8 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I8))
+            }
+            CoreFunction::Pedersen64HashToI16 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I16))
+            }
+            CoreFunction::Pedersen64HashToI32 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I32))
+            }
+            CoreFunction::Pedersen64HashToI64 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I64))
+            }
+            CoreFunction::Pedersen64HashToI128 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I128))
+            }
+            CoreFunction::Pedersen64HashToU8 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U8))
+            }
+            CoreFunction::Pedersen64HashToU16 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U16))
+            }
+            CoreFunction::Pedersen64HashToU32 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U32))
+            }
+            CoreFunction::Pedersen64HashToU64 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U64))
+            }
+            CoreFunction::Pedersen64HashToU128 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U128))
+            }
+            CoreFunction::Pedersen64HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 32 bits.
+                check_pedersen_64_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Scalar)
+            }
+            CoreFunction::Pedersen128CommitToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                // Check that the second argument is a scalar.
+                self.assert_scalar_type(&arguments[1].0, arguments[1].1);
+
+                Some(Type::Address)
+            }
+            CoreFunction::Pedersen128CommitToField => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
@@ -469,40 +703,81 @@ impl<'a> TypeChecker<'a> {
                 Some(Type::Field)
             }
             CoreFunction::Pedersen128CommitToGroup => {
-                // Check that the first argument is either a boolean, integer, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 // Check that the second argument is a scalar.
                 self.assert_scalar_type(&arguments[1].0, arguments[1].1);
 
                 Some(Type::Group)
             }
-            CoreFunction::Pedersen128Hash => {
-                // Check that the first argument is either a boolean, integer, or field element.
+            CoreFunction::Pedersen128HashToAddress => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Address)
+            }
+            CoreFunction::Pedersen128HashToField => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Field)
             }
             CoreFunction::Pedersen128HashToGroup => {
-                // Check that the first argument is either a boolean, integer, or field element.
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
                 check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Group)
             }
-            CoreFunction::Poseidon2Hash | CoreFunction::Poseidon4Hash | CoreFunction::Poseidon8Hash => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
-                Some(Type::Field)
+            CoreFunction::Pedersen128HashToI8 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I8))
             }
-            CoreFunction::Poseidon2HashToGroup
-            | CoreFunction::Poseidon4HashToGroup
-            | CoreFunction::Poseidon8HashToGroup => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
-                Some(Type::Group)
+            CoreFunction::Pedersen128HashToI16 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I16))
             }
-            CoreFunction::Poseidon2HashToScalar
-            | CoreFunction::Poseidon4HashToScalar
-            | CoreFunction::Poseidon8HashToScalar => {
-                // Check that the first argument is not a mapping, tuple, err, or unit type.
-                check_not_mapping_tuple_err_unit(&arguments[0].0, &arguments[0].1);
+            CoreFunction::Pedersen128HashToI32 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I32))
+            }
+            CoreFunction::Pedersen128HashToI64 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I64))
+            }
+            CoreFunction::Pedersen128HashToI128 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::I128))
+            }
+            CoreFunction::Pedersen128HashToU8 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U8))
+            }
+            CoreFunction::Pedersen128HashToU16 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U16))
+            }
+            CoreFunction::Pedersen128HashToU32 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U32))
+            }
+            CoreFunction::Pedersen128HashToU64 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U64))
+            }
+            CoreFunction::Pedersen128HashToU128 => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
+                Some(Type::Integer(IntegerType::U128))
+            }
+            CoreFunction::Pedersen128HashToScalar => {
+                // Check that the first argument is not a mapping, tuple, err, unit type, or integer over 64 bits.
+                check_pedersen_128_bit_input(&arguments[0].0, &arguments[0].1);
                 Some(Type::Scalar)
             }
             CoreFunction::MappingGet => {

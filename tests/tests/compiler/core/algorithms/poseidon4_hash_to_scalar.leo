@@ -19,27 +19,33 @@ program test.aleo {
         u32_value: u32,
         u64_value: u64,
     ) -> scalar {
+        let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
+        let bool_value: bool = true;
         let field_value: field = 1field;
+        let group_value: group = group::GEN;
         let i128_value: i128 = 1i128;
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
         // let string_value: string = "helloworld";
-    
+
         // Poseidon4 hash_to_scalar tests
-        let a: scalar = Poseidon4::hash_to_scalar(field_value);
-        let b: scalar = Poseidon4::hash_to_scalar(i8_value);
-        let c: scalar = Poseidon4::hash_to_scalar(i16_value);
-        let d: scalar = Poseidon4::hash_to_scalar(i32_value);
-        let e: scalar = Poseidon4::hash_to_scalar(i64_value);
-        let f: scalar = Poseidon4::hash_to_scalar(i128_value);
-        let g: scalar = Poseidon4::hash_to_scalar(u8_value);
-        let h: scalar = Poseidon4::hash_to_scalar(u16_value);
-        let i: scalar = Poseidon4::hash_to_scalar(u32_value);
-        let j: scalar = Poseidon4::hash_to_scalar(u64_value);
-        let k: scalar = Poseidon4::hash_to_scalar(u128_value);
-        let l: scalar = Poseidon4::hash_to_scalar(scalar_value);
-        // let m: scalar = Poseidon4::hash_to_scalar(string_value);
-        let n: scalar = Poseidon4::hash_to_scalar(Foo { a: 1u128, b: 2u128 });
-    
-        return a + l;
+        let a: scalar = Poseidon4::hash_to_scalar(addr_value);
+        let b: scalar = Poseidon4::hash_to_scalar(bool_value);
+        let c: scalar = Poseidon4::hash_to_scalar(field_value);
+        let d: scalar = Poseidon4::hash_to_scalar(group_value);
+        let e: scalar = Poseidon4::hash_to_scalar(i8_value);
+        let f: scalar = Poseidon4::hash_to_scalar(i16_value);
+        let g: scalar = Poseidon4::hash_to_scalar(i32_value);
+        let h: scalar = Poseidon4::hash_to_scalar(i64_value);
+        let i: scalar = Poseidon4::hash_to_scalar(i128_value);
+        let j: scalar = Poseidon4::hash_to_scalar(u8_value);
+        let k: scalar = Poseidon4::hash_to_scalar(u16_value);
+        let l: scalar = Poseidon4::hash_to_scalar(u32_value);
+        let m: scalar = Poseidon4::hash_to_scalar(u64_value);
+        let n: scalar = Poseidon4::hash_to_scalar(u128_value);
+        let o: scalar = Poseidon4::hash_to_scalar(scalar_value);
+        // let p: scalar = Poseidon4::hash_to_scalar(string_value);
+        let q: scalar = Poseidon4::hash_to_scalar(Foo { a: 1u128, b: 1u128 });
+
+        return a + o;
     }}

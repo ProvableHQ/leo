@@ -37,7 +37,7 @@ program basic_bank.aleo {
         };
 
         // Compute the hash of the token owner.
-        let hash: field = BHP256::hash(token.owner);
+        let hash: field = BHP256::hash_to_field(token.owner);
 
         return remaining then finalize(hash, amount);
     }
@@ -58,7 +58,7 @@ program basic_bank.aleo {
     // Requires that the function caller is the bank.
     transition withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> Token {
         assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
-        let hash: field = BHP256::hash(recipient);
+        let hash: field = BHP256::hash_to_field(recipient);
 
         let total: u64 = calculate_interest(amount, rate, periods);
 

@@ -31,12 +31,12 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-rev = "bad00c6"
+rev = "0d86ae6"
 git = "https://github.com/AleoHQ/snarkvm.git"
 #version = "=0.11.12"
 
 [workspace.dependencies.snarkvm-console]
-rev = "bad00c6"
+rev = "0d86ae6"
 git = "https://github.com/AleoHQ/snarkvm.git"
 #version = "=0.11.12"
 
