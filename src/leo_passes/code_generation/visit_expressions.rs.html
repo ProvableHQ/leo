@@ -426,6 +426,12 @@
 <a href="#426" id="426">426</a>
 <a href="#427" id="427">427</a>
 <a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -691,13 +697,19 @@
 
         <span class="comment">// Helper function to construct the instruction associated with a simple function call.
         // This assumes that the function call has one output.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>construct_simple_function_call = |opcode: <span class="kw-2">&amp;</span>Identifier, variant: <span class="kw-2">&amp;</span>str, arguments: Vec&lt;String&gt;| {
+        </span><span class="kw">let </span><span class="kw-2">mut </span>construct_simple_function_call = |function: <span class="kw-2">&amp;</span>Identifier, variant: <span class="kw-2">&amp;</span>str, arguments: Vec&lt;String&gt;| {
+            <span class="comment">// Split function into [opcode, return type] e.g. hash_to_field -&gt; [hash, field]
+            </span><span class="kw">let </span>function_name = function.name.to_string();
+            <span class="kw">let </span><span class="kw-2">mut </span>names = function_name.split(<span class="string">&quot;_to_&quot;</span>);
+            <span class="kw">let </span>opcode = names.next().expect(<span class="string">&quot;failed to get opcode&quot;</span>);
+            <span class="kw">let </span>return_type = names.next().expect(<span class="string">&quot;failed to get type&quot;</span>);
+
             <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode}.{variant}&quot;</span>);
             <span class="kw">for </span>argument <span class="kw">in </span>arguments {
                 <span class="macro">write!</span>(instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             }
             <span class="kw">let </span>destination_register = get_destination_register();
-            <span class="macro">write!</span>(instruction, <span class="string">&quot; into {destination_register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(instruction, <span class="string">&quot; into {destination_register} as {return_type};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             (destination_register, instruction)
         };
 

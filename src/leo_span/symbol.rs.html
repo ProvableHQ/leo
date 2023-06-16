@@ -411,6 +411,11 @@
 <a href="#411" id="411">411</a>
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -562,12 +567,24 @@
     BHP512,
     BHP768,
     BHP1024,
-    commit,
+    commit_to_address,
+    commit_to_field,
     commit_to_group,
     get,
     get_or_use,
-    hash,
+    hash_to_address,
+    hash_to_field,
     hash_to_group,
+    hash_to_i8,
+    hash_to_i16,
+    hash_to_i32,
+    hash_to_i64,
+    hash_to_i128,
+    hash_to_u8,
+    hash_to_u16,
+    hash_to_u32,
+    hash_to_u64,
+    hash_to_u128,
     hash_to_scalar,
     Mapping,
     Pedersen64,
@@ -628,8 +645,6 @@
     SelfLower: <span class="string">&quot;self&quot;</span>,
     SelfUpper: <span class="string">&quot;Self&quot;</span>,
     Star: <span class="string">&quot;*&quot;</span>,
-    std,
-    test,
     then,
     transition,
     Type: <span class="string">&quot;type&quot;</span>,
@@ -640,11 +655,6 @@
     owner,
     _nonce,
     program,
-
-    <span class="comment">// input file
-    </span>registers,
-    state,
-    state_leaf,
 }
 
 <span class="doccomment">/// An interned string.
