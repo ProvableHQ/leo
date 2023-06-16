@@ -31,12 +31,10 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-rev = "0d86ae6"
-git = "https://github.com/AleoHQ/snarkvm.git"
+version = "0.12.3"
 
 [workspace.dependencies.snarkvm-console]
-rev = "0d86ae6"
-git = "https://github.com/AleoHQ/snarkvm.git"
+version = "0.12.3"
 
 [lib]
 path = "leo/lib.rs"
