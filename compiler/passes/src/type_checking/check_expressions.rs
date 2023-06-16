@@ -99,10 +99,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             AccessExpression::Member(access) => {
                 match *access.inner {
-                    // If the access expression is of the form `self.<name>`, then check the <name> is valid.
-                    Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                        sym::caller => return Some(Type::Address),
-                        _ => {
+                    // If the access expression is of the form `self.<name>` or `block.<name>`, then check the <name> is valid.
+                    Expression::Identifier(identifier) => match (identifier.name, access.name.name) {
+                        (sym::SelfLower, sym::caller) => return Some(Type::Address),
+                        (sym::block, sym::height) => return Some(Type::Integer(IntegerType::U32)),
+                        (sym::block, _) => {
+                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
+                        }
+                        (_, _) => {
                             self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
                         }
                     },

@@ -237,6 +237,8 @@ symbols! {
     owner,
     _nonce,
     program,
+    block,
+    height,
 }
 
 /// An interned string.

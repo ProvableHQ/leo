@@ -125,18 +125,19 @@ pub enum Token {
     Mapping,
     Private,
     Program,
-    // For public inputs.
+
+    // Public inputs.
     Public,
     Return,
     SelfLower,
     Struct,
     Then,
     Transition,
-    // For imports.
-    Leo,
 
     // Meta Tokens
+    Block,
     Eof,
+    Leo,
 }
 
 /// Represents all valid Leo keyword tokens.
@@ -201,6 +202,7 @@ impl Token {
             Token::Assert => sym::assert,
             Token::AssertEq => sym::assert_eq,
             Token::AssertNeq => sym::assert_neq,
+            Token::Block => sym::block,
             Token::Bool => sym::bool,
             Token::Console => sym::console,
             Token::Constant => sym::constant,
@@ -352,6 +354,7 @@ impl fmt::Display for Token {
             Struct => write!(f, "struct"),
             Then => write!(f, "then"),
             Transition => write!(f, "transition"),
+            Block => write!(f, "block"),
             Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),
         }

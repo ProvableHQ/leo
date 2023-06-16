@@ -620,4 +620,12 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when an invalid field of block is called.
+    @formatted
+    invalid_block_access {
+        args: (),
+        msg: format!("The allowed accesses to `block` are `block.height`."),
+        help: None,
+    }
 );
