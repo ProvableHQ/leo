@@ -1,0 +1,10 @@
+{
+    "program": "arc20.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpA6QAqsMUaEiE9m6DiJ2JPgmvLfqgx8BVkgziQg8NqrfH",
+        "address": "aleo1k8x09g9shjnvsdet9dhwxm30jyeppnehqu8hhlznfk0pejmmvgxq99h54t"
+    },
+    "license": "MIT"
+}
