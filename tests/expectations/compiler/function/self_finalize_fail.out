@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "'self.caller' is not a valid operand in a finalize context."
