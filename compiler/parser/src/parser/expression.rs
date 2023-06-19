@@ -627,6 +627,7 @@ impl ParserContext<'_> {
                 }
             }
             Token::SelfLower => Expression::Identifier(Identifier { name: sym::SelfLower, span }),
+            Token::Block => Expression::Identifier(Identifier { name: sym::block, span }),
             t if crate::type_::TYPE_TOKENS.contains(&t) => {
                 Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span })
             }
