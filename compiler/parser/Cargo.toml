@@ -1,6 +1,6 @@
 [package]
 name = "leo-parser"
-version = "1.7.2"
+version = "1.8.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Parser for the Leo programming language"
 homepage = "https://aleo.org"
@@ -20,15 +20,15 @@ rust-version = "1.69"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.7.2"
+version = "1.8.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.7.2"
+version = "1.8.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "1.7.2"
+version = "1.8.0"
 
 [dependencies.snarkvm-console]
 workspace = true
