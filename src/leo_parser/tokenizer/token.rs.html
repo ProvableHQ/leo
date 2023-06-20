@@ -376,6 +376,9 @@
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
 <a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -503,18 +506,19 @@
     Mapping,
     Private,
     Program,
-    <span class="comment">// For public inputs.
+
+    <span class="comment">// Public inputs.
     </span>Public,
     Return,
     SelfLower,
     Struct,
     Then,
     Transition,
-    <span class="comment">// For imports.
-    </span>Leo,
 
     <span class="comment">// Meta Tokens
-    </span>Eof,
+    </span>Block,
+    Eof,
+    Leo,
 }
 
 <span class="doccomment">/// Represents all valid Leo keyword tokens.
@@ -579,6 +583,7 @@
             Token::Assert =&gt; sym::assert,
             Token::AssertEq =&gt; sym::assert_eq,
             Token::AssertNeq =&gt; sym::assert_neq,
+            Token::Block =&gt; sym::block,
             Token::Bool =&gt; sym::bool,
             Token::Console =&gt; sym::console,
             Token::Constant =&gt; sym::constant,
@@ -730,6 +735,7 @@
             Struct =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;struct&quot;</span>),
             Then =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;then&quot;</span>),
             Transition =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;transition&quot;</span>),
+            Block =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;block&quot;</span>),
             Leo =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;leo&quot;</span>),
             Eof =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&lt;eof&gt;&quot;</span>),
         }

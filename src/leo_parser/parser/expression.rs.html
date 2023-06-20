@@ -645,6 +645,7 @@
 <a href="#645" id="645">645</a>
 <a href="#646" id="646">646</a>
 <a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1274,6 +1275,7 @@
                 }
             }
             Token::SelfLower =&gt; Expression::Identifier(Identifier { name: sym::SelfLower, span }),
+            Token::Block =&gt; Expression::Identifier(Identifier { name: sym::block, span }),
             t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; {
                 Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span })
             }
