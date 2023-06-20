@@ -620,4 +620,19 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when an invalid field of block is called.
+    @formatted
+    invalid_block_access {
+        args: (),
+        msg: format!("The allowed accesses to `block` are `block.height`."),
+        help: None,
+    }
+
+    @formatted
+    invalid_operation_inside_finalize {
+        args: (operation: impl Display),
+        msg: format!("`{operation}` is not a valid operand in a finalize context."),
+        help: None,
+    }
 );

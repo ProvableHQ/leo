@@ -16,16 +16,16 @@ program test.aleo {
         account.set(receiver, current_amount + amount);
     }
 
-    transition finalize_no_params() {
-        return then finalize();
+    transition finalize_self_caller() {
+        return then finalize(self.caller);
     }
 
-    finalize finalize_no_params() {
+    finalize finalize_self_caller(caller: address) {
         let current_value: u8 = values.get_or_use(0u8, 0u8);
         values.set(0u8, current_value + 1u8);
-        let current_amount: u64 = account.get_or_use(self.caller, 0u64);
-        account.set(self.caller, current_amount + 1u64);
-        current_amount = account.get(self.caller);
-        account.set(self.caller, current_amount + 1u64);
+        let current_amount: u64 = account.get_or_use(caller, 0u64);
+        account.set(caller, current_amount + 1u64);
+        current_amount = account.get(caller);
+        account.set(caller, current_amount + 1u64);
     }
 }

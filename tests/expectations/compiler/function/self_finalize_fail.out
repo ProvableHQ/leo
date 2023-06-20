@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372076]: `self.caller` is not a valid operand in a finalize context.\n    --> compiler-test:7:30\n     |\n   7 |         assert_eq(addr, self.caller);\n     |                              ^^^^^^\n"

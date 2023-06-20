@@ -379,6 +379,7 @@ impl Token {
                     "assert" => Token::Assert,
                     "assert_eq" => Token::AssertEq,
                     "assert_neq" => Token::AssertNeq,
+                    "block" => Token::Block,
                     "bool" => Token::Bool,
                     "console" => Token::Console,
                     "constant" => Token::Constant,

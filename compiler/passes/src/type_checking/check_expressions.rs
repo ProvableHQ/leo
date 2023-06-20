@@ -101,9 +101,34 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 match *access.inner {
                     // If the access expression is of the form `self.<name>`, then check the <name> is valid.
                     Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
-                        sym::caller => return Some(Type::Address),
+                        sym::caller => {
+                            // Check that the operation is not invoked in a `finalize` block.
+                            if self.is_finalize {
+                                self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
+                                    "self.caller",
+                                    access.name.span(),
+                                ))
+                            }
+                            return Some(Type::Address);
+                        }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
+                        }
+                    },
+                    // If the access expression is of the form `block.<name>`, then check the <name> is valid.
+                    Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
+                        sym::height => {
+                            // Check that the operation is invoked in a `finalize` block.
+                            if !self.is_finalize {
+                                self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                                    "block.height",
+                                    access.name.span(),
+                                ))
+                            }
+                            return Some(Type::Integer(IntegerType::U32));
+                        }
+                        _ => {
+                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
                         }
                     },
                     _ => {

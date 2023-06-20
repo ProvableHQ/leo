@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372035]: `block.height` must be inside a finalize block.\n    --> compiler-test:5:33\n     |\n   5 |         assert_eq(height, block.height);\n     |                                 ^^^^^^\n"

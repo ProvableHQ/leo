@@ -159,6 +159,7 @@ impl<'a> CodeGenerator<'a> {
         self.variable_mapping = IndexMap::new();
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
+        self.variable_mapping.insert(&sym::block, "block".to_string());
         self.current_function = Some(function);
 
         // Construct the header of the function.
@@ -209,6 +210,7 @@ impl<'a> CodeGenerator<'a> {
             // TODO: Figure out a better way to initialize.
             self.variable_mapping = IndexMap::new();
             self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
+            self.variable_mapping.insert(&sym::block, "block".to_string());
 
             function_string.push_str(&format!("\nfinalize {}:\n", finalize.identifier));
 
