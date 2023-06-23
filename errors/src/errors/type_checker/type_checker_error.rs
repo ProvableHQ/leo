@@ -635,11 +635,4 @@ create_messages!(
         msg: format!("`{operation}` is not a valid operand in a finalize context."),
         help: None,
     }
-
-    @formatted
-    cast_must_be_to_primitive {
-        args: (),
-        msg: format!("A cast must be to a primitive type."),
-        help: None,
-    }
 );

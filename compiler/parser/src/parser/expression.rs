@@ -221,21 +221,13 @@ impl ParserContext<'_> {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary exponentiation expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_cast_expression`].
-    fn parse_exponential_expression(&mut self) -> Result<Expression> {
-        self.parse_bin_expr(&[Token::Pow], Self::parse_cast_expression)
-    }
-
-    /// Returns an [`Expression`] AST node if the next tokens represent a
-    /// cast expression.
-    ///
     /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
-    fn parse_cast_expression(&mut self) -> Result<Expression> {
+    fn parse_exponential_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_unary_expression()?;
-        if self.eat(&Token::As) {
-            let (type_, end_span) = self.parse_primitive_type()?;
-            let span = expr.span() + end_span;
-            expr = Expression::Cast(CastExpression { expression: Box::new(expr), type_, span });
+
+        if let Some(op) = self.eat_bin_op(&[Token::Pow]) {
+            let right = self.parse_exponential_expression()?;
+            expr = Self::bin_expr(expr, right, op);
         }
 
         Ok(expr)

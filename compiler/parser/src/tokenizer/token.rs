@@ -108,7 +108,6 @@ pub enum Token {
     Record,
 
     // Regular Keywords
-    As,
     Assert,
     AssertEq,
     AssertNeq,
@@ -147,7 +146,6 @@ pub enum Token {
 /// because true and false are also boolean literals, which are different tokens from keywords.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
-    Token::As,
     Token::Assert,
     Token::AssertEq,
     Token::AssertNeq,
@@ -201,7 +199,6 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
-            Token::As => sym::As,
             Token::Assert => sym::assert,
             Token::AssertEq => sym::assert_eq,
             Token::AssertNeq => sym::assert_neq,
@@ -334,7 +331,6 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             Record => write!(f, "record"),
 
-            As => write!(f, "as"),
             Assert => write!(f, "assert"),
             AssertEq => write!(f, "assert_eq"),
             AssertNeq => write!(f, "assert_neq"),
