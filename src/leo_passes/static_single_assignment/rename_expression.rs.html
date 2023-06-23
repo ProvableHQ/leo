@@ -315,6 +315,23 @@
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
 <a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -338,6 +355,7 @@
     AssociatedFunction,
     BinaryExpression,
     CallExpression,
+    CastExpression,
     Expression,
     ExpressionConsumer,
     Identifier,
@@ -465,6 +483,22 @@
             <span class="comment">// Consume the arguments.
             </span>arguments,
             external: input.external,
+            span: input.span,
+        }));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
+    }
+
+    <span class="doccomment">/// Consumes a cast expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CastExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Reconstruct the expression being casted.
+        </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.expression);
+
+        <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the cast expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Cast(CastExpression {
+            expression: Box::new(expression),
+            type_: input.type_,
             span: input.span,
         }));
         statements.push(statement);

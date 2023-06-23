@@ -646,6 +646,14 @@
 <a href="#646" id="646">646</a>
 <a href="#647" id="647">647</a>
 <a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -869,13 +877,21 @@
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
     /// binary exponentiation expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_cast_expression`].
     </span><span class="kw">fn </span>parse_exponential_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_unary_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.parse_bin_expr(<span class="kw-2">&amp;</span>[Token::Pow], <span class="self">Self</span>::parse_cast_expression)
+    }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(op) = <span class="self">self</span>.eat_bin_op(<span class="kw-2">&amp;</span>[Token::Pow]) {
-            <span class="kw">let </span>right = <span class="self">self</span>.parse_exponential_expression()<span class="question-mark">?</span>;
-            expr = <span class="self">Self</span>::bin_expr(expr, right, op);
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
+    /// cast expression.
+    ///
+    /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
+    </span><span class="kw">fn </span>parse_cast_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>expr = <span class="self">self</span>.parse_unary_expression()<span class="question-mark">?</span>;
+        <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::As) {
+            <span class="kw">let </span>(type_, end_span) = <span class="self">self</span>.parse_primitive_type()<span class="question-mark">?</span>;
+            <span class="kw">let </span>span = expr.span() + end_span;
+            expr = Expression::Cast(CastExpression { expression: Box::new(expr), type_, span });
         }
 
         <span class="prelude-val">Ok</span>(expr)

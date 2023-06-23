@@ -379,6 +379,10 @@
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -489,7 +493,8 @@
     Record,
 
     <span class="comment">// Regular Keywords
-    </span>Assert,
+    </span>As,
+    Assert,
     AssertEq,
     AssertNeq,
     Console,
@@ -527,6 +532,7 @@
 /// because true and false are also boolean literals, which are different tokens from keywords.
 </span><span class="kw">pub const </span>KEYWORD_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
     Token::Address,
+    Token::As,
     Token::Assert,
     Token::AssertEq,
     Token::AssertNeq,
@@ -580,6 +586,7 @@
     </span><span class="kw">pub fn </span>keyword_to_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Symbol&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self </span>{
             Token::Address =&gt; sym::address,
+            Token::As =&gt; sym::As,
             Token::Assert =&gt; sym::assert,
             Token::AssertEq =&gt; sym::assert_eq,
             Token::AssertNeq =&gt; sym::assert_neq,
@@ -712,6 +719,7 @@
             U128 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u128&quot;</span>),
             Record =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;record&quot;</span>),
 
+            As =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;as&quot;</span>),
             Assert =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert&quot;</span>),
             AssertEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_eq&quot;</span>),
             AssertNeq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_neq&quot;</span>),

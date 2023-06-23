@@ -454,6 +454,7 @@
 <a href="#454" id="454">454</a>
 <a href="#455" id="455">455</a>
 <a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -832,6 +833,7 @@
                 </span><span class="kw">match </span><span class="kw-2">&amp;*</span>identifier {
                     x <span class="kw">if </span>x.starts_with(<span class="string">&quot;aleo1&quot;</span>) =&gt; Token::AddressLit(identifier),
                     <span class="string">&quot;address&quot; </span>=&gt; Token::Address,
+                    <span class="string">&quot;as&quot; </span>=&gt; Token::As,
                     <span class="string">&quot;assert&quot; </span>=&gt; Token::Assert,
                     <span class="string">&quot;assert_eq&quot; </span>=&gt; Token::AssertEq,
                     <span class="string">&quot;assert_neq&quot; </span>=&gt; Token::AssertNeq,

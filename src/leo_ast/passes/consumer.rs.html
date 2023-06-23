@@ -141,6 +141,9 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -171,6 +174,7 @@
             Expression::Access(access) =&gt; <span class="self">self</span>.consume_access(access),
             Expression::Binary(binary) =&gt; <span class="self">self</span>.consume_binary(binary),
             Expression::Call(call) =&gt; <span class="self">self</span>.consume_call(call),
+            Expression::Cast(cast) =&gt; <span class="self">self</span>.consume_cast(cast),
             Expression::Struct(struct_) =&gt; <span class="self">self</span>.consume_struct_init(struct_),
             Expression::Err(err) =&gt; <span class="self">self</span>.consume_err(err),
             Expression::Identifier(identifier) =&gt; <span class="self">self</span>.consume_identifier(identifier),
@@ -187,6 +191,8 @@
     <span class="kw">fn </span>consume_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: BinaryExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: CallExpression) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: CastExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: StructExpression) -&gt; <span class="self">Self</span>::Output;
 
