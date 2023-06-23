@@ -512,6 +512,20 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
     }
 
+    fn visit_cast(&mut self, input: &'a CastExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Check that the target type of the cast expression is a primitive type.
+        if !Self::is_primitive_type(&input.type_) {
+            self.emit_err(TypeCheckerError::cast_must_be_to_primitive(input.span()));
+        }
+        // Check that the expression being casted matches the target type.
+        let target_type = input.type_.clone();
+        let expression_type = self.visit_expression(&input.expression, &None);
+        self.assert_type(&expression_type, &target_type, input.expression.span());
+
+        // Check that the expected type matches the target type.
+        Some(self.assert_and_return_type(target_type, expected, input.span()))
+    }
+
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
         if let Some(struct_) = struct_ {

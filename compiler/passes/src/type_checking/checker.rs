@@ -163,6 +163,20 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Returns whether the given type is a primitive type.
+    pub(crate) fn is_primitive_type(type_: &Type) -> bool {
+        match type_ {
+            Type::Address
+            | Type::Boolean
+            | Type::Field
+            | Type::Group
+            | Type::Integer(_)
+            | Type::Scalar
+            | Type::String => true,
+            Type::Identifier(_) | Type::Mapping(_) | Type::Tuple(_) | Type::Unit | Type::Err => false,
+        }
+    }
+
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
     pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
