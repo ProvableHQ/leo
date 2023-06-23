@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![forbid(unsafe_code)]
+#![recursion_limit = "256"]
 
 pub mod symbol;
 pub use symbol::{sym, Symbol};

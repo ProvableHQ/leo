@@ -357,6 +357,27 @@ impl<'a> CodeGenerator<'a> {
                 }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
             },
+            Type::Group => {
+                match input.name {
+                    Identifier { name: sym::to_x_coordinate, .. } => {
+                        let mut instruction = "    cast".to_string();
+                        let destination_register = get_destination_register();
+                        // Write the argument and the destination register.
+                        writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
+                            .expect("failed to write to string");
+                        (destination_register, instruction)
+                    }
+                    Identifier { name: sym::to_y_coordinate, .. } => {
+                        let mut instruction = "    cast".to_string();
+                        let destination_register = get_destination_register();
+                        // Write the argument and the destination register.
+                        writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
+                            .expect("failed to write to string");
+                        (destination_register, instruction)
+                    }
+                    _ => unreachable!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
+                }
+            }
             _ => unreachable!("All core functions should be known at this phase of compilation"),
         };
         // Add the instruction to the list of instructions.
