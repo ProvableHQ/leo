@@ -21,6 +21,7 @@ use leo_ast::{
     AssociatedFunction,
     BinaryExpression,
     CallExpression,
+    CastExpression,
     Expression,
     ExpressionConsumer,
     Identifier,
@@ -148,6 +149,22 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             // Consume the arguments.
             arguments,
             external: input.external,
+            span: input.span,
+        }));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
+    }
+
+    /// Consumes a cast expression, accumulating any statements that are generated.
+    fn consume_cast(&mut self, input: CastExpression) -> Self::Output {
+        // Reconstruct the expression being casted.
+        let (expression, mut statements) = self.consume_expression(*input.expression);
+
+        // Construct and accumulate a unique assignment statement storing the result of the cast expression.
+        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Cast(CastExpression {
+            expression: Box::new(expression),
+            type_: input.type_,
             span: input.span,
         }));
         statements.push(statement);
