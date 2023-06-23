@@ -28,6 +28,7 @@ pub trait ExpressionConsumer {
             Expression::Access(access) => self.consume_access(access),
             Expression::Binary(binary) => self.consume_binary(binary),
             Expression::Call(call) => self.consume_call(call),
+            Expression::Cast(cast) => self.consume_cast(cast),
             Expression::Struct(struct_) => self.consume_struct_init(struct_),
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
@@ -44,6 +45,8 @@ pub trait ExpressionConsumer {
     fn consume_binary(&mut self, _input: BinaryExpression) -> Self::Output;
 
     fn consume_call(&mut self, _input: CallExpression) -> Self::Output;
+
+    fn consume_cast(&mut self, _input: CastExpression) -> Self::Output;
 
     fn consume_struct_init(&mut self, _input: StructExpression) -> Self::Output;
 
