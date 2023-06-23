@@ -1,0 +1,123 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Cast:
+      expression:
+        Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+      type_:
+        Integer: U8
+      span:
+        lo: 0
+        hi: 9
+  - Cast:
+      expression:
+        Literal:
+          Integer:
+            - U128
+            - "1"
+            - span:
+                lo: 0
+                hi: 5
+      type_:
+        Integer: I8
+      span:
+        lo: 0
+        hi: 11
+  - Cast:
+      expression:
+        Struct:
+          name: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+          members:
+            - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":9}\"}"
+              expression:
+                Identifier: "{\"name\":\"u8\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":13}\"}"
+          span:
+            lo: 0
+            hi: 15
+      type_: Scalar
+      span:
+        lo: 0
+        hi: 25
+  - Ternary:
+      condition:
+        Identifier: "{\"name\":\"flag\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+      if_true:
+        Literal:
+          Integer:
+            - U8
+            - "1"
+            - span:
+                lo: 7
+                hi: 10
+      if_false:
+        Cast:
+          expression:
+            Literal:
+              Integer:
+                - U8
+                - "0"
+                - span:
+                    lo: 13
+                    hi: 16
+          type_: Scalar
+          span:
+            lo: 13
+            hi: 26
+      span:
+        lo: 0
+        hi: 26
+  - Cast:
+      expression:
+        Ternary:
+          condition:
+            Identifier: "{\"name\":\"flag\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":5}\"}"
+          if_true:
+            Literal:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    lo: 8
+                    hi: 11
+          if_false:
+            Literal:
+              Integer:
+                - U8
+                - "0"
+                - span:
+                    lo: 14
+                    hi: 17
+          span:
+            lo: 1
+            hi: 17
+      type_: Scalar
+      span:
+        lo: 1
+        hi: 28
+  - Cast:
+      expression:
+        Literal:
+          Integer:
+            - I8
+            - "34"
+            - span:
+                lo: 0
+                hi: 4
+      type_: Field
+      span:
+        lo: 0
+        hi: 13
+  - Cast:
+      expression:
+        Literal:
+          Field:
+            - "0925348043850"
+            - span:
+                lo: 0
+                hi: 18
+      type_:
+        Integer: I8
+      span:
+        lo: 0
+        hi: 24

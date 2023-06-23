@@ -1,0 +1,9 @@
+---
+namespace: ParseExpression
+expectation: Fail
+outputs:
+  - "did not consume all input: 'aas' @ 1:5-8\n'u8' @ 1:9-11\n"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found '{'\n    --> test:1:10\n     |\n   1 | 1u128 as { foo: u8 }\n     |          ^"
+  - "did not consume all input: ';' @ 1:14-15\n"
+  - "Error [EPAR0370005]: expected 'address', 'bool', 'field', 'group', 'scalar', 'string', 'i8', 'i16', 'i32', 'i64', 'i128', 'u8', 'u16', 'u32', 'u64', 'u128' -- found 'bar'\n    --> test:1:8\n     |\n   1 | 1u8 as bar;\n     |        ^^^"
+  - "did not consume all input: 'asu8' @ 1:5-9\n"
