@@ -22,7 +22,7 @@ program test.aleo {
         let addr_value: address = aleo10qerras5799u6k7rjtc9y3hcwxuykr45qra7x7dp6jgnc0923czqm0lgta;
         let bool_value: bool = true;
         let field_value: field = 1field;
-//         let group_value: group = group::GEN;
+        let group_value: group = group::GEN;
         let i128_value: i128 = 1i128;
         let u128_value: u128 = 1u128;
         let scalar_value: scalar = 1scalar;
@@ -32,7 +32,7 @@ program test.aleo {
         let a: group = BHP512::commit_to_group(addr_value, 1scalar);
         let b: group = BHP512::commit_to_group(bool_value, 1scalar);
         let c: group = BHP512::commit_to_group(field_value, 1scalar);
-//         let d: group = BHP512::commit_to_group(group_value, 1scalar);
+        let d: group = BHP512::commit_to_group(group_value, 1scalar);
         let e: group = BHP512::commit_to_group(i8_value, 1scalar);
         let f: group = BHP512::commit_to_group(i16_value, 1scalar);
         let g: group = BHP512::commit_to_group(i32_value, 1scalar);
