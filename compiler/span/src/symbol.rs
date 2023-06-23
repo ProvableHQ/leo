@@ -201,6 +201,7 @@ symbols! {
     True: "true",
 
     // general keywords
+    As: "as",
     assert,
     assert_eq,
     assert_neq,
