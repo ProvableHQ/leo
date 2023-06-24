@@ -727,6 +727,20 @@
 <a href="#727" id="727">727</a>
 <a href="#728" id="728">728</a>
 <a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1239,6 +1253,20 @@
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parser guarantees that `input.function` is always an identifier.&quot;</span>),
         }
+    }
+
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CastExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="comment">// Check that the target type of the cast expression is a castable type.
+        </span><span class="kw">let </span>target_type = <span class="prelude-val">Some</span>(input.type_.clone());
+        <span class="self">self</span>.assert_castable_type(<span class="kw-2">&amp;</span>target_type, input.span());
+
+        <span class="comment">// Check that the expression type is a primitive type.
+        </span><span class="kw">let </span>expression_type = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>);
+        <span class="self">self</span>.assert_castable_type(<span class="kw-2">&amp;</span>expression_type, input.expression.span());
+
+        <span class="comment">// Check that the expected type matches the target type.
+        // Note that this unwrap is safe since target_type is always `Some`.
+        </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(target_type.unwrap(), expected, input.span()))
     }
 
     <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {

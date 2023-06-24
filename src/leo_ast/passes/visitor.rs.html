@@ -226,6 +226,12 @@
 <a href="#226" id="226">226</a>
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -258,6 +264,7 @@
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Binary(binary) =&gt; <span class="self">self</span>.visit_binary(binary, additional),
             Expression::Call(call) =&gt; <span class="self">self</span>.visit_call(call, additional),
+            Expression::Cast(cast) =&gt; <span class="self">self</span>.visit_cast(cast, additional),
             Expression::Struct(struct_) =&gt; <span class="self">self</span>.visit_struct_init(struct_, additional),
             Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, additional),
             Expression::Identifier(identifier) =&gt; <span class="self">self</span>.visit_identifier(identifier, additional),
@@ -298,6 +305,11 @@
         input.arguments.iter().for_each(|expr| {
             <span class="self">self</span>.visit_expression(expr, additional);
         });
+        Default::default()
+    }
+
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CastExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, additional);
         Default::default()
     }
 

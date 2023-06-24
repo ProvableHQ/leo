@@ -132,6 +132,14 @@
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
 <a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -163,6 +171,9 @@
 <span class="kw">mod </span>call;
 <span class="kw">pub use </span>call::<span class="kw-2">*</span>;
 
+<span class="kw">mod </span>cast;
+<span class="kw">pub use </span>cast::<span class="kw-2">*</span>;
+
 <span class="kw">mod </span>struct_init;
 <span class="kw">pub use </span>struct_init::<span class="kw-2">*</span>;
 
@@ -193,6 +204,8 @@
     </span>Binary(BinaryExpression),
     <span class="doccomment">/// A call expression, e.g., `my_fun(args)`.
     </span>Call(CallExpression),
+    <span class="doccomment">/// A cast expression, e.g., `42u32 as u8`.
+    </span>Cast(CastExpression),
     <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.
     </span>Struct(StructExpression),
     <span class="doccomment">/// An expression of type &quot;error&quot;.
@@ -219,6 +232,7 @@
             Access(n) =&gt; n.span(),
             Binary(n) =&gt; n.span(),
             Call(n) =&gt; n.span(),
+            Cast(n) =&gt; n.span(),
             Struct(n) =&gt; n.span(),
             <span class="prelude-val">Err</span>(n) =&gt; n.span(),
             Identifier(n) =&gt; n.span(),
@@ -236,6 +250,7 @@
             Access(n) =&gt; n.set_span(span),
             Binary(n) =&gt; n.set_span(span),
             Call(n) =&gt; n.set_span(span),
+            Cast(n) =&gt; n.set_span(span),
             Struct(n) =&gt; n.set_span(span),
             Identifier(n) =&gt; n.set_span(span),
             Literal(n) =&gt; n.set_span(span),
@@ -255,6 +270,7 @@
             Access(n) =&gt; n.fmt(f),
             Binary(n) =&gt; n.fmt(f),
             Call(n) =&gt; n.fmt(f),
+            Cast(n) =&gt; n.fmt(f),
             Struct(n) =&gt; n.fmt(f),
             <span class="prelude-val">Err</span>(n) =&gt; n.fmt(f),
             Identifier(n) =&gt; n.fmt(f),
