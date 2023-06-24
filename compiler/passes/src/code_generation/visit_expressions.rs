@@ -299,7 +299,7 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Construct the instruction.
-        let (destination, instruction) = match input.ty {
+        let (destination, instruction) = match &input.ty {
             Type::Identifier(Identifier { name: sym::BHP256, .. }) => {
                 construct_simple_function_call(&input.name, "bhp256", arguments)
             }
@@ -357,7 +357,7 @@ impl<'a> CodeGenerator<'a> {
                 }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
             },
-            Type::Group => {
+            Type::Identifier(Identifier { name: sym::group, .. }) => {
                 match input.name {
                     Identifier { name: sym::to_x_coordinate, .. } => {
                         let mut instruction = "    cast".to_string();
