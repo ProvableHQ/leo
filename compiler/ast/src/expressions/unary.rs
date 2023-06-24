@@ -36,6 +36,10 @@ pub enum UnaryOperation {
     Square,
     /// Square root operation, i.e. `.sqrt()`.
     SquareRoot,
+    /// Converts a group element to its x-coordinate, i.e. `.to_x_coordinate()`.
+    ToXCoordinate,
+    /// Converts a group element to its y-coordinate, i.e. `.to_y_coordinate()`.
+    ToYCoordinate,
 }
 
 impl UnaryOperation {
@@ -50,6 +54,8 @@ impl UnaryOperation {
             sym::not => Self::Not,
             sym::square => Self::Square,
             sym::square_root => Self::SquareRoot,
+            sym::to_x_coordinate => Self::ToXCoordinate,
+            sym::to_y_coordinate => Self::ToYCoordinate,
             _ => return None,
         })
     }
@@ -65,6 +71,8 @@ impl UnaryOperation {
             Self::Not => "not",
             Self::Square => "square",
             Self::SquareRoot => "square_root",
+            Self::ToXCoordinate => "to_x_coordinate",
+            Self::ToYCoordinate => "to_y_coordinate",
         }
     }
 }

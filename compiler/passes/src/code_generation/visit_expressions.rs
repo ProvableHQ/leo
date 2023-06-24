@@ -149,19 +149,21 @@ impl<'a> CodeGenerator<'a> {
     fn visit_unary(&mut self, input: &'a UnaryExpression) -> (String, String) {
         let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver);
 
-        let opcode = match input.op {
-            UnaryOperation::Abs => String::from("abs"),
-            UnaryOperation::AbsWrapped => String::from("abs.w"),
-            UnaryOperation::Double => String::from("double"),
-            UnaryOperation::Inverse => String::from("inv"),
-            UnaryOperation::Not => String::from("not"),
-            UnaryOperation::Negate => String::from("neg"),
-            UnaryOperation::Square => String::from("square"),
-            UnaryOperation::SquareRoot => String::from("sqrt"),
+        let (opcode, suffix) = match input.op {
+            UnaryOperation::Abs => ("abs", ""),
+            UnaryOperation::AbsWrapped => ("abs.w", ""),
+            UnaryOperation::Double => ("double", ""),
+            UnaryOperation::Inverse => ("inv", ""),
+            UnaryOperation::Not => ("not", ""),
+            UnaryOperation::Negate => ("neg", ""),
+            UnaryOperation::Square => ("square", ""),
+            UnaryOperation::SquareRoot => ("sqrt", ""),
+            UnaryOperation::ToXCoordinate => ("cast", " as group.x"),
+            UnaryOperation::ToYCoordinate => ("cast", " as group.y"),
         };
 
         let destination_register = format!("r{}", self.next_register);
-        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register};\n");
+        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register}{suffix};\n");
 
         // Increment the register counter.
         self.next_register += 1;
