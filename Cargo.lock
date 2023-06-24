@@ -595,7 +595,7 @@ dependencies = [
  "clap",
  "criterion-plot",
  "is-terminal",
- "itertools",
+ "itertools 0.10.5",
  "num-traits",
  "once_cell",
  "oorandom",
@@ -616,7 +616,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b50826342786a51a89e2da3a28f1c32b06e387201bc2d19791f622c673706b1"
 dependencies = [
  "cast",
- "itertools",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -1242,6 +1242,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1285,7 +1294,7 @@ version = "1.8.0"
 dependencies = [
  "criterion",
  "indexmap",
- "itertools",
+ "itertools 0.11.0",
  "leo-errors",
  "leo-span",
  "serde",
@@ -1399,7 +1408,7 @@ name = "leo-passes"
 version = "1.8.0"
 dependencies = [
  "indexmap",
- "itertools",
+ "itertools 0.11.0",
  "leo-ast",
  "leo-errors",
  "leo-parser",
@@ -1859,7 +1868,7 @@ checksum = "09963355b9f467184c04017ced4a2ba2d75cbcb4e7462690d388233253d4b1a9"
 dependencies = [
  "anstyle",
  "difflib",
- "itertools",
+ "itertools 0.10.5",
  "predicates-core",
 ]
 
@@ -2392,7 +2401,7 @@ dependencies = [
  "hashbrown 0.14.0",
  "hex",
  "indexmap",
- "itertools",
+ "itertools 0.10.5",
  "parking_lot",
  "rand",
  "rand_chacha",
@@ -2464,7 +2473,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56276e03677ada2086ad56bfa84f7b00cf7816e1fe1906f9e1606d94b8c91eb1"
 dependencies = [
  "indexmap",
- "itertools",
+ "itertools 0.10.5",
  "nom",
  "num-traits",
  "once_cell",
@@ -2667,7 +2676,7 @@ checksum = "58a8da9fd34e9c4248e5431e9e4c91173fcf89e4ea86c5b10dfdd2b29fb03f88"
 dependencies = [
  "anyhow",
  "indexmap",
- "itertools",
+ "itertools 0.10.5",
  "lazy_static",
  "once_cell",
  "paste",
@@ -2691,7 +2700,7 @@ checksum = "164cca322118ffd941f6e17e546dfb4073c990bad1081a981d8411415ca5cb30"
 dependencies = [
  "anyhow",
  "bech32",
- "itertools",
+ "itertools 0.10.5",
  "nom",
  "num-traits",
  "rand",
@@ -2838,7 +2847,7 @@ dependencies = [
  "aleo-std",
  "anyhow",
  "derivative",
- "itertools",
+ "itertools 0.10.5",
  "num-traits",
  "rand",
  "rayon",
@@ -2879,7 +2888,7 @@ dependencies = [
  "curl",
  "hex",
  "indexmap",
- "itertools",
+ "itertools 0.10.5",
  "lazy_static",
  "paste",
  "rand",
@@ -2902,7 +2911,7 @@ dependencies = [
  "blake2",
  "colored",
  "indexmap",
- "itertools",
+ "itertools 0.10.5",
  "once_cell",
  "parking_lot",
  "paste",
@@ -2934,7 +2943,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "blake2",
- "itertools",
+ "itertools 0.10.5",
  "rayon",
  "serde_json",
  "snarkvm-algorithms",
