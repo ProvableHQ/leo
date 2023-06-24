@@ -1,0 +1,18 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Unary:
+      receiver:
+        Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      op: ToXCoordinate
+      span:
+        lo: 0
+        hi: 19
+  - Unary:
+      receiver:
+        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+      op: ToYCoordinate
+      span:
+        lo: 0
+        hi: 19
