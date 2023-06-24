@@ -46,16 +46,16 @@ outputs:
         hi: 8
   - Binary:
       left:
-        Literal:
-          Integer:
-            - U8
-            - "1"
-            - span:
-                lo: 0
-                hi: 3
-      right:
         Binary:
           left:
+            Literal:
+              Integer:
+                - U8
+                - "1"
+                - span:
+                    lo: 0
+                    hi: 3
+          right:
             Literal:
               Integer:
                 - U8
@@ -63,18 +63,18 @@ outputs:
                 - span:
                     lo: 7
                     hi: 10
-          right:
-            Literal:
-              Integer:
-                - U8
-                - "3"
-                - span:
-                    lo: 14
-                    hi: 17
           op: Pow
           span:
-            lo: 7
-            hi: 17
+            lo: 0
+            hi: 10
+      right:
+        Literal:
+          Integer:
+            - U8
+            - "3"
+            - span:
+                lo: 14
+                hi: 17
       op: Pow
       span:
         lo: 0

@@ -1,0 +1,58 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - - initial_ast: 87083acc724b6b45386d91cb40437468e9362d3d5b787c6cc00c9507d48b6fe7
+      unrolled_ast: 87083acc724b6b45386d91cb40437468e9362d3d5b787c6cc00c9507d48b6fe7
+      ssa_ast: b1543138bf058637bb11c824adb10272fcfc4d80de634602b268f9532db1b4dd
+      flattened_ast: ed75543797b289033be1d4fd7b5c0b14ac6c77914bee927ef53a99cb96c4561c
+      inlined_ast: ed75543797b289033be1d4fd7b5c0b14ac6c77914bee927ef53a99cb96c4561c
+      dce_ast: ed75543797b289033be1d4fd7b5c0b14ac6c77914bee927ef53a99cb96c4561c
+      bytecode: 9f8baa3f1bada186c32440e4880e858bd76b54dedb2d667a2b93c2d2a98f0752
+      warnings: ""
+      results:
+        address_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        bool_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        field_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        group_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        i128_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        i16_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        i32_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        i64_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        i8_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        scalar_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        u128_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        u16_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        u32_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        u64_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+        u8_casts:
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)

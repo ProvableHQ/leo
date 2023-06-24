@@ -45,8 +45,8 @@ program test.aleo {
         let ap: i16 = a.shr_wrapped(2u16);
         let aq: i16 = a.shr_wrapped(2u32);
         let ar: i16 = a.xor(b);
-        let as: i16 = a.rem(b);
-        let at: i16 = a.rem_wrapped(b);
+        let at: i16 = a.rem(b);
+        let au: i16 = a.rem_wrapped(b);
     
         return a == b;
     }}

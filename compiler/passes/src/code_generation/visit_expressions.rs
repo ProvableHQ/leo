@@ -22,6 +22,7 @@ use leo_ast::{
     BinaryExpression,
     BinaryOperation,
     CallExpression,
+    CastExpression,
     ErrExpression,
     Expression,
     Identifier,
@@ -50,6 +51,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Access(expr) => self.visit_access(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
+            Expression::Cast(expr) => self.visit_cast(expr),
             Expression::Struct(expr) => self.visit_struct_init(expr),
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
@@ -123,6 +125,23 @@ impl<'a> CodeGenerator<'a> {
         let mut instructions = left_instructions;
         instructions.push_str(&right_instructions);
         instructions.push_str(&binary_instruction);
+
+        (destination_register, instructions)
+    }
+
+    fn visit_cast(&mut self, input: &'a CastExpression) -> (String, String) {
+        let (expression_operand, expression_instructions) = self.visit_expression(&input.expression);
+
+        let destination_register = format!("r{}", self.next_register);
+        let cast_instruction =
+            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
+
+        // Increment the register counter.
+        self.next_register += 1;
+
+        // Concatenate the instructions.
+        let mut instructions = expression_instructions;
+        instructions.push_str(&cast_instruction);
 
         (destination_register, instructions)
     }

@@ -29,6 +29,9 @@ pub use binary::*;
 mod call;
 pub use call::*;
 
+mod cast;
+pub use cast::*;
+
 mod struct_init;
 pub use struct_init::*;
 
@@ -59,6 +62,8 @@ pub enum Expression {
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
     Call(CallExpression),
+    /// A cast expression, e.g., `42u32 as u8`.
+    Cast(CastExpression),
     /// An expression constructing a struct like `Foo { bar: 42, baz }`.
     Struct(StructExpression),
     /// An expression of type "error".
@@ -85,6 +90,7 @@ impl Node for Expression {
             Access(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
+            Cast(n) => n.span(),
             Struct(n) => n.span(),
             Err(n) => n.span(),
             Identifier(n) => n.span(),
@@ -102,6 +108,7 @@ impl Node for Expression {
             Access(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
+            Cast(n) => n.set_span(span),
             Struct(n) => n.set_span(span),
             Identifier(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
@@ -121,6 +128,7 @@ impl fmt::Display for Expression {
             Access(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
+            Cast(n) => n.fmt(f),
             Struct(n) => n.fmt(f),
             Err(n) => n.fmt(f),
             Identifier(n) => n.fmt(f),

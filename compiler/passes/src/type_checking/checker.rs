@@ -49,6 +49,8 @@ pub struct TypeChecker<'a> {
     pub(crate) is_return: bool,
 }
 
+const ADDRESS_TYPE: Type = Type::Address;
+
 const BOOLEAN_TYPE: Type = Type::Boolean;
 
 const FIELD_TYPE: Type = Type::Field;
@@ -290,13 +292,38 @@ impl<'a> TypeChecker<'a> {
         )
     }
 
-    /// Emits an error to the handler if the given type is not a field, group, scalar or integer.
+    /// Emits an error to the handler if the given type is not a field, group, scalar, integer, or boolean.
     pub(crate) fn assert_field_group_scalar_int_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(
             |type_: &Type| {
                 FIELD_TYPE.eq(type_) | GROUP_TYPE.eq(type_) | SCALAR_TYPE.eq(type_) | INT_TYPES.contains(type_)
             },
             format!("{}, {}, {}, {}", FIELD_TYPE, GROUP_TYPE, SCALAR_TYPE, types_to_string(&INT_TYPES),),
+            type_,
+            span,
+        )
+    }
+
+    /// Emits an error to the handler if the given type is not a field, group, scalar, integer, boolean, or address.
+    pub(crate) fn assert_castable_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(
+            |type_: &Type| {
+                FIELD_TYPE.eq(type_)
+                    | GROUP_TYPE.eq(type_)
+                    | SCALAR_TYPE.eq(type_)
+                    | INT_TYPES.contains(type_)
+                    | BOOLEAN_TYPE.eq(type_)
+                    | ADDRESS_TYPE.eq(type_)
+            },
+            format!(
+                "{}, {}, {}, {}, {}, {}",
+                FIELD_TYPE,
+                GROUP_TYPE,
+                SCALAR_TYPE,
+                types_to_string(&INT_TYPES),
+                BOOLEAN_TYPE,
+                ADDRESS_TYPE
+            ),
             type_,
             span,
         )
@@ -356,7 +383,7 @@ impl<'a> TypeChecker<'a> {
         let check_not_mapping_tuple_err_unit = |type_: &Option<Type>, span: &Span| {
             self.check_type(
                 |type_: &Type| !matches!(type_, Type::Mapping(_) | Type::Tuple(_) | Type::Err | Type::Unit),
-                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
+                "address, bool, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
@@ -379,7 +406,7 @@ impl<'a> TypeChecker<'a> {
                             | Type::Unit
                     )
                 },
-                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
+                "address, bool, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );
@@ -400,7 +427,7 @@ impl<'a> TypeChecker<'a> {
                             | Type::Unit
                     )
                 },
-                "address, boolean, field, group, struct, integer, scalar, struct".to_string(),
+                "address, bool, field, group, struct, integer, scalar, struct".to_string(),
                 type_,
                 *span,
             );

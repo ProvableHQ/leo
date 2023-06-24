@@ -30,6 +30,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Access(access) => self.visit_access(access, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
+            Expression::Cast(cast) => self.visit_cast(cast, additional),
             Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
@@ -70,6 +71,11 @@ pub trait ExpressionVisitor<'a> {
         input.arguments.iter().for_each(|expr| {
             self.visit_expression(expr, additional);
         });
+        Default::default()
+    }
+
+    fn visit_cast(&mut self, input: &'a CastExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        self.visit_expression(&input.expression, additional);
         Default::default()
     }
 

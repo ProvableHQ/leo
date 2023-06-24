@@ -1,0 +1,22 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - - initial_ast: afe29d66a28151220f870b3a7f8a78543ebfc6427adf4eb5950b1bd574b02a9e
+      unrolled_ast: afe29d66a28151220f870b3a7f8a78543ebfc6427adf4eb5950b1bd574b02a9e
+      ssa_ast: 45a2cf824da09572b0958ad5ec799d80fe6192a441eefa9cb021f11c519f8585
+      flattened_ast: 3426de3487eefb807450d2bbf9e21cc8530bc9b82e38c93758e889179ba4cad5
+      inlined_ast: 3426de3487eefb807450d2bbf9e21cc8530bc9b82e38c93758e889179ba4cad5
+      dce_ast: 3426de3487eefb807450d2bbf9e21cc8530bc9b82e38c93758e889179ba4cad5
+      bytecode: 675912267b82b91bd854fa2ef169b85c74ecaac6b73a157d7e99818e256b53b1
+      warnings: ""
+      results:
+        main:
+          - input: "[true, 0group, aleo1x2mh70hxp6hejyrcuhd9te5ddwvwx6papw4tfpdxp00e4sf0ps9qcu8qvn]"
+            output: "[{\n  data: 0field\n}, {\n  data: 1field\n}]"
+          - input: "[false, 0group, aleo1x2mh70hxp6hejyrcuhd9te5ddwvwx6papw4tfpdxp00e4sf0ps9qcu8qvn]"
+            output: "[{\n  data: 0field\n}, {\n  data: 4544660252267858929884024594357493723883870730820258372918540470346309416754field\n}]"
+          - input: "[true, 2group, aleo1yrmttyqs4gtm8t6dtcg2vd2mtr8p6ukmpe42cp2zm0989rmtr58q0asawh]"
+            output: "[{\n  data: 2field\n}, {\n  data: 1field\n}]"
+          - input: "[false, 2group, aleo1yrmttyqs4gtm8t6dtcg2vd2mtr8p6ukmpe42cp2zm0989rmtr58q0asawh]"
+            output: "[{\n  data: 2field\n}, {\n  data: 6384360799264834139870961120883187693878405876485508427694934683059829995040field\n}]"

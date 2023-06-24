@@ -42,9 +42,9 @@ program test.aleo {
         let ap: u64 = a.shr_wrapped(2u16);
         let aq: u64 = a.shr_wrapped(2u32);
         let ar: u64 = a.xor(b);
-        let as: u64 = a.mod(b);
-        let at: u64 = a.rem(b);
-        let au: u64 = a.rem_wrapped(b);
+        let at: u64 = a.mod(b);
+        let au: u64 = a.rem(b);
+        let av: u64 = a.rem_wrapped(b);
     
         return a == b;
     }}

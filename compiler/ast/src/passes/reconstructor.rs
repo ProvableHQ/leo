@@ -29,6 +29,7 @@ pub trait ExpressionReconstructor {
             Expression::Access(access) => self.reconstruct_access(access),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
+            Expression::Cast(cast) => self.reconstruct_cast(cast),
             Expression::Struct(struct_) => self.reconstruct_struct_init(struct_),
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
@@ -89,6 +90,17 @@ pub trait ExpressionReconstructor {
                 function: Box::new(self.reconstruct_expression(*input.function).0),
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 external: input.external,
+                span: input.span,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_cast(&mut self, input: CastExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Cast(CastExpression {
+                expression: Box::new(self.reconstruct_expression(*input.expression).0),
+                type_: input.type_,
                 span: input.span,
             }),
             Default::default(),
