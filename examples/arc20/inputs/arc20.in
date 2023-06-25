@@ -1,4 +1,4 @@
 // The program input for arc20/src/main.leo
-[main]
-public a: u32 = 1u32;
-b: u32 = 2u32;
+[register]
+public token_id: u64 = 1u64;
+public total_supply: u64 = 100000000u64;
