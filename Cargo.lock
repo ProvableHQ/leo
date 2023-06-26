@@ -821,8 +821,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2d328fc287c61314c4a61af7cfdcbd7e678e39778488c7cb13ec133ce0f4059"
 dependencies = [
  "fsio",
- "indexmap",
+ "indexmap 1.9.3",
 ]
+
+[[package]]
+name = "equivalent"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88bffebc5d80432c9b140ee17875ff173a8ab62faad5b257da912bd2f6c1c0a1"
 
 [[package]]
 name = "errno"
@@ -1005,7 +1011,7 @@ dependencies = [
  "futures-sink",
  "futures-util",
  "http",
- "indexmap",
+ "indexmap 1.9.3",
  "slab",
  "tokio",
  "tokio-util",
@@ -1173,6 +1179,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "indexmap"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5477fe2230a79769d8dc68e0eabf5437907c0457a5614a9e8dddb67f65eb65d"
+dependencies = [
+ "equivalent",
+ "hashbrown 0.14.0",
+]
+
+[[package]]
 name = "indicatif"
 version = "0.17.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1293,7 +1309,7 @@ name = "leo-ast"
 version = "1.8.1"
 dependencies = [
  "criterion",
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.11.0",
  "leo-errors",
  "leo-span",
@@ -1347,7 +1363,7 @@ dependencies = [
  "colored",
  "console",
  "dirs 5.0.1",
- "indexmap",
+ "indexmap 1.9.3",
  "lazy_static",
  "leo-ast",
  "leo-compiler",
@@ -1365,7 +1381,7 @@ dependencies = [
  "snarkvm",
  "sys-info",
  "test_dir",
- "toml 0.7.4",
+ "toml 0.7.5",
  "tracing",
  "tracing-subscriber",
  "walkdir",
@@ -1376,11 +1392,11 @@ dependencies = [
 name = "leo-package"
 version = "1.8.1"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "lazy_static",
  "leo-errors",
  "serde",
- "toml 0.7.4",
+ "toml 0.7.5",
  "tracing",
 ]
 
@@ -1389,7 +1405,7 @@ name = "leo-parser"
 version = "1.8.1"
 dependencies = [
  "clap",
- "indexmap",
+ "indexmap 1.9.3",
  "lazy_static",
  "leo-ast",
  "leo-errors",
@@ -1407,7 +1423,7 @@ dependencies = [
 name = "leo-passes"
 version = "1.8.1"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.11.0",
  "leo-ast",
  "leo-errors",
@@ -1422,7 +1438,7 @@ name = "leo-span"
 version = "1.8.1"
 dependencies = [
  "fxhash",
- "indexmap",
+ "indexmap 1.9.3",
  "scoped-tls",
  "serde",
 ]
@@ -2270,7 +2286,7 @@ version = "1.0.97"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bdf3bf93142acad5821c99197022e170842cdbc1c30482b98750c688c640842a"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "itoa",
  "ryu",
  "serde",
@@ -2278,9 +2294,9 @@ dependencies = [
 
 [[package]]
 name = "serde_spanned"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93107647184f6027e3b7dcb2e11034cf95ffa1e3a682c67951963ac69c1c007d"
+checksum = "96426c9936fd7a0124915f9185ea1d20aa9445cc9821142f0a73bc9207a2e186"
 dependencies = [
  "serde",
 ]
@@ -2303,7 +2319,7 @@ version = "0.8.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "578a7433b776b56a35785ed5ce9a7e777ac0598aac5a6dd1b4b18a307c7fc71b"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "ryu",
  "serde",
  "yaml-rust",
@@ -2368,7 +2384,7 @@ dependencies = [
  "anyhow",
  "clap",
  "colored",
- "indexmap",
+ "indexmap 1.9.3",
  "num-format",
  "once_cell",
  "parking_lot",
@@ -2400,7 +2416,7 @@ dependencies = [
  "fxhash",
  "hashbrown 0.14.0",
  "hex",
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.10.5",
  "parking_lot",
  "rand",
@@ -2472,7 +2488,7 @@ version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56276e03677ada2086ad56bfa84f7b00cf7816e1fe1906f9e1606d94b8c91eb1"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.10.5",
  "nom",
  "num-traits",
@@ -2675,7 +2691,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58a8da9fd34e9c4248e5431e9e4c91173fcf89e4ea86c5b10dfdd2b29fb03f88"
 dependencies = [
  "anyhow",
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.10.5",
  "lazy_static",
  "once_cell",
@@ -2718,7 +2734,7 @@ checksum = "ecade8e8f1859fc0b32e2f9fda476093c0c747cf1dece1705472460736ef127e"
 dependencies = [
  "enum_index",
  "enum_index_derive",
- "indexmap",
+ "indexmap 1.9.3",
  "num-derive",
  "num-traits",
  "once_cell",
@@ -2864,7 +2880,7 @@ checksum = "ebf06e79b743aa86cee39857c98559b20ab0b18ef762655b18ce1a35b398306e"
 dependencies = [
  "aleo-std",
  "anyhow",
- "indexmap",
+ "indexmap 1.9.3",
  "parking_lot",
  "rand",
  "rayon",
@@ -2887,7 +2903,7 @@ dependencies = [
  "colored",
  "curl",
  "hex",
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.10.5",
  "lazy_static",
  "paste",
@@ -2910,7 +2926,7 @@ dependencies = [
  "bincode",
  "blake2",
  "colored",
- "indexmap",
+ "indexmap 1.9.3",
  "itertools 0.10.5",
  "once_cell",
  "parking_lot",
@@ -2960,7 +2976,7 @@ version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec8166c87af8b0165ecbb1f81aa5179898658c03d7ab6ee5e9785b6e11389bf4"
 dependencies = [
- "indexmap",
+ "indexmap 1.9.3",
  "snarkvm-console",
 ]
 
@@ -3249,9 +3265,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6135d499e69981f9ff0ef2167955a5333c35e36f6937d382974566b3d5b94ec"
+checksum = "1ebafdf5ad1220cb59e7d17cf4d2c72015297b75b19a10472f99b89225089240"
 dependencies = [
  "serde",
  "serde_spanned",
@@ -3261,20 +3277,20 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a76a9312f5ba4c2dec6b9161fdf25d87ad8a09256ccea5a556fef03c706a10f"
+checksum = "7cda73e2f1397b1262d6dfdcef8aafae14d1de7748d66822d3bfeeb6d03e5e4b"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "toml_edit"
-version = "0.19.10"
+version = "0.19.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2380d56e8670370eee6566b0bfd4265f65b3f432e8c6d85623f728d4fa31f739"
+checksum = "266f016b7f039eec8a1a80dfe6156b633d208b9fccca5e4db1d6775b0c4e34a7"
 dependencies = [
- "indexmap",
+ "indexmap 2.0.0",
  "serde",
  "serde_spanned",
  "toml_datetime",
