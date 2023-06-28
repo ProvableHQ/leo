@@ -741,6 +741,11 @@
 <a href="#741" id="741">741</a>
 <a href="#742" id="742">742</a>
 <a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1472,6 +1477,11 @@
                 <span class="comment">// Only field type.
                 </span><span class="self">self</span>.assert_field_type(destination, input.span());
                 <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, destination)
+            }
+            UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate =&gt; {
+                <span class="comment">// Only field type.
+                </span><span class="self">self</span>.assert_field_type(destination, input.span());
+                <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Group))
             }
         }
     }

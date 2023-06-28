@@ -505,6 +505,15 @@
 <a href="#505" id="505">505</a>
 <a href="#506" id="506">506</a>
 <a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -682,6 +691,9 @@
     MappingGet,
     MappingGetOrUse,
     MappingSet,
+
+    GroupToXCoordinate,
+    GroupToYCoordinate,
 }
 
 <span class="kw">impl </span>CoreFunction {
@@ -845,6 +857,9 @@
             (sym::Mapping, sym::get) =&gt; <span class="self">Self</span>::MappingGet,
             (sym::Mapping, sym::get_or_use) =&gt; <span class="self">Self</span>::MappingGetOrUse,
             (sym::Mapping, sym::set) =&gt; <span class="self">Self</span>::MappingSet,
+
+            (sym::group, sym::to_x_coordinate) =&gt; <span class="self">Self</span>::GroupToXCoordinate,
+            (sym::group, sym::to_y_coordinate) =&gt; <span class="self">Self</span>::GroupToYCoordinate,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
@@ -1009,6 +1024,9 @@
             <span class="self">Self</span>::MappingGet =&gt; <span class="number">2</span>,
             <span class="self">Self</span>::MappingGetOrUse =&gt; <span class="number">3</span>,
             <span class="self">Self</span>::MappingSet =&gt; <span class="number">3</span>,
+
+            <span class="self">Self</span>::GroupToXCoordinate =&gt; <span class="number">1</span>,
+            <span class="self">Self</span>::GroupToYCoordinate =&gt; <span class="number">1</span>,
         }
     }
 }

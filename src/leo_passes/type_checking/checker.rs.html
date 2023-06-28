@@ -938,6 +938,11 @@
 <a href="#938" id="938">938</a>
 <a href="#939" id="939">939</a>
 <a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1800,6 +1805,11 @@
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
                 </span>}
+            }
+            CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate =&gt; {
+                <span class="comment">// Check that the first argument is a group.
+                </span><span class="self">self</span>.assert_group_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>);
+                <span class="prelude-val">Some</span>(Type::Field)
             }
         }
     }
