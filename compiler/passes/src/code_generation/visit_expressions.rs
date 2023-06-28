@@ -149,6 +149,7 @@ impl<'a> CodeGenerator<'a> {
     fn visit_unary(&mut self, input: &'a UnaryExpression) -> (String, String) {
         let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver);
 
+        // Note that non-empty suffixes must be preceded by a space.
         let (opcode, suffix) = match input.op {
             UnaryOperation::Abs => ("abs", ""),
             UnaryOperation::AbsWrapped => ("abs.w", ""),
