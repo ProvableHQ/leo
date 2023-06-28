@@ -635,4 +635,11 @@ create_messages!(
         msg: format!("`{operation}` is not a valid operand in a finalize context."),
         help: None,
     }
+
+    @formatted
+    operation_must_be_in_finalize_block {
+        args: (),
+        msg: format!("This operation can only be used in a `finalize` block."),
+        help: None,
+    }
 );

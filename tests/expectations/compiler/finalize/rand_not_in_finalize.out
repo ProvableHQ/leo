@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372077]: This operation can only be used in a `finalize` block.\n    --> compiler-test:8:25\n     |\n   8 |         let a: scalar = ChaCha::rand_scalar();\n     |                         ^^^^^^^^^^^^^^^^^^^^^\n"
