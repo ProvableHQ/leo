@@ -866,6 +866,21 @@ impl<'a> TypeChecker<'a> {
                 self.assert_group_type(&arguments[0].0, arguments[0].1);
                 Some(Type::Field)
             }
+            CoreFunction::ChaChaRandAddress => Some(Type::Address),
+            CoreFunction::ChaChaRandBool => Some(Type::Boolean),
+            CoreFunction::ChaChaRandField => Some(Type::Field),
+            CoreFunction::ChaChaRandGroup => Some(Type::Group),
+            CoreFunction::ChaChaRandI8 => Some(Type::Integer(IntegerType::I8)),
+            CoreFunction::ChaChaRandI16 => Some(Type::Integer(IntegerType::I16)),
+            CoreFunction::ChaChaRandI32 => Some(Type::Integer(IntegerType::I32)),
+            CoreFunction::ChaChaRandI64 => Some(Type::Integer(IntegerType::I64)),
+            CoreFunction::ChaChaRandI128 => Some(Type::Integer(IntegerType::I128)),
+            CoreFunction::ChaChaRandScalar => Some(Type::Scalar),
+            CoreFunction::ChaChaRandU8 => Some(Type::Integer(IntegerType::U8)),
+            CoreFunction::ChaChaRandU16 => Some(Type::Integer(IntegerType::U16)),
+            CoreFunction::ChaChaRandU32 => Some(Type::Integer(IntegerType::U32)),
+            CoreFunction::ChaChaRandU64 => Some(Type::Integer(IntegerType::U64)),
+            CoreFunction::ChaChaRandU128 => Some(Type::Integer(IntegerType::U128)),
         }
     }
 
