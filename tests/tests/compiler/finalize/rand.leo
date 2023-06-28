@@ -25,5 +25,6 @@ program test.aleo {
         let m: u32 = ChaCha::rand_u32();
         let n: u64 = ChaCha::rand_u64();
         let o: u128 = ChaCha::rand_u128();
+        assert(b);
     }
 }
