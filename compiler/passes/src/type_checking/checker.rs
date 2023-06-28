@@ -861,6 +861,11 @@ impl<'a> TypeChecker<'a> {
                     None
                 }
             }
+            CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
+                // Check that the first argument is a group.
+                self.assert_group_type(&arguments[0].0, arguments[0].1);
+                Some(Type::Field)
+            }
         }
     }
 

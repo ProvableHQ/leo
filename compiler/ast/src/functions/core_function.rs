@@ -175,6 +175,9 @@ pub enum CoreFunction {
     MappingGet,
     MappingGetOrUse,
     MappingSet,
+
+    GroupToXCoordinate,
+    GroupToYCoordinate,
 }
 
 impl CoreFunction {
@@ -338,6 +341,9 @@ impl CoreFunction {
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
             (sym::Mapping, sym::set) => Self::MappingSet,
+
+            (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
+            (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
             _ => return None,
         })
     }
@@ -502,6 +508,9 @@ impl CoreFunction {
             Self::MappingGet => 2,
             Self::MappingGetOrUse => 3,
             Self::MappingSet => 3,
+
+            Self::GroupToXCoordinate => 1,
+            Self::GroupToYCoordinate => 1,
         }
     }
 }

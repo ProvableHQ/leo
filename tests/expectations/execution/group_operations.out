@@ -1,0 +1,18 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - - initial_ast: ccfa20fa35d720984742081098965806736ba374ad046b3aadf6d899663375da
+      unrolled_ast: ccfa20fa35d720984742081098965806736ba374ad046b3aadf6d899663375da
+      ssa_ast: ab06973a60d8da80b174deae3dc4ee88216894503e613d3ba3ecd74c7f38e408
+      flattened_ast: 9a9c3bc868b2e83c0cb0822e5bbf1d6f782f7992e0b748c6390a57768c44a4a7
+      inlined_ast: 9a9c3bc868b2e83c0cb0822e5bbf1d6f782f7992e0b748c6390a57768c44a4a7
+      dce_ast: 9a9c3bc868b2e83c0cb0822e5bbf1d6f782f7992e0b748c6390a57768c44a4a7
+      bytecode: 5c20fda21a40464a1462524cf913438776a39383a671949312f48ce8ceb2dd16
+      warnings: ""
+      results:
+        main:
+          - input: "[0group]"
+            output: "[0field, 1field]"
+          - input: "[2group]"
+            output: "[2field, 5553594316923449299484601589326170487897520766531075014687114064346375156608field]"

@@ -730,6 +730,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_field_type(destination, input.span());
                 self.visit_expression(&input.receiver, destination)
             }
+            UnaryOperation::ToXCoordinate | UnaryOperation::ToYCoordinate => {
+                // Only field type.
+                self.assert_field_type(destination, input.span());
+                self.visit_expression(&input.receiver, &Some(Type::Group))
+            }
         }
     }
 

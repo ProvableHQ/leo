@@ -175,6 +175,8 @@ symbols! {
     Poseidon4,
     Poseidon8,
     set,
+    to_x_coordinate,
+    to_y_coordinate,
 
     // types
     address,

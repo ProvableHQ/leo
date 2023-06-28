@@ -149,19 +149,22 @@ impl<'a> CodeGenerator<'a> {
     fn visit_unary(&mut self, input: &'a UnaryExpression) -> (String, String) {
         let (expression_operand, expression_instructions) = self.visit_expression(&input.receiver);
 
-        let opcode = match input.op {
-            UnaryOperation::Abs => String::from("abs"),
-            UnaryOperation::AbsWrapped => String::from("abs.w"),
-            UnaryOperation::Double => String::from("double"),
-            UnaryOperation::Inverse => String::from("inv"),
-            UnaryOperation::Not => String::from("not"),
-            UnaryOperation::Negate => String::from("neg"),
-            UnaryOperation::Square => String::from("square"),
-            UnaryOperation::SquareRoot => String::from("sqrt"),
+        // Note that non-empty suffixes must be preceded by a space.
+        let (opcode, suffix) = match input.op {
+            UnaryOperation::Abs => ("abs", ""),
+            UnaryOperation::AbsWrapped => ("abs.w", ""),
+            UnaryOperation::Double => ("double", ""),
+            UnaryOperation::Inverse => ("inv", ""),
+            UnaryOperation::Not => ("not", ""),
+            UnaryOperation::Negate => ("neg", ""),
+            UnaryOperation::Square => ("square", ""),
+            UnaryOperation::SquareRoot => ("sqrt", ""),
+            UnaryOperation::ToXCoordinate => ("cast", " as group.x"),
+            UnaryOperation::ToYCoordinate => ("cast", " as group.y"),
         };
 
         let destination_register = format!("r{}", self.next_register);
-        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register};\n");
+        let unary_instruction = format!("    {opcode} {expression_operand} into {destination_register}{suffix};\n");
 
         // Increment the register counter.
         self.next_register += 1;
@@ -299,7 +302,7 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Construct the instruction.
-        let (destination, instruction) = match input.ty {
+        let (destination, instruction) = match &input.ty {
             Type::Identifier(Identifier { name: sym::BHP256, .. }) => {
                 construct_simple_function_call(&input.name, "bhp256", arguments)
             }
@@ -357,6 +360,27 @@ impl<'a> CodeGenerator<'a> {
                 }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
             },
+            Type::Identifier(Identifier { name: sym::group, .. }) => {
+                match input.name {
+                    Identifier { name: sym::to_x_coordinate, .. } => {
+                        let mut instruction = "    cast".to_string();
+                        let destination_register = get_destination_register();
+                        // Write the argument and the destination register.
+                        writeln!(instruction, " {} into {destination_register} as group.x;", arguments[0],)
+                            .expect("failed to write to string");
+                        (destination_register, instruction)
+                    }
+                    Identifier { name: sym::to_y_coordinate, .. } => {
+                        let mut instruction = "    cast".to_string();
+                        let destination_register = get_destination_register();
+                        // Write the argument and the destination register.
+                        writeln!(instruction, " {} into {destination_register} as group.y;", arguments[0],)
+                            .expect("failed to write to string");
+                        (destination_register, instruction)
+                    }
+                    _ => unreachable!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
+                }
+            }
             _ => unreachable!("All core functions should be known at this phase of compilation"),
         };
         // Add the instruction to the list of instructions.
