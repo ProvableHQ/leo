@@ -12,8 +12,8 @@ program test.aleo {
     }
 
     finalize foo() {
-        let a: scalar = ChaCha::rand_field(1field);
-        let b: group = ChaCha::rand_field(1field, 2field);
+        let a: scalar = ChaCha::rand_field();
+        let b: group = ChaCha::rand_field();
         values.set(a, b);
     }
 }
