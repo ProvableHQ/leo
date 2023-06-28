@@ -341,3 +341,10 @@ if [ $EXITCODE -ne 0 ]; then
     echo "The \`vote\` program failed to run successfully."
     exit $EXITCODE
 fi
+
+# Build the lottery example Leo program.
+echo "Building the \`lottery\` program..."
+(
+  cd $EXAMPLES/lottery || exit
+  $LEO build || exit
+)
