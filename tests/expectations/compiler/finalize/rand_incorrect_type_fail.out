@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372007]: Expected one type from `scalar`, but got `field`\n    --> compiler-test:12:25\n     |\n  12 |         let a: scalar = ChaCha::rand_field();\n     |                         ^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372007]: Expected one type from `group`, but got `field`\n    --> compiler-test:13:24\n     |\n  13 |         let b: group = ChaCha::rand_field();\n     |                        ^^^^^^^^^^^^^^^^^^^^\n"

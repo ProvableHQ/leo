@@ -91,6 +91,22 @@ pub enum CoreFunction {
     BHP1024HashToU128,
     BHP1024HashToScalar,
 
+    ChaChaRandAddress,
+    ChaChaRandBool,
+    ChaChaRandField,
+    ChaChaRandGroup,
+    ChaChaRandI8,
+    ChaChaRandI16,
+    ChaChaRandI32,
+    ChaChaRandI64,
+    ChaChaRandI128,
+    ChaChaRandU8,
+    ChaChaRandU16,
+    ChaChaRandU32,
+    ChaChaRandU64,
+    ChaChaRandU128,
+    ChaChaRandScalar,
+
     Pedersen64CommitToAddress,
     Pedersen64CommitToField,
     Pedersen64CommitToGroup,
@@ -256,6 +272,22 @@ impl CoreFunction {
             (sym::BHP1024, sym::hash_to_u64) => Self::BHP1024HashToU64,
             (sym::BHP1024, sym::hash_to_u128) => Self::BHP1024HashToU128,
             (sym::BHP1024, sym::hash_to_scalar) => Self::BHP1024HashToScalar,
+
+            (sym::ChaCha, sym::rand_address) => Self::ChaChaRandAddress,
+            (sym::ChaCha, sym::rand_bool) => Self::ChaChaRandBool,
+            (sym::ChaCha, sym::rand_field) => Self::ChaChaRandField,
+            (sym::ChaCha, sym::rand_group) => Self::ChaChaRandGroup,
+            (sym::ChaCha, sym::rand_i8) => Self::ChaChaRandI8,
+            (sym::ChaCha, sym::rand_i16) => Self::ChaChaRandI16,
+            (sym::ChaCha, sym::rand_i32) => Self::ChaChaRandI32,
+            (sym::ChaCha, sym::rand_i64) => Self::ChaChaRandI64,
+            (sym::ChaCha, sym::rand_i128) => Self::ChaChaRandI128,
+            (sym::ChaCha, sym::rand_scalar) => Self::ChaChaRandScalar,
+            (sym::ChaCha, sym::rand_u8) => Self::ChaChaRandU8,
+            (sym::ChaCha, sym::rand_u16) => Self::ChaChaRandU16,
+            (sym::ChaCha, sym::rand_u32) => Self::ChaChaRandU32,
+            (sym::ChaCha, sym::rand_u64) => Self::ChaChaRandU64,
+            (sym::ChaCha, sym::rand_u128) => Self::ChaChaRandU128,
 
             (sym::Pedersen64, sym::commit_to_address) => Self::Pedersen64CommitToAddress,
             (sym::Pedersen64, sym::commit_to_field) => Self::Pedersen64CommitToField,
@@ -424,6 +456,22 @@ impl CoreFunction {
             Self::BHP1024HashToU128 => 1,
             Self::BHP1024HashToScalar => 1,
 
+            Self::ChaChaRandAddress => 0,
+            Self::ChaChaRandBool => 0,
+            Self::ChaChaRandField => 0,
+            Self::ChaChaRandGroup => 0,
+            Self::ChaChaRandI8 => 0,
+            Self::ChaChaRandI16 => 0,
+            Self::ChaChaRandI32 => 0,
+            Self::ChaChaRandI64 => 0,
+            Self::ChaChaRandI128 => 0,
+            Self::ChaChaRandU8 => 0,
+            Self::ChaChaRandU16 => 0,
+            Self::ChaChaRandU32 => 0,
+            Self::ChaChaRandU64 => 0,
+            Self::ChaChaRandU128 => 0,
+            Self::ChaChaRandScalar => 0,
+
             Self::Pedersen64CommitToAddress => 2,
             Self::Pedersen64CommitToField => 2,
             Self::Pedersen64CommitToGroup => 2,
@@ -511,6 +559,176 @@ impl CoreFunction {
 
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
+        }
+    }
+
+    /// Returns whether or not this function is finalize command.
+    pub fn is_finalize_command(&self) -> bool {
+        match self {
+            CoreFunction::ChaChaRandAddress
+            | CoreFunction::ChaChaRandBool
+            | CoreFunction::ChaChaRandField
+            | CoreFunction::ChaChaRandGroup
+            | CoreFunction::ChaChaRandI8
+            | CoreFunction::ChaChaRandI16
+            | CoreFunction::ChaChaRandI32
+            | CoreFunction::ChaChaRandI64
+            | CoreFunction::ChaChaRandI128
+            | CoreFunction::ChaChaRandU8
+            | CoreFunction::ChaChaRandU16
+            | CoreFunction::ChaChaRandU32
+            | CoreFunction::ChaChaRandU64
+            | CoreFunction::ChaChaRandU128
+            | CoreFunction::MappingGet
+            | CoreFunction::MappingGetOrUse
+            | CoreFunction::ChaChaRandScalar
+            | CoreFunction::MappingSet => true,
+            CoreFunction::BHP256CommitToAddress
+            | CoreFunction::BHP256CommitToField
+            | CoreFunction::BHP256CommitToGroup
+            | CoreFunction::BHP256HashToAddress
+            | CoreFunction::BHP256HashToField
+            | CoreFunction::BHP256HashToGroup
+            | CoreFunction::BHP256HashToI8
+            | CoreFunction::BHP256HashToI16
+            | CoreFunction::BHP256HashToI32
+            | CoreFunction::BHP256HashToI64
+            | CoreFunction::BHP256HashToI128
+            | CoreFunction::BHP256HashToU8
+            | CoreFunction::BHP256HashToU16
+            | CoreFunction::BHP256HashToU32
+            | CoreFunction::BHP256HashToU64
+            | CoreFunction::BHP256HashToU128
+            | CoreFunction::BHP256HashToScalar
+            | CoreFunction::BHP512CommitToAddress
+            | CoreFunction::BHP512CommitToField
+            | CoreFunction::BHP512CommitToGroup
+            | CoreFunction::BHP512HashToAddress
+            | CoreFunction::BHP512HashToField
+            | CoreFunction::BHP512HashToGroup
+            | CoreFunction::BHP512HashToI8
+            | CoreFunction::BHP512HashToI16
+            | CoreFunction::BHP512HashToI32
+            | CoreFunction::BHP512HashToI64
+            | CoreFunction::BHP512HashToI128
+            | CoreFunction::BHP512HashToU8
+            | CoreFunction::BHP512HashToU16
+            | CoreFunction::BHP512HashToU32
+            | CoreFunction::BHP512HashToU64
+            | CoreFunction::BHP512HashToU128
+            | CoreFunction::BHP512HashToScalar
+            | CoreFunction::BHP768CommitToAddress
+            | CoreFunction::BHP768CommitToField
+            | CoreFunction::BHP768CommitToGroup
+            | CoreFunction::BHP768HashToAddress
+            | CoreFunction::BHP768HashToField
+            | CoreFunction::BHP768HashToGroup
+            | CoreFunction::BHP768HashToI8
+            | CoreFunction::BHP768HashToI16
+            | CoreFunction::BHP768HashToI32
+            | CoreFunction::BHP768HashToI64
+            | CoreFunction::BHP768HashToI128
+            | CoreFunction::BHP768HashToU8
+            | CoreFunction::BHP768HashToU16
+            | CoreFunction::BHP768HashToU32
+            | CoreFunction::BHP768HashToU64
+            | CoreFunction::BHP768HashToU128
+            | CoreFunction::BHP768HashToScalar
+            | CoreFunction::BHP1024CommitToAddress
+            | CoreFunction::BHP1024CommitToField
+            | CoreFunction::BHP1024CommitToGroup
+            | CoreFunction::BHP1024HashToAddress
+            | CoreFunction::BHP1024HashToField
+            | CoreFunction::BHP1024HashToGroup
+            | CoreFunction::BHP1024HashToI8
+            | CoreFunction::BHP1024HashToI16
+            | CoreFunction::BHP1024HashToI32
+            | CoreFunction::BHP1024HashToI64
+            | CoreFunction::BHP1024HashToI128
+            | CoreFunction::BHP1024HashToU8
+            | CoreFunction::BHP1024HashToU16
+            | CoreFunction::BHP1024HashToU32
+            | CoreFunction::BHP1024HashToU64
+            | CoreFunction::BHP1024HashToU128
+            | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::Pedersen64CommitToAddress
+            | CoreFunction::Pedersen64CommitToField
+            | CoreFunction::Pedersen64CommitToGroup
+            | CoreFunction::Pedersen64HashToAddress
+            | CoreFunction::Pedersen64HashToField
+            | CoreFunction::Pedersen64HashToGroup
+            | CoreFunction::Pedersen64HashToI8
+            | CoreFunction::Pedersen64HashToI16
+            | CoreFunction::Pedersen64HashToI32
+            | CoreFunction::Pedersen64HashToI64
+            | CoreFunction::Pedersen64HashToI128
+            | CoreFunction::Pedersen64HashToU8
+            | CoreFunction::Pedersen64HashToU16
+            | CoreFunction::Pedersen64HashToU32
+            | CoreFunction::Pedersen64HashToU64
+            | CoreFunction::Pedersen64HashToU128
+            | CoreFunction::Pedersen64HashToScalar
+            | CoreFunction::Pedersen128CommitToAddress
+            | CoreFunction::Pedersen128CommitToField
+            | CoreFunction::Pedersen128CommitToGroup
+            | CoreFunction::Pedersen128HashToAddress
+            | CoreFunction::Pedersen128HashToField
+            | CoreFunction::Pedersen128HashToGroup
+            | CoreFunction::Pedersen128HashToI8
+            | CoreFunction::Pedersen128HashToI16
+            | CoreFunction::Pedersen128HashToI32
+            | CoreFunction::Pedersen128HashToI64
+            | CoreFunction::Pedersen128HashToI128
+            | CoreFunction::Pedersen128HashToU8
+            | CoreFunction::Pedersen128HashToU16
+            | CoreFunction::Pedersen128HashToU32
+            | CoreFunction::Pedersen128HashToU64
+            | CoreFunction::Pedersen128HashToU128
+            | CoreFunction::Pedersen128HashToScalar
+            | CoreFunction::Poseidon2HashToAddress
+            | CoreFunction::Poseidon2HashToField
+            | CoreFunction::Poseidon2HashToGroup
+            | CoreFunction::Poseidon2HashToI8
+            | CoreFunction::Poseidon2HashToI16
+            | CoreFunction::Poseidon2HashToI32
+            | CoreFunction::Poseidon2HashToI64
+            | CoreFunction::Poseidon2HashToI128
+            | CoreFunction::Poseidon2HashToU8
+            | CoreFunction::Poseidon2HashToU16
+            | CoreFunction::Poseidon2HashToU32
+            | CoreFunction::Poseidon2HashToU64
+            | CoreFunction::Poseidon2HashToU128
+            | CoreFunction::Poseidon2HashToScalar
+            | CoreFunction::Poseidon4HashToAddress
+            | CoreFunction::Poseidon4HashToField
+            | CoreFunction::Poseidon4HashToGroup
+            | CoreFunction::Poseidon4HashToI8
+            | CoreFunction::Poseidon4HashToI16
+            | CoreFunction::Poseidon4HashToI32
+            | CoreFunction::Poseidon4HashToI64
+            | CoreFunction::Poseidon4HashToI128
+            | CoreFunction::Poseidon4HashToU8
+            | CoreFunction::Poseidon4HashToU16
+            | CoreFunction::Poseidon4HashToU32
+            | CoreFunction::Poseidon4HashToU64
+            | CoreFunction::Poseidon4HashToU128
+            | CoreFunction::Poseidon4HashToScalar
+            | CoreFunction::Poseidon8HashToAddress
+            | CoreFunction::Poseidon8HashToField
+            | CoreFunction::Poseidon8HashToGroup
+            | CoreFunction::Poseidon8HashToI8
+            | CoreFunction::Poseidon8HashToI16
+            | CoreFunction::Poseidon8HashToI32
+            | CoreFunction::Poseidon8HashToI64
+            | CoreFunction::Poseidon8HashToI128
+            | CoreFunction::Poseidon8HashToU8
+            | CoreFunction::Poseidon8HashToU16
+            | CoreFunction::Poseidon8HashToU32
+            | CoreFunction::Poseidon8HashToU64
+            | CoreFunction::Poseidon8HashToU128
+            | CoreFunction::Poseidon8HashToScalar
+            | CoreFunction::GroupToXCoordinate
+            | CoreFunction::GroupToYCoordinate => false,
         }
     }
 }

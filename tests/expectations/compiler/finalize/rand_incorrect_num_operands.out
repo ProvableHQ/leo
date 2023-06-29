@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372006]: Call expected `0` args, but got `1`\n    --> compiler-test:12:24\n     |\n  12 |         let a: field = ChaCha::rand_field(1field);\n     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372006]: Call expected `0` args, but got `2`\n    --> compiler-test:13:24\n     |\n  13 |         let b: field = ChaCha::rand_field(1field, 2field);\n     |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

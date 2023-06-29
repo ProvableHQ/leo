@@ -381,6 +381,33 @@ impl<'a> CodeGenerator<'a> {
                     _ => unreachable!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
                 }
             }
+            Type::Identifier(Identifier { name: sym::ChaCha, .. }) => {
+                // Get the destination register.
+                let destination_register = get_destination_register();
+                // Construct the instruction template.
+                let mut instruction = format!("    rand.chacha into {destination_register} as ");
+                // Write the return type.
+                match input.name {
+                    Identifier { name: sym::rand_address, .. } => writeln!(instruction, "address;"),
+                    Identifier { name: sym::rand_bool, .. } => writeln!(instruction, "boolean;"),
+                    Identifier { name: sym::rand_field, .. } => writeln!(instruction, "field;"),
+                    Identifier { name: sym::rand_group, .. } => writeln!(instruction, "group;"),
+                    Identifier { name: sym::rand_i8, .. } => writeln!(instruction, "i8;"),
+                    Identifier { name: sym::rand_i16, .. } => writeln!(instruction, "i16;"),
+                    Identifier { name: sym::rand_i32, .. } => writeln!(instruction, "i32;"),
+                    Identifier { name: sym::rand_i64, .. } => writeln!(instruction, "i64;"),
+                    Identifier { name: sym::rand_i128, .. } => writeln!(instruction, "i128;"),
+                    Identifier { name: sym::rand_scalar, .. } => writeln!(instruction, "scalar;"),
+                    Identifier { name: sym::rand_u8, .. } => writeln!(instruction, "u8;"),
+                    Identifier { name: sym::rand_u16, .. } => writeln!(instruction, "u16;"),
+                    Identifier { name: sym::rand_u32, .. } => writeln!(instruction, "u32;"),
+                    Identifier { name: sym::rand_u64, .. } => writeln!(instruction, "u64;"),
+                    Identifier { name: sym::rand_u128, .. } => writeln!(instruction, "u128;"),
+                    _ => unreachable!("The only associated methods of ChaCha are `rand_*`"),
+                }
+                .expect("failed to write to string");
+                (destination_register, instruction)
+            }
             _ => unreachable!("All core functions should be known at this phase of compilation"),
         };
         // Add the instruction to the list of instructions.
