@@ -746,6 +746,12 @@
 <a href="#746" id="746">746</a>
 <a href="#747" id="747">747</a>
 <a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -793,6 +799,11 @@
             AccessExpression::AssociatedFunction(access) =&gt; {
                 <span class="comment">// Check core struct name and function.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
+                    <span class="comment">// Check that operation is not restricted to finalize blocks.
+                    </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize &amp;&amp; core_instruction.is_finalize_command() {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
+                    }
+
                     <span class="comment">// Get the types of the arguments.
                     </span><span class="kw">let </span>argument_types = access
                         .arguments
@@ -807,6 +818,7 @@
                     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
                         <span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>return_type, expected, input.span());
                     }
+
                     <span class="kw">return </span>return_type;
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));

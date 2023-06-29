@@ -636,6 +636,13 @@
 <a href="#636" id="636">636</a>
 <a href="#637" id="637">637</a>
 <a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1271,6 +1278,13 @@
     invalid_operation_inside_finalize {
         args: (operation: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;`{operation}` is not a valid operand in a finalize context.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    operation_must_be_in_finalize_block {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;This operation can only be used in a `finalize` block.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

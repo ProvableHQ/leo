@@ -943,6 +943,21 @@
 <a href="#943" id="943">943</a>
 <a href="#944" id="944">944</a>
 <a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1811,6 +1826,21 @@
                 </span><span class="self">self</span>.assert_group_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Field)
             }
+            CoreFunction::ChaChaRandAddress =&gt; <span class="prelude-val">Some</span>(Type::Address),
+            CoreFunction::ChaChaRandBool =&gt; <span class="prelude-val">Some</span>(Type::Boolean),
+            CoreFunction::ChaChaRandField =&gt; <span class="prelude-val">Some</span>(Type::Field),
+            CoreFunction::ChaChaRandGroup =&gt; <span class="prelude-val">Some</span>(Type::Group),
+            CoreFunction::ChaChaRandI8 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I8)),
+            CoreFunction::ChaChaRandI16 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I16)),
+            CoreFunction::ChaChaRandI32 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I32)),
+            CoreFunction::ChaChaRandI64 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I64)),
+            CoreFunction::ChaChaRandI128 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I128)),
+            CoreFunction::ChaChaRandScalar =&gt; <span class="prelude-val">Some</span>(Type::Scalar),
+            CoreFunction::ChaChaRandU8 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U8)),
+            CoreFunction::ChaChaRandU16 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U16)),
+            CoreFunction::ChaChaRandU32 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U32)),
+            CoreFunction::ChaChaRandU64 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U64)),
+            CoreFunction::ChaChaRandU128 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U128)),
         }
     }
 
