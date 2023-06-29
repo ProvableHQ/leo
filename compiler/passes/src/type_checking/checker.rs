@@ -873,7 +873,7 @@ impl<'a> TypeChecker<'a> {
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
-                    // Return the mapping type.
+                    // Return nothing.
                     Some(Type::Unit)
                 } else {
                     None
