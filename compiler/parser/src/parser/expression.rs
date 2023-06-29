@@ -329,8 +329,10 @@ impl ParserContext<'_> {
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
                 (1, Some(CoreFunction::MappingGet))
                 | (2, Some(CoreFunction::MappingGetOrUse))
-                | (2, Some(CoreFunction::MappingSet)) => {
-                    // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, or `<mapping>.set`
+                | (2, Some(CoreFunction::MappingSet))
+                | (1, Some(CoreFunction::MappingRemove))
+                | (1, Some(CoreFunction::MappingContains)) => {
+                    // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, `<mapping>.set`, `<mapping>.remove`, or `<mapping>.contains`.
                     Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: Type::Identifier(Identifier::new(sym::Mapping)),
                         name: method,

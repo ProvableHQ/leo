@@ -358,6 +358,20 @@ impl<'a> CodeGenerator<'a> {
                         .expect("failed to write to string");
                     (String::new(), instruction)
                 }
+                sym::remove => {
+                    let mut instruction = "    remove".to_string();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}];", arguments[0], arguments[1]).expect("failed to write to string");
+                    (String::new(), instruction)
+                }
+                sym::contains => {
+                    let mut instruction = "    contains".to_string();
+                    let destination_register = get_destination_register();
+                    // Write the mapping name and the key.
+                    writeln!(instruction, " {}[{}] into {destination_register};", arguments[0], arguments[1])
+                        .expect("failed to write to string");
+                    (destination_register, instruction)
+                }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
             },
             Type::Identifier(Identifier { name: sym::group, .. }) => {
