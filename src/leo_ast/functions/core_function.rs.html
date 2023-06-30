@@ -732,6 +732,14 @@
 <a href="#732" id="732">732</a>
 <a href="#733" id="733">733</a>
 <a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -925,6 +933,8 @@
     MappingGet,
     MappingGetOrUse,
     MappingSet,
+    MappingRemove,
+    MappingContains,
 
     GroupToXCoordinate,
     GroupToYCoordinate,
@@ -1107,6 +1117,8 @@
             (sym::Mapping, sym::get) =&gt; <span class="self">Self</span>::MappingGet,
             (sym::Mapping, sym::get_or_use) =&gt; <span class="self">Self</span>::MappingGetOrUse,
             (sym::Mapping, sym::set) =&gt; <span class="self">Self</span>::MappingSet,
+            (sym::Mapping, sym::remove) =&gt; <span class="self">Self</span>::MappingRemove,
+            (sym::Mapping, sym::contains) =&gt; <span class="self">Self</span>::MappingContains,
 
             (sym::group, sym::to_x_coordinate) =&gt; <span class="self">Self</span>::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) =&gt; <span class="self">Self</span>::GroupToYCoordinate,
@@ -1290,6 +1302,8 @@
             <span class="self">Self</span>::MappingGet =&gt; <span class="number">2</span>,
             <span class="self">Self</span>::MappingGetOrUse =&gt; <span class="number">3</span>,
             <span class="self">Self</span>::MappingSet =&gt; <span class="number">3</span>,
+            <span class="self">Self</span>::MappingRemove =&gt; <span class="number">2</span>,
+            <span class="self">Self</span>::MappingContains =&gt; <span class="number">2</span>,
 
             <span class="self">Self</span>::GroupToXCoordinate =&gt; <span class="number">1</span>,
             <span class="self">Self</span>::GroupToYCoordinate =&gt; <span class="number">1</span>,
@@ -1316,7 +1330,9 @@
             | CoreFunction::MappingGet
             | CoreFunction::MappingGetOrUse
             | CoreFunction::ChaChaRandScalar
-            | CoreFunction::MappingSet =&gt; <span class="bool-val">true</span>,
+            | CoreFunction::MappingSet
+            | CoreFunction::MappingRemove
+            | CoreFunction::MappingContains =&gt; <span class="bool-val">true</span>,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup

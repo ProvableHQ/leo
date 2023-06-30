@@ -654,6 +654,8 @@
 <a href="#654" id="654">654</a>
 <a href="#655" id="655">655</a>
 <a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -985,8 +987,10 @@
             </span><span class="kw">match </span>(args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
                 (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingGet))
                 | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingGetOrUse))
-                | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingSet)) =&gt; {
-                    <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or_use`, or `&lt;mapping&gt;.set`
+                | (<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingSet))
+                | (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingRemove))
+                | (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingContains)) =&gt; {
+                    <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or_use`, `&lt;mapping&gt;.set`, `&lt;mapping&gt;.remove`, or `&lt;mapping&gt;.contains`.
                     </span><span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: Type::Identifier(Identifier::new(sym::Mapping)),
                         name: method,
