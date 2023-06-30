@@ -861,6 +861,42 @@ impl<'a> TypeChecker<'a> {
                     None
                 }
             }
+            CoreFunction::MappingRemove => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                        "Mapping::remove",
+                        function_span,
+                    ))
+                }
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Return nothing.
+                    Some(Type::Unit)
+                } else {
+                    None
+                }
+            }
+            CoreFunction::MappingContains => {
+                // Check that the operation is invoked in a `finalize` block.
+                if !self.is_finalize {
+                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                        "Mapping::contains",
+                        function_span,
+                    ))
+                }
+                // Check that the first argument is a mapping.
+                if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Check that the second argument matches the key type of the mapping.
+                    self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
+                    // Return a boolean.
+                    Some(Type::Boolean)
+                } else {
+                    None
+                }
+            }
             CoreFunction::GroupToXCoordinate | CoreFunction::GroupToYCoordinate => {
                 // Check that the first argument is a group.
                 self.assert_group_type(&arguments[0].0, arguments[0].1);

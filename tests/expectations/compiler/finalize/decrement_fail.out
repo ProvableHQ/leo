@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:11:9\n     |\n  11 |         decrement(amounts, addr, amount);\n     |         ^^^^^^^^^\nWarning [WPAR0370001]: The keyword `decrement` is deprecated.\n    --> compiler-test:11:9\n     |\n  11 |         decrement(amounts, addr, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set}` for manipulating on-chain mappings."
+  - "Error [ETYC0372005]: Unknown function `decrement`\n    --> compiler-test:11:9\n     |\n  11 |         decrement(amounts, addr, amount);\n     |         ^^^^^^^^^\nWarning [WPAR0370001]: The keyword `decrement` is deprecated.\n    --> compiler-test:11:9\n     |\n  11 |         decrement(amounts, addr, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Use `Mapping::{get, get_or_use, set, remove, contains}` for manipulating on-chain mappings."

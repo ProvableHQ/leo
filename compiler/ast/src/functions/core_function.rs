@@ -191,6 +191,8 @@ pub enum CoreFunction {
     MappingGet,
     MappingGetOrUse,
     MappingSet,
+    MappingRemove,
+    MappingContains,
 
     GroupToXCoordinate,
     GroupToYCoordinate,
@@ -373,6 +375,8 @@ impl CoreFunction {
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
             (sym::Mapping, sym::set) => Self::MappingSet,
+            (sym::Mapping, sym::remove) => Self::MappingRemove,
+            (sym::Mapping, sym::contains) => Self::MappingContains,
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
@@ -556,6 +560,8 @@ impl CoreFunction {
             Self::MappingGet => 2,
             Self::MappingGetOrUse => 3,
             Self::MappingSet => 3,
+            Self::MappingRemove => 2,
+            Self::MappingContains => 2,
 
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
@@ -582,7 +588,9 @@ impl CoreFunction {
             | CoreFunction::MappingGet
             | CoreFunction::MappingGetOrUse
             | CoreFunction::ChaChaRandScalar
-            | CoreFunction::MappingSet => true,
+            | CoreFunction::MappingSet
+            | CoreFunction::MappingRemove
+            | CoreFunction::MappingContains => true,
             CoreFunction::BHP256CommitToAddress
             | CoreFunction::BHP256CommitToField
             | CoreFunction::BHP256CommitToGroup
