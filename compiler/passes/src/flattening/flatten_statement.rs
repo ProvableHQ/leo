@@ -379,16 +379,17 @@ impl StatementReconstructor for Flattener<'_> {
     /// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
-        // Construct the associated guard.
-        let guard = self.construct_guard();
-
-        // Add it to `self.returns`.
-        // Note that SSA guarantees that `input.expression` is either a literal or identifier.
+        // If a value is returned, add the return statement to `self.returns`.
+        // Note that SSA guarantees that `input.expression` is either a literal, identifier, or unit expression.
         match input.expression {
+            // If nothing is returned, do nothing.
+            Expression::Unit(_) => (),
             // If the input is an identifier that maps to a tuple,
             // construct a `ReturnStatement` with the tuple and add it to `self.returns`
             Expression::Identifier(identifier) if self.tuples.contains_key(&identifier.name) => {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists in `self.tuples`.
+                // Construct the associated guard.
+                let guard = self.construct_guard();
                 let tuple = self.tuples.get(&identifier.name).unwrap().clone();
                 self.returns.push((guard, ReturnStatement {
                     span: input.span,
@@ -397,7 +398,11 @@ impl StatementReconstructor for Flattener<'_> {
                 }));
             }
             // Otherwise, add the expression directly.
-            _ => self.returns.push((guard, input)),
+            _ => {
+                // Construct the associated guard.
+                let guard = self.construct_guard();
+                self.returns.push((guard, input))
+            }
         };
 
         (Statement::dummy(Default::default()), Default::default())
