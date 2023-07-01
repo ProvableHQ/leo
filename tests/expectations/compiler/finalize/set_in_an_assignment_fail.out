@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372062]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:11:9\n     |\n  11 |         let result: () = Mapping::set(amounts, addr, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372007]: Expected one type from `u128`, but got `()`\n    --> compiler-test:12:28\n     |\n  12 |         let result: u128 = Mapping::set(amounts, addr, amount);\n     |                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [EAST0372009]: variable `result` shadowed by\n    --> compiler-test:12:13\n     |\n  12 |         let result: u128 = Mapping::set(amounts, addr, amount);\n     |             ^^^^^^\n"
