@@ -231,8 +231,8 @@ impl StatementReconstructor for Flattener<'_> {
                     arguments,
                     ..
                 })),
-            ) |
-            (
+            )
+            | (
                 Expression::Identifier(lhs_identifier),
                 Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                     ty: Type::Identifier(Identifier { name: sym::Mapping, .. }),
