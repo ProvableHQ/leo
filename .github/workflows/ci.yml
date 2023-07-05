@@ -48,7 +48,6 @@ jobs:
       - name: Install sccache Macos
         if: matrix.os == 'macos-latest'
         run: |
-          brew update
           brew install sccache
 
       - name: Install Rust Stable
@@ -110,7 +109,6 @@ jobs:
 
       - name: Install sccache
         run: |
-          brew update
           brew install sccache
         
       - name: Install Rust
