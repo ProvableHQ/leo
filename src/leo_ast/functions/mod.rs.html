@@ -147,6 +147,13 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -279,7 +286,14 @@
             <span class="number">1 </span>=&gt; <span class="self">self</span>.output[<span class="number">0</span>].to_string(),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.output.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot;,&quot;</span>),
         };
-        <span class="macro">write!</span>(f, <span class="string">&quot;({parameters}) -&gt; {returns} {}&quot;</span>, <span class="self">self</span>.block)
+        <span class="macro">write!</span>(f, <span class="string">&quot;({parameters}) -&gt; {returns} {}&quot;</span>, <span class="self">self</span>.block)<span class="question-mark">?</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span><span class="self">self</span>.finalize {
+            <span class="kw">let </span>parameters = finalize.input.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot;,&quot;</span>);
+            <span class="macro">write!</span>(f, <span class="string">&quot; finalize ({parameters}) {}&quot;</span>, finalize.block)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(())
+        }
     }
 }
 

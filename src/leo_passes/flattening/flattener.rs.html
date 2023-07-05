@@ -243,6 +243,15 @@
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -343,39 +352,48 @@
         <span class="comment">// Type checking guarantees that there exists at least one return statement in the function body.
         </span><span class="kw">let </span>(<span class="kw">_</span>, last_expression) = guards.pop().unwrap();
 
-        <span class="comment">// Produce a chain of ternary expressions and assignments for the guards.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(guards.len());
+        <span class="kw">match </span>last_expression {
+            <span class="comment">// If the expression is a unit expression, then return it directly.
+            </span>Expression::Unit(<span class="kw">_</span>) =&gt; (last_expression, Vec::new()),
+            <span class="comment">// Otherwise, fold the guards and expressions into a single expression.
+            </span><span class="kw">_ </span>=&gt; {
+                <span class="comment">// Produce a chain of ternary expressions and assignments for the guards.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(guards.len());
 
-        <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
-        </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            <span class="kw">let </span>place = Identifier { name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>), span: Default::default() };
-            <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
-                condition: Box::new(guard),
-                if_true: Box::new(if_true),
-                if_false: Box::new(if_false),
-                span: Default::default(),
-            });
-            statements.extend(stmts);
+                <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
+                </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment =
+                    |guard: Expression, if_true: Expression, if_false: Expression| {
+                        <span class="kw">let </span>place =
+                            Identifier { name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>), span: Default::default() };
+                        <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
+                            condition: Box::new(guard),
+                            if_true: Box::new(if_true),
+                            if_false: Box::new(if_false),
+                            span: Default::default(),
+                        });
+                        statements.extend(stmts);
 
-            <span class="kw">match </span><span class="kw-2">&amp;</span>value {
-                <span class="comment">// If the expression is a tuple, then use it directly.
-                // This must be done to ensure that intermediate tuple assignments are not created.
-                </span>Expression::Tuple(<span class="kw">_</span>) =&gt; value,
-                <span class="comment">// Otherwise, assign the expression to a variable and return the variable.
-                </span><span class="kw">_ </span>=&gt; {
-                    statements.push(<span class="self">self</span>.simple_assign_statement(place, value));
-                    Expression::Identifier(place)
-                }
+                        <span class="kw">match </span><span class="kw-2">&amp;</span>value {
+                            <span class="comment">// If the expression is a tuple, then use it directly.
+                            // This must be done to ensure that intermediate tuple assignments are not created.
+                            </span>Expression::Tuple(<span class="kw">_</span>) =&gt; value,
+                            <span class="comment">// Otherwise, assign the expression to a variable and return the variable.
+                            </span><span class="kw">_ </span>=&gt; {
+                                statements.push(<span class="self">self</span>.simple_assign_statement(place, value));
+                                Expression::Identifier(place)
+                            }
+                        }
+                    };
+
+                <span class="kw">let </span>expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| <span class="kw">match </span>guard {
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All expressions except for the last one must have a guard.&quot;</span>),
+                    <span class="comment">// Note that type checking guarantees that all expressions have the same type.
+                    </span><span class="prelude-val">Some</span>(guard) =&gt; construct_ternary_assignment(guard, expr, acc),
+                });
+
+                (expression, statements)
             }
-        };
-
-        <span class="kw">let </span>expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| <span class="kw">match </span>guard {
-            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All expressions except for the last one must have a guard.&quot;</span>),
-            <span class="comment">// Note that type checking guarantees that all expressions have the same type.
-            </span><span class="prelude-val">Some</span>(guard) =&gt; construct_ternary_assignment(guard, expr, acc),
-        });
-
-        (expression, statements)
+        }
     }
 
     <span class="doccomment">/// Looks up the name of the struct associated with an identifier or access expression, if it exists.
