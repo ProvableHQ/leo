@@ -98,39 +98,48 @@ impl<'a> Flattener<'a> {
         // Type checking guarantees that there exists at least one return statement in the function body.
         let (_, last_expression) = guards.pop().unwrap();
 
-        // Produce a chain of ternary expressions and assignments for the guards.
-        let mut statements = Vec::with_capacity(guards.len());
+        match last_expression {
+            // If the expression is a unit expression, then return it directly.
+            Expression::Unit(_) => (last_expression, Vec::new()),
+            // Otherwise, fold the guards and expressions into a single expression.
+            _ => {
+                // Produce a chain of ternary expressions and assignments for the guards.
+                let mut statements = Vec::with_capacity(guards.len());
 
-        // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
-        let mut construct_ternary_assignment = |guard: Expression, if_true: Expression, if_false: Expression| {
-            let place = Identifier { name: self.assigner.unique_symbol(prefix, "$"), span: Default::default() };
-            let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
-                condition: Box::new(guard),
-                if_true: Box::new(if_true),
-                if_false: Box::new(if_false),
-                span: Default::default(),
-            });
-            statements.extend(stmts);
+                // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
+                let mut construct_ternary_assignment =
+                    |guard: Expression, if_true: Expression, if_false: Expression| {
+                        let place =
+                            Identifier { name: self.assigner.unique_symbol(prefix, "$"), span: Default::default() };
+                        let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
+                            condition: Box::new(guard),
+                            if_true: Box::new(if_true),
+                            if_false: Box::new(if_false),
+                            span: Default::default(),
+                        });
+                        statements.extend(stmts);
 
-            match &value {
-                // If the expression is a tuple, then use it directly.
-                // This must be done to ensure that intermediate tuple assignments are not created.
-                Expression::Tuple(_) => value,
-                // Otherwise, assign the expression to a variable and return the variable.
-                _ => {
-                    statements.push(self.simple_assign_statement(place, value));
-                    Expression::Identifier(place)
-                }
+                        match &value {
+                            // If the expression is a tuple, then use it directly.
+                            // This must be done to ensure that intermediate tuple assignments are not created.
+                            Expression::Tuple(_) => value,
+                            // Otherwise, assign the expression to a variable and return the variable.
+                            _ => {
+                                statements.push(self.simple_assign_statement(place, value));
+                                Expression::Identifier(place)
+                            }
+                        }
+                    };
+
+                let expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| match guard {
+                    None => unreachable!("All expressions except for the last one must have a guard."),
+                    // Note that type checking guarantees that all expressions have the same type.
+                    Some(guard) => construct_ternary_assignment(guard, expr, acc),
+                });
+
+                (expression, statements)
             }
-        };
-
-        let expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| match guard {
-            None => unreachable!("All expressions except for the last one must have a guard."),
-            // Note that type checking guarantees that all expressions have the same type.
-            Some(guard) => construct_ternary_assignment(guard, expr, acc),
-        });
-
-        (expression, statements)
+        }
     }
 
     /// Looks up the name of the struct associated with an identifier or access expression, if it exists.

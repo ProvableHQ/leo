@@ -19,9 +19,11 @@ use itertools::Itertools;
 use std::borrow::Borrow;
 
 use leo_ast::{
+    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
+    AssociatedFunction,
     BinaryExpression,
     BinaryOperation,
     Block,
@@ -41,6 +43,7 @@ use leo_ast::{
     UnaryExpression,
     UnaryOperation,
 };
+use leo_span::sym;
 
 impl StatementReconstructor for Flattener<'_> {
     /// Rewrites an assert statement into a flattened form.
@@ -140,7 +143,7 @@ impl StatementReconstructor for Flattener<'_> {
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         // Flatten the rhs of the assignment.
         let (value, mut statements) = self.reconstruct_expression(assign.value);
-        match (assign.place, value) {
+        match (assign.place, value.clone()) {
             // If the lhs is an identifier and the rhs is a tuple, then add the tuple to `self.tuples`.
             (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
                 self.tuples.insert(identifier.name, tuple);
@@ -217,6 +220,53 @@ impl StatementReconstructor for Flattener<'_> {
                         )
                     }
                 }
+            }
+            // If the `rhs` is an invocation of `get` or `get_or_use` on a mapping, then check if the value type is a struct.
+            // Note that the parser rewrites `.get` and `.get_or_use` to `Mapping::get` and `Mapping::get_or_use` respectively.
+            (
+                Expression::Identifier(lhs_identifier),
+                Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    ty: Type::Identifier(Identifier { name: sym::Mapping, .. }),
+                    name: Identifier { name: sym::get, .. },
+                    arguments,
+                    ..
+                })),
+            )
+            | (
+                Expression::Identifier(lhs_identifier),
+                Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                    ty: Type::Identifier(Identifier { name: sym::Mapping, .. }),
+                    name: Identifier { name: sym::get_or_use, .. },
+                    arguments,
+                    ..
+                })),
+            ) => {
+                // Get the value type of the mapping.
+                let value_type = match arguments[0] {
+                    Expression::Identifier(identifier) => {
+                        // Retrieve the entry in the symbol table for the mapping.
+                        // Note that this unwrap is safe since type checking ensures that the mapping exists.
+                        let variable = self.symbol_table.borrow().variables.get(&identifier.name).unwrap();
+                        match &variable.type_ {
+                            Type::Mapping(mapping_type) => &*mapping_type.value,
+                            _ => unreachable!("Type checking guarantee that `arguments[0]` is a mapping."),
+                        }
+                    }
+                    _ => unreachable!("Type checking guarantee that `arguments[0]` is the name of the mapping."),
+                };
+                // If the value type is a struct, add it to `self.structs`.
+                if let Type::Identifier(struct_name) = value_type {
+                    self.structs.insert(lhs_identifier.name, struct_name.name);
+                }
+                // Reconstruct the assignment.
+                (
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: Expression::Identifier(lhs_identifier),
+                        value,
+                        span: Default::default(),
+                    })),
+                    statements,
+                )
             }
             (Expression::Identifier(identifier), expression) => {
                 self.update_structs(&identifier, &expression);
@@ -382,8 +432,7 @@ impl StatementReconstructor for Flattener<'_> {
         // Construct the associated guard.
         let guard = self.construct_guard();
 
-        // Add it to `self.returns`.
-        // Note that SSA guarantees that `input.expression` is either a literal or identifier.
+        // Note that SSA guarantees that `input.expression` is either a literal, identifier, or unit expression.
         match input.expression {
             // If the input is an identifier that maps to a tuple,
             // construct a `ReturnStatement` with the tuple and add it to `self.returns`

@@ -91,8 +91,13 @@ impl<'a> CodeGenerator<'a> {
                     // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
                     self.current_function.unwrap().output.iter()
                 };
-                let instructions = operand
-                    .split(' ')
+                // If the operand string is empty, initialize an empty vector.
+                let operand_strings = match operand.is_empty() {
+                    true => vec![],
+                    false => operand.split(' ').collect_vec(),
+                };
+                let instructions = operand_strings
+                    .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
                         match output {
