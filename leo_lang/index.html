@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">The Leo Programming Language</h1>
 <p align="center">
-    <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=6e9ad6d39d95350544f352d34e0e5c62ef54db26"></a>
+    <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/testnet3/graph/badge.svg?token=S6MWO60SYL"/></a>
     <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
     <a href="https://allcontributors.org/"><img src="https://img.shields.io/github/all-contributors/AleoHQ/leo?color=ee8449&style=flat-square"/></a>
@@ -11,21 +11,21 @@
 <p>Leo is a functional, statically-typed programming language built for writing private applications.</p>
 <h3 id="table-of-contents"><a href="#table-of-contents"><a name='TableofContents'></a>Table of Contents</a></h3>
 <ul>
-<li><a href="#1-overview">1. Overview</a></li>
-<li><a href="#2-build-guide">2. Build Guide</a>
+<li><a href="#1-overview">1. Overview 🍎</a></li>
+<li><a href="#2-build-guide">2. Build Guide ⚙️️</a>
 <ul>
-<li><a href="#21-install-rust">2.1 Install Rust</a></li>
-<li><a href="#22-build-from-source-code">2.2 Build from Source Code</a></li>
+<li><a href="#21-install-rust">2.1 Install Rust 🦀</a></li>
+<li><a href="#22-build-from-source-code">2.2 Build from Source Code 🐙</a></li>
 </ul>
 </li>
-<li><a href="#3-quick-start">3. Quick Start</a></li>
-<li><a href="#4-troubleshooting">4. Troubleshooting</a></li>
-<li><a href="#5-documentation">5. Documentation</a></li>
-<li><a href="#6-contributing">6. Contributing</a></li>
-<li><a href="#7-contributors">7. Contributors</a></li>
-<li><a href="#8-license">8. License</a></li>
+<li><a href="#3-quick-start">3. Quick Start 🚀</a></li>
+<li><a href="#4-troubleshooting">4. Troubleshooting 🧰</a></li>
+<li><a href="#5-documentation">5. Documentation 📖</a></li>
+<li><a href="#6-contributing">6. Contributing 🤝</a></li>
+<li><a href="#7-contributors">7. Contributors ❤️</a></li>
+<li><a href="#8-license">8. License 🛡️</a></li>
 </ul>
-<h3 id="1-overview"><a href="#1-overview">1. Overview</a></h3>
+<h3 id="1-overview-"><a href="#1-overview-">1. Overview 🍎</a></h3>
 <p>Welcome to the Leo programming language.</p>
 <p>Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to 
 integrate private applications into your stack. Leo compiles to circuits making zero-knowledge proofs practical.</p>
@@ -33,7 +33,7 @@ integrate private applications into your stack. Leo compiles to circuits making 
 Leo offers developers with tools to sanity check circuits including unit tests, integration tests, and console functions.</p>
 <p>Leo is one part of a greater ecosystem for building private applications on <a href="https://aleo.org/">Aleo</a>. 
 The language is currently in an alpha stage and is subject to breaking changes.</p>
-<h3 id="2-build-guide"><a href="#2-build-guide">2. Build Guide</a></h3><h4 id="21-install-rust"><a href="#21-install-rust">2.1 Install Rust</a></h4>
+<h3 id="2-build-guide-"><a href="#2-build-guide-">2. Build Guide ⚙️️</a></h3><h4 id="21-install-rust-"><a href="#21-install-rust-">2.1 Install Rust 🦀</a></h4>
 <p>We recommend installing Rust using <a href="https://www.rustup.rs/">rustup</a>. You can install <code>rustup</code> as follows:</p>
 <ul>
 <li>
@@ -49,7 +49,7 @@ The language is currently in an alpha stage and is subject to breaking changes.<
 <p>Download the <a href="https://win.rustup.rs/i686">Windows 32-bit executable</a> and follow the on-screen instructions.</p>
 </li>
 </ul>
-<h4 id="22-build-from-source-code"><a href="#22-build-from-source-code">2.2 Build from Source Code</a></h4>
+<h4 id="22-build-from-source-code-"><a href="#22-build-from-source-code-">2.2 Build from Source Code 🐙</a></h4>
 <p>We recommend installing Leo by building from the source code as follows:</p>
 <div class="example-wrap"><pre class="language-bash"><code># Download the source code
 git clone https://github.com/AleoHQ/leo
@@ -60,7 +60,7 @@ $ cargo install --path .
 </code></pre></div>
 <p>Now to use leo, in your terminal, run:</p>
 <div class="example-wrap"><pre class="language-bash"><code>leo
-</code></pre></div><h3 id="3-quick-start"><a href="#3-quick-start">3. Quick Start</a></h3>
+</code></pre></div><h3 id="3-quick-start-"><a href="#3-quick-start-">3. Quick Start 🚀</a></h3>
 <p>Use the Leo CLI to create a new project</p>
 <div class="example-wrap"><pre class="language-bash"><code># create a new `hello-world` Leo project
 leo new helloworld
@@ -72,25 +72,49 @@ leo run
 <p>The <code>leo new</code> command creates a new Leo project with a given name.</p>
 <p>The <code>leo run</code> command will compile the program into Aleo instructions and run it.</p>
 <p>Congratulations! You’ve just run your first Leo program.</p>
-<h3 id="4-troubleshooting"><a href="#4-troubleshooting">4. Troubleshooting</a></h3>
+<h3 id="4-troubleshooting-"><a href="#4-troubleshooting-">4. Troubleshooting 🧰</a></h3>
 <p>If you are having trouble installing and using Leo, please check out our <a href="docs/troubleshooting.md">guide</a>.</p>
 <p>If the issue still persists, please <a href="https://github.com/AleoHQ/leo/issues/new/choose">open an issue</a>.</p>
-<h3 id="5-documentation"><a href="#5-documentation">5. Documentation</a></h3>
+<h3 id="5-documentation-"><a href="#5-documentation-">5. Documentation 📖</a></h3>
 <ul>
 <li><a href="https://developer.aleo.org/leo/hello">Hello World - Next Steps</a></li>
 <li><a href="https://developer.aleo.org/leo/language">Leo Language Documentation</a></li>
 <li><a href="./docs/grammar/abnf-grammar.txt">Leo ABNF Grammar</a></li>
 <li><a href="https://developer.aleo.org/overview/">Homepage</a></li>
 </ul>
-<h3 id="6-contributing"><a href="#6-contributing">6. Contributing</a></h3>
+<h3 id="6-contributing-"><a href="#6-contributing-">6. Contributing 🤝</a></h3>
 <p>Please see our guidelines in the <a href="./CONTRIBUTING.md">developer documentation</a></p>
-<p>Thank you for helping make Leo better!</p>
-<h3 id="7-contributors"><a href="#7-contributors">7. Contributors</a></h3><!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<h3 id="7-contributors-"><a href="#7-contributors-">7. Contributors ❤️</a></h3>
+<p>Thank you for helping make Leo better!<br />
+<a href="https://allcontributors.org/docs/en/emoji-key">What do the emojis mean?🧐</a></p>
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/d0cd"><img src="https://avatars.githubusercontent.com/u/23022326?v=4?s=100" width="100px;" alt="d0cd"/><br /><sub><b>d0cd</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=d0cd" title="Code">💻</a> <a href="#maintenance-d0cd" title="Maintenance">🚧</a> <a href="#question-d0cd" title="Answering Questions">💬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Ad0cd" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://leo-lang.org"><img src="https://avatars.githubusercontent.com/u/16715212?v=4?s=100" width="100px;" alt="Collin Chin"/><br /><sub><b>Collin Chin</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=collinc97" title="Code">💻</a> <a href="https://github.com/AleoHQ/leo/commits?author=collinc97" title="Documentation">📖</a> <a href="#maintenance-collinc97" title="Maintenance">🚧</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Acollinc97" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/howardwu"><img src="https://avatars.githubusercontent.com/u/9260812?v=4?s=100" width="100px;" alt="Howard Wu"/><br /><sub><b>Howard Wu</b></sub></a><br /><a href="#ideas-howardwu" title="Ideas, Planning, & Feedback">🤔</a> <a href="#maintenance-howardwu" title="Maintenance">🚧</a> <a href="#research-howardwu" title="Research">🔬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Ahowardwu" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.kestrel.edu/~coglio"><img src="https://avatars.githubusercontent.com/u/2409151?v=4?s=100" width="100px;" alt="Alessandro Coglio"/><br /><sub><b>Alessandro Coglio</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=acoglio" title="Documentation">📖</a> <a href="#research-acoglio" title="Research">🔬</a> <a href="#question-acoglio" title="Answering Questions">💬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Aacoglio" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.kestrel.edu/home/people/mccarthy/"><img src="https://avatars.githubusercontent.com/u/7607035?v=4?s=100" width="100px;" alt="Eric McCarthy"/><br /><sub><b>Eric McCarthy</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=bendyarm" title="Documentation">📖</a> <a href="#research-bendyarm" title="Research">🔬</a> <a href="#question-bendyarm" title="Answering Questions">💬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Abendyarm" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/raychu86"><img src="https://avatars.githubusercontent.com/u/14917648?v=4?s=100" width="100px;" alt="Raymond Chu"/><br /><sub><b>Raymond Chu</b></sub></a><br /><a href="#ideas-raychu86" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/AleoHQ/leo/commits?author=raychu86" title="Code">💻</a> <a href="#research-raychu86" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ljedrz"><img src="https://avatars.githubusercontent.com/u/3750347?v=4?s=100" width="100px;" alt="ljedrz"/><br /><sub><b>ljedrz</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/issues?q=author%3Aljedrz" title="Bug reports">🐛</a> <a href="https://github.com/AleoHQ/leo/commits?author=ljedrz" title="Code">💻</a> <a href="#question-ljedrz" title="Answering Questions">💬</a></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td align="center" size="13px" colspan="7">
+        <img src="https://raw.githubusercontent.com/all-contributors/all-contributors-cli/1b8533af435da9854653492b1327a23a4dbd0a10/assets/logo-small.svg">
+          <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
+        </img>
+      </td>
+    </tr>
+  </tfoot>
+</table>
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-<h3 id="8-license"><a href="#8-license">8. License</a></h3>
+<h3 id="8-license-"><a href="#8-license-">8. License 🛡️</a></h3>
 <p><a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License: GPL v3" /></a></p>
 </div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="cli/index.html" title="mod leo_lang::cli">cli</a></div></li></ul></section></div></main></body></html>
