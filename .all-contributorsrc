@@ -3,7 +3,9 @@
   "projectOwner": "AleoHQ",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "contributorsPerLine": 7,
   "commit": false,
@@ -11,5 +13,18 @@
   "commitConvention": "angular",
   "linkToUsage": true,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "bendyarm",
+      "name": "Eric McCarthy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7607035?v=4",
+      "profile": "http://www.kestrel.edu/home/people/mccarthy/",
+      "contributions": [
+        "doc",
+        "research",
+        "question",
+        "review"
+      ]
+    }
+  ]
 }
