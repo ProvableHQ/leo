@@ -3,7 +3,9 @@
   "projectOwner": "AleoHQ",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "contributorsPerLine": 7,
   "commit": false,
@@ -11,5 +13,15 @@
   "commitConvention": "angular",
   "linkToUsage": true,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "detailyang",
+      "name": "detailyang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3370345?v=4",
+      "profile": "https://detailyang.github.io",
+      "contributions": [
+        "code"
+      ]
+    }
+  ]
 }
