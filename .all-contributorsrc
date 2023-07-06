@@ -1,0 +1,29 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "collinc97",
+      "name": "Collin Chin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16715212?v=4",
+      "profile": "http://leo-lang.org",
+      "contributions": [
+        "code",
+        "doc",
+        "question",
+        "review"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "leo",
+  "projectOwner": "AleoHQ"
+}
