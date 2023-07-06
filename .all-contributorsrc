@@ -1,0 +1,15 @@
+{
+  "projectName": "leo",
+  "projectOwner": "AleoHQ",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": ["README.md"],
+  "imageSize": 100,
+  "contributorsPerLine": 7,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "linkToUsage": true,
+  "skipCi": true,
+  "contributors": []
+}
