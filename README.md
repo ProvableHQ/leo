@@ -15,19 +15,19 @@ Leo is a functional, statically-typed programming language built for writing pri
 
 ## <a name='TableofContents'></a>Table of Contents
 
-* [1. Overview 🍎](#1-overview)
-* [2. Build Guide ⚙️️](#2-build-guide)
-    * [2.1 Install Rust 🦀](#21-install-rust)
-    * [2.2 Build from Source Code 🐙](#22-build-from-source-code)
-* [3. Quick Start 🚀](#3-quick-start)
-* [4. Troubleshooting 🧰](#4-troubleshooting)
-* [5. Documentation 📖](#5-documentation)
-* [6. Contributing 🤝](#6-contributing)
-* [7. Contributors ❤️](#7-contributors)
-* [8. License 🛡️](#8-license)
+* [🍎 Overview](#1-overview)
+* [⚙️️ Build Guide](#2-build-guide)
+    * [🦀 Install Rust](#21-install-rust)
+    * [🐙 Build from Source Code](#22-build-from-source-code)
+* [🚀 Quick Start](#3-quick-start)
+* [🧰 Troubleshooting](#4-troubleshooting)
+* [📖 Documentation](#5-documentation)
+* [🤝 Contributing](#6-contributing)
+* [❤️ Contributors](#7-contributors)
+* [🛡️ License](#8-license)
 
 
-## 1. Overview 🍎
+## 🍎 Overview
 
 Welcome to the Leo programming language.
 
@@ -40,9 +40,9 @@ Leo offers developers with tools to sanity check circuits including unit tests, 
 Leo is one part of a greater ecosystem for building private applications on [Aleo](https://aleo.org/). 
 The language is currently in an alpha stage and is subject to breaking changes.
 
-## 2. Build Guide ⚙️️ 
+## ⚙️️ Build Guide 
 
-### 2.1 Install Rust 🦀
+### 🦀 Install Rust
 
 We recommend installing Rust using [rustup](https://www.rustup.rs/). You can install `rustup` as follows:
 
@@ -59,7 +59,7 @@ We recommend installing Rust using [rustup](https://www.rustup.rs/). You can ins
   
   Download the [Windows 32-bit executable](https://win.rustup.rs/i686) and follow the on-screen instructions.
 
-### 2.2 Build from Source Code 🐙
+### 🐙 Build from Source Code
 
 We recommend installing Leo by building from the source code as follows:
 
@@ -77,7 +77,7 @@ Now to use leo, in your terminal, run:
 leo
 ```
 
-## 3. Quick Start 🚀
+## 🚀 Quick Start
 
 Use the Leo CLI to create a new project
 
@@ -96,24 +96,24 @@ The `leo run` command will compile the program into Aleo instructions and run it
 
 Congratulations! You've just run your first Leo program.
 
-## 4. Troubleshooting 🧰
+## 🧰 Troubleshooting
 If you are having trouble installing and using Leo, please check out our [guide](docs/troubleshooting.md).
 
 If the issue still persists, please [open an issue](https://github.com/AleoHQ/leo/issues/new/choose).
 
-## 5. Documentation 📖
+## 📖 Documentation
 
 * [Hello World - Next Steps](https://developer.aleo.org/leo/hello)
 * [Leo Language Documentation](https://developer.aleo.org/leo/language)
 * [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
 * [Homepage](https://developer.aleo.org/overview/)
 
-## 6. Contributing 🤝
+## 🤝 Contributing
  
 Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 
-## 7. Contributors ❤️
+## ❤️ Contributors
 Thank you for helping make Leo better!  
 [What do the emojis mean?🧐](https://allcontributors.org/docs/en/emoji-key)
 
@@ -148,5 +148,5 @@ Thank you for helping make Leo better!
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## 8. License 🛡️
+## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
