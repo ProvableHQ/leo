@@ -3,7 +3,9 @@
   "projectOwner": "AleoHQ",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "contributorsPerLine": 7,
   "commit": false,
@@ -11,5 +13,18 @@
   "commitConvention": "angular",
   "linkToUsage": true,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "d0cd",
+      "name": "d0cd",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23022326?v=4",
+      "profile": "https://github.com/d0cd",
+      "contributions": [
+        "code",
+        "maintenance",
+        "question",
+        "review"
+      ]
+    }
+  ]
 }
