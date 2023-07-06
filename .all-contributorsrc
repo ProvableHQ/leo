@@ -3,7 +3,9 @@
   "projectOwner": "AleoHQ",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "imageSize": 100,
   "contributorsPerLine": 7,
   "commit": false,
@@ -11,5 +13,16 @@
   "commitConvention": "angular",
   "linkToUsage": true,
   "skipCi": true,
-  "contributors": []
+  "contributors": [
+    {
+      "login": "dev-sptg",
+      "name": "sptg",
+      "avatar_url": "https://avatars.githubusercontent.com/u/585251?v=4",
+      "profile": "https://github.com/dev-sptg",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    }
+  ]
 }
