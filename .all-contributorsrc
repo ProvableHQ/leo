@@ -25,6 +25,76 @@
         "question",
         "review"
       ]
+    },
+    {
+      "login": "collinc97",
+      "name": "Collin Chin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16715212?v=4",
+      "profile": "http://leo-lang.org",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance",
+        "review"
+      ]
+    },
+    {
+      "login": "howardwu",
+      "name": "Howard Wu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9260812?v=4",
+      "profile": "https://github.com/howardwu",
+      "contributions": [
+        "ideas",
+        "maintenance",
+        "research",
+        "review"
+      ]
+    },
+    {
+      "login": "acoglio",
+      "name": "Alessandro Coglio",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2409151?v=4",
+      "profile": "http://www.kestrel.edu/~coglio",
+      "contributions": [
+        "doc",
+        "research",
+        "question",
+        "review"
+      ]
+    },
+    {
+      "login": "bendyarm",
+      "name": "Eric McCarthy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7607035?v=4",
+      "profile": "http://www.kestrel.edu/home/people/mccarthy/",
+      "contributions": [
+        "doc",
+        "research",
+        "question",
+        "review"
+      ]
+    },
+    {
+      "login": "raychu86",
+      "name": "Raymond Chu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14917648?v=4",
+      "profile": "https://github.com/raychu86",
+      "contributions": [
+        "ideas",
+        "code",
+        "research"
+      ]
+    },
+    {
+      "login": "ljedrz",
+      "name": "ljedrz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3750347?v=4",
+      "profile": "https://github.com/ljedrz",
+      "contributions": [
+        "bug",
+        "code",
+        "question"
+      ]
     }
   ]
 }
