@@ -245,7 +245,7 @@
     {
       "login": "swift-mx",
       "name": "swift-mx",
-      "avatar_url": https://avatars.githubusercontent.com/u/80231732?v=4",
+      "avatar_url": "https://avatars.githubusercontent.com/u/80231732?v=4",
       "profile": "https://github.com/swift-mx",
       "contributions": [
         "code"
@@ -256,6 +256,24 @@
       "name": "allcontributors[bot]",
       "avatar_url": "https://avatars3.githubusercontent.com/u/46843839?v=4",
       "profile": "https://github.com/all-contributors/all-contributors-bot",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "actions-user",
+      "name": "actions-user[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/u/65916846?v=4",
+      "profile": "https://github.com/actions",
+      "contributions": [
+        "doc"
+      ]
+    }
+    {
+      "login": "dependabot",
+      "name": "dependabot[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/u/27347476?v=4",
+      "profile": "https://github.com/features/security",
       "contributions": [
         "doc"
       ]

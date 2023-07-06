@@ -1,6 +1,6 @@
 <p align="center">
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-24-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-27-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
     <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
 </p>
@@ -157,6 +157,8 @@ Thank you for helping make Leo better!
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/HarukaMa"><img src="https://avatars.githubusercontent.com/u/861659?v=4?s=100" width="100px;" alt="Haruka"/><br /><sub><b>Haruka</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/issues?q=author%3AHarukaMa" title="Bug reports">🐛</a> <a href="https://github.com/AleoHQ/leo/commits?author=HarukaMa" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/swift-mx"><img src="https://avatars.githubusercontent.com/u/80231732?v=4?s=100" width="100px;" alt="swift-mx"/><br /><sub><b>swift-mx</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=swift-mx" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/all-contributors/all-contributors-bot"><img src="https://avatars3.githubusercontent.com/u/46843839?v=4?s=100" width="100px;" alt="allcontributors[bot]"/><br /><sub><b>allcontributors[bot]</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=allcontributors" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/actions"><img src="https://avatars.githubusercontent.com/u/65916846?v=4?s=100" width="100px;" alt="actions-user[bot]"/><br /><sub><b>actions-user[bot]</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=actions-user" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/features/security"><img src="https://avatars.githubusercontent.com/u/27347476?v=4?s=100" width="100px;" alt="Dependabot"/><br /><sub><b>Dependabot</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=dependabot" title="Code">💻</a></td>
     </tr>
   </tbody>
   <tfoot>
