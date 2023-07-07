@@ -57,7 +57,7 @@
       "profile": "http://www.kestrel.edu/~coglio",
       "contributions": [
         "doc",
-        "research",
+        "maintenance",
         "question",
         "review"
       ]
@@ -69,7 +69,7 @@
       "profile": "http://www.kestrel.edu/home/people/mccarthy/",
       "contributions": [
         "doc",
-        "research",
+        "maintenance",
         "question",
         "review"
       ]
@@ -268,7 +268,7 @@
       "contributions": [
         "doc"
       ]
-    }
+    },
     {
       "login": "dependabot",
       "name": "dependabot[bot]",
