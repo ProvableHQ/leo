@@ -15,16 +15,16 @@ Leo is a functional, statically-typed programming language built for writing pri
 
 ## <a name='TableofContents'></a>Table of Contents
 
-* [🍎 Overview](#1-overview)
-* [⚙️️ Build Guide](#2-build-guide)
-    * [🦀 Install Rust](#21-install-rust)
-    * [🐙 Build from Source Code](#22-build-from-source-code)
-* [🚀 Quick Start](#3-quick-start)
-* [🧰 Troubleshooting](#4-troubleshooting)
-* [📖 Documentation](#5-documentation)
-* [🤝 Contributing](#6-contributing)
-* [❤️ Contributors](#7-contributors)
-* [🛡️ License](#8-license)
+* [🍎 Overview](#-overview)
+* [⚙️️ Build Guide](#-build-guide)
+    * [🦀 Install Rust](#-install-rust)
+    * [🐙 Build from Source Code](#-build-from-source-code)
+* [🚀 Quick Start](#-quick-start)
+* [🧰 Troubleshooting](#-troubleshooting)
+* [📖 Documentation](#-documentation)
+* [🤝 Contributing](#-contributing)
+* [❤️ Contributors](#-contributors)
+* [🛡️ License](#-license)
 
 
 ## 🍎 Overview
