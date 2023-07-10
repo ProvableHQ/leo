@@ -105,7 +105,7 @@ If the issue still persists, please [open an issue](https://github.com/AleoHQ/le
 
 * [Hello World - Next Steps](https://developer.aleo.org/leo/hello)
 * [Leo Language Documentation](https://developer.aleo.org/leo/language)
-* [Leo ABNF Grammar](./docs/grammar/abnf-grammar.txt)
+* [Leo ABNF Grammar](https://github.com/AleoHQ/grammars/blob/master/leo.abnf)
 * [Homepage](https://developer.aleo.org/overview/)
 
 ## 🤝 Contributing
