@@ -57,7 +57,7 @@ features = [ "circuit", "console" ]
 version = "1.9.1"
 
 [dev-dependencies.serde]
-version = "1.0.166"
+version = "1.0.168"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
