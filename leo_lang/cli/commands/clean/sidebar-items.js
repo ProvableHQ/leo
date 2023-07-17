@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"static":["CALLSITE","META"],"struct":["Clean"]};
+window.SIDEBAR_ITEMS = {"struct":["Clean"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["to_json_string"],"struct":["ProgramId","ProgramIdVisitor"]};
+window.SIDEBAR_ITEMS = {"struct":["ProgramId"]};
