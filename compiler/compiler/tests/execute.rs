@@ -38,7 +38,7 @@ use leo_test_framework::{
     Test,
 };
 
-use snarkvm::{console, prelude::*};
+use snarkvm::{cli::helpers::*, console, prelude::*};
 
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -151,32 +151,27 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
                 // TODO: Add support for custom config like custom private keys.
                 // Execute the program and get the outputs.
-                let output_string = match package.run::<Aleo, _>(
-                    None,
-                    package.manifest_file().development_private_key(),
-                    function_name,
-                    &inputs,
-                    rng,
-                ) {
-                    Ok((response, _)) => format!(
-                        "[{}]",
-                        response
-                            .outputs()
-                            .iter()
-                            .map(|output| {
-                                match output {
-                                    // Remove the `_nonce` from the record string.
-                                    console::program::Value::Record(record) => {
-                                        let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
-                                        pattern.replace(&record.to_string(), "").to_string()
+                let output_string =
+                    match package.run::<Aleo, _>(&dotenv_private_key().unwrap(), function_name, &inputs, rng) {
+                        Ok((response, _)) => format!(
+                            "[{}]",
+                            response
+                                .outputs()
+                                .iter()
+                                .map(|output| {
+                                    match output {
+                                        // Remove the `_nonce` from the record string.
+                                        console::program::Value::Record(record) => {
+                                            let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
+                                            pattern.replace(&record.to_string(), "").to_string()
+                                        }
+                                        _ => output.to_string(),
                                     }
-                                    _ => output.to_string(),
-                                }
-                            })
-                            .join(", ")
-                    ),
-                    Err(err) => format!("SnarkVMError({err})"),
-                };
+                                })
+                                .join(", ")
+                        ),
+                        Err(err) => format!("SnarkVMError({err})"),
+                    };
 
                 // Store the inputs and outputs in a map.
                 let mut result = BTreeMap::new();
