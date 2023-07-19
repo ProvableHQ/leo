@@ -27,10 +27,7 @@ use leo_package::{
 };
 use leo_span::{symbol::with_session_globals, Symbol};
 
-use snarkvm::{
-    cli::Build as AleoBuild,
-    prelude::{ProgramID, Testnet3},
-};
+use snarkvm::prelude::{ProgramID, Testnet3};
 
 use indexmap::IndexMap;
 use std::{
@@ -165,23 +162,24 @@ impl Command for Build {
             None
         };
 
-        // Unset the Leo panic hook.
-        let _ = std::panic::take_hook();
-
-        // Change the cwd to the build directory to compile aleo files.
-        std::env::set_current_dir(&build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-
-        // Call the `build` command.
-        let mut args = vec![SNARKVM_COMMAND];
-        if self.options.offline {
-            args.push("--offline");
-        }
-        let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
-        let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
-
-        // Log the result of the build
-        tracing::info!("{}", result);
+        // Leo build is deprecated in version 1.9.0
+        // // Unset the Leo panic hook.
+        // let _ = std::panic::take_hook();
+        //
+        // // Change the cwd to the build directory to compile aleo files.
+        // std::env::set_current_dir(&build_directory)
+        //     .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+        //
+        // // Call the `build` command.
+        // let mut args = vec![SNARKVM_COMMAND];
+        // if self.options.offline {
+        //     args.push("--offline");
+        // }
+        // let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
+        // let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        //
+        // // Log the result of the build
+        // tracing::info!("{}", result);
 
         Ok((input_ast, structs))
     }
