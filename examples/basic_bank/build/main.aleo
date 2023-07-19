@@ -22,7 +22,7 @@ function deposit:
     input r1 as u64.private;
     sub r0.amount r1 into r2;
     cast r0.owner r2 into r3 as Token.record;
-    hash.bhp256 r0.owner into r4;    output r3 as Token.record;
+    hash.bhp256 r0.owner into r4 as field;    output r3 as Token.record;
 
     finalize r4 r1;
 
@@ -547,7 +547,7 @@ function withdraw:
     input r2 as u64.private;
     input r3 as u64.private;
     assert.eq self.caller aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
-    hash.bhp256 r0 into r4;    call calculate_interest r1 r2 r3 into r5;
+    hash.bhp256 r0 into r4 as field;    call calculate_interest r1 r2 r3 into r5;
     cast r0 r5 into r6 as Token.record;
     output r6 as Token.record;
 

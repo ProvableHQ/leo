@@ -1,10 +1,10 @@
 // The program input for token/src/main.leo
 [mint_public]
-receiver: address = aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7;
+receiver: address = aleo1ptqvxu4gjfge8tuhgq2pqap0u5pms4p97gwhu7dwngxshpfzcszsswzpzd;
 amount: u64 = 100u64;
 
 [mint_private]
-receiver: address = aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7;
+receiver: address = aleo1ptqvxu4gjfge8tuhgq2pqap0u5pms4p97gwhu7dwngxshpfzcszsswzpzd;
 amount: u64 = 100u64;
 
 [transfer_public]
@@ -13,7 +13,7 @@ amount: u64 = 50u64;
 
 [transfer_private]
 sender: token = token {
-    owner: aleo1pvmhrzm5tevxg7rrj65z6txpvm9stfgex05v4lfs05677n7e0cxqdk46jr,
+    owner: aleo1ptqvxu4gjfge8tuhgq2pqap0u5pms4p97gwhu7dwngxshpfzcszsswzpzd,
     amount: 100u64,
     _nonce: 0group,
 };
@@ -22,7 +22,7 @@ amount: u64 = 50u64;
 
 [transfer_private_to_public]
 sender: token = token {
-    owner: aleo1pvmhrzm5tevxg7rrj65z6txpvm9stfgex05v4lfs05677n7e0cxqdk46jr,
+    owner: aleo1ptqvxu4gjfge8tuhgq2pqap0u5pms4p97gwhu7dwngxshpfzcszsswzpzd,
     amount: 100u64,
     _nonce: 0group,
 };

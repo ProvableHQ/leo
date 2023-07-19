@@ -1,6 +1,7 @@
 program verify.aleo;
 
 
+
 closure bitcount:
     input r0 as u64;
     div r0 2u64 into r1;
@@ -18,6 +19,7 @@ closure bitcount:
     rem r12 255u64 into r13;
     output r13 as u64;
 
+
 closure adjacency_check:
     input r0 as u64;
     input r1 as u64;
@@ -28,6 +30,7 @@ closure adjacency_check:
     and r5 r4 into r6;
     is.eq r6 0u64 into r7;
     output r7 as boolean;
+
 
 closure horizontal_check:
     input r0 as u64;
@@ -56,6 +59,7 @@ function validate_ship:
     or r7 r8 into r9;
     output r9 as boolean.private;
 
+
 function create_board:
     input r0 as u64.private;
     input r1 as u64.private;
@@ -67,4 +71,3 @@ function create_board:
     call bitcount r6 into r7;
     assert.eq r7 14u64;
     output r6 as u64.private;
-

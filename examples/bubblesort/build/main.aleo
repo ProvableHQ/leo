@@ -103,4 +103,3 @@ function bubble_sort:
     output r61 as u32.private;
     output r46 as u32.private;
     output r28 as u32.private;
-
