@@ -22,5 +22,5 @@ This command will look in the input file inputs/*.in where should find a section
 
 To execute each program call, run:
 ```bash
-leo execute main --inputs <inputs> --endpoint <endpoint>
+leo execute main <inputs> --endpoint <endpoint>
 ```
