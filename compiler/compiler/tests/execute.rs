@@ -44,7 +44,6 @@ use snarkvm::{console, prelude::*};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use snarkvm::circuit::Environment;
 use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
 
 // TODO: Evaluate namespace.
@@ -115,8 +114,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         let program_name = format!("{}.{}", parsed.program_name, parsed.network);
         let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-        println!("Bytecode: {}", bytecode);
-
         // Extract the cases from the test config.
         let all_cases = test
             .config
@@ -153,8 +150,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                     .collect();
                 let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
 
-                println!("Inputs: {}", input_string);
-
                 // TODO: Add support for custom config like custom private keys.
                 // Execute the program and get the outputs.
                 let output_string = match package.run::<Aleo, _>(
@@ -182,9 +177,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                     ),
                     Err(err) => format!("SnarkVMError({err})"),
                 };
-
-                println!("Aleo is sat: {:?}", Aleo::is_satisfied());
-                println!("Outputs: {}", output_string);
 
                 // Store the inputs and outputs in a map.
                 let mut result = BTreeMap::new();
