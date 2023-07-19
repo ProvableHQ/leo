@@ -51,6 +51,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        ".env\n*.prover\n*.verifier\noutputs/\n".to_string()
+        ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n".to_string()
     }
 }

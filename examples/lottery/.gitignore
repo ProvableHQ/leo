@@ -1,3 +1,4 @@
 outputs/
+*.avm
 *.prover
 *.verifier
