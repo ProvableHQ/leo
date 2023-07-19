@@ -172,8 +172,8 @@ impl Command for Build {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Call the `aleo build` command with the appropriate from the Aleo SDK.
-        let mut args = vec![ALEO_CLI_COMMAND];
+        // Call the `build` command.
+        let mut args = vec![SNARKVM_COMMAND];
         if self.options.offline {
             args.push("--offline");
         }

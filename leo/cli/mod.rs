@@ -24,7 +24,7 @@ mod helpers;
 pub use helpers::*;
 
 pub(crate) type Network = snarkvm::prelude::Testnet3;
-pub(crate) const ALEO_CLI_COMMAND: &str = "snarkvm";
+pub(crate) const SNARKVM_COMMAND: &str = "snarkvm";
 
 #[cfg(test)]
 mod tests;

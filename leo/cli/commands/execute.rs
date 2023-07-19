@@ -16,22 +16,25 @@
 
 use super::*;
 
-use snarkvm::cli::Run as AleoRun;
+use snarkvm::cli::Execute as AleoExecute;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
-pub struct Run {
-    #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
+pub struct Execute {
+    #[clap(name = "NAME", help = "The name of the program to execute.", default_value = "main")]
     name: String,
 
     #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
 
+    #[clap(name = "ENDPOINT", help = "The specified network endpoint")]
+    endpoint: Option<String>,
+
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Run {
+impl Command for Execute {
     type Input = <Build as Command>::Output;
     type Output = ();
 
@@ -54,7 +57,7 @@ impl Command for Run {
             false => self.inputs,
         };
 
-        // Compose the `run` command.
+        // Compose the `execute` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
         arguments.append(&mut inputs);
 
@@ -66,15 +69,24 @@ impl Command for Run {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
+        // Call the `execute` command.
+        if self.compiler_options.offline {
+            arguments.push(String::from("--offline"));
+        }
+
+        if self.endpoint.is_some() {
+            arguments.push(String::from("--endpoint"));
+            arguments.push(self.endpoint.unwrap());
+        }
+
         // Unset the Leo panic hook
         let _ = std::panic::take_hook();
 
-        // Call the `run` command.
         println!();
-        let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
+        let command = AleoExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
 
-        // Log the output of the `run` command.
+        // Log the output of the `execute` command.
         tracing::info!("{}", res);
 
         Ok(())

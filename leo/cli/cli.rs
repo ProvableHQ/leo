@@ -69,6 +69,11 @@ enum Commands {
         #[clap(flatten)]
         command: Run,
     },
+    #[clap(about = "Execute a program with input variables")]
+    Execute {
+        #[clap(flatten)]
+        command: Execute,
+    },
     #[clap(about = "Update the Leo CLI")]
     Update {
         #[clap(flatten)]
@@ -112,6 +117,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Build { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
+        Commands::Execute { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
         // Commands::Node(command) => command.try_execute(context),
         // Commands::Deploy { command } => command.try_execute(context),
