@@ -43,7 +43,11 @@ version = "0.10"
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
-version = "1.4.0"
+version = "1.8.3"
+
+[dev-dependencies.leo-package]
+path = "../../leo/package"
+version = "1.8.3"
 
 [dev-dependencies.rand]
 version = "0.8"

@@ -52,7 +52,7 @@ impl Command for New {
         package_path.push(&self.name);
 
         // Initialize the Leo package in the directory created by `aleo new`.
-        Package::initialize(&self.name, &package_path)?;
+        Package::<CurrentNetwork>::initialize(&self.name, &package_path)?;
 
         // Change the cwd to the Leo package directory to compile aleo files.
         std::env::set_current_dir(&package_path)
@@ -82,7 +82,7 @@ impl Command for New {
             .map_err(PackageError::failed_to_open_aleo_file)?;
 
         let mut aleo_file_path = package_path.clone();
-        aleo_file_path.push(AleoFile::<Network>::main_file_name());
+        aleo_file_path.push(AleoFile::<CurrentNetwork>::main_file_name());
 
         // Remove the Aleo file from the package directory.
         aleo_file.remove(&aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)?;

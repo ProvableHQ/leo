@@ -23,7 +23,7 @@ pub use commands::*;
 mod helpers;
 pub use helpers::*;
 
-pub(crate) type Network = snarkvm::prelude::Testnet3;
+pub(crate) type CurrentNetwork = snarkvm::prelude::Testnet3;
 pub(crate) const SNARKVM_COMMAND: &str = "snarkvm";
 
 #[cfg(test)]

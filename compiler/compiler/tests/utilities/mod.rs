@@ -20,13 +20,13 @@ use leo_errors::{
     LeoError,
     LeoWarning,
 };
+use leo_package::root::env::Env;
 use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
-use leo_test_framework::Test;
+use leo_test_framework::{test::TestConfig, Test};
 
 use snarkvm::prelude::*;
 
-use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -109,12 +109,16 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     // Create the manifest file.
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
+    // Create the environment file.
+    let _env_file = Env::<Network>::new().write_to(&directory).unwrap();
+    println!("env created {}", Env::<Network>::exists_at(&directory));
+
     // Create the build directory.
     let build_directory = directory.join("build");
     fs::create_dir_all(build_directory).unwrap();
 
     // Open the package at the temporary directory.
-    handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))
+    handler.extend_if_error(Package::<Network>::open(&directory).map_err(LeoError::Anyhow))
 }
 
 pub fn new_compiler(

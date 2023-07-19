@@ -15,20 +15,22 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! The `.env` file.
-
 use leo_errors::{PackageError, Result};
+use snarkvm_console::{account::PrivateKey, prelude::Network};
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
+use std::{borrow::Cow, fs::File, io::Write, marker::PhantomData, path::Path};
 
 pub static ENV_FILENAME: &str = ".env";
 
 #[derive(Deserialize, Default)]
-pub struct Env;
+pub struct Env<N: Network> {
+    _phantom: PhantomData<N>,
+}
 
-impl Env {
+impl<N: Network> Env<N> {
     pub fn new() -> Self {
-        Self
+        Self { _phantom: PhantomData }
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -45,12 +47,18 @@ impl Env {
             path.to_mut().push(ENV_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(PackageError::io_error_gitignore_file)?;
-        file.write_all(self.template().as_bytes()).map_err(PackageError::io_error_gitignore_file)?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_env_file)?;
+        file.write_all(self.template()?.as_bytes()).map_err(PackageError::io_error_env_file)?;
         Ok(())
     }
 
-    fn template(&self) -> String {
-        "NETWORK=testnet3\nPRIVATE_KEY=APrivateKey1zkpBvXdKZKaXXcLUnwAVFCQNp41jrX6JqTuJo1JShfPoRfx\n".to_string()
+    fn template(&self) -> Result<String> {
+        // Initialize an RNG.
+        let rng = &mut rand::thread_rng();
+
+        // Initialize a new development private key.
+        let private_key = PrivateKey::<N>::new(rng)?;
+
+        Ok(format!("NETWORK=testnet3\nPRIVATE_KEY={private_key}\n").to_string())
     }
 }

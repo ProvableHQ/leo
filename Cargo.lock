@@ -1336,6 +1336,7 @@ version = "1.8.3"
 dependencies = [
  "leo-ast",
  "leo-errors",
+ "leo-package",
  "leo-parser",
  "leo-passes",
  "leo-span",
@@ -1407,7 +1408,10 @@ dependencies = [
  "indexmap 1.9.3",
  "lazy_static",
  "leo-errors",
+ "rand",
  "serde",
+ "snarkvm",
+ "snarkvm-console",
  "toml 0.7.6",
  "tracing",
 ]
