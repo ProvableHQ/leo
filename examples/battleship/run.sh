@@ -218,7 +218,7 @@ echo "
   NETWORK=testnet3
   PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
   " > .env
-  
+
   leo run play '{
     owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
     hits_and_misses: 0u64.private,

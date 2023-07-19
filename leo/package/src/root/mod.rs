@@ -13,6 +13,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+pub mod env;
+pub use self::env::*;
 
 pub mod gitignore;
 pub use self::gitignore::*;

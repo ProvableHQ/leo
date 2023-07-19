@@ -22,7 +22,7 @@ use crate::{
 
 use leo_errors::{PackageError, Result};
 
-use crate::build::BuildDirectory;
+use crate::{build::BuildDirectory, root::Env};
 use serde::Deserialize;
 use std::path::Path;
 
@@ -137,6 +137,12 @@ impl Package {
         if !Gitignore::exists_at(path) {
             // Create the .gitignore file.
             Gitignore::new().write_to(path)?;
+        }
+
+        // Verify that the .env file does not exist.
+        if !Env::exists_at(path) {
+            // Create the .env file.
+            Env::new().write_to(path)?;
         }
 
         // Create the source directory.
