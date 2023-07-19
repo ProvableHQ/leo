@@ -305,4 +305,12 @@ create_messages!(
         msg: "The `src/` directory can contain only one file and must be named `main.leo`.".to_string(),
         help: None,
     }
+
+    /// For when the environment file has an IO error.
+    @backtraced
+    io_error_env_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error env file from the provided file path - {error}"),
+        help: None,
+    }
 );
