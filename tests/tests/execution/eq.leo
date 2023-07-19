@@ -10,7 +10,8 @@ cases:
 */
 
 program test.aleo {
-    transition main(x: u32, y: u32) {
+    transition main(x: u32, y: u32) -> bool {
         assert_eq(x, y);
+        return x == y;
     }
 }

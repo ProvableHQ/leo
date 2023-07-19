@@ -110,8 +110,10 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
     // Create the environment file.
-    let _env_file = Env::<Network>::new().write_to(&directory).unwrap();
-    println!("env created {}", Env::<Network>::exists_at(&directory));
+    Env::<Network>::new().write_to(&directory).unwrap();
+    if Env::<Network>::exists_at(&directory) {
+        println!(".env file created at {:?}", &directory);
+    }
 
     // Create the build directory.
     let build_directory = directory.join("build");
@@ -225,4 +227,15 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
     let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
 
     Ok(bytecode)
+}
+
+/// Returns the private key from the .env file specified in the directory.
+#[allow(unused)]
+pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<Network>> {
+    use std::str::FromStr;
+    dotenvy::from_path(directory.join(".env")).map_err(|_| anyhow!("Missing a '.env' file in the test directory."))?;
+    // Load the private key from the environment.
+    let private_key = dotenvy::var("PRIVATE_KEY").map_err(|e| anyhow!("Missing PRIVATE_KEY - {e}"))?;
+    // Parse the private key.
+    PrivateKey::<Network>::from_str(&private_key)
 }

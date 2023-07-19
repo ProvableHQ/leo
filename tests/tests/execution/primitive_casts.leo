@@ -3,35 +3,35 @@ namespace: Execute
 expectation: Pass
 cases:
     address_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey"]
     bool_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["false"]
     field_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0field"]
     group_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0group"]
     i8_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0i8"]
     i16_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0i16"]
     i32_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0i32"]
     i64_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0i64"]
     i128_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0i128"]
     u8_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0u8"]
     u16_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0u16"]
     u32_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0u32"]
     u64_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0u64"]
     u128_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0u128"]
     scalar_casts:
-    - input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey", "false", "0field", "0group", "0i8", "0i16", "0i32", "0i64", "0i128", "0u8", "0u16", "0u32", "0u64", "0u128", "0scalar"]
+    - input: ["0scalar"]
 
 
 

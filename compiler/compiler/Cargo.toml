@@ -49,6 +49,9 @@ version = "1.8.3"
 path = "../../leo/package"
 version = "1.8.3"
 
+[dev-dependencies.dotenvy]
+version = "0.15.7"
+
 [dev-dependencies.rand]
 version = "0.8"
 default-features = false

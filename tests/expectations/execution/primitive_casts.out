@@ -12,47 +12,47 @@ outputs:
       warnings: ""
       results:
         address_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r2 as boolean;): Cannot downcast a field literal to a boolean type (yet).)"
         bool_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[false]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a boolean literal to another type.)"
         field_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0field]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a field literal to an address type.)"
         group_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0group]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r2 as boolean;): Cannot downcast a field literal to a boolean type (yet).)"
         i128_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0i128]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i128 literal to another type (yet).)"
         i16_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0i16]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i16 literal to another type (yet).)"
         i32_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0i32]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i32 literal to another type (yet).)"
         i64_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0i64]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i64 literal to another type (yet).)"
         i8_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0i8]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i8 literal to another type (yet).)"
         scalar_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0scalar]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a scalar literal to another type (yet).)"
         u128_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0u128]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u128 literal to another type (yet).)"
         u16_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0u16]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u16 literal to another type (yet).)"
         u32_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0u32]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u32 literal to another type (yet).)"
         u64_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0u64]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u64 literal to another type (yet).)"
         u8_casts:
-          - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
-            output: SnarkVMError(Cannot downcast a field literal to a boolean type (yet).)
+          - input: "[0u8]"
+            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u8 literal to another type (yet).)"

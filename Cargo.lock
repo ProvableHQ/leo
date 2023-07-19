@@ -1334,6 +1334,7 @@ dependencies = [
 name = "leo-compiler"
 version = "1.8.3"
 dependencies = [
+ "dotenvy",
  "leo-ast",
  "leo-errors",
  "leo-package",
