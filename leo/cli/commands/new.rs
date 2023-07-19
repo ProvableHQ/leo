@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::{cli::New as AleoNew, file::AleoFile};
+use snarkvm::{cli::New as SnarkVMNew, file::AleoFile};
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
@@ -39,7 +39,8 @@ impl Command for New {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Call the `aleo new` command from the Aleo SDK.
-        let command = AleoNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
+        let command =
+            SnarkVMNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
         let result = command.parse().map_err(CliError::failed_to_execute_new)?;
 
         // todo: modify the readme file to recommend building with `leo build`.

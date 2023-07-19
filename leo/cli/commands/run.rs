@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::cli::Run as AleoRun;
+use snarkvm::cli::Run as SnarkVMRun;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -71,7 +71,7 @@ impl Command for Run {
 
         // Call the `run` command.
         println!();
-        let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
+        let command = SnarkVMRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
         let res = command.parse().map_err(CliError::failed_to_execute_run)?;
 
         // Log the output of the `run` command.

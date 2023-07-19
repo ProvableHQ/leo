@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::cli::Execute as AleoExecute;
+use snarkvm::cli::Execute as SnarkVMExecute;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -83,7 +83,7 @@ impl Command for Execute {
         let _ = std::panic::take_hook();
 
         println!();
-        let command = AleoExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_execute)?;
+        let command = SnarkVMExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_execute)?;
         let res = command.parse().map_err(CliError::failed_to_execute_execute)?;
 
         // Log the output of the `execute` command.

@@ -16,8 +16,6 @@
 
 use super::*;
 
-use aleo::commands::Deploy as AleoDeploy;
-
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
 pub struct Deploy;
@@ -46,12 +44,12 @@ impl Command for Deploy {
         // Unset the Leo panic hook.
         let _ = std::panic::take_hook();
 
-        // Call the `aleo node` command from the Aleo SDK.
+        // Call the `node` command.
         println!();
-        let command = AleoDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
+        let command = SnarkVMDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
         let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
 
-        // Log the output of the `aleo node` command.
+        // Log the output of the `node` command.
         tracing::info!("{}", res);
 
         Ok(())
