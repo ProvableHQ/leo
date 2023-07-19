@@ -27,17 +27,11 @@ echo "
 ########                                                               ########
 ###############################################################################
 "
-# Swap in the private key and address of the first bidder to program.json.
-echo "{
-  \"program\": \"auction.aleo\",
-  \"version\": \"0.0.0\",
-  \"description\": \"\",
-  \"development\": {
-      \"private_key\": \"APrivateKey1zkpG9Af9z5Ha4ejVyMCqVFXRKknSm8L1ELEwcc4htk9YhVK\",
-      \"address\": \"aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke\"
-  },
-  \"license\": \"MIT\"
-}" > program.json
+# Swap in the private key and address of the first bidder to .env.
+echo "
+NETWORK=testnet3
+PRIVATE_KEY=APrivateKey1zkpG9Af9z5Ha4ejVyMCqVFXRKknSm8L1ELEwcc4htk9YhVK
+" > .env
 
 # Have the first bidder place a bid of 10.
 echo "
@@ -55,18 +49,11 @@ echo "
 "
 leo run place_bid aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2ke 10u64 || exit
 
-# Swap in the private key and address of the second bidder to program.json.
-echo "{
-  \"program\": \"auction.aleo\",
-  \"version\": \"0.0.0\",
-  \"description\": \"\",
-  \"development\": {
-      \"private_key\": \"APrivateKey1zkpAFshdsj2EqQzXh5zHceDapFWVCwR6wMCJFfkLYRKupug\",
-      \"address\": \"aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4\"
-  },
-  \"license\": \"MIT\"
-}" > program.json
-
+# Swap in the private key and address of the second bidder to .env.
+echo "
+NETWORK=testnet3
+PRIVATE_KEY=APrivateKey1zkpAFshdsj2EqQzXh5zHceDapFWVCwR6wMCJFfkLYRKupug
+" > .env
 
 # Have the second bidder place a bid of 90.
 echo "
@@ -84,17 +71,11 @@ echo "
 "
 leo run place_bid aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta4 90u64 || exit
 
-# Swap in the private key and address of the auctioneer to program.json.
-echo "{
-  \"program\": \"auction.aleo\",
-  \"version\": \"0.0.0\",
-  \"description\": \"\",
-  \"development\": {
-      \"private_key\": \"APrivateKey1zkp5wvamYgK3WCAdpBQxZqQX8XnuN2u11Y6QprZTriVwZVc\",
-      \"address\": \"aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh\"
-  },
-  \"license\": \"MIT\"
-}" > program.json
+# Swap in the private key and address of the auctioneer to .env.
+echo "
+NETWORK=testnet3
+PRIVATE_KEY=APrivateKey1zkp5wvamYgK3WCAdpBQxZqQX8XnuN2u11Y6QprZTriVwZVc
+" > .env
 
 # Have the auctioneer select the winning bid.
 echo "
