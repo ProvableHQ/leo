@@ -1,0 +1,10 @@
+{
+    "program": "lottery.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpJrHD9orEuTpL8dDnSBZo6VyKWdbrk3VJfcwEv9SsQBN2",
+        "address": "aleo1dvx603addv7c2uqj6ksm9hccaypzn0ngus4n2vygvdlhqvkcyyfqvh4zdz"
+    },
+    "license": "MIT"
+}

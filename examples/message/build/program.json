@@ -1,0 +1,10 @@
+{
+    "program": "message.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkp4YvAU9D17zZDxrt6WKE2wVrNGgfqheLVXqJ6WZADtKS1",
+        "address": "aleo1fw4xmr8yv88scg20gmzqn2t7ye22wqk2rq22d2ayq6j952v0n5psw7ztqp"
+    },
+    "license": "MIT"
+}

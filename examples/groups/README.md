@@ -1,15 +1,17 @@
 # Leo group operations.
 
-## Build Guide
-
-To compile this program, run:
-```bash
-leo build
-```
+## Run Guide
 
 To run this program, run:
 ```bash
-leo run main
+leo run fibonacci
+```
+
+## Execute Guide
+
+To execute this program, run:
+```bash
+leo execute fibonacci
 ```
 
 ## Overview
@@ -28,11 +30,9 @@ Group elements are special since their values can be defined as coordinate pairs
 The `group` type keyword group must be used when specifying a pair of group coordinates since implicit syntax would collide with normal tuple `(a, b)` values.
 
 ```
-let b = 0group; // the zero of the group
+let a = 0group; // the zero of the group
 
-let a = 1group; // the group generator
+let b = group::GEN; // the group generator
 
-let c = 2group; // 2 * the group generator
-
-let d = (0, 1)group; // coordinate notation
+let c = (0, 1)group; // coordinate notation
 ```

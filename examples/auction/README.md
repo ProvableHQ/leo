@@ -38,17 +38,14 @@ Leo provides users with a command line interface for compiling and running Leo p
 Users may either specify input values via the command line or provide an input file in `inputs/`.
 
 ### Configuring Accounts
-The `program.json` file contains a private key and address. 
+The `.env` file contains a private key. 
 This is the account that will be used to sign transactions and is checked for record ownership.
-When executing programs as different parties, be sure to set the `private_key` and `address` fields in `program.json` to the appropriate values.
+When executing programs as different parties, be sure to set the `PRIVATE_KEY` field in `.env` to the appropriate values.
 See `./run.sh` for an example of how to run the program as different parties.
 
 
-The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides a command line interface for generating new accounts.
-To generate a new account, run 
-```
-leo account new
-```
+The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides an interface for generating new accounts.
+To generate a new account, navigate to [aleo.tools](https://aleo.tools).
 
 
 ### Providing inputs via the command line.

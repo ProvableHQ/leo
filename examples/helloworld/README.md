@@ -1,16 +1,19 @@
 # Leo helloworld
 
-## Build Guide
-
-To compile this program, run:
-```bash
-leo build
-```
+## Run Guide
 
 To run this program, run:
 ```bash
 leo run main
 ```
+
+## Execute Guide
+
+To execute this program, run:
+```bash
+leo execute main
+```
+
 ## Overview 
 
 This example shows how to sum two u32 numbers.

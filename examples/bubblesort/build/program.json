@@ -1,0 +1,10 @@
+{
+    "program": "bubblesort.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpBqRv2cwkSiR4hQ3Tb4AZFD3XzdwPqV9QsEykTKBV1YKT",
+        "address": "aleo1ht2a9q0gsd38j0se4t9lsfulxgqrens2vgzgry3pkvs93xrrzu8s892zn7"
+    },
+    "license": "MIT"
+}

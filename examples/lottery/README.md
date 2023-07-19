@@ -1,8 +1,15 @@
 # lottery.aleo
 
-## Build Guide
+## Run Guide
 
-To compile this Aleo program, run:
+To run this program, run:
 ```bash
-aleo build
+leo run main
+```
+
+## Execute Guide
+
+To execute this program, run:
+```bash
+leo execute main
 ```

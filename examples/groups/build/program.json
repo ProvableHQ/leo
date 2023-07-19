@@ -1,0 +1,10 @@
+{
+    "program": "groups.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpDfsRvWYGWihXv84dueeABvBUZMqBQbpW6k9AC4zeLpZ8",
+        "address": "aleo1cnzvtgdlyl3mrdm8cp80rl705ryjm65zs2gcny720d9dn3n2dvpsrfj4f0"
+    },
+    "license": "MIT"
+}

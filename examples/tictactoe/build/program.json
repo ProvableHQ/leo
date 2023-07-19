@@ -1,0 +1,10 @@
+{
+    "program": "tictactoe.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpCrrZGovkDfjnhhniPrrEaFb98QjxaxGsBScx2SvXJe7S",
+        "address": "aleo13upju26f9xnsxz77rs7cs6hffz8d6hpvuvu3xqwmh7trrh65mqpsz4xrl9"
+    },
+    "license": "MIT"
+}

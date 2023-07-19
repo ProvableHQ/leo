@@ -1,8 +1,15 @@
 # src/twoadicity.leo
 
-## Build Guide
+## Run Guide
 
-To compile and run this Leo program, run:
+To run this program, run:
 ```bash
-leo run
+leo run main
+```
+
+## Execute Guide
+
+To execute this program, run:
+```bash
+leo execute main
 ```

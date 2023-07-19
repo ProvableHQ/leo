@@ -1,2 +1,3 @@
 outputs/
-build/
+*.prover
+*.verifier

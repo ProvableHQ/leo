@@ -83,8 +83,8 @@ impl Command for Execute {
         let _ = std::panic::take_hook();
 
         println!();
-        let command = AleoExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
-        let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
+        let command = AleoExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_execute)?;
+        let res = command.parse().map_err(CliError::failed_to_execute_execute)?;
 
         // Log the output of the `execute` command.
         tracing::info!("{}", res);
