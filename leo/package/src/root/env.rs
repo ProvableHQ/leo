@@ -28,7 +28,7 @@ pub struct Env;
 
 impl Env {
     pub fn new() -> Self {
-        Self::default()
+        Self
     }
 
     pub fn exists_at(path: &Path) -> bool {
