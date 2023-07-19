@@ -27,7 +27,10 @@ use leo_package::{
 };
 use leo_span::{symbol::with_session_globals, Symbol};
 
-use snarkvm::prelude::{ProgramID, Testnet3};
+use snarkvm::{
+    package::Package,
+    prelude::{ProgramID, Testnet3},
+};
 
 use indexmap::IndexMap;
 use std::{
@@ -234,11 +237,13 @@ fn compile_leo_file(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    // Prepare the path string.
-    let _path_string = format!("(in \"{}\")", aleo_file_path.display());
-
-    // Log the build as successful.
-    tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
+    // `Package::open` checks that the build directory and that `main.aleo` is well-formed.
+    match Package::<CurrentNetwork>::open(build) {
+        // Log the build as successful.
+        Ok(_) => tracing::info!("Compiled '{}' into Aleo instructions", file_name),
+        // Log the error.
+        Err(e) => tracing::info!("{}", CliError::failed_to_execute_build(e)),
+    };
 
     Ok(symbol_table.structs)
 }

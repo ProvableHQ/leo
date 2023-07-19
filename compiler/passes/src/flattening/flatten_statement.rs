@@ -169,7 +169,7 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Parsing guarantees that `function` is an identifier."),
                 };
 
-                let function = self.symbol_table.borrow().functions.get(&function_name).unwrap();
+                let function = self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap();
                 match &function.output_type {
                     // If the function returns a tuple, reconstruct the assignment and add an entry to `self.tuples`.
                     Type::Tuple(tuple) => {
@@ -246,7 +246,7 @@ impl StatementReconstructor for Flattener<'_> {
                     Expression::Identifier(identifier) => {
                         // Retrieve the entry in the symbol table for the mapping.
                         // Note that this unwrap is safe since type checking ensures that the mapping exists.
-                        let variable = self.symbol_table.borrow().variables.get(&identifier.name).unwrap();
+                        let variable = self.symbol_table.borrow().lookup_variable(identifier.name).unwrap();
                         match &variable.type_ {
                             Type::Mapping(mapping_type) => &*mapping_type.value,
                             _ => unreachable!("Type checking guarantee that `arguments[0]` is a mapping."),
@@ -281,7 +281,7 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Parsing guarantees that `function` is an identifier."),
                 };
 
-                let function = self.symbol_table.borrow().functions.get(&function_name).unwrap();
+                let function = self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap();
 
                 let output_type = match &function.output_type {
                     Type::Tuple(tuple) => tuple.clone(),

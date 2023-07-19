@@ -101,6 +101,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
         // Set up the build directory.
+        // Note that this function checks that the bytecode is well-formed.
         let package = setup_build_directory(&program_name, &bytecode, handler)?;
 
         // Get the program process and check all instructions.
