@@ -4,12 +4,14 @@
 
 To run this program, run:
 ```bash
-leo run main
+leo run mint
+leo run transfer  # update private key first
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute main
+leo execute mint
+leo execute transfer  # update private key first
 ```

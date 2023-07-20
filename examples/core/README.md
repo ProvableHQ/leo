@@ -4,12 +4,12 @@
 
 To run this program, run:
 ```bash
-leo run bubble_sort
+leo run main
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute bubble_sort
+leo execute main
 ```
