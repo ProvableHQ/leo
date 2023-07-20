@@ -151,6 +151,20 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -242,65 +256,79 @@
     }
 
     @backtraced
-    failed_to_execute_aleo_build {
+    failed_to_execute_build {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo build` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `build` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_execute_aleo_new {
+    failed_to_execute_new {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo new` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `new` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_execute_aleo_run {
+    failed_to_execute_run {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo run` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `run` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_execute_aleo_node {
+    failed_to_execute_node {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo node` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `node` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_execute_aleo_deploy {
+    failed_to_execute_deploy {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `aleo deploy` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `deploy` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_parse_aleo_new {
+    failed_to_parse_new {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo new` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `new` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_parse_aleo_run {
+    failed_to_parse_run {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo run` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `run` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_parse_aleo_node {
+    failed_to_parse_node {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo node` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `node` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @backtraced
-    failed_to_parse_aleo_deploy {
+    failed_to_parse_deploy {
         args: (error: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `aleo deploy` command.\nSnarkVM Error: {error}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `deploy` command.\nSnarkVM Error: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_parse_execute {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the `execute` command.\nSnarkVM Error: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_execute_execute {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to execute the `execute` command.\nSnarkVM Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

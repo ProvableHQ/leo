@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["gitignore"]};
+window.SIDEBAR_ITEMS = {"mod":["env","gitignore"]};

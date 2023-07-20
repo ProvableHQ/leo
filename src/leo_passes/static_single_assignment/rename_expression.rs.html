@@ -535,7 +535,7 @@
 
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
-        </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Struct = <span class="self">self</span>.symbol_table.borrow().structs.get(<span class="kw-2">&amp;</span>input.name.name).unwrap();
+        </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Struct = <span class="self">self</span>.symbol_table.borrow().lookup_struct(input.name.name).unwrap();
 
         <span class="comment">// Initialize the list of reordered members.
         </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());

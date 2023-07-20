@@ -109,7 +109,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>snarkvm::{cli::New <span class="kw">as </span>AleoNew, file::AleoFile};
+<span class="kw">use </span>snarkvm::{cli::New <span class="kw">as </span>SnarkVMNew, file::AleoFile};
 
 <span class="doccomment">/// Create new Leo project
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -133,8 +133,8 @@
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
         <span class="comment">// Call the `aleo new` command from the Aleo SDK.
         </span><span class="kw">let </span>command =
-            AleoNew::try_parse_from([ALEO_CLI_COMMAND, <span class="kw-2">&amp;</span><span class="self">self</span>.name]).map_err(CliError::failed_to_parse_aleo_new)<span class="question-mark">?</span>;
-        <span class="kw">let </span>result = command.parse().map_err(CliError::failed_to_execute_aleo_new)<span class="question-mark">?</span>;
+            SnarkVMNew::try_parse_from([SNARKVM_COMMAND, <span class="kw-2">&amp;</span><span class="self">self</span>.name]).map_err(CliError::failed_to_parse_new)<span class="question-mark">?</span>;
+        <span class="kw">let </span>result = command.parse().map_err(CliError::failed_to_execute_new)<span class="question-mark">?</span>;
 
         <span class="comment">// todo: modify the readme file to recommend building with `leo build`.
 
@@ -146,7 +146,7 @@
         package_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.name);
 
         <span class="comment">// Initialize the Leo package in the directory created by `aleo new`.
-        </span>Package::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
+        </span>Package::&lt;CurrentNetwork&gt;::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
         <span class="comment">// Change the cwd to the Leo package directory to compile aleo files.
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
@@ -176,7 +176,7 @@
             .map_err(PackageError::failed_to_open_aleo_file)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>aleo_file_path = package_path.clone();
-        aleo_file_path.push(AleoFile::&lt;Network&gt;::main_file_name());
+        aleo_file_path.push(AleoFile::&lt;CurrentNetwork&gt;::main_file_name());
 
         <span class="comment">// Remove the Aleo file from the package directory.
         </span>aleo_file.remove(<span class="kw-2">&amp;</span>aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)<span class="question-mark">?</span>;

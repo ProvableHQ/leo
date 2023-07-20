@@ -135,10 +135,10 @@
 
     <span class="doccomment">/// Returns the package name as a String.
     /// Opens the manifest file `program.json` and creates the build directory if it doesn&#39;t exist.
-    </span><span class="kw">pub fn </span>open_manifest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Manifest&lt;Network&gt;&gt; {
+    </span><span class="kw">pub fn </span>open_manifest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Manifest&lt;CurrentNetwork&gt;&gt; {
         <span class="comment">// Open the manifest file.
         </span><span class="kw">let </span>path = <span class="self">self</span>.dir()<span class="question-mark">?</span>;
-        <span class="kw">let </span>manifest = Manifest::&lt;Network&gt;::open(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
+        <span class="kw">let </span>manifest = Manifest::&lt;CurrentNetwork&gt;::open(<span class="kw-2">&amp;</span>path).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Lookup the program id.
         // let program_id = manifest.program_id();
@@ -156,7 +156,7 @@
             std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Construct the file path.
-        </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;Network&gt;::file_name());
+        </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;CurrentNetwork&gt;::file_name());
 
         <span class="comment">// Write the file.
         </span>File::create(build_manifest_path)

@@ -244,6 +244,9 @@
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -274,7 +277,7 @@
 <span class="kw">use </span>leo_span::{symbol::with_session_globals, Symbol};
 
 <span class="kw">use </span>snarkvm::{
-    cli::Build <span class="kw">as </span>AleoBuild,
+    package::Package,
     prelude::{ProgramID, Testnet3},
 };
 
@@ -411,25 +414,26 @@
             <span class="prelude-val">None
         </span>};
 
-        <span class="comment">// Unset the Leo panic hook.
-        </span><span class="kw">let _ </span>= std::panic::take_hook();
+        <span class="comment">// Leo build is deprecated in version 1.9.0
+        // // Unset the Leo panic hook.
+        // let _ = std::panic::take_hook();
+        //
+        // // Change the cwd to the build directory to compile aleo files.
+        // std::env::set_current_dir(&amp;build_directory)
+        //     .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+        //
+        // // Call the `build` command.
+        // let mut args = vec![SNARKVM_COMMAND];
+        // if self.options.offline {
+        //     args.push(&quot;--offline&quot;);
+        // }
+        // let command = AleoBuild::try_parse_from(&amp;args).map_err(CliError::failed_to_execute_aleo_build)?;
+        // let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        //
+        // // Log the result of the build
+        // tracing::info!(&quot;{}&quot;, result);
 
-        <span class="comment">// Change the cwd to the build directory to compile aleo files.
-        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
-
-        <span class="comment">// Call the `aleo build` command with the appropriate from the Aleo SDK.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>args = <span class="macro">vec!</span>[ALEO_CLI_COMMAND];
-        <span class="kw">if </span><span class="self">self</span>.options.offline {
-            args.push(<span class="string">&quot;--offline&quot;</span>);
-        }
-        <span class="kw">let </span>command = AleoBuild::try_parse_from(<span class="kw-2">&amp;</span>args).map_err(CliError::failed_to_execute_aleo_build)<span class="question-mark">?</span>;
-        <span class="kw">let </span>result = command.parse().map_err(CliError::failed_to_execute_aleo_build)<span class="question-mark">?</span>;
-
-        <span class="comment">// Log the result of the build
-        </span><span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, result);
-
-        <span class="prelude-val">Ok</span>((input_ast, structs))
+        </span><span class="prelude-val">Ok</span>((input_ast, structs))
     }
 }
 
@@ -482,11 +486,13 @@
         </span>.write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
-    <span class="comment">// Prepare the path string.
-    </span><span class="kw">let </span>_path_string = <span class="macro">format!</span>(<span class="string">&quot;(in \&quot;{}\&quot;)&quot;</span>, aleo_file_path.display());
-
-    <span class="comment">// Log the build as successful.
-    </span><span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name,);
+    <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` is well-formed.
+    </span><span class="kw">match </span>Package::&lt;CurrentNetwork&gt;::open(build) {
+        <span class="comment">// Log the build as successful.
+        </span><span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name),
+        <span class="comment">// Log the error.
+        </span><span class="prelude-val">Err</span>(e) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, CliError::failed_to_execute_build(e)),
+    };
 
     <span class="prelude-val">Ok</span>(symbol_table.structs)
 }

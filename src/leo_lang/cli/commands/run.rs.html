@@ -80,10 +80,6 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -102,7 +98,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>snarkvm::cli::Run <span class="kw">as </span>AleoRun;
+<span class="kw">use </span>snarkvm::cli::Run <span class="kw">as </span>SnarkVMRun;
 
 <span class="doccomment">/// Build, Prove and Run Leo program with inputs
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -140,8 +136,8 @@
             <span class="bool-val">false </span>=&gt; <span class="self">self</span>.inputs,
         };
 
-        <span class="comment">// Compose the `aleo run` command.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[ALEO_CLI_COMMAND.to_string(), <span class="self">self</span>.name];
+        <span class="comment">// Compose the `run` command.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), <span class="self">self</span>.name];
         arguments.append(<span class="kw-2">&amp;mut </span>inputs);
 
         <span class="comment">// Open the Leo build/ directory
@@ -152,19 +148,15 @@
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
 
-        <span class="comment">// Call the `aleo run` command from the Aleo SDK.
-        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
-            arguments.push(String::from(<span class="string">&quot;--offline&quot;</span>));
-        }
-
         <span class="comment">// Unset the Leo panic hook
         </span><span class="kw">let _ </span>= std::panic::take_hook();
 
-        <span class="macro">println!</span>();
-        <span class="kw">let </span>command = AleoRun::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_aleo_run)<span class="question-mark">?</span>;
-        <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_aleo_run)<span class="question-mark">?</span>;
+        <span class="comment">// Call the `run` command.
+        </span><span class="macro">println!</span>();
+        <span class="kw">let </span>command = SnarkVMRun::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_run)<span class="question-mark">?</span>;
+        <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_run)<span class="question-mark">?</span>;
 
-        <span class="comment">// Log the output of the `aleo run` command.
+        <span class="comment">// Log the output of the `run` command.
         </span><span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, res);
 
         <span class="prelude-val">Ok</span>(())

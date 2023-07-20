@@ -84,8 +84,8 @@
 
 <span class="kw">impl </span>Gitignore {
     <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::default()
-    }
+        <span class="self">Self
+    </span>}
 
     <span class="kw">pub fn </span>exists_at(path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>path = Cow::from(path);
@@ -107,7 +107,7 @@
     }
 
     <span class="kw">fn </span>template(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="string">&quot;outputs/\nbuild/\n&quot;</span>.to_string()
+        <span class="string">&quot;.env\n*.avm\n*.prover\n*.verifier\noutputs/\n&quot;</span>.to_string()
     }
 }
 </code></pre></div></section></main></body></html>
