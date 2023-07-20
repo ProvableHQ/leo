@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::{cli::New as AleoNew, file::AleoFile};
+use snarkvm::{cli::New as SnarkVMNew, file::AleoFile};
 
 /// Create new Leo project
 #[derive(Parser, Debug)]
@@ -40,8 +40,8 @@ impl Command for New {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Call the `aleo new` command from the Aleo SDK.
         let command =
-            AleoNew::try_parse_from([ALEO_CLI_COMMAND, &self.name]).map_err(CliError::failed_to_parse_aleo_new)?;
-        let result = command.parse().map_err(CliError::failed_to_execute_aleo_new)?;
+            SnarkVMNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
+        let result = command.parse().map_err(CliError::failed_to_execute_new)?;
 
         // todo: modify the readme file to recommend building with `leo build`.
 
@@ -53,7 +53,7 @@ impl Command for New {
         package_path.push(&self.name);
 
         // Initialize the Leo package in the directory created by `aleo new`.
-        Package::initialize(&self.name, &package_path)?;
+        Package::<CurrentNetwork>::initialize(&self.name, &package_path)?;
 
         // Change the cwd to the Leo package directory to compile aleo files.
         std::env::set_current_dir(&package_path)
@@ -83,7 +83,7 @@ impl Command for New {
             .map_err(PackageError::failed_to_open_aleo_file)?;
 
         let mut aleo_file_path = package_path.clone();
-        aleo_file_path.push(AleoFile::<Network>::main_file_name());
+        aleo_file_path.push(AleoFile::<CurrentNetwork>::main_file_name());
 
         // Remove the Aleo file from the package directory.
         aleo_file.remove(&aleo_file_path).map_err(PackageError::failed_to_remove_aleo_file)?;

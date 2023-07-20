@@ -18,6 +18,7 @@ mod utilities;
 use utilities::{
     buffer_if_err,
     compile_and_process,
+    dotenv_private_key,
     get_build_options,
     get_cwd_option,
     hash_asts,
@@ -152,8 +153,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 // TODO: Add support for custom config like custom private keys.
                 // Execute the program and get the outputs.
                 let output_string = match package.run::<Aleo, _>(
-                    None,
-                    package.manifest_file().development_private_key(),
+                    &dotenv_private_key(package.directory()).unwrap(),
                     function_name,
                     &inputs,
                     rng,

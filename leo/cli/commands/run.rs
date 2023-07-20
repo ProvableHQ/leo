@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::cli::Run as AleoRun;
+use snarkvm::cli::Run as SnarkVMRun;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -54,8 +54,8 @@ impl Command for Run {
             false => self.inputs,
         };
 
-        // Compose the `aleo run` command.
-        let mut arguments = vec![ALEO_CLI_COMMAND.to_string(), self.name];
+        // Compose the `run` command.
+        let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
         arguments.append(&mut inputs);
 
         // Open the Leo build/ directory
@@ -66,19 +66,15 @@ impl Command for Run {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Call the `aleo run` command from the Aleo SDK.
-        if self.compiler_options.offline {
-            arguments.push(String::from("--offline"));
-        }
-
         // Unset the Leo panic hook
         let _ = std::panic::take_hook();
 
+        // Call the `run` command.
         println!();
-        let command = AleoRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_aleo_run)?;
-        let res = command.parse().map_err(CliError::failed_to_execute_aleo_run)?;
+        let command = SnarkVMRun::try_parse_from(&arguments).map_err(CliError::failed_to_parse_run)?;
+        let res = command.parse().map_err(CliError::failed_to_execute_run)?;
 
-        // Log the output of the `aleo run` command.
+        // Log the output of the `run` command.
         tracing::info!("{}", res);
 
         Ok(())

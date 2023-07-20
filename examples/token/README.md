@@ -3,9 +3,16 @@
 
 A transparent & shielded custom token in Leo.
 
-## How to Build
+## Run Guide
 
-To compile this Leo program, run:
+To run this program, run:
 ```bash
-leo build
+leo run main
+```
+
+## Execute Guide
+
+To execute this program, run:
+```bash
+leo execute main
 ```

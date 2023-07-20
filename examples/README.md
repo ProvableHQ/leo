@@ -10,16 +10,17 @@ This directory includes the following Leo code examples:
 6. Message -> Initialization of a struct 
 7. Token -> Record example
 
-## Build Guide
-
-To compile each example, run:
-```bash
-leo build
-```
-When you run this command for the first time the snarkvm parameters (universal setup) will be downloaded, these are necessary to run the programs.
+## Run Guide
 
 To run each program, run:
 ```bash
 leo run main
 ```
 This command will look in the input file inputs/*.in where should find a section [main] and use the variables as inputs to the program.
+
+## Execute Guide
+
+To execute each program call, run:
+```bash
+leo execute main <inputs> --endpoint <endpoint>
+```

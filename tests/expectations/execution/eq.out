@@ -2,21 +2,21 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      unrolled_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      ssa_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      flattened_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      inlined_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      dce_ast: e384bbb19d9c6c31a1f7793869f62db14b66859be16bc50c89cbbbd392010ea8
-      bytecode: 65dc5b6d2517bf5b8da9b0947b784d4142cc1214a64c4cd7e2a80d3831b2167e
+  - - initial_ast: 983bdab4b48b6dc290532719adac21f3b2ed0b01e3dbd3c4ad2f80b39b8acc5c
+      unrolled_ast: 983bdab4b48b6dc290532719adac21f3b2ed0b01e3dbd3c4ad2f80b39b8acc5c
+      ssa_ast: baaa311d292dbfbccf2687c5d6c4b64d83232acb799f0b5b8fa19007ff2b6488
+      flattened_ast: 5403da36860a27060343d61a1cf5ca5ed514e978439804356252ccb7db2c5fb7
+      inlined_ast: 5403da36860a27060343d61a1cf5ca5ed514e978439804356252ccb7db2c5fb7
+      dce_ast: 5403da36860a27060343d61a1cf5ca5ed514e978439804356252ccb7db2c5fb7
+      bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
       warnings: ""
       results:
         main:
           - input: "[0u32, 1u32]"
-            output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
+            output: "[false]"
           - input: "[1u32, 1u32]"
-            output: "[]"
+            output: "[true]"
           - input: "[1u32, 2u32]"
-            output: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
+            output: "[false]"
           - input: "[2u32, 2u32]"
-            output: "[]"
+            output: "[true]"

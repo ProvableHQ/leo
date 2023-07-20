@@ -28,7 +28,7 @@ use leo_package::{
 use leo_span::{symbol::with_session_globals, Symbol};
 
 use snarkvm::{
-    cli::Build as AleoBuild,
+    package::Package,
     prelude::{ProgramID, Testnet3},
 };
 
@@ -165,23 +165,24 @@ impl Command for Build {
             None
         };
 
-        // Unset the Leo panic hook.
-        let _ = std::panic::take_hook();
-
-        // Change the cwd to the build directory to compile aleo files.
-        std::env::set_current_dir(&build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
-
-        // Call the `aleo build` command with the appropriate from the Aleo SDK.
-        let mut args = vec![ALEO_CLI_COMMAND];
-        if self.options.offline {
-            args.push("--offline");
-        }
-        let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
-        let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
-
-        // Log the result of the build
-        tracing::info!("{}", result);
+        // Leo build is deprecated in version 1.9.0
+        // // Unset the Leo panic hook.
+        // let _ = std::panic::take_hook();
+        //
+        // // Change the cwd to the build directory to compile aleo files.
+        // std::env::set_current_dir(&build_directory)
+        //     .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+        //
+        // // Call the `build` command.
+        // let mut args = vec![SNARKVM_COMMAND];
+        // if self.options.offline {
+        //     args.push("--offline");
+        // }
+        // let command = AleoBuild::try_parse_from(&args).map_err(CliError::failed_to_execute_aleo_build)?;
+        // let result = command.parse().map_err(CliError::failed_to_execute_aleo_build)?;
+        //
+        // // Log the result of the build
+        // tracing::info!("{}", result);
 
         Ok((input_ast, structs))
     }
@@ -236,11 +237,13 @@ fn compile_leo_file(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    // Prepare the path string.
-    let _path_string = format!("(in \"{}\")", aleo_file_path.display());
-
-    // Log the build as successful.
-    tracing::info!("Compiled '{}' into Aleo instructions", file_name,);
+    // `Package::open` checks that the build directory and that `main.aleo` is well-formed.
+    match Package::<CurrentNetwork>::open(build) {
+        // Log the build as successful.
+        Ok(_) => tracing::info!("Compiled '{}' into Aleo instructions", file_name),
+        // Log the error.
+        Err(e) => tracing::info!("{}", CliError::failed_to_execute_build(e)),
+    };
 
     Ok(symbol_table.structs)
 }

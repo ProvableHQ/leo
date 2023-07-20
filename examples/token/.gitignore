@@ -1,2 +1,4 @@
 outputs/
-build/
+*.avm
+*.prover
+*.verifier

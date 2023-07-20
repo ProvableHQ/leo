@@ -20,7 +20,7 @@ Proposal information and voting results are revealed using the public `mapping` 
 
 To compile this Leo program, run:
 ```bash
-leo build
+leo run <function_name> <input_1> <input_2>
 ```
 
 Make changes to `vote/inputs/vote.in` before running each command.

@@ -8,17 +8,11 @@ echo "
 ########                                                               ########
 ###############################################################################
 "
-echo "{
-  \"program\": \"battleship.aleo\",
-  \"version\": \"0.0.0\",
-  \"description\": \"\",
-  \"development\": {
-      \"private_key\": \"APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm\",
-      \"view_key\": \"AViewKey1fSyEPXxfPFVgjL6qcM9izWRGrhSHKXyN3c64BNsAjnA6\",
-      \"address\": \"aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy\"
-  },
-  \"license\": \"MIT\"
-}" > program.json
+
+echo "
+NETWORK=testnet3
+PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
+" > .env
 
 echo "✅ Successfully initialized Player 1."
 
@@ -65,17 +59,10 @@ echo "
 ###############################################################################
 "
 (
-  echo "{
-    \"program\": \"battleship.aleo\",
-    \"version\": \"0.0.0\",
-    \"description\": \"\",
-    \"development\": {
-        \"private_key\": \"APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH\",
-        \"view_key\": \"AViewKey1hh6dvSEgeMdfseP4hfdbNYjX4grETwCuTbKnCftkpMwE\",
-        \"address\": \"aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry\"
-    },
-    \"license\": \"MIT\"
-  }" > program.json
+  echo "
+  NETWORK=testnet3
+  PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
+  " > .env
 
   leo run initialize_board 31u64 2207646875648u64 224u64 9042383626829824u64 aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy || exit
 )
@@ -120,17 +107,10 @@ echo "
 ###############################################################################
 "
 (
-  echo "{
-    \"program\": \"battleship.aleo\",
-    \"version\": \"0.0.0\",
-    \"description\": \"\",
-    \"development\": {
-        \"private_key\": \"APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm\",
-        \"view_key\": \"AViewKey1fSyEPXxfPFVgjL6qcM9izWRGrhSHKXyN3c64BNsAjnA6\",
-        \"address\": \"aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy\"
-    },
-    \"license\": \"MIT\"
-  }" > program.json
+  echo "
+  NETWORK=testnet3
+  PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
+  " > .env
 
   leo run play '{
     owner: aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private,
@@ -162,17 +142,11 @@ echo "
 ###############################################################################
 "
 (
-  echo "{
-    \"program\": \"battleship.aleo\",
-    \"version\": \"0.0.0\",
-    \"description\": \"\",
-    \"development\": {
-        \"private_key\": \"APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH\",
-        \"view_key\": \"AViewKey1hh6dvSEgeMdfseP4hfdbNYjX4grETwCuTbKnCftkpMwE\",
-        \"address\": \"aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry\"
-    },
-    \"license\": \"MIT\"
-  }" > program.json
+
+  echo "
+  NETWORK=testnet3
+  PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
+  " > .env
 
   leo run play '{
     owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,
@@ -204,17 +178,10 @@ echo "
 ###############################################################################
 "
 (
-  echo "{
-    \"program\": \"battleship.aleo\",
-    \"version\": \"0.0.0\",
-    \"description\": \"\",
-    \"development\": {
-        \"private_key\": \"APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm\",
-        \"view_key\": \"AViewKey1fSyEPXxfPFVgjL6qcM9izWRGrhSHKXyN3c64BNsAjnA6\",
-        \"address\": \"aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy\"
-    },
-    \"license\": \"MIT\"
-  }" > program.json
+  echo "
+  NETWORK=testnet3
+  PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
+  " > .env
 
   leo run play '{
     owner: aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private,
@@ -246,17 +213,11 @@ echo "
 ###############################################################################
 "
 (
-  echo "{
-    \"program\": \"battleship.aleo\",
-    \"version\": \"0.0.0\",
-    \"description\": \"\",
-    \"development\": {
-        \"private_key\": \"APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH\",
-        \"view_key\": \"AViewKey1hh6dvSEgeMdfseP4hfdbNYjX4grETwCuTbKnCftkpMwE\",
-        \"address\": \"aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry\"
-    },
-    \"license\": \"MIT\"
-  }" > program.json
+
+  echo "
+  NETWORK=testnet3
+  PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
+  " > .env
 
   leo run play '{
     owner: aleo1wyvu96dvv0auq9e4qme54kjuhzglyfcf576h0g3nrrmrmr0505pqd6wnry.private,

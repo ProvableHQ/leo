@@ -28,7 +28,7 @@ pub struct Gitignore;
 
 impl Gitignore {
     pub fn new() -> Self {
-        Self::default()
+        Self
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -51,6 +51,6 @@ impl Gitignore {
     }
 
     fn template(&self) -> String {
-        "outputs/\nbuild/\n".to_string()
+        ".env\n*.avm\n*.prover\n*.verifier\noutputs/\n".to_string()
     }
 }

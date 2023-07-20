@@ -50,10 +50,10 @@ impl Context {
 
     /// Returns the package name as a String.
     /// Opens the manifest file `program.json` and creates the build directory if it doesn't exist.
-    pub fn open_manifest(&self) -> Result<Manifest<Network>> {
+    pub fn open_manifest(&self) -> Result<Manifest<CurrentNetwork>> {
         // Open the manifest file.
         let path = self.dir()?;
-        let manifest = Manifest::<Network>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
+        let manifest = Manifest::<CurrentNetwork>::open(&path).map_err(PackageError::failed_to_open_manifest)?;
 
         // Lookup the program id.
         // let program_id = manifest.program_id();
@@ -71,7 +71,7 @@ impl Context {
             std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
 
         // Construct the file path.
-        let build_manifest_path = build_path.join(Manifest::<Network>::file_name());
+        let build_manifest_path = build_path.join(Manifest::<CurrentNetwork>::file_name());
 
         // Write the file.
         File::create(build_manifest_path)

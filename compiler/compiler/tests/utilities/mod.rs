@@ -20,13 +20,13 @@ use leo_errors::{
     LeoError,
     LeoWarning,
 };
+use leo_package::root::env::Env;
 use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
-use leo_test_framework::Test;
+use leo_test_framework::{test::TestConfig, Test};
 
 use snarkvm::prelude::*;
 
-use leo_test_framework::test::TestConfig;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -109,12 +109,18 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     // Create the manifest file.
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
+    // Create the environment file.
+    Env::<Network>::new().write_to(&directory).unwrap();
+    if Env::<Network>::exists_at(&directory) {
+        println!(".env file created at {:?}", &directory);
+    }
+
     // Create the build directory.
     let build_directory = directory.join("build");
     fs::create_dir_all(build_directory).unwrap();
 
     // Open the package at the temporary directory.
-    handler.extend_if_error(Package::<Testnet3>::open(&directory).map_err(LeoError::Anyhow))
+    handler.extend_if_error(Package::<Network>::open(&directory).map_err(LeoError::Anyhow))
 }
 
 pub fn new_compiler(
@@ -221,4 +227,15 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
     let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
 
     Ok(bytecode)
+}
+
+/// Returns the private key from the .env file specified in the directory.
+#[allow(unused)]
+pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<Network>> {
+    use std::str::FromStr;
+    dotenvy::from_path(directory.join(".env")).map_err(|_| anyhow!("Missing a '.env' file in the test directory."))?;
+    // Load the private key from the environment.
+    let private_key = dotenvy::var("PRIVATE_KEY").map_err(|e| anyhow!("Missing PRIVATE_KEY - {e}"))?;
+    // Parse the private key.
+    PrivateKey::<Network>::from_str(&private_key)
 }

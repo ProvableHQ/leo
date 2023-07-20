@@ -89,65 +89,79 @@ create_messages!(
     }
 
     @backtraced
-    failed_to_execute_aleo_build {
+    failed_to_execute_build {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo build` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `build` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_execute_aleo_new {
+    failed_to_execute_new {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo new` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `new` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_execute_aleo_run {
+    failed_to_execute_run {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo run` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `run` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_execute_aleo_node {
+    failed_to_execute_node {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo node` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `node` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_execute_aleo_deploy {
+    failed_to_execute_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to execute the `aleo deploy` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to execute the `deploy` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_parse_aleo_new {
+    failed_to_parse_new {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo new` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `new` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_parse_aleo_run {
+    failed_to_parse_run {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo run` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `run` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_parse_aleo_node {
+    failed_to_parse_node {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo node` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `node` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 
     @backtraced
-    failed_to_parse_aleo_deploy {
+    failed_to_parse_deploy {
         args: (error: impl Display),
-        msg: format!("Failed to parse the `aleo deploy` command.\nSnarkVM Error: {error}"),
+        msg: format!("Failed to parse the `deploy` command.\nSnarkVM Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_parse_execute {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the `execute` command.\nSnarkVM Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_execute_execute {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `execute` command.\nSnarkVM Error: {error}"),
         help: None,
     }
 );

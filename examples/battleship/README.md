@@ -34,7 +34,7 @@ This application was translated into Leo from the [zk-battleship](https://github
 
 To compile this Leo program, run:
 ```bash
-leo build
+leo run <function_name> <function_inputs>
 ```
 
 ## How to Run

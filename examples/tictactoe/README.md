@@ -42,3 +42,8 @@ See `./run.sh` for an example.
 ```bash
 leo run <function_name>
 ```
+
+## Executing the Program
+```bash
+leo execute <function_name> <input_1> <input_2> ...
+```

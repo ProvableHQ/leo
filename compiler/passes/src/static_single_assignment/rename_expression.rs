@@ -201,7 +201,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
-        let struct_definition: &Struct = self.symbol_table.borrow().structs.get(&input.name.name).unwrap();
+        let struct_definition: &Struct = self.symbol_table.borrow().lookup_struct(input.name.name).unwrap();
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());

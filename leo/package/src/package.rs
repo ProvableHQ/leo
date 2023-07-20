@@ -15,33 +15,40 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    build::BuildDirectory,
     inputs::{InputFile, InputsDirectory},
-    root::Gitignore,
+    root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
-
 use leo_errors::{PackageError, Result};
+use snarkvm_console::prelude::Network;
 
-use crate::build::BuildDirectory;
 use serde::Deserialize;
-use std::path::Path;
+use std::{marker::PhantomData, path::Path};
 
 #[derive(Deserialize)]
-pub struct Package {
+pub struct Package<N: Network> {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
     pub license: Option<String>,
+    _phantom: PhantomData<N>,
 }
 
-impl Package {
+impl<N: Network> Package<N> {
     pub fn new(package_name: &str) -> Result<Self> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
             return Err(PackageError::invalid_package_name(package_name).into());
         }
 
-        Ok(Self { name: package_name.to_owned(), version: "0.1.0".to_owned(), description: None, license: None })
+        Ok(Self {
+            name: package_name.to_owned(),
+            version: "0.1.0".to_owned(),
+            description: None,
+            license: None,
+            _phantom: PhantomData,
+        })
     }
 
     /// Returns `true` if the package name is valid.
@@ -139,6 +146,12 @@ impl Package {
             Gitignore::new().write_to(path)?;
         }
 
+        // Verify that the .env file does not exist.
+        if !Env::<N>::exists_at(path) {
+            // Create the .env file.
+            Env::<N>::new().write_to(path)?;
+        }
+
         // Create the source directory.
         SourceDirectory::create(path)?;
 
@@ -172,27 +185,29 @@ impl Package {
 mod tests {
     use super::*;
 
+    type CurrentNetwork = snarkvm::prelude::Testnet3;
+
     #[test]
     fn test_is_package_name_valid() {
-        assert!(Package::is_package_name_valid("foo"));
-        assert!(Package::is_package_name_valid("foo_bar"));
-        assert!(Package::is_package_name_valid("foo1"));
-        assert!(Package::is_package_name_valid("foo_bar___baz_"));
+        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo"));
+        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo_bar"));
+        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo1"));
+        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo_bar___baz_"));
 
-        assert!(!Package::is_package_name_valid("foo-bar"));
-        assert!(!Package::is_package_name_valid("foo-bar-baz"));
-        assert!(!Package::is_package_name_valid("foo-1"));
-        assert!(!Package::is_package_name_valid(""));
-        assert!(!Package::is_package_name_valid("-"));
-        assert!(!Package::is_package_name_valid("-foo"));
-        assert!(!Package::is_package_name_valid("-foo-"));
-        assert!(!Package::is_package_name_valid("_foo"));
-        assert!(!Package::is_package_name_valid("foo--bar"));
-        assert!(!Package::is_package_name_valid("foo---bar"));
-        assert!(!Package::is_package_name_valid("foo--bar--baz"));
-        assert!(!Package::is_package_name_valid("foo---bar---baz"));
-        assert!(!Package::is_package_name_valid("foo*bar"));
-        assert!(!Package::is_package_name_valid("foo,bar"));
-        assert!(!Package::is_package_name_valid("1-foo"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-bar"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-bar-baz"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-1"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid(""));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-foo"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-foo-"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("_foo"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo--bar"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo---bar"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo--bar--baz"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo---bar---baz"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo*bar"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo,bar"));
+        assert!(!Package::<CurrentNetwork>::is_package_name_valid("1-foo"));
     }
 }
