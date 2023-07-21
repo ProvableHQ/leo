@@ -1,5 +1,6 @@
 <!-- # 🏦 Basic Bank -->
-<img alt="workshop/basic_bank" width="1412" src="../.resources/basic_bank.png">
+
+[//]: # (<img alt="workshop/basic_bank" width="1412" src="../.resources/basic_bank.png">)
 
 A simple-interest yielding bank account in Leo.
 

@@ -1,5 +1,6 @@
 <!-- # 🏛️ Blind Auction -->
-<img alt="workshop/auction" width="1412" src="../.resources/auction.png">
+
+[//]: # (<img alt="workshop/auction" width="1412" src="../.resources/auction.png">)
 
 A first-price sealed-bid auction in Leo.
 
