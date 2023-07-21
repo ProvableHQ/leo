@@ -52,11 +52,9 @@ version = "1.9"
 
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
-version = "=1.9.0"
 
 [dev-dependencies.leo-span]
 path = "../../compiler/span"
-version = "=1.9.0"
 
 [dev-dependencies.criterion]
 version = "0.5"
