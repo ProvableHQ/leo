@@ -16,7 +16,7 @@ fi
 # "private_key": "APrivateKey1zkpFo72g7N9iFt3JzzeG8CqsS5doAiXyFvNCgk2oHvjRCzF"
 # "address": "aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqyshdsf5z"
 
-# Swap in the private key and address of the Alice to .env.
+# Swap in the private key and address of Alice to .env.
 echo "
 NETWORK=testnet3
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
