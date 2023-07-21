@@ -156,7 +156,7 @@ leo run transfer_private "{
         _nonce: 6586771265379155927089644749305420610382723873232320906747954786091923851913group.public
     }" aleo13ssze66adjjkt795z9u5wpq8h6kn0y2657726h4h3e3wfnez4vqsm3008q 20u64
 
-# Swap in the private key and address of the Alice to .env.
+# Swap in the private key and address of Alice to .env.
 echo "
 NETWORK=testnet3
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
