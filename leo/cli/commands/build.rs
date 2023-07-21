@@ -166,7 +166,7 @@ impl Command for Build {
         };
 
         // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
-        Package::<CurrentNetwork>::open(&build_directory).map_err(|err| CliError::failed_to_execute_build(err))?;
+        Package::<CurrentNetwork>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
 
         // // Unset the Leo panic hook.
         // let _ = std::panic::take_hook();
