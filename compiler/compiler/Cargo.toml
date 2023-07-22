@@ -64,14 +64,14 @@ features = [ "circuit", "console" ]
 version = "1.9.1"
 
 [dev-dependencies.serde]
-version = "1.0.171"
+version = "1.0.174"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"
 
 [dev-dependencies.tempfile]
-version = "3.6"
+version = "3.7"
 
 [features]
 default = [ ]
