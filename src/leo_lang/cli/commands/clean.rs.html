@@ -85,11 +85,11 @@
 
         <span class="comment">// Removes the outputs/ directory.
         </span><span class="kw">let </span>outputs_path = OutputsDirectory::remove(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
-        <span class="macro">tracing::info!</span>(<span class="string">&quot;cleaned the outputs directory {}&quot;</span>, outputs_path.dimmed());
+        <span class="macro">tracing::info!</span>(<span class="string">&quot;🧹 Cleaned the outputs directory {}&quot;</span>, outputs_path.dimmed());
 
         <span class="comment">// Removes the build/ directory.
         </span><span class="kw">let </span>build_path = BuildDirectory::remove(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
-        <span class="macro">tracing::info!</span>(<span class="string">&quot;cleaned the build directory {}&quot;</span>, build_path.dimmed());
+        <span class="macro">tracing::info!</span>(<span class="string">&quot;🧹 Cleaned the build directory {}&quot;</span>, build_path.dimmed());
 
         <span class="prelude-val">Ok</span>(())
     }

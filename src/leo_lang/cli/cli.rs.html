@@ -123,6 +123,22 @@
 <a href="#123" id="123">123</a>
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -143,6 +159,7 @@
 <span class="kw">use </span>leo_errors::Result;
 
 <span class="kw">use </span>clap::Parser;
+<span class="kw">use </span>colored::Colorize;
 <span class="kw">use </span>std::{path::PathBuf, process::exit};
 
 <span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
@@ -239,7 +256,22 @@
 
     <span class="kw">match </span>cli.command {
         Commands::New { command } =&gt; command.try_execute(context),
-        Commands::Build { command } =&gt; command.try_execute(context),
+        Commands::Build { command } =&gt; {
+            <span class="comment">// Enter tracing span
+            </span><span class="kw">let </span>span = command.log_span();
+            <span class="kw">let </span>span = span.enter();
+
+            <span class="comment">// Leo build is deprecated in version 1.9.0
+            </span><span class="macro">tracing::info!</span>(
+                <span class="string">&quot;⚠️  Attention - This command is deprecated. Use the {} command.\n&quot;</span>,
+                <span class="string">&quot;&#39;run&#39;&quot;</span>.to_string().bold()
+            );
+
+            <span class="comment">// Drop tracing span
+            </span>drop(span);
+
+            command.try_execute(context)
+        }
         Commands::Clean { command } =&gt; command.try_execute(context),
         Commands::Run { command } =&gt; command.try_execute(context),
         Commands::Execute { command } =&gt; command.try_execute(context),

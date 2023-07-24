@@ -242,11 +242,6 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -414,8 +409,10 @@
             <span class="prelude-val">None
         </span>};
 
-        <span class="comment">// Leo build is deprecated in version 1.9.0
-        // // Unset the Leo panic hook.
+        <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
+        </span>Package::&lt;CurrentNetwork&gt;::open(<span class="kw-2">&amp;</span>build_directory).map_err(CliError::failed_to_execute_build)<span class="question-mark">?</span>;
+
+        <span class="comment">// // Unset the Leo panic hook.
         // let _ = std::panic::take_hook();
         //
         // // Change the cwd to the build directory to compile aleo files.
@@ -486,14 +483,7 @@
         </span>.write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
-    <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` is well-formed.
-    </span><span class="kw">match </span>Package::&lt;CurrentNetwork&gt;::open(build) {
-        <span class="comment">// Log the build as successful.
-        </span><span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name),
-        <span class="comment">// Log the error.
-        </span><span class="prelude-val">Err</span>(e) =&gt; <span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, CliError::failed_to_execute_build(e)),
-    };
-
+    <span class="macro">tracing::info!</span>(<span class="string">&quot;✅ Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name);
     <span class="prelude-val">Ok</span>(symbol_table.structs)
 }
 </code></pre></div></section></main></body></html>
