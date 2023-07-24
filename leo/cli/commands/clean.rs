@@ -37,11 +37,11 @@ impl Command for Clean {
 
         // Removes the outputs/ directory.
         let outputs_path = OutputsDirectory::remove(&path)?;
-        tracing::info!("cleaned the outputs directory {}", outputs_path.dimmed());
+        tracing::info!("🧹 Cleaned the outputs directory {}", outputs_path.dimmed());
 
         // Removes the build/ directory.
         let build_path = BuildDirectory::remove(&path)?;
-        tracing::info!("cleaned the build directory {}", build_path.dimmed());
+        tracing::info!("🧹 Cleaned the build directory {}", build_path.dimmed());
 
         Ok(())
     }

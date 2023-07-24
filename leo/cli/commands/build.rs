@@ -165,7 +165,9 @@ impl Command for Build {
             None
         };
 
-        // Leo build is deprecated in version 1.9.0
+        // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
+        Package::<CurrentNetwork>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
+
         // // Unset the Leo panic hook.
         // let _ = std::panic::take_hook();
         //
@@ -237,13 +239,6 @@ fn compile_leo_file(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    // `Package::open` checks that the build directory and that `main.aleo` is well-formed.
-    match Package::<CurrentNetwork>::open(build) {
-        // Log the build as successful.
-        Ok(_) => tracing::info!("Compiled '{}' into Aleo instructions", file_name),
-        // Log the error.
-        Err(e) => tracing::info!("{}", CliError::failed_to_execute_build(e)),
-    };
-
+    tracing::info!("✅ Compiled '{}' into Aleo instructions", file_name);
     Ok(symbol_table.structs)
 }

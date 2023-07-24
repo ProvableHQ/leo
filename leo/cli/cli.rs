@@ -18,6 +18,7 @@ use crate::cli::{commands::*, context::*, helpers::*};
 use leo_errors::Result;
 
 use clap::Parser;
+use colored::Colorize;
 use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -114,7 +115,22 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     match cli.command {
         Commands::New { command } => command.try_execute(context),
-        Commands::Build { command } => command.try_execute(context),
+        Commands::Build { command } => {
+            // Enter tracing span
+            let span = command.log_span();
+            let span = span.enter();
+
+            // Leo build is deprecated in version 1.9.0
+            tracing::info!(
+                "⚠️  Attention - This command is deprecated. Use the {} command.\n",
+                "'run'".to_string().bold()
+            );
+
+            // Drop tracing span
+            drop(span);
+
+            command.try_execute(context)
+        }
         Commands::Clean { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),

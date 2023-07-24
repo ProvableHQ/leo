@@ -1,4 +1,6 @@
-# Leo Battleship 🏴‍☠️
+<!-- # Leo Battleship 🏴‍☠️ -->
+
+[//]: # (<img alt="workshop/battleship" width="1412" src="../.resources/battleship.png">)
 
 - [Summary](#summary)
 - [Build](#how-to-build)
