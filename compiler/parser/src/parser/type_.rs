@@ -24,6 +24,7 @@ pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Field,
     Token::Group,
     Token::Scalar,
+    Token::Signature,
     Token::String,
     Token::I8,
     Token::I16,
