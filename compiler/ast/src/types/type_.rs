@@ -40,6 +40,8 @@ pub enum Type {
     Mapping(MappingType),
     /// The `scalar` type.
     Scalar,
+    /// The `signature` type.
+    Signature,
     /// The `string` type.
     String,
     /// A static tuple of at least one type.
@@ -64,6 +66,7 @@ impl Type {
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar)
+            | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
@@ -90,6 +93,7 @@ impl fmt::Display for Type {
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
             Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
             Type::Scalar => write!(f, "scalar"),
+            Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
             Type::Unit => write!(f, "()"),

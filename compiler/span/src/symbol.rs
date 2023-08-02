@@ -208,6 +208,7 @@ symbols! {
     i128,
     record,
     scalar,
+    signature,
     string,
     Struct: "struct",
     u8,
