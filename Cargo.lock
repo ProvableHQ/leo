@@ -1363,6 +1363,7 @@ dependencies = [
  "colored",
  "console",
  "dirs 5.0.1",
+ "dotenvy",
  "indexmap 1.9.3",
  "lazy_static",
  "leo-ast",

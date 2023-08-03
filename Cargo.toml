@@ -91,6 +91,9 @@ version = "0.15.7"
 [dependencies.dirs]
 version = "5.0.0"
 
+[dependencies.dotenvy]
+version = "0.15.7"
+
 [dependencies.indexmap]
 version = "1.9"
 features = [ "serde" ]

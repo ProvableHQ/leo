@@ -33,6 +33,14 @@ pub enum Account {
         #[clap(short = 'w', long)]
         write: bool,
     },
+    /// Derive an Aleo account from a private key.
+    Import {
+        /// Private key plaintext
+        private_key: PrivateKey<CurrentNetwork>,
+        /// Write the private key to the .env file.
+        #[clap(short = 'w', long)]
+        write: bool,
+    },
 }
 
 impl Command for Account {
@@ -61,26 +69,49 @@ impl Command for Account {
                 }
                 .map_err(CliError::failed_to_parse_seed)?;
 
-                let view_key = ViewKey::try_from(&private_key)?;
-                let address = Address::<CurrentNetwork>::try_from(&view_key)?;
-
-                // Print keys as formatted string without log level.
-                println!(
-                    "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
-                    "Private Key".cyan().bold(),
-                    "View Key".cyan().bold(),
-                    "Address".cyan().bold(),
-                );
+                // Derive the view key and address and print to stdout.
+                print_keys(private_key)?;
 
                 // Save key data to .env file.
                 if write {
-                    let data = format!("NETWORK=testnet3\nPRIVATE_KEY={private_key}\n");
-                    let program_dir = ctx.dir()?;
-                    Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
-                    tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
+                    write_to_env_file(private_key, &ctx)?;
+                }
+            }
+            Account::Import { private_key, write } => {
+                // Derive the view key and address and print to stdout.
+                print_keys(private_key)?;
+
+                // Save key data to .env file.
+                if write {
+                    write_to_env_file(private_key, &ctx)?;
                 }
             }
         }
         Ok(())
     }
+}
+
+// Helper functions
+
+// Print keys as a formatted string without log level.
+fn print_keys(private_key: PrivateKey<CurrentNetwork>) -> Result<()> {
+    let view_key = ViewKey::try_from(&private_key)?;
+    let address = Address::<CurrentNetwork>::try_from(&view_key)?;
+
+    println!(
+        "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
+        "Private Key".cyan().bold(),
+        "View Key".cyan().bold(),
+        "Address".cyan().bold(),
+    );
+    Ok(())
+}
+
+// Write the network and private key to the .env file in project directory.
+fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> Result<()> {
+    let data = format!("NETWORK=testnet3\nPRIVATE_KEY={private_key}\n");
+    let program_dir = ctx.dir()?;
+    Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
+    tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
+    Ok(())
 }
