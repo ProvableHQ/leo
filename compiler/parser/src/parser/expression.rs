@@ -343,6 +343,19 @@ impl ParserContext<'_> {
                 right: Box::new(args.swap_remove(0)),
                 id: self.node_builder.next_id(),
             }))
+        } else if let (2, Some(CoreFunction::SignatureVerify)) =
+            (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
+        {
+            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: Type::Identifier(Identifier::new(sym::signature)),
+                name: method,
+                arguments: {
+                    let mut arguments = vec![receiver];
+                    arguments.extend(args);
+                    arguments
+                },
+                span,
+            })))
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {

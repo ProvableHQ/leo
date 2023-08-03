@@ -179,6 +179,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Record,
     Token::Return,
     Token::SelfLower,
+    Token::Signature,
     Token::Scalar,
     Token::String,
     Token::Struct,
