@@ -59,6 +59,8 @@ const GROUP_TYPE: Type = Type::Group;
 
 const SCALAR_TYPE: Type = Type::Scalar;
 
+const SIGNATURE_TYPE: Type = Type::Signature;
+
 const INT_TYPES: [Type; 10] = [
     Type::Integer(IntegerType::I8),
     Type::Integer(IntegerType::I16),
@@ -173,13 +175,17 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::type_should_be(actual.clone(), expected, span));
             }
         }
-
         actual
     }
 
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
     pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
         self.check_type(|actual: &Type| actual.eq_flat(expected), expected.to_string(), actual, span)
+    }
+
+    /// Emits an error to the error handler if the given type is not an address.
+    pub(crate) fn assert_address_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(|type_: &Type| ADDRESS_TYPE.eq(type_), ADDRESS_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not a boolean.
@@ -200,6 +206,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error to the handler if the given type is not a scalar.
     pub(crate) fn assert_scalar_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(|type_: &Type| SCALAR_TYPE.eq(type_), SCALAR_TYPE.to_string(), type_, span)
+    }
+
+    /// Emits an error to the handler if the given type is not a signature.
+    pub(crate) fn assert_signature_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(|type_: &Type| SIGNATURE_TYPE.eq(type_), SIGNATURE_TYPE.to_string(), type_, span)
     }
 
     /// Emits an error to the handler if the given type is not an integer.
@@ -917,6 +928,14 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::ChaChaRandU32 => Some(Type::Integer(IntegerType::U32)),
             CoreFunction::ChaChaRandU64 => Some(Type::Integer(IntegerType::U64)),
             CoreFunction::ChaChaRandU128 => Some(Type::Integer(IntegerType::U128)),
+            CoreFunction::SignatureVerify => {
+                // Check that the first argument is a signature.
+                self.assert_signature_type(&arguments[0].0, arguments[0].1);
+                // Check that the second argument is an address.
+                self.assert_address_type(&arguments[1].0, arguments[1].1);
+                // Return a boolean.
+                Some(Type::Boolean)
+            }
         }
     }
 
