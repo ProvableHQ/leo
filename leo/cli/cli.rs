@@ -50,6 +50,11 @@ enum Commands {
     //     command: Init,
     // },
     //
+    #[clap(about = "Create a new Leo example package in a new directory")]
+    Example {
+        #[clap(subcommand)]
+        command: Example,
+    },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
         #[clap(flatten)]
@@ -132,6 +137,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             command.try_execute(context)
         }
         Commands::Clean { command } => command.try_execute(context),
+        Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
