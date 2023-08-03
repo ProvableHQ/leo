@@ -15,10 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_package::root::Env;
 use snarkvm::prelude::{Address, PrivateKey, ViewKey};
 
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
+
 /// Commands to manage Aleo accounts.
 #[derive(Parser, Debug)]
 pub enum Account {
@@ -27,16 +29,15 @@ pub enum Account {
         /// Seed the RNG with a numeric value.
         #[clap(short = 's', long)]
         seed: Option<u64>,
+        /// Write the private key to the .env file.
+        #[clap(short = 'w', long)]
+        write: bool,
     },
 }
 
 impl Command for Account {
     type Input = ();
     type Output = ();
-
-    fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Aleo")
-    }
 
     fn prelude(&self, _: Context) -> Result<Self::Input>
     where
@@ -45,12 +46,13 @@ impl Command for Account {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output>
+    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output>
     where
         Self: Sized,
     {
         match self {
-            Account::New { seed } => {
+            Account::New { seed, write } => {
+                // Sample a new Aleo account.
                 let private_key = match seed {
                     // Recover the field element deterministically.
                     Some(seed) => PrivateKey::new(&mut ChaChaRng::seed_from_u64(seed)),
@@ -64,13 +66,19 @@ impl Command for Account {
 
                 // Print keys as formatted string without log level.
                 println!(
-                    "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}",
+                    "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
                     "Private Key".cyan().bold(),
                     "View Key".cyan().bold(),
                     "Address".cyan().bold(),
                 );
 
-                //todo: save keys to .env file with --save flag
+                // Save key data to .env file.
+                if write {
+                    let data = format!("NETWORK=testnet3\nPRIVATE_KEY={private_key}\n");
+                    let program_dir = ctx.dir()?;
+                    Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
+                    tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
+                }
             }
         }
         Ok(())

@@ -110,7 +110,7 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
     // Create the environment file.
-    Env::<Network>::new().write_to(&directory).unwrap();
+    Env::<Network>::new().unwrap().write_to(&directory).unwrap();
     if Env::<Network>::exists_at(&directory) {
         println!(".env file created at {:?}", &directory);
     }

@@ -149,7 +149,7 @@ impl<N: Network> Package<N> {
         // Verify that the .env file does not exist.
         if !Env::<N>::exists_at(path) {
             // Create the .env file.
-            Env::<N>::new().write_to(path)?;
+            Env::<N>::new()?.write_to(path)?;
         }
 
         // Create the source directory.
