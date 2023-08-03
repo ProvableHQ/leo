@@ -21,11 +21,11 @@ use crate::LeoMessageCode;
 pub mod ast;
 pub use self::ast::*;
 
-/// Contains the AST error definitions.
+/// Contains the CLI error definitions.
 pub mod cli;
 pub use self::cli::*;
 
-/// Contains the AST error definitions.
+/// Contains the Compiler error definitions.
 pub mod compiler;
 pub use self::compiler::*;
 
