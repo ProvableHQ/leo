@@ -34,9 +34,6 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(help = "Custom Aleo PM backend URL", env = "APM_URL")]
-    api: Option<String>,
-
     #[clap(long, global = true, help = "Optional path to Leo program root folder")]
     path: Option<PathBuf>,
 }
