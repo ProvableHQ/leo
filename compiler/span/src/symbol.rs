@@ -195,6 +195,7 @@ symbols! {
     set,
     to_x_coordinate,
     to_y_coordinate,
+    verify,
 
     // types
     address,
