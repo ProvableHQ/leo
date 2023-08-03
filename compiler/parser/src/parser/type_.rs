@@ -67,6 +67,7 @@ impl ParserContext<'_> {
                 Token::Field => Type::Field,
                 Token::Group => Type::Group,
                 Token::Scalar => Type::Scalar,
+                Token::Signature => Type::Signature,
                 Token::String => Type::String,
                 x => Type::Integer(Self::token_to_int_type(x).expect("invalid int type")),
             },
