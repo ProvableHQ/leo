@@ -21,3 +21,6 @@ sccache*/
 
 # code coverage scripts
 *.bat
+
+# environment
+.env

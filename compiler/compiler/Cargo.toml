@@ -59,10 +59,10 @@ workspace = true
 features = [ "circuit", "console" ]
 
 [dev-dependencies.regex]
-version = "1.9.1"
+version = "1.9.3"
 
 [dev-dependencies.serde]
-version = "1.0.180"
+version = "1.0.183"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]

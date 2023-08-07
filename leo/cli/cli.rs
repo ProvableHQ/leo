@@ -41,21 +41,20 @@ pub struct CLI {
 ///Leo compiler and package manager
 #[derive(Parser, Debug)]
 enum Commands {
-    // #[clap(about = "Create a new Leo package in an existing directory")]
-    // Init {
-    //     #[clap(flatten)]
-    //     command: Init,
-    // },
-    //
-    #[clap(about = "Create a new Leo example package in a new directory")]
-    Example {
+    #[clap(about = "Create a new Aleo account")]
+    Account {
         #[clap(subcommand)]
-        command: Example,
+        command: Account,
     },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
         #[clap(flatten)]
         command: New,
+    },
+    #[clap(about = "Create a new Leo example package in a new directory")]
+    Example {
+        #[clap(subcommand)]
+        command: Example,
     },
     #[clap(about = "Compile the current package as a program")]
     Build {
@@ -82,13 +81,6 @@ enum Commands {
         #[clap(flatten)]
         command: Update,
     },
-    // #[clap(subcommand)]
-    // Node(Node),
-    // #[clap(about = "Deploy a program")]
-    // Deploy {
-    //     #[clap(flatten)]
-    //     command: Deploy,
-    // },
 }
 
 pub fn handle_error<T>(res: Result<T>) -> T {
@@ -116,6 +108,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     let context = handle_error(Context::new(cli.path));
 
     match cli.command {
+        Commands::Account { command } => command.try_execute(context),
         Commands::New { command } => command.try_execute(context),
         Commands::Build { command } => {
             // Enter tracing span
@@ -138,7 +131,5 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
-        // Commands::Node(command) => command.try_execute(context),
-        // Commands::Deploy { command } => command.try_execute(context),
     }
 }
