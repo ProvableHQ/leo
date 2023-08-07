@@ -170,8 +170,10 @@ jobs:
           mv target/aarch64-apple-darwin/release/leo tempdir
           cd tempdir
           zip -r leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip leo
+          zip -r leo.zip leo
           cd ..
           mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
+          mv tempdir/leo.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -179,6 +181,15 @@ jobs:
         with:
           files: |
             leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release leo.zip
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
