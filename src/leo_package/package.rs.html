@@ -362,7 +362,7 @@
         <span class="comment">// Verify that the .env file does not exist.
         </span><span class="kw">if </span>!Env::&lt;N&gt;::exists_at(path) {
             <span class="comment">// Create the .env file.
-            </span>Env::&lt;N&gt;::new().write_to(path)<span class="question-mark">?</span>;
+            </span>Env::&lt;N&gt;::new()<span class="question-mark">?</span>.write_to(path)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Create the source directory.
