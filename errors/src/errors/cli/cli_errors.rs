@@ -164,4 +164,11 @@ create_messages!(
         msg: format!("Failed to execute the `execute` command.\nSnarkVM Error: {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_parse_seed {
+        args: (error: impl Display),
+        msg: format!("Failed to parse the seed string for account.\nSnarkVM Error: {error}"),
+        help: None,
+    }
 );

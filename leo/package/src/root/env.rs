@@ -25,12 +25,17 @@ pub static ENV_FILENAME: &str = ".env";
 
 #[derive(Deserialize, Default)]
 pub struct Env<N: Network> {
+    data: String,
     _phantom: PhantomData<N>,
 }
 
 impl<N: Network> Env<N> {
-    pub fn new() -> Self {
-        Self { _phantom: PhantomData }
+    pub fn new() -> Result<Self> {
+        Ok(Self { data: Self::template()?, _phantom: PhantomData })
+    }
+
+    pub fn from(data: String) -> Self {
+        Self { data, _phantom: PhantomData }
     }
 
     pub fn exists_at(path: &Path) -> bool {
@@ -48,11 +53,11 @@ impl<N: Network> Env<N> {
         }
 
         let mut file = File::create(&path).map_err(PackageError::io_error_env_file)?;
-        file.write_all(self.template()?.as_bytes()).map_err(PackageError::io_error_env_file)?;
+        file.write_all(self.data.as_bytes()).map_err(PackageError::io_error_env_file)?;
         Ok(())
     }
 
-    fn template(&self) -> Result<String> {
+    fn template() -> Result<String> {
         // Initialize an RNG.
         let rng = &mut rand::thread_rng();
 

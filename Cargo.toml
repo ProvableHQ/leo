@@ -91,6 +91,9 @@ version = "0.15.7"
 [dependencies.dirs]
 version = "5.0.0"
 
+[dependencies.dotenvy]
+version = "0.15.7"
+
 [dependencies.indexmap]
 version = "1.9"
 features = [ "serde" ]
@@ -100,6 +103,10 @@ version = "1.4.0"
 
 [dependencies.rand]
 version = "0.8"
+
+[dependencies.rand_chacha]
+version = "0.3.0"
+default-features = false
 
 [dependencies.rand_core]
 version = "0.6.4"
