@@ -171,4 +171,11 @@ create_messages!(
         msg: format!("Failed to parse the seed string for account.\nSnarkVM Error: {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_write_file {
+        args: (error: impl Display),
+        msg: format!("Failed to write file.\nIO Error: {error}"),
+        help: None,
+    }
 );

@@ -34,9 +34,6 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(help = "Custom Aleo PM backend URL", env = "APM_URL")]
-    api: Option<String>,
-
     #[clap(long, global = true, help = "Optional path to Leo program root folder")]
     path: Option<PathBuf>,
 }
@@ -53,6 +50,11 @@ enum Commands {
     New {
         #[clap(flatten)]
         command: New,
+    },
+    #[clap(about = "Create a new Leo example package in a new directory")]
+    Example {
+        #[clap(subcommand)]
+        command: Example,
     },
     #[clap(about = "Compile the current package as a program")]
     Build {
@@ -125,6 +127,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             command.try_execute(context)
         }
         Commands::Clean { command } => command.try_execute(context),
+        Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),

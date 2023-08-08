@@ -22,7 +22,7 @@ use snarkvm::{cli::New as SnarkVMNew, file::AleoFile};
 #[derive(Parser, Debug)]
 pub struct New {
     #[clap(name = "NAME", help = "Set package name")]
-    name: String,
+    pub(crate) name: String,
 }
 
 impl Command for New {
@@ -42,8 +42,6 @@ impl Command for New {
         let command =
             SnarkVMNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
         let result = command.parse().map_err(CliError::failed_to_execute_new)?;
-
-        // todo: modify the readme file to recommend building with `leo build`.
 
         // Log the output of the `aleo new` command.
         tracing::info!("{}", result);

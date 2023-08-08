@@ -23,6 +23,9 @@ pub use build::Build;
 pub mod clean;
 pub use clean::Clean;
 
+pub mod example;
+pub use example::Example;
+
 pub mod execute;
 pub use execute::Execute;
 
