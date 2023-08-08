@@ -172,6 +172,13 @@
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -343,6 +350,13 @@
     failed_to_parse_seed {
         args: (error: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to parse the seed string for account.\nSnarkVM Error: {error}&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_write_file {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Failed to write file.\nIO Error: {error}&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

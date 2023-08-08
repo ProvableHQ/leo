@@ -130,6 +130,9 @@
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -166,9 +169,6 @@
     <span class="attr">#[clap(subcommand)]
     </span>command: Commands,
 
-    <span class="attr">#[clap(help = <span class="string">&quot;Custom Aleo PM backend URL&quot;</span>, env = <span class="string">&quot;APM_URL&quot;</span>)]
-    </span>api: <span class="prelude-ty">Option</span>&lt;String&gt;,
-
     <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>)]
     </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
@@ -185,6 +185,11 @@
     </span>New {
         <span class="attr">#[clap(flatten)]
         </span>command: New,
+    },
+    <span class="attr">#[clap(about = <span class="string">&quot;Create a new Leo example package in a new directory&quot;</span>)]
+    </span>Example {
+        <span class="attr">#[clap(subcommand)]
+        </span>command: Example,
     },
     <span class="attr">#[clap(about = <span class="string">&quot;Compile the current package as a program&quot;</span>)]
     </span>Build {
@@ -257,6 +262,7 @@
             command.try_execute(context)
         }
         Commands::Clean { command } =&gt; command.try_execute(context),
+        Commands::Example { command } =&gt; command.try_execute(context),
         Commands::Run { command } =&gt; command.try_execute(context),
         Commands::Execute { command } =&gt; command.try_execute(context),
         Commands::Update { command } =&gt; command.try_execute(context),
