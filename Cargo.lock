@@ -1275,7 +1275,7 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "leo-abnf"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1283,7 +1283,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "criterion",
  "indexmap 1.9.3",
@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "dotenvy",
  "leo-ast",
@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "leo-errors"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "anyhow",
  "backtrace",
@@ -1332,7 +1332,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "ansi_term",
  "assert_cmd",
@@ -1371,7 +1371,7 @@ dependencies = [
 
 [[package]]
 name = "leo-package"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "indexmap 1.9.3",
  "lazy_static",
@@ -1386,7 +1386,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "clap",
  "indexmap 1.9.3",
@@ -1405,7 +1405,7 @@ dependencies = [
 
 [[package]]
 name = "leo-passes"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "indexmap 1.9.3",
  "itertools 0.11.0",
@@ -1419,7 +1419,7 @@ dependencies = [
 
 [[package]]
 name = "leo-span"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "fxhash",
  "indexmap 1.9.3",
@@ -1429,7 +1429,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "1.9.1"
+version = "1.9.2"
 dependencies = [
  "backtrace",
  "clap",

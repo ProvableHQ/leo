@@ -1,6 +1,6 @@
 [package]
 name = "leo-errors"
-version = "1.9.1"
+version = "1.9.2"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Errors for the Leo programming language"
 homepage = "https://aleo.org"
@@ -20,7 +20,7 @@ rust-version = "1.69"
 
 [dependencies.leo-span]
 path = "../compiler/span"
-version = "=1.9.1"
+version = "=1.9.2"
 
 [dependencies.anyhow]
 version = "1.0"
