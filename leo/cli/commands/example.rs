@@ -78,25 +78,41 @@ impl Example {
 
     fn main_file_string(&self) -> String {
         match self {
-            Self::Lottery => include_str!("../../../examples/lottery/src/main.leo").to_string(),
-            Self::TicTacToe => include_str!("../../../examples/tictactoe/src/main.leo").to_string(),
-            Self::Token => include_str!("../../../examples/token/src/main.leo").to_string(),
+            Self::Lottery => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/lottery/src/main.leo")).to_string()
+            }
+            Self::TicTacToe => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/src/main.leo")).to_string()
+            }
+            Self::Token => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/src/main.leo")).to_string()
+            }
         }
     }
 
     fn input_file_string(&self) -> String {
         match self {
-            Self::Lottery => include_str!("../../../examples/lottery/inputs/lottery.in").to_string(),
-            Self::TicTacToe => include_str!("../../../examples/tictactoe/inputs/tictactoe.in").to_string(),
-            Self::Token => include_str!("../../../examples/token/inputs/token.in").to_string(),
+            Self::Lottery => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/lottery/inputs/lottery.in")).to_string()
+            }
+            Self::TicTacToe => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/inputs/tictactoe.in")).to_string()
+            }
+            Self::Token => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/inputs/token.in")).to_string()
+            }
         }
     }
 
     fn readme_file_string(&self) -> String {
         match self {
-            Self::Lottery => include_str!("../../../examples/lottery/README.md").to_string(),
-            Self::TicTacToe => include_str!("../../../examples/tictactoe/README.md").to_string(),
-            Self::Token => include_str!("../../../examples/token/README.md").to_string(),
+            Self::Lottery => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/lottery/README.md")).to_string()
+            }
+            Self::TicTacToe => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/README.md")).to_string()
+            }
+            Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/README.md")).to_string(),
         }
     }
 }

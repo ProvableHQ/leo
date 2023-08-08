@@ -13,7 +13,18 @@ keywords = [
   "zero-knowledge"
 ]
 categories = [ "compilers", "cryptography", "web-programming" ]
-include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
+include = [
+  "Cargo.toml",
+  "leo",
+  "README.md",
+  "LICENSE.md",
+  "examples/lottery/inputs/lottery.in",
+  "examples/lottery/src/main.leo",
+  "examples/tictactoe/inputs/tictactoe.in",
+  "examples/tictactoe/src/main.leo",
+  "examples/token/inputs/token.in",
+  "examples/token/src/main.leo",
+]
 license = "GPL-3.0"
 edition = "2021"
 
