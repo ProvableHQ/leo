@@ -25,6 +25,12 @@ pub trait Node:
 
     /// Sets the span of the node.
     fn set_span(&mut self, span: Span);
+
+    /// Returns the ID of the node.
+    fn id(&self) -> usize;
+
+    /// Sets the ID of the node.
+    fn set_id(&mut self, id: usize);
 }
 
 #[macro_export]
@@ -37,6 +43,14 @@ macro_rules! simple_node_impl {
 
             fn set_span(&mut self, span: Span) {
                 self.span = span;
+            }
+
+            fn id(&self) -> usize {
+                self.id
+            }
+
+            fn set_id(&mut self, id: usize) {
+                self.id = id;
             }
         }
     };
