@@ -571,14 +571,16 @@ impl ParserContext<'_> {
             self.expect_identifier()?
         };
 
-        let expression = if self.eat(&Token::Colon) {
+        let (expression, span) = if self.eat(&Token::Colon) {
             // Parse individual struct variable declarations.
-            Some(self.parse_expression()?)
+            let expression = self.parse_expression()?;
+            let span = identifier.span + expression.span();
+            (Some(expression), span)
         } else {
-            None
+            (None, identifier.span)
         };
 
-        Ok(StructVariableInitializer { identifier, expression, id: NodeID::default() })
+        Ok(StructVariableInitializer { identifier, expression, id: NodeID::default(), span })
     }
 
     /// Returns an [`Expression`] AST node if the next tokens represent a

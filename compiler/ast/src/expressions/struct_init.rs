@@ -27,9 +27,13 @@ pub struct StructVariableInitializer {
     /// The expression to initialize the field with.
     /// When `None`, a binding, in scope, with the name will be used instead.
     pub expression: Option<Expression>,
+    /// The span of the node.
+    pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
 }
+
+crate::simple_node_impl!(StructVariableInitializer);
 
 impl fmt::Display for StructVariableInitializer {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
