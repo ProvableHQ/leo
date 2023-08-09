@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AssignStatement, Expression, Identifier, Statement, NodeID};
+use leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
 use leo_span::Symbol;
 use std::fmt::Display;
 

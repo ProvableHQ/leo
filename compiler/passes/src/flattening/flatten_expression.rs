@@ -17,7 +17,20 @@
 use crate::Flattener;
 use itertools::Itertools;
 
-use leo_ast::{AccessExpression, AssociatedFunction, Expression, ExpressionReconstructor, Member, MemberAccess, NodeID, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleExpression};
+use leo_ast::{
+    AccessExpression,
+    AssociatedFunction,
+    Expression,
+    ExpressionReconstructor,
+    Member,
+    MemberAccess,
+    NodeID,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleExpression,
+};
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
 
@@ -39,14 +52,14 @@ impl ExpressionReconstructor for Flattener<'_> {
                             .map(|arg| self.reconstruct_expression(arg).0)
                             .collect(),
                         span: function.span,
-                        id: function.id,
+                        id: NodeID::default(),
                     }))
                 }
                 AccessExpression::Member(member) => Expression::Access(AccessExpression::Member(MemberAccess {
                     inner: Box::new(self.reconstruct_expression(*member.inner).0),
                     name: member.name,
                     span: member.span,
-                    id: member.id,
+                    id: NodeID::default(),
                 })),
                 AccessExpression::Tuple(tuple) => {
                     // Reconstruct the tuple expression.
@@ -82,10 +95,18 @@ impl ExpressionReconstructor for Flattener<'_> {
             // Accumulate any statements produced.
             statements.extend(stmts);
             // Accumulate the struct members.
-            members.push(StructVariableInitializer { identifier: member.identifier, expression: Some(expr), id: member.id });
+            members.push(StructVariableInitializer {
+                identifier: member.identifier,
+                expression: Some(expr),
+                span: member.span,
+                id: NodeID::default(),
+            });
         }
 
-        (Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: input.id }), statements)
+        (
+            Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: NodeID::default() }),
+            statements,
+        )
     }
 
     /// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
@@ -129,7 +150,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),
                                 span: input.span,
-                                id: input.id,
+                                id: NodeID::default(),
                             });
 
                             // Accumulate any statements generated.
@@ -201,6 +222,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 StructVariableInitializer {
                                     identifier: *identifier,
                                     expression: Some(Expression::Identifier(result)),
+                                    span: Default::default(),
                                     id: NodeID::default(),
                                 }
                             })
@@ -243,7 +265,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),
                                 span: input.span,
-                                id: input.id,
+                                id: NodeID::default(),
                             }));
 
                         // Accumulate the new assignment statement.
@@ -296,6 +318,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         StructVariableInitializer {
                             identifier: *identifier,
                             expression: Some(Expression::Identifier(result)),
+                            span: Default::default(),
                             id: NodeID::default(),
                         }
                     })
@@ -335,7 +358,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     if_true: Box::new(Expression::Tuple(first_tuple.clone())),
                     if_false: Box::new(Expression::Tuple(second_tuple.clone())),
                     span: input.span,
-                    id: input.id,
+                    id: NodeID::default(),
                 })
             }
             // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
@@ -355,7 +378,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         if_true: Box::new(if_true),
                         if_false: Box::new(if_false),
                         span: input.span,
-                        id: input.id,
+                        id: NodeID::default(),
                     }));
 
                 // Accumulate the new assignment statement.

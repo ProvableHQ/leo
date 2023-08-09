@@ -16,7 +16,18 @@
 
 use crate::{FunctionInliner, Replacer};
 
-use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier, NodeID, ReturnStatement, Statement, StatementReconstructor, UnitExpression, Variant};
+use leo_ast::{
+    CallExpression,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    NodeID,
+    ReturnStatement,
+    Statement,
+    StatementReconstructor,
+    UnitExpression,
+    Variant,
+};
 
 use indexmap::IndexMap;
 use itertools::Itertools;

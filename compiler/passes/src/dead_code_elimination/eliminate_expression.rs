@@ -23,6 +23,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     MemberAccess,
+    NodeID,
     StructExpression,
     StructVariableInitializer,
     TupleAccess,
@@ -57,7 +58,7 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                             .map(|arg| self.reconstruct_expression(arg).0)
                             .collect(),
                         span: function.span,
-                        id: function.id
+                        id: NodeID::default(),
                     });
                     // Unset `self.is_necessary`.
                     self.is_necessary = false;
@@ -67,13 +68,13 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                     inner: Box::new(self.reconstruct_expression(*member.inner).0),
                     name: member.name,
                     span: member.span,
-                    id: member.id
+                    id: NodeID::default(),
                 }),
                 AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
                     tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
                     index: tuple.index,
                     span: tuple.span,
-                    id: tuple.id
+                    id: NodeID::default(),
                 }),
                 AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
             }),
@@ -97,11 +98,12 @@ impl ExpressionReconstructor for DeadCodeEliminator {
                             Some(expression) => Some(self.reconstruct_expression(expression).0),
                             None => unreachable!("Static single assignment ensures that the expression always exists."),
                         },
-                        id: member.id,
+                        span: member.span,
+                        id: NodeID::default(),
                     })
                     .collect(),
                 span: input.span,
-                id: input.id
+                id: NodeID::default(),
             }),
             Default::default(),
         )

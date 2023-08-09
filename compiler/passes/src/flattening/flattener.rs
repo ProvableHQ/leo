@@ -16,7 +16,22 @@
 
 use crate::{Assigner, SymbolTable};
 
-use leo_ast::{AccessExpression, BinaryExpression, BinaryOperation, Block, Expression, ExpressionReconstructor, Identifier, Member, NodeID, ReturnStatement, Statement, TernaryExpression, TupleExpression, Type};
+use leo_ast::{
+    AccessExpression,
+    BinaryExpression,
+    BinaryOperation,
+    Block,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    Member,
+    NodeID,
+    ReturnStatement,
+    Statement,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -96,8 +111,11 @@ impl<'a> Flattener<'a> {
                 // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
                 let mut construct_ternary_assignment =
                     |guard: Expression, if_true: Expression, if_false: Expression| {
-                        let place =
-                            Identifier { name: self.assigner.unique_symbol(prefix, "$"), span: Default::default(), id: NodeID::default() };
+                        let place = Identifier {
+                            name: self.assigner.unique_symbol(prefix, "$"),
+                            span: Default::default(),
+                            id: NodeID::default(),
+                        };
                         let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),

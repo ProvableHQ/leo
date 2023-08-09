@@ -70,7 +70,7 @@ impl StatementReconstructor for Flattener<'_> {
         // Flatten the arguments of the assert statement.
         let assert = AssertStatement {
             span: input.span,
-            id: input.id,
+            id: NodeID::default(),
             variant: match input.variant {
                 AssertVariant::Assert(expression) => {
                     let (expression, additional_statements) = self.reconstruct_expression(expression);
@@ -104,7 +104,7 @@ impl StatementReconstructor for Flattener<'_> {
             Some(guard) => (
                 Statement::Assert(AssertStatement {
                     span: input.span,
-                    id: input.id,
+                    id: NodeID::default(),
                     variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
                         op: BinaryOperation::Or,
                         span: Default::default(),
@@ -315,7 +315,7 @@ impl StatementReconstructor for Flattener<'_> {
                         place: Expression::Tuple(tuple),
                         value: Expression::Call(call),
                         span: Default::default(),
-                        id: NodeID::default()
+                        id: NodeID::default(),
                     })),
                     statements,
                 )
@@ -388,7 +388,7 @@ impl StatementReconstructor for Flattener<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: block.id }, Default::default())
+        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
     }
 
     /// Flatten a conditional statement into a list of statements.
@@ -458,7 +458,7 @@ impl StatementReconstructor for Flattener<'_> {
                     span: input.span,
                     expression: Expression::Tuple(tuple),
                     finalize_arguments: input.finalize_arguments,
-                    id: input.id,
+                    id: NodeID::default(),
                 }));
             }
             // Otherwise, add the expression directly.

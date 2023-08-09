@@ -15,7 +15,22 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Assigner, RenameTable};
-use leo_ast::{AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, NodeID, ProgramReconstructor, Statement, StatementReconstructor, StructExpression, StructVariableInitializer};
+use leo_ast::{
+    AssignStatement,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    IterationStatement,
+    NodeID,
+    ProgramReconstructor,
+    Statement,
+    StatementReconstructor,
+    StructExpression,
+    StructVariableInitializer,
+};
 use leo_span::Symbol;
 
 // TODO: Generalize the functionality of this reconstructor to be used in other passes.
@@ -65,7 +80,7 @@ impl ExpressionReconstructor for AssignmentRenamer {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span, id: input.id }), Default::default())
+        (Expression::Identifier(Identifier { name, span: input.span, id: NodeID::default() }), Default::default())
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -84,11 +99,12 @@ impl ExpressionReconstructor for AssignmentRenamer {
                                 "SSA guarantees that all struct members are always of the form `<id> : <expr>`."
                             ),
                         },
-                        id: member.id,
+                        span: member.span,
+                        id: NodeID::default(),
                     })
                     .collect(),
                 span: input.span,
-                id: input.id,
+                id: NodeID::default(),
             }),
             Default::default(),
         )
@@ -107,7 +123,10 @@ impl StatementReconstructor for AssignmentRenamer {
         let place = self.reconstruct_expression(input.place).0;
         self.is_lhs = false;
 
-        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })), Default::default())
+        (
+            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+            Default::default(),
+        )
     }
 
     /// Flattening removes conditional statements from the program.

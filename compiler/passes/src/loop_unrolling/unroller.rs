@@ -14,7 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Block, DeclarationType, DefinitionStatement, Expression, IntegerType, IterationStatement, Literal, NodeID, Statement, StatementReconstructor, Type, Value};
+use leo_ast::{
+    Block,
+    DeclarationType,
+    DefinitionStatement,
+    Expression,
+    IntegerType,
+    IterationStatement,
+    Literal,
+    NodeID,
+    Statement,
+    StatementReconstructor,
+    Type,
+    Value,
+};
 use std::cell::RefCell;
 
 use leo_errors::emitter::Handler;
