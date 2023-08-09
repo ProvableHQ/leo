@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DefinitionStatement, Identifier};
+use crate::{DefinitionStatement, Identifier, NodeID};
 
 use leo_span::Symbol;
 
@@ -36,6 +36,7 @@ pub fn serialize<S: Serializer>(
     joined.serialize(serializer)
 }
 
+// TODO (@d0cd) Fix serialization to be compatible with NodeID.
 pub fn deserialize<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<IndexMap<Vec<Identifier>, DefinitionStatement>, D::Error> {
@@ -44,7 +45,11 @@ pub fn deserialize<'de, D: Deserializer<'de>>(
         .map(|(name, program)| {
             (
                 name.split(',')
-                    .map(|ident_name| Identifier { name: Symbol::intern(ident_name), span: Default::default() })
+                    .map(|ident_name| Identifier {
+                        name: Symbol::intern(ident_name),
+                        span: Default::default(),
+                        id: NodeID::default(),
+                    })
                     .collect::<Vec<Identifier>>(),
                 program,
             )

@@ -54,7 +54,7 @@ simple_node_impl!(Identifier);
 impl Identifier {
     /// Constructs a new identifier with `name` and a default span.
     pub fn new(name: Symbol) -> Self {
-        Self { name, span: Span::default() }
+        Self { name, span: Span::default(), id: NodeID::default() }
     }
 
     /// Check if the Identifier name matches the other name.
@@ -139,7 +139,12 @@ impl<'de> Deserialize<'de> for Identifier {
                     None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
                 };
 
-                Ok(Identifier { name, span })
+                let id: NodeID = match key.get("id") {
+                    Some(id) => to_json_string(id)?,
+                    None => return Err(E::custom("missing 'id' in serialized Identifier struct")),
+                };
+
+                Ok(Identifier { name, span, id })
             }
         }
 

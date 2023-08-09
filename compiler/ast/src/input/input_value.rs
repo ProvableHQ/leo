@@ -35,11 +35,11 @@ impl TryFrom<(Type, Expression)> for InputValue {
     fn try_from(value: (Type, Expression)) -> Result<Self> {
         Ok(match value {
             (type_, Expression::Literal(lit)) => match (type_, lit) {
-                (Type::Address, Literal::Address(value, _)) => Self::Address(value),
-                (Type::Boolean, Literal::Boolean(value, _)) => Self::Boolean(value),
-                (Type::Field, Literal::Field(value, _)) => Self::Field(value),
+                (Type::Address, Literal::Address(value, _, _)) => Self::Address(value),
+                (Type::Boolean, Literal::Boolean(value, _, _)) => Self::Boolean(value),
+                (Type::Field, Literal::Field(value, _, _)) => Self::Field(value),
                 (Type::Group, Literal::Group(value)) => Self::Group(*value),
-                (Type::Integer(expected), Literal::Integer(actual, value, span)) => {
+                (Type::Integer(expected), Literal::Integer(actual, value, span, _)) => {
                     if expected == actual {
                         Self::Integer(expected, value)
                     } else {

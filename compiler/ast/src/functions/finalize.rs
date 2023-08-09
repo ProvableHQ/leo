@@ -49,7 +49,7 @@ impl Finalize {
             _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
         };
 
-        Self { identifier, input, output, output_type, block, span }
+        Self { identifier, input, output, output_type, block, span, id: NodeID::default() }
     }
 }
 
