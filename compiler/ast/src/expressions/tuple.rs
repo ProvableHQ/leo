@@ -26,6 +26,8 @@ pub struct TupleExpression {
     pub elements: Vec<Expression>,
     /// The span from `(` to `)`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for TupleExpression {

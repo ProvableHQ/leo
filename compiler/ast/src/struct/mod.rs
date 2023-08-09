@@ -17,7 +17,7 @@
 pub mod member;
 pub use member::*;
 
-use crate::{Identifier, Node};
+use crate::{Identifier, Node, NodeID};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -40,6 +40,8 @@ pub struct Struct {
     pub is_record: bool,
     /// The entire span of the struct definition.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl PartialEq for Struct {

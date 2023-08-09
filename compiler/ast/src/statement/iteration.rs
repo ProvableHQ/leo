@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node, Type, Value};
+use crate::{Block, Expression, Identifier, Node, NodeID, Type, Value};
 
 use leo_span::Span;
 
@@ -45,6 +45,8 @@ pub struct IterationStatement {
     pub block: Block,
     /// The span from `for` to `block`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for IterationStatement {

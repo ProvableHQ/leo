@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Identifier, Input, Node, Output, Tuple, Type};
+use crate::{Block, Identifier, Input, Node, NodeID, Output, Tuple, Type};
 
 use leo_span::Span;
 
@@ -36,6 +36,8 @@ pub struct Finalize {
     pub block: Block,
     /// The entire span of the finalize block.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl Finalize {

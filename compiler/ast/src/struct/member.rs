@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Mode, Node, Type};
+use crate::{Identifier, Mode, Node, NodeID, Type};
 
 use leo_span::{Span, Symbol};
 
@@ -32,6 +32,8 @@ pub struct Member {
     pub type_: Type,
     /// The span of the member.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl Member {

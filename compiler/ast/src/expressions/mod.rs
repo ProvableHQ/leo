@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node};
+use crate::{Identifier, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -117,6 +117,42 @@ impl Node for Expression {
             Tuple(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
             Unit(n) => n.set_span(span),
+        }
+    }
+
+    fn id(&self) -> NodeID {
+        use Expression::*;
+        match self {
+            Access(n) => n.id(),
+            Binary(n) => n.id(),
+            Call(n) => n.id(),
+            Cast(n) => n.id(),
+            Struct(n) => n.id(),
+            Identifier(n) => n.id(),
+            Literal(n) => n.id(),
+            Err(n) => n.id(),
+            Ternary(n) => n.id(),
+            Tuple(n) => n.id(),
+            Unary(n) => n.id(),
+            Unit(n) => n.id(),
+        }
+    }
+
+    fn set_id(&mut self, id: NodeID) {
+        use Expression::*;
+        match self {
+            Access(n) => n.set_id(id),
+            Binary(n) => n.set_id(id),
+            Call(n) => n.set_id(id),
+            Cast(n) => n.set_id(id),
+            Struct(n) => n.set_id(id),
+            Identifier(n) => n.set_id(id),
+            Literal(n) => n.set_id(id),
+            Err(n) => n.set_id(id),
+            Ternary(n) => n.set_id(id),
+            Tuple(n) => n.set_id(id),
+            Unary(n) => n.set_id(id),
+            Unit(n) => n.set_id(id),
         }
     }
 }

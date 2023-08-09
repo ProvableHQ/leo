@@ -86,6 +86,8 @@ pub struct UnaryExpression {
     pub op: UnaryOperation,
     /// The span covering `op inner`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for UnaryExpression {

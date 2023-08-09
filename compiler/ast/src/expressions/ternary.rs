@@ -27,6 +27,8 @@ pub struct TernaryExpression {
     pub if_false: Box<Expression>,
     /// The span from `condition` to `if_false`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for TernaryExpression {

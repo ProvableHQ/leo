@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{External, Identifier, Mode, Node, Type};
+use crate::{External, Identifier, Mode, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -78,6 +78,22 @@ impl Node for Input {
             External(input) => input.set_span(span),
         }
     }
+
+    fn id(&self) -> usize {
+        use Input::*;
+        match self {
+            Internal(input) => input.id(),
+            External(input) => input.id(),
+        }
+    }
+
+    fn set_id(&mut self, id: usize) {
+        use Input::*;
+        match self {
+            Internal(input) => input.set_id(id),
+            External(input) => input.set_id(id),
+        }
+    }
 }
 
 /// A function parameter.
@@ -91,6 +107,8 @@ pub struct FunctionInput {
     pub type_: Type,
     /// The parameters span from any annotations to its type.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl FunctionInput {

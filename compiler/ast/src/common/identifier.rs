@@ -17,7 +17,7 @@
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
-use crate::{simple_node_impl, Node};
+use crate::{simple_node_impl, Node, NodeID};
 use serde::{
     de::{
         Visitor,
@@ -45,6 +45,8 @@ pub struct Identifier {
     pub name: Symbol,
     /// A span locating where the identifier occurred in the source.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 simple_node_impl!(Identifier);

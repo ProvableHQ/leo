@@ -21,6 +21,8 @@ use super::*;
 pub struct UnitExpression {
     /// The span of the unit expression.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for UnitExpression {

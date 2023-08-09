@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, PositiveNumber};
+use crate::{Expression, Node, NodeID, PositiveNumber};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -29,6 +29,8 @@ pub struct TupleAccess {
     pub index: PositiveNumber,
     /// The span for the entire expression `tuple.index`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for TupleAccess {

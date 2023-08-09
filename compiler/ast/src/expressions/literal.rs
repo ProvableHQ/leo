@@ -86,4 +86,12 @@ impl Node for Literal {
             },
         }
     }
+
+    fn id(&self) -> NodeID {
+        todo!()
+    }
+
+    fn set_id(&mut self, id: NodeID) {
+        todo!()
+    }
 }

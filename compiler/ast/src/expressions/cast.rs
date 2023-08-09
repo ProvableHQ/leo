@@ -27,6 +27,8 @@ pub struct CastExpression {
     pub type_: Type,
     /// Span of the entire cast `42u8 as u16`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for CastExpression {
