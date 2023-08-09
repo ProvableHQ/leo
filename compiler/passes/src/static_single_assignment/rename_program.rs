@@ -16,20 +16,7 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{
-    Block,
-    Finalize,
-    Function,
-    FunctionConsumer,
-    Member,
-    Program,
-    ProgramConsumer,
-    ProgramScope,
-    ProgramScopeConsumer,
-    StatementConsumer,
-    Struct,
-    StructConsumer,
-};
+use leo_ast::{Block, Finalize, Function, FunctionConsumer, Member, NodeID, Program, ProgramConsumer, ProgramScope, ProgramScopeConsumer, StatementConsumer, Struct, StructConsumer};
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
@@ -73,7 +60,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
-        let block = Block { span: function.block.span, statements: self.consume_block(function.block) };
+        let block = Block { span: function.block.span, statements: self.consume_block(function.block), id: function.block.id };
 
         // Remove the `RenameTable` for the function.
         self.pop();
@@ -88,7 +75,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                 self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
-            let block = Block { span: finalize.block.span, statements: self.consume_block(finalize.block) };
+            let block = Block { span: finalize.block.span, statements: self.consume_block(finalize.block), id: finalize.block.id };
 
             // Remove the `RenameTable` for the finalize block.
             self.pop();
@@ -100,6 +87,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: finalize.id,
             }
         });
 
@@ -113,6 +101,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             block,
             finalize,
             span: function.span,
+            id: function.id,
         }
     }
 }

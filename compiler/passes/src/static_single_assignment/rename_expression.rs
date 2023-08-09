@@ -16,27 +16,7 @@
 
 use crate::StaticSingleAssigner;
 
-use leo_ast::{
-    AccessExpression,
-    AssociatedFunction,
-    BinaryExpression,
-    CallExpression,
-    CastExpression,
-    Expression,
-    ExpressionConsumer,
-    Identifier,
-    Literal,
-    MemberAccess,
-    Statement,
-    Struct,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    TupleExpression,
-    UnaryExpression,
-    UnitExpression,
-};
+use leo_ast::{AccessExpression, AssociatedFunction, BinaryExpression, CallExpression, CastExpression, Expression, ExpressionConsumer, Identifier, Literal, MemberAccess, NodeID, Statement, Struct, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, UnitExpression};
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
@@ -64,6 +44,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                             })
                             .collect(),
                         span: function.span,
+                        id: function.id
                     }),
                     statements,
                 )
@@ -83,6 +64,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                         inner: Box::new(expr),
                         name: member.name,
                         span: member.span,
+                        id: member.id
                     }),
                     statements,
                 )
@@ -94,6 +76,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                         tuple: Box::new(expr),
                         index: tuple.index,
                         span: tuple.span,
+                        id: tuple.id
                     }),
                     statements,
                 )
@@ -121,6 +104,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             right: Box::new(right_expression),
             op: input.op,
             span: input.span,
+            id: NodeID::default(),
         }));
         statements.push(statement);
 
@@ -150,6 +134,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             arguments,
             external: input.external,
             span: input.span,
+            id: NodeID::default(),
         }));
         statements.push(statement);
 
@@ -166,6 +151,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             expression: Box::new(expression),
             type_: input.type_,
             span: input.span,
+            id: NodeID::default(),
         }));
         statements.push(statement);
 
@@ -193,7 +179,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                 statements.append(&mut stmts);
 
                 // Return the new member.
-                StructVariableInitializer { identifier: arg.identifier, expression: Some(expression) }
+                StructVariableInitializer { identifier: arg.identifier, expression: Some(expression), id: arg.id }
             })
             .collect();
 
@@ -233,6 +219,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             name: input.name,
             span: input.span,
             members: reordered_members,
+            id: NodeID::default(),
         }));
         statements.push(statement);
 
@@ -255,7 +242,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             false => *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: identifier.span }), Default::default())
+        (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.
@@ -282,6 +269,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             if_true: Box::new(if_true_expr),
             if_false: Box::new(if_false_expr),
             span: input.span,
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -306,7 +294,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Construct and accumulate a new assignment statement for the tuple expression.
         let (place, statement) = self
             .assigner
-            .unique_simple_assign_statement(Expression::Tuple(TupleExpression { elements, span: input.span }));
+            .unique_simple_assign_statement(Expression::Tuple(TupleExpression { elements, span: input.span, id: NodeID::default() }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -322,6 +310,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             op: input.op,
             receiver: Box::new(receiver),
             span: input.span,
+            id: NodeID::default(),
         }));
         statements.push(statement);
 

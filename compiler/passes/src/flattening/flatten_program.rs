@@ -47,6 +47,7 @@ impl ProgramReconstructor for Flattener<'_> {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: finalize.id,
             }
         });
 
@@ -77,6 +78,7 @@ impl ProgramReconstructor for Flattener<'_> {
             block,
             finalize,
             span: function.span,
+            id: function.id,
         }
     }
 }

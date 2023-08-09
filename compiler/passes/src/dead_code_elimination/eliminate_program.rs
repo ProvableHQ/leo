@@ -43,6 +43,7 @@ impl ProgramReconstructor for DeadCodeEliminator {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: finalize.id,
             }
         });
 
@@ -56,6 +57,7 @@ impl ProgramReconstructor for DeadCodeEliminator {
             block,
             finalize,
             span: input.span,
+            id: input.id,
         }
     }
 }

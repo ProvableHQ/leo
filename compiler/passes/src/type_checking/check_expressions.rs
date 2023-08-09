@@ -595,10 +595,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         }
 
         Some(match input {
-            Literal::Address(_, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
-            Literal::Boolean(_, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
-            Literal::Field(_, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
-            Literal::Integer(integer_type, string, _) => match integer_type {
+            Literal::Address(_, _, _) => self.assert_and_return_type(Type::Address, expected, input.span()),
+            Literal::Boolean(_, _, _) => self.assert_and_return_type(Type::Boolean, expected, input.span()),
+            Literal::Field(_, _, _) => self.assert_and_return_type(Type::Field, expected, input.span()),
+            Literal::Integer(integer_type, string, _, _) => match integer_type {
                 IntegerType::U8 => {
                     parse_integer_literal::<u8>(self.handler, string, input.span(), "u8");
                     self.assert_and_return_type(Type::Integer(IntegerType::U8), expected, input.span())
@@ -641,8 +641,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 }
             },
             Literal::Group(_) => self.assert_and_return_type(Type::Group, expected, input.span()),
-            Literal::Scalar(_, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
-            Literal::String(_, _) => {
+            Literal::Scalar(_, _, _) => self.assert_and_return_type(Type::Scalar, expected, input.span()),
+            Literal::String(_, _, _) => {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(input.span()));
                 self.assert_and_return_type(Type::String, expected, input.span())
             }

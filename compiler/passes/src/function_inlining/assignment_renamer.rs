@@ -79,7 +79,7 @@ impl ExpressionReconstructor for AssignmentRenamer {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span }), Default::default())
+        (Expression::Identifier(Identifier { name, span: input.span, id: input.id }), Default::default())
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -98,9 +98,11 @@ impl ExpressionReconstructor for AssignmentRenamer {
                                 "SSA guarantees that all struct members are always of the form `<id> : <expr>`."
                             ),
                         },
+                        id: member.id,
                     })
                     .collect(),
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )

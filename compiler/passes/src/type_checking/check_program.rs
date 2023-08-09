@@ -133,7 +133,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             check_has_field(sym::owner, Type::Address);
         }
 
-        for Member { mode, identifier, type_, span } in input.members.iter() {
+        for Member { mode, identifier, type_, span, .. } in input.members.iter() {
             // Check that the member type is not a tuple.
             if matches!(type_, Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(

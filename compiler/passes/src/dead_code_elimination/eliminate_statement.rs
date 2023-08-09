@@ -16,23 +16,7 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{
-    AccessExpression,
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionReconstructor,
-    ExpressionStatement,
-    IterationStatement,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
-};
+use leo_ast::{AccessExpression, AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, ExpressionStatement, IterationStatement, ReturnStatement, Statement, StatementReconstructor};
 
 impl StatementReconstructor for DeadCodeEliminator {
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
@@ -51,6 +35,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 }
             },
             span: input.span,
+            id: input.id,
         });
 
         // Unset the `is_necessary` flag.
@@ -90,6 +75,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                     place: input.place,
                     value: self.reconstruct_expression(input.value).0,
                     span: input.span,
+                    id: input.id,
                 }));
 
                 // Unset the `is_necessary` flag.
@@ -111,7 +97,7 @@ impl StatementReconstructor for DeadCodeEliminator {
         // Reverse the direction of `statements`.
         statements.reverse();
 
-        (Block { statements, span: block.span }, Default::default())
+        (Block { statements, span: block.span, id: block.id }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -142,6 +128,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 let statement = Statement::Expression(ExpressionStatement {
                     expression: self.reconstruct_call(expression).0,
                     span: input.span,
+                    id: input.id,
                 });
 
                 // Unset the `is_necessary` flag.
@@ -157,6 +144,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                             .reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
                             .0,
                         span: input.span,
+                        id: input.id,
                     }),
                     Default::default(),
                 )
@@ -183,6 +171,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
             }),
             span: input.span,
+            id: input.id,
         });
 
         // Unset the `is_necessary` flag.

@@ -16,17 +16,7 @@
 
 use crate::{FunctionInliner, Replacer};
 
-use leo_ast::{
-    CallExpression,
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
-    ReturnStatement,
-    Statement,
-    StatementReconstructor,
-    UnitExpression,
-    Variant,
-};
+use leo_ast::{CallExpression, Expression, ExpressionReconstructor, Identifier, NodeID, ReturnStatement, Statement, StatementReconstructor, UnitExpression, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -89,7 +79,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                             _ => unreachable!("This branch checks that the last statement is a return statement."),
                         }
                     }
-                    _ => Expression::Unit(UnitExpression { span: Default::default() }),
+                    _ => Expression::Unit(UnitExpression { span: Default::default(), id: NodeID::default() }),
                 };
 
                 (result, inlined_statements)
