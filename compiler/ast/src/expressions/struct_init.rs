@@ -17,7 +17,6 @@
 use super::*;
 use leo_span::sym;
 
-// TODO (@d0cd): Make this a node in the AST.
 /// An initializer for a single field / variable of a struct initializer expression.
 /// That is, in `Foo { bar: 42, baz }`, this is either `bar: 42`, or `baz`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
