@@ -60,7 +60,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
-        let block = Block { span: function.block.span, statements: self.consume_block(function.block), id: function.block.id };
+        let block = Block { span: function.block.span, statements: self.consume_block(function.block), id: NodeID::default() };
 
         // Remove the `RenameTable` for the function.
         self.pop();
@@ -75,7 +75,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                 self.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
-            let block = Block { span: finalize.block.span, statements: self.consume_block(finalize.block), id: finalize.block.id };
+            let block = Block { span: finalize.block.span, statements: self.consume_block(finalize.block), id: NodeID::default() };
 
             // Remove the `RenameTable` for the finalize block.
             self.pop();

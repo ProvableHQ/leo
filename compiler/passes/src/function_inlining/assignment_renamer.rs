@@ -15,21 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Assigner, RenameTable};
-use leo_ast::{
-    AssignStatement,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
-    IterationStatement,
-    ProgramReconstructor,
-    Statement,
-    StatementReconstructor,
-    StructExpression,
-    StructVariableInitializer,
-};
+use leo_ast::{AssignStatement, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionReconstructor, Identifier, IterationStatement, NodeID, ProgramReconstructor, Statement, StatementReconstructor, StructExpression, StructVariableInitializer};
 use leo_span::Symbol;
 
 // TODO: Generalize the functionality of this reconstructor to be used in other passes.
@@ -121,7 +107,7 @@ impl StatementReconstructor for AssignmentRenamer {
         let place = self.reconstruct_expression(input.place).0;
         self.is_lhs = false;
 
-        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), Default::default())
+        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })), Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
