@@ -22,6 +22,7 @@ outputs:
                   span:
                     lo: 48
                     hi: 50
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -36,16 +37,20 @@ outputs:
                         span:
                           lo: 61
                           hi: 66
+                        id: 0
                     span:
                       lo: 61
                       hi: 67
+                    id: 0
               span:
                 lo: 51
                 hi: 73
+              id: 0
             finalize: ~
             span:
               lo: 30
               hi: 73
+            id: 0
           main:
             annotations: []
             variant: Standard
@@ -58,6 +63,7 @@ outputs:
                   span:
                     lo: 97
                     hi: 98
+                  id: 0
             output:
               - Internal:
                   mode: None
@@ -65,6 +71,7 @@ outputs:
                   span:
                     lo: 109
                     hi: 113
+                  id: 0
             output_type: Boolean
             block:
               statements:
@@ -78,9 +85,11 @@ outputs:
                         span:
                           lo: 124
                           hi: 129
+                        id: 0
                     span:
                       lo: 124
                       hi: 130
+                    id: 0
                 - Return:
                     expression:
                       Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
@@ -88,13 +97,16 @@ outputs:
                     span:
                       lo: 139
                       hi: 148
+                    id: 0
               span:
                 lo: 114
                 hi: 154
+              id: 0
             finalize: ~
             span:
               lo: 83
               hi: 154
+            id: 0
         span:
           lo: 2
           hi: 156

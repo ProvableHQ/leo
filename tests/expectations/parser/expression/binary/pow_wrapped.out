@@ -15,14 +15,17 @@ outputs:
               span:
                 lo: 2
                 hi: 18
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 18
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 18
+      id: 0
   - Binary:
       left:
         Binary:
@@ -36,18 +39,21 @@ outputs:
               span:
                 lo: 0
                 hi: 16
+              id: 0
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":29,\\\"hi\\\":30}\"}"
           op: PowWrapped
           span:
             lo: 0
             hi: 31
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":44,\\\"hi\\\":45}\"}"
       op: PowWrapped
       span:
         lo: 0
         hi: 46
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -59,10 +65,12 @@ outputs:
           span:
             lo: 1
             hi: 17
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 17
+      id: 0
   - Binary:
       left:
         Unary:
@@ -72,12 +80,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
       op: PowWrapped
       span:
         lo: 1
         hi: 19
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -89,10 +99,12 @@ outputs:
           span:
             lo: 2
             hi: 18
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 18
+      id: 0
   - Binary:
       left:
         Unary:
@@ -106,16 +118,19 @@ outputs:
               span:
                 lo: 2
                 hi: 18
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 18
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
       op: PowWrapped
       span:
         lo: 1
         hi: 34
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -127,10 +142,12 @@ outputs:
           span:
             lo: 1
             hi: 17
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 17
+      id: 0
   - Binary:
       left:
         Unary:
@@ -140,12 +157,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
       op: PowWrapped
       span:
         lo: 1
         hi: 19
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -157,10 +176,12 @@ outputs:
           span:
             lo: 2
             hi: 18
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 18
+      id: 0
   - Binary:
       left:
         Unary:
@@ -174,16 +195,19 @@ outputs:
               span:
                 lo: 2
                 hi: 18
+              id: 0
           op: Not
           span:
             lo: 1
             hi: 18
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":32,\\\"hi\\\":33}\"}"
       op: PowWrapped
       span:
         lo: 1
         hi: 34
+      id: 0
   - Binary:
       left:
         Binary:
@@ -197,6 +221,7 @@ outputs:
               span:
                 lo: 1
                 hi: 17
+              id: 0
           right:
             Binary:
               left:
@@ -207,10 +232,12 @@ outputs:
               span:
                 lo: 21
                 hi: 37
+              id: 0
           op: Pow
           span:
             lo: 1
             hi: 37
+          id: 0
       right:
         Binary:
           left:
@@ -223,6 +250,7 @@ outputs:
               span:
                 lo: 51
                 hi: 67
+              id: 0
           right:
             Binary:
               left:
@@ -233,11 +261,14 @@ outputs:
               span:
                 lo: 71
                 hi: 87
+              id: 0
           op: Pow
           span:
             lo: 51
             hi: 87
+          id: 0
       op: PowWrapped
       span:
         lo: 1
         hi: 88
+      id: 0

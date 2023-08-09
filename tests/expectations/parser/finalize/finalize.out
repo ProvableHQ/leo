@@ -21,12 +21,14 @@ outputs:
                   span:
                     lo: 133
                     hi: 137
+                  id: 0
             output_type: Boolean
             block:
               statements: []
               span:
                 lo: 138
                 hi: 150
+              id: 0
             finalize:
               identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":164}\"}"
               input:
@@ -38,6 +40,7 @@ outputs:
                     span:
                       lo: 165
                       hi: 166
+                    id: 0
                 - Internal:
                     identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
                     mode: None
@@ -46,6 +49,7 @@ outputs:
                     span:
                       lo: 173
                       hi: 174
+                    id: 0
               output:
                 - Internal:
                     mode: None
@@ -54,6 +58,7 @@ outputs:
                     span:
                       lo: 184
                       hi: 187
+                    id: 0
               output_type:
                 Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
               block:
@@ -61,12 +66,15 @@ outputs:
                 span:
                   lo: 188
                   hi: 200
+                id: 0
               span:
                 lo: 151
                 hi: 200
+              id: 0
             span:
               lo: 114
               hi: 150
+            id: 0
         span:
           lo: 2
           hi: 212

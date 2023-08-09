@@ -22,6 +22,7 @@ outputs:
                   span:
                     lo: 37
                     hi: 38
+                  id: 0
               - Internal:
                   identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}"
                   mode: None
@@ -30,6 +31,7 @@ outputs:
                   span:
                     lo: 45
                     hi: 46
+                  id: 0
             output:
               - Internal:
                   mode: None
@@ -38,6 +40,7 @@ outputs:
                   span:
                     lo: 56
                     hi: 59
+                  id: 0
             output_type:
               Integer: U32
             block:
@@ -51,17 +54,21 @@ outputs:
                           - span:
                               lo: 77
                               hi: 81
+                          - 0
                     finalize_arguments: ~
                     span:
                       lo: 70
                       hi: 82
+                    id: 0
               span:
                 lo: 60
                 hi: 88
+              id: 0
             finalize: ~
             span:
               lo: 26
               hi: 88
+            id: 0
         span:
           lo: 2
           hi: 90

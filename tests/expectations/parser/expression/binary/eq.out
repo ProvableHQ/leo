@@ -11,6 +11,7 @@ outputs:
             - span:
                 lo: 0
                 hi: 3
+            - 0
       right:
         Literal:
           Integer:
@@ -19,10 +20,12 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
+            - 0
       op: Eq
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Literal:
@@ -32,6 +35,7 @@ outputs:
             - span:
                 lo: 0
                 hi: 3
+            - 0
       right:
         Literal:
           Integer:
@@ -40,10 +44,12 @@ outputs:
             - span:
                 lo: 5
                 hi: 8
+            - 0
       op: Eq
       span:
         lo: 0
         hi: 8
+      id: 0
   - Binary:
       left:
         Binary:
@@ -55,6 +61,7 @@ outputs:
                 - span:
                     lo: 0
                     hi: 3
+                - 0
           right:
             Literal:
               Integer:
@@ -63,10 +70,12 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
+                - 0
           op: Lt
           span:
             lo: 0
             hi: 9
+          id: 0
       right:
         Binary:
           left:
@@ -77,6 +86,7 @@ outputs:
                 - span:
                     lo: 13
                     hi: 16
+                - 0
           right:
             Literal:
               Integer:
@@ -85,14 +95,17 @@ outputs:
                 - span:
                     lo: 19
                     hi: 22
+                - 0
           op: Lt
           span:
             lo: 13
             hi: 22
+          id: 0
       op: Eq
       span:
         lo: 0
         hi: 22
+      id: 0
   - Binary:
       left:
         Binary:
@@ -106,6 +119,7 @@ outputs:
                     - span:
                         lo: 0
                         hi: 3
+                    - 0
               right:
                 Literal:
                   Integer:
@@ -114,10 +128,12 @@ outputs:
                     - span:
                         lo: 6
                         hi: 9
+                    - 0
               op: Lt
               span:
                 lo: 0
                 hi: 9
+              id: 0
           right:
             Binary:
               left:
@@ -128,6 +144,7 @@ outputs:
                     - span:
                         lo: 13
                         hi: 16
+                    - 0
               right:
                 Literal:
                   Integer:
@@ -136,14 +153,17 @@ outputs:
                     - span:
                         lo: 19
                         hi: 22
+                    - 0
               op: Lt
               span:
                 lo: 13
                 hi: 22
+              id: 0
           op: Eq
           span:
             lo: 0
             hi: 22
+          id: 0
       right:
         Binary:
           left:
@@ -156,6 +176,7 @@ outputs:
                     - span:
                         lo: 26
                         hi: 29
+                    - 0
               right:
                 Literal:
                   Integer:
@@ -164,10 +185,12 @@ outputs:
                     - span:
                         lo: 32
                         hi: 35
+                    - 0
               op: Lt
               span:
                 lo: 26
                 hi: 35
+              id: 0
           right:
             Binary:
               left:
@@ -178,6 +201,7 @@ outputs:
                     - span:
                         lo: 39
                         hi: 42
+                    - 0
               right:
                 Literal:
                   Integer:
@@ -186,18 +210,22 @@ outputs:
                     - span:
                         lo: 45
                         hi: 48
+                    - 0
               op: Lt
               span:
                 lo: 39
                 hi: 48
+              id: 0
           op: Eq
           span:
             lo: 26
             hi: 48
+          id: 0
       op: And
       span:
         lo: 0
         hi: 48
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -211,14 +239,17 @@ outputs:
               span:
                 lo: 2
                 hi: 9
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 9
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 9
+      id: 0
   - Binary:
       left:
         Binary:
@@ -232,18 +263,21 @@ outputs:
               span:
                 lo: 0
                 hi: 7
+              id: 0
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
           op: Eq
           span:
             lo: 0
             hi: 13
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
       op: Eq
       span:
         lo: 0
         hi: 19
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -255,10 +289,12 @@ outputs:
           span:
             lo: 1
             hi: 8
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 8
+      id: 0
   - Binary:
       left:
         Unary:
@@ -268,12 +304,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       op: Eq
       span:
         lo: 1
         hi: 10
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -285,10 +323,12 @@ outputs:
           span:
             lo: 2
             hi: 9
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 9
+      id: 0
   - Binary:
       left:
         Unary:
@@ -302,16 +342,19 @@ outputs:
               span:
                 lo: 2
                 hi: 9
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 9
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
       op: Eq
       span:
         lo: 1
         hi: 16
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -323,10 +366,12 @@ outputs:
           span:
             lo: 1
             hi: 8
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 8
+      id: 0
   - Binary:
       left:
         Unary:
@@ -336,12 +381,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       op: Eq
       span:
         lo: 1
         hi: 10
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -353,10 +400,12 @@ outputs:
           span:
             lo: 2
             hi: 9
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 9
+      id: 0
   - Binary:
       left:
         Unary:
@@ -370,16 +419,19 @@ outputs:
               span:
                 lo: 2
                 hi: 9
+              id: 0
           op: Not
           span:
             lo: 1
             hi: 9
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
       op: Eq
       span:
         lo: 1
         hi: 16
+      id: 0
   - Binary:
       left:
         Binary:
@@ -393,6 +445,7 @@ outputs:
               span:
                 lo: 1
                 hi: 8
+              id: 0
           right:
             Binary:
               left:
@@ -403,10 +456,12 @@ outputs:
               span:
                 lo: 12
                 hi: 19
+              id: 0
           op: Eq
           span:
             lo: 1
             hi: 19
+          id: 0
       right:
         Binary:
           left:
@@ -419,6 +474,7 @@ outputs:
               span:
                 lo: 24
                 hi: 31
+              id: 0
           right:
             Binary:
               left:
@@ -429,11 +485,14 @@ outputs:
               span:
                 lo: 35
                 hi: 42
+              id: 0
           op: Eq
           span:
             lo: 24
             hi: 42
+          id: 0
       op: Eq
       span:
         lo: 1
         hi: 43
+      id: 0

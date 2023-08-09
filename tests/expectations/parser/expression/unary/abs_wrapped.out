@@ -9,6 +9,7 @@ outputs:
       span:
         lo: 0
         hi: 15
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -20,14 +21,17 @@ outputs:
               span:
                 lo: 0
                 hi: 15
+              id: 0
           op: AbsWrapped
           span:
             lo: 0
             hi: 29
+          id: 0
       op: AbsWrapped
       span:
         lo: 0
         hi: 43
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -37,10 +41,12 @@ outputs:
           span:
             lo: 1
             hi: 16
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 16
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -50,10 +56,12 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       op: AbsWrapped
       span:
         lo: 1
         hi: 18
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -63,10 +71,12 @@ outputs:
           span:
             lo: 2
             hi: 17
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 17
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -78,14 +88,17 @@ outputs:
               span:
                 lo: 2
                 hi: 17
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 17
+          id: 0
       op: AbsWrapped
       span:
         lo: 1
         hi: 32
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -95,10 +108,12 @@ outputs:
           span:
             lo: 1
             hi: 16
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 16
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -108,10 +123,12 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       op: AbsWrapped
       span:
         lo: 1
         hi: 18
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -121,10 +138,12 @@ outputs:
           span:
             lo: 2
             hi: 17
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 17
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -136,11 +155,14 @@ outputs:
               span:
                 lo: 2
                 hi: 17
+              id: 0
           op: Not
           span:
             lo: 1
             hi: 17
+          id: 0
       op: AbsWrapped
       span:
         lo: 1
         hi: 32
+      id: 0

@@ -15,6 +15,7 @@ outputs:
                 span:
                   lo: 170
                   hi: 178
+                id: 0
             variant: Standard
             identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
             input: []
@@ -26,6 +27,7 @@ outputs:
                   span:
                     lo: 201
                     hi: 203
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -33,10 +35,12 @@ outputs:
               span:
                 lo: 204
                 hi: 206
+              id: 0
             finalize: ~
             span:
               lo: 183
               hi: 206
+            id: 0
           mint:
             annotations: []
             variant: Transition
@@ -50,6 +54,7 @@ outputs:
                   span:
                     lo: 111
                     hi: 113
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -57,16 +62,19 @@ outputs:
               span:
                 lo: 114
                 hi: 116
+              id: 0
             finalize: ~
             span:
               lo: 90
               hi: 116
+            id: 0
           test:
             annotations:
               - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":127,\\\"hi\\\":131}\"}"
                 span:
                   lo: 126
                   hi: 131
+                id: 0
             variant: Standard
             identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
             input: []
@@ -78,6 +86,7 @@ outputs:
                   span:
                     lo: 155
                     hi: 157
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -85,10 +94,12 @@ outputs:
               span:
                 lo: 158
                 hi: 160
+              id: 0
             finalize: ~
             span:
               lo: 136
               hi: 160
+            id: 0
         span:
           lo: 2
           hi: 208

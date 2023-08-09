@@ -15,9 +15,11 @@ outputs:
           span:
             lo: 0
             hi: 24
+          id: 0
       span:
         lo: 0
         hi: 25
+      id: 0
   - Expression:
       expression:
         Call:
@@ -32,6 +34,7 @@ outputs:
                   - span:
                       lo: 15
                       hi: 18
+                  - 0
             - Literal:
                 Integer:
                   - U8
@@ -39,13 +42,16 @@ outputs:
                   - span:
                       lo: 20
                       hi: 23
+                  - 0
           external: ~
           span:
             lo: 0
             hi: 24
+          id: 0
       span:
         lo: 0
         hi: 25
+      id: 0
   - Expression:
       expression:
         Call:
@@ -58,9 +64,11 @@ outputs:
           span:
             lo: 0
             hi: 19
+          id: 0
       span:
         lo: 0
         hi: 20
+      id: 0
   - Expression:
       expression:
         Call:
@@ -71,6 +79,8 @@ outputs:
           span:
             lo: 0
             hi: 11
+          id: 0
       span:
         lo: 0
         hi: 12
+      id: 0

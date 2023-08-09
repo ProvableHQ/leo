@@ -10,6 +10,7 @@ outputs:
       span:
         lo: 0
         hi: 8
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
@@ -23,9 +24,11 @@ outputs:
           span:
             lo: 4
             hi: 7
+          id: 0
       span:
         lo: 0
         hi: 7
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
@@ -38,6 +41,8 @@ outputs:
           span:
             lo: 4
             hi: 7
+          id: 0
       span:
         lo: 0
         hi: 7
+      id: 0

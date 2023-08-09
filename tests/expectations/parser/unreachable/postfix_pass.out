@@ -13,6 +13,7 @@ outputs:
       span:
         lo: 0
         hi: 19
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -24,6 +25,7 @@ outputs:
       span:
         lo: 0
         hi: 14
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -35,6 +37,7 @@ outputs:
       span:
         lo: 0
         hi: 15
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -46,6 +49,7 @@ outputs:
       span:
         lo: 0
         hi: 20
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -57,6 +61,7 @@ outputs:
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -68,6 +73,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -79,6 +85,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -90,6 +97,7 @@ outputs:
       span:
         lo: 0
         hi: 15
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -101,6 +109,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -112,6 +121,7 @@ outputs:
       span:
         lo: 0
         hi: 15
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -123,6 +133,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -134,6 +145,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -145,6 +157,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -156,6 +169,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -167,6 +181,7 @@ outputs:
       span:
         lo: 0
         hi: 15
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -178,6 +193,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -189,6 +205,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -200,6 +217,7 @@ outputs:
       span:
         lo: 0
         hi: 16
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -211,6 +229,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -222,6 +241,7 @@ outputs:
       span:
         lo: 0
         hi: 19
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -233,6 +253,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -244,6 +265,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -255,6 +277,7 @@ outputs:
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -266,6 +289,7 @@ outputs:
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -277,3 +301,4 @@ outputs:
       span:
         lo: 0
         hi: 14
+      id: 0

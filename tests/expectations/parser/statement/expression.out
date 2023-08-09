@@ -8,6 +8,7 @@ outputs:
       span:
         lo: 0
         hi: 5
+      id: 0
   - Expression:
       expression:
         Binary:
@@ -19,9 +20,11 @@ outputs:
           span:
             lo: 0
             hi: 3
+          id: 0
       span:
         lo: 0
         hi: 4
+      id: 0
   - Expression:
       expression:
         Call:
@@ -32,6 +35,8 @@ outputs:
           span:
             lo: 0
             hi: 3
+          id: 0
       span:
         lo: 0
         hi: 4
+      id: 0

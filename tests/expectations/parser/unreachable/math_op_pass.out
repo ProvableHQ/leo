@@ -18,9 +18,11 @@ outputs:
           span:
             lo: 12
             hi: 18
+          id: 0
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -37,9 +39,11 @@ outputs:
           span:
             lo: 12
             hi: 18
+          id: 0
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -56,9 +60,11 @@ outputs:
           span:
             lo: 12
             hi: 17
+          id: 0
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -75,9 +81,11 @@ outputs:
           span:
             lo: 12
             hi: 18
+          id: 0
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -94,9 +102,11 @@ outputs:
           span:
             lo: 12
             hi: 17
+          id: 0
       span:
         lo: 0
         hi: 17
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -113,9 +123,11 @@ outputs:
           span:
             lo: 12
             hi: 18
+          id: 0
       span:
         lo: 0
         hi: 18
+      id: 0
   - Definition:
       declaration_type: Let
       place:
@@ -132,9 +144,11 @@ outputs:
           span:
             lo: 12
             hi: 17
+          id: 0
       span:
         lo: 0
         hi: 17
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
@@ -143,6 +157,7 @@ outputs:
       span:
         lo: 0
         hi: 4
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
@@ -151,6 +166,7 @@ outputs:
       span:
         lo: 0
         hi: 10
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
@@ -159,6 +175,7 @@ outputs:
       span:
         lo: 0
         hi: 8
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -167,6 +184,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -175,6 +193,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
@@ -183,6 +202,7 @@ outputs:
       span:
         lo: 0
         hi: 5
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
@@ -191,6 +211,7 @@ outputs:
       span:
         lo: 0
         hi: 7
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
@@ -199,6 +220,7 @@ outputs:
       span:
         lo: 0
         hi: 5
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -207,6 +229,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -215,6 +238,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -223,6 +247,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
@@ -231,6 +256,7 @@ outputs:
       span:
         lo: 0
         hi: 7
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
@@ -239,6 +265,7 @@ outputs:
       span:
         lo: 0
         hi: 5
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -247,6 +274,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -255,6 +283,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -263,6 +292,7 @@ outputs:
       span:
         lo: 0
         hi: 6
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
@@ -271,6 +301,7 @@ outputs:
       span:
         lo: 0
         hi: 7
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
@@ -279,6 +310,7 @@ outputs:
       span:
         lo: 0
         hi: 9
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
@@ -287,6 +319,7 @@ outputs:
       span:
         lo: 0
         hi: 7
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
@@ -295,6 +328,7 @@ outputs:
       span:
         lo: 0
         hi: 8
+      id: 0
   - Assign:
       place:
         Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
@@ -303,3 +337,4 @@ outputs:
       span:
         lo: 0
         hi: 4
+      id: 0

@@ -8,3 +8,4 @@ outputs:
         - span:
             lo: 0
             hi: 63
+        - 0

@@ -15,6 +15,7 @@ outputs:
                 span:
                   lo: 30
                   hi: 38
+                id: 0
             variant: Standard
             identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}"
             input: []
@@ -26,6 +27,7 @@ outputs:
                   span:
                     lo: 59
                     hi: 61
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -39,23 +41,28 @@ outputs:
                           - span:
                               lo: 79
                               hi: 82
+                          - 0
                     finalize_arguments: ~
                     span:
                       lo: 72
                       hi: 83
+                    id: 0
               span:
                 lo: 62
                 hi: 89
+              id: 0
             finalize: ~
             span:
               lo: 43
               hi: 89
+            id: 0
           g:
             annotations:
               - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":107}\"}"
                 span:
                   lo: 99
                   hi: 107
+                id: 0
             variant: Standard
             identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
             input: []
@@ -67,6 +74,7 @@ outputs:
                   span:
                     lo: 148
                     hi: 150
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -80,17 +88,21 @@ outputs:
                           - span:
                               lo: 168
                               hi: 171
+                          - 0
                     finalize_arguments: ~
                     span:
                       lo: 161
                       hi: 172
+                    id: 0
               span:
                 lo: 151
                 hi: 178
+              id: 0
             finalize: ~
             span:
               lo: 132
               hi: 178
+            id: 0
         span:
           lo: 2
           hi: 180

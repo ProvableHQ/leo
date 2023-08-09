@@ -12,6 +12,7 @@ outputs:
         span:
           lo: 0
           hi: 25
+        id: 0
   - Access:
       AssociatedFunction:
         ty:
@@ -22,3 +23,4 @@ outputs:
         span:
           lo: 0
           hi: 25
+        id: 0

@@ -9,6 +9,7 @@ outputs:
       span:
         lo: 0
         hi: 12
+      id: 0
   - Return:
       expression:
         Literal:
@@ -18,7 +19,9 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
+            - 0
       finalize_arguments: ~
       span:
         lo: 0
         hi: 11
+      id: 0

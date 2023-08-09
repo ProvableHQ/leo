@@ -17,6 +17,7 @@ outputs:
             span:
               lo: 64
               hi: 86
+            id: 0
         functions: {}
         span:
           lo: 2

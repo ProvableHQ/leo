@@ -9,6 +9,7 @@ outputs:
         - span:
             lo: 0
             hi: 6
+        - 0
   - Literal:
       Integer:
         - U32
@@ -16,6 +17,7 @@ outputs:
         - span:
             lo: 0
             hi: 6
+        - 0
   - Literal:
       Integer:
         - U32
@@ -23,6 +25,7 @@ outputs:
         - span:
             lo: 0
             hi: 6
+        - 0
   - Literal:
       Integer:
         - U32
@@ -30,6 +33,7 @@ outputs:
         - span:
             lo: 0
             hi: 83
+        - 0
   - Literal:
       Integer:
         - U32
@@ -37,6 +41,7 @@ outputs:
         - span:
             lo: 0
             hi: 403
+        - 0
   - Literal:
       Integer:
         - U32
@@ -44,6 +49,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -51,6 +57,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -58,6 +65,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -65,6 +73,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -72,6 +81,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -79,6 +89,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -86,6 +97,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -93,6 +105,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -100,6 +113,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -107,6 +121,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -114,6 +129,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -121,6 +137,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -128,6 +145,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -135,6 +153,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -142,6 +161,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -149,6 +169,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -156,6 +177,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U32
@@ -163,6 +185,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -170,6 +193,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -177,6 +201,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -184,6 +209,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -191,6 +217,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -198,6 +225,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -205,6 +233,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -212,6 +241,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -219,6 +249,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -226,6 +257,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -233,6 +265,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -240,6 +273,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -247,6 +281,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -254,6 +289,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -261,6 +297,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -268,6 +305,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -275,6 +313,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -282,6 +321,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -289,6 +329,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -296,6 +337,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -303,6 +345,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -310,6 +353,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -317,6 +361,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -324,6 +369,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -331,6 +377,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -338,6 +385,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -345,6 +393,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -352,6 +401,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -359,6 +409,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -366,6 +417,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -373,6 +425,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -380,6 +433,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -387,6 +441,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -394,6 +449,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -401,6 +457,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -408,6 +465,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -415,6 +473,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -422,6 +481,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -429,6 +489,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -436,6 +497,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -443,6 +505,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -450,6 +513,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -457,6 +521,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -464,6 +529,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -471,6 +537,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -478,6 +545,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -485,6 +553,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -492,6 +561,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -499,6 +569,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -506,6 +577,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -513,6 +585,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -520,6 +593,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -527,6 +601,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -534,6 +609,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -541,6 +617,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -548,6 +625,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -555,6 +633,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -562,6 +641,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -569,6 +649,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -576,6 +657,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -583,6 +665,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -590,6 +673,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -597,6 +681,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -604,6 +689,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -611,6 +697,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -618,6 +705,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -625,6 +713,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -632,6 +721,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -639,6 +729,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -646,6 +737,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -653,6 +745,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -660,6 +753,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -667,6 +761,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -674,6 +769,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -681,6 +777,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -688,6 +785,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -695,6 +793,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -702,6 +801,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -709,6 +809,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -716,6 +817,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -723,6 +825,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U32
@@ -730,6 +833,7 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0
   - Literal:
       Integer:
         - U32
@@ -737,3 +841,4 @@ outputs:
         - span:
             lo: 0
             hi: 12
+        - 0

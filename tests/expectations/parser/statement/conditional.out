@@ -16,17 +16,21 @@ outputs:
                     - span:
                         lo: 14
                         hi: 17
+                    - 0
               finalize_arguments: ~
               span:
                 lo: 7
                 hi: 18
+              id: 0
         span:
           lo: 5
           hi: 20
+        id: 0
       otherwise: ~
       span:
         lo: 0
         hi: 20
+      id: 0
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
@@ -41,17 +45,21 @@ outputs:
                     - span:
                         lo: 16
                         hi: 19
+                    - 0
               finalize_arguments: ~
               span:
                 lo: 9
                 hi: 20
+              id: 0
         span:
           lo: 7
           hi: 22
+        id: 0
       otherwise: ~
       span:
         lo: 0
         hi: 22
+      id: 0
   - Conditional:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
@@ -60,15 +68,18 @@ outputs:
         span:
           lo: 7
           hi: 9
+        id: 0
       otherwise:
         Block:
           statements: []
           span:
             lo: 15
             hi: 17
+          id: 0
       span:
         lo: 0
         hi: 17
+      id: 0
   - Conditional:
       condition:
         Binary:
@@ -80,11 +91,13 @@ outputs:
           span:
             lo: 3
             hi: 6
+          id: 0
       then:
         statements: []
         span:
           lo: 7
           hi: 9
+        id: 0
       otherwise:
         Conditional:
           condition:
@@ -97,23 +110,28 @@ outputs:
               span:
                 lo: 18
                 hi: 21
+              id: 0
           then:
             statements: []
             span:
               lo: 22
               hi: 24
+            id: 0
           otherwise:
             Block:
               statements: []
               span:
                 lo: 30
                 hi: 32
+              id: 0
           span:
             lo: 15
             hi: 32
+          id: 0
       span:
         lo: 0
         hi: 32
+      id: 0
   - Conditional:
       condition:
         Binary:
@@ -125,6 +143,7 @@ outputs:
           span:
             lo: 3
             hi: 6
+          id: 0
       then:
         statements:
           - Return:
@@ -136,14 +155,18 @@ outputs:
                     - span:
                         lo: 16
                         hi: 19
+                    - 0
               finalize_arguments: ~
               span:
                 lo: 9
                 hi: 20
+              id: 0
         span:
           lo: 7
           hi: 22
+        id: 0
       otherwise: ~
       span:
         lo: 0
         hi: 22
+      id: 0

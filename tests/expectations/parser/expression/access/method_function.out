@@ -9,6 +9,7 @@ outputs:
       span:
         lo: 0
         hi: 19
+      id: 0
   - Unary:
       receiver:
         Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
@@ -16,3 +17,4 @@ outputs:
       span:
         lo: 0
         hi: 19
+      id: 0
