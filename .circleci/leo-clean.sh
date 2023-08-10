@@ -3,8 +3,8 @@ $LEO new foo || exit
 ls -la
 cd foo && ls -la
 
-# Run `leo build`.
-$LEO build || exit
+# Run `leo run`.
+$LEO run || exit
 
 # Assert that the 'build' folder exists.
 if [ "$(ls -A build)" ]; then
