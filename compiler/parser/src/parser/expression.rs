@@ -444,6 +444,7 @@ impl ParserContext<'_> {
                 // Eat a core struct constant or core struct function call.
                 expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
+                // TODO (@d0cd) Check that the xpression is an identifier
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
                 expr = Expression::Call(CallExpression {

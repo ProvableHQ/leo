@@ -456,7 +456,7 @@ impl<'a> CodeGenerator<'a> {
         // Lookup the function return type.
         let function_name = match input.function.borrow() {
             Expression::Identifier(identifier) => identifier.name,
-            _ => unreachable!("Parsing guarantees that all `input.function` is always an identifier."),
+            _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
         };
         let return_type = &self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap().output_type;
         match return_type {
