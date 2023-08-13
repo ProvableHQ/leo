@@ -656,6 +656,12 @@
 <a href="#656" id="656">656</a>
 <a href="#657" id="657">657</a>
 <a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -673,9 +679,11 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use </span>leo_span::{sym, Symbol};
+
 <span class="kw">use </span>snarkvm_console::{account::Address, network::Testnet3};
 
 <span class="kw">const </span>INT_TYPES: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
@@ -1102,6 +1110,10 @@
                 <span class="comment">// Eat a core struct constant or core struct function call.
                 </span>expr = <span class="self">self</span>.parse_associated_access_expression(expr)<span class="question-mark">?</span>;
             } <span class="kw">else if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
+                <span class="comment">// Check that the expression is an identifier.
+                </span><span class="kw">if </span>!<span class="macro">matches!</span>(expr, Expression::Identifier(<span class="kw">_</span>)) {
+                    <span class="self">self</span>.emit_err(ParserError::unexpected(expr.to_string(), <span class="string">&quot;an identifier&quot;</span>, expr.span()))
+                }
                 <span class="comment">// Parse a function call that&#39;s by itself.
                 </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
                 expr = Expression::Call(CallExpression {

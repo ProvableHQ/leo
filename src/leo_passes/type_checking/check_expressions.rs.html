@@ -752,6 +752,8 @@
 <a href="#752" id="752">752</a>
 <a href="#753" id="753">753</a>
 <a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1207,6 +1209,8 @@
     }
 
     <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="macro">println!</span>(<span class="string">&quot;call_expression: {}&quot;</span>, input);
+        <span class="macro">println!</span>(<span class="string">&quot;input function: {:?}&quot;</span>, input.function);
         <span class="kw">match </span><span class="kw-2">&amp;*</span>input.function {
             <span class="comment">// Note that the parser guarantees that `input.function` is always an identifier.
             </span>Expression::Identifier(ident) =&gt; {
@@ -1268,7 +1272,7 @@
                     <span class="prelude-val">None
                 </span>}
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parser guarantees that `input.function` is always an identifier.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a function name is always an identifier.&quot;</span>),
         }
     }
 
