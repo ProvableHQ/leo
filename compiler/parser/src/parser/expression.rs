@@ -15,9 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+
 use leo_errors::{ParserError, Result};
 
 use leo_span::{sym, Symbol};
+
 use snarkvm_console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -444,6 +446,10 @@ impl ParserContext<'_> {
                 // Eat a core struct constant or core struct function call.
                 expr = self.parse_associated_access_expression(expr)?;
             } else if self.check(&Token::LeftParen) {
+                // Check that the expression is an identifier.
+                if !matches!(expr, Expression::Identifier(_)) {
+                    self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
+                }
                 // Parse a function call that's by itself.
                 let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
                 expr = Expression::Call(CallExpression {
