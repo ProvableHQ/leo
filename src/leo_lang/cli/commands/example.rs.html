@@ -114,8 +114,6 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -167,7 +165,7 @@
         fs::write(main_file_path, <span class="self">self</span>.main_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
         <span class="comment">// Write the input file.
-        </span><span class="kw">let </span>input_file_path = package_dir.join(<span class="string">&quot;inputs&quot;</span>).join(<span class="string">&quot;input.in&quot;</span>);
+        </span><span class="kw">let </span>input_file_path = package_dir.join(<span class="string">&quot;inputs&quot;</span>).join(<span class="macro">format!</span>(<span class="string">&quot;{}.in&quot;</span>, <span class="self">self</span>.name()));
         fs::write(input_file_path, <span class="self">self</span>.input_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
         <span class="comment">// Write the README file.
@@ -216,9 +214,7 @@
             <span class="self">Self</span>::TicTacToe =&gt; {
                 <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/tictactoe/inputs/tictactoe.in&quot;</span>)).to_string()
             }
-            <span class="self">Self</span>::Token =&gt; {
-                <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/token/inputs/token.in&quot;</span>)).to_string()
-            }
+            <span class="self">Self</span>::Token =&gt; <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/token/run.sh&quot;</span>)).to_string(),
         }
     }
 
