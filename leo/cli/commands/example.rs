@@ -49,7 +49,7 @@ impl Command for Example {
         fs::write(main_file_path, self.main_file_string()).map_err(CliError::failed_to_write_file)?;
 
         // Write the input file.
-        let input_file_path = package_dir.join("inputs").join("input.in");
+        let input_file_path = package_dir.join("inputs").join(format!("{}.in", self.name()));
         fs::write(input_file_path, self.input_file_string()).map_err(CliError::failed_to_write_file)?;
 
         // Write the README file.
@@ -98,9 +98,7 @@ impl Example {
             Self::TicTacToe => {
                 include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/inputs/tictactoe.in")).to_string()
             }
-            Self::Token => {
-                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/inputs/token.in")).to_string()
-            }
+            Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/run.sh")).to_string(),
         }
     }
 

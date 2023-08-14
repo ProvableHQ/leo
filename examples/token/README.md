@@ -8,12 +8,5 @@ A transparent & shielded custom token in Leo.
 
 To run this program, run:
 ```bash
-leo run main
-```
-
-## Execute Guide
-
-To execute this program, run:
-```bash
-leo execute main
+./run.sh
 ```
