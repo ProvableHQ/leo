@@ -342,9 +342,18 @@ if [ $EXITCODE -ne 0 ]; then
     exit $EXITCODE
 fi
 
-# Build the lottery example Leo program.
-echo "Building the \`lottery\` program..."
+# Build and run the lottery Leo program.
+echo "Building and running the \`lottery\` program..."
 (
   cd $EXAMPLES/lottery || exit
-  $LEO build || exit
+
+  chmod +x $EXAMPLES/lottery/run.sh || exit
+  export -f leo
+  $EXAMPLES/lottery/run.sh || exit
 )
+# Check that the lottery program ran successfully.
+EXITCODE=$?
+if [ $EXITCODE -ne 0 ]; then
+    echo "The \`lottery\` program failed to run successfully."
+    exit $EXITCODE
+fi

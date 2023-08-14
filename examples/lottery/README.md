@@ -5,6 +5,10 @@
 To run this program, run:
 ```bash
 leo run play
+
+or 
+
+./run.sh
 ```
 
 ## Execute Guide
