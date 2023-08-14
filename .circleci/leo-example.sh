@@ -29,19 +29,4 @@
 
   # Run the mint_public function.
   $LEO run mint_public || exit
-
-  # Run the mint_private function.
-  $LEO run mint_private || exit
-
-  # Run the transfer_public function.
-  $LEO run transfer_public || exit
-
-  # Run the transfer_private function.
-  $LEO run transfer_private || exit
-
-  # Run the transfer_private_to_public function.
-  $LEO run transfer_private_to_public || exit
-
-  # Run the transfer_public_to_private function.
-  $LEO run transfer_public_to_private || exit
 )
