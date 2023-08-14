@@ -98,9 +98,7 @@ impl Example {
             Self::TicTacToe => {
                 include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/inputs/tictactoe.in")).to_string()
             }
-            Self::Token => {
-                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/inputs/token.in")).to_string()
-            }
+            Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/run.sh")).to_string(),
         }
     }
 
