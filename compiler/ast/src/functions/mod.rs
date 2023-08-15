@@ -89,6 +89,7 @@ impl Function {
         block: Block,
         finalize: Option<Finalize>,
         span: Span,
+        id: NodeID,
     ) -> Self {
         // Determine the output type of the function
         let get_output_type = |output: &Output| match &output {
@@ -102,18 +103,7 @@ impl Function {
             _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
         };
 
-        Function {
-            annotations,
-            variant,
-            identifier,
-            input,
-            output,
-            output_type,
-            block,
-            finalize,
-            span,
-            id: NodeID::default(),
-        }
+        Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
     }
 
     /// Returns function name.

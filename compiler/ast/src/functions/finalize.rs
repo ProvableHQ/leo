@@ -42,14 +42,21 @@ pub struct Finalize {
 
 impl Finalize {
     /// Create a new finalize block.
-    pub fn new(identifier: Identifier, input: Vec<Input>, output: Vec<Output>, block: Block, span: Span) -> Self {
+    pub fn new(
+        identifier: Identifier,
+        input: Vec<Input>,
+        output: Vec<Output>,
+        block: Block,
+        span: Span,
+        id: NodeID,
+    ) -> Self {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => output[0].type_(),
             _ => Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
         };
 
-        Self { identifier, input, output, output_type, block, span, id: NodeID::default() }
+        Self { identifier, input, output, output_type, block, span, id }
     }
 }
 
