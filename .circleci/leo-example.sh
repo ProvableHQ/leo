@@ -6,6 +6,9 @@
 
   # Run the play function.
   $LEO run play || exit
+
+  # Execute the play function.
+  $LEO execute play || exit
 )
 
 (
@@ -17,8 +20,11 @@
   # Create a new game.
   $LEO run new || exit
 
-  # Create a make a move.
+  # Run the make_move function.
   $LEO run make_move || exit
+
+  # Execute the make_move function.
+  $LEO execute make_move || exit
 )
 
 (
@@ -29,4 +35,7 @@
 
   # Run the mint_public function.
   $LEO run mint_public || exit
+
+  # Execute the mint_public function.
+  $LEO execute mint_public || exit
 )
