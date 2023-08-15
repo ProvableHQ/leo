@@ -92,6 +92,13 @@
 <a href="#92" id="92">92</a>
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -121,8 +128,13 @@
     <span class="attr">#[clap(name = <span class="string">&quot;INPUTS&quot;</span>, help = <span class="string">&quot;The inputs to the program. If none are provided, the input file is used.&quot;</span>)]
     </span>inputs: Vec&lt;String&gt;,
 
-    <span class="attr">#[clap(name = <span class="string">&quot;ENDPOINT&quot;</span>, help = <span class="string">&quot;The specified network endpoint&quot;</span>)]
-    </span>endpoint: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attr">#[clap(
+        name = <span class="string">&quot;ENDPOINT&quot;</span>,
+        help = <span class="string">&quot;The specified network endpoint.&quot;</span>,
+        default_value = <span class="string">&quot;https://api.explorer.aleo.org/v1&quot;</span>,
+        long
+    )]
+    </span>endpoint: String,
 
     <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,
@@ -153,7 +165,18 @@
 
         <span class="comment">// Compose the `execute` command.
         </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), <span class="self">self</span>.name];
-        arguments.append(<span class="kw-2">&amp;mut </span>inputs);
+
+        <span class="comment">// Add the program inputs to the arguments.
+        </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs);
+
+        <span class="comment">// Add the compiler options to the arguments.
+        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
+            arguments.push(String::from(<span class="string">&quot;--offline&quot;</span>));
+        }
+
+        <span class="comment">// Add the endpoint to the arguments.
+        </span>arguments.push(String::from(<span class="string">&quot;--endpoint&quot;</span>));
+        arguments.push(<span class="self">self</span>.endpoint);
 
         <span class="comment">// Open the Leo build/ directory
         </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
@@ -163,20 +186,11 @@
         </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))<span class="question-mark">?</span>;
 
-        <span class="comment">// Call the `execute` command.
-        </span><span class="kw">if </span><span class="self">self</span>.compiler_options.offline {
-            arguments.push(String::from(<span class="string">&quot;--offline&quot;</span>));
-        }
-
-        <span class="kw">if </span><span class="self">self</span>.endpoint.is_some() {
-            arguments.push(String::from(<span class="string">&quot;--endpoint&quot;</span>));
-            arguments.push(<span class="self">self</span>.endpoint.unwrap());
-        }
-
         <span class="comment">// Unset the Leo panic hook
         </span><span class="kw">let _ </span>= std::panic::take_hook();
 
-        <span class="macro">println!</span>();
+        <span class="comment">// Call the `execute` command.
+        </span><span class="macro">println!</span>();
         <span class="kw">let </span>command = SnarkVMExecute::try_parse_from(<span class="kw-2">&amp;</span>arguments).map_err(CliError::failed_to_parse_execute)<span class="question-mark">?</span>;
         <span class="kw">let </span>res = command.parse().map_err(CliError::failed_to_execute_execute)<span class="question-mark">?</span>;
 

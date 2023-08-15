@@ -80,6 +80,8 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -138,7 +140,9 @@
 
         <span class="comment">// Compose the `run` command.
         </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), <span class="self">self</span>.name];
-        arguments.append(<span class="kw-2">&amp;mut </span>inputs);
+
+        <span class="comment">// Add the program inputs to the arguments.
+        </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs);
 
         <span class="comment">// Open the Leo build/ directory
         </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;
