@@ -24,6 +24,10 @@ pub mod positive_number;
 pub use positive_number::*;
 
 pub mod node;
+
+pub mod node_builder;
+pub use node_builder::*;
+
 pub mod static_string;
 
 pub use static_string::*;
