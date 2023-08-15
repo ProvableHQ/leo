@@ -27,8 +27,13 @@ pub struct Execute {
     #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
 
-    #[clap(name = "ENDPOINT", help = "The specified network endpoint")]
-    endpoint: Option<String>,
+    #[clap(
+        name = "ENDPOINT",
+        help = "The specified network endpoint.",
+        default_value = "https://api.explorer.aleo.org/v1",
+        long
+    )]
+    endpoint: String,
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
@@ -59,7 +64,18 @@ impl Command for Execute {
 
         // Compose the `execute` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
+
+        // Add the program inputs to the arguments.
         arguments.append(&mut inputs);
+
+        // Add the compiler options to the arguments.
+        if self.compiler_options.offline {
+            arguments.push(String::from("--offline"));
+        }
+
+        // Add the endpoint to the arguments.
+        arguments.push(String::from("--endpoint"));
+        arguments.push(self.endpoint);
 
         // Open the Leo build/ directory
         let path = context.dir()?;
@@ -69,19 +85,10 @@ impl Command for Execute {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Call the `execute` command.
-        if self.compiler_options.offline {
-            arguments.push(String::from("--offline"));
-        }
-
-        if self.endpoint.is_some() {
-            arguments.push(String::from("--endpoint"));
-            arguments.push(self.endpoint.unwrap());
-        }
-
         // Unset the Leo panic hook
         let _ = std::panic::take_hook();
 
+        // Call the `execute` command.
         println!();
         let command = SnarkVMExecute::try_parse_from(&arguments).map_err(CliError::failed_to_parse_execute)?;
         let res = command.parse().map_err(CliError::failed_to_execute_execute)?;

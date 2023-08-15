@@ -56,6 +56,8 @@ impl Command for Run {
 
         // Compose the `run` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
+
+        // Add the program inputs to the arguments.
         arguments.append(&mut inputs);
 
         // Open the Leo build/ directory
