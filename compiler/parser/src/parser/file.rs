@@ -109,7 +109,7 @@ impl ParserContext<'_> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(&program_string, name));
 
         // Use the parser to construct the imported abstract syntax tree (ast).
-        let program_ast = parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+        let program_ast = parse_ast(self.handler, self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
 
         Ok((import_name.name, (program_ast.into_repr(), start + end)))
     }
@@ -223,7 +223,7 @@ impl ParserContext<'_> {
 
         let (identifier, type_, span) = self.parse_typed_ident()?;
 
-        Ok(Member { mode, identifier, type_, span, id: NodeID::default() })
+        Ok(Member { mode, identifier, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -240,7 +240,7 @@ impl ParserContext<'_> {
             members,
             is_record,
             span: start + end,
-            id: NodeID::default(),
+            id: self.node_builder.next_id(),
         }))
     }
 
@@ -253,7 +253,13 @@ impl ParserContext<'_> {
         self.expect(&Token::BigArrow)?;
         let (value_type, _) = self.parse_type()?;
         let end = self.expect(&Token::Semicolon)?;
-        Ok((identifier.name, Mapping { identifier, key_type, value_type, span: start + end, id: NodeID::default() }))
+        Ok((identifier.name, Mapping {
+            identifier,
+            key_type,
+            value_type,
+            span: start + end,
+            id: self.node_builder.next_id(),
+        }))
     }
 
     // TODO: Return a span associated with the mode.
@@ -309,7 +315,7 @@ impl ParserContext<'_> {
                 program_name: external,
                 record,
                 span,
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             }))
         } else {
             let type_ = self.parse_type()?.0;
@@ -319,7 +325,7 @@ impl ParserContext<'_> {
                 mode,
                 type_,
                 span: name.span,
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             }))
         }
     }
@@ -329,7 +335,7 @@ impl ParserContext<'_> {
         // TODO: Could this span be made more accurate?
         let mode = self.parse_mode()?;
         let (type_, span) = self.parse_type()?;
-        Ok(FunctionOutput { mode, type_, span, id: NodeID::default() })
+        Ok(FunctionOutput { mode, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`Output`] AST node if the next tokens represent a function output.
@@ -352,11 +358,11 @@ impl ParserContext<'_> {
             span = span + self.prev_token.span;
 
             Ok(Output::External(External {
-                identifier: Identifier::new(Symbol::intern("dummy")),
+                identifier: Identifier::new(Symbol::intern("dummy"), self.node_builder.next_id()),
                 program_name: external,
                 record,
                 span,
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             }))
         } else {
             Ok(Output::Internal(self.parse_function_output()?))
@@ -373,7 +379,7 @@ impl ParserContext<'_> {
         let start = self.expect(&Token::At)?;
         let identifier = match self.token.token {
             Token::Program => {
-                Identifier { name: sym::program, span: self.expect(&Token::Program)?, id: NodeID::default() }
+                Identifier { name: sym::program, span: self.expect(&Token::Program)?, id: self.node_builder.next_id() }
             }
             _ => self.expect_identifier()?,
         };
@@ -383,7 +389,7 @@ impl ParserContext<'_> {
         // Check that there is no whitespace in between the `@` symbol and identifier.
         match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
             true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { identifier, span, id: NodeID::default() }),
+            false => Ok(Annotation { identifier, span, id: self.node_builder.next_id() }),
         }
     }
 
@@ -456,12 +462,25 @@ impl ParserContext<'_> {
                 let block = self.parse_block()?;
                 let span = start + block.span;
 
-                Some(Finalize::new(identifier, input, output, block, span))
+                Some(Finalize::new(identifier, input, output, block, span, self.node_builder.next_id()))
             }
         };
 
         let span = start + block.span;
-        Ok((name.name, Function::new(annotations, variant, name, inputs, output, block, finalize, span)))
+        Ok((
+            name.name,
+            Function::new(
+                annotations,
+                variant,
+                name,
+                inputs,
+                output,
+                block,
+                finalize,
+                span,
+                self.node_builder.next_id(),
+            ),
+        ))
     }
 }
 

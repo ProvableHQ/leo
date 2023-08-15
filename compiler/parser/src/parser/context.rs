@@ -27,6 +27,8 @@ use std::{fmt::Display, mem};
 pub(crate) struct ParserContext<'a> {
     /// Handler used to side-channel emit errors from the parser.
     pub(crate) handler: &'a Handler,
+    /// Counter used to generate unique node ids.
+    pub(crate) node_builder: &'a NodeBuilder,
     /// All un-bumped tokens.
     tokens: Vec<SpannedToken>,
     /// The current token, i.e., if `p.tokens = ['3', *, '4']`,
@@ -46,7 +48,7 @@ const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::du
 
 impl<'a> ParserContext<'a> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
-    pub fn new(handler: &'a Handler, mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: &'a Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
         // Strip out comments.
         tokens.retain(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)));
         // For performance we reverse so that we get cheap `.pop()`s.
@@ -55,6 +57,7 @@ impl<'a> ParserContext<'a> {
         let token = SpannedToken::dummy();
         let mut p = Self {
             handler,
+            node_builder,
             disallow_struct_construction: false,
             allow_identifier_underscores: false,
             prev_token: token.clone(),
@@ -131,7 +134,7 @@ impl<'a> ParserContext<'a> {
     /// At the previous token, return and make an identifier with `name`.
     fn mk_ident_prev(&self, name: Symbol) -> Identifier {
         let span = self.prev_token.span;
-        Identifier { name, span, id: NodeID::default() }
+        Identifier { name, span, id: self.node_builder.next_id() }
     }
 
     /// Eats the next token if its an identifier and returns it.
