@@ -57,6 +57,10 @@ impl Command for Example {
         let readme_file_path_string = readme_file_path.display().to_string();
         fs::write(readme_file_path, self.readme_file_string()).map_err(CliError::failed_to_write_file)?;
 
+        // Write the run.sh file.
+        let run_file_path = package_dir.join("run.sh");
+        fs::write(run_file_path, self.run_file_string()).map_err(CliError::failed_to_write_file)?;
+
         tracing::info!(
             "🚀 To run the '{}' program follow the instructions at {}",
             self.name().bold(),
@@ -98,7 +102,9 @@ impl Example {
             Self::TicTacToe => {
                 include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/inputs/tictactoe.in")).to_string()
             }
-            Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/run.sh")).to_string(),
+            Self::Token => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/inputs/token.in")).to_string()
+            }
         }
     }
 
@@ -111,6 +117,16 @@ impl Example {
                 include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/README.md")).to_string()
             }
             Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/README.md")).to_string(),
+        }
+    }
+
+    fn run_file_string(&self) -> String {
+        match self {
+            Self::Lottery => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/lottery/run.sh")).to_string(),
+            Self::TicTacToe => {
+                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/run.sh")).to_string()
+            }
+            Self::Token => include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/run.sh")).to_string(),
         }
     }
 }
