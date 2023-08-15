@@ -453,8 +453,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, expected: &Self::AdditionalInput) -> Self::Output {
-        println!("call_expression: {}", input);
-        println!("input function: {:?}", input.function);
         match &*input.function {
             // Note that the parser guarantees that `input.function` is always an identifier.
             Expression::Identifier(ident) => {
