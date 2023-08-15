@@ -52,9 +52,9 @@ pub struct Identifier {
 simple_node_impl!(Identifier);
 
 impl Identifier {
-    /// Constructs a new identifier with `name` and a default span.
-    pub fn new(name: Symbol) -> Self {
-        Self { name, span: Span::default(), id: NodeID::default() }
+    /// Constructs a new identifier with `name` and `id` and a default span.
+    pub fn new(name: Symbol, id: NodeID) -> Self {
+        Self { name, span: Span::default(), id }
     }
 
     /// Check if the Identifier name matches the other name.
@@ -100,6 +100,7 @@ impl Serialize for Identifier {
         let mut key: BTreeMap<String, String> = BTreeMap::new();
         key.insert("name".to_string(), self.name.to_string());
         key.insert("span".to_string(), to_json_string(&self.span)?);
+        key.insert("id".to_string(), to_json_string(&self.id)?);
 
         // Convert the serialized object into a string for use as a key.
         serializer.serialize_str(&to_json_string(&key)?)
