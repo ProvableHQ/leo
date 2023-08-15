@@ -20,10 +20,13 @@ include = [
   "LICENSE.md",
   "examples/lottery/inputs/lottery.in",
   "examples/lottery/src/main.leo",
+  "examples/lottery/run.sh",
   "examples/tictactoe/inputs/tictactoe.in",
   "examples/tictactoe/src/main.leo",
+  "examples/tictactoe/run.sh",
   "examples/token/inputs/token.in",
-  "examples/token/src/main.leo"
+  "examples/token/src/main.leo",
+  "examples/token/run.sh",
 ]
 license = "GPL-3.0"
 edition = "2021"
