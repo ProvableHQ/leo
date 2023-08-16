@@ -16,41 +16,53 @@
 
 use leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
 use leo_span::Symbol;
-use std::fmt::Display;
+
+use std::{cell::RefCell, fmt::Display};
 
 /// A struct used to create assignment statements.
-#[derive(Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Assigner {
-    /// A strictly increasing counter, used to ensure that new variable names are unique.
-    pub(crate) counter: usize,
+    /// The inner counter.
+    /// `RefCell` is used here to avoid `&mut` all over the compiler.
+    inner: RefCell<AssignerInner>,
 }
 
 impl Assigner {
     /// Return a new unique `Symbol` from a `&str`.
-    pub(crate) fn unique_symbol(&mut self, arg: impl Display, separator: impl Display) -> Symbol {
+    pub fn unique_symbol(&self, arg: impl Display, separator: impl Display) -> Symbol {
+        self.inner.borrow_mut().unique_symbol(arg, separator)
+    }
+
+    /// Constructs the assignment statement `place = expr;`.
+    /// This function should be the only place where `AssignStatement`s are constructed.
+    pub fn simple_assign_statement(&self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
+        self.inner.borrow_mut().simple_assign_statement(identifier, value, id)
+    }
+}
+
+/// Contains the actual data for `Assigner`.
+/// Modeled this way to afford an API using interior mutability.
+#[derive(Debug, Default, Clone)]
+pub struct AssignerInner {
+    /// A strictly increasing counter, used to ensure that new variable names are unique.
+    pub(crate) counter: usize,
+}
+
+impl AssignerInner {
+    /// Return a new unique `Symbol` from a `&str`.
+    fn unique_symbol(&mut self, arg: impl Display, separator: impl Display) -> Symbol {
         self.counter += 1;
         Symbol::intern(&format!("{}{}{}", arg, separator, self.counter - 1))
     }
 
     /// Constructs the assignment statement `place = expr;`.
     /// This function should be the only place where `AssignStatement`s are constructed.
-    pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression) -> Statement {
+    fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
         Statement::Assign(Box::new(AssignStatement {
             place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
-            id: NodeID::default(),
+            id,
         }))
-    }
-
-    /// Constructs a simple assign statement for `expr` with a unique name.
-    /// For example, `expr` is transformed into `$var$0 = expr;`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
-        // Create a new variable for the expression.
-        let name = self.unique_symbol("$var", "$");
-
-        let place = Identifier { name, span: Default::default(), id: NodeID::default() };
-
-        (place, self.simple_assign_statement(place, expr))
     }
 }
