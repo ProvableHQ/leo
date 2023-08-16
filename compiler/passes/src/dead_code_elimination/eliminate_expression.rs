@@ -67,7 +67,7 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
                     inner: Box::new(self.reconstruct_expression(*member.inner).0),
                     name: member.name,
                     span: member.span,
-                    id: member.id
+                    id: member.id,
                 }),
                 AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
                     tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),

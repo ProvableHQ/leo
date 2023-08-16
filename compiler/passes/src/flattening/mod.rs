@@ -61,17 +61,17 @@ pub use flattener::*;
 
 use crate::{Assigner, Pass, SymbolTable};
 
-use leo_ast::{Ast, ProgramReconstructor};
+use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
 impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a SymbolTable, Assigner);
-    type Output = Result<(Ast, Assigner)>;
+    type Input = (Ast, &'a SymbolTable, &'a NodeBuilder, &'a Assigner);
+    type Output = Result<Ast>;
 
-    fn do_pass((ast, st, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Flattener::new(st, assigner);
+    fn do_pass((ast, st, node_builder, assigner): Self::Input) -> Self::Output {
+        let mut reconstructor = Flattener::new(st, node_builder, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
-        Ok((Ast::new(program), reconstructor.assigner))
+        Ok(Ast::new(program))
     }
 }
