@@ -15,14 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
     NodeID,
-    NodeReconstructor,
-    ProgramReconstructor,
-    Statement,
-    StatementReconstructor,
 };
 
 use std::cell::RefCell;
@@ -44,24 +37,6 @@ impl NodeBuilder {
     /// Returns the next `NodeID` and increments the internal state.
     pub fn next_id(&self) -> NodeID {
         self.inner.borrow_mut().next_id()
-    }
-
-    /// Returns the identifier, modified to have a unique `NodeID`.
-    pub fn unique_identifier(&self, identifier: Identifier) -> Identifier {
-        match self.inner.borrow_mut().reconstruct_identifier(identifier).0 {
-            Expression::Identifier(identifier) => identifier,
-            _ => unreachable!(),
-        }
-    }
-
-    /// Returns the expression, modified to have unique `NodeID`s.
-    pub fn unique_expression(&self, expression: Expression) -> Expression {
-        self.inner.borrow_mut().reconstruct_expression(expression).0
-    }
-
-    /// Returns the statement, modified to have unique `NodeID`s.
-    pub fn unique_statement(&self, statement: Statement) -> Statement {
-        self.inner.borrow_mut().reconstruct_statement(statement).0
     }
 }
 
@@ -92,17 +67,3 @@ impl NodeBuilderInner {
         next
     }
 }
-
-impl NodeReconstructor for NodeBuilderInner {
-    fn reconstruct_node_id(&mut self, _: NodeID) -> NodeID {
-        self.next_id()
-    }
-}
-
-impl ExpressionReconstructor for NodeBuilderInner {
-    type AdditionalOutput = ();
-}
-
-impl StatementReconstructor for NodeBuilderInner {}
-
-impl ProgramReconstructor for NodeBuilderInner {}

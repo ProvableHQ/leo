@@ -60,15 +60,15 @@ pub use dead_code_eliminator::*;
 
 use crate::Pass;
 
-use leo_ast::{Ast, ProgramReconstructor};
+use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
-impl Pass for DeadCodeEliminator {
-    type Input = Ast;
+impl<'a> Pass for DeadCodeEliminator<'a> {
+    type Input = (Ast, &'a NodeBuilder);
     type Output = Result<Ast>;
 
-    fn do_pass(ast: Self::Input) -> Self::Output {
-        let mut reconstructor = DeadCodeEliminator::new();
+    fn do_pass((ast, node_builder): Self::Input) -> Self::Output {
+        let mut reconstructor = DeadCodeEliminator::new(node_builder);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
         Ok(Ast::new(program))
