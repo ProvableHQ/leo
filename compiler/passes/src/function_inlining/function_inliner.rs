@@ -30,8 +30,6 @@ pub struct FunctionInliner<'a> {
     pub(crate) assignment_renamer: AssignmentRenamer<'a>,
     /// A map of reconstructed functions in the current program scope.
     pub(crate) reconstructed_functions: IndexMap<Symbol, Function>,
-    /// Whether or not we are currently inlining a function.
-    pub(crate) inlining: bool,
 }
 
 impl<'a> FunctionInliner<'a> {
@@ -42,7 +40,6 @@ impl<'a> FunctionInliner<'a> {
             call_graph,
             assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),
-            inlining: false,
         }
     }
 }

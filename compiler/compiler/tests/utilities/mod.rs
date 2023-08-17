@@ -148,7 +148,7 @@ pub fn parse_program<'a>(
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 
-    CheckUniqueNodeIds::new().run(&mut compiler.ast)?;
+    CheckUniqueNodeIds::new().visit_program(&compiler.ast.ast);
 
     Ok(compiler)
 }

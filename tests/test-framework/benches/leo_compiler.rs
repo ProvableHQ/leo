@@ -216,9 +216,9 @@ impl Sample {
             let (symbol_table, _struct_graph, _call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
-            let assigner = compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             let start = Instant::now();
-            let out = compiler.flattening_pass(&symbol_table, assigner);
+            let out = compiler.flattening_pass(&symbol_table);
             let time = start.elapsed();
             out.expect("failed to run flattener pass");
             time
@@ -231,10 +231,10 @@ impl Sample {
             let (symbol_table, _struct_graph, call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
-            let assigner = compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
-            let assigner = compiler.flattening_pass(&symbol_table, assigner).expect("failed to run flattener pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
             let start = Instant::now();
-            let out = compiler.function_inlining_pass(&call_graph, assigner);
+            let out = compiler.function_inlining_pass(&call_graph);
             let time = start.elapsed();
             out.expect("failed to run inliner pass");
             time
@@ -247,9 +247,9 @@ impl Sample {
             let (symbol_table, _struct_graph, call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
-            let assigner = compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
-            let assigner = compiler.flattening_pass(&symbol_table, assigner).expect("failed to run flattener pass");
-            let _ = compiler.function_inlining_pass(&call_graph, assigner).expect("failed to run inliner pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             let start = Instant::now();
             let out = compiler.dead_code_elimination_pass();
             let time = start.elapsed();
@@ -264,9 +264,9 @@ impl Sample {
             let (symbol_table, struct_graph, call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
-            let assigner = compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
-            let assigner = compiler.flattening_pass(&symbol_table, assigner).expect("failed to run flattener pass");
-            let _ = compiler.function_inlining_pass(&call_graph, assigner).expect("failed to run inliner pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             let start = Instant::now();
             let out = compiler.code_generation_pass(&symbol_table, &struct_graph, &call_graph);
@@ -285,9 +285,9 @@ impl Sample {
             let (symbol_table, struct_graph, call_graph) =
                 compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
-            let assigner = compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
-            let assigner = compiler.flattening_pass(&symbol_table, assigner).expect("failed to run flattening pass");
-            compiler.function_inlining_pass(&call_graph, assigner).expect("failed to run function inlining pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.flattening_pass(&symbol_table).expect("failed to run flattening pass");
+            compiler.function_inlining_pass(&call_graph).expect("failed to run function inlining pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             compiler
                 .code_generation_pass(&symbol_table, &struct_graph, &call_graph)
