@@ -61,17 +61,17 @@ pub use static_single_assigner::*;
 
 use crate::{Assigner, Pass, SymbolTable};
 
-use leo_ast::{Ast, ProgramConsumer};
+use leo_ast::{Ast, NodeBuilder, ProgramConsumer};
 use leo_errors::Result;
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
-    type Input = (Ast, &'a SymbolTable);
-    type Output = Result<(Ast, Assigner)>;
+    type Input = (Ast, &'a NodeBuilder, &'a Assigner, &'a SymbolTable);
+    type Output = Result<Ast>;
 
-    fn do_pass((ast, symbol_table): Self::Input) -> Self::Output {
-        let mut consumer = StaticSingleAssigner::new(symbol_table);
+    fn do_pass((ast, node_builder, assigner, symbol_table): Self::Input) -> Self::Output {
+        let mut consumer = StaticSingleAssigner::new(node_builder, symbol_table, assigner);
         let program = consumer.consume_program(ast.into_repr());
 
-        Ok((Ast::new(program), consumer.assigner))
+        Ok(Ast::new(program))
     }
 }
