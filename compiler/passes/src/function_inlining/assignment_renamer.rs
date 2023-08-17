@@ -24,7 +24,6 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
-    NodeReconstructor,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -61,8 +60,6 @@ impl<'a> AssignmentRenamer<'a> {
     }
 }
 
-impl NodeReconstructor for AssignmentRenamer<'_> {}
-
 impl ExpressionReconstructor for AssignmentRenamer<'_> {
     type AdditionalOutput = ();
 
@@ -82,10 +79,7 @@ impl ExpressionReconstructor for AssignmentRenamer<'_> {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (
-            Expression::Identifier(Identifier { name, span: input.span, id: self.reconstruct_node_id(input.id) }),
-            Default::default(),
-        )
+        (Expression::Identifier(Identifier { name, span: input.span, id: input.id }), Default::default())
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -105,11 +99,11 @@ impl ExpressionReconstructor for AssignmentRenamer<'_> {
                             ),
                         },
                         span: member.span,
-                        id: self.reconstruct_node_id(member.id),
+                        id: member.id,
                     })
                     .collect(),
                 span: input.span,
-                id: self.reconstruct_node_id(input.id),
+                id: input.id,
             }),
             Default::default(),
         )
@@ -129,12 +123,7 @@ impl StatementReconstructor for AssignmentRenamer<'_> {
         self.is_lhs = false;
 
         (
-            Statement::Assign(Box::new(AssignStatement {
-                place,
-                value,
-                span: input.span,
-                id: self.reconstruct_node_id(input.id),
-            })),
+            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
             Default::default(),
         )
     }

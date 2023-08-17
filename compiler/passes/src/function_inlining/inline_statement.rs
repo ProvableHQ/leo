@@ -26,7 +26,6 @@ use leo_ast::{
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    NodeID,
     Statement,
     StatementReconstructor,
 };
@@ -44,14 +43,14 @@ impl StatementReconstructor for FunctionInliner<'_> {
                         place: lhs,
                         value: rhs,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     }))
                 }));
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
 
             (place, value) => (
-                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
                 statements,
             ),
         }
@@ -67,7 +66,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
+        (Block { span: block.span, statements, id: block.id }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -93,8 +92,8 @@ impl StatementReconstructor for FunctionInliner<'_> {
 
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
-            Expression::Unit(_) => Statement::dummy(Default::default()),
-            _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: NodeID::default() }),
+            Expression::Unit(_) => Statement::dummy(Default::default(), self.node_builder.next_id()),
+            _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
         };
 
         (statement, additional_statements)
