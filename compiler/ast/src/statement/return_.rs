@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use crate::{Expression, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -29,6 +29,8 @@ pub struct ReturnStatement {
     pub finalize_arguments: Option<Vec<Expression>>,
     /// The span of `return expression` excluding the semicolon.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for ReturnStatement {

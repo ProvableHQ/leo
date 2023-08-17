@@ -8,9 +8,11 @@ outputs:
         - span:
             lo: 0
             hi: 4
+        - 0
   - Literal:
       Boolean:
         - false
         - span:
             lo: 0
             hi: 5
+        - 0

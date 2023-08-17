@@ -24,6 +24,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
+    NodeID,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -79,7 +80,7 @@ impl ExpressionReconstructor for AssignmentRenamer {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span }), Default::default())
+        (Expression::Identifier(Identifier { name, span: input.span, id: NodeID::default() }), Default::default())
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -98,9 +99,12 @@ impl ExpressionReconstructor for AssignmentRenamer {
                                 "SSA guarantees that all struct members are always of the form `<id> : <expr>`."
                             ),
                         },
+                        span: member.span,
+                        id: NodeID::default(),
                     })
                     .collect(),
                 span: input.span,
+                id: NodeID::default(),
             }),
             Default::default(),
         )
@@ -119,7 +123,10 @@ impl StatementReconstructor for AssignmentRenamer {
         let place = self.reconstruct_expression(input.place).0;
         self.is_lhs = false;
 
-        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), Default::default())
+        (
+            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+            Default::default(),
+        )
     }
 
     /// Flattening removes conditional statements from the program.

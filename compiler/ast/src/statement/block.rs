@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Statement};
+use crate::{Node, NodeID, Statement};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -27,6 +27,8 @@ pub struct Block {
     pub statements: Vec<Statement>,
     /// The span from `{` to `}`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for Block {

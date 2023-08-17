@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::*, Node};
+use crate::{access::*, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -55,12 +55,29 @@ impl Node for AccessExpression {
             AccessExpression::Tuple(n) => n.set_span(span),
         }
     }
+
+    fn id(&self) -> NodeID {
+        match self {
+            AccessExpression::AssociatedConstant(n) => n.id(),
+            AccessExpression::AssociatedFunction(n) => n.id(),
+            AccessExpression::Member(n) => n.id(),
+            AccessExpression::Tuple(n) => n.id(),
+        }
+    }
+
+    fn set_id(&mut self, id: NodeID) {
+        match self {
+            AccessExpression::AssociatedConstant(n) => n.set_id(id),
+            AccessExpression::AssociatedFunction(n) => n.set_id(id),
+            AccessExpression::Member(n) => n.set_id(id),
+            AccessExpression::Tuple(n) => n.set_id(id),
+        }
+    }
 }
 
 impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use AccessExpression::*;
-
         match self {
             AssociatedConstant(access) => access.fmt(f),
             AssociatedFunction(access) => access.fmt(f),

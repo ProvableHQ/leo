@@ -12,6 +12,7 @@ outputs:
       span:
         lo: 0
         hi: 9
+      id: 0
   - Ternary:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
@@ -26,11 +27,13 @@ outputs:
           span:
             lo: 4
             hi: 13
+          id: 0
       if_false:
         Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
       span:
         lo: 0
         hi: 17
+      id: 0
   - Ternary:
       condition:
         Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
@@ -47,6 +50,8 @@ outputs:
           span:
             lo: 8
             hi: 17
+          id: 0
       span:
         lo: 0
         hi: 17
+      id: 0

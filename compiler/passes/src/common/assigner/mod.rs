@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AssignStatement, Expression, Identifier, Statement};
+use leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
 use leo_span::Symbol;
 use std::fmt::Display;
 
@@ -39,6 +39,7 @@ impl Assigner {
             place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
+            id: NodeID::default(),
         }))
     }
 
@@ -48,7 +49,7 @@ impl Assigner {
         // Create a new variable for the expression.
         let name = self.unique_symbol("$var", "$");
 
-        let place = Identifier { name, span: Default::default() };
+        let place = Identifier { name, span: Default::default(), id: NodeID::default() };
 
         (place, self.simple_assign_statement(place, expr))
     }

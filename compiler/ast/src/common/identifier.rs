@@ -17,7 +17,7 @@
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
 
-use crate::{simple_node_impl, Node};
+use crate::{simple_node_impl, Node, NodeID};
 use serde::{
     de::{
         Visitor,
@@ -45,6 +45,8 @@ pub struct Identifier {
     pub name: Symbol,
     /// A span locating where the identifier occurred in the source.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 simple_node_impl!(Identifier);
@@ -52,7 +54,7 @@ simple_node_impl!(Identifier);
 impl Identifier {
     /// Constructs a new identifier with `name` and a default span.
     pub fn new(name: Symbol) -> Self {
-        Self { name, span: Span::default() }
+        Self { name, span: Span::default(), id: NodeID::default() }
     }
 
     /// Check if the Identifier name matches the other name.
@@ -137,7 +139,12 @@ impl<'de> Deserialize<'de> for Identifier {
                     None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
                 };
 
-                Ok(Identifier { name, span })
+                let id: NodeID = match key.get("id") {
+                    Some(id) => to_json_string(id)?,
+                    None => return Err(E::custom("missing 'id' in serialized Identifier struct")),
+                };
+
+                Ok(Identifier { name, span, id })
             }
         }
 

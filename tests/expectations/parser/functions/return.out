@@ -22,6 +22,7 @@ outputs:
                   span:
                     lo: 46
                     hi: 49
+                  id: 0
             output_type:
               Integer: U32
             block:
@@ -35,17 +36,21 @@ outputs:
                           - span:
                               lo: 67
                               hi: 70
+                          - 0
                     finalize_arguments: ~
                     span:
                       lo: 60
                       hi: 71
+                    id: 0
               span:
                 lo: 50
                 hi: 77
+              id: 0
             finalize: ~
             span:
               lo: 30
               hi: 77
+            id: 0
         span:
           lo: 2
           hi: 78

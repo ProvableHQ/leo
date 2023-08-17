@@ -25,6 +25,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     Member,
+    NodeID,
     ReturnStatement,
     Statement,
     TernaryExpression,
@@ -82,6 +83,7 @@ impl<'a> Flattener<'a> {
                         left: Box::new(acc),
                         right: Box::new(condition),
                         span: Default::default(),
+                        id: NodeID::default(),
                     })
                 }))
             }
@@ -109,13 +111,17 @@ impl<'a> Flattener<'a> {
                 // Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
                 let mut construct_ternary_assignment =
                     |guard: Expression, if_true: Expression, if_false: Expression| {
-                        let place =
-                            Identifier { name: self.assigner.unique_symbol(prefix, "$"), span: Default::default() };
+                        let place = Identifier {
+                            name: self.assigner.unique_symbol(prefix, "$"),
+                            span: Default::default(),
+                            id: NodeID::default(),
+                        };
                         let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),
                             if_false: Box::new(if_false),
                             span: Default::default(),
+                            id: NodeID::default(),
                         });
                         statements.extend(stmts);
 
@@ -248,6 +254,7 @@ impl<'a> Flattener<'a> {
                 expression,
                 finalize_arguments,
                 span: Default::default(),
+                id: NodeID::default(),
             }));
         }
     }

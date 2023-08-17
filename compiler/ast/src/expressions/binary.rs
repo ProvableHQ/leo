@@ -171,6 +171,8 @@ pub struct BinaryExpression {
     pub op: BinaryOperation,
     /// The span from `left` to `right`.
     pub span: Span,
+    /// The ID of the expression.
+    pub id: NodeID,
 }
 
 impl fmt::Display for BinaryExpression {

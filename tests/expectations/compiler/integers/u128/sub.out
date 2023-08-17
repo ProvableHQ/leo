@@ -2,11 +2,11 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_ast: 4d3571e3ac9be29fdeeaffc090d0077ac3d845c781ae1ec76be2e1baeff0da80
-      unrolled_ast: 4d3571e3ac9be29fdeeaffc090d0077ac3d845c781ae1ec76be2e1baeff0da80
-      ssa_ast: 8a6cc69352dd1cccb81f0ff1f73b646ee9d19a949da1a68515b340113b16b131
-      flattened_ast: 23cfb28b3a4d305483282a9fb549ef4194693a22290b078b6d6bff70c98f0c67
-      inlined_ast: 23cfb28b3a4d305483282a9fb549ef4194693a22290b078b6d6bff70c98f0c67
-      dce_ast: 23cfb28b3a4d305483282a9fb549ef4194693a22290b078b6d6bff70c98f0c67
+  - - initial_ast: 2b6c3fdca3b464926624a37b843a5adf8a7b75eba5bcd3777520a2db7beebc9c
+      unrolled_ast: 2b6c3fdca3b464926624a37b843a5adf8a7b75eba5bcd3777520a2db7beebc9c
+      ssa_ast: 571d8c196375dac23c731558d8ca9c52cbe4817f5641a331a1db507801232ed0
+      flattened_ast: a6360f66aaa59d7c33894857ac84139025f39678360ef4dbb02bacf9db267559
+      inlined_ast: a6360f66aaa59d7c33894857ac84139025f39678360ef4dbb02bacf9db267559
+      dce_ast: a6360f66aaa59d7c33894857ac84139025f39678360ef4dbb02bacf9db267559
       bytecode: 92ed5e41e02f9f2ee5862aad62d54a2a0f2e1a2fc2edde87f1c6ee1fa84de67c
       warnings: ""

@@ -41,7 +41,7 @@ pub use iteration::*;
 pub mod return_;
 pub use return_::*;
 
-use crate::Node;
+use crate::{Node, NodeID};
 
 use leo_span::Span;
 
@@ -74,7 +74,7 @@ pub enum Statement {
 impl Statement {
     /// Returns a dummy statement made from an empty block `{}`.
     pub fn dummy(span: Span) -> Self {
-        Self::Block(Block { statements: Vec::new(), span })
+        Self::Block(Block { statements: Vec::new(), span, id: NodeID::default() })
     }
 }
 
@@ -122,6 +122,36 @@ impl Node for Statement {
             Expression(n) => n.set_span(span),
             Iteration(n) => n.set_span(span),
             Return(n) => n.set_span(span),
+        }
+    }
+
+    fn id(&self) -> NodeID {
+        use Statement::*;
+        match self {
+            Assert(n) => n.id(),
+            Assign(n) => n.id(),
+            Block(n) => n.id(),
+            Conditional(n) => n.id(),
+            Console(n) => n.id(),
+            Definition(n) => n.id(),
+            Expression(n) => n.id(),
+            Iteration(n) => n.id(),
+            Return(n) => n.id(),
+        }
+    }
+
+    fn set_id(&mut self, id: NodeID) {
+        use Statement::*;
+        match self {
+            Assert(n) => n.set_id(id),
+            Assign(n) => n.set_id(id),
+            Block(n) => n.set_id(id),
+            Conditional(n) => n.set_id(id),
+            Console(n) => n.set_id(id),
+            Definition(n) => n.set_id(id),
+            Expression(n) => n.set_id(id),
+            Iteration(n) => n.set_id(id),
+            Return(n) => n.set_id(id),
         }
     }
 }

@@ -7,6 +7,7 @@ outputs:
       span:
         lo: 0
         hi: 2
+      id: 0
   - Block:
       statements:
         - Return:
@@ -18,13 +19,16 @@ outputs:
                   - span:
                       lo: 9
                       hi: 12
+                  - 0
             finalize_arguments: ~
             span:
               lo: 2
               hi: 13
+            id: 0
       span:
         lo: 0
         hi: 15
+      id: 0
   - Block:
       statements:
         - Block:
@@ -32,9 +36,11 @@ outputs:
             span:
               lo: 1
               hi: 3
+            id: 0
       span:
         lo: 0
         hi: 4
+      id: 0
   - Block:
       statements:
         - Block:
@@ -48,16 +54,20 @@ outputs:
                         - span:
                             lo: 11
                             hi: 14
+                        - 0
                   finalize_arguments: ~
                   span:
                     lo: 4
                     hi: 15
+                  id: 0
             span:
               lo: 2
               hi: 17
+            id: 0
       span:
         lo: 0
         hi: 19
+      id: 0
   - Block:
       statements:
         - Conditional:
@@ -74,17 +84,22 @@ outputs:
                           - span:
                               lo: 16
                               hi: 19
+                          - 0
                     finalize_arguments: ~
                     span:
                       lo: 9
                       hi: 20
+                    id: 0
               span:
                 lo: 7
                 hi: 22
+              id: 0
             otherwise: ~
             span:
               lo: 2
               hi: 22
+            id: 0
       span:
         lo: 0
         hi: 24
+      id: 0

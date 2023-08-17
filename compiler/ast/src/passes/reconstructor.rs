@@ -54,17 +54,20 @@ pub trait ExpressionReconstructor {
                             .map(|arg| self.reconstruct_expression(arg).0)
                             .collect(),
                         span: function.span,
+                        id: function.id,
                     })
                 }
                 AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
                     inner: Box::new(self.reconstruct_expression(*member.inner).0),
                     name: member.name,
                     span: member.span,
+                    id: member.id,
                 }),
                 AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
                     tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
                     index: tuple.index,
                     span: tuple.span,
+                    id: tuple.id,
                 }),
                 AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
             }),
@@ -79,6 +82,7 @@ pub trait ExpressionReconstructor {
                 right: Box::new(self.reconstruct_expression(*input.right).0),
                 op: input.op,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -91,6 +95,7 @@ pub trait ExpressionReconstructor {
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 external: input.external,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -102,6 +107,7 @@ pub trait ExpressionReconstructor {
                 expression: Box::new(self.reconstruct_expression(*input.expression).0),
                 type_: input.type_,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -130,6 +136,7 @@ pub trait ExpressionReconstructor {
                 if_true: Box::new(self.reconstruct_expression(*input.if_true).0),
                 if_false: Box::new(self.reconstruct_expression(*input.if_false).0),
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -140,6 +147,7 @@ pub trait ExpressionReconstructor {
             Expression::Tuple(TupleExpression {
                 elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -151,6 +159,7 @@ pub trait ExpressionReconstructor {
                 receiver: Box::new(self.reconstruct_expression(*input.receiver).0),
                 op: input.op,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -195,6 +204,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                     ),
                 },
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -206,6 +216,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                 place: input.place,
                 value: self.reconstruct_expression(input.value).0,
                 span: input.span,
+                id: input.id,
             })),
             Default::default(),
         )
@@ -216,6 +227,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Block {
                 statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
                 span: input.span,
+                id: input.id,
             },
             Default::default(),
         )
@@ -228,6 +240,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                 then: self.reconstruct_block(input.then).0,
                 otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -248,6 +261,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                     ),
                 },
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -261,6 +275,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                 type_: input.type_,
                 value: self.reconstruct_expression(input.value).0,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -271,6 +286,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             Statement::Expression(ExpressionStatement {
                 expression: self.reconstruct_expression(input.expression).0,
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -288,6 +304,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                 block: self.reconstruct_block(input.block).0,
                 inclusive: input.inclusive,
                 span: input.span,
+                id: input.id,
             })),
             Default::default(),
         )
@@ -301,6 +318,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                     arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
                 }),
                 span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )
@@ -350,8 +368,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 output_type: finalize.output_type,
                 block: self.reconstruct_block(finalize.block).0,
                 span: finalize.span,
+                id: finalize.id,
             }),
             span: input.span,
+            id: input.id,
         }
     }
 

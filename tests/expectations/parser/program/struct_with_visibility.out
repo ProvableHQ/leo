@@ -16,6 +16,7 @@ outputs:
                 span:
                   lo: 54
                   hi: 66
+                id: 0
               - mode: Private
                 identifier: "{\"name\":\"floo\",\"span\":\"{\\\"lo\\\":84,\\\"hi\\\":88}\"}"
                 type_:
@@ -23,16 +24,19 @@ outputs:
                 span:
                   lo: 84
                   hi: 93
+                id: 0
               - mode: None
                 identifier: "{\"name\":\"data\",\"span\":\"{\\\"lo\\\":103,\\\"hi\\\":107}\"}"
                 type_: Boolean
                 span:
                   lo: 103
                   hi: 113
+                id: 0
             is_record: false
             span:
               lo: 26
               hi: 120
+            id: 0
         mappings: {}
         functions: {}
         span:

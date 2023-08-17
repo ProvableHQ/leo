@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{simple_node_impl, Identifier, Node};
+use crate::{simple_node_impl, Identifier, Node, NodeID};
 
 use leo_span::Span;
 
@@ -29,6 +29,8 @@ pub struct Annotation {
     pub identifier: Identifier,
     /// A span locating where the annotation occurred in the source.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 simple_node_impl!(Annotation);

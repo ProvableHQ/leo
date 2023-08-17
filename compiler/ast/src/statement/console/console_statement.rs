@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConsoleFunction, Node};
+use crate::{ConsoleFunction, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -27,6 +27,8 @@ pub struct ConsoleStatement {
     pub function: ConsoleFunction,
     /// The span excluding the semicolon.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for ConsoleStatement {

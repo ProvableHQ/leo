@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Type};
+use crate::{Identifier, Node, NodeID, Type};
 
 use leo_span::Span;
 
@@ -32,6 +32,8 @@ pub struct Mapping {
     pub value_type: Type,
     /// The entire span of the mapping declaration.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for Mapping {

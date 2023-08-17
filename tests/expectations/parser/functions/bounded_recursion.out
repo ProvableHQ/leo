@@ -22,6 +22,7 @@ outputs:
                   span:
                     lo: 50
                     hi: 51
+                  id: 0
             output:
               - Internal:
                   mode: None
@@ -30,6 +31,7 @@ outputs:
                   span:
                     lo: 61
                     hi: 63
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -47,10 +49,12 @@ outputs:
                               - span:
                                   lo: 81
                                   hi: 85
+                              - 0
                         op: Lt
                         span:
                           lo: 77
                           hi: 85
+                        id: 0
                     then:
                       statements:
                         - Expression:
@@ -70,31 +74,39 @@ outputs:
                                             - span:
                                                 lo: 104
                                                 hi: 108
+                                            - 0
                                       op: Add
                                       span:
                                         lo: 102
                                         hi: 108
+                                      id: 0
                                 external: ~
                                 span:
                                   lo: 100
                                   hi: 109
+                                id: 0
                             span:
                               lo: 100
                               hi: 110
+                            id: 0
                       span:
                         lo: 86
                         hi: 120
+                      id: 0
                     otherwise: ~
                     span:
                       lo: 74
                       hi: 120
+                    id: 0
               span:
                 lo: 64
                 hi: 126
+              id: 0
             finalize: ~
             span:
               lo: 30
               hi: 126
+            id: 0
           main:
             annotations: []
             variant: Standard
@@ -107,6 +119,7 @@ outputs:
                   span:
                     lo: 150
                     hi: 151
+                  id: 0
             output:
               - Internal:
                   mode: None
@@ -114,6 +127,7 @@ outputs:
                   span:
                     lo: 162
                     hi: 166
+                  id: 0
             output_type: Boolean
             block:
               statements:
@@ -130,13 +144,16 @@ outputs:
                                 - span:
                                     lo: 179
                                     hi: 183
+                                - 0
                         external: ~
                         span:
                           lo: 177
                           hi: 184
+                        id: 0
                     span:
                       lo: 177
                       hi: 185
+                    id: 0
                 - Return:
                     expression:
                       Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":201,\\\"hi\\\":202}\"}"
@@ -144,13 +161,16 @@ outputs:
                     span:
                       lo: 194
                       hi: 203
+                    id: 0
               span:
                 lo: 167
                 hi: 209
+              id: 0
             finalize: ~
             span:
               lo: 136
               hi: 209
+            id: 0
         span:
           lo: 2
           hi: 211

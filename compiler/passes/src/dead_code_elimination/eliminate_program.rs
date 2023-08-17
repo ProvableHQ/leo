@@ -16,7 +16,7 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Finalize, Function, NodeID, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for DeadCodeEliminator {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -43,6 +43,7 @@ impl ProgramReconstructor for DeadCodeEliminator {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: NodeID::default(),
             }
         });
 
@@ -56,6 +57,7 @@ impl ProgramReconstructor for DeadCodeEliminator {
             block,
             finalize,
             span: input.span,
+            id: NodeID::default(),
         }
     }
 }

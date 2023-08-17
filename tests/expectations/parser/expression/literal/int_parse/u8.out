@@ -9,6 +9,7 @@ outputs:
         - span:
             lo: 0
             hi: 5
+        - 0
   - Literal:
       Integer:
         - U8
@@ -16,6 +17,7 @@ outputs:
         - span:
             lo: 0
             hi: 5
+        - 0
   - Literal:
       Integer:
         - U8
@@ -23,6 +25,7 @@ outputs:
         - span:
             lo: 0
             hi: 5
+        - 0
   - Literal:
       Integer:
         - U8
@@ -30,6 +33,7 @@ outputs:
         - span:
             lo: 0
             hi: 82
+        - 0
   - Literal:
       Integer:
         - U8
@@ -37,6 +41,7 @@ outputs:
         - span:
             lo: 0
             hi: 402
+        - 0
   - Literal:
       Integer:
         - U8
@@ -44,6 +49,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -51,6 +57,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -58,6 +65,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -65,6 +73,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -72,6 +81,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -79,6 +89,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -86,6 +97,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -93,6 +105,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -100,6 +113,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -107,6 +121,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -114,6 +129,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -121,6 +137,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -128,6 +145,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -135,6 +153,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -142,6 +161,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -149,6 +169,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -156,6 +177,7 @@ outputs:
         - span:
             lo: 0
             hi: 9
+        - 0
   - Literal:
       Integer:
         - U8
@@ -163,6 +185,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -170,6 +193,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -177,6 +201,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -184,6 +209,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -191,6 +217,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -198,6 +225,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -205,6 +233,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -212,6 +241,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -219,6 +249,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -226,6 +257,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -233,6 +265,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -240,6 +273,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -247,6 +281,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -254,6 +289,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -261,6 +297,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -268,6 +305,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -275,6 +313,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -282,6 +321,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -289,6 +329,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -296,6 +337,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -303,6 +345,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -310,6 +353,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -317,6 +361,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -324,6 +369,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -331,6 +377,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -338,6 +385,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -345,6 +393,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -352,6 +401,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -359,6 +409,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -366,6 +417,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -373,6 +425,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -380,6 +433,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -387,6 +441,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -394,6 +449,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -401,6 +457,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -408,6 +465,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -415,6 +473,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -422,6 +481,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -429,6 +489,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -436,6 +497,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -443,6 +505,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -450,6 +513,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -457,6 +521,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -464,6 +529,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -471,6 +537,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -478,6 +545,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -485,6 +553,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -492,6 +561,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -499,6 +569,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -506,6 +577,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -513,6 +585,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -520,6 +593,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -527,6 +601,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -534,6 +609,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -541,6 +617,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -548,6 +625,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -555,6 +633,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -562,6 +641,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -569,6 +649,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -576,6 +657,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -583,6 +665,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -590,6 +673,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -597,6 +681,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -604,6 +689,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -611,6 +697,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -618,6 +705,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -625,6 +713,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -632,6 +721,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -639,6 +729,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -646,6 +737,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -653,6 +745,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -660,6 +753,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -667,6 +761,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -674,6 +769,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -681,6 +777,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -688,6 +785,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -695,6 +793,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -702,6 +801,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -709,6 +809,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -716,6 +817,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -723,6 +825,7 @@ outputs:
         - span:
             lo: 0
             hi: 10
+        - 0
   - Literal:
       Integer:
         - U8
@@ -730,6 +833,7 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0
   - Literal:
       Integer:
         - U8
@@ -737,3 +841,4 @@ outputs:
         - span:
             lo: 0
             hi: 11
+        - 0

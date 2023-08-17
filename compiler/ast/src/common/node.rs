@@ -16,6 +16,12 @@
 
 use leo_span::Span;
 
+/// A node ID.
+// Development Note:
+// A `NodeID` must implement: `Copy`, `Default`, among others.
+// TODO (@d0cd): Replace use of `NodeID::default()` with unique IDs in the rest of the codebase.
+pub type NodeID = usize;
+
 /// A node in the AST.
 pub trait Node:
     std::fmt::Debug + std::fmt::Display + Clone + PartialEq + Eq + serde::Serialize + serde::de::DeserializeOwned
@@ -25,6 +31,12 @@ pub trait Node:
 
     /// Sets the span of the node.
     fn set_span(&mut self, span: Span);
+
+    /// Returns the ID of the node.
+    fn id(&self) -> NodeID;
+
+    /// Sets the ID of the node.
+    fn set_id(&mut self, id: NodeID);
 }
 
 #[macro_export]
@@ -37,6 +49,14 @@ macro_rules! simple_node_impl {
 
             fn set_span(&mut self, span: Span) {
                 self.span = span;
+            }
+
+            fn id(&self) -> NodeID {
+                self.id
+            }
+
+            fn set_id(&mut self, id: NodeID) {
+                self.id = id;
             }
         }
     };

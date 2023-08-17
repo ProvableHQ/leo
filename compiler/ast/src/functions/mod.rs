@@ -38,7 +38,7 @@ pub use output::*;
 pub mod mode;
 pub use mode::*;
 
-use crate::{Block, Identifier, Node, Tuple, Type};
+use crate::{Block, Identifier, Node, NodeID, Tuple, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -65,6 +65,8 @@ pub struct Function {
     pub finalize: Option<Finalize>,
     /// The entire span of the function definition.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl PartialEq for Function {
@@ -100,7 +102,18 @@ impl Function {
             _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
         };
 
-        Function { annotations, variant, identifier, input, output, output_type, block, finalize, span }
+        Function {
+            annotations,
+            variant,
+            identifier,
+            input,
+            output,
+            output_type,
+            block,
+            finalize,
+            span,
+            id: NodeID::default(),
+        }
     }
 
     /// Returns function name.

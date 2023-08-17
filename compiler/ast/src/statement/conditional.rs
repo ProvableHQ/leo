@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Node, Statement};
+use crate::{Block, Expression, Node, NodeID, Statement};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -31,6 +31,8 @@ pub struct ConditionalStatement {
     pub otherwise: Option<Box<Statement>>,
     /// The span from `if` to `next` or to `block`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for ConditionalStatement {

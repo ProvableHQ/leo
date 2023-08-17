@@ -28,6 +28,8 @@ pub struct CallExpression {
     pub external: Option<Box<Expression>>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for CallExpression {

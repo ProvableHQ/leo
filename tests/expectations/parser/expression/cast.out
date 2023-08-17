@@ -10,6 +10,7 @@ outputs:
       span:
         lo: 0
         hi: 9
+      id: 0
   - Cast:
       expression:
         Literal:
@@ -19,11 +20,13 @@ outputs:
             - span:
                 lo: 0
                 hi: 5
+            - 0
       type_:
         Integer: I8
       span:
         lo: 0
         hi: 11
+      id: 0
   - Cast:
       expression:
         Struct:
@@ -32,13 +35,19 @@ outputs:
             - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":9}\"}"
               expression:
                 Identifier: "{\"name\":\"u8\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":13}\"}"
+              span:
+                lo: 6
+                hi: 13
+              id: 0
           span:
             lo: 0
             hi: 15
+          id: 0
       type_: Scalar
       span:
         lo: 0
         hi: 25
+      id: 0
   - Ternary:
       condition:
         Identifier: "{\"name\":\"flag\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
@@ -50,6 +59,7 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
+            - 0
       if_false:
         Cast:
           expression:
@@ -60,13 +70,16 @@ outputs:
                 - span:
                     lo: 13
                     hi: 16
+                - 0
           type_: Scalar
           span:
             lo: 13
             hi: 26
+          id: 0
       span:
         lo: 0
         hi: 26
+      id: 0
   - Cast:
       expression:
         Ternary:
@@ -80,6 +93,7 @@ outputs:
                 - span:
                     lo: 8
                     hi: 11
+                - 0
           if_false:
             Literal:
               Integer:
@@ -88,13 +102,16 @@ outputs:
                 - span:
                     lo: 14
                     hi: 17
+                - 0
           span:
             lo: 1
             hi: 17
+          id: 0
       type_: Scalar
       span:
         lo: 1
         hi: 28
+      id: 0
   - Cast:
       expression:
         Literal:
@@ -104,10 +121,12 @@ outputs:
             - span:
                 lo: 0
                 hi: 4
+            - 0
       type_: Field
       span:
         lo: 0
         hi: 13
+      id: 0
   - Cast:
       expression:
         Literal:
@@ -116,8 +135,10 @@ outputs:
             - span:
                 lo: 0
                 hi: 18
+            - 0
       type_:
         Integer: I8
       span:
         lo: 0
         hi: 24
+      id: 0

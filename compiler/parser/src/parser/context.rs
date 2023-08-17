@@ -131,7 +131,7 @@ impl<'a> ParserContext<'a> {
     /// At the previous token, return and make an identifier with `name`.
     fn mk_ident_prev(&self, name: Symbol) -> Identifier {
         let span = self.prev_token.span;
-        Identifier { name, span }
+        Identifier { name, span, id: NodeID::default() }
     }
 
     /// Eats the next token if its an identifier and returns it.

@@ -26,6 +26,7 @@ use leo_ast::{
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
+    NodeID,
     Statement,
     StatementReconstructor,
 };
@@ -39,14 +40,20 @@ impl StatementReconstructor for FunctionInliner<'_> {
             // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
             (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
                 statements.extend(left.elements.into_iter().zip(right.elements.into_iter()).map(|(lhs, rhs)| {
-                    Statement::Assign(Box::new(AssignStatement { place: lhs, value: rhs, span: Default::default() }))
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: lhs,
+                        value: rhs,
+                        span: Default::default(),
+                        id: NodeID::default(),
+                    }))
                 }));
                 (Statement::dummy(Default::default()), statements)
             }
 
-            (place, value) => {
-                (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), statements)
-            }
+            (place, value) => (
+                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+                statements,
+            ),
         }
     }
 
@@ -60,7 +67,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements }, Default::default())
+        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -87,7 +94,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
         // If the resulting expression is a unit expression, return a dummy statement.
         let statement = match expression {
             Expression::Unit(_) => Statement::dummy(Default::default()),
-            _ => Statement::Expression(ExpressionStatement { expression, span: input.span }),
+            _ => Statement::Expression(ExpressionStatement { expression, span: input.span, id: NodeID::default() }),
         };
 
         (statement, additional_statements)

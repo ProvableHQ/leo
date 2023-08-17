@@ -13,14 +13,17 @@ outputs:
               span:
                 lo: 2
                 hi: 12
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 12
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 12
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -32,14 +35,17 @@ outputs:
               span:
                 lo: 0
                 hi: 10
+              id: 0
           op: Square
           span:
             lo: 0
             hi: 19
+          id: 0
       op: Square
       span:
         lo: 0
         hi: 28
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -49,10 +55,12 @@ outputs:
           span:
             lo: 1
             hi: 11
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 11
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -62,10 +70,12 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       op: Square
       span:
         lo: 1
         hi: 13
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -75,10 +85,12 @@ outputs:
           span:
             lo: 2
             hi: 12
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 12
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -90,14 +102,17 @@ outputs:
               span:
                 lo: 2
                 hi: 12
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 12
+          id: 0
       op: Square
       span:
         lo: 1
         hi: 22
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -107,10 +122,12 @@ outputs:
           span:
             lo: 1
             hi: 11
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 11
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -120,10 +137,12 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       op: Square
       span:
         lo: 1
         hi: 13
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -133,10 +152,12 @@ outputs:
           span:
             lo: 2
             hi: 12
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 12
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -148,11 +169,14 @@ outputs:
               span:
                 lo: 2
                 hi: 12
+              id: 0
           op: Not
           span:
             lo: 1
             hi: 12
+          id: 0
       op: Square
       span:
         lo: 1
         hi: 22
+      id: 0

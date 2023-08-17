@@ -223,7 +223,7 @@ impl ParserContext<'_> {
 
         let (identifier, type_, span) = self.parse_typed_ident()?;
 
-        Ok(Member { mode, identifier, type_, span })
+        Ok(Member { mode, identifier, type_, span, id: NodeID::default() })
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -235,7 +235,13 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_struct_members()?;
 
-        Ok((struct_name.name, Struct { identifier: struct_name, members, is_record, span: start + end }))
+        Ok((struct_name.name, Struct {
+            identifier: struct_name,
+            members,
+            is_record,
+            span: start + end,
+            id: NodeID::default(),
+        }))
     }
 
     /// Parses a mapping declaration, e.g. `mapping balances: address => u128`.
@@ -247,7 +253,7 @@ impl ParserContext<'_> {
         self.expect(&Token::BigArrow)?;
         let (value_type, _) = self.parse_type()?;
         let end = self.expect(&Token::Semicolon)?;
-        Ok((identifier.name, Mapping { identifier, key_type, value_type, span: start + end }))
+        Ok((identifier.name, Mapping { identifier, key_type, value_type, span: start + end, id: NodeID::default() }))
     }
 
     // TODO: Return a span associated with the mode.
@@ -298,11 +304,23 @@ impl ParserContext<'_> {
             self.eat(&Token::Record);
             span = span + self.prev_token.span;
 
-            Ok(functions::Input::External(External { identifier: name, program_name: external, record, span }))
+            Ok(functions::Input::External(External {
+                identifier: name,
+                program_name: external,
+                record,
+                span,
+                id: NodeID::default(),
+            }))
         } else {
             let type_ = self.parse_type()?.0;
 
-            Ok(functions::Input::Internal(FunctionInput { identifier: name, mode, type_, span: name.span }))
+            Ok(functions::Input::Internal(FunctionInput {
+                identifier: name,
+                mode,
+                type_,
+                span: name.span,
+                id: NodeID::default(),
+            }))
         }
     }
 
@@ -311,7 +329,7 @@ impl ParserContext<'_> {
         // TODO: Could this span be made more accurate?
         let mode = self.parse_mode()?;
         let (type_, span) = self.parse_type()?;
-        Ok(FunctionOutput { mode, type_, span })
+        Ok(FunctionOutput { mode, type_, span, id: NodeID::default() })
     }
 
     /// Returns a [`Output`] AST node if the next tokens represent a function output.
@@ -338,6 +356,7 @@ impl ParserContext<'_> {
                 program_name: external,
                 record,
                 span,
+                id: NodeID::default(),
             }))
         } else {
             Ok(Output::Internal(self.parse_function_output()?))
@@ -353,7 +372,9 @@ impl ParserContext<'_> {
         // Parse the `@` symbol and identifier.
         let start = self.expect(&Token::At)?;
         let identifier = match self.token.token {
-            Token::Program => Identifier { name: sym::program, span: self.expect(&Token::Program)? },
+            Token::Program => {
+                Identifier { name: sym::program, span: self.expect(&Token::Program)?, id: NodeID::default() }
+            }
             _ => self.expect_identifier()?,
         };
         let span = start + identifier.span;
@@ -362,7 +383,7 @@ impl ParserContext<'_> {
         // Check that there is no whitespace in between the `@` symbol and identifier.
         match identifier.span.hi.0 - start.lo.0 > 1 + identifier.name.to_string().len() as u32 {
             true => Err(ParserError::space_in_annotation(span).into()),
-            false => Ok(Annotation { identifier, span }),
+            false => Ok(Annotation { identifier, span, id: NodeID::default() }),
         }
     }
 

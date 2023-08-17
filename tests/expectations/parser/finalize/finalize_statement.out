@@ -8,40 +8,48 @@ outputs:
           span:
             lo: 7
             hi: 11
+          id: 0
       finalize_arguments: []
       span:
         lo: 0
         hi: 21
+      id: 0
   - Return:
       expression:
         Unit:
           span:
             lo: 7
             hi: 11
+          id: 0
       finalize_arguments: []
       span:
         lo: 0
         hi: 23
+      id: 0
   - Return:
       expression:
         Unit:
           span:
             lo: 7
             hi: 11
+          id: 0
       finalize_arguments:
         - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
       span:
         lo: 0
         hi: 26
+      id: 0
   - Return:
       expression:
         Unit:
           span:
             lo: 7
             hi: 11
+          id: 0
       finalize_arguments:
         - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
         - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
       span:
         lo: 0
         hi: 31
+      id: 0

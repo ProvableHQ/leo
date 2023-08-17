@@ -19,6 +19,7 @@ outputs:
                   mode: None
                   type_:
                     Integer: U8
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -31,11 +32,17 @@ outputs:
                             Integer:
                               - U8
                               - "1"
+                              - 0
                         right:
                           Literal:
                             Integer:
                               - U8
                               - "1"
+                              - 0
                         op: Add
+                        id: 0
                     finalize_arguments: ~
+                    id: 0
+              id: 0
             finalize: ~
+            id: 0

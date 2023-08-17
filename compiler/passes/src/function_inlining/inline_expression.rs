@@ -21,6 +21,7 @@ use leo_ast::{
     Expression,
     ExpressionReconstructor,
     Identifier,
+    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
@@ -89,7 +90,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                             _ => unreachable!("This branch checks that the last statement is a return statement."),
                         }
                     }
-                    _ => Expression::Unit(UnitExpression { span: Default::default() }),
+                    _ => Expression::Unit(UnitExpression { span: Default::default(), id: NodeID::default() }),
                 };
 
                 (result, inlined_statements)

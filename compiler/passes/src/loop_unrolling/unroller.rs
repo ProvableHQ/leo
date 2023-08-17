@@ -22,6 +22,7 @@ use leo_ast::{
     IntegerType,
     IterationStatement,
     Literal,
+    NodeID,
     Statement,
     StatementReconstructor,
     Type,
@@ -127,6 +128,7 @@ impl<'a> Unroller<'a> {
                     iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
                 }
             },
+            id: NodeID::default(),
         });
 
         // Exit the scope of the loop body.
@@ -147,34 +149,34 @@ impl<'a> Unroller<'a> {
         // Reconstruct `iteration_count` as a `Literal`.
         let value = match input.type_ {
             Type::Integer(IntegerType::I8) => {
-                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::I16) => {
-                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::I32) => {
-                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::I64) => {
-                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::I128) => {
-                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::U8) => {
-                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::U16) => {
-                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::U32) => {
-                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::U64) => {
-                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             Type::Integer(IntegerType::U128) => {
-                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default())
+                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), NodeID::default())
             }
             _ => unreachable!(
                 "The iteration variable must be an integer type. This should be enforced by type checking."
@@ -189,6 +191,7 @@ impl<'a> Unroller<'a> {
                 value: Expression::Literal(value),
                 span: Default::default(),
                 place: Expression::Identifier(input.variable),
+                id: NodeID::default(),
             })
             .0,
         ];
@@ -198,7 +201,7 @@ impl<'a> Unroller<'a> {
             statements.push(self.reconstruct_statement(s).0);
         });
 
-        let block = Statement::Block(Block { statements, span: input.block.span });
+        let block = Statement::Block(Block { statements, span: input.block.span, id: NodeID::default() });
 
         self.is_unrolling = prior_is_unrolling;
 

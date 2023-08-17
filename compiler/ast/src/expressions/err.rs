@@ -21,6 +21,8 @@ use super::*;
 pub struct ErrExpression {
     /// The span of the invalid expression.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for ErrExpression {

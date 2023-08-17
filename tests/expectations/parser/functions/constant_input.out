@@ -22,6 +22,7 @@ outputs:
                   span:
                     lo: 50
                     hi: 51
+                  id: 0
             output:
               - Internal:
                   mode: None
@@ -30,6 +31,7 @@ outputs:
                   span:
                     lo: 60
                     hi: 62
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -37,10 +39,12 @@ outputs:
               span:
                 lo: 63
                 hi: 65
+              id: 0
             finalize: ~
             span:
               lo: 30
               hi: 65
+            id: 0
         span:
           lo: 2
           hi: 67

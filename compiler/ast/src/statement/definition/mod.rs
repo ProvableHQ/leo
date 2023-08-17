@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, Type};
+use crate::{Expression, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -36,6 +36,8 @@ pub struct DefinitionStatement {
     pub value: Expression,
     /// The span excluding the semicolon.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl fmt::Display for DefinitionStatement {

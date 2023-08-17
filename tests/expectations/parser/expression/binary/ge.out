@@ -11,6 +11,7 @@ outputs:
             - span:
                 lo: 0
                 hi: 3
+            - 0
       right:
         Literal:
           Integer:
@@ -19,10 +20,12 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
+            - 0
       op: Gte
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Literal:
@@ -32,6 +35,7 @@ outputs:
             - span:
                 lo: 0
                 hi: 3
+            - 0
       right:
         Literal:
           Integer:
@@ -40,10 +44,12 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
+            - 0
       op: Gte
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Binary:
@@ -55,6 +61,7 @@ outputs:
                 - span:
                     lo: 0
                     hi: 3
+                - 0
           right:
             Literal:
               Integer:
@@ -63,10 +70,12 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
+                - 0
           op: Add
           span:
             lo: 0
             hi: 9
+          id: 0
       right:
         Binary:
           left:
@@ -77,6 +86,7 @@ outputs:
                 - span:
                     lo: 13
                     hi: 16
+                - 0
           right:
             Literal:
               Integer:
@@ -85,14 +95,17 @@ outputs:
                 - span:
                     lo: 19
                     hi: 22
+                - 0
           op: Add
           span:
             lo: 13
             hi: 22
+          id: 0
       op: Gte
       span:
         lo: 0
         hi: 22
+      id: 0
   - Unary:
       receiver:
         Unary:
@@ -106,14 +119,17 @@ outputs:
               span:
                 lo: 2
                 hi: 10
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 10
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Binary:
@@ -127,18 +143,21 @@ outputs:
               span:
                 lo: 0
                 hi: 8
+              id: 0
           right:
             Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           op: Gte
           span:
             lo: 0
             hi: 15
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":21}\"}"
       op: Gte
       span:
         lo: 0
         hi: 22
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -150,10 +169,12 @@ outputs:
           span:
             lo: 1
             hi: 9
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 9
+      id: 0
   - Binary:
       left:
         Unary:
@@ -163,12 +184,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
       op: Gte
       span:
         lo: 1
         hi: 11
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -180,10 +203,12 @@ outputs:
           span:
             lo: 2
             hi: 10
+          id: 0
       op: Negate
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Unary:
@@ -197,16 +222,19 @@ outputs:
               span:
                 lo: 2
                 hi: 10
+              id: 0
           op: Negate
           span:
             lo: 1
             hi: 10
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
       op: Gte
       span:
         lo: 1
         hi: 18
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -218,10 +246,12 @@ outputs:
           span:
             lo: 1
             hi: 9
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 9
+      id: 0
   - Binary:
       left:
         Unary:
@@ -231,12 +261,14 @@ outputs:
           span:
             lo: 1
             hi: 3
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
       op: Gte
       span:
         lo: 1
         hi: 11
+      id: 0
   - Unary:
       receiver:
         Binary:
@@ -248,10 +280,12 @@ outputs:
           span:
             lo: 2
             hi: 10
+          id: 0
       op: Not
       span:
         lo: 0
         hi: 10
+      id: 0
   - Binary:
       left:
         Unary:
@@ -265,16 +299,19 @@ outputs:
               span:
                 lo: 2
                 hi: 10
+              id: 0
           op: Not
           span:
             lo: 1
             hi: 10
+          id: 0
       right:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
       op: Gte
       span:
         lo: 1
         hi: 18
+      id: 0
   - Binary:
       left:
         Binary:
@@ -288,6 +325,7 @@ outputs:
               span:
                 lo: 1
                 hi: 9
+              id: 0
           right:
             Binary:
               left:
@@ -298,10 +336,12 @@ outputs:
               span:
                 lo: 13
                 hi: 21
+              id: 0
           op: Gte
           span:
             lo: 1
             hi: 21
+          id: 0
       right:
         Binary:
           left:
@@ -314,6 +354,7 @@ outputs:
               span:
                 lo: 27
                 hi: 35
+              id: 0
           right:
             Binary:
               left:
@@ -324,11 +365,14 @@ outputs:
               span:
                 lo: 39
                 hi: 47
+              id: 0
           op: Gte
           span:
             lo: 27
             hi: 47
+          id: 0
       op: Gte
       span:
         lo: 1
         hi: 48
+      id: 0

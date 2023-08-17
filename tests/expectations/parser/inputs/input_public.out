@@ -15,6 +15,7 @@ outputs:
                   - span:
                       lo: 27
                       hi: 31
+                  - 0
             span:
               lo: 19
               hi: 23
@@ -30,6 +31,7 @@ outputs:
                   - span:
                       lo: 68
                       hi: 71
+                  - 0
             span:
               lo: 60
               hi: 62
@@ -43,6 +45,7 @@ outputs:
                   - span:
                       lo: 111
                       hi: 117
+                  - 0
             span:
               lo: 103
               hi: 108
@@ -68,6 +71,7 @@ outputs:
                     span:
                       lo: 157
                       hi: 168
+                    id: 0
             span:
               lo: 149
               hi: 154
@@ -81,6 +85,7 @@ outputs:
                   - span:
                       lo: 200
                       hi: 263
+                  - 0
             span:
               lo: 190
               hi: 197
@@ -96,6 +101,7 @@ outputs:
                   - span:
                       lo: 283
                       hi: 287
+                  - 0
             span:
               lo: 275
               hi: 277
@@ -114,6 +120,7 @@ outputs:
                   - span:
                       lo: 314
                       hi: 318
+                  - 0
             span:
               lo: 306
               hi: 310
@@ -129,6 +136,7 @@ outputs:
                   - span:
                       lo: 349
                       hi: 352
+                  - 0
             span:
               lo: 341
               hi: 343
@@ -142,6 +150,7 @@ outputs:
                   - span:
                       lo: 386
                       hi: 392
+                  - 0
             span:
               lo: 378
               hi: 383
@@ -167,6 +176,7 @@ outputs:
                     span:
                       lo: 426
                       hi: 437
+                    id: 0
             span:
               lo: 418
               hi: 423
@@ -180,6 +190,7 @@ outputs:
                   - span:
                       lo: 463
                       hi: 526
+                  - 0
             span:
               lo: 453
               hi: 460
@@ -195,6 +206,7 @@ outputs:
                   - span:
                       lo: 537
                       hi: 541
+                  - 0
             span:
               lo: 532
               hi: 534

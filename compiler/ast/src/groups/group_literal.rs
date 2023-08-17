@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::groups::GroupCoordinate;
+use crate::{groups::GroupCoordinate, NodeID};
+
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -24,7 +25,7 @@ use std::fmt;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupLiteral {
     /// Product group literal, e.g., `42group`.
-    Single(String, #[serde(with = "leo_span::span_json")] Span),
+    Single(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
     /// An affine group literal with (x, y) coordinates.
     Tuple(GroupTuple),
 }
@@ -32,15 +33,29 @@ pub enum GroupLiteral {
 impl GroupLiteral {
     pub fn set_span(&mut self, new_span: Span) {
         match self {
-            Self::Single(_, old_span) => *old_span = new_span,
+            Self::Single(_, old_span, _) => *old_span = new_span,
             Self::Tuple(tuple) => tuple.span = new_span,
         }
     }
 
     pub fn span(&self) -> &Span {
         match self {
-            Self::Single(_, span) => span,
+            Self::Single(_, span, _) => span,
             Self::Tuple(tuple) => &tuple.span,
+        }
+    }
+
+    pub fn id(&self) -> &NodeID {
+        match self {
+            Self::Single(_, _, id) => id,
+            Self::Tuple(tuple) => &tuple.id,
+        }
+    }
+
+    pub fn set_id(&mut self, id: NodeID) {
+        match self {
+            Self::Single(_, _, old_id) => *old_id = id,
+            Self::Tuple(tuple) => tuple.id = id,
         }
     }
 }
@@ -48,7 +63,7 @@ impl GroupLiteral {
 impl fmt::Display for GroupLiteral {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Single(string, _) => write!(f, "{string}"),
+            Self::Single(string, _, _) => write!(f, "{string}"),
             Self::Tuple(tuple) => write!(f, "{}", tuple.x), // Temporarily emit x coordinate only.
         }
     }
@@ -63,4 +78,6 @@ pub struct GroupTuple {
     pub y: GroupCoordinate,
     /// The span from `(` to `)`.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }

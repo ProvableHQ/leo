@@ -32,6 +32,7 @@ use leo_ast::{
     ExpressionStatement,
     Identifier,
     IterationStatement,
+    NodeID,
     ReturnStatement,
     Statement,
     StatementConsumer,
@@ -75,7 +76,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
 
         // Add the assert statement to the list of produced statements.
-        statements.push(Statement::Assert(AssertStatement { variant, span: input.span }));
+        statements.push(Statement::Assert(AssertStatement { variant, span: input.span, id: NodeID::default() }));
 
         statements
     }
@@ -119,7 +120,11 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.push();
 
         // Consume the then-block.
-        let then = Block { span: conditional.then.span, statements: self.consume_block(conditional.then) };
+        let then = Block {
+            span: conditional.then.span,
+            statements: self.consume_block(conditional.then),
+            id: NodeID::default(),
+        };
 
         // Remove the `RenameTable` for the then-block.
         let if_table = self.pop();
@@ -132,10 +137,12 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             Statement::Block(block) => Block {
                 span: block.span,
                 statements: self.consume_block(block),
+                id: NodeID::default(),
             },
             Statement::Conditional(conditional) => Block {
                 span: conditional.span,
                 statements: self.consume_conditional(conditional),
+                id: NodeID::default()
             },
             _ => unreachable!("Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement."),
         })));
@@ -149,6 +156,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             condition: condition.clone(),
             then,
             otherwise,
+            id: NodeID::default(),
         }));
 
         // Compute the write set for the variables written in the then-block or otherwise-block.
@@ -164,7 +172,11 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
                     let name =
                         *table.lookup(symbol).unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
-                    Box::new(Expression::Identifier(Identifier { name, span: Default::default() }))
+                    Box::new(Expression::Identifier(Identifier {
+                        name,
+                        span: Default::default(),
+                        id: NodeID::default(),
+                    }))
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
@@ -175,14 +187,16 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     if_true: create_phi_argument(&if_table, **symbol),
                     if_false: create_phi_argument(&else_table, **symbol),
                     span: Default::default(),
+                    id: NodeID::default(),
                 });
 
                 statements.extend(stmts);
 
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = self
-                    .assigner
-                    .simple_assign_statement(Identifier { name: new_name, span: Default::default() }, value);
+                let assignment = self.assigner.simple_assign_statement(
+                    Identifier { name: new_name, span: Default::default(), id: NodeID::default() },
+                    value,
+                );
 
                 // Update the `RenameTable` with the new name of the variable.
                 self.rename_table.update(*(*symbol), new_name);
@@ -230,9 +244,14 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     }
                 }).collect();
                 statements.push(Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(TupleExpression { elements, span: Default::default() }),
+                    place: Expression::Tuple(TupleExpression {
+                        elements,
+                        span: Default::default(),
+                        id: NodeID::default(),
+                    }),
                     value,
                     span: Default::default(),
+                    id: NodeID::default(),
                 })));
             }
             _ => unreachable!(
@@ -272,8 +291,10 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                         arguments,
                         external: call.external,
                         span: call.span,
+                        id: NodeID::default(),
                     }),
                     span: input.span,
+                    id: NodeID::default(),
                 }));
             }
             Expression::Access(AccessExpression::AssociatedFunction(associated_function)) => {
@@ -287,8 +308,10 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                         name: associated_function.name,
                         arguments,
                         span: associated_function.span,
+                        id: NodeID::default(),
                     })),
                     span: input.span,
+                    id: NodeID::default(),
                 }))
             }
 
@@ -327,6 +350,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
             expression,
             finalize_arguments: finalize_args,
             span: input.span,
+            id: NodeID::default(),
         }));
 
         statements

@@ -15,6 +15,7 @@ outputs:
                 span:
                   lo: 110
                   hi: 115
+                id: 0
             variant: Standard
             identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":134,\\\"hi\\\":138}\"}"
             input: []
@@ -26,6 +27,7 @@ outputs:
                   span:
                     lo: 144
                     hi: 146
+                  id: 0
             output_type:
               Integer: U8
             block:
@@ -33,10 +35,12 @@ outputs:
               span:
                 lo: 147
                 hi: 149
+              id: 0
             finalize: ~
             span:
               lo: 125
               hi: 149
+            id: 0
         span:
           lo: 2
           hi: 151

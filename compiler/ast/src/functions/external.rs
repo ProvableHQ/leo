@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Type};
+use crate::{Identifier, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -31,6 +31,8 @@ pub struct External {
     pub record: Identifier,
     /// The parameters span from any annotations to its type.
     pub span: Span,
+    /// The ID of the node.
+    pub id: NodeID,
 }
 
 impl External {
