@@ -24,7 +24,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
-    NodeID,
+    NodeReconstructor,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -36,15 +36,15 @@ use leo_span::Symbol;
 // TODO: Generalize the functionality of this reconstructor to be used in other passes.
 /// An `AssignmentRenamer` renames the left-hand side of all assignment statements in an AST node.
 /// The new names are propagated to all following identifiers.
-pub struct AssignmentRenamer {
-    pub assigner: Assigner,
+pub struct AssignmentRenamer<'a> {
+    pub assigner: &'a Assigner,
     pub rename_table: RenameTable,
     pub is_lhs: bool,
 }
 
-impl AssignmentRenamer {
+impl<'a> AssignmentRenamer<'a> {
     /// Initialize a new `AssignmentRenamer`.
-    pub fn new(assigner: Assigner) -> Self {
+    pub fn new(assigner: &'a Assigner) -> Self {
         Self { assigner, rename_table: RenameTable::new(None), is_lhs: false }
     }
 
@@ -61,7 +61,9 @@ impl AssignmentRenamer {
     }
 }
 
-impl ExpressionReconstructor for AssignmentRenamer {
+impl NodeReconstructor for AssignmentRenamer<'_> {}
+
+impl ExpressionReconstructor for AssignmentRenamer<'_> {
     type AdditionalOutput = ();
 
     /// Rename the identifier if it is the left-hand side of an assignment, otherwise look up for a new name in the internal rename table.
@@ -80,7 +82,10 @@ impl ExpressionReconstructor for AssignmentRenamer {
             false => *self.rename_table.lookup(input.name).unwrap_or(&input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span, id: NodeID::default() }), Default::default())
+        (
+            Expression::Identifier(Identifier { name, span: input.span, id: self.reconstruct_node_id(input.id) }),
+            Default::default(),
+        )
     }
 
     /// Rename the variable initializers in the struct expression.
@@ -100,18 +105,18 @@ impl ExpressionReconstructor for AssignmentRenamer {
                             ),
                         },
                         span: member.span,
-                        id: NodeID::default(),
+                        id: self.reconstruct_node_id(member.id),
                     })
                     .collect(),
                 span: input.span,
-                id: NodeID::default(),
+                id: self.reconstruct_node_id(input.id),
             }),
             Default::default(),
         )
     }
 }
 
-impl StatementReconstructor for AssignmentRenamer {
+impl StatementReconstructor for AssignmentRenamer<'_> {
     /// Rename the left-hand side of the assignment statement.
     fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         // First rename the right-hand-side of the assignment.
@@ -124,7 +129,12 @@ impl StatementReconstructor for AssignmentRenamer {
         self.is_lhs = false;
 
         (
-            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+            Statement::Assign(Box::new(AssignStatement {
+                place,
+                value,
+                span: input.span,
+                id: self.reconstruct_node_id(input.id),
+            })),
             Default::default(),
         )
     }
@@ -150,4 +160,4 @@ impl StatementReconstructor for AssignmentRenamer {
     }
 }
 
-impl ProgramReconstructor for AssignmentRenamer {}
+impl ProgramReconstructor for AssignmentRenamer<'_> {}

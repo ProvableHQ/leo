@@ -30,7 +30,7 @@ impl StatementReconstructor for Unroller<'_> {
         let block = Block {
             statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         };
 
         // Exit the block scope.

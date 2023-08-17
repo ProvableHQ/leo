@@ -22,7 +22,7 @@ use leo_ast::{
     IntegerType,
     IterationStatement,
     Literal,
-    NodeID,
+    NodeBuilder,
     Statement,
     StatementReconstructor,
     Type,
@@ -41,13 +41,15 @@ pub struct Unroller<'a> {
     pub(crate) scope_index: usize,
     /// An error handler used for any errors found during unrolling.
     pub(crate) handler: &'a Handler,
+    /// A counter used to generate unique node IDs.
+    pub(crate) node_builder: &'a NodeBuilder,
     /// Are we in the midst of unrolling a loop?
     pub(crate) is_unrolling: bool,
 }
 
 impl<'a> Unroller<'a> {
-    pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
-        Self { symbol_table: RefCell::new(symbol_table), scope_index: 0, handler, is_unrolling: false }
+    pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler, node_builder: &'a NodeBuilder) -> Self {
+        Self { symbol_table: RefCell::new(symbol_table), scope_index: 0, handler, node_builder, is_unrolling: false }
     }
 
     /// Returns the index of the current scope.
@@ -86,7 +88,7 @@ impl<'a> Unroller<'a> {
                 Ok(val_as_u128) => Ok(val_as_u128),
                 Err(err) => {
                     self.handler.emit_err(err);
-                    Err(Statement::dummy(input.span))
+                    Err(Statement::dummy(input.span, self.node_builder.next_id()))
                 }
             }
         };
@@ -128,7 +130,7 @@ impl<'a> Unroller<'a> {
                     iter.map(|iteration_count| self.unroll_single_iteration(&input, iteration_count)).collect()
                 }
             },
-            id: NodeID::default(),
+            id: input.id,
         });
 
         // Exit the scope of the loop body.
@@ -148,36 +150,66 @@ impl<'a> Unroller<'a> {
 
         // Reconstruct `iteration_count` as a `Literal`.
         let value = match input.type_ {
-            Type::Integer(IntegerType::I8) => {
-                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::I16) => {
-                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::I32) => {
-                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::I64) => {
-                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::I128) => {
-                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::U8) => {
-                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::U16) => {
-                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::U32) => {
-                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::U64) => {
-                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
-            Type::Integer(IntegerType::U128) => {
-                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), NodeID::default())
-            }
+            Type::Integer(IntegerType::I8) => Literal::Integer(
+                IntegerType::I8,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::I16) => Literal::Integer(
+                IntegerType::I16,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::I32) => Literal::Integer(
+                IntegerType::I32,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::I64) => Literal::Integer(
+                IntegerType::I64,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::I128) => Literal::Integer(
+                IntegerType::I128,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::U8) => Literal::Integer(
+                IntegerType::U8,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::U16) => Literal::Integer(
+                IntegerType::U16,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::U32) => Literal::Integer(
+                IntegerType::U32,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::U64) => Literal::Integer(
+                IntegerType::U64,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
+            Type::Integer(IntegerType::U128) => Literal::Integer(
+                IntegerType::U128,
+                iteration_count.to_string(),
+                Default::default(),
+                self.node_builder.next_id(),
+            ),
             _ => unreachable!(
                 "The iteration variable must be an integer type. This should be enforced by type checking."
             ),
@@ -191,7 +223,7 @@ impl<'a> Unroller<'a> {
                 value: Expression::Literal(value),
                 span: Default::default(),
                 place: Expression::Identifier(input.variable),
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             })
             .0,
         ];
@@ -201,7 +233,7 @@ impl<'a> Unroller<'a> {
             statements.push(self.reconstruct_statement(s).0);
         });
 
-        let block = Statement::Block(Block { statements, span: input.block.span, id: NodeID::default() });
+        let block = Statement::Block(Block { statements, span: input.block.span, id: input.block.id });
 
         self.is_unrolling = prior_is_unrolling;
 

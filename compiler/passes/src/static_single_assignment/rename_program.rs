@@ -22,7 +22,6 @@ use leo_ast::{
     Function,
     FunctionConsumer,
     Member,
-    NodeID,
     Program,
     ProgramConsumer,
     ProgramScope,
