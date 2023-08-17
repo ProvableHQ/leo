@@ -13,7 +13,7 @@ outputs:
       span:
         lo: 0
         hi: 21
-      id: 0
+      id: 1
   - Return:
       expression:
         Unit:
@@ -25,7 +25,7 @@ outputs:
       span:
         lo: 0
         hi: 23
-      id: 0
+      id: 1
   - Return:
       expression:
         Unit:
@@ -34,11 +34,11 @@ outputs:
             hi: 11
           id: 0
       finalize_arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
+        - Identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
       span:
         lo: 0
         hi: 26
-      id: 0
+      id: 2
   - Return:
       expression:
         Unit:
@@ -47,9 +47,9 @@ outputs:
             hi: 11
           id: 0
       finalize_arguments:
-        - Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
-        - Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
+        - Identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":21,\\\"hi\\\":24}\"}"
+        - Identifier: "{\"id\":\"2\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":26,\\\"hi\\\":29}\"}"
       span:
         lo: 0
         hi: 31
-      id: 0
+      id: 3

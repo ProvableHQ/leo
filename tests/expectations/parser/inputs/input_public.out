@@ -7,7 +7,7 @@ outputs:
         definitions:
           - mode: Public
             type_: Boolean
-            name: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+            name: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
             value:
               Literal:
                 Boolean:
@@ -15,14 +15,14 @@ outputs:
                   - span:
                       lo: 27
                       hi: 31
-                  - 0
+                  - 2
             span:
               lo: 19
               hi: 23
           - mode: Public
             type_:
               Integer: U8
-            name: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":58}\"}"
+            name: "{\"id\":\"3\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":58}\"}"
             value:
               Literal:
                 Integer:
@@ -31,13 +31,13 @@ outputs:
                   - span:
                       lo: 68
                       hi: 71
-                  - 0
+                  - 4
             span:
               lo: 60
               hi: 62
           - mode: Public
             type_: Field
-            name: "{\"name\":\"c\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":101}\"}"
+            name: "{\"id\":\"5\",\"name\":\"c\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":101}\"}"
             value:
               Literal:
                 Field:
@@ -45,13 +45,13 @@ outputs:
                   - span:
                       lo: 111
                       hi: 117
-                  - 0
+                  - 6
             span:
               lo: 103
               hi: 108
           - mode: Public
             type_: Group
-            name: "{\"name\":\"d\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
+            name: "{\"id\":\"7\",\"name\":\"d\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
             value:
               Literal:
                 Group:
@@ -71,13 +71,13 @@ outputs:
                     span:
                       lo: 157
                       hi: 168
-                    id: 0
+                    id: 8
             span:
               lo: 149
               hi: 154
           - mode: Public
             type_: Address
-            name: "{\"name\":\"e\",\"span\":\"{\\\"lo\\\":187,\\\"hi\\\":188}\"}"
+            name: "{\"id\":\"9\",\"name\":\"e\",\"span\":\"{\\\"lo\\\":187,\\\"hi\\\":188}\"}"
             value:
               Literal:
                 Address:
@@ -85,14 +85,14 @@ outputs:
                   - span:
                       lo: 200
                       hi: 263
-                  - 0
+                  - 10
             span:
               lo: 190
               hi: 197
           - mode: Public
             type_:
               Integer: I8
-            name: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":272,\\\"hi\\\":273}\"}"
+            name: "{\"id\":\"11\",\"name\":\"f\",\"span\":\"{\\\"lo\\\":272,\\\"hi\\\":273}\"}"
             value:
               Literal:
                 Integer:
@@ -101,7 +101,7 @@ outputs:
                   - span:
                       lo: 283
                       hi: 287
-                  - 0
+                  - 12
             span:
               lo: 275
               hi: 277
@@ -112,7 +112,7 @@ outputs:
         definitions:
           - mode: None
             type_: Boolean
-            name: "{\"name\":\"r0\",\"span\":\"{\\\"lo\\\":302,\\\"hi\\\":304}\"}"
+            name: "{\"id\":\"14\",\"name\":\"r0\",\"span\":\"{\\\"lo\\\":302,\\\"hi\\\":304}\"}"
             value:
               Literal:
                 Boolean:
@@ -120,14 +120,14 @@ outputs:
                   - span:
                       lo: 314
                       hi: 318
-                  - 0
+                  - 15
             span:
               lo: 306
               hi: 310
           - mode: None
             type_:
               Integer: U8
-            name: "{\"name\":\"r1\",\"span\":\"{\\\"lo\\\":337,\\\"hi\\\":339}\"}"
+            name: "{\"id\":\"16\",\"name\":\"r1\",\"span\":\"{\\\"lo\\\":337,\\\"hi\\\":339}\"}"
             value:
               Literal:
                 Integer:
@@ -136,13 +136,13 @@ outputs:
                   - span:
                       lo: 349
                       hi: 352
-                  - 0
+                  - 17
             span:
               lo: 341
               hi: 343
           - mode: None
             type_: Field
-            name: "{\"name\":\"r2\",\"span\":\"{\\\"lo\\\":374,\\\"hi\\\":376}\"}"
+            name: "{\"id\":\"18\",\"name\":\"r2\",\"span\":\"{\\\"lo\\\":374,\\\"hi\\\":376}\"}"
             value:
               Literal:
                 Field:
@@ -150,13 +150,13 @@ outputs:
                   - span:
                       lo: 386
                       hi: 392
-                  - 0
+                  - 19
             span:
               lo: 378
               hi: 383
           - mode: None
             type_: Group
-            name: "{\"name\":\"r3\",\"span\":\"{\\\"lo\\\":414,\\\"hi\\\":416}\"}"
+            name: "{\"id\":\"20\",\"name\":\"r3\",\"span\":\"{\\\"lo\\\":414,\\\"hi\\\":416}\"}"
             value:
               Literal:
                 Group:
@@ -176,13 +176,13 @@ outputs:
                     span:
                       lo: 426
                       hi: 437
-                    id: 0
+                    id: 21
             span:
               lo: 418
               hi: 423
           - mode: None
             type_: Address
-            name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":449,\\\"hi\\\":451}\"}"
+            name: "{\"id\":\"22\",\"name\":\"r4\",\"span\":\"{\\\"lo\\\":449,\\\"hi\\\":451}\"}"
             value:
               Literal:
                 Address:
@@ -190,14 +190,14 @@ outputs:
                   - span:
                       lo: 463
                       hi: 526
-                  - 0
+                  - 23
             span:
               lo: 453
               hi: 460
           - mode: None
             type_:
               Integer: I8
-            name: "{\"name\":\"r4\",\"span\":\"{\\\"lo\\\":528,\\\"hi\\\":530}\"}"
+            name: "{\"id\":\"24\",\"name\":\"r4\",\"span\":\"{\\\"lo\\\":528,\\\"hi\\\":530}\"}"
             value:
               Literal:
                 Integer:
@@ -206,7 +206,7 @@ outputs:
                   - span:
                       lo: 537
                       hi: 541
-                  - 0
+                  - 25
             span:
               lo: 532
               hi: 534

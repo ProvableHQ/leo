@@ -4,20 +4,20 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           foo:
             annotations:
-              - identifier: "{\"name\":\"program\",\"span\":\"{\\\"lo\\\":171,\\\"hi\\\":178}\"}"
+              - identifier: "{\"id\":\"22\",\"name\":\"program\",\"span\":\"{\\\"lo\\\":171,\\\"hi\\\":178}\"}"
                 span:
                   lo: 170
                   hi: 178
-                id: 0
+                id: 23
             variant: Standard
-            identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
+            identifier: "{\"id\":\"24\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
             input: []
             output:
               - Internal:
@@ -27,7 +27,7 @@ outputs:
                   span:
                     lo: 201
                     hi: 203
-                  id: 0
+                  id: 25
             output_type:
               Integer: U8
             block:
@@ -35,16 +35,16 @@ outputs:
               span:
                 lo: 204
                 hi: 206
-              id: 0
+              id: 26
             finalize: ~
             span:
               lo: 183
               hi: 206
-            id: 0
+            id: 27
           mint:
             annotations: []
             variant: Transition
-            identifier: "{\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
+            identifier: "{\"id\":\"12\",\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
             input: []
             output:
               - Internal:
@@ -54,7 +54,7 @@ outputs:
                   span:
                     lo: 111
                     hi: 113
-                  id: 0
+                  id: 13
             output_type:
               Integer: U8
             block:
@@ -62,21 +62,21 @@ outputs:
               span:
                 lo: 114
                 hi: 116
-              id: 0
+              id: 14
             finalize: ~
             span:
               lo: 90
               hi: 116
-            id: 0
+            id: 15
           test:
             annotations:
-              - identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":127,\\\"hi\\\":131}\"}"
+              - identifier: "{\"id\":\"16\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":127,\\\"hi\\\":131}\"}"
                 span:
                   lo: 126
                   hi: 131
-                id: 0
+                id: 17
             variant: Standard
-            identifier: "{\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
+            identifier: "{\"id\":\"18\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
             input: []
             output:
               - Internal:
@@ -86,7 +86,7 @@ outputs:
                   span:
                     lo: 155
                     hi: 157
-                  id: 0
+                  id: 19
             output_type:
               Integer: U8
             block:
@@ -94,12 +94,12 @@ outputs:
               span:
                 lo: 158
                 hi: 160
-              id: 0
+              id: 20
             finalize: ~
             span:
               lo: 136
               hi: 160
-            id: 0
+            id: 21
         span:
           lo: 2
           hi: 208

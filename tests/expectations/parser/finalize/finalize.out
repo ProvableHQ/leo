@@ -4,15 +4,15 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           main:
             annotations: []
             variant: Standard
-            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"
+            identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"
             input: []
             output:
               - Internal:
@@ -21,60 +21,60 @@ outputs:
                   span:
                     lo: 133
                     hi: 137
-                  id: 0
+                  id: 10
             output_type: Boolean
             block:
               statements: []
               span:
                 lo: 138
                 hi: 150
-              id: 0
+              id: 11
             finalize:
-              identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":164}\"}"
+              identifier: "{\"id\":\"12\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":164}\"}"
               input:
                 - Internal:
-                    identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
+                    identifier: "{\"id\":\"13\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
+                      Identifier: "{\"id\":\"14\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
                     span:
                       lo: 165
                       hi: 166
-                    id: 0
+                    id: 15
                 - Internal:
-                    identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
+                    identifier: "{\"id\":\"16\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
+                      Identifier: "{\"id\":\"17\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
                     span:
                       lo: 173
                       hi: 174
-                    id: 0
+                    id: 18
               output:
                 - Internal:
                     mode: None
                     type_:
-                      Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
+                      Identifier: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
                     span:
                       lo: 184
                       hi: 187
-                    id: 0
+                    id: 20
               output_type:
-                Identifier: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
+                Identifier: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
               block:
                 statements: []
                 span:
                   lo: 188
                   hi: 200
-                id: 0
+                id: 21
               span:
                 lo: 151
                 hi: 200
-              id: 0
+              id: 22
             span:
               lo: 114
               hi: 150
-            id: 0
+            id: 23
         span:
           lo: 2
           hi: 212

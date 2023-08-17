@@ -4,17 +4,17 @@ expectation: Pass
 outputs:
   - Unary:
       receiver:
-        Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       op: ToXCoordinate
       span:
         lo: 0
         hi: 19
-      id: 0
+      id: 2
   - Unary:
       receiver:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       op: ToYCoordinate
       span:
         lo: 0
         hi: 19
-      id: 0
+      id: 2

@@ -4,34 +4,34 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           x:
             annotations: []
             variant: Standard
-            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":117}\"}"
+            identifier: "{\"id\":\"12\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":117}\"}"
             input:
               - Internal:
-                  identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":125,\\\"hi\\\":126}\"}"
+                  identifier: "{\"id\":\"13\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":125,\\\"hi\\\":126}\"}"
                   mode: Public
                   type_:
                     Integer: U32
                   span:
                     lo: 125
                     hi: 126
-                  id: 0
+                  id: 14
               - Internal:
-                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":133,\\\"hi\\\":134}\"}"
+                  identifier: "{\"id\":\"15\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":133,\\\"hi\\\":134}\"}"
                   mode: None
                   type_:
                     Integer: I32
                   span:
                     lo: 133
                     hi: 134
-                  id: 0
+                  id: 16
             output:
               - Internal:
                   mode: None
@@ -40,7 +40,7 @@ outputs:
                   span:
                     lo: 144
                     hi: 146
-                  id: 0
+                  id: 17
             output_type:
               Integer: U8
             block:
@@ -54,21 +54,21 @@ outputs:
                           - span:
                               lo: 164
                               hi: 167
-                          - 0
+                          - 18
                     finalize_arguments: ~
                     span:
                       lo: 157
                       hi: 168
-                    id: 0
+                    id: 19
               span:
                 lo: 147
                 hi: 174
-              id: 0
+              id: 20
             finalize: ~
             span:
               lo: 107
               hi: 174
-            id: 0
+            id: 21
         span:
           lo: 2
           hi: 176

@@ -5,241 +5,241 @@ outputs:
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U16
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
           external: ~
           span:
             lo: 12
             hi: 15
-          id: 0
+          id: 2
       span:
         lo: 0
         hi: 15
-      id: 0
+      id: 3
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: String
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
       span:
         lo: 0
         hi: 20
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: I8
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":16}\"}"
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: I16
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: I8
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
           external: ~
           span:
             lo: 12
             hi: 15
-          id: 0
+          id: 2
       span:
         lo: 0
         hi: 15
-      id: 0
+      id: 3
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: String
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":20}\"}"
       span:
         lo: 0
         hi: 20
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
       span:
         lo: 0
         hi: 17
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
           external: ~
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 2
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 3
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"
       span:
         lo: 0
         hi: 17
-      id: 0
+      id: 2
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":16}\"}"
           op: Add
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U32
       value:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
           external: ~
           span:
             lo: 13
             hi: 16
-          id: 0
+          id: 2
       span:
         lo: 0
         hi: 16
-      id: 0
+      id: 3
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_: Address
       value:
         Literal:
@@ -248,8 +248,8 @@ outputs:
             - span:
                 lo: 17
                 hi: 80
-            - 0
+            - 1
       span:
         lo: 0
         hi: 80
-      id: 0
+      id: 2

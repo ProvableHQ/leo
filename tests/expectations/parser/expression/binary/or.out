@@ -18,12 +18,12 @@ outputs:
             - span:
                 lo: 8
                 hi: 12
-            - 0
+            - 1
       op: Or
       span:
         lo: 0
         hi: 12
-      id: 0
+      id: 2
   - Binary:
       left:
         Literal:
@@ -40,12 +40,12 @@ outputs:
             - span:
                 lo: 7
                 hi: 11
-            - 0
+            - 1
       op: Or
       span:
         lo: 0
         hi: 11
-      id: 0
+      id: 2
   - Binary:
       left:
         Binary:
@@ -64,12 +64,12 @@ outputs:
                 - span:
                     lo: 6
                     hi: 11
-                - 0
+                - 1
           op: Or
           span:
             lo: 0
             hi: 11
-          id: 0
+          id: 2
       right:
         Literal:
           Boolean:
@@ -77,12 +77,12 @@ outputs:
             - span:
                 lo: 15
                 hi: 20
-            - 0
+            - 3
       op: Or
       span:
         lo: 0
         hi: 20
-      id: 0
+      id: 4
   - Binary:
       left:
         Binary:
@@ -103,12 +103,12 @@ outputs:
                     - span:
                         lo: 8
                         hi: 13
-                    - 0
+                    - 1
               op: Or
               span:
                 lo: 0
                 hi: 13
-              id: 0
+              id: 2
           right:
             Literal:
               Boolean:
@@ -116,12 +116,12 @@ outputs:
                 - span:
                     lo: 17
                     hi: 21
-                - 0
+                - 3
           op: Or
           span:
             lo: 0
             hi: 21
-          id: 0
+          id: 4
       right:
         Literal:
           Boolean:
@@ -129,12 +129,12 @@ outputs:
             - span:
                 lo: 25
                 hi: 30
-            - 0
+            - 5
       op: Or
       span:
         lo: 0
         hi: 30
-      id: 0
+      id: 6
   - Binary:
       left:
         Binary:
@@ -155,7 +155,7 @@ outputs:
                     - span:
                         lo: 9
                         hi: 13
-                    - 0
+                    - 1
               right:
                 Literal:
                   Boolean:
@@ -163,17 +163,17 @@ outputs:
                     - span:
                         lo: 17
                         hi: 22
-                    - 0
+                    - 2
               op: Or
               span:
                 lo: 9
                 hi: 22
-              id: 0
+              id: 3
           op: Or
           span:
             lo: 0
             hi: 22
-          id: 0
+          id: 4
       right:
         Literal:
           Boolean:
@@ -181,9 +181,9 @@ outputs:
             - span:
                 lo: 27
                 hi: 31
-            - 0
+            - 5
       op: Or
       span:
         lo: 0
         hi: 31
-      id: 0
+      id: 6

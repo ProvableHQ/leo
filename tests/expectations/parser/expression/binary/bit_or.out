@@ -20,12 +20,12 @@ outputs:
             - span:
                 lo: 6
                 hi: 9
-            - 0
+            - 1
       op: BitwiseOr
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 2
   - Binary:
       left:
         Literal:
@@ -44,12 +44,12 @@ outputs:
             - span:
                 lo: 4
                 hi: 7
-            - 0
+            - 1
       op: BitwiseOr
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 2
   - Binary:
       left:
         Binary:
@@ -70,12 +70,12 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
-                - 0
+                - 1
           op: BitwiseOr
           span:
             lo: 0
             hi: 9
-          id: 0
+          id: 2
       right:
         Literal:
           Integer:
@@ -84,12 +84,12 @@ outputs:
             - span:
                 lo: 12
                 hi: 15
-            - 0
+            - 3
       op: BitwiseOr
       span:
         lo: 0
         hi: 15
-      id: 0
+      id: 4
   - Binary:
       left:
         Binary:
@@ -112,7 +112,7 @@ outputs:
                     - span:
                         lo: 6
                         hi: 9
-                    - 0
+                    - 1
               right:
                 Literal:
                   Integer:
@@ -121,17 +121,17 @@ outputs:
                     - span:
                         lo: 12
                         hi: 15
-                    - 0
+                    - 2
               op: BitwiseOr
               span:
                 lo: 6
                 hi: 15
-              id: 0
+              id: 3
           op: Xor
           span:
             lo: 0
             hi: 15
-          id: 0
+          id: 4
       right:
         Literal:
           Integer:
@@ -140,12 +140,12 @@ outputs:
             - span:
                 lo: 18
                 hi: 21
-            - 0
+            - 5
       op: Xor
       span:
         lo: 0
         hi: 21
-      id: 0
+      id: 6
   - Binary:
       left:
         Binary:
@@ -166,12 +166,12 @@ outputs:
                 - span:
                     lo: 6
                     hi: 9
-                - 0
+                - 1
           op: BitwiseOr
           span:
             lo: 0
             hi: 9
-          id: 0
+          id: 2
       right:
         Literal:
           Integer:
@@ -180,12 +180,12 @@ outputs:
             - span:
                 lo: 12
                 hi: 15
-            - 0
+            - 3
       op: BitwiseOr
       span:
         lo: 0
         hi: 15
-      id: 0
+      id: 4
   - Binary:
       left:
         Binary:
@@ -210,7 +210,7 @@ outputs:
                         - span:
                             lo: 6
                             hi: 9
-                        - 0
+                        - 1
                   right:
                     Literal:
                       Integer:
@@ -219,17 +219,17 @@ outputs:
                         - span:
                             lo: 12
                             hi: 15
-                        - 0
+                        - 2
                   op: BitwiseOr
                   span:
                     lo: 6
                     hi: 15
-                  id: 0
+                  id: 3
               op: Xor
               span:
                 lo: 0
                 hi: 15
-              id: 0
+              id: 4
           right:
             Binary:
               left:
@@ -240,7 +240,7 @@ outputs:
                     - span:
                         lo: 18
                         hi: 21
-                    - 0
+                    - 5
               right:
                 Literal:
                   Integer:
@@ -249,17 +249,17 @@ outputs:
                     - span:
                         lo: 24
                         hi: 27
-                    - 0
+                    - 6
               op: BitwiseOr
               span:
                 lo: 18
                 hi: 27
-              id: 0
+              id: 7
           op: Xor
           span:
             lo: 0
             hi: 27
-          id: 0
+          id: 8
       right:
         Literal:
           Integer:
@@ -268,279 +268,279 @@ outputs:
             - span:
                 lo: 30
                 hi: 33
-            - 0
+            - 9
       op: Xor
       span:
         lo: 0
         hi: 33
-      id: 0
+      id: 10
   - Unary:
       receiver:
         Unary:
           receiver:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
               op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
-              id: 0
+              id: 3
           op: Negate
           span:
             lo: 1
             hi: 9
-          id: 0
+          id: 4
       op: Not
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 5
   - Binary:
       left:
         Binary:
           left:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
               op: BitwiseOr
               span:
                 lo: 0
                 hi: 7
-              id: 0
+              id: 3
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+            Identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
           op: BitwiseOr
           span:
             lo: 0
             hi: 13
-          id: 0
+          id: 6
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+        Identifier: "{\"id\":\"8\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
       op: BitwiseOr
       span:
         lo: 0
         hi: 19
-      id: 0
+      id: 9
   - Unary:
       receiver:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           op: BitwiseOr
           span:
             lo: 1
             hi: 8
-          id: 0
+          id: 3
       op: Negate
       span:
         lo: 0
         hi: 8
-      id: 0
+      id: 4
   - Binary:
       left:
         Unary:
           receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Negate
           span:
             lo: 1
             hi: 3
-          id: 0
+          id: 1
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       op: BitwiseOr
       span:
         lo: 1
         hi: 10
-      id: 0
+      id: 4
   - Unary:
       receiver:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
           op: BitwiseOr
           span:
             lo: 2
             hi: 9
-          id: 0
+          id: 3
       op: Negate
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 4
   - Binary:
       left:
         Unary:
           receiver:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
               op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
-              id: 0
+              id: 3
           op: Negate
           span:
             lo: 1
             hi: 9
-          id: 0
+          id: 4
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
       op: BitwiseOr
       span:
         lo: 1
         hi: 16
-      id: 0
+      id: 7
   - Unary:
       receiver:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
           op: BitwiseOr
           span:
             lo: 1
             hi: 8
-          id: 0
+          id: 3
       op: Not
       span:
         lo: 0
         hi: 8
-      id: 0
+      id: 4
   - Binary:
       left:
         Unary:
           receiver:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Not
           span:
             lo: 1
             hi: 3
-          id: 0
+          id: 1
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        Identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       op: BitwiseOr
       span:
         lo: 1
         hi: 10
-      id: 0
+      id: 4
   - Unary:
       receiver:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
           op: BitwiseOr
           span:
             lo: 2
             hi: 9
-          id: 0
+          id: 3
       op: Not
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 4
   - Binary:
       left:
         Unary:
           receiver:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
               op: BitwiseOr
               span:
                 lo: 2
                 hi: 9
-              id: 0
+              id: 3
           op: Not
           span:
             lo: 1
             hi: 9
-          id: 0
+          id: 4
       right:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
+        Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":14,\\\"hi\\\":15}\"}"
       op: BitwiseOr
       span:
         lo: 1
         hi: 16
-      id: 0
+      id: 7
   - Binary:
       left:
         Binary:
           left:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
+                Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
               op: BitwiseOr
               span:
                 lo: 1
                 hi: 8
-              id: 0
+              id: 3
           right:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
+                Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":12}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+                Identifier: "{\"id\":\"6\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
               op: BitwiseOr
               span:
                 lo: 11
                 hi: 18
-              id: 0
+              id: 7
           op: BitwiseOr
           span:
             lo: 1
             hi: 18
-          id: 0
+          id: 8
       right:
         Binary:
           left:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
+                Identifier: "{\"id\":\"10\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
+                Identifier: "{\"id\":\"12\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":28,\\\"hi\\\":29}\"}"
               op: BitwiseOr
               span:
                 lo: 23
                 hi: 30
-              id: 0
+              id: 13
           right:
             Binary:
               left:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
+                Identifier: "{\"id\":\"14\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":34}\"}"
               right:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
+                Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":39}\"}"
               op: BitwiseOr
               span:
                 lo: 33
                 hi: 40
-              id: 0
+              id: 17
           op: BitwiseOr
           span:
             lo: 23
             hi: 40
-          id: 0
+          id: 18
       op: BitwiseOr
       span:
         lo: 1
         hi: 41
-      id: 0
+      id: 19

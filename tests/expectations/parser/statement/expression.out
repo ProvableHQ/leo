@@ -4,39 +4,39 @@ expectation: Pass
 outputs:
   - Expression:
       expression:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       span:
         lo: 0
         hi: 5
-      id: 0
+      id: 1
   - Expression:
       expression:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
           op: Add
           span:
             lo: 0
             hi: 3
-          id: 0
+          id: 2
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 3
   - Expression:
       expression:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
           arguments: []
           external: ~
           span:
             lo: 0
             hi: 3
-          id: 0
+          id: 1
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 2

@@ -4,52 +4,52 @@ expectation: Pass
 outputs:
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
       external: ~
       span:
         lo: 0
         hi: 3
-      id: 0
+      id: 1
   - Call:
       function:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
       external: ~
       span:
         lo: 0
         hi: 3
-      id: 0
+      id: 1
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
       external: ~
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 2
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"id\":\"2\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       external: ~
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 3
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        - Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
+        - Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        - Identifier: "{\"id\":\"3\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       external: ~
       span:
         lo: 0
         hi: 10
-      id: 0
+      id: 4

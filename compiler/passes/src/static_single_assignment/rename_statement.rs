@@ -136,8 +136,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         let otherwise = conditional.otherwise.map(|otherwise| Box::new(Statement::Block(match *otherwise {
             Statement::Block(block) => Block {
                 span: block.span,
+                id: block.id,
                 statements: self.consume_block(block),
-                id: NodeID::default(),
             },
             Statement::Conditional(conditional) => Block {
                 span: conditional.span,
