@@ -934,7 +934,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{GroupLiteral, Identifier, IntegerType, Literal, Type};
+</span><span class="kw">use crate</span>::{GroupLiteral, Identifier, IntegerType, Literal, NodeID, Type};
 
 <span class="kw">use </span>leo_errors::{type_name, FlattenError, LeoError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
@@ -1791,13 +1791,13 @@
     <span class="doccomment">/// Converts a literal to a value.
     </span><span class="kw">fn </span>try_from(literal: <span class="kw-2">&amp;</span>Literal) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>literal {
-            Literal::Address(string, span) =&gt; <span class="self">Self</span>::Address(string.clone(), <span class="kw-2">*</span>span),
-            Literal::Boolean(bool, span) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, <span class="kw-2">*</span>span),
-            Literal::Field(string, span) =&gt; <span class="self">Self</span>::Field(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Address(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Address(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Boolean(bool, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Boolean(<span class="kw-2">*</span>bool, <span class="kw-2">*</span>span),
+            Literal::Field(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Field(string.clone(), <span class="kw-2">*</span>span),
             Literal::Group(group_literal) =&gt; <span class="self">Self</span>::Group(group_literal.clone()),
-            Literal::Scalar(string, span) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
-            Literal::String(string, span) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
-            Literal::Integer(integer_type, string, span) =&gt; <span class="kw">match </span>integer_type {
+            Literal::Scalar(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
+            Literal::String(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
+            Literal::Integer(integer_type, string, span, <span class="kw">_</span>) =&gt; <span class="kw">match </span>integer_type {
                 IntegerType::U8 =&gt; <span class="self">Self</span>::U8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
                 IntegerType::U16 =&gt; <span class="self">Self</span>::U16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
                 IntegerType::U32 =&gt; <span class="self">Self</span>::U32(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
@@ -1818,23 +1818,23 @@
         <span class="kw">use </span>Value::<span class="kw-2">*</span>;
         <span class="kw">match </span>v {
             Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            Address(v, span) =&gt; Literal::Address(v, span),
-            Boolean(v, span) =&gt; Literal::Boolean(v, span),
+            Address(v, span) =&gt; Literal::Address(v, span, NodeID::default()),
+            Boolean(v, span) =&gt; Literal::Boolean(v, span, NodeID::default()),
             Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            Field(v, span) =&gt; Literal::Field(v, span),
+            Field(v, span) =&gt; Literal::Field(v, span, NodeID::default()),
             Group(v) =&gt; Literal::Group(v),
-            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span),
-            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span),
-            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span),
-            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span),
-            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span),
-            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span),
-            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span),
-            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span),
-            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span),
-            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span),
-            Scalar(v, span) =&gt; Literal::Scalar(v, span),
-            String(v, span) =&gt; Literal::String(v, span),
+            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, NodeID::default()),
+            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span, NodeID::default()),
+            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span, NodeID::default()),
+            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span, NodeID::default()),
+            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span, NodeID::default()),
+            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span, NodeID::default()),
+            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span, NodeID::default()),
+            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span, NodeID::default()),
+            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span, NodeID::default()),
+            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span, NodeID::default()),
+            Scalar(v, span) =&gt; Literal::Scalar(v, span, NodeID::default()),
+            String(v, span) =&gt; Literal::String(v, span, NodeID::default()),
         }
     }
 }

@@ -75,6 +75,8 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -94,7 +96,7 @@
 </span><span class="kw">pub mod </span>member;
 <span class="kw">pub use </span>member::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Identifier, Node};
+<span class="kw">use crate</span>::{Identifier, Node, NodeID};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -117,6 +119,8 @@
     </span><span class="kw">pub </span>is_record: bool,
     <span class="doccomment">/// The entire span of the struct definition.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>PartialEq <span class="kw">for </span>Struct {

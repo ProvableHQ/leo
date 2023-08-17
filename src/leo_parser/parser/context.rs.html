@@ -370,7 +370,7 @@
     <span class="doccomment">/// At the previous token, return and make an identifier with `name`.
     </span><span class="kw">fn </span>mk_ident_prev(<span class="kw-2">&amp;</span><span class="self">self</span>, name: Symbol) -&gt; Identifier {
         <span class="kw">let </span>span = <span class="self">self</span>.prev_token.span;
-        Identifier { name, span }
+        Identifier { name, span, id: NodeID::default() }
     }
 
     <span class="doccomment">/// Eats the next token if its an identifier and returns it.

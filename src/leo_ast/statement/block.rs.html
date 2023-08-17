@@ -42,6 +42,8 @@
 <a href="#42" id="42">42</a>
 <a href="#43" id="43">43</a>
 <a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
+<a href="#46" id="46">46</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -58,7 +60,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Node, Statement};
+</span><span class="kw">use crate</span>::{Node, NodeID, Statement};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -71,6 +73,8 @@
     </span><span class="kw">pub </span>statements: Vec&lt;Statement&gt;,
     <span class="doccomment">/// The span from `{` to `}`.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Block {

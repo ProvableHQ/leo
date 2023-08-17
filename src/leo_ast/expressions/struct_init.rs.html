@@ -87,6 +87,14 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -115,7 +123,13 @@
     <span class="doccomment">/// The expression to initialize the field with.
     /// When `None`, a binding, in scope, with the name will be used instead.
     </span><span class="kw">pub </span>expression: <span class="prelude-ty">Option</span>&lt;Expression&gt;,
+    <span class="doccomment">/// The span of the node.
+    </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
+
+<span class="macro">crate::simple_node_impl!</span>(StructVariableInitializer);
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>StructVariableInitializer {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
@@ -139,6 +153,8 @@
     </span><span class="kw">pub </span>members: Vec&lt;StructVariableInitializer&gt;,
     <span class="doccomment">/// A span from `name` to `}`.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>StructExpression {

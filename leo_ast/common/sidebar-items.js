@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["global_consts_json","identifier","imported_modules","node","positive_number","static_string"]};
+window.SIDEBAR_ITEMS = {"mod":["identifier","imported_modules","node","positive_number","static_string"]};

@@ -64,6 +64,8 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -80,7 +82,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Block, Identifier, Input, Node, Output, Tuple, Type};
+</span><span class="kw">use crate</span>::{Block, Identifier, Input, Node, NodeID, Output, Tuple, Type};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -102,6 +104,8 @@
     </span><span class="kw">pub </span>block: Block,
     <span class="doccomment">/// The entire span of the finalize block.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>Finalize {
@@ -113,7 +117,7 @@
             <span class="kw">_ </span>=&gt; Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
         };
 
-        <span class="self">Self </span>{ identifier, input, output, output_type, block, span }
+        <span class="self">Self </span>{ identifier, input, output, output_type, block, span, id: NodeID::default() }
     }
 }
 

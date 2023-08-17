@@ -140,6 +140,42 @@
 <a href="#140" id="140">140</a>
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -156,7 +192,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Identifier, Node};
+</span><span class="kw">use crate</span>::{Identifier, Node, NodeID};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -259,6 +295,42 @@
             Tuple(n) =&gt; n.set_span(span),
             Unary(n) =&gt; n.set_span(span),
             Unit(n) =&gt; n.set_span(span),
+        }
+    }
+
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
+        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Access(n) =&gt; n.id(),
+            Binary(n) =&gt; n.id(),
+            Call(n) =&gt; n.id(),
+            Cast(n) =&gt; n.id(),
+            Struct(n) =&gt; n.id(),
+            Identifier(n) =&gt; n.id(),
+            Literal(n) =&gt; n.id(),
+            <span class="prelude-val">Err</span>(n) =&gt; n.id(),
+            Ternary(n) =&gt; n.id(),
+            Tuple(n) =&gt; n.id(),
+            Unary(n) =&gt; n.id(),
+            Unit(n) =&gt; n.id(),
+        }
+    }
+
+    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
+        <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Access(n) =&gt; n.set_id(id),
+            Binary(n) =&gt; n.set_id(id),
+            Call(n) =&gt; n.set_id(id),
+            Cast(n) =&gt; n.set_id(id),
+            Struct(n) =&gt; n.set_id(id),
+            Identifier(n) =&gt; n.set_id(id),
+            Literal(n) =&gt; n.set_id(id),
+            <span class="prelude-val">Err</span>(n) =&gt; n.set_id(id),
+            Ternary(n) =&gt; n.set_id(id),
+            Tuple(n) =&gt; n.set_id(id),
+            Unary(n) =&gt; n.set_id(id),
+            Unit(n) =&gt; n.set_id(id),
         }
     }
 }

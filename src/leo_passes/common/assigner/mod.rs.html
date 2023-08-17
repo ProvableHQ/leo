@@ -53,6 +53,7 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -69,7 +70,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::{AssignStatement, Expression, Identifier, Statement};
+</span><span class="kw">use </span>leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
 <span class="kw">use </span>leo_span::Symbol;
 <span class="kw">use </span>std::fmt::Display;
 
@@ -94,6 +95,7 @@
             place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
+            id: NodeID::default(),
         }))
     }
 
@@ -103,7 +105,7 @@
         <span class="comment">// Create a new variable for the expression.
         </span><span class="kw">let </span>name = <span class="self">self</span>.unique_symbol(<span class="string">&quot;$var&quot;</span>, <span class="string">&quot;$&quot;</span>);
 
-        <span class="kw">let </span>place = Identifier { name, span: Default::default() };
+        <span class="kw">let </span>place = Identifier { name, span: Default::default(), id: NodeID::default() };
 
         (place, <span class="self">self</span>.simple_assign_statement(place, expr))
     }

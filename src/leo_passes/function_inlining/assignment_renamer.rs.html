@@ -144,6 +144,13 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -170,6 +177,7 @@
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
+    NodeID,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -225,7 +233,7 @@
             </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(input.name).unwrap_or(<span class="kw-2">&amp;</span>input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span }), Default::default())
+        (Expression::Identifier(Identifier { name, span: input.span, id: NodeID::default() }), Default::default())
     }
 
     <span class="doccomment">/// Rename the variable initializers in the struct expression.
@@ -244,9 +252,12 @@
                                 <span class="string">&quot;SSA guarantees that all struct members are always of the form `&lt;id&gt; : &lt;expr&gt;`.&quot;
                             </span>),
                         },
+                        span: member.span,
+                        id: NodeID::default(),
                     })
                     .collect(),
                 span: input.span,
+                id: NodeID::default(),
             }),
             Default::default(),
         )
@@ -265,7 +276,10 @@
         <span class="kw">let </span>place = <span class="self">self</span>.reconstruct_expression(input.place).<span class="number">0</span>;
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        (Statement::Assign(Box::new(AssignStatement { place, value, span: input.span })), Default::default())
+        (
+            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+            Default::default(),
+        )
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.

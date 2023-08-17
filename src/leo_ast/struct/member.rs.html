@@ -51,6 +51,8 @@
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -67,7 +69,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Identifier, Mode, Node, Type};
+</span><span class="kw">use crate</span>::{Identifier, Mode, Node, NodeID, Type};
 
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
@@ -85,6 +87,8 @@
     </span><span class="kw">pub </span>type_: Type,
     <span class="doccomment">/// The span of the member.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>Member {

@@ -88,6 +88,24 @@
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -104,7 +122,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{External, Mode, Node, Type};
+</span><span class="kw">use crate</span>::{External, Mode, Node, NodeID, Type};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -158,6 +176,22 @@
             External(output) =&gt; output.set_span(span),
         }
     }
+
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
+        <span class="kw">use </span>Output::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Internal(output) =&gt; output.id(),
+            External(output) =&gt; output.id(),
+        }
+    }
+
+    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
+        <span class="kw">use </span>Output::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Internal(output) =&gt; output.set_id(id),
+            External(output) =&gt; output.set_id(id),
+        }
+    }
 }
 
 <span class="doccomment">/// A function output.
@@ -169,6 +203,8 @@
     </span><span class="kw">pub </span>type_: Type,
     <span class="doccomment">/// The parameters span from any annotations to its type.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FunctionOutput {

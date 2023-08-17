@@ -191,6 +191,12 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -222,6 +228,7 @@
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
+    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
@@ -244,6 +251,7 @@
                 }
             },
             span: input.span,
+            id: NodeID::default(),
         });
 
         <span class="comment">// Unset the `is_necessary` flag.
@@ -283,6 +291,7 @@
                     place: input.place,
                     value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
                     span: input.span,
+                    id: NodeID::default(),
                 }));
 
                 <span class="comment">// Unset the `is_necessary` flag.
@@ -304,7 +313,7 @@
         <span class="comment">// Reverse the direction of `statements`.
         </span>statements.reverse();
 
-        (Block { statements, span: block.span }, Default::default())
+        (Block { statements, span: block.span, id: NodeID::default() }, Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -335,6 +344,7 @@
                 </span><span class="kw">let </span>statement = Statement::Expression(ExpressionStatement {
                     expression: <span class="self">self</span>.reconstruct_call(expression).<span class="number">0</span>,
                     span: input.span,
+                    id: NodeID::default(),
                 });
 
                 <span class="comment">// Unset the `is_necessary` flag.
@@ -350,6 +360,7 @@
                             </span>.reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
                             .<span class="number">0</span>,
                         span: input.span,
+                        id: NodeID::default(),
                     }),
                     Default::default(),
                 )
@@ -376,6 +387,7 @@
                 arguments.into_iter().map(|argument| <span class="self">self</span>.reconstruct_expression(argument).<span class="number">0</span>).collect()
             }),
             span: input.span,
+            id: NodeID::default(),
         });
 
         <span class="comment">// Unset the `is_necessary` flag.

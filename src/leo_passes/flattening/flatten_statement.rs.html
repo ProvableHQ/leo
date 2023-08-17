@@ -452,6 +452,22 @@
 <a href="#452" id="452">452</a>
 <a href="#453" id="453">453</a>
 <a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -489,6 +505,7 @@
     Identifier,
     IterationStatement,
     Node,
+    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
@@ -523,6 +540,7 @@
         <span class="comment">// Flatten the arguments of the assert statement.
         </span><span class="kw">let </span>assert = AssertStatement {
             span: input.span,
+            id: NodeID::default(),
             variant: <span class="kw">match </span>input.variant {
                 AssertVariant::Assert(expression) =&gt; {
                     <span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(expression);
@@ -556,15 +574,18 @@
             </span><span class="prelude-val">Some</span>(guard) =&gt; (
                 Statement::Assert(AssertStatement {
                     span: input.span,
+                    id: NodeID::default(),
                     variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
+                        op: BinaryOperation::Or,
+                        span: Default::default(),
+                        id: NodeID::default(),
                         <span class="comment">// Take the logical negation of the guard.
                         </span>left: Box::new(Expression::Unary(UnaryExpression {
                             op: UnaryOperation::Not,
                             receiver: Box::new(guard),
                             span: Default::default(),
+                            id: NodeID::default(),
                         })),
-                        op: BinaryOperation::Or,
-                        span: Default::default(),
                         right: Box::new(<span class="kw">match </span>assert.variant {
                             <span class="comment">// If the assert statement is an `assert`, use the expression as is.
                             </span>AssertVariant::Assert(expression) =&gt; expression,
@@ -574,6 +595,7 @@
                                 op: BinaryOperation::Eq,
                                 right: Box::new(right),
                                 span: Default::default(),
+                                id: NodeID::default(),
                             }),
                             <span class="comment">// If the assert statement is an `assert_ne`, construct a new inequality expression.
                             </span>AssertVariant::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
@@ -581,6 +603,7 @@
                                 op: BinaryOperation::Neq,
                                 right: Box::new(right),
                                 span: Default::default(),
+                                id: NodeID::default(),
                             }),
                         }),
                     })),
@@ -645,6 +668,7 @@
                                 })
                                 .collect(),
                             span: Default::default(),
+                            id: NodeID::default(),
                         };
                         <span class="comment">// Add the `tuple_expression` to `self.tuples`.
                         </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, tuple_expression.clone());
@@ -654,6 +678,7 @@
                                 place: Expression::Tuple(tuple_expression),
                                 value: Expression::Call(call),
                                 span: Default::default(),
+                                id: NodeID::default(),
                             })),
                             statements,
                         )
@@ -669,6 +694,7 @@
                                 place: Expression::Identifier(lhs_identifier),
                                 value: Expression::Call(call),
                                 span: Default::default(),
+                                id: NodeID::default(),
                             })),
                             statements,
                         )
@@ -718,6 +744,7 @@
                         place: Expression::Identifier(lhs_identifier),
                         value,
                         span: Default::default(),
+                        id: NodeID::default(),
                     })),
                     statements,
                 )
@@ -758,6 +785,7 @@
                         place: Expression::Tuple(tuple),
                         value: Expression::Call(call),
                         span: Default::default(),
+                        id: NodeID::default(),
                     })),
                     statements,
                 )
@@ -775,6 +803,7 @@
                             place: lhs,
                             value: rhs,
                             span: Default::default(),
+                            id: NodeID::default(),
                         }))
                     },
                 ));
@@ -799,6 +828,7 @@
                         place: lhs,
                         value: rhs,
                         span: Default::default(),
+                        id: NodeID::default(),
                     })));
                 }
                 (Statement::dummy(Default::default()), statements)
@@ -828,7 +858,7 @@
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements }, Default::default())
+        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
     }
 
     <span class="doccomment">/// Flatten a conditional statement into a list of statements.
@@ -851,6 +881,7 @@
                 op: UnaryOperation::Not,
                 receiver: Box::new(conditional.condition.clone()),
                 span: conditional.condition.span(),
+                id: NodeID::default(),
             }));
 
             <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.
@@ -897,6 +928,7 @@
                     span: input.span,
                     expression: Expression::Tuple(tuple),
                     finalize_arguments: input.finalize_arguments,
+                    id: NodeID::default(),
                 }));
             }
             <span class="comment">// Otherwise, add the expression directly.

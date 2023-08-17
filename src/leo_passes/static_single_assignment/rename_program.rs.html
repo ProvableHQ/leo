@@ -149,6 +149,14 @@
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -173,6 +181,7 @@
     Function,
     FunctionConsumer,
     Member,
+    NodeID,
     Program,
     ProgramConsumer,
     ProgramScope,
@@ -224,7 +233,8 @@
             <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
         }
 
-        <span class="kw">let </span>block = Block { span: function.block.span, statements: <span class="self">self</span>.consume_block(function.block) };
+        <span class="kw">let </span>block =
+            Block { span: function.block.span, statements: <span class="self">self</span>.consume_block(function.block), id: NodeID::default() };
 
         <span class="comment">// Remove the `RenameTable` for the function.
         </span><span class="self">self</span>.pop();
@@ -239,7 +249,11 @@
                 <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
             }
 
-            <span class="kw">let </span>block = Block { span: finalize.block.span, statements: <span class="self">self</span>.consume_block(finalize.block) };
+            <span class="kw">let </span>block = Block {
+                span: finalize.block.span,
+                statements: <span class="self">self</span>.consume_block(finalize.block),
+                id: NodeID::default(),
+            };
 
             <span class="comment">// Remove the `RenameTable` for the finalize block.
             </span><span class="self">self</span>.pop();
@@ -251,6 +265,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: NodeID::default(),
             }
         });
 
@@ -264,6 +279,7 @@
             block,
             finalize,
             span: function.span,
+            id: NodeID::default(),
         }
     }
 }

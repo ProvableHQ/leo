@@ -662,6 +662,38 @@
 <a href="#662" id="662">662</a>
 <a href="#663" id="663">663</a>
 <a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -739,6 +771,7 @@
                 condition: Box::new(expr),
                 if_true: Box::new(if_true),
                 if_false: Box::new(if_false),
+                id: NodeID::default(),
             });
         }
         <span class="prelude-val">Ok</span>(expr)
@@ -751,6 +784,7 @@
             op,
             left: Box::new(left),
             right: Box::new(right),
+            id: NodeID::default(),
         })
     }
 
@@ -901,7 +935,7 @@
         <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::As) {
             <span class="kw">let </span>(type_, end_span) = <span class="self">self</span>.parse_primitive_type()<span class="question-mark">?</span>;
             <span class="kw">let </span>span = expr.span() + end_span;
-            expr = Expression::Cast(CastExpression { expression: Box::new(expr), type_, span });
+            expr = Expression::Cast(CastExpression { expression: Box::new(expr), type_, span, id: NodeID::default() });
         }
 
         <span class="prelude-val">Ok</span>(expr)
@@ -927,19 +961,20 @@
         <span class="comment">// If the last operation is a negation and the inner expression is a literal, then construct a negative literal.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>((UnaryOperation::Negate, <span class="kw">_</span>)) = ops.last() {
             <span class="kw">match </span>inner {
-                Expression::Literal(Literal::Integer(integer_type, string, span)) =&gt; {
+                Expression::Literal(Literal::Integer(integer_type, string, span, id)) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     // Note that this unwrap is safe because there is at least one operation in `ops`.
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative integer literal.
-                    </span>inner = Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
+                    </span>inner =
+                        Expression::Literal(Literal::Integer(integer_type, <span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span, id));
                 }
-                Expression::Literal(Literal::Field(string, span)) =&gt; {
+                Expression::Literal(Literal::Field(string, span, id)) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     // Note that
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative field literal.
-                    </span>inner = Expression::Literal(Literal::Field(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
+                    </span>inner = Expression::Literal(Literal::Field(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span, id));
                 }
                 Expression::Literal(Literal::Group(group_literal)) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
@@ -947,17 +982,17 @@
                     <span class="comment">// Construct a negative group literal.
                     // Note that we only handle the case where the group literal is a single integral value.
                     </span>inner = Expression::Literal(Literal::Group(Box::new(<span class="kw">match </span><span class="kw-2">*</span>group_literal {
-                        GroupLiteral::Single(string, span) =&gt; {
-                            GroupLiteral::Single(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span)
+                        GroupLiteral::Single(string, span, id) =&gt; {
+                            GroupLiteral::Single(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span, id)
                         }
                         GroupLiteral::Tuple(tuple) =&gt; GroupLiteral::Tuple(tuple),
                     })));
                 }
-                Expression::Literal(Literal::Scalar(string, span)) =&gt; {
+                Expression::Literal(Literal::Scalar(string, span, id)) =&gt; {
                     <span class="comment">// Remove the negation from the operations.
                     </span><span class="kw">let </span>(<span class="kw">_</span>, op_span) = ops.pop().unwrap();
                     <span class="comment">// Construct a negative scalar literal.
-                    </span>inner = Expression::Literal(Literal::Scalar(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span));
+                    </span>inner = Expression::Literal(Literal::Scalar(<span class="macro">format!</span>(<span class="string">&quot;-{string}&quot;</span>), op_span + span, id));
                 }
                 <span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing.
             </span>}
@@ -965,7 +1000,12 @@
 
         <span class="comment">// Apply the operations in reverse order, constructing a unary expression.
         </span><span class="kw">for </span>(op, op_span) <span class="kw">in </span>ops.into_iter().rev() {
-            inner = Expression::Unary(UnaryExpression { span: op_span + inner.span(), op, receiver: Box::new(inner) });
+            inner = Expression::Unary(UnaryExpression {
+                span: op_span + inner.span(),
+                op,
+                receiver: Box::new(inner),
+                id: NodeID::default(),
+            });
         }
 
         <span class="prelude-val">Ok</span>(inner)
@@ -981,7 +1021,7 @@
 
         <span class="kw">if let </span>(<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             <span class="comment">// Found an unary operator and the argument list is empty.
-            </span><span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression { span, op, receiver: Box::new(receiver) }))
+            </span><span class="prelude-val">Ok</span>(Expression::Unary(UnaryExpression { span, op, receiver: Box::new(receiver), id: NodeID::default() }))
         } <span class="kw">else if let </span>(<span class="number">1</span>, <span class="prelude-val">Some</span>(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             <span class="comment">// Found a binary operator and the argument list contains a single argument.
             </span><span class="prelude-val">Ok</span>(Expression::Binary(BinaryExpression {
@@ -989,6 +1029,7 @@
                 op,
                 left: Box::new(receiver),
                 right: Box::new(args.swap_remove(<span class="number">0</span>)),
+                id: NodeID::default(),
             }))
         } <span class="kw">else </span>{
             <span class="comment">// Attempt to parse the method call as a mapping operation.
@@ -1008,12 +1049,13 @@
                             arguments
                         },
                         span,
+                        id: NodeID::default(),
                     })))
                 }
                 <span class="kw">_ </span>=&gt; {
                     <span class="comment">// Either an invalid unary/binary operator, or more arguments given.
                     </span><span class="self">self</span>.emit_err(ParserError::invalid_method_call(receiver, method, args.len(), span));
-                    <span class="prelude-val">Ok</span>(Expression::Err(ErrExpression { span }))
+                    <span class="prelude-val">Ok</span>(Expression::Err(ErrExpression { span, id: NodeID::default() }))
                 }
             }
         }
@@ -1043,6 +1085,7 @@
                 ty: type_,
                 name: member_name,
                 arguments: args,
+                id: NodeID::default(),
             })
         } <span class="kw">else </span>{
             <span class="comment">// Return the struct constant.
@@ -1050,6 +1093,7 @@
                 span: module_name.span() + member_name.span(),
                 ty: type_,
                 name: member_name,
+                id: NodeID::default(),
             })
         }))
     }
@@ -1073,8 +1117,12 @@
                 <span class="kw">if </span><span class="self">self</span>.check_int() {
                     <span class="comment">// Eat a tuple member access.
                     </span><span class="kw">let </span>(index, span) = <span class="self">self</span>.eat_integer()<span class="question-mark">?</span>;
-                    expr =
-                        Expression::Access(AccessExpression::Tuple(TupleAccess { tuple: Box::new(expr), index, span }))
+                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(expr),
+                        index,
+                        span,
+                        id: NodeID::default(),
+                    }))
                 } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
                     <span class="comment">// Eat an external function call.
                     </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
@@ -1089,6 +1137,7 @@
                         function: Box::new(Expression::Identifier(name)),
                         external: <span class="prelude-val">Some</span>(Box::new(expr)),
                         arguments,
+                        id: NodeID::default(),
                     });
                 } <span class="kw">else </span>{
                     <span class="comment">// Parse identifier name.
@@ -1103,6 +1152,7 @@
                             span: expr.span() + name.span(),
                             inner: Box::new(expr),
                             name,
+                            id: NodeID::default(),
                         }))
                     }
                 }
@@ -1121,6 +1171,7 @@
                     function: Box::new(expr),
                     external: <span class="prelude-val">None</span>,
                     arguments,
+                    id: NodeID::default(),
                 });
             }
             <span class="comment">// Check if next token is a dot to see if we are calling recursive method.
@@ -1142,7 +1193,7 @@
 
         <span class="kw">match </span>elements.len() {
             <span class="comment">// If the tuple expression is empty, return a `UnitExpression`.
-            </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Unit(UnitExpression { span })),
+            </span><span class="number">0 </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Unit(UnitExpression { span, id: NodeID::default() })),
             <span class="number">1 </span>=&gt; <span class="kw">match </span>trailing {
                 <span class="comment">// If there is one element in the tuple but no trailing comma, e.g `(foo)`, return the element.
                 </span><span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(elements.swap_remove(<span class="number">0</span>)),
@@ -1151,7 +1202,7 @@
             },
             <span class="comment">// Otherwise, return a tuple expression.
             // Note: This is the only place where `TupleExpression` is constructed in the parser.
-            </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements, span })),
+            </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements, span, id: NodeID::default() })),
         }
     }
 
@@ -1199,7 +1250,7 @@
         </span><span class="kw">let </span>end_span = check_ahead(dist, <span class="kw-2">&amp;</span>Token::Group)<span class="question-mark">?</span>;
         dist += <span class="number">1</span>; <span class="comment">// Standing at `)` so advance one for &#39;group&#39;.
 
-        </span><span class="kw">let </span>gt = GroupTuple { span: start_span + <span class="kw-2">&amp;</span>end_span, x: first_gc, y: second_gc };
+        </span><span class="kw">let </span>gt = GroupTuple { span: start_span + <span class="kw-2">&amp;</span>end_span, x: first_gc, y: second_gc, id: NodeID::default() };
 
         <span class="comment">// Eat everything so that this isn&#39;t just peeking.
         </span><span class="kw">for _ in </span><span class="number">0</span>..dist {
@@ -1222,14 +1273,16 @@
             <span class="self">self</span>.expect_identifier()<span class="question-mark">?
         </span>};
 
-        <span class="kw">let </span>expression = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Colon) {
+        <span class="kw">let </span>(expression, span) = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Colon) {
             <span class="comment">// Parse individual struct variable declarations.
-            </span><span class="prelude-val">Some</span>(<span class="self">self</span>.parse_expression()<span class="question-mark">?</span>)
+            </span><span class="kw">let </span>expression = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+            <span class="kw">let </span>span = identifier.span + expression.span();
+            (<span class="prelude-val">Some</span>(expression), span)
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>};
+            (<span class="prelude-val">None</span>, identifier.span)
+        };
 
-        <span class="prelude-val">Ok</span>(StructVariableInitializer { identifier, expression })
+        <span class="prelude-val">Ok</span>(StructVariableInitializer { identifier, expression, id: NodeID::default(), span })
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent a
@@ -1239,7 +1292,12 @@
         <span class="kw">let </span>(members, <span class="kw">_</span>, end) =
             <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">Some</span>(Token::Comma), |p| p.parse_struct_member().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Expression::Struct(StructExpression { span: identifier.span + end, name: identifier, members }))
+        <span class="prelude-val">Ok</span>(Expression::Struct(StructExpression {
+            span: identifier.span + end,
+            name: identifier,
+            members,
+            id: NodeID::default(),
+        }))
     }
 
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next token is a primary expression:
@@ -1266,38 +1324,42 @@
                     <span class="comment">// Literal followed by `field`, e.g., `42field`.
                     </span><span class="prelude-val">Some</span>(Token::Field) =&gt; {
                         assert_no_whitespace(<span class="string">&quot;field&quot;</span>)<span class="question-mark">?</span>;
-                        Expression::Literal(Literal::Field(value, full_span))
+                        Expression::Literal(Literal::Field(value, full_span, NodeID::default()))
                     }
                     <span class="comment">// Literal followed by `group`, e.g., `42group`.
                     </span><span class="prelude-val">Some</span>(Token::Group) =&gt; {
                         assert_no_whitespace(<span class="string">&quot;group&quot;</span>)<span class="question-mark">?</span>;
-                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(value, full_span))))
+                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(
+                            value,
+                            full_span,
+                            NodeID::default(),
+                        ))))
                     }
                     <span class="comment">// Literal followed by `scalar` e.g., `42scalar`.
                     </span><span class="prelude-val">Some</span>(Token::Scalar) =&gt; {
                         assert_no_whitespace(<span class="string">&quot;scalar&quot;</span>)<span class="question-mark">?</span>;
-                        Expression::Literal(Literal::Scalar(value, full_span))
+                        Expression::Literal(Literal::Scalar(value, full_span, NodeID::default()))
                     }
                     <span class="comment">// Literal followed by other type suffix, e.g., `42u8`.
                     </span><span class="prelude-val">Some</span>(suffix) =&gt; {
                         assert_no_whitespace(<span class="kw-2">&amp;</span>suffix.to_string())<span class="question-mark">?</span>;
                         <span class="kw">let </span>int_ty = <span class="self">Self</span>::token_to_int_type(suffix).expect(<span class="string">&quot;unknown int type token&quot;</span>);
-                        Expression::Literal(Literal::Integer(int_ty, value, full_span))
+                        Expression::Literal(Literal::Integer(int_ty, value, full_span, NodeID::default()))
                     }
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::implicit_values_not_allowed(value, span).into()),
                 }
             }
-            Token::True =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">true</span>, span)),
-            Token::False =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">false</span>, span)),
+            Token::True =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">true</span>, span, NodeID::default())),
+            Token::False =&gt; Expression::Literal(Literal::Boolean(<span class="bool-val">false</span>, span, NodeID::default())),
             Token::AddressLit(address_string) =&gt; {
                 <span class="kw">if </span>address_string.parse::&lt;Address&lt;Testnet3&gt;&gt;().is_err() {
                     <span class="self">self</span>.emit_err(ParserError::invalid_address_lit(<span class="kw-2">&amp;</span>address_string, span));
                 }
-                Expression::Literal(Literal::Address(address_string, span))
+                Expression::Literal(Literal::Address(address_string, span, NodeID::default()))
             }
-            Token::StaticString(value) =&gt; Expression::Literal(Literal::String(value, span)),
+            Token::StaticString(value) =&gt; Expression::Literal(Literal::String(value, span, NodeID::default())),
             Token::Identifier(name) =&gt; {
-                <span class="kw">let </span>ident = Identifier { name, span };
+                <span class="kw">let </span>ident = Identifier { name, span, id: NodeID::default() };
                 <span class="kw">if </span>!<span class="self">self</span>.disallow_struct_construction &amp;&amp; <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftCurly) {
                     <span class="comment">// Parse struct and records inits as struct expressions.
                     // Enforce struct or record type later at type checking.
@@ -1306,10 +1368,12 @@
                     Expression::Identifier(ident)
                 }
             }
-            Token::SelfLower =&gt; Expression::Identifier(Identifier { name: sym::SelfLower, span }),
-            Token::Block =&gt; Expression::Identifier(Identifier { name: sym::block, span }),
+            Token::SelfLower =&gt; {
+                Expression::Identifier(Identifier { name: sym::SelfLower, span, id: NodeID::default() })
+            }
+            Token::Block =&gt; Expression::Identifier(Identifier { name: sym::block, span, id: NodeID::default() }),
             t <span class="kw">if </span><span class="kw">crate</span>::type_::TYPE_TOKENS.contains(<span class="kw-2">&amp;</span>t) =&gt; {
-                Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span })
+                Expression::Identifier(Identifier { name: t.keyword_to_symbol().unwrap(), span, id: NodeID::default() })
             }
             token =&gt; {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::unexpected_str(token, <span class="string">&quot;expression&quot;</span>, span).into());

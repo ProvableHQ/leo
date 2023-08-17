@@ -87,6 +87,24 @@
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
 <a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -113,34 +131,34 @@
 </span><span class="kw">pub enum </span>Literal {
     <span class="comment">// todo: deserialize values here
     </span><span class="doccomment">/// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
-    </span>Address(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>Address(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A boolean literal, either `true` or `false`.
-    </span>Boolean(bool, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>Boolean(bool, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A field literal, e.g., `42field`.
     /// A signed number followed by the keyword `field`.
-    </span>Field(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>Field(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A group literal, either product or affine.
     /// For example, `42group` or `(12, 52)group`.
     </span>Group(Box&lt;GroupLiteral&gt;),
     <span class="doccomment">/// An integer literal, e.g., `42`.
-    </span>Integer(IntegerType, String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>Integer(IntegerType, String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A scalar literal, e.g. `1scalar`.
     /// An unsigned number followed by the keyword `scalar`.
-    </span>Scalar(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>Scalar(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
     <span class="doccomment">/// A string literal, e.g., `&quot;foobar&quot;`.
-    </span>String(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span),
+    </span>String(String, <span class="attr">#[serde(with = <span class="string">&quot;leo_span::span_json&quot;</span>)] </span>Span, NodeID),
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Literal {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-            <span class="self">Self</span>::Address(address, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{address}&quot;</span>),
-            <span class="self">Self</span>::Boolean(boolean, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{boolean}&quot;</span>),
-            <span class="self">Self</span>::Field(field, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{field}field&quot;</span>),
+            <span class="self">Self</span>::Address(address, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{address}&quot;</span>),
+            <span class="self">Self</span>::Boolean(boolean, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{boolean}&quot;</span>),
+            <span class="self">Self</span>::Field(field, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{field}field&quot;</span>),
             <span class="self">Self</span>::Group(group) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{group}group&quot;</span>),
-            <span class="self">Self</span>::Integer(type_, value, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{value}{type_}&quot;</span>),
-            <span class="self">Self</span>::Scalar(scalar, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{scalar}scalar&quot;</span>),
-            <span class="self">Self</span>::String(string, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{string}\&quot;&quot;</span>),
+            <span class="self">Self</span>::Integer(type_, value, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{value}{type_}&quot;</span>),
+            <span class="self">Self</span>::Scalar(scalar, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{scalar}scalar&quot;</span>),
+            <span class="self">Self</span>::String(string, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;\&quot;{string}\&quot;&quot;</span>),
         }
     }
 }
@@ -148,31 +166,49 @@
 <span class="kw">impl </span>Node <span class="kw">for </span>Literal {
     <span class="kw">fn </span>span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-            <span class="self">Self</span>::Address(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Field(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::String(<span class="kw">_</span>, span) =&gt; <span class="kw-2">*</span>span,
-            <span class="self">Self</span>::Group(group) =&gt; <span class="kw">match </span><span class="kw-2">&amp;**</span>group {
-                GroupLiteral::Single(<span class="kw">_</span>, span) =&gt; <span class="kw-2">*</span>span,
-                GroupLiteral::Tuple(tuple) =&gt; tuple.span,
-            },
+            <span class="self">Self</span>::Address(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Field(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::String(<span class="kw">_</span>, span, <span class="kw">_</span>) =&gt; <span class="kw-2">*</span>span,
+            <span class="self">Self</span>::Group(group) =&gt; <span class="kw-2">*</span>group.span(),
         }
     }
 
     <span class="kw">fn </span>set_span(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_span: Span) {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Address(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Field(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span)
-            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span)
-            | <span class="self">Self</span>::String(<span class="kw">_</span>, span) =&gt; <span class="kw-2">*</span>span = new_span,
-            <span class="self">Self</span>::Group(group) =&gt; <span class="kw">match </span><span class="kw-2">&amp;mut **</span>group {
-                GroupLiteral::Single(<span class="kw">_</span>, span) =&gt; <span class="kw-2">*</span>span = new_span,
-                GroupLiteral::Tuple(tuple) =&gt; tuple.span = new_span,
-            },
+            <span class="self">Self</span>::Address(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Field(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, span, <span class="kw">_</span>)
+            | <span class="self">Self</span>::String(<span class="kw">_</span>, span, <span class="kw">_</span>) =&gt; <span class="kw-2">*</span>span = new_span,
+            <span class="self">Self</span>::Group(group) =&gt; group.set_span(new_span),
+        }
+    }
+
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
+            <span class="self">Self</span>::Address(<span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::Field(<span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, <span class="kw">_</span>, id)
+            | <span class="self">Self</span>::String(<span class="kw">_</span>, <span class="kw">_</span>, id) =&gt; <span class="kw-2">*</span>id,
+            <span class="self">Self</span>::Group(group) =&gt; <span class="kw-2">*</span>group.id(),
+        }
+    }
+
+    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::Address(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::Boolean(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::Field(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::Integer(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::Scalar(<span class="kw">_</span>, <span class="kw">_</span>, old_id)
+            | <span class="self">Self</span>::String(<span class="kw">_</span>, <span class="kw">_</span>, old_id) =&gt; <span class="kw-2">*</span>old_id = id,
+            <span class="self">Self</span>::Group(group) =&gt; group.set_id(id),
         }
     }
 }

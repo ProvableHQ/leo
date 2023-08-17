@@ -106,6 +106,24 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -122,7 +140,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{External, Identifier, Mode, Node, Type};
+</span><span class="kw">use crate</span>::{External, Identifier, Mode, Node, NodeID, Type};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -186,6 +204,22 @@
             External(input) =&gt; input.set_span(span),
         }
     }
+
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">use </span>Input::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Internal(input) =&gt; input.id(),
+            External(input) =&gt; input.id(),
+        }
+    }
+
+    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: usize) {
+        <span class="kw">use </span>Input::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Internal(input) =&gt; input.set_id(id),
+            External(input) =&gt; input.set_id(id),
+        }
+    }
 }
 
 <span class="doccomment">/// A function parameter.
@@ -199,6 +233,8 @@
     </span><span class="kw">pub </span>type_: Type,
     <span class="doccomment">/// The parameters span from any annotations to its type.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>FunctionInput {

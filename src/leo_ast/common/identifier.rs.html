@@ -144,6 +144,13 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -163,7 +170,7 @@
 </span><span class="kw">use </span>leo_errors::Result;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use crate</span>::{simple_node_impl, Node};
+<span class="kw">use crate</span>::{simple_node_impl, Node, NodeID};
 <span class="kw">use </span>serde::{
     de::{
         Visitor,
@@ -191,6 +198,8 @@
     </span><span class="kw">pub </span>name: Symbol,
     <span class="doccomment">/// A span locating where the identifier occurred in the source.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="macro">simple_node_impl!</span>(Identifier);
@@ -198,7 +207,7 @@
 <span class="kw">impl </span>Identifier {
     <span class="doccomment">/// Constructs a new identifier with `name` and a default span.
     </span><span class="kw">pub fn </span>new(name: Symbol) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ name, span: Span::default() }
+        <span class="self">Self </span>{ name, span: Span::default(), id: NodeID::default() }
     }
 
     <span class="doccomment">/// Check if the Identifier name matches the other name.
@@ -283,7 +292,12 @@
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">&quot;missing &#39;span&#39; in serialized Identifier struct&quot;</span>)),
                 };
 
-                <span class="prelude-val">Ok</span>(Identifier { name, span })
+                <span class="kw">let </span>id: NodeID = <span class="kw">match </span>key.get(<span class="string">&quot;id&quot;</span>) {
+                    <span class="prelude-val">Some</span>(id) =&gt; to_json_string(id)<span class="question-mark">?</span>,
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(E::custom(<span class="string">&quot;missing &#39;id&#39; in serialized Identifier struct&quot;</span>)),
+                };
+
+                <span class="prelude-val">Ok</span>(Identifier { name, span, id })
             }
         }
 

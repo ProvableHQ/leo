@@ -69,6 +69,8 @@
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -118,6 +120,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: NodeID::default(),
             }
         });
 
@@ -132,6 +135,7 @@
             block,
             finalize,
             span: function.span,
+            id: NodeID::default(),
         };
 
         <span class="comment">// Exit the function&#39;s scope.

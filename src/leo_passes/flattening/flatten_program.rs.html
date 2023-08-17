@@ -80,6 +80,8 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -98,7 +100,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
 
-<span class="kw">use </span>leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
+<span class="kw">use </span>leo_ast::{Finalize, Function, NodeID, ProgramReconstructor, StatementReconstructor, Type};
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Flattens a function&#39;s body and finalize block, if it exists.
@@ -129,6 +131,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
+                id: NodeID::default(),
             }
         });
 
@@ -159,6 +162,7 @@
             block,
             finalize,
             span: function.span,
+            id: NodeID::default(),
         }
     }
 }

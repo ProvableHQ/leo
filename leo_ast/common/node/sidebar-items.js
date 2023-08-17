@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Node"]};
+window.SIDEBAR_ITEMS = {"trait":["Node"],"type":["NodeID"]};

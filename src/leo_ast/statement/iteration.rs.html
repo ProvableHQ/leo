@@ -55,6 +55,8 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -71,7 +73,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Block, Expression, Identifier, Node, Type, Value};
+</span><span class="kw">use crate</span>::{Block, Expression, Identifier, Node, NodeID, Type, Value};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -102,6 +104,8 @@
     </span><span class="kw">pub </span>block: Block,
     <span class="doccomment">/// The span from `for` to `block`.
     </span><span class="kw">pub </span>span: Span,
+    <span class="doccomment">/// The ID of the node.
+    </span><span class="kw">pub </span>id: NodeID,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>IterationStatement {

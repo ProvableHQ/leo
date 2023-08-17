@@ -252,6 +252,13 @@
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -279,6 +286,7 @@
     ExpressionReconstructor,
     Identifier,
     Member,
+    NodeID,
     ReturnStatement,
     Statement,
     TernaryExpression,
@@ -336,6 +344,7 @@
                         left: Box::new(acc),
                         right: Box::new(condition),
                         span: Default::default(),
+                        id: NodeID::default(),
                     })
                 }))
             }
@@ -363,13 +372,17 @@
                 <span class="comment">// Helper to construct and store ternary assignments. e.g `$ret$0 = $var$0 ? $var$1 : $var$2`
                 </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment =
                     |guard: Expression, if_true: Expression, if_false: Expression| {
-                        <span class="kw">let </span>place =
-                            Identifier { name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>), span: Default::default() };
+                        <span class="kw">let </span>place = Identifier {
+                            name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>),
+                            span: Default::default(),
+                            id: NodeID::default(),
+                        };
                         <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),
                             if_false: Box::new(if_false),
                             span: Default::default(),
+                            id: NodeID::default(),
                         });
                         statements.extend(stmts);
 
@@ -502,6 +515,7 @@
                 expression,
                 finalize_arguments,
                 span: Default::default(),
+                id: NodeID::default(),
             }));
         }
     }

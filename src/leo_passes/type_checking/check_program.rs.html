@@ -560,7 +560,7 @@
             check_has_field(sym::owner, Type::Address);
         }
 
-        <span class="kw">for </span>Member { mode, identifier, type_, span } <span class="kw">in </span>input.members.iter() {
+        <span class="kw">for </span>Member { mode, identifier, type_, span, .. } <span class="kw">in </span>input.members.iter() {
             <span class="comment">// Check that the member type is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(

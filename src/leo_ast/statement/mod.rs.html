@@ -125,6 +125,36 @@
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -168,7 +198,7 @@
 <span class="kw">pub mod </span>return_;
 <span class="kw">pub use </span>return_::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::Node;
+<span class="kw">use crate</span>::{Node, NodeID};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -201,7 +231,7 @@
 <span class="kw">impl </span>Statement {
     <span class="doccomment">/// Returns a dummy statement made from an empty block `{}`.
     </span><span class="kw">pub fn </span>dummy(span: Span) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span })
+        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span, id: NodeID::default() })
     }
 }
 
@@ -249,6 +279,36 @@
             Expression(n) =&gt; n.set_span(span),
             Iteration(n) =&gt; n.set_span(span),
             Return(n) =&gt; n.set_span(span),
+        }
+    }
+
+    <span class="kw">fn </span>id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NodeID {
+        <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Assert(n) =&gt; n.id(),
+            Assign(n) =&gt; n.id(),
+            Block(n) =&gt; n.id(),
+            Conditional(n) =&gt; n.id(),
+            Console(n) =&gt; n.id(),
+            Definition(n) =&gt; n.id(),
+            Expression(n) =&gt; n.id(),
+            Iteration(n) =&gt; n.id(),
+            Return(n) =&gt; n.id(),
+        }
+    }
+
+    <span class="kw">fn </span>set_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: NodeID) {
+        <span class="kw">use </span>Statement::<span class="kw-2">*</span>;
+        <span class="kw">match </span><span class="self">self </span>{
+            Assert(n) =&gt; n.set_id(id),
+            Assign(n) =&gt; n.set_id(id),
+            Block(n) =&gt; n.set_id(id),
+            Conditional(n) =&gt; n.set_id(id),
+            Console(n) =&gt; n.set_id(id),
+            Definition(n) =&gt; n.set_id(id),
+            Expression(n) =&gt; n.set_id(id),
+            Iteration(n) =&gt; n.set_id(id),
+            Return(n) =&gt; n.set_id(id),
         }
     }
 }

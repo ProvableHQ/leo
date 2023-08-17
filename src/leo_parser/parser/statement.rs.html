@@ -317,6 +317,28 @@
 <a href="#317" id="317">317</a>
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -401,7 +423,7 @@
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
         <span class="comment">// Return the assertion statement.
-        </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span }))
+        </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span, id: NodeID::default() }))
     }
 
     <span class="doccomment">/// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
@@ -443,10 +465,11 @@
                     right: Box::new(value),
                     op,
                     span,
+                    id: NodeID::default(),
                 }),
             };
 
-            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value })))
+            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value, id: NodeID::default() })))
         } <span class="kw">else </span>{
             <span class="comment">// Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
             </span><span class="kw">if let </span>Expression::Call(call_expression) = <span class="kw-2">&amp;</span>place {
@@ -471,14 +494,21 @@
 
             <span class="comment">// Parse the expression as a statement.
             </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement { span: place.span() + end, expression: place }))
+            <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement {
+                span: place.span() + end,
+                expression: place,
+                id: NodeID::default(),
+            }))
         }
     }
 
     <span class="doccomment">/// Returns a [`Block`] AST node if the next tokens represent a block of statements.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Block&gt; {
-        <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">None</span>, |p| p.parse_statement().map(<span class="prelude-val">Some</span>))
-            .map(|(statements, <span class="kw">_</span>, span)| Block { statements, span })
+        <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">None</span>, |p| p.parse_statement().map(<span class="prelude-val">Some</span>)).map(|(statements, <span class="kw">_</span>, span)| Block {
+            statements,
+            span,
+            id: NodeID::default(),
+        })
     }
 
     <span class="doccomment">/// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
@@ -487,7 +517,9 @@
 
         <span class="kw">let </span>expression = <span class="kw">match </span><span class="self">self</span>.token.token {
             <span class="comment">// If the next token is a semicolon, implicitly return a unit expression, `()`.
-            </span>Token::Semicolon | Token::Then =&gt; Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span }),
+            </span>Token::Semicolon | Token::Then =&gt; {
+                Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span, id: NodeID::default() })
+            }
             <span class="comment">// Otherwise, attempt to parse an expression.
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>,
         };
@@ -509,7 +541,7 @@
         };
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
         <span class="kw">let </span>span = start + end;
-        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression, finalize_arguments: finalize_args })
+        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: NodeID::default() })
     }
 
     <span class="doccomment">/// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
@@ -534,6 +566,7 @@
             condition: expr,
             then: body,
             otherwise: next,
+            id: NodeID::default(),
         })
     }
 
@@ -564,6 +597,7 @@
             stop_value: Default::default(),
             inclusive: <span class="bool-val">false</span>,
             block,
+            id: NodeID::default(),
         })
     }
 
@@ -605,13 +639,16 @@
                 ));
                 (
                     Default::default(),
-                    ConsoleFunction::Assert(Expression::Err(ErrExpression { span: Default::default() })),
+                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
+                        span: Default::default(),
+                        id: NodeID::default(),
+                    })),
                 )
             }
         };
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ConsoleStatement { span: keyword + span, function })
+        <span class="prelude-val">Ok</span>(ConsoleStatement { span: keyword + span, function, id: NodeID::default() })
     }
 
     <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
@@ -633,7 +670,14 @@
         <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(DefinitionStatement { span: decl_span + value.span(), declaration_type: decl_type, place, type_, value })
+        <span class="prelude-val">Ok</span>(DefinitionStatement {
+            span: decl_span + value.span(),
+            declaration_type: decl_type,
+            place,
+            type_,
+            value,
+            id: NodeID::default(),
+        })
     }
 }
 </code></pre></div></section></main></body></html>
