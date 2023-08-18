@@ -19,7 +19,6 @@ use leo_span::Span;
 /// A node ID.
 // Development Note:
 // A `NodeID` must implement: `Copy`, `Default`, among others.
-// TODO (@d0cd): Replace use of `NodeID::default()` with unique IDs in the rest of the codebase.
 pub type NodeID = usize;
 
 /// A node in the AST.

@@ -27,7 +27,6 @@ use leo_ast::{
     Identifier,
     Literal,
     MemberAccess,
-    NodeID,
     Statement,
     Struct,
     StructExpression,
@@ -65,7 +64,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                             })
                             .collect(),
                         span: function.span,
-                        id: NodeID::default(),
+                        id: function.id,
                     }),
                     statements,
                 )
@@ -85,7 +84,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                         inner: Box::new(expr),
                         name: member.name,
                         span: member.span,
-                        id: NodeID::default(),
+                        id: member.id,
                     }),
                     statements,
                 )
@@ -97,14 +96,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                         tuple: Box::new(expr),
                         index: tuple.index,
                         span: tuple.span,
-                        id: NodeID::default(),
+                        id: tuple.id,
                     }),
                     statements,
                 )
             }
             expr => (expr, Vec::new()),
         };
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Access(expr));
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -120,12 +119,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.append(&mut right_statements);
 
         // Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
             left: Box::new(left_expression),
             right: Box::new(right_expression),
             op: input.op,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -148,14 +147,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the call expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Call(CallExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Call(CallExpression {
             // Note that we do not rename the function name.
             function: input.function,
             // Consume the arguments.
             arguments,
             external: input.external,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -168,11 +167,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (expression, mut statements) = self.consume_expression(*input.expression);
 
         // Construct and accumulate a unique assignment statement storing the result of the cast expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Cast(CastExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Cast(CastExpression {
             expression: Box::new(expression),
             type_: input.type_,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -204,7 +203,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     identifier: arg.identifier,
                     expression: Some(expression),
                     span: arg.span,
-                    id: NodeID::default(),
+                    id: arg.id,
                 }
             })
             .collect();
@@ -241,11 +240,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         }
 
         // Construct and accumulate a new assignment statement for the struct expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Struct(StructExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Struct(StructExpression {
             name: input.name,
             span: input.span,
             members: reordered_members,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -268,7 +267,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             false => *self.rename_table.lookup(identifier.name).unwrap_or(&identifier.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: identifier.span, id: NodeID::default() }), Default::default())
+        (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }
 
     /// Consumes and returns the literal without making any modifications.
@@ -290,12 +289,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         statements.append(&mut if_false_statements);
 
         // Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
             condition: Box::new(cond_expr),
             if_true: Box::new(if_true_expr),
             if_false: Box::new(if_false_expr),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -318,10 +317,10 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             .collect();
 
         // Construct and accumulate a new assignment statement for the tuple expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
             elements,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -334,11 +333,11 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (receiver, mut statements) = self.consume_expression(*input.receiver);
 
         // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.assigner.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
             op: input.op,
             receiver: Box::new(receiver),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 

@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::Struct;
+use leo_ast::{NodeBuilder, Struct};
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
 use leo_package::{
     build::BuildDirectory,
@@ -103,6 +103,9 @@ impl Command for Build {
         // Initialize error handler
         let handler = Handler::default();
 
+        // Initialize a node counter.
+        let node_builder = NodeBuilder::default();
+
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
 
@@ -158,7 +161,7 @@ impl Command for Build {
                 .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
             // TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
-            leo_parser::parse_input(&handler, &input_sf.src, input_sf.start_pos)
+            leo_parser::parse_input(&handler, &node_builder, &input_sf.src, input_sf.start_pos)
                 .map_err(|_e| println!("Warning: Failed to parse input file"))
                 .ok()
         } else {

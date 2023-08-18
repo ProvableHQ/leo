@@ -14,21 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::NodeBuilder;
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
 
-#[derive(Default)]
-pub struct DeadCodeEliminator {
+pub struct DeadCodeEliminator<'a> {
+    /// A counter to generate unique node IDs.
+    pub(crate) node_builder: &'a NodeBuilder,
     /// The set of used variables in the current function body.
     pub(crate) used_variables: IndexSet<Symbol>,
     /// Whether or not the variables are necessary.
     pub(crate) is_necessary: bool,
 }
 
-impl DeadCodeEliminator {
+impl<'a> DeadCodeEliminator<'a> {
     /// Initializes a new `DeadCodeEliminator`.
-    pub fn new() -> Self {
-        Self { used_variables: Default::default(), is_necessary: false }
+    pub fn new(node_builder: &'a NodeBuilder) -> Self {
+        Self { node_builder, used_variables: Default::default(), is_necessary: false }
     }
 }

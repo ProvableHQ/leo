@@ -4,25 +4,25 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           x:
             annotations: []
             variant: Standard
-            identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+            identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
             input:
               - Internal:
-                  identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
+                  identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
                   mode: Constant
                   type_:
                     Integer: U8
                   span:
                     lo: 50
                     hi: 51
-                  id: 0
+                  id: 4
             output:
               - Internal:
                   mode: None
@@ -31,7 +31,7 @@ outputs:
                   span:
                     lo: 60
                     hi: 62
-                  id: 0
+                  id: 5
             output_type:
               Integer: U8
             block:
@@ -39,12 +39,12 @@ outputs:
               span:
                 lo: 63
                 hi: 65
-              id: 0
+              id: 6
             finalize: ~
             span:
               lo: 30
               hi: 65
-            id: 0
+            id: 7
         span:
           lo: 2
           hi: 67

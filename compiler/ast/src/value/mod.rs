@@ -893,28 +893,29 @@ impl TryFrom<&Literal> for Value {
     }
 }
 
-impl From<Value> for Literal {
-    fn from(v: Value) -> Self {
+impl Literal {
+    #[allow(unused)]
+    fn from_value(v: Value, id: NodeID) -> Self {
         use Value::*;
         match v {
             Input(_, _) => todo!("We need to test if this is hittable"),
-            Address(v, span) => Literal::Address(v, span, NodeID::default()),
-            Boolean(v, span) => Literal::Boolean(v, span, NodeID::default()),
+            Address(v, span) => Literal::Address(v, span, id),
+            Boolean(v, span) => Literal::Boolean(v, span, id),
             Struct(_ident, _values) => todo!("We need to test if this is hittable"),
-            Field(v, span) => Literal::Field(v, span, NodeID::default()),
+            Field(v, span) => Literal::Field(v, span, id),
             Group(v) => Literal::Group(v),
-            I8(v, span) => Literal::Integer(IntegerType::I8, v.to_string(), span, NodeID::default()),
-            I16(v, span) => Literal::Integer(IntegerType::I16, v.to_string(), span, NodeID::default()),
-            I32(v, span) => Literal::Integer(IntegerType::I32, v.to_string(), span, NodeID::default()),
-            I64(v, span) => Literal::Integer(IntegerType::I64, v.to_string(), span, NodeID::default()),
-            I128(v, span) => Literal::Integer(IntegerType::I128, v.to_string(), span, NodeID::default()),
-            U8(v, span) => Literal::Integer(IntegerType::U8, v.to_string(), span, NodeID::default()),
-            U16(v, span) => Literal::Integer(IntegerType::U16, v.to_string(), span, NodeID::default()),
-            U32(v, span) => Literal::Integer(IntegerType::U32, v.to_string(), span, NodeID::default()),
-            U64(v, span) => Literal::Integer(IntegerType::U64, v.to_string(), span, NodeID::default()),
-            U128(v, span) => Literal::Integer(IntegerType::U128, v.to_string(), span, NodeID::default()),
-            Scalar(v, span) => Literal::Scalar(v, span, NodeID::default()),
-            String(v, span) => Literal::String(v, span, NodeID::default()),
+            I8(v, span) => Literal::Integer(IntegerType::I8, v.to_string(), span, id),
+            I16(v, span) => Literal::Integer(IntegerType::I16, v.to_string(), span, id),
+            I32(v, span) => Literal::Integer(IntegerType::I32, v.to_string(), span, id),
+            I64(v, span) => Literal::Integer(IntegerType::I64, v.to_string(), span, id),
+            I128(v, span) => Literal::Integer(IntegerType::I128, v.to_string(), span, id),
+            U8(v, span) => Literal::Integer(IntegerType::U8, v.to_string(), span, id),
+            U16(v, span) => Literal::Integer(IntegerType::U16, v.to_string(), span, id),
+            U32(v, span) => Literal::Integer(IntegerType::U32, v.to_string(), span, id),
+            U64(v, span) => Literal::Integer(IntegerType::U64, v.to_string(), span, id),
+            U128(v, span) => Literal::Integer(IntegerType::U128, v.to_string(), span, id),
+            Scalar(v, span) => Literal::Scalar(v, span, id),
+            String(v, span) => Literal::String(v, span, id),
         }
     }
 }

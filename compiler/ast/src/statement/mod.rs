@@ -73,8 +73,8 @@ pub enum Statement {
 
 impl Statement {
     /// Returns a dummy statement made from an empty block `{}`.
-    pub fn dummy(span: Span) -> Self {
-        Self::Block(Block { statements: Vec::new(), span, id: NodeID::default() })
+    pub fn dummy(span: Span, id: NodeID) -> Self {
+        Self::Block(Block { statements: Vec::new(), span, id })
     }
 }
 

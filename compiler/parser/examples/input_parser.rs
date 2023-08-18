@@ -16,6 +16,7 @@
 
 #![forbid(unsafe_code)]
 
+use leo_ast::NodeBuilder;
 use leo_errors::{emitter::Handler, Result};
 use leo_span::symbol::create_session_if_not_set_then;
 
@@ -45,7 +46,9 @@ fn main() -> Result<(), String> {
         let input_string = s.source_map.load_file(&opt.input_path).expect("failed to open an input file");
 
         Handler::with(|handler| {
-            let input = leo_parser::parse_program_inputs(handler, &input_string.src, input_string.start_pos)?;
+            let node_builder = NodeBuilder::default();
+            let input =
+                leo_parser::parse_program_inputs(handler, &node_builder, &input_string.src, input_string.start_pos)?;
             input.to_json_string()
         })
         .map_err(|e| e.to_string())

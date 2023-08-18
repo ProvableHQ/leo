@@ -4,15 +4,15 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           "inf":
             annotations: []
             variant: Standard
-            identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
+            identifier: "{\"id\":\"2\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
             input: []
             output:
               - Internal:
@@ -22,7 +22,7 @@ outputs:
                   span:
                     lo: 48
                     hi: 50
-                  id: 0
+                  id: 3
             output_type:
               Integer: U8
             block:
@@ -31,39 +31,39 @@ outputs:
                     expression:
                       Call:
                         function:
-                          Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
+                          Identifier: "{\"id\":\"4\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
                         arguments: []
                         external: ~
                         span:
                           lo: 61
                           hi: 66
-                        id: 0
+                        id: 5
                     span:
                       lo: 61
                       hi: 67
-                    id: 0
+                    id: 6
               span:
                 lo: 51
                 hi: 73
-              id: 0
+              id: 7
             finalize: ~
             span:
               lo: 30
               hi: 73
-            id: 0
+            id: 8
           main:
             annotations: []
             variant: Standard
-            identifier: "{\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
+            identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
             input:
               - Internal:
-                  identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
+                  identifier: "{\"id\":\"10\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
                   mode: None
                   type_: Boolean
                   span:
                     lo: 97
                     hi: 98
-                  id: 0
+                  id: 11
             output:
               - Internal:
                   mode: None
@@ -71,7 +71,7 @@ outputs:
                   span:
                     lo: 109
                     hi: 113
-                  id: 0
+                  id: 12
             output_type: Boolean
             block:
               statements:
@@ -79,34 +79,34 @@ outputs:
                     expression:
                       Call:
                         function:
-                          Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
+                          Identifier: "{\"id\":\"13\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
                         arguments: []
                         external: ~
                         span:
                           lo: 124
                           hi: 129
-                        id: 0
+                        id: 14
                     span:
                       lo: 124
                       hi: 130
-                    id: 0
+                    id: 15
                 - Return:
                     expression:
-                      Identifier: "{\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
+                      Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
                     finalize_arguments: ~
                     span:
                       lo: 139
                       hi: 148
-                    id: 0
+                    id: 17
               span:
                 lo: 114
                 hi: 154
-              id: 0
+              id: 18
             finalize: ~
             span:
               lo: 83
               hi: 154
-            id: 0
+            id: 19
         span:
           lo: 2
           hi: 156

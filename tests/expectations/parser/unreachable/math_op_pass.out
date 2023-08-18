@@ -5,336 +5,336 @@ outputs:
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Eq
           span:
             lo: 12
             hi: 18
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 18
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Neq
           span:
             lo: 12
             hi: 18
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 18
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
           op: Gt
           span:
             lo: 12
             hi: 17
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 17
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Gte
           span:
             lo: 12
             hi: 18
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 18
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
           op: Lt
           span:
             lo: 12
             hi: 17
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 17
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":18}\"}"
           op: Lte
           span:
             lo: 12
             hi: 18
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 18
-      id: 0
+      id: 4
   - Definition:
       declaration_type: Let
       place:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
         Integer: U8
       value:
         Binary:
           left:
-            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
+            Identifier: "{\"id\":\"1\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           right:
-            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
+            Identifier: "{\"id\":\"2\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":16,\\\"hi\\\":17}\"}"
           op: Gt
           span:
             lo: 12
             hi: 17
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 17
-      id: 0
+      id: 4
   - Assign:
       place:
-        Identifier: "{\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x_\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xconsole\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":8}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":9,\\\"hi\\\":10}\"}"
       span:
         lo: 0
         hi: 10
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xconst\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
       span:
         lo: 0
         hi: 8
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xlet\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xfor\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xif\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
         lo: 0
         hi: 5
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xelse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xi8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
         lo: 0
         hi: 5
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xi16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xi32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xi64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xi128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xu8\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       span:
         lo: 0
         hi: 5
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xu16\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xu32\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xu64\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
       span:
         lo: 0
         hi: 6
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xu128\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xreturn\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":7}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xtrue\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":7}\"}"
       span:
         lo: 0
         hi: 7
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"xfalse\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":6}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":8}\"}"
       span:
         lo: 0
         hi: 8
-      id: 0
+      id: 3
   - Assign:
       place:
-        Identifier: "{\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"x0\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":2}\"}"
       value:
-        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"1\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":3,\\\"hi\\\":4}\"}"
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 3

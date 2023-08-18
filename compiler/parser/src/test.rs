@@ -16,7 +16,7 @@
 
 use crate::{tokenizer, ParserContext, SpannedToken};
 
-use leo_ast::Statement;
+use leo_ast::{NodeBuilder, NodeID, Statement};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::{
     source_map::FileName,
@@ -67,7 +67,8 @@ fn with_handler<T>(
     logic: impl FnOnce(&mut ParserContext<'_>) -> Result<T, LeoError>,
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
-    let mut tokens = ParserContext::new(&handler, tokens);
+    let node_builder = NodeBuilder::default();
+    let mut tokens = ParserContext::new(&handler, &node_builder, tokens);
     let parsed = handler
         .extend_if_error(logic(&mut tokens))
         .map_err(|_| buf.extract_errs().to_string() + &buf.extract_warnings().to_string())?;
@@ -117,7 +118,7 @@ impl Namespace for ParseStatementNamespace {
         create_session_if_not_set_then(|s| {
             let tokenizer = tokenize(test, s)?;
             if all_are_comments(&tokenizer) {
-                return Ok(yaml_or_fail(Statement::dummy(Span::default())));
+                return Ok(yaml_or_fail(Statement::dummy(Span::default(), NodeID::default())));
             }
             with_handler(tokenizer, |p| p.parse_statement()).map(yaml_or_fail)
         })

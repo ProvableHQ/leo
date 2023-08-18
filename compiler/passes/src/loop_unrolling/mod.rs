@@ -31,15 +31,15 @@ pub use unroll_statement::*;
 
 use crate::{Pass, SymbolTable};
 
-use leo_ast::{Ast, ProgramReconstructor};
+use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for Unroller<'a> {
-    type Input = (Ast, &'a Handler, SymbolTable);
+    type Input = (Ast, &'a Handler, &'a NodeBuilder, SymbolTable);
     type Output = Result<(Ast, SymbolTable)>;
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut reconstructor = Self::new(st, handler);
+    fn do_pass((ast, handler, node_builder, st): Self::Input) -> Self::Output {
+        let mut reconstructor = Self::new(st, handler, node_builder);
         let program = reconstructor.reconstruct_program(ast.into_repr());
         handler.last_err().map_err(|e| *e)?;
 

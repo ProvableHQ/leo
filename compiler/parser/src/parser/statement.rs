@@ -82,7 +82,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Semicolon)?;
 
         // Return the assertion statement.
-        Ok(Statement::Assert(AssertStatement { variant, span, id: NodeID::default() }))
+        Ok(Statement::Assert(AssertStatement { variant, span, id: self.node_builder.next_id() }))
     }
 
     /// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
@@ -115,20 +115,24 @@ impl ParserContext<'_> {
             // Construct the span for the statement.
             let span = place.span() + value.span();
 
+            // Construct a copy of the lhs with a unique id.
+            let mut left = place.clone();
+            left.set_id(self.node_builder.next_id());
+
             // Simplify complex assignments into simple assignments.
             // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
             let value = match operation {
                 None => value,
                 Some(op) => Expression::Binary(BinaryExpression {
-                    left: Box::new(place.clone()),
+                    left: Box::new(left),
                     right: Box::new(value),
                     op,
                     span,
-                    id: NodeID::default(),
+                    id: self.node_builder.next_id(),
                 }),
             };
 
-            Ok(Statement::Assign(Box::new(AssignStatement { span, place, value, id: NodeID::default() })))
+            Ok(Statement::Assign(Box::new(AssignStatement { span, place, value, id: self.node_builder.next_id() })))
         } else {
             // Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
             if let Expression::Call(call_expression) = &place {
@@ -156,7 +160,7 @@ impl ParserContext<'_> {
             Ok(Statement::Expression(ExpressionStatement {
                 span: place.span() + end,
                 expression: place,
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             }))
         }
     }
@@ -166,7 +170,7 @@ impl ParserContext<'_> {
         self.parse_list(Delimiter::Brace, None, |p| p.parse_statement().map(Some)).map(|(statements, _, span)| Block {
             statements,
             span,
-            id: NodeID::default(),
+            id: self.node_builder.next_id(),
         })
     }
 
@@ -177,7 +181,7 @@ impl ParserContext<'_> {
         let expression = match self.token.token {
             // If the next token is a semicolon, implicitly return a unit expression, `()`.
             Token::Semicolon | Token::Then => {
-                Expression::Unit(UnitExpression { span: self.token.span, id: NodeID::default() })
+                Expression::Unit(UnitExpression { span: self.token.span, id: self.node_builder.next_id() })
             }
             // Otherwise, attempt to parse an expression.
             _ => self.parse_expression()?,
@@ -200,7 +204,7 @@ impl ParserContext<'_> {
         };
         let end = self.expect(&Token::Semicolon)?;
         let span = start + end;
-        Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: NodeID::default() })
+        Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
@@ -225,7 +229,7 @@ impl ParserContext<'_> {
             condition: expr,
             then: body,
             otherwise: next,
-            id: NodeID::default(),
+            id: self.node_builder.next_id(),
         })
     }
 
@@ -256,7 +260,7 @@ impl ParserContext<'_> {
             stop_value: Default::default(),
             inclusive: false,
             block,
-            id: NodeID::default(),
+            id: self.node_builder.next_id(),
         })
     }
 
@@ -300,14 +304,14 @@ impl ParserContext<'_> {
                     Default::default(),
                     ConsoleFunction::Assert(Expression::Err(ErrExpression {
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     })),
                 )
             }
         };
         self.expect(&Token::Semicolon)?;
 
-        Ok(ConsoleStatement { span: keyword + span, function, id: NodeID::default() })
+        Ok(ConsoleStatement { span: keyword + span, function, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
@@ -335,7 +339,7 @@ impl ParserContext<'_> {
             place,
             type_,
             value,
-            id: NodeID::default(),
+            id: self.node_builder.next_id(),
         })
     }
 }

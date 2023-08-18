@@ -4,20 +4,20 @@ expectation: Pass
 outputs:
   - imports: {}
     program_scopes:
-      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+      "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}":
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
         structs: {}
         mappings: {}
         functions:
           f:
             annotations:
-              - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":38}\"}"
+              - identifier: "{\"id\":\"2\",\"name\":\"context\",\"span\":\"{\\\"lo\\\":31,\\\"hi\\\":38}\"}"
                 span:
                   lo: 30
                   hi: 38
-                id: 0
+                id: 3
             variant: Standard
-            identifier: "{\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}"
+            identifier: "{\"id\":\"4\",\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}"
             input: []
             output:
               - Internal:
@@ -27,7 +27,7 @@ outputs:
                   span:
                     lo: 59
                     hi: 61
-                  id: 0
+                  id: 5
             output_type:
               Integer: U8
             block:
@@ -41,30 +41,30 @@ outputs:
                           - span:
                               lo: 79
                               hi: 82
-                          - 0
+                          - 6
                     finalize_arguments: ~
                     span:
                       lo: 72
                       hi: 83
-                    id: 0
+                    id: 7
               span:
                 lo: 62
                 hi: 89
-              id: 0
+              id: 8
             finalize: ~
             span:
               lo: 43
               hi: 89
-            id: 0
+            id: 9
           g:
             annotations:
-              - identifier: "{\"name\":\"context\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":107}\"}"
+              - identifier: "{\"id\":\"10\",\"name\":\"context\",\"span\":\"{\\\"lo\\\":100,\\\"hi\\\":107}\"}"
                 span:
                   lo: 99
                   hi: 107
-                id: 0
+                id: 11
             variant: Standard
-            identifier: "{\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
+            identifier: "{\"id\":\"12\",\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
             input: []
             output:
               - Internal:
@@ -74,7 +74,7 @@ outputs:
                   span:
                     lo: 148
                     hi: 150
-                  id: 0
+                  id: 13
             output_type:
               Integer: U8
             block:
@@ -88,21 +88,21 @@ outputs:
                           - span:
                               lo: 168
                               hi: 171
-                          - 0
+                          - 14
                     finalize_arguments: ~
                     span:
                       lo: 161
                       hi: 172
-                    id: 0
+                    id: 15
               span:
                 lo: 151
                 hi: 178
-              id: 0
+              id: 16
             finalize: ~
             span:
               lo: 132
               hi: 178
-            id: 0
+            id: 17
         span:
           lo: 2
           hi: 180

@@ -29,13 +29,12 @@ use leo_ast::{
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
 };
 
-impl StatementReconstructor for DeadCodeEliminator {
+impl StatementReconstructor for DeadCodeEliminator<'_> {
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         // Set the `is_necessary` flag.
         self.is_necessary = true;
@@ -52,7 +51,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 }
             },
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         });
 
         // Unset the `is_necessary` flag.
@@ -92,7 +91,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                     place: input.place,
                     value: self.reconstruct_expression(input.value).0,
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 }));
 
                 // Unset the `is_necessary` flag.
@@ -101,7 +100,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 (statement, Default::default())
             }
             // Otherwise, we can eliminate it.
-            false => (Statement::dummy(Default::default()), Default::default()),
+            false => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
         }
     }
 
@@ -114,7 +113,7 @@ impl StatementReconstructor for DeadCodeEliminator {
         // Reverse the direction of `statements`.
         statements.reverse();
 
-        (Block { statements, span: block.span, id: NodeID::default() }, Default::default())
+        (Block { statements, span: block.span, id: block.id }, Default::default())
     }
 
     /// Flattening removes conditional statements from the program.
@@ -145,7 +144,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 let statement = Statement::Expression(ExpressionStatement {
                     expression: self.reconstruct_call(expression).0,
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 });
 
                 // Unset the `is_necessary` flag.
@@ -161,14 +160,14 @@ impl StatementReconstructor for DeadCodeEliminator {
                             .reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
                             .0,
                         span: input.span,
-                        id: NodeID::default(),
+                        id: input.id,
                     }),
                     Default::default(),
                 )
             }
             // Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
-            _ => (Statement::dummy(Default::default()), Default::default()),
+            _ => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
         }
     }
 
@@ -188,7 +187,7 @@ impl StatementReconstructor for DeadCodeEliminator {
                 arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
             }),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         });
 
         // Unset the `is_necessary` flag.

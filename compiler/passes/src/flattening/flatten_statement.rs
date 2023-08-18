@@ -35,7 +35,6 @@ use leo_ast::{
     Identifier,
     IterationStatement,
     Node,
-    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
@@ -70,7 +69,7 @@ impl StatementReconstructor for Flattener<'_> {
         // Flatten the arguments of the assert statement.
         let assert = AssertStatement {
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
             variant: match input.variant {
                 AssertVariant::Assert(expression) => {
                     let (expression, additional_statements) = self.reconstruct_expression(expression);
@@ -104,17 +103,17 @@ impl StatementReconstructor for Flattener<'_> {
             Some(guard) => (
                 Statement::Assert(AssertStatement {
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                     variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
                         op: BinaryOperation::Or,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                         // Take the logical negation of the guard.
                         left: Box::new(Expression::Unary(UnaryExpression {
                             op: UnaryOperation::Not,
                             receiver: Box::new(guard),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: self.node_builder.next_id(),
                         })),
                         right: Box::new(match assert.variant {
                             // If the assert statement is an `assert`, use the expression as is.
@@ -125,7 +124,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 op: BinaryOperation::Eq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: self.node_builder.next_id(),
                             }),
                             // If the assert statement is an `assert_ne`, construct a new inequality expression.
                             AssertVariant::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
@@ -133,7 +132,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 op: BinaryOperation::Neq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: self.node_builder.next_id(),
                             }),
                         }),
                     })),
@@ -155,7 +154,7 @@ impl StatementReconstructor for Flattener<'_> {
             (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
                 self.tuples.insert(identifier.name, tuple);
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
             (Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
@@ -165,7 +164,7 @@ impl StatementReconstructor for Flattener<'_> {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
                 // Note that tuple assignments are removed from the AST.
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
             (Expression::Identifier(lhs_identifier), Expression::Call(call)) => {
@@ -187,6 +186,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 .map(|(i, type_)| {
                                     let identifier = Identifier::new(
                                         self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
+                                        self.node_builder.next_id(),
                                     );
 
                                     // If the output type is a struct, add it to `self.structs`.
@@ -198,7 +198,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 })
                                 .collect(),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: self.node_builder.next_id(),
                         };
                         // Add the `tuple_expression` to `self.tuples`.
                         self.tuples.insert(lhs_identifier.name, tuple_expression.clone());
@@ -208,7 +208,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 place: Expression::Tuple(tuple_expression),
                                 value: Expression::Call(call),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: self.node_builder.next_id(),
                             })),
                             statements,
                         )
@@ -224,7 +224,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 place: Expression::Identifier(lhs_identifier),
                                 value: Expression::Call(call),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: self.node_builder.next_id(),
                             })),
                             statements,
                         )
@@ -274,14 +274,14 @@ impl StatementReconstructor for Flattener<'_> {
                         place: Expression::Identifier(lhs_identifier),
                         value,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     })),
                     statements,
                 )
             }
             (Expression::Identifier(identifier), expression) => {
                 self.update_structs(&identifier, &expression);
-                (self.assigner.simple_assign_statement(identifier, expression), statements)
+                (self.assigner.simple_assign_statement(identifier, expression, self.node_builder.next_id()), statements)
             }
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Call(call)) => {
@@ -315,7 +315,7 @@ impl StatementReconstructor for Flattener<'_> {
                         place: Expression::Tuple(tuple),
                         value: Expression::Call(call),
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     })),
                     statements,
                 )
@@ -333,11 +333,11 @@ impl StatementReconstructor for Flattener<'_> {
                             place: lhs,
                             value: rhs,
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: self.node_builder.next_id(),
                         }))
                     },
                 ));
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
@@ -358,10 +358,10 @@ impl StatementReconstructor for Flattener<'_> {
                         place: lhs,
                         value: rhs,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     })));
                 }
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs of an assignment is a tuple, then the rhs can be one of the following:
             //  - A function call that produces a tuple. (handled above)
@@ -388,7 +388,7 @@ impl StatementReconstructor for Flattener<'_> {
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
+        (Block { span: block.span, statements, id: self.node_builder.next_id() }, Default::default())
     }
 
     /// Flatten a conditional statement into a list of statements.
@@ -411,7 +411,7 @@ impl StatementReconstructor for Flattener<'_> {
                 op: UnaryOperation::Not,
                 receiver: Box::new(conditional.condition.clone()),
                 span: conditional.condition.span(),
-                id: NodeID::default(),
+                id: conditional.condition.id(),
             }));
 
             // Reconstruct the otherwise-block and accumulate it constituent statements.
@@ -424,7 +424,7 @@ impl StatementReconstructor for Flattener<'_> {
             self.condition_stack.pop();
         };
 
-        (Statement::dummy(Default::default()), statements)
+        (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {
@@ -458,13 +458,13 @@ impl StatementReconstructor for Flattener<'_> {
                     span: input.span,
                     expression: Expression::Tuple(tuple),
                     finalize_arguments: input.finalize_arguments,
-                    id: NodeID::default(),
+                    id: input.id,
                 }));
             }
             // Otherwise, add the expression directly.
             _ => self.returns.push((guard, input)),
         };
 
-        (Statement::dummy(Default::default()), Default::default())
+        (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default())
     }
 }

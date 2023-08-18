@@ -24,11 +24,11 @@ outputs:
             span:
               lo: 2
               hi: 13
-            id: 0
+            id: 1
       span:
         lo: 0
         hi: 15
-      id: 0
+      id: 2
   - Block:
       statements:
         - Block:
@@ -40,7 +40,7 @@ outputs:
       span:
         lo: 0
         hi: 4
-      id: 0
+      id: 1
   - Block:
       statements:
         - Block:
@@ -59,20 +59,20 @@ outputs:
                   span:
                     lo: 4
                     hi: 15
-                  id: 0
+                  id: 1
             span:
               lo: 2
               hi: 17
-            id: 0
+            id: 2
       span:
         lo: 0
         hi: 19
-      id: 0
+      id: 3
   - Block:
       statements:
         - Conditional:
             condition:
-              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
+              Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
             then:
               statements:
                 - Return:
@@ -84,22 +84,22 @@ outputs:
                           - span:
                               lo: 16
                               hi: 19
-                          - 0
+                          - 1
                     finalize_arguments: ~
                     span:
                       lo: 9
                       hi: 20
-                    id: 0
+                    id: 2
               span:
                 lo: 7
                 hi: 22
-              id: 0
+              id: 3
             otherwise: ~
             span:
               lo: 2
               hi: 22
-            id: 0
+            id: 4
       span:
         lo: 0
         hi: 24
-      id: 0
+      id: 5

@@ -25,7 +25,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     Member,
-    NodeID,
+    NodeBuilder,
     ReturnStatement,
     Statement,
     TernaryExpression,
@@ -39,8 +39,10 @@ use indexmap::IndexMap;
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
     pub(crate) symbol_table: &'a SymbolTable,
+    /// A counter used to generate unique node IDs.
+    pub(crate) node_builder: &'a NodeBuilder,
     /// A struct used to construct (unique) assignment statements.
-    pub(crate) assigner: Assigner,
+    pub(crate) assigner: &'a Assigner,
     /// The set of variables that are structs.
     pub(crate) structs: IndexMap<Symbol, Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
@@ -55,9 +57,10 @@ pub struct Flattener<'a> {
 }
 
 impl<'a> Flattener<'a> {
-    pub(crate) fn new(symbol_table: &'a SymbolTable, assigner: Assigner) -> Self {
+    pub(crate) fn new(symbol_table: &'a SymbolTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
         Self {
             symbol_table,
+            node_builder,
             assigner,
             structs: IndexMap::new(),
             condition_stack: Vec::new(),
@@ -83,7 +86,7 @@ impl<'a> Flattener<'a> {
                         left: Box::new(acc),
                         right: Box::new(condition),
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: self.node_builder.next_id(),
                     })
                 }))
             }
@@ -114,14 +117,14 @@ impl<'a> Flattener<'a> {
                         let place = Identifier {
                             name: self.assigner.unique_symbol(prefix, "$"),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: self.node_builder.next_id(),
                         };
                         let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),
                             if_false: Box::new(if_false),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: self.node_builder.next_id(),
                         });
                         statements.extend(stmts);
 
@@ -186,7 +189,13 @@ impl<'a> Flattener<'a> {
 
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
-        let (place, statement) = self.assigner.unique_simple_assign_statement(expr);
+        // Create a new variable for the expression.
+        let name = self.assigner.unique_symbol("$var", "$");
+        // Construct the lhs of the assignment.
+        let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
+        // Construct the assignment statement.
+        let statement = self.assigner.simple_assign_statement(place, expr, self.node_builder.next_id());
+
         match &statement {
             Statement::Assign(assign) => {
                 self.update_structs(&place, &assign.value);
@@ -199,7 +208,7 @@ impl<'a> Flattener<'a> {
     /// A wrapper around `assigner.simple_assign_statement` that updates `self.structs`.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
         self.update_structs(&lhs, &rhs);
-        self.assigner.simple_assign_statement(lhs, rhs)
+        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
     }
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -254,7 +263,7 @@ impl<'a> Flattener<'a> {
                 expression,
                 finalize_arguments,
                 span: Default::default(),
-                id: NodeID::default(),
+                id: self.node_builder.next_id(),
             }));
         }
     }

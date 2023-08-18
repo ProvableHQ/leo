@@ -4,13 +4,13 @@ expectation: Pass
 outputs:
   - Cast:
       expression:
-        Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
       type_:
         Integer: U8
       span:
         lo: 0
         hi: 9
-      id: 0
+      id: 1
   - Cast:
       expression:
         Literal:
@@ -26,31 +26,31 @@ outputs:
       span:
         lo: 0
         hi: 11
-      id: 0
+      id: 1
   - Cast:
       expression:
         Struct:
-          name: "{\"name\":\"baz\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
+          name: "{\"id\":\"0\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":3}\"}"
           members:
-            - identifier: "{\"name\":\"foo\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":9}\"}"
+            - identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":6,\\\"hi\\\":9}\"}"
               expression:
-                Identifier: "{\"name\":\"u8\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":13}\"}"
+                Identifier: "{\"id\":\"2\",\"name\":\"u8\",\"span\":\"{\\\"lo\\\":11,\\\"hi\\\":13}\"}"
               span:
                 lo: 6
                 hi: 13
-              id: 0
+              id: 3
           span:
             lo: 0
             hi: 15
-          id: 0
+          id: 4
       type_: Scalar
       span:
         lo: 0
         hi: 25
-      id: 0
+      id: 5
   - Ternary:
       condition:
-        Identifier: "{\"name\":\"flag\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
+        Identifier: "{\"id\":\"0\",\"name\":\"flag\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":4}\"}"
       if_true:
         Literal:
           Integer:
@@ -59,7 +59,7 @@ outputs:
             - span:
                 lo: 7
                 hi: 10
-            - 0
+            - 1
       if_false:
         Cast:
           expression:
@@ -70,21 +70,21 @@ outputs:
                 - span:
                     lo: 13
                     hi: 16
-                - 0
+                - 2
           type_: Scalar
           span:
             lo: 13
             hi: 26
-          id: 0
+          id: 3
       span:
         lo: 0
         hi: 26
-      id: 0
+      id: 4
   - Cast:
       expression:
         Ternary:
           condition:
-            Identifier: "{\"name\":\"flag\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":5}\"}"
+            Identifier: "{\"id\":\"0\",\"name\":\"flag\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":5}\"}"
           if_true:
             Literal:
               Integer:
@@ -93,7 +93,7 @@ outputs:
                 - span:
                     lo: 8
                     hi: 11
-                - 0
+                - 1
           if_false:
             Literal:
               Integer:
@@ -102,16 +102,16 @@ outputs:
                 - span:
                     lo: 14
                     hi: 17
-                - 0
+                - 2
           span:
             lo: 1
             hi: 17
-          id: 0
+          id: 3
       type_: Scalar
       span:
         lo: 1
         hi: 28
-      id: 0
+      id: 4
   - Cast:
       expression:
         Literal:
@@ -126,7 +126,7 @@ outputs:
       span:
         lo: 0
         hi: 13
-      id: 0
+      id: 1
   - Cast:
       expression:
         Literal:
@@ -141,4 +141,4 @@ outputs:
       span:
         lo: 0
         hi: 24
-      id: 0
+      id: 1

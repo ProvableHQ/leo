@@ -16,7 +16,7 @@
 
 #![forbid(unsafe_code)]
 
-use leo_ast::Ast;
+use leo_ast::{Ast, NodeBuilder};
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
@@ -47,7 +47,8 @@ fn main() -> Result<(), String> {
         let code = s.source_map.load_file(&opt.input_path).expect("failed to open file");
 
         Handler::with(|h| {
-            let ast = leo_parser::parse_ast(h, &code.src, code.start_pos)?;
+            let node_builder = NodeBuilder::default();
+            let ast = leo_parser::parse_ast(h, &node_builder, &code.src, code.start_pos)?;
             let json = Ast::to_json_string(&ast)?;
             println!("{json}");
             Ok(json)

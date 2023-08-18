@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+mod check_unique_node_ids;
+use check_unique_node_ids::*;
+
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
@@ -27,6 +30,7 @@ use leo_test_framework::{test::TestConfig, Test};
 
 use snarkvm::prelude::*;
 
+use leo_ast::ProgramVisitor;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -144,6 +148,8 @@ pub fn parse_program<'a>(
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 
+    CheckUniqueNodeIds::new().visit_program(&compiler.ast.ast);
+
     Ok(compiler)
 }
 
@@ -211,15 +217,19 @@ pub fn temp_dir() -> PathBuf {
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
     let st = parsed.symbol_table_pass()?;
 
+    CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
+
     let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
+
+    CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
     let st = parsed.loop_unrolling_pass(st)?;
 
-    let assigner = parsed.static_single_assignment_pass(&st)?;
+    parsed.static_single_assignment_pass(&st)?;
 
-    let assigner = parsed.flattening_pass(&st, assigner)?;
+    parsed.flattening_pass(&st)?;
 
-    let _ = parsed.function_inlining_pass(&call_graph, assigner)?;
+    parsed.function_inlining_pass(&call_graph)?;
 
     parsed.dead_code_elimination_pass()?;
 

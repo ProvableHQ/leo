@@ -47,7 +47,7 @@ impl ProgramReconstructor for Unroller<'_> {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
-                id: NodeID::default(),
+                id: finalize.id,
             }
         });
 
@@ -62,7 +62,7 @@ impl ProgramReconstructor for Unroller<'_> {
             block,
             finalize,
             span: function.span,
-            id: NodeID::default(),
+            id: function.id,
         };
 
         // Exit the function's scope.

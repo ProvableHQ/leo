@@ -39,15 +39,20 @@ mod statement;
 pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
-pub fn parse(handler: &Handler, source: &str, start_pos: BytePos) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
+pub fn parse(handler: &Handler, node_builder: &NodeBuilder, source: &str, start_pos: BytePos) -> Result<Program> {
+    let mut tokens = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
     tokens.parse_program()
 }
 
 /// Parses an input file at the given file `path` and `source` code text.
-pub fn parse_input(handler: &Handler, source: &str, start_pos: BytePos) -> Result<InputAst> {
-    let mut tokens = ParserContext::new(handler, crate::tokenize(source, start_pos)?);
+pub fn parse_input(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<InputAst> {
+    let mut tokens = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
     tokens.parse_input_file()
 }

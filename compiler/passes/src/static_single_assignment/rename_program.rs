@@ -22,7 +22,6 @@ use leo_ast::{
     Function,
     FunctionConsumer,
     Member,
-    NodeID,
     Program,
     ProgramConsumer,
     ProgramScope,
@@ -75,7 +74,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
         }
 
         let block =
-            Block { span: function.block.span, statements: self.consume_block(function.block), id: NodeID::default() };
+            Block { span: function.block.span, id: function.block.id, statements: self.consume_block(function.block) };
 
         // Remove the `RenameTable` for the function.
         self.pop();
@@ -92,8 +91,8 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
 
             let block = Block {
                 span: finalize.block.span,
+                id: finalize.block.id,
                 statements: self.consume_block(finalize.block),
-                id: NodeID::default(),
             };
 
             // Remove the `RenameTable` for the finalize block.
@@ -106,7 +105,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
-                id: NodeID::default(),
+                id: finalize.id,
             }
         });
 
@@ -120,7 +119,7 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             block,
             finalize,
             span: function.span,
-            id: NodeID::default(),
+            id: function.id,
         }
     }
 }

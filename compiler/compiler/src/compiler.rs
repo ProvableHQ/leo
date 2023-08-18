@@ -17,8 +17,8 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-use leo_ast::Program;
 pub use leo_ast::{Ast, InputAst};
+use leo_ast::{NodeBuilder, Program};
 use leo_errors::{emitter::Handler, CompilerError, Result};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
@@ -48,6 +48,10 @@ pub struct Compiler<'a> {
     pub input_ast: Option<InputAst>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
+    /// The `NodeCounter` used to generate sequentially increasing `NodeID`s.
+    node_builder: NodeBuilder,
+    /// The `Assigner` is used to construct (unique) assignment statements.
+    assigner: Assigner,
 }
 
 impl<'a> Compiler<'a> {
@@ -60,6 +64,8 @@ impl<'a> Compiler<'a> {
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
     ) -> Self {
+        let node_builder = NodeBuilder::default();
+        let assigner = Assigner::default();
         Self {
             handler,
             main_file_path,
@@ -69,6 +75,8 @@ impl<'a> Compiler<'a> {
             ast: Ast::new(Program::default()),
             input_ast: None,
             compiler_options: compiler_options.unwrap_or_default(),
+            node_builder,
+            assigner,
         }
     }
 
@@ -92,7 +100,7 @@ impl<'a> Compiler<'a> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        self.ast = leo_parser::parse_ast(self.handler, &prg_sf.src, prg_sf.start_pos)?;
+        self.ast = leo_parser::parse_ast(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
 
         // If the program is imported, then check that the name of its program scope matches the file name.
         // Note that parsing enforces that there is exactly one program scope in a file.
@@ -132,7 +140,8 @@ impl<'a> Compiler<'a> {
                 .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
 
             // Parse and serialize it.
-            let input_ast = leo_parser::parse_input(self.handler, &input_sf.src, input_sf.start_pos)?;
+            let input_ast =
+                leo_parser::parse_input(self.handler, &self.node_builder, &input_sf.src, input_sf.start_pos)?;
             if self.compiler_options.output.initial_ast {
                 // Write the input AST snapshot post parsing.
                 if self.compiler_options.output.spans_enabled {
@@ -166,7 +175,8 @@ impl<'a> Compiler<'a> {
 
     /// Runs the loop unrolling pass.
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let (ast, symbol_table) = Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, symbol_table))?;
+        let (ast, symbol_table) =
+            Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, &self.node_builder, symbol_table))?;
         self.ast = ast;
 
         if self.compiler_options.output.unrolled_ast {
@@ -177,45 +187,50 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the static single assignment pass.
-    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<Assigner> {
-        let (ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(&mut self.ast), symbol_table))?;
-        self.ast = ast;
+    pub fn static_single_assignment_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast = StaticSingleAssigner::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.node_builder,
+            &self.assigner,
+            symbol_table,
+        ))?;
 
         if self.compiler_options.output.ssa_ast {
             self.write_ast_to_json("ssa_ast.json")?;
         }
 
-        Ok(assigner)
+        Ok(())
     }
 
     /// Runs the flattening pass.
-    pub fn flattening_pass(&mut self, symbol_table: &SymbolTable, assigner: Assigner) -> Result<Assigner> {
-        let (ast, assigner) = Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, assigner))?;
-        self.ast = ast;
+    pub fn flattening_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast =
+            Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, &self.node_builder, &self.assigner))?;
 
         if self.compiler_options.output.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
         }
 
-        Ok(assigner)
+        Ok(())
     }
 
     /// Runs the function inlining pass.
-    pub fn function_inlining_pass(&mut self, call_graph: &CallGraph, assigner: Assigner) -> Result<Assigner> {
-        let (ast, assigner) = FunctionInliner::do_pass((std::mem::take(&mut self.ast), call_graph, assigner))?;
+    pub fn function_inlining_pass(&mut self, call_graph: &CallGraph) -> Result<()> {
+        let ast =
+            FunctionInliner::do_pass((std::mem::take(&mut self.ast), &self.node_builder, call_graph, &self.assigner))?;
         self.ast = ast;
 
         if self.compiler_options.output.inlined_ast {
             self.write_ast_to_json("inlined_ast.json")?;
         }
 
-        Ok(assigner)
+        Ok(())
     }
 
     /// Runs the dead code elimination pass.
     pub fn dead_code_elimination_pass(&mut self) -> Result<()> {
         if self.compiler_options.build.dce_enabled {
-            self.ast = DeadCodeEliminator::do_pass(std::mem::take(&mut self.ast))?;
+            self.ast = DeadCodeEliminator::do_pass((std::mem::take(&mut self.ast), &self.node_builder))?;
         }
 
         if self.compiler_options.output.dce_ast {
@@ -243,12 +258,11 @@ impl<'a> Compiler<'a> {
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
 
-        // TODO: Make this pass optional.
-        let assigner = self.static_single_assignment_pass(&st)?;
+        self.static_single_assignment_pass(&st)?;
 
-        let assigner = self.flattening_pass(&st, assigner)?;
+        self.flattening_pass(&st)?;
 
-        let _ = self.function_inlining_pass(&call_graph, assigner)?;
+        self.function_inlining_pass(&call_graph)?;
 
         self.dead_code_elimination_pass()?;
 
