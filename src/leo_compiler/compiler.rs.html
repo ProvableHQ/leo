@@ -281,6 +281,20 @@
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -300,8 +314,8 @@
 </span><span class="doccomment">//! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-</span><span class="kw">use </span>leo_ast::Program;
-<span class="kw">pub use </span>leo_ast::{Ast, InputAst};
+</span><span class="kw">pub use </span>leo_ast::{Ast, InputAst};
+<span class="kw">use </span>leo_ast::{NodeBuilder, Program};
 <span class="kw">use </span>leo_errors::{emitter::Handler, CompilerError, <span class="prelude-ty">Result</span>};
 <span class="kw">pub use </span>leo_passes::SymbolTable;
 <span class="kw">use </span>leo_passes::<span class="kw-2">*</span>;
@@ -331,6 +345,10 @@
     </span><span class="kw">pub </span>input_ast: <span class="prelude-ty">Option</span>&lt;InputAst&gt;,
     <span class="doccomment">/// Options configuring compilation.
     </span>compiler_options: CompilerOptions,
+    <span class="doccomment">/// The `NodeCounter` used to generate sequentially increasing `NodeID`s.
+    </span>node_builder: NodeBuilder,
+    <span class="doccomment">/// The `Assigner` is used to construct (unique) assignment statements.
+    </span>assigner: Assigner,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Compiler&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -343,6 +361,8 @@
         output_directory: PathBuf,
         compiler_options: <span class="prelude-ty">Option</span>&lt;CompilerOptions&gt;,
     ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>node_builder = NodeBuilder::default();
+        <span class="kw">let </span>assigner = Assigner::default();
         <span class="self">Self </span>{
             handler,
             main_file_path,
@@ -352,6 +372,8 @@
             ast: Ast::new(Program::default()),
             input_ast: <span class="prelude-val">None</span>,
             compiler_options: compiler_options.unwrap_or_default(),
+            node_builder,
+            assigner,
         }
     }
 
@@ -375,7 +397,7 @@
         </span><span class="kw">let </span>prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         <span class="comment">// Use the parser to construct the abstract syntax tree (ast).
-        </span><span class="self">self</span>.ast = leo_parser::parse_ast(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
+        </span><span class="self">self</span>.ast = leo_parser::parse_ast(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
 
         <span class="comment">// If the program is imported, then check that the name of its program scope matches the file name.
         // Note that parsing enforces that there is exactly one program scope in a file.
@@ -415,7 +437,8 @@
                 .map_err(|e| CompilerError::file_read_error(<span class="kw-2">&amp;</span>input_file_path, e))<span class="question-mark">?</span>;
 
             <span class="comment">// Parse and serialize it.
-            </span><span class="kw">let </span>input_ast = leo_parser::parse_input(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>input_ast =
+                leo_parser::parse_input(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)<span class="question-mark">?</span>;
             <span class="kw">if </span><span class="self">self</span>.compiler_options.output.initial_ast {
                 <span class="comment">// Write the input AST snapshot post parsing.
                 </span><span class="kw">if </span><span class="self">self</span>.compiler_options.output.spans_enabled {
@@ -449,7 +472,8 @@
 
     <span class="doccomment">/// Runs the loop unrolling pass.
     </span><span class="kw">pub fn </span>loop_unrolling_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
-        <span class="kw">let </span>(ast, symbol_table) = Unroller::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="self">self</span>.handler, symbol_table))<span class="question-mark">?</span>;
+        <span class="kw">let </span>(ast, symbol_table) =
+            Unroller::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, symbol_table))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
@@ -460,45 +484,50 @@
     }
 
     <span class="doccomment">/// Runs the static single assignment pass.
-    </span><span class="kw">pub fn </span>static_single_assignment_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;Assigner&gt; {
-        <span class="kw">let </span>(ast, assigner) = StaticSingleAssigner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table))<span class="question-mark">?</span>;
-        <span class="self">self</span>.ast = ast;
+    </span><span class="kw">pub fn </span>static_single_assignment_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.ast = StaticSingleAssigner::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
+            symbol_table,
+        ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.ssa_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;ssa_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(assigner)
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Runs the flattening pass.
-    </span><span class="kw">pub fn </span>flattening_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable, assigner: Assigner) -&gt; <span class="prelude-ty">Result</span>&lt;Assigner&gt; {
-        <span class="kw">let </span>(ast, assigner) = Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, assigner))<span class="question-mark">?</span>;
-        <span class="self">self</span>.ast = ast;
+    </span><span class="kw">pub fn </span>flattening_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.ast =
+            Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span><span class="self">self</span>.assigner))<span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.flattened_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;flattened_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(assigner)
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Runs the function inlining pass.
-    </span><span class="kw">pub fn </span>function_inlining_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call_graph: <span class="kw-2">&amp;</span>CallGraph, assigner: Assigner) -&gt; <span class="prelude-ty">Result</span>&lt;Assigner&gt; {
-        <span class="kw">let </span>(ast, assigner) = FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), call_graph, assigner))<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>function_inlining_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call_graph: <span class="kw-2">&amp;</span>CallGraph) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">let </span>ast =
+            FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, call_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.assigner))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.inlined_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;inlined_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="prelude-val">Ok</span>(assigner)
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Runs the dead code elimination pass.
     </span><span class="kw">pub fn </span>dead_code_elimination_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.compiler_options.build.dce_enabled {
-            <span class="self">self</span>.ast = DeadCodeEliminator::do_pass(std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast))<span class="question-mark">?</span>;
+            <span class="self">self</span>.ast = DeadCodeEliminator::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder))<span class="question-mark">?</span>;
         }
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.dce_ast {
@@ -526,12 +555,11 @@
         <span class="comment">// TODO: Make this pass optional.
         </span><span class="kw">let </span>st = <span class="self">self</span>.loop_unrolling_pass(st)<span class="question-mark">?</span>;
 
-        <span class="comment">// TODO: Make this pass optional.
-        </span><span class="kw">let </span>assigner = <span class="self">self</span>.static_single_assignment_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
+        <span class="self">self</span>.static_single_assignment_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>assigner = <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st, assigner)<span class="question-mark">?</span>;
+        <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
-        <span class="kw">let _ </span>= <span class="self">self</span>.function_inlining_pass(<span class="kw-2">&amp;</span>call_graph, assigner)<span class="question-mark">?</span>;
+        <span class="self">self</span>.function_inlining_pass(<span class="kw-2">&amp;</span>call_graph)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.dead_code_elimination_pass()<span class="question-mark">?</span>;
 

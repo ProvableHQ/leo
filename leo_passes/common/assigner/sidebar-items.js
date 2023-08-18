@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Assigner"]};
+window.SIDEBAR_ITEMS = {"struct":["Assigner","AssignerInner"]};

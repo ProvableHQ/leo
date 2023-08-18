@@ -120,7 +120,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
-                id: NodeID::default(),
+                id: finalize.id,
             }
         });
 
@@ -135,7 +135,7 @@
             block,
             finalize,
             span: function.span,
-            id: NodeID::default(),
+            id: function.id,
         };
 
         <span class="comment">// Exit the function&#39;s scope.

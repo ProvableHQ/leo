@@ -339,6 +339,10 @@
 <a href="#339" id="339">339</a>
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -423,7 +427,7 @@
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
         <span class="comment">// Return the assertion statement.
-        </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span, id: NodeID::default() }))
+        </span><span class="prelude-val">Ok</span>(Statement::Assert(AssertStatement { variant, span, id: <span class="self">self</span>.node_builder.next_id() }))
     }
 
     <span class="doccomment">/// Returns a [`AssignStatement`] AST node if the next tokens represent a assign, otherwise expects an expression statement.
@@ -456,20 +460,24 @@
             <span class="comment">// Construct the span for the statement.
             </span><span class="kw">let </span>span = place.span() + value.span();
 
+            <span class="comment">// Construct a copy of the lhs with a unique id.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>left = place.clone();
+            left.set_id(<span class="self">self</span>.node_builder.next_id());
+
             <span class="comment">// Simplify complex assignments into simple assignments.
             // For example, `x += 1` becomes `x = x + 1`, while simple assignments like `x = y` remain unchanged.
             </span><span class="kw">let </span>value = <span class="kw">match </span>operation {
                 <span class="prelude-val">None </span>=&gt; value,
                 <span class="prelude-val">Some</span>(op) =&gt; Expression::Binary(BinaryExpression {
-                    left: Box::new(place.clone()),
+                    left: Box::new(left),
                     right: Box::new(value),
                     op,
                     span,
-                    id: NodeID::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
                 }),
             };
 
-            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value, id: NodeID::default() })))
+            <span class="prelude-val">Ok</span>(Statement::Assign(Box::new(AssignStatement { span, place, value, id: <span class="self">self</span>.node_builder.next_id() })))
         } <span class="kw">else </span>{
             <span class="comment">// Check for `increment` and `decrement` statements. If found, emit a deprecation warning.
             </span><span class="kw">if let </span>Expression::Call(call_expression) = <span class="kw-2">&amp;</span>place {
@@ -497,7 +505,7 @@
             <span class="prelude-val">Ok</span>(Statement::Expression(ExpressionStatement {
                 span: place.span() + end,
                 expression: place,
-                id: NodeID::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
             }))
         }
     }
@@ -507,7 +515,7 @@
         <span class="self">self</span>.parse_list(Delimiter::Brace, <span class="prelude-val">None</span>, |p| p.parse_statement().map(<span class="prelude-val">Some</span>)).map(|(statements, <span class="kw">_</span>, span)| Block {
             statements,
             span,
-            id: NodeID::default(),
+            id: <span class="self">self</span>.node_builder.next_id(),
         })
     }
 
@@ -518,7 +526,7 @@
         <span class="kw">let </span>expression = <span class="kw">match </span><span class="self">self</span>.token.token {
             <span class="comment">// If the next token is a semicolon, implicitly return a unit expression, `()`.
             </span>Token::Semicolon | Token::Then =&gt; {
-                Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span, id: NodeID::default() })
+                Expression::Unit(UnitExpression { span: <span class="self">self</span>.token.span, id: <span class="self">self</span>.node_builder.next_id() })
             }
             <span class="comment">// Otherwise, attempt to parse an expression.
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>,
@@ -541,7 +549,7 @@
         };
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
         <span class="kw">let </span>span = start + end;
-        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: NodeID::default() })
+        <span class="prelude-val">Ok</span>(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
@@ -566,7 +574,7 @@
             condition: expr,
             then: body,
             otherwise: next,
-            id: NodeID::default(),
+            id: <span class="self">self</span>.node_builder.next_id(),
         })
     }
 
@@ -597,7 +605,7 @@
             stop_value: Default::default(),
             inclusive: <span class="bool-val">false</span>,
             block,
-            id: NodeID::default(),
+            id: <span class="self">self</span>.node_builder.next_id(),
         })
     }
 
@@ -641,14 +649,14 @@
                     Default::default(),
                     ConsoleFunction::Assert(Expression::Err(ErrExpression {
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     })),
                 )
             }
         };
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ConsoleStatement { span: keyword + span, function, id: NodeID::default() })
+        <span class="prelude-val">Ok</span>(ConsoleStatement { span: keyword + span, function, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
@@ -676,7 +684,7 @@
             place,
             type_,
             value,
-            id: NodeID::default(),
+            id: <span class="self">self</span>.node_builder.next_id(),
         })
     }
 }

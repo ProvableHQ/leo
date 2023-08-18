@@ -505,7 +505,6 @@
     Identifier,
     IterationStatement,
     Node,
-    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
@@ -540,7 +539,7 @@
         <span class="comment">// Flatten the arguments of the assert statement.
         </span><span class="kw">let </span>assert = AssertStatement {
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
             variant: <span class="kw">match </span>input.variant {
                 AssertVariant::Assert(expression) =&gt; {
                     <span class="kw">let </span>(expression, additional_statements) = <span class="self">self</span>.reconstruct_expression(expression);
@@ -574,17 +573,17 @@
             </span><span class="prelude-val">Some</span>(guard) =&gt; (
                 Statement::Assert(AssertStatement {
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                     variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
                         op: BinaryOperation::Or,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                         <span class="comment">// Take the logical negation of the guard.
                         </span>left: Box::new(Expression::Unary(UnaryExpression {
                             op: UnaryOperation::Not,
                             receiver: Box::new(guard),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         })),
                         right: Box::new(<span class="kw">match </span>assert.variant {
                             <span class="comment">// If the assert statement is an `assert`, use the expression as is.
@@ -595,7 +594,7 @@
                                 op: BinaryOperation::Eq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             }),
                             <span class="comment">// If the assert statement is an `assert_ne`, construct a new inequality expression.
                             </span>AssertVariant::AssertNeq(left, right) =&gt; Expression::Binary(BinaryExpression {
@@ -603,7 +602,7 @@
                                 op: BinaryOperation::Neq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             }),
                         }),
                     })),
@@ -625,7 +624,7 @@
             </span>(Expression::Identifier(identifier), Expression::Tuple(tuple)) =&gt; {
                 <span class="self">self</span>.tuples.insert(identifier.name, tuple);
                 <span class="comment">// Note that tuple assignments are removed from the AST.
-                </span>(Statement::dummy(Default::default()), statements)
+                </span>(Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
             }
             <span class="comment">// If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
             </span>(Expression::Identifier(lhs_identifier), Expression::Identifier(rhs_identifier))
@@ -635,7 +634,7 @@
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, <span class="self">self</span>.tuples.get(<span class="kw-2">&amp;</span>rhs_identifier.name).unwrap().clone());
                 <span class="comment">// Note that tuple assignments are removed from the AST.
-                </span>(Statement::dummy(Default::default()), statements)
+                </span>(Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
             }
             <span class="comment">// If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
             </span>(Expression::Identifier(lhs_identifier), Expression::Call(call)) =&gt; {
@@ -657,6 +656,7 @@
                                 .map(|(i, type_)| {
                                     <span class="kw">let </span>identifier = Identifier::new(
                                         <span class="self">self</span>.assigner.unique_symbol(lhs_identifier.name, <span class="macro">format!</span>(<span class="string">&quot;$index${i}$&quot;</span>)),
+                                        <span class="self">self</span>.node_builder.next_id(),
                                     );
 
                                     <span class="comment">// If the output type is a struct, add it to `self.structs`.
@@ -668,7 +668,7 @@
                                 })
                                 .collect(),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         };
                         <span class="comment">// Add the `tuple_expression` to `self.tuples`.
                         </span><span class="self">self</span>.tuples.insert(lhs_identifier.name, tuple_expression.clone());
@@ -678,7 +678,7 @@
                                 place: Expression::Tuple(tuple_expression),
                                 value: Expression::Call(call),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             })),
                             statements,
                         )
@@ -694,7 +694,7 @@
                                 place: Expression::Identifier(lhs_identifier),
                                 value: Expression::Call(call),
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             })),
                             statements,
                         )
@@ -744,14 +744,14 @@
                         place: Expression::Identifier(lhs_identifier),
                         value,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     })),
                     statements,
                 )
             }
             (Expression::Identifier(identifier), expression) =&gt; {
                 <span class="self">self</span>.update_structs(<span class="kw-2">&amp;</span>identifier, <span class="kw-2">&amp;</span>expression);
-                (<span class="self">self</span>.assigner.simple_assign_statement(identifier, expression), statements)
+                (<span class="self">self</span>.assigner.simple_assign_statement(identifier, expression, <span class="self">self</span>.node_builder.next_id()), statements)
             }
             <span class="comment">// If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             </span>(Expression::Tuple(tuple), Expression::Call(call)) =&gt; {
@@ -785,7 +785,7 @@
                         place: Expression::Tuple(tuple),
                         value: Expression::Call(call),
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     })),
                     statements,
                 )
@@ -803,11 +803,11 @@
                             place: lhs,
                             value: rhs,
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         }))
                     },
                 ));
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
             }
             <span class="comment">// If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
             </span>(Expression::Tuple(lhs_tuple), Expression::Identifier(identifier))
@@ -828,10 +828,10 @@
                         place: lhs,
                         value: rhs,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     })));
                 }
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
             }
             <span class="comment">// If the lhs of an assignment is a tuple, then the rhs can be one of the following:
             //  - A function call that produces a tuple. (handled above)
@@ -858,7 +858,7 @@
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
+        (Block { span: block.span, statements, id: <span class="self">self</span>.node_builder.next_id() }, Default::default())
     }
 
     <span class="doccomment">/// Flatten a conditional statement into a list of statements.
@@ -881,7 +881,7 @@
                 op: UnaryOperation::Not,
                 receiver: Box::new(conditional.condition.clone()),
                 span: conditional.condition.span(),
-                id: NodeID::default(),
+                id: conditional.condition.id(),
             }));
 
             <span class="comment">// Reconstruct the otherwise-block and accumulate it constituent statements.
@@ -894,7 +894,7 @@
             </span><span class="self">self</span>.condition_stack.pop();
         };
 
-        (Statement::dummy(Default::default()), statements)
+        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
     }
 
     <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
@@ -928,14 +928,14 @@
                     span: input.span,
                     expression: Expression::Tuple(tuple),
                     finalize_arguments: input.finalize_arguments,
-                    id: NodeID::default(),
+                    id: input.id,
                 }));
             }
             <span class="comment">// Otherwise, add the expression directly.
             </span><span class="kw">_ </span>=&gt; <span class="self">self</span>.returns.push((guard, input)),
         };
 
-        (Statement::dummy(Default::default()), Default::default())
+        (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default())
     }
 }
 </code></pre></div></section></main></body></html>

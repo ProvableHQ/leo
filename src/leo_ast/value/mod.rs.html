@@ -918,6 +918,7 @@
 <a href="#918" id="918">918</a>
 <a href="#919" id="919">919</a>
 <a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1813,28 +1814,29 @@
     }
 }
 
-<span class="kw">impl </span>From&lt;Value&gt; <span class="kw">for </span>Literal {
-    <span class="kw">fn </span>from(v: Value) -&gt; <span class="self">Self </span>{
+<span class="kw">impl </span>Literal {
+    <span class="attr">#[allow(unused)]
+    </span><span class="kw">fn </span>from_value(v: Value, id: NodeID) -&gt; <span class="self">Self </span>{
         <span class="kw">use </span>Value::<span class="kw-2">*</span>;
         <span class="kw">match </span>v {
             Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            Address(v, span) =&gt; Literal::Address(v, span, NodeID::default()),
-            Boolean(v, span) =&gt; Literal::Boolean(v, span, NodeID::default()),
+            Address(v, span) =&gt; Literal::Address(v, span, id),
+            Boolean(v, span) =&gt; Literal::Boolean(v, span, id),
             Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
-            Field(v, span) =&gt; Literal::Field(v, span, NodeID::default()),
+            Field(v, span) =&gt; Literal::Field(v, span, id),
             Group(v) =&gt; Literal::Group(v),
-            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, NodeID::default()),
-            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span, NodeID::default()),
-            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span, NodeID::default()),
-            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span, NodeID::default()),
-            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span, NodeID::default()),
-            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span, NodeID::default()),
-            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span, NodeID::default()),
-            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span, NodeID::default()),
-            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span, NodeID::default()),
-            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span, NodeID::default()),
-            Scalar(v, span) =&gt; Literal::Scalar(v, span, NodeID::default()),
-            String(v, span) =&gt; Literal::String(v, span, NodeID::default()),
+            I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, id),
+            I16(v, span) =&gt; Literal::Integer(IntegerType::I16, v.to_string(), span, id),
+            I32(v, span) =&gt; Literal::Integer(IntegerType::I32, v.to_string(), span, id),
+            I64(v, span) =&gt; Literal::Integer(IntegerType::I64, v.to_string(), span, id),
+            I128(v, span) =&gt; Literal::Integer(IntegerType::I128, v.to_string(), span, id),
+            U8(v, span) =&gt; Literal::Integer(IntegerType::U8, v.to_string(), span, id),
+            U16(v, span) =&gt; Literal::Integer(IntegerType::U16, v.to_string(), span, id),
+            U32(v, span) =&gt; Literal::Integer(IntegerType::U32, v.to_string(), span, id),
+            U64(v, span) =&gt; Literal::Integer(IntegerType::U64, v.to_string(), span, id),
+            U128(v, span) =&gt; Literal::Integer(IntegerType::U128, v.to_string(), span, id),
+            Scalar(v, span) =&gt; Literal::Scalar(v, span, id),
+            String(v, span) =&gt; Literal::String(v, span, id),
         }
     }
 }

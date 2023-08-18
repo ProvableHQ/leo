@@ -466,6 +466,25 @@
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
 <a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -577,7 +596,7 @@
         </span><span class="kw">let </span>prg_sf = with_session_globals(|s| s.source_map.new_source(<span class="kw-2">&amp;</span>program_string, name));
 
         <span class="comment">// Use the parser to construct the imported abstract syntax tree (ast).
-        </span><span class="kw">let </span>program_ast = parse_ast(<span class="self">self</span>.handler, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>program_ast = parse_ast(<span class="self">self</span>.handler, <span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((import_name.name, (program_ast.into_repr(), start + end)))
     }
@@ -691,7 +710,7 @@
 
         <span class="kw">let </span>(identifier, type_, span) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Member { mode, identifier, type_, span, id: NodeID::default() })
+        <span class="prelude-val">Ok</span>(Member { mode, identifier, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
@@ -708,7 +727,7 @@
             members,
             is_record,
             span: start + end,
-            id: NodeID::default(),
+            id: <span class="self">self</span>.node_builder.next_id(),
         }))
     }
 
@@ -721,7 +740,13 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::BigArrow)<span class="question-mark">?</span>;
         <span class="kw">let </span>(value_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>((identifier.name, Mapping { identifier, key_type, value_type, span: start + end, id: NodeID::default() }))
+        <span class="prelude-val">Ok</span>((identifier.name, Mapping {
+            identifier,
+            key_type,
+            value_type,
+            span: start + end,
+            id: <span class="self">self</span>.node_builder.next_id(),
+        }))
     }
 
     <span class="comment">// TODO: Return a span associated with the mode.
@@ -777,7 +802,7 @@
                 program_name: external,
                 record,
                 span,
-                id: NodeID::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
             }))
         } <span class="kw">else </span>{
             <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
@@ -787,7 +812,7 @@
                 mode,
                 type_,
                 span: name.span,
-                id: NodeID::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
             }))
         }
     }
@@ -797,7 +822,7 @@
         <span class="comment">// TODO: Could this span be made more accurate?
         </span><span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
         <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(FunctionOutput { mode, type_, span, id: NodeID::default() })
+        <span class="prelude-val">Ok</span>(FunctionOutput { mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`Output`] AST node if the next tokens represent a function output.
@@ -820,11 +845,11 @@
             span = span + <span class="self">self</span>.prev_token.span;
 
             <span class="prelude-val">Ok</span>(Output::External(External {
-                identifier: Identifier::new(Symbol::intern(<span class="string">&quot;dummy&quot;</span>)),
+                identifier: Identifier::new(Symbol::intern(<span class="string">&quot;dummy&quot;</span>), <span class="self">self</span>.node_builder.next_id()),
                 program_name: external,
                 record,
                 span,
-                id: NodeID::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
             }))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(Output::Internal(<span class="self">self</span>.parse_function_output()<span class="question-mark">?</span>))
@@ -841,7 +866,7 @@
         </span><span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::At)<span class="question-mark">?</span>;
         <span class="kw">let </span>identifier = <span class="kw">match </span><span class="self">self</span>.token.token {
             Token::Program =&gt; {
-                Identifier { name: sym::program, span: <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Program)<span class="question-mark">?</span>, id: NodeID::default() }
+                Identifier { name: sym::program, span: <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Program)<span class="question-mark">?</span>, id: <span class="self">self</span>.node_builder.next_id() }
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>,
         };
@@ -851,7 +876,7 @@
         // Check that there is no whitespace in between the `@` symbol and identifier.
         </span><span class="kw">match </span>identifier.span.hi.<span class="number">0 </span>- start.lo.<span class="number">0 </span>&gt; <span class="number">1 </span>+ identifier.name.to_string().len() <span class="kw">as </span>u32 {
             <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(ParserError::space_in_annotation(span).into()),
-            <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(Annotation { identifier, span, id: NodeID::default() }),
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(Annotation { identifier, span, id: <span class="self">self</span>.node_builder.next_id() }),
         }
     }
 
@@ -924,12 +949,25 @@
                 </span><span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
                 <span class="kw">let </span>span = start + block.span;
 
-                <span class="prelude-val">Some</span>(Finalize::new(identifier, input, output, block, span))
+                <span class="prelude-val">Some</span>(Finalize::new(identifier, input, output, block, span, <span class="self">self</span>.node_builder.next_id()))
             }
         };
 
         <span class="kw">let </span>span = start + block.span;
-        <span class="prelude-val">Ok</span>((name.name, Function::new(annotations, variant, name, inputs, output, block, finalize, span)))
+        <span class="prelude-val">Ok</span>((
+            name.name,
+            Function::new(
+                annotations,
+                variant,
+                name,
+                inputs,
+                output,
+                block,
+                finalize,
+                span,
+                <span class="self">self</span>.node_builder.next_id(),
+            ),
+        ))
     }
 }
 

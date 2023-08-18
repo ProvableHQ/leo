@@ -230,8 +230,8 @@
 
 <span class="kw">impl </span>Statement {
     <span class="doccomment">/// Returns a dummy statement made from an empty block `{}`.
-    </span><span class="kw">pub fn </span>dummy(span: Span) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span, id: NodeID::default() })
+    </span><span class="kw">pub fn </span>dummy(span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Block(Block { statements: Vec::new(), span, id })
     }
 }
 

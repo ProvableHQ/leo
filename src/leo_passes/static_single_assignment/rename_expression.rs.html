@@ -348,7 +348,6 @@
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
 <a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -378,7 +377,6 @@
     Identifier,
     Literal,
     MemberAccess,
-    NodeID,
     Statement,
     Struct,
     StructExpression,
@@ -416,7 +414,7 @@
                             })
                             .collect(),
                         span: function.span,
-                        id: NodeID::default(),
+                        id: function.id,
                     }),
                     statements,
                 )
@@ -436,7 +434,7 @@
                         inner: Box::new(expr),
                         name: member.name,
                         span: member.span,
-                        id: NodeID::default(),
+                        id: member.id,
                     }),
                     statements,
                 )
@@ -448,14 +446,14 @@
                         tuple: Box::new(expr),
                         index: tuple.index,
                         span: tuple.span,
-                        id: NodeID::default(),
+                        id: tuple.id,
                     }),
                     statements,
                 )
             }
             expr =&gt; (expr, Vec::new()),
         };
-        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Access(expr));
+        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(expr));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -471,12 +469,12 @@
         </span>statements.append(<span class="kw-2">&amp;mut </span>right_statements);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the binary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Binary(BinaryExpression {
             left: Box::new(left_expression),
             right: Box::new(right_expression),
             op: input.op,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -499,14 +497,14 @@
             .collect();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the call expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Call(CallExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Call(CallExpression {
             <span class="comment">// Note that we do not rename the function name.
             </span>function: input.function,
             <span class="comment">// Consume the arguments.
             </span>arguments,
             external: input.external,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -519,11 +517,11 @@
         </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.expression);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the cast expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Cast(CastExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Cast(CastExpression {
             expression: Box::new(expression),
             type_: input.type_,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -555,7 +553,7 @@
                     identifier: arg.identifier,
                     expression: <span class="prelude-val">Some</span>(expression),
                     span: arg.span,
-                    id: NodeID::default(),
+                    id: arg.id,
                 }
             })
             .collect();
@@ -592,11 +590,11 @@
         }
 
         <span class="comment">// Construct and accumulate a new assignment statement for the struct expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Struct(StructExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Struct(StructExpression {
             name: input.name,
             span: input.span,
             members: reordered_members,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -619,7 +617,7 @@
             </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(identifier.name).unwrap_or(<span class="kw-2">&amp;</span>identifier.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: identifier.span, id: NodeID::default() }), Default::default())
+        (Expression::Identifier(Identifier { name, span: identifier.span, id: identifier.id }), Default::default())
     }
 
     <span class="doccomment">/// Consumes and returns the literal without making any modifications.
@@ -641,12 +639,12 @@
         statements.append(<span class="kw-2">&amp;mut </span>if_false_statements);
 
         <span class="comment">// Construct and accumulate a unique assignment statement storing the result of the ternary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
             condition: Box::new(cond_expr),
             if_true: Box::new(if_true_expr),
             if_false: Box::new(if_false_expr),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -669,10 +667,10 @@
             .collect();
 
         <span class="comment">// Construct and accumulate a new assignment statement for the tuple expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Tuple(TupleExpression {
             elements,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 
@@ -685,11 +683,11 @@
         </span><span class="kw">let </span>(receiver, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.receiver);
 
         <span class="comment">// Construct and accumulate a new assignment statement for the unary expression.
-        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
             op: input.op,
             receiver: Box::new(receiver),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
         statements.push(statement);
 

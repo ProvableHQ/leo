@@ -139,7 +139,7 @@
         <span class="kw">let </span>block = Block {
             statements: input.statements.into_iter().map(|s| <span class="self">self</span>.reconstruct_statement(s).<span class="number">0</span>).collect(),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         };
 
         <span class="comment">// Exit the block scope.

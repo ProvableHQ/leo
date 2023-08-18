@@ -259,6 +259,15 @@
 <a href="#259" id="259">259</a>
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -286,7 +295,7 @@
     ExpressionReconstructor,
     Identifier,
     Member,
-    NodeID,
+    NodeBuilder,
     ReturnStatement,
     Statement,
     TernaryExpression,
@@ -300,8 +309,10 @@
 <span class="kw">pub struct </span>Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table associated with the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+    <span class="doccomment">/// A counter used to generate unique node IDs.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
     <span class="doccomment">/// A struct used to construct (unique) assignment statements.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: Assigner,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner,
     <span class="doccomment">/// The set of variables that are structs.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) structs: IndexMap&lt;Symbol, Symbol&gt;,
     <span class="doccomment">/// A stack of condition `Expression`s visited up to the current point in the AST.
@@ -316,9 +327,10 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, assigner: Assigner) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             symbol_table,
+            node_builder,
             assigner,
             structs: IndexMap::new(),
             condition_stack: Vec::new(),
@@ -344,7 +356,7 @@
                         left: Box::new(acc),
                         right: Box::new(condition),
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     })
                 }))
             }
@@ -375,14 +387,14 @@
                         <span class="kw">let </span>place = Identifier {
                             name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         };
                         <span class="kw">let </span>(value, stmts) = <span class="self">self</span>.reconstruct_ternary(TernaryExpression {
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),
                             if_false: Box::new(if_false),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         });
                         statements.extend(stmts);
 
@@ -447,7 +459,13 @@
 
     <span class="doccomment">/// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
-        <span class="kw">let </span>(place, statement) = <span class="self">self</span>.assigner.unique_simple_assign_statement(expr);
+        <span class="comment">// Create a new variable for the expression.
+        </span><span class="kw">let </span>name = <span class="self">self</span>.assigner.unique_symbol(<span class="string">&quot;$var&quot;</span>, <span class="string">&quot;$&quot;</span>);
+        <span class="comment">// Construct the lhs of the assignment.
+        </span><span class="kw">let </span>place = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
+        <span class="comment">// Construct the assignment statement.
+        </span><span class="kw">let </span>statement = <span class="self">self</span>.assigner.simple_assign_statement(place, expr, <span class="self">self</span>.node_builder.next_id());
+
         <span class="kw">match </span><span class="kw-2">&amp;</span>statement {
             Statement::Assign(assign) =&gt; {
                 <span class="self">self</span>.update_structs(<span class="kw-2">&amp;</span>place, <span class="kw-2">&amp;</span>assign.value);
@@ -460,7 +478,7 @@
     <span class="doccomment">/// A wrapper around `assigner.simple_assign_statement` that updates `self.structs`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lhs: Identifier, rhs: Expression) -&gt; Statement {
         <span class="self">self</span>.update_structs(<span class="kw-2">&amp;</span>lhs, <span class="kw-2">&amp;</span>rhs);
-        <span class="self">self</span>.assigner.simple_assign_statement(lhs, rhs)
+        <span class="self">self</span>.assigner.simple_assign_statement(lhs, rhs, <span class="self">self</span>.node_builder.next_id())
     }
 
     <span class="doccomment">/// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -515,7 +533,7 @@
                 expression,
                 finalize_arguments,
                 span: Default::default(),
-                id: NodeID::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
             }));
         }
     }

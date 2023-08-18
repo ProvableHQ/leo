@@ -196,7 +196,6 @@
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
 <a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -228,13 +227,12 @@
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    NodeID,
     ReturnStatement,
     Statement,
     StatementReconstructor,
 };
 
-<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator {
+<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Set the `is_necessary` flag.
         </span><span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
@@ -251,7 +249,7 @@
                 }
             },
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         });
 
         <span class="comment">// Unset the `is_necessary` flag.
@@ -291,7 +289,7 @@
                     place: input.place,
                     value: <span class="self">self</span>.reconstruct_expression(input.value).<span class="number">0</span>,
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 }));
 
                 <span class="comment">// Unset the `is_necessary` flag.
@@ -300,7 +298,7 @@
                 (statement, Default::default())
             }
             <span class="comment">// Otherwise, we can eliminate it.
-            </span><span class="bool-val">false </span>=&gt; (Statement::dummy(Default::default()), Default::default()),
+            </span><span class="bool-val">false </span>=&gt; (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default()),
         }
     }
 
@@ -313,7 +311,7 @@
         <span class="comment">// Reverse the direction of `statements`.
         </span>statements.reverse();
 
-        (Block { statements, span: block.span, id: NodeID::default() }, Default::default())
+        (Block { statements, span: block.span, id: block.id }, Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -344,7 +342,7 @@
                 </span><span class="kw">let </span>statement = Statement::Expression(ExpressionStatement {
                     expression: <span class="self">self</span>.reconstruct_call(expression).<span class="number">0</span>,
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 });
 
                 <span class="comment">// Unset the `is_necessary` flag.
@@ -360,14 +358,14 @@
                             </span>.reconstruct_access(AccessExpression::AssociatedFunction(associated_function))
                             .<span class="number">0</span>,
                         span: input.span,
-                        id: NodeID::default(),
+                        id: input.id,
                     }),
                     Default::default(),
                 )
             }
             <span class="comment">// Any other expression is dead code, since they do not have side effects.
             // Note: array access expressions will have side effects and need to be handled here.
-            </span><span class="kw">_ </span>=&gt; (Statement::dummy(Default::default()), Default::default()),
+            </span><span class="kw">_ </span>=&gt; (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), Default::default()),
         }
     }
 
@@ -387,7 +385,7 @@
                 arguments.into_iter().map(|argument| <span class="self">self</span>.reconstruct_expression(argument).<span class="number">0</span>).collect()
             }),
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         });
 
         <span class="comment">// Unset the `is_necessary` flag.

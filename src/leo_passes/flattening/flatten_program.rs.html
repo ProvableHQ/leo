@@ -100,7 +100,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
 
-<span class="kw">use </span>leo_ast::{Finalize, Function, NodeID, ProgramReconstructor, StatementReconstructor, Type};
+<span class="kw">use </span>leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Flattener&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Flattens a function&#39;s body and finalize block, if it exists.
@@ -131,7 +131,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
-                id: NodeID::default(),
+                id: finalize.id,
             }
         });
 
@@ -162,7 +162,7 @@
             block,
             finalize,
             span: function.span,
-            id: NodeID::default(),
+            id: function.id,
         }
     }
 }

@@ -138,18 +138,18 @@
 
 <span class="kw">use crate</span>::{Assigner, Pass, SymbolTable};
 
-<span class="kw">use </span>leo_ast::{Ast, ProgramConsumer};
+<span class="kw">use </span>leo_ast::{Ast, NodeBuilder, ProgramConsumer};
 <span class="kw">use </span>leo_errors::Result;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Pass <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable);
-    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;(Ast, Assigner)&gt;;
+    <span class="kw">type </span>Input = (Ast, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable);
+    <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Ast&gt;;
 
-    <span class="kw">fn </span>do_pass((ast, symbol_table): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span><span class="kw-2">mut </span>consumer = StaticSingleAssigner::new(symbol_table);
+    <span class="kw">fn </span>do_pass((ast, node_builder, assigner, symbol_table): <span class="self">Self</span>::Input) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>consumer = StaticSingleAssigner::new(node_builder, symbol_table, assigner);
         <span class="kw">let </span>program = consumer.consume_program(ast.into_repr());
 
-        <span class="prelude-val">Ok</span>((Ast::new(program), consumer.assigner))
+        <span class="prelude-val">Ok</span>(Ast::new(program))
     }
 }
 </code></pre></div></section></main></body></html>

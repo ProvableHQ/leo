@@ -390,7 +390,6 @@
     ExpressionStatement,
     Identifier,
     IterationStatement,
-    NodeID,
     ReturnStatement,
     Statement,
     StatementConsumer,
@@ -434,7 +433,7 @@
         };
 
         <span class="comment">// Add the assert statement to the list of produced statements.
-        </span>statements.push(Statement::Assert(AssertStatement { variant, span: input.span, id: NodeID::default() }));
+        </span>statements.push(Statement::Assert(AssertStatement { variant, span: input.span, id: input.id }));
 
         statements
     }
@@ -453,7 +452,7 @@
         };
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
-        statements.push(<span class="self">self</span>.assigner.simple_assign_statement(place, value));
+        statements.push(<span class="self">self</span>.assigner.simple_assign_statement(place, value, <span class="self">self</span>.node_builder.next_id()));
 
         statements
     }
@@ -480,8 +479,8 @@
         <span class="comment">// Consume the then-block.
         </span><span class="kw">let </span>then = Block {
             span: conditional.then.span,
+            id: conditional.then.id,
             statements: <span class="self">self</span>.consume_block(conditional.then),
-            id: NodeID::default(),
         };
 
         <span class="comment">// Remove the `RenameTable` for the then-block.
@@ -494,13 +493,13 @@
         </span><span class="kw">let </span>otherwise = conditional.otherwise.map(|otherwise| Box::new(Statement::Block(<span class="kw">match </span><span class="kw-2">*</span>otherwise {
             Statement::Block(block) =&gt; Block {
                 span: block.span,
+                id: block.id,
                 statements: <span class="self">self</span>.consume_block(block),
-                id: NodeID::default(),
             },
             Statement::Conditional(conditional) =&gt; Block {
                 span: conditional.span,
+                id: conditional.id,
                 statements: <span class="self">self</span>.consume_conditional(conditional),
-                id: NodeID::default()
             },
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that the otherwise-block of a conditional statement is a block or another conditional statement.&quot;</span>),
         })));
@@ -511,10 +510,10 @@
         <span class="comment">// Add reconstructed conditional statement to the list of produced statements.
         </span>statements.push(Statement::Conditional(ConditionalStatement {
             span: conditional.span,
+            id: conditional.id,
             condition: condition.clone(),
             then,
             otherwise,
-            id: NodeID::default(),
         }));
 
         <span class="comment">// Compute the write set for the variables written in the then-block or otherwise-block.
@@ -533,7 +532,7 @@
                     Box::new(Expression::Identifier(Identifier {
                         name,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     }))
                 };
 
@@ -545,15 +544,16 @@
                     if_true: create_phi_argument(<span class="kw-2">&amp;</span>if_table, <span class="kw-2">**</span>symbol),
                     if_false: create_phi_argument(<span class="kw-2">&amp;</span>else_table, <span class="kw-2">**</span>symbol),
                     span: Default::default(),
-                    id: NodeID::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
                 });
 
                 statements.extend(stmts);
 
                 <span class="comment">// Create a new `AssignStatement` for the phi function.
                 </span><span class="kw">let </span>assignment = <span class="self">self</span>.assigner.simple_assign_statement(
-                    Identifier { name: new_name, span: Default::default(), id: NodeID::default() },
+                    Identifier { name: new_name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() },
                     value,
+                    <span class="self">self</span>.node_builder.next_id(),
                 );
 
                 <span class="comment">// Update the `RenameTable` with the new name of the variable.
@@ -586,7 +586,7 @@
                     Expression::Identifier(identifier) =&gt; identifier,
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.consume_identifier` will always return an `Identifier`.&quot;</span>),
                 };
-                statements.push(<span class="self">self</span>.assigner.simple_assign_statement(identifier, value));
+                statements.push(<span class="self">self</span>.assigner.simple_assign_statement(identifier, value, <span class="self">self</span>.node_builder.next_id()));
             }
             Expression::Tuple(tuple) =&gt; {
                 <span class="kw">let </span>elements = tuple.elements.into_iter().map(|element| {
@@ -605,11 +605,11 @@
                     place: Expression::Tuple(TupleExpression {
                         elements,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     }),
                     value,
                     span: Default::default(),
-                    id: NodeID::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
                 })));
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
@@ -649,10 +649,10 @@
                         arguments,
                         external: call.external,
                         span: call.span,
-                        id: NodeID::default(),
+                        id: call.id,
                     }),
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 }));
             }
             Expression::Access(AccessExpression::AssociatedFunction(associated_function)) =&gt; {
@@ -666,10 +666,10 @@
                         name: associated_function.name,
                         arguments,
                         span: associated_function.span,
-                        id: NodeID::default(),
+                        id: associated_function.id,
                     })),
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 }))
             }
 
@@ -708,7 +708,7 @@
             expression,
             finalize_arguments: finalize_args,
             span: input.span,
-            id: NodeID::default(),
+            id: input.id,
         }));
 
         statements

@@ -104,7 +104,6 @@
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
 <a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -133,7 +132,6 @@
     ExpressionReconstructor,
     ExpressionStatement,
     IterationStatement,
-    NodeID,
     Statement,
     StatementReconstructor,
 };
@@ -151,14 +149,14 @@
                         place: lhs,
                         value: rhs,
                         span: Default::default(),
-                        id: NodeID::default(),
+                        id: <span class="self">self</span>.node_builder.next_id(),
                     }))
                 }));
-                (Statement::dummy(Default::default()), statements)
+                (Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()), statements)
             }
 
             (place, value) =&gt; (
-                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
                 statements,
             ),
         }
@@ -174,7 +172,7 @@
             statements.push(reconstructed_statement);
         }
 
-        (Block { span: block.span, statements, id: NodeID::default() }, Default::default())
+        (Block { span: block.span, statements, id: block.id }, Default::default())
     }
 
     <span class="doccomment">/// Flattening removes conditional statements from the program.
@@ -200,8 +198,8 @@
 
         <span class="comment">// If the resulting expression is a unit expression, return a dummy statement.
         </span><span class="kw">let </span>statement = <span class="kw">match </span>expression {
-            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(Default::default()),
-            <span class="kw">_ </span>=&gt; Statement::Expression(ExpressionStatement { expression, span: input.span, id: NodeID::default() }),
+            Expression::Unit(<span class="kw">_</span>) =&gt; Statement::dummy(Default::default(), <span class="self">self</span>.node_builder.next_id()),
+            <span class="kw">_ </span>=&gt; Statement::Expression(ExpressionStatement { expression, span: input.span, id: input.id }),
         };
 
         (statement, additional_statements)

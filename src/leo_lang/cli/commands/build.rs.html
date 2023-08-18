@@ -242,6 +242,9 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -260,7 +263,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>leo_ast::Struct;
+<span class="kw">use </span>leo_ast::{NodeBuilder, Struct};
 <span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
 <span class="kw">use </span>leo_package::{
     build::BuildDirectory,
@@ -347,6 +350,9 @@
         <span class="comment">// Initialize error handler
         </span><span class="kw">let </span>handler = Handler::default();
 
+        <span class="comment">// Initialize a node counter.
+        </span><span class="kw">let </span>node_builder = NodeBuilder::default();
+
         <span class="comment">// Fetch paths to all .leo files in the source directory.
         </span><span class="kw">let </span>source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
@@ -402,7 +408,7 @@
                 .map_err(|e| CompilerError::file_read_error(<span class="kw-2">&amp;</span>input_file_path, e))<span class="question-mark">?</span>;
 
             <span class="comment">// TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
-            </span>leo_parser::parse_input(<span class="kw-2">&amp;</span>handler, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)
+            </span>leo_parser::parse_input(<span class="kw-2">&amp;</span>handler, <span class="kw-2">&amp;</span>node_builder, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)
                 .map_err(|_e| <span class="macro">println!</span>(<span class="string">&quot;Warning: Failed to parse input file&quot;</span>))
                 .ok()
         } <span class="kw">else </span>{

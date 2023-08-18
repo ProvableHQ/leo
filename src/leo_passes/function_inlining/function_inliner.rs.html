@@ -40,6 +40,9 @@
 <a href="#40" id="40">40</a>
 <a href="#41" id="41">41</a>
 <a href="#42" id="42">42</a>
+<a href="#43" id="43">43</a>
+<a href="#44" id="44">44</a>
+<a href="#45" id="45">45</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -58,24 +61,27 @@
 
 </span><span class="kw">use crate</span>::{Assigner, AssignmentRenamer, CallGraph};
 
-<span class="kw">use </span>leo_ast::Function;
+<span class="kw">use </span>leo_ast::{Function, NodeBuilder};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
 
 <span class="kw">pub struct </span>FunctionInliner&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="doccomment">/// A counter used to create unique NodeIDs.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
     <span class="doccomment">/// The call graph for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
     <span class="doccomment">/// A wrapper around an Assigner used to create unique variable assignments.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assignment_renamer: AssignmentRenamer,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assignment_renamer: AssignmentRenamer&lt;<span class="lifetime">&#39;a</span>&gt;,
     <span class="doccomment">/// A map of reconstructed functions in the current program scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) reconstructed_functions: IndexMap&lt;Symbol, Function&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FunctionInliner&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `FunctionInliner`.
-    </span><span class="kw">pub fn </span>new(call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph, assigner: Assigner) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph, assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
+            node_builder,
             call_graph,
             assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),

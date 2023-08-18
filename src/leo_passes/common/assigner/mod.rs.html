@@ -54,6 +54,18 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -72,42 +84,54 @@
 
 </span><span class="kw">use </span>leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
 <span class="kw">use </span>leo_span::Symbol;
-<span class="kw">use </span>std::fmt::Display;
+
+<span class="kw">use </span>std::{cell::RefCell, fmt::Display};
 
 <span class="doccomment">/// A struct used to create assignment statements.
-</span><span class="attr">#[derive(Default)]
+</span><span class="attr">#[derive(Debug, Default, Clone)]
 </span><span class="kw">pub struct </span>Assigner {
-    <span class="doccomment">/// A strictly increasing counter, used to ensure that new variable names are unique.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) counter: usize,
+    <span class="doccomment">/// The inner counter.
+    /// `RefCell` is used here to avoid `&amp;mut` all over the compiler.
+    </span>inner: RefCell&lt;AssignerInner&gt;,
 }
 
 <span class="kw">impl </span>Assigner {
     <span class="doccomment">/// Return a new unique `Symbol` from a `&amp;str`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_symbol(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw">impl </span>Display, separator: <span class="kw">impl </span>Display) -&gt; Symbol {
+    </span><span class="kw">pub fn </span>unique_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, arg: <span class="kw">impl </span>Display, separator: <span class="kw">impl </span>Display) -&gt; Symbol {
+        <span class="self">self</span>.inner.borrow_mut().unique_symbol(arg, separator)
+    }
+
+    <span class="doccomment">/// Constructs the assignment statement `place = expr;`.
+    /// This function should be the only place where `AssignStatement`s are constructed.
+    </span><span class="kw">pub fn </span>simple_assign_statement(<span class="kw-2">&amp;</span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
+        <span class="self">self</span>.inner.borrow_mut().simple_assign_statement(identifier, value, id)
+    }
+}
+
+<span class="doccomment">/// Contains the actual data for `Assigner`.
+/// Modeled this way to afford an API using interior mutability.
+</span><span class="attr">#[derive(Debug, Default, Clone)]
+</span><span class="kw">pub struct </span>AssignerInner {
+    <span class="doccomment">/// A strictly increasing counter, used to ensure that new variable names are unique.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) counter: usize,
+}
+
+<span class="kw">impl </span>AssignerInner {
+    <span class="doccomment">/// Return a new unique `Symbol` from a `&amp;str`.
+    </span><span class="kw">fn </span>unique_symbol(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: <span class="kw">impl </span>Display, separator: <span class="kw">impl </span>Display) -&gt; Symbol {
         <span class="self">self</span>.counter += <span class="number">1</span>;
         Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}{}{}&quot;</span>, arg, separator, <span class="self">self</span>.counter - <span class="number">1</span>))
     }
 
     <span class="doccomment">/// Constructs the assignment statement `place = expr;`.
     /// This function should be the only place where `AssignStatement`s are constructed.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, value: Expression) -&gt; Statement {
+    </span><span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, value: Expression, id: NodeID) -&gt; Statement {
         Statement::Assign(Box::new(AssignStatement {
             place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
-            id: NodeID::default(),
+            id,
         }))
-    }
-
-    <span class="doccomment">/// Constructs a simple assign statement for `expr` with a unique name.
-    /// For example, `expr` is transformed into `$var$0 = expr;`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
-        <span class="comment">// Create a new variable for the expression.
-        </span><span class="kw">let </span>name = <span class="self">self</span>.unique_symbol(<span class="string">&quot;$var&quot;</span>, <span class="string">&quot;$&quot;</span>);
-
-        <span class="kw">let </span>place = Identifier { name, span: Default::default(), id: NodeID::default() };
-
-        (place, <span class="self">self</span>.simple_assign_statement(place, expr))
     }
 }
 </code></pre></div></section></main></body></html>

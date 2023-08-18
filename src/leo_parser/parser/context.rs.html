@@ -237,6 +237,9 @@
 <a href="#237" id="237">237</a>
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -266,6 +269,8 @@
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Handler used to side-channel emit errors from the parser.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+    <span class="doccomment">/// Counter used to generate unique node ids.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
     <span class="doccomment">/// All un-bumped tokens.
     </span>tokens: Vec&lt;SpannedToken&gt;,
     <span class="doccomment">/// The current token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,
@@ -285,7 +290,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
-    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// Strip out comments.
         </span>tokens.retain(|x| !<span class="macro">matches!</span>(x.token, Token::CommentLine(<span class="kw">_</span>) | Token::CommentBlock(<span class="kw">_</span>)));
         <span class="comment">// For performance we reverse so that we get cheap `.pop()`s.
@@ -294,6 +299,7 @@
         <span class="kw">let </span>token = SpannedToken::dummy();
         <span class="kw">let </span><span class="kw-2">mut </span>p = <span class="self">Self </span>{
             handler,
+            node_builder,
             disallow_struct_construction: <span class="bool-val">false</span>,
             allow_identifier_underscores: <span class="bool-val">false</span>,
             prev_token: token.clone(),
@@ -370,7 +376,7 @@
     <span class="doccomment">/// At the previous token, return and make an identifier with `name`.
     </span><span class="kw">fn </span>mk_ident_prev(<span class="kw-2">&amp;</span><span class="self">self</span>, name: Symbol) -&gt; Identifier {
         <span class="kw">let </span>span = <span class="self">self</span>.prev_token.span;
-        Identifier { name, span, id: NodeID::default() }
+        Identifier { name, span, id: <span class="self">self</span>.node_builder.next_id() }
     }
 
     <span class="doccomment">/// Eats the next token if its an identifier and returns it.

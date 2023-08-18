@@ -385,10 +385,6 @@
 <a href="#385" id="385">385</a>
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -415,7 +411,6 @@
     ExpressionReconstructor,
     Member,
     MemberAccess,
-    NodeID,
     Statement,
     StructExpression,
     StructVariableInitializer,
@@ -443,14 +438,14 @@
                             .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
                             .collect(),
                         span: function.span,
-                        id: NodeID::default(),
+                        id: function.id,
                     }))
                 }
                 AccessExpression::Member(member) =&gt; Expression::Access(AccessExpression::Member(MemberAccess {
                     inner: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>member.inner).<span class="number">0</span>),
                     name: member.name,
                     span: member.span,
-                    id: NodeID::default(),
+                    id: member.id,
                 })),
                 AccessExpression::Tuple(tuple) =&gt; {
                     <span class="comment">// Reconstruct the tuple expression.
@@ -490,14 +485,11 @@
                 identifier: member.identifier,
                 expression: <span class="prelude-val">Some</span>(expr),
                 span: member.span,
-                id: NodeID::default(),
+                id: member.id,
             });
         }
 
-        (
-            Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: NodeID::default() }),
-            statements,
-        )
+        (Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: input.id }), statements)
     }
 
     <span class="doccomment">/// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
@@ -541,7 +533,7 @@
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),
                                 span: input.span,
-                                id: NodeID::default(),
+                                id: input.id,
                             });
 
                             <span class="comment">// Accumulate any statements generated.
@@ -556,7 +548,7 @@
                         })
                         .collect(),
                     span: Default::default(),
-                    id: NodeID::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
                 });
                 (tuple, statements)
             }
@@ -591,16 +583,16 @@
                                         inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
                                         name: <span class="kw-2">*</span>identifier,
                                         span: Default::default(),
-                                        id: NodeID::default(),
+                                        id: <span class="self">self</span>.node_builder.next_id(),
                                     }))),
                                     if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                         inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
                                         name: <span class="kw-2">*</span>identifier,
                                         span: Default::default(),
-                                        id: NodeID::default(),
+                                        id: <span class="self">self</span>.node_builder.next_id(),
                                     }))),
                                     span: Default::default(),
-                                    id: NodeID::default(),
+                                    id: <span class="self">self</span>.node_builder.next_id(),
                                 });
 
                                 <span class="comment">// Accumulate any statements generated.
@@ -614,7 +606,7 @@
                                     identifier: <span class="kw-2">*</span>identifier,
                                     expression: <span class="prelude-val">Some</span>(Expression::Identifier(result)),
                                     span: Default::default(),
-                                    id: NodeID::default(),
+                                    id: <span class="self">self</span>.node_builder.next_id(),
                                 }
                             })
                             .collect();
@@ -623,7 +615,7 @@
                             name: first_member_struct.identifier,
                             members,
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         });
 
                         <span class="comment">// Accumulate any statements generated.
@@ -656,7 +648,7 @@
                                 if_true: Box::new(if_true),
                                 if_false: Box::new(if_false),
                                 span: input.span,
-                                id: NodeID::default(),
+                                id: input.id,
                             }));
 
                         <span class="comment">// Accumulate the new assignment statement.
@@ -687,16 +679,16 @@
                                 inner: Box::new(Expression::Identifier(first)),
                                 name: <span class="kw-2">*</span>identifier,
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             }))),
                             if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
                                 inner: Box::new(Expression::Identifier(second)),
                                 name: <span class="kw-2">*</span>identifier,
                                 span: Default::default(),
-                                id: NodeID::default(),
+                                id: <span class="self">self</span>.node_builder.next_id(),
                             }))),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         });
 
                         <span class="comment">// Accumulate any statements generated.
@@ -710,7 +702,7 @@
                             identifier: <span class="kw-2">*</span>identifier,
                             expression: <span class="prelude-val">Some</span>(Expression::Identifier(result)),
                             span: Default::default(),
-                            id: NodeID::default(),
+                            id: <span class="self">self</span>.node_builder.next_id(),
                         }
                     })
                     .collect();
@@ -719,7 +711,7 @@
                     name: first_struct.identifier,
                     members,
                     span: Default::default(),
-                    id: NodeID::default(),
+                    id: <span class="self">self</span>.node_builder.next_id(),
                 });
 
                 <span class="comment">// Accumulate any statements generated.
@@ -749,7 +741,7 @@
                     if_true: Box::new(Expression::Tuple(first_tuple.clone())),
                     if_false: Box::new(Expression::Tuple(second_tuple.clone())),
                     span: input.span,
-                    id: NodeID::default(),
+                    id: input.id,
                 })
             }
             <span class="comment">// Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
@@ -769,7 +761,7 @@
                         if_true: Box::new(if_true),
                         if_false: Box::new(if_false),
                         span: input.span,
-                        id: NodeID::default(),
+                        id: input.id,
                     }));
 
                 <span class="comment">// Accumulate the new assignment statement.

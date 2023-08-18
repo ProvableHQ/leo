@@ -156,7 +156,6 @@
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -181,7 +180,6 @@
     Function,
     FunctionConsumer,
     Member,
-    NodeID,
     Program,
     ProgramConsumer,
     ProgramScope,
@@ -234,7 +232,7 @@
         }
 
         <span class="kw">let </span>block =
-            Block { span: function.block.span, statements: <span class="self">self</span>.consume_block(function.block), id: NodeID::default() };
+            Block { span: function.block.span, id: function.block.id, statements: <span class="self">self</span>.consume_block(function.block) };
 
         <span class="comment">// Remove the `RenameTable` for the function.
         </span><span class="self">self</span>.pop();
@@ -251,8 +249,8 @@
 
             <span class="kw">let </span>block = Block {
                 span: finalize.block.span,
+                id: finalize.block.id,
                 statements: <span class="self">self</span>.consume_block(finalize.block),
-                id: NodeID::default(),
             };
 
             <span class="comment">// Remove the `RenameTable` for the finalize block.
@@ -265,7 +263,7 @@
                 output_type: finalize.output_type,
                 block,
                 span: finalize.span,
-                id: NodeID::default(),
+                id: finalize.id,
             }
         });
 
@@ -279,7 +277,7 @@
             block,
             finalize,
             span: function.span,
-            id: NodeID::default(),
+            id: function.id,
         }
     }
 }

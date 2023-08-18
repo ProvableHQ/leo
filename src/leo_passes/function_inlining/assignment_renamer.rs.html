@@ -150,7 +150,6 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -177,7 +176,6 @@
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
-    NodeID,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -189,15 +187,15 @@
 <span class="comment">// TODO: Generalize the functionality of this reconstructor to be used in other passes.
 </span><span class="doccomment">/// An `AssignmentRenamer` renames the left-hand side of all assignment statements in an AST node.
 /// The new names are propagated to all following identifiers.
-</span><span class="kw">pub struct </span>AssignmentRenamer {
-    <span class="kw">pub </span>assigner: Assigner,
+</span><span class="kw">pub struct </span>AssignmentRenamer&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub </span>assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner,
     <span class="kw">pub </span>rename_table: RenameTable,
     <span class="kw">pub </span>is_lhs: bool,
 }
 
-<span class="kw">impl </span>AssignmentRenamer {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; AssignmentRenamer&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initialize a new `AssignmentRenamer`.
-    </span><span class="kw">pub fn </span>new(assigner: Assigner) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ assigner, rename_table: RenameTable::new(<span class="prelude-val">None</span>), is_lhs: <span class="bool-val">false </span>}
     }
 
@@ -214,7 +212,7 @@
     }
 }
 
-<span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>AssignmentRenamer {
+<span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>AssignmentRenamer&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">type </span>AdditionalOutput = ();
 
     <span class="doccomment">/// Rename the identifier if it is the left-hand side of an assignment, otherwise look up for a new name in the internal rename table.
@@ -233,7 +231,7 @@
             </span><span class="bool-val">false </span>=&gt; <span class="kw-2">*</span><span class="self">self</span>.rename_table.lookup(input.name).unwrap_or(<span class="kw-2">&amp;</span>input.name),
         };
 
-        (Expression::Identifier(Identifier { name, span: input.span, id: NodeID::default() }), Default::default())
+        (Expression::Identifier(Identifier { name, span: input.span, id: input.id }), Default::default())
     }
 
     <span class="doccomment">/// Rename the variable initializers in the struct expression.
@@ -253,18 +251,18 @@
                             </span>),
                         },
                         span: member.span,
-                        id: NodeID::default(),
+                        id: member.id,
                     })
                     .collect(),
                 span: input.span,
-                id: NodeID::default(),
+                id: input.id,
             }),
             Default::default(),
         )
     }
 }
 
-<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>AssignmentRenamer {
+<span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>AssignmentRenamer&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Rename the left-hand side of the assignment statement.
     </span><span class="kw">fn </span>reconstruct_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssignStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// First rename the right-hand-side of the assignment.
@@ -277,7 +275,7 @@
         <span class="self">self</span>.is_lhs = <span class="bool-val">false</span>;
 
         (
-            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: NodeID::default() })),
+            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
             Default::default(),
         )
     }
@@ -303,5 +301,5 @@
     }
 }
 
-<span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>AssignmentRenamer {}
+<span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>AssignmentRenamer&lt;<span class="lifetime">&#39;_</span>&gt; {}
 </code></pre></div></section></main></body></html>

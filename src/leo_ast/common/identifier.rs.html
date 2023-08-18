@@ -151,6 +151,7 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -205,9 +206,9 @@
 <span class="macro">simple_node_impl!</span>(Identifier);
 
 <span class="kw">impl </span>Identifier {
-    <span class="doccomment">/// Constructs a new identifier with `name` and a default span.
-    </span><span class="kw">pub fn </span>new(name: Symbol) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ name, span: Span::default(), id: NodeID::default() }
+    <span class="doccomment">/// Constructs a new identifier with `name` and `id` and a default span.
+    </span><span class="kw">pub fn </span>new(name: Symbol, id: NodeID) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ name, span: Span::default(), id }
     }
 
     <span class="doccomment">/// Check if the Identifier name matches the other name.
@@ -253,6 +254,7 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>key: BTreeMap&lt;String, String&gt; = BTreeMap::new();
         key.insert(<span class="string">&quot;name&quot;</span>.to_string(), <span class="self">self</span>.name.to_string());
         key.insert(<span class="string">&quot;span&quot;</span>.to_string(), to_json_string(<span class="kw-2">&amp;</span><span class="self">self</span>.span)<span class="question-mark">?</span>);
+        key.insert(<span class="string">&quot;id&quot;</span>.to_string(), to_json_string(<span class="kw-2">&amp;</span><span class="self">self</span>.id)<span class="question-mark">?</span>);
 
         <span class="comment">// Convert the serialized object into a string for use as a key.
         </span>serializer.serialize_str(<span class="kw-2">&amp;</span>to_json_string(<span class="kw-2">&amp;</span>key)<span class="question-mark">?</span>)
