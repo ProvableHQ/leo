@@ -59,7 +59,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
                     .input
                     .iter()
                     .map(|input| input.identifier().name)
-                    .zip_eq(input.arguments.into_iter())
+                    .zip_eq(input.arguments)
                     .collect::<IndexMap<_, _>>();
 
                 // Initializer `self.assignment_renamer` with the function parameters.

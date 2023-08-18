@@ -322,21 +322,19 @@ impl StatementReconstructor for Flattener<'_> {
             }
             // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
-                statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()).map(
-                    |(lhs, rhs)| {
-                        let identifier = match &lhs {
-                            Expression::Identifier(identifier) => identifier,
-                            _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
-                        };
-                        self.update_structs(identifier, &rhs);
-                        Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        }))
-                    },
-                ));
+                statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements).map(|(lhs, rhs)| {
+                    let identifier = match &lhs {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    };
+                    self.update_structs(identifier, &rhs);
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: lhs,
+                        value: rhs,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    }))
+                }));
                 (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
@@ -347,7 +345,7 @@ impl StatementReconstructor for Flattener<'_> {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
                 // Create a new assign statement for each tuple element.
-                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()) {
+                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements) {
                     let identifier = match &lhs {
                         Expression::Identifier(identifier) => identifier,
                         _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
