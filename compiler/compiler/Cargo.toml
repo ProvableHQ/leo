@@ -69,7 +69,7 @@ features = [ "derive" ]
 version = "0.8.25"
 
 [dev-dependencies.tempfile]
-version = "3.7"
+version = "3.8"
 
 [features]
 default = [ ]
