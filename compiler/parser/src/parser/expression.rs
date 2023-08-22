@@ -429,7 +429,6 @@ impl ParserContext<'_> {
                 if self.check_int() {
                     // Eat a tuple member access.
                     let (index, span) = self.eat_integer()?;
-                    println!("index: {}", index);
                     expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(expr),
                         index,
