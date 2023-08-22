@@ -1,0 +1,922 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - ""
+  - Literal:
+      Integer:
+        - I8
+        - "11"
+        - span:
+            lo: 0
+            hi: 10194
+        - 0
+  - Literal:
+      Integer:
+        - I8
+        - "12"
+        - span:
+            lo: 0
+            hi: 4
+        - 0
+  - Literal:
+      Integer:
+        - I8
+        - "12"
+        - span:
+            lo: 0
+            hi: 5
+        - 0
+  - Literal:
+      Integer:
+        - I8
+        - "123"
+        - span:
+            lo: 0
+            hi: 6
+        - 0
+  - Literal:
+      Integer:
+        - I8
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - I8
+        - "12345"
+        - span:
+            lo: 0
+            hi: 10
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - I16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 7
+        - 0
+  - Literal:
+      Integer:
+        - I16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - I16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - I16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - I16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 9
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - I32
+        - "123"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - I32
+        - "123"
+        - span:
+            lo: 0
+            hi: 10
+        - 0
+  - Literal:
+      Integer:
+        - I32
+        - "000000"
+        - span:
+            lo: 0
+            hi: 13
+        - 0
+  - Literal:
+      Integer:
+        - I32
+        - "02930932"
+        - span:
+            lo: 0
+            hi: 30
+        - 0
+  - Literal:
+      Integer:
+        - I32
+        - "00"
+        - span:
+            lo: 0
+            hi: 6
+        - 0
+  - Literal:
+      Integer:
+        - I32
+        - "000001034043240"
+        - span:
+            lo: 0
+            hi: 92
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - I64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 19
+        - 0
+  - Literal:
+      Integer:
+        - I64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - I64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - I64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - I64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 36
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - U8
+        - "12"
+        - span:
+            lo: 0
+            hi: 4
+        - 0
+  - Literal:
+      Integer:
+        - U8
+        - "12"
+        - span:
+            lo: 0
+            hi: 5
+        - 0
+  - Literal:
+      Integer:
+        - U8
+        - "123"
+        - span:
+            lo: 0
+            hi: 6
+        - 0
+  - Literal:
+      Integer:
+        - U8
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - U8
+        - "12345"
+        - span:
+            lo: 0
+            hi: 10
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - U16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 7
+        - 0
+  - Literal:
+      Integer:
+        - U16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - U16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - U16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Integer:
+        - U16
+        - "1234"
+        - span:
+            lo: 0
+            hi: 9
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - U32
+        - "12345678"
+        - span:
+            lo: 0
+            hi: 11
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "12345678"
+        - span:
+            lo: 0
+            hi: 12
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "12345678"
+        - span:
+            lo: 0
+            hi: 12
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "12345678"
+        - span:
+            lo: 0
+            hi: 12
+        - 0
+  - Literal:
+      Integer:
+        - U32
+        - "12345678"
+        - span:
+            lo: 0
+            hi: 12
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - U64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 19
+        - 0
+  - Literal:
+      Integer:
+        - U64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - U64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - U64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - Literal:
+      Integer:
+        - U64
+        - "1234567890123456"
+        - span:
+            lo: 0
+            hi: 20
+        - 0
+  - ""
+  - Literal:
+      Integer:
+        - U128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 36
+        - 0
+  - Literal:
+      Integer:
+        - U128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - Literal:
+      Integer:
+        - I128
+        - "12345678901234567890123456789012"
+        - span:
+            lo: 0
+            hi: 37
+        - 0
+  - ""
+  - Literal:
+      Field:
+        - "456"
+        - span:
+            lo: 0
+            hi: 8
+        - 0
+  - Literal:
+      Field:
+        - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
+        - span:
+            lo: 0
+            hi: 88
+        - 0
+  - Literal:
+      Field:
+        - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
+        - span:
+            lo: 0
+            hi: 428
+        - 0
+  - Literal:
+      Field:
+        - "340130024"
+        - span:
+            lo: 0
+            hi: 18
+        - 0
+  - Literal:
+      Field:
+        - "158951116"
+        - span:
+            lo: 0
+            hi: 19
+        - 0
+  - ""
+  - Literal:
+      Scalar:
+        - "724940549"
+        - span:
+            lo: 0
+            hi: 18
+        - 0
+  - Literal:
+      Scalar:
+        - "487101620"
+        - span:
+            lo: 0
+            hi: 18
+        - 0
+  - Literal:
+      Scalar:
+        - "100234"
+        - span:
+            lo: 0
+            hi: 14
+        - 0
+  - Literal:
+      Scalar:
+        - "1234"
+        - span:
+            lo: 0
+            hi: 11
+        - 0
+  - Literal:
+      Scalar:
+        - "1234"
+        - span:
+            lo: 0
+            hi: 11
+        - 0
+  - Literal:
+      Scalar:
+        - "1234"
+        - span:
+            lo: 0
+            hi: 11
+        - 0
+  - Literal:
+      Scalar:
+        - "1234"
+        - span:
+            lo: 0
+            hi: 12
+        - 0
+  - ""
+  - Literal:
+      Group:
+        Single:
+          - "199375617"
+          - span:
+              lo: 0
+              hi: 23
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "680337189"
+          - span:
+              lo: 0
+              hi: 32
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "81879931"
+          - span:
+              lo: 0
+              hi: 17
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "893693281"
+          - span:
+              lo: 0
+              hi: 18
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "87377802"
+          - span:
+              lo: 0
+              hi: 19
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "84699261"
+          - span:
+              lo: 0
+              hi: 15
+          - 0
+  - Literal:
+      Group:
+        Single:
+          - "292826090"
+          - span:
+              lo: 0
+              hi: 18
+          - 0
+  - ""
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 9
+          y:
+            Number:
+              - "-456"
+              - span:
+                  lo: 11
+                  hi: 17
+          span:
+            lo: 0
+            hi: 23
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "-123"
+              - span:
+                  lo: 2
+                  hi: 8
+          y:
+            Number:
+              - "456"
+              - span:
+                  lo: 9
+                  hi: 14
+          span:
+            lo: 0
+            hi: 20
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "-123"
+              - span:
+                  lo: 2
+                  hi: 7
+          y:
+            Number:
+              - "456"
+              - span:
+                  lo: 8
+                  hi: 17
+          span:
+            lo: 0
+            hi: 23
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 6
+          y: Inferred
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 6
+          y: SignLow
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "0123"
+              - span:
+                  lo: 1
+                  hi: 10
+          y: SignLow
+          span:
+            lo: 0
+            hi: 19
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 5
+          y: SignHigh
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "0123"
+              - span:
+                  lo: 1
+                  hi: 9
+          y: SignHigh
+          span:
+            lo: 0
+            hi: 18
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 5
+          y: SignLow
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 6
+          y: Inferred
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: SignHigh
+          y:
+            Number:
+              - "345"
+              - span:
+                  lo: 4
+                  hi: 9
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: Inferred
+          y:
+            Number:
+              - "345"
+              - span:
+                  lo: 4
+                  hi: 8
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: SignHigh
+          y:
+            Number:
+              - "345"
+              - span:
+                  lo: 4
+                  hi: 8
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: SignLow
+          y:
+            Number:
+              - "345"
+              - span:
+                  lo: 4
+                  hi: 12
+          span:
+            lo: 0
+            hi: 18
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: SignHigh
+          y:
+            Number:
+              - "345"
+              - span:
+                  lo: 4
+                  hi: 8
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: SignLow
+          y:
+            Number:
+              - "35"
+              - span:
+                  lo: 4
+                  hi: 7
+          span:
+            lo: 0
+            hi: 13
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x: Inferred
+          y:
+            Number:
+              - "3452"
+              - span:
+                  lo: 4
+                  hi: 9
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "12"
+              - span:
+                  lo: 1
+                  hi: 4
+          y:
+            Number:
+              - "34"
+              - span:
+                  lo: 5
+                  hi: 8
+          span:
+            lo: 0
+            hi: 14
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 5
+          y:
+            Number:
+              - "45"
+              - span:
+                  lo: 6
+                  hi: 9
+          span:
+            lo: 0
+            hi: 15
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 5
+          y:
+            Number:
+              - "456"
+              - span:
+                  lo: 6
+                  hi: 10
+          span:
+            lo: 0
+            hi: 16
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "123"
+              - span:
+                  lo: 1
+                  hi: 6
+          y:
+            Number:
+              - "456"
+              - span:
+                  lo: 7
+                  hi: 12
+          span:
+            lo: 0
+            hi: 18
+          id: 0
+  - Literal:
+      Group:
+        Tuple:
+          x:
+            Number:
+              - "1234"
+              - span:
+                  lo: 1
+                  hi: 7
+          y:
+            Number:
+              - "567"
+              - span:
+                  lo: 8
+                  hi: 12
+          span:
+            lo: 0
+            hi: 18
+          id: 0

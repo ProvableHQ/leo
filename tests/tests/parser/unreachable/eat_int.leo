@@ -3,9 +3,11 @@ namespace: ParseStatement
 expectation: Fail
 */
 
-x.-12
-
 x.0_;
+
+x.0_0;
+
+x.01;
 
 x.0_.
 

@@ -162,6 +162,7 @@ impl Token {
         }
 
         let mut int = String::new();
+        let mut underscore_count = 0;
         while let Some(c) = input.next_if(|c| c.is_ascii_digit()) {
             if c == '0' && matches!(input.peek(), Some('x')) {
                 int.push(c);
@@ -170,9 +171,22 @@ impl Token {
             }
 
             int.push(c);
+
+            // Allow unlimited underscores in between digits.
+            while matches!(input.peek(), Some('_')) {
+                underscore_count += 1;
+                input.next();
+            }
         }
 
-        Ok((int.len(), Token::Integer(int)))
+        let length = int.len() + underscore_count;
+
+        if underscore_count > 0 {
+            // Add leading zero to int. This will signal to the parser that the preprocessed int contained an underscore.
+            int.insert(0, '0');
+        }
+
+        Ok((length, Token::Integer(int)))
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.
@@ -264,6 +278,7 @@ impl Token {
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
             }
+
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return match_two(&mut input, Token::Not, '=', Token::NotEq),
             '?' => return match_one(&mut input, Token::Question),

@@ -160,6 +160,11 @@ impl<'a> ParserContext<'a> {
         if let Token::Integer(value) = &self.token.token {
             let value = value.clone();
             self.bump();
+            // Reject value if the length is over 2 and the first character is 0
+            if value.len() > 1 && value.starts_with('0') {
+                return Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into());
+            }
+
             Ok((PositiveNumber { value }, self.prev_token.span))
         } else {
             Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())
