@@ -878,7 +878,7 @@ impl TryFrom<&Literal> for Value {
             Literal::Scalar(string, span, _) => Self::Scalar(string.clone(), *span),
             Literal::String(string, span, _) => Self::String(string.clone(), *span),
             Literal::Integer(integer_type, raw_string, span, _) => {
-                let string = raw_string.replace("_", "");
+                let string = raw_string.replace('_', "");
                 match integer_type {
                     IntegerType::U8 => Self::U8(string.parse()?, *span),
                     IntegerType::U16 => Self::U16(string.parse()?, *span),
