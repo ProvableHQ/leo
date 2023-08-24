@@ -274,8 +274,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
             if let Ok(value) = Value::try_from(literal) {
                 input.start_value.replace(Some(value));
-            }
-            else {
+            } else {
                 self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
             }
         } else {
@@ -289,14 +288,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
             if let Ok(value) = Value::try_from(literal) {
                 input.stop_value.replace(Some(value));
-            }
-            else {
+            } else {
                 self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
             }
         } else {
             self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
         }
 
+        // Ensure loop bounds are not decreasing.
         if match (input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
             (Some(Value::I8(lower_bound, _)), Some(Value::I8(upper_bound, _))) => lower_bound >= upper_bound,
             (Some(Value::I16(lower_bound, _)), Some(Value::I16(upper_bound, _))) => lower_bound >= upper_bound,
@@ -315,7 +314,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         } {
             self.emit_err(TypeCheckerError::loop_range_decreasing(input.stop.span()));
         }
-
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {

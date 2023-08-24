@@ -162,7 +162,12 @@ impl<'a> ParserContext<'a> {
             self.bump();
             // Reject value if the length is over 2 and the first character is 0
             if (value.len() > 1 && value.starts_with('0')) || value.contains('_') {
-                return Err(ParserError::tuple_index_must_be_whole_number(&self.token.token, "whole number", self.token.span).into());
+                return Err(ParserError::tuple_index_must_be_whole_number(
+                    &self.token.token,
+                    "whole number",
+                    self.token.span,
+                )
+                .into());
             }
 
             Ok((PositiveNumber { value }, self.prev_token.span))
