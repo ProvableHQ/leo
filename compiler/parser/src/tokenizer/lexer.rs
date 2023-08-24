@@ -162,8 +162,9 @@ impl Token {
         }
 
         let mut int = String::new();
-        let mut underscore_count = 0;
-        while let Some(c) = input.next_if(|c| c.is_ascii_digit()) {
+
+        // Note that it is still impossible to have a number that starts with an `_` because eat_integer is only called when the first character is a digit.
+        while let Some(c) = input.next_if(|c| c.is_ascii_digit() || *c == '_') {
             if c == '0' && matches!(input.peek(), Some('x')) {
                 int.push(c);
                 int.push(input.next().unwrap());
@@ -171,22 +172,9 @@ impl Token {
             }
 
             int.push(c);
-
-            // Allow unlimited underscores in between digits.
-            while matches!(input.peek(), Some('_')) {
-                underscore_count += 1;
-                input.next();
-            }
         }
 
-        let length = int.len() + underscore_count;
-
-        if underscore_count > 0 {
-            // Add leading zero to int. This will signal to the parser that the preprocessed int contained an underscore.
-            int.insert(0, '0');
-        }
-
-        Ok((length, Token::Integer(int)))
+        Ok((int.len(), Token::Integer(int)))
     }
 
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns an error.

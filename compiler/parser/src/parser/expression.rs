@@ -428,7 +428,7 @@ impl ParserContext<'_> {
             if self.eat(&Token::Dot) {
                 if self.check_int() {
                     // Eat a tuple member access.
-                    let (index, span) = self.eat_integer()?;
+                    let (index, span) = self.eat_whole_number()?;
                     expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(expr),
                         index,

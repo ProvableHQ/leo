@@ -588,7 +588,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
-        fn parse_integer_literal<I: FromStr>(handler: &Handler, string: &String, span: Span, type_string: &str) {
+        fn parse_integer_literal<I: FromStr>(handler: &Handler, raw_string: &String, span: Span, type_string: &str) {
+            let string = raw_string.replace("_", "");
             if string.parse::<I>().is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
             }
@@ -620,7 +621,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     self.assert_and_return_type(Type::Integer(IntegerType::U128), expected, input.span())
                 }
                 IntegerType::I8 => {
-                    parse_integer_literal::<i8>(self.handler, string, input.span(), "i8");
+                    parse_integer_literal::<i8>(self.handler, &string, input.span(), "i8");
                     self.assert_and_return_type(Type::Integer(IntegerType::I8), expected, input.span())
                 }
                 IntegerType::I16 => {
