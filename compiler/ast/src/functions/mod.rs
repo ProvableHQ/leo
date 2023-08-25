@@ -100,7 +100,7 @@ impl Function {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => get_output_type(&output[0]),
-            _ => Type::Tuple(Tuple(output.iter().map(|output| get_output_type(output)).collect())),
+            _ => Type::Tuple(Tuple(output.iter().map(get_output_type).collect())),
         };
 
         Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }

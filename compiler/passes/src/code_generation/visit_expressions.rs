@@ -458,7 +458,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Identifier(identifier) => identifier.name,
             _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
         };
-        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap().output_type;
+        let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
         match return_type {
             Type::Unit => {
                 call_instruction.push(';');

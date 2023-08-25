@@ -175,7 +175,7 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Parsing guarantees that `function` is an identifier."),
                 };
 
-                let function = self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap();
+                let function = self.symbol_table.lookup_fn_symbol(function_name).unwrap();
                 match &function.output_type {
                     // If the function returns a tuple, reconstruct the assignment and add an entry to `self.tuples`.
                     Type::Tuple(tuple) => {
@@ -256,7 +256,7 @@ impl StatementReconstructor for Flattener<'_> {
                     Expression::Identifier(identifier) => {
                         // Retrieve the entry in the symbol table for the mapping.
                         // Note that this unwrap is safe since type checking ensures that the mapping exists.
-                        let variable = self.symbol_table.borrow().lookup_variable(identifier.name).unwrap();
+                        let variable = self.symbol_table.lookup_variable(identifier.name).unwrap();
                         match &variable.type_ {
                             Type::Mapping(mapping_type) => &*mapping_type.value,
                             _ => unreachable!("Type checking guarantee that `arguments[0]` is a mapping."),
@@ -292,7 +292,7 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Parsing guarantees that `function` is an identifier."),
                 };
 
-                let function = self.symbol_table.borrow().lookup_fn_symbol(function_name).unwrap();
+                let function = self.symbol_table.lookup_fn_symbol(function_name).unwrap();
 
                 let output_type = match &function.output_type {
                     Type::Tuple(tuple) => tuple.clone(),
@@ -322,21 +322,19 @@ impl StatementReconstructor for Flattener<'_> {
             }
             // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
-                statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()).map(
-                    |(lhs, rhs)| {
-                        let identifier = match &lhs {
-                            Expression::Identifier(identifier) => identifier,
-                            _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
-                        };
-                        self.update_structs(identifier, &rhs);
-                        Statement::Assign(Box::new(AssignStatement {
-                            place: lhs,
-                            value: rhs,
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        }))
-                    },
-                ));
+                statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements).map(|(lhs, rhs)| {
+                    let identifier = match &lhs {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    };
+                    self.update_structs(identifier, &rhs);
+                    Statement::Assign(Box::new(AssignStatement {
+                        place: lhs,
+                        value: rhs,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    }))
+                }));
                 (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.
@@ -347,7 +345,7 @@ impl StatementReconstructor for Flattener<'_> {
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
                 // Create a new assign statement for each tuple element.
-                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements.into_iter()) {
+                for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements) {
                     let identifier = match &lhs {
                         Expression::Identifier(identifier) => identifier,
                         _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),

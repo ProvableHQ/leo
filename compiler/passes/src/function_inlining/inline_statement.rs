@@ -38,7 +38,7 @@ impl StatementReconstructor for FunctionInliner<'_> {
         match (input.place, value) {
             // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
             (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
-                statements.extend(left.elements.into_iter().zip(right.elements.into_iter()).map(|(lhs, rhs)| {
+                statements.extend(left.elements.into_iter().zip(right.elements).map(|(lhs, rhs)| {
                     Statement::Assign(Box::new(AssignStatement {
                         place: lhs,
                         value: rhs,
