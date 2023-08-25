@@ -274,8 +274,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
             if let Ok(value) = Value::try_from(literal) {
                 input.start_value.replace(Some(value));
-            } else {
-                self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
             }
         } else {
             self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
@@ -288,8 +286,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
             if let Ok(value) = Value::try_from(literal) {
                 input.stop_value.replace(Some(value));
-            } else {
-                self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
             }
         } else {
             self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
