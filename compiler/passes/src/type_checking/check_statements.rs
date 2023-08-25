@@ -308,7 +308,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             (Some(Value::U64(lower_bound, _)), Some(Value::U64(upper_bound, _))) => lower_bound >= upper_bound,
             (Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => lower_bound >= upper_bound,
             // Note that type mismatch and non-literal errors will already be emitted by here.
-            _ => false
+            _ => false,
         } {
             self.emit_err(TypeCheckerError::loop_range_decreasing(input.stop.span()));
         }
