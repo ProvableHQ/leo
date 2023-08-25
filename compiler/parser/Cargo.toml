@@ -35,7 +35,7 @@ workspace = true
 features = [ "account", "network" ]
 
 [dependencies.clap]
-version = "4.3"
+version = "4.4"
 features = [ "derive" ]
 
 [dependencies.indexmap]
