@@ -164,7 +164,6 @@ impl<'a> ParserContext<'a> {
             if (value.len() > 1 && value.starts_with('0')) || value.contains('_') {
                 return Err(ParserError::tuple_index_must_be_whole_number(
                     &self.token.token,
-                    "whole number",
                     self.token.span,
                 )
                 .into());

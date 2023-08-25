@@ -287,8 +287,8 @@ create_messages!(
     /// Enforce that tuple index must not have leading 0, or underscore in between digits
     @formatted
     tuple_index_must_be_whole_number {
-        args: (found: impl Display, expected: impl Display),
-        msg: format!("expected {expected} -- found '{found}'"),
+        args: (found: impl Display),
+        msg: format!("expected no underscores or leading zeros -- found '{found}'"),
         help: None,
     }
 );

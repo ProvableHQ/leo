@@ -646,7 +646,7 @@ create_messages!(
     @formatted
     loop_range_decreasing {
         args: (),
-        msg: format!("The loop range must be decreasing."),
+        msg: format!("The loop range must be increasing."),
         help: None,
     }
 
