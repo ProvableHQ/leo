@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372078]: The loop range must be increasing.\n    --> compiler-test:7:28\n     |\n   7 |         for i: i8 in 10i8..5i8 {\n     |                            ^^^\n"

@@ -642,4 +642,18 @@ create_messages!(
         msg: format!("This operation can only be used in a `finalize` block."),
         help: None,
     }
+
+    @formatted
+    loop_range_decreasing {
+        args: (),
+        msg: format!("The loop range must be increasing."),
+        help: None,
+    }
+
+    @formatted
+    loop_bound_type_mismatch {
+        args: (),
+        msg: format!("The loop bounds must be same type"),
+        help: None,
+    }
 );

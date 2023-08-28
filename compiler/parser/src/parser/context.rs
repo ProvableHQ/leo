@@ -156,10 +156,15 @@ impl<'a> ParserContext<'a> {
     /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
     /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
     ///
-    pub fn eat_integer(&mut self) -> Result<(PositiveNumber, Span)> {
+    pub fn eat_whole_number(&mut self) -> Result<(PositiveNumber, Span)> {
         if let Token::Integer(value) = &self.token.token {
             let value = value.clone();
             self.bump();
+            // Reject value if the length is over 2 and the first character is 0
+            if (value.len() > 1 && value.starts_with('0')) || value.contains('_') {
+                return Err(ParserError::tuple_index_must_be_whole_number(&self.token.token, self.token.span).into());
+            }
+
             Ok((PositiveNumber { value }, self.prev_token.span))
         } else {
             Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())

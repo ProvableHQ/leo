@@ -877,18 +877,21 @@ impl TryFrom<&Literal> for Value {
             Literal::Group(group_literal) => Self::Group(group_literal.clone()),
             Literal::Scalar(string, span, _) => Self::Scalar(string.clone(), *span),
             Literal::String(string, span, _) => Self::String(string.clone(), *span),
-            Literal::Integer(integer_type, string, span, _) => match integer_type {
-                IntegerType::U8 => Self::U8(string.parse()?, *span),
-                IntegerType::U16 => Self::U16(string.parse()?, *span),
-                IntegerType::U32 => Self::U32(string.parse()?, *span),
-                IntegerType::U64 => Self::U64(string.parse()?, *span),
-                IntegerType::U128 => Self::U128(string.parse()?, *span),
-                IntegerType::I8 => Self::I8(string.parse()?, *span),
-                IntegerType::I16 => Self::I16(string.parse()?, *span),
-                IntegerType::I32 => Self::I32(string.parse()?, *span),
-                IntegerType::I64 => Self::I64(string.parse()?, *span),
-                IntegerType::I128 => Self::I128(string.parse()?, *span),
-            },
+            Literal::Integer(integer_type, raw_string, span, _) => {
+                let string = raw_string.replace('_', "");
+                match integer_type {
+                    IntegerType::U8 => Self::U8(string.parse()?, *span),
+                    IntegerType::U16 => Self::U16(string.parse()?, *span),
+                    IntegerType::U32 => Self::U32(string.parse()?, *span),
+                    IntegerType::U64 => Self::U64(string.parse()?, *span),
+                    IntegerType::U128 => Self::U128(string.parse()?, *span),
+                    IntegerType::I8 => Self::I8(string.parse()?, *span),
+                    IntegerType::I16 => Self::I16(string.parse()?, *span),
+                    IntegerType::I32 => Self::I32(string.parse()?, *span),
+                    IntegerType::I64 => Self::I64(string.parse()?, *span),
+                    IntegerType::I128 => Self::I128(string.parse()?, *span),
+                }
+            }
         })
     }
 }

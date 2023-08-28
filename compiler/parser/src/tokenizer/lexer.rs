@@ -162,7 +162,9 @@ impl Token {
         }
 
         let mut int = String::new();
-        while let Some(c) = input.next_if(|c| c.is_ascii_digit()) {
+
+        // Note that it is still impossible to have a number that starts with an `_` because eat_integer is only called when the first character is a digit.
+        while let Some(c) = input.next_if(|c| c.is_ascii_digit() || *c == '_') {
             if c == '0' && matches!(input.peek(), Some('x')) {
                 int.push(c);
                 int.push(input.next().unwrap());
@@ -264,6 +266,7 @@ impl Token {
                 // + 2 to account for parsing quotation marks.
                 return Ok((string.len() + 2, Token::StaticString(string)));
             }
+
             x if x.is_ascii_digit() => return Self::eat_integer(&mut input),
             '!' => return match_two(&mut input, Token::Not, '=', Token::NotEq),
             '?' => return match_one(&mut input, Token::Question),

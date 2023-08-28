@@ -283,4 +283,12 @@ create_messages!(
         msg: format!("`console` statements are not yet supported."),
         help: Some("Consider using `assert`, `assert_eq`, or `assert_neq` instead.".to_string()),
     }
+
+    /// Enforce that tuple index must not have leading 0, or underscore in between digits
+    @formatted
+    tuple_index_must_be_whole_number {
+        args: (found: impl Display),
+        msg: format!("expected no underscores or leading zeros -- found '{found}'"),
+        help: None,
+    }
 );

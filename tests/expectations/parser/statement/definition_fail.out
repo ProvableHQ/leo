@@ -45,3 +45,5 @@ outputs:
   - "Error [EPAR0370016]: Could not lex the following content: `🦀:`.\n"
   - "Error [EPAR0370005]: expected : -- found '='\n    --> test:1:9\n     |\n   1 | let (x) = ...;\n     |         ^"
   - "Error [EPAR0370029]: A tuple expression must have at least two elements.\n    --> test:1:5\n     |\n   1 | let (x,) = ...;\n     |     ^^^^"
+  - "Error [EPAR0370009]: unexpected string: expected 'expression', found '_'\n    --> test:1:5\n     |\n   1 | let _1: u8 = 1u8;\n     |     ^"
+  - "Error [EPAR0370017]: Could not parse the implicit value: 1___091.\n    --> test:1:5\n     |\n   1 | let 1___091: u8 = 12u8;\n     |     ^^^^^^^"
