@@ -1142,7 +1142,7 @@
             <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot) {
                 <span class="kw">if </span><span class="self">self</span>.check_int() {
                     <span class="comment">// Eat a tuple member access.
-                    </span><span class="kw">let </span>(index, span) = <span class="self">self</span>.eat_integer()<span class="question-mark">?</span>;
+                    </span><span class="kw">let </span>(index, span) = <span class="self">self</span>.eat_whole_number()<span class="question-mark">?</span>;
                     expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(expr),
                         index,

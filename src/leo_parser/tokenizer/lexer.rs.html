@@ -455,6 +455,9 @@
 <a href="#455" id="455">455</a>
 <a href="#456" id="456">456</a>
 <a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -619,7 +622,9 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>int = String::new();
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = input.next_if(|c| c.is_ascii_digit()) {
+
+        <span class="comment">// Note that it is still impossible to have a number that starts with an `_` because eat_integer is only called when the first character is a digit.
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(c) = input.next_if(|c| c.is_ascii_digit() || <span class="kw-2">*</span>c == <span class="string">&#39;_&#39;</span>) {
             <span class="kw">if </span>c == <span class="string">&#39;0&#39; </span>&amp;&amp; <span class="macro">matches!</span>(input.peek(), <span class="prelude-val">Some</span>(<span class="string">&#39;x&#39;</span>)) {
                 int.push(c);
                 int.push(input.next().unwrap());
@@ -721,6 +726,7 @@
                 <span class="comment">// + 2 to account for parsing quotation marks.
                 </span><span class="kw">return </span><span class="prelude-val">Ok</span>((string.len() + <span class="number">2</span>, Token::StaticString(string)));
             }
+
             x <span class="kw">if </span>x.is_ascii_digit() =&gt; <span class="kw">return </span><span class="self">Self</span>::eat_integer(<span class="kw-2">&amp;mut </span>input),
             <span class="string">&#39;!&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Not, <span class="string">&#39;=&#39;</span>, Token::NotEq),
             <span class="string">&#39;?&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Question),

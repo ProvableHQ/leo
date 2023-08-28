@@ -750,6 +750,7 @@
 <a href="#750" id="750">750</a>
 <a href="#751" id="751">751</a>
 <a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1338,7 +1339,8 @@
     }
 
     <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">fn </span>parse_integer_literal&lt;I: FromStr&gt;(handler: <span class="kw-2">&amp;</span>Handler, string: <span class="kw-2">&amp;</span>String, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
+        <span class="kw">fn </span>parse_integer_literal&lt;I: FromStr&gt;(handler: <span class="kw-2">&amp;</span>Handler, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
+            <span class="kw">let </span>string = raw_string.replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;&quot;</span>);
             <span class="kw">if </span>string.parse::&lt;I&gt;().is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
             }

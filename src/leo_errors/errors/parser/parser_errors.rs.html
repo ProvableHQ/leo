@@ -284,6 +284,14 @@
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -568,6 +576,14 @@
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;`console` statements are not yet supported.&quot;</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider using `assert`, `assert_eq`, or `assert_neq` instead.&quot;</span>.to_string()),
+    }
+
+    <span class="doccomment">/// Enforce that tuple index must not have leading 0, or underscore in between digits
+    </span>@formatted
+    tuple_index_must_be_whole_number {
+        args: (found: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;expected no underscores or leading zeros -- found &#39;{found}&#39;&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div></section></main></body></html>

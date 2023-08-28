@@ -643,6 +643,20 @@
 <a href="#643" id="643">643</a>
 <a href="#644" id="644">644</a>
 <a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1285,6 +1299,20 @@
     operation_must_be_in_finalize_block {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;This operation can only be used in a `finalize` block.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    loop_range_decreasing {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The loop range must be increasing.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    loop_bound_type_mismatch {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;The loop bounds must be same type&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

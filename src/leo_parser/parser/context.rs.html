@@ -240,6 +240,11 @@
 <a href="#240" id="240">240</a>
 <a href="#241" id="241">241</a>
 <a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -398,10 +403,15 @@
     /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
     /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
     ///
-    </span><span class="kw">pub fn </span>eat_integer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(PositiveNumber, Span)&gt; {
+    </span><span class="kw">pub fn </span>eat_whole_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(PositiveNumber, Span)&gt; {
         <span class="kw">if let </span>Token::Integer(value) = <span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
             <span class="kw">let </span>value = value.clone();
             <span class="self">self</span>.bump();
+            <span class="comment">// Reject value if the length is over 2 and the first character is 0
+            </span><span class="kw">if </span>(value.len() &gt; <span class="number">1 </span>&amp;&amp; value.starts_with(<span class="string">&#39;0&#39;</span>)) || value.contains(<span class="string">&#39;_&#39;</span>) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::tuple_index_must_be_whole_number(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.token.span).into());
+            }
+
             <span class="prelude-val">Ok</span>((PositiveNumber { value }, <span class="self">self</span>.prev_token.span))
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;integer literal&quot;</span>, <span class="self">self</span>.token.span).into())

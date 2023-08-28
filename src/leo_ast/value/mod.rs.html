@@ -919,6 +919,9 @@
 <a href="#919" id="919">919</a>
 <a href="#920" id="920">920</a>
 <a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1798,18 +1801,21 @@
             Literal::Group(group_literal) =&gt; <span class="self">Self</span>::Group(group_literal.clone()),
             Literal::Scalar(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
             Literal::String(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
-            Literal::Integer(integer_type, string, span, <span class="kw">_</span>) =&gt; <span class="kw">match </span>integer_type {
-                IntegerType::U8 =&gt; <span class="self">Self</span>::U8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::U16 =&gt; <span class="self">Self</span>::U16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::U32 =&gt; <span class="self">Self</span>::U32(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::U64 =&gt; <span class="self">Self</span>::U64(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::U128 =&gt; <span class="self">Self</span>::U128(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::I8 =&gt; <span class="self">Self</span>::I8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::I16 =&gt; <span class="self">Self</span>::I16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::I32 =&gt; <span class="self">Self</span>::I32(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::I64 =&gt; <span class="self">Self</span>::I64(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-                IntegerType::I128 =&gt; <span class="self">Self</span>::I128(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
-            },
+            Literal::Integer(integer_type, raw_string, span, <span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>string = raw_string.replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;&quot;</span>);
+                <span class="kw">match </span>integer_type {
+                    IntegerType::U8 =&gt; <span class="self">Self</span>::U8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::U16 =&gt; <span class="self">Self</span>::U16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::U32 =&gt; <span class="self">Self</span>::U32(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::U64 =&gt; <span class="self">Self</span>::U64(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::U128 =&gt; <span class="self">Self</span>::U128(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::I8 =&gt; <span class="self">Self</span>::I8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::I16 =&gt; <span class="self">Self</span>::I16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::I32 =&gt; <span class="self">Self</span>::I32(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::I64 =&gt; <span class="self">Self</span>::I64(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                    IntegerType::I128 =&gt; <span class="self">Self</span>::I128(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
+                }
+            }
         })
     }
 }
