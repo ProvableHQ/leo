@@ -347,7 +347,7 @@ impl ParserContext<'_> {
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
             Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: Type::Identifier(Identifier::new(sym::signature)),
+                ty: Type::Identifier(Identifier::new(sym::signature, self.node_builder.next_id())),
                 name: method,
                 arguments: {
                     let mut arguments = vec![receiver];
@@ -355,6 +355,7 @@ impl ParserContext<'_> {
                     arguments
                 },
                 span,
+                id: self.node_builder.next_id(),
             })))
         } else {
             // Attempt to parse the method call as a mapping operation.
