@@ -45,10 +45,12 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "=0.14.5"
+git = "https://github.com/AleoHQ/snarkVM.git"
+branch = "testnet3"
 
 [workspace.dependencies.snarkvm-console]
-version = "=0.14.5"
+git = "https://github.com/AleoHQ/snarkVM.git"
+branch = "testnet3"
 
 [lib]
 path = "leo/lib.rs"

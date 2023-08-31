@@ -196,6 +196,8 @@ pub enum CoreFunction {
 
     GroupToXCoordinate,
     GroupToYCoordinate,
+
+    SignatureVerify,
 }
 
 impl CoreFunction {
@@ -380,6 +382,8 @@ impl CoreFunction {
 
             (sym::group, sym::to_x_coordinate) => Self::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
+
+            (sym::signature, sym::verify) => Self::SignatureVerify,
             _ => return None,
         })
     }
@@ -565,6 +569,8 @@ impl CoreFunction {
 
             Self::GroupToXCoordinate => 1,
             Self::GroupToYCoordinate => 1,
+
+            Self::SignatureVerify => 3,
         }
     }
 
@@ -736,7 +742,8 @@ impl CoreFunction {
             | CoreFunction::Poseidon8HashToU128
             | CoreFunction::Poseidon8HashToScalar
             | CoreFunction::GroupToXCoordinate
-            | CoreFunction::GroupToYCoordinate => false,
+            | CoreFunction::GroupToYCoordinate
+            | CoreFunction::SignatureVerify => false,
         }
     }
 }

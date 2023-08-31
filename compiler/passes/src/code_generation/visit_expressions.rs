@@ -422,6 +422,18 @@ impl<'a> CodeGenerator<'a> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
+            Type::Identifier(Identifier { name: sym::signature, .. }) => {
+                let mut instruction = "    sign.verify".to_string();
+                let destination_register = get_destination_register();
+                // Write the arguments and the destination register.
+                writeln!(
+                    instruction,
+                    " {} {} {} into {destination_register};",
+                    arguments[0], arguments[1], arguments[2]
+                )
+                .expect("failed to write to string");
+                (destination_register, instruction)
+            }
             _ => unreachable!("All core functions should be known at this phase of compilation"),
         };
         // Add the instruction to the list of instructions.

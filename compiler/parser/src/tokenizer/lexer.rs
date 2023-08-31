@@ -412,6 +412,7 @@ impl Token {
                     "record" => Token::Record,
                     "return" => Token::Return,
                     "scalar" => Token::Scalar,
+                    "signature" => Token::Signature,
                     "self" => Token::SelfLower,
                     "string" => Token::String,
                     "struct" => Token::Struct,

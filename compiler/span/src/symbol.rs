@@ -195,6 +195,7 @@ symbols! {
     set,
     to_x_coordinate,
     to_y_coordinate,
+    verify,
 
     // types
     address,
@@ -208,6 +209,7 @@ symbols! {
     i128,
     record,
     scalar,
+    signature,
     string,
     Struct: "struct",
     u8,
