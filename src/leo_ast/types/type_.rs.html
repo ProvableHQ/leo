@@ -97,6 +97,10 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -139,6 +143,8 @@
     </span>Mapping(MappingType),
     <span class="doccomment">/// The `scalar` type.
     </span>Scalar,
+    <span class="doccomment">/// The `signature` type.
+    </span>Signature,
     <span class="doccomment">/// The `string` type.
     </span>String,
     <span class="doccomment">/// A static tuple of at least one type.
@@ -163,6 +169,7 @@
             | (Type::Field, Type::Field)
             | (Type::Group, Type::Group)
             | (Type::Scalar, Type::Scalar)
+            | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
             (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),
@@ -189,6 +196,7 @@
             Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{integer_type}&quot;</span>),
             Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{mapping_type}&quot;</span>),
             Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;scalar&quot;</span>),
+            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;signature&quot;</span>),
             Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;string&quot;</span>),
             Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{tuple}&quot;</span>),
             Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;()&quot;</span>),

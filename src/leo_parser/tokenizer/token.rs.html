@@ -383,6 +383,10 @@
 <a href="#383" id="383">383</a>
 <a href="#384" id="384">384</a>
 <a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -479,6 +483,7 @@
     Field,
     Group,
     Scalar,
+    Signature,
     String,
     I8,
     I16,
@@ -563,6 +568,7 @@
     Token::Record,
     Token::Return,
     Token::SelfLower,
+    Token::Signature,
     Token::Scalar,
     Token::String,
     Token::Struct,
@@ -619,6 +625,7 @@
             Token::Record =&gt; sym::record,
             Token::Return =&gt; sym::Return,
             Token::Scalar =&gt; sym::scalar,
+            Token::Signature =&gt; sym::signature,
             Token::SelfLower =&gt; sym::SelfLower,
             Token::String =&gt; sym::string,
             Token::Struct =&gt; sym::Struct,
@@ -706,6 +713,7 @@
             Field =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;field&quot;</span>),
             Group =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group&quot;</span>),
             Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;scalar&quot;</span>),
+            Signature =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;signature&quot;</span>),
             String =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;string&quot;</span>),
             I8 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i8&quot;</span>),
             I16 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;i16&quot;</span>),

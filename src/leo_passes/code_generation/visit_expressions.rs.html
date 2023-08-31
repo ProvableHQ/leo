@@ -516,6 +516,18 @@
 <a href="#516" id="516">516</a>
 <a href="#517" id="517">517</a>
 <a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -937,6 +949,18 @@
                     Identifier { name: sym::rand_u128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u128;&quot;</span>),
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The only associated methods of ChaCha are `rand_*`&quot;</span>),
                 }
+                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                (destination_register, instruction)
+            }
+            Type::Identifier(Identifier { name: sym::signature, .. }) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    sign.verify&quot;</span>.to_string();
+                <span class="kw">let </span>destination_register = get_destination_register();
+                <span class="comment">// Write the arguments and the destination register.
+                </span><span class="macro">writeln!</span>(
+                    instruction,
+                    <span class="string">&quot; {} {} {} into {destination_register};&quot;</span>,
+                    arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
+                )
                 .expect(<span class="string">&quot;failed to write to string&quot;</span>);
                 (destination_register, instruction)
             }

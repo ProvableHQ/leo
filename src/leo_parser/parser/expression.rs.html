@@ -712,6 +712,20 @@
 <a href="#712" id="712">712</a>
 <a href="#713" id="713">713</a>
 <a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1057,6 +1071,20 @@
                 right: Box::new(args.swap_remove(<span class="number">0</span>)),
                 id: <span class="self">self</span>.node_builder.next_id(),
             }))
+        } <span class="kw">else if let </span>(<span class="number">2</span>, <span class="prelude-val">Some</span>(CoreFunction::SignatureVerify)) =
+            (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
+        {
+            <span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: Type::Identifier(Identifier::new(sym::signature, <span class="self">self</span>.node_builder.next_id())),
+                name: method,
+                arguments: {
+                    <span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[receiver];
+                    arguments.extend(args);
+                    arguments
+                },
+                span,
+                id: <span class="self">self</span>.node_builder.next_id(),
+            })))
         } <span class="kw">else </span>{
             <span class="comment">// Attempt to parse the method call as a mapping operation.
             </span><span class="kw">match </span>(args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {

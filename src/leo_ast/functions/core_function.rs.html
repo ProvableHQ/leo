@@ -740,6 +740,13 @@
 <a href="#740" id="740">740</a>
 <a href="#741" id="741">741</a>
 <a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -938,6 +945,8 @@
 
     GroupToXCoordinate,
     GroupToYCoordinate,
+
+    SignatureVerify,
 }
 
 <span class="kw">impl </span>CoreFunction {
@@ -1122,6 +1131,8 @@
 
             (sym::group, sym::to_x_coordinate) =&gt; <span class="self">Self</span>::GroupToXCoordinate,
             (sym::group, sym::to_y_coordinate) =&gt; <span class="self">Self</span>::GroupToYCoordinate,
+
+            (sym::signature, sym::verify) =&gt; <span class="self">Self</span>::SignatureVerify,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
@@ -1307,6 +1318,8 @@
 
             <span class="self">Self</span>::GroupToXCoordinate =&gt; <span class="number">1</span>,
             <span class="self">Self</span>::GroupToYCoordinate =&gt; <span class="number">1</span>,
+
+            <span class="self">Self</span>::SignatureVerify =&gt; <span class="number">3</span>,
         }
     }
 
@@ -1478,7 +1491,8 @@
             | CoreFunction::Poseidon8HashToU128
             | CoreFunction::Poseidon8HashToScalar
             | CoreFunction::GroupToXCoordinate
-            | CoreFunction::GroupToYCoordinate =&gt; <span class="bool-val">false</span>,
+            | CoreFunction::GroupToYCoordinate
+            | CoreFunction::SignatureVerify =&gt; <span class="bool-val">false</span>,
         }
     }
 }

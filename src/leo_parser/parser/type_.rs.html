@@ -94,6 +94,8 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -120,6 +122,7 @@
     Token::Field,
     Token::Group,
     Token::Scalar,
+    Token::Signature,
     Token::String,
     Token::I8,
     Token::I16,
@@ -162,6 +165,7 @@
                 Token::Field =&gt; Type::Field,
                 Token::Group =&gt; Type::Group,
                 Token::Scalar =&gt; Type::Scalar,
+                Token::Signature =&gt; Type::Signature,
                 Token::String =&gt; Type::String,
                 x =&gt; Type::Integer(<span class="self">Self</span>::token_to_int_type(x).expect(<span class="string">&quot;invalid int type&quot;</span>)),
             },

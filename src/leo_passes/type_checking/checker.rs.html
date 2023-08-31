@@ -994,6 +994,25 @@
 <a href="#994" id="994">994</a>
 <a href="#995" id="995">995</a>
 <a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1054,6 +1073,8 @@
 <span class="kw">const </span>GROUP_TYPE: Type = Type::Group;
 
 <span class="kw">const </span>SCALAR_TYPE: Type = Type::Scalar;
+
+<span class="kw">const </span>SIGNATURE_TYPE: Type = Type::Signature;
 
 <span class="kw">const </span>INT_TYPES: [Type; <span class="number">10</span>] = [
     Type::Integer(IntegerType::I8),
@@ -1169,13 +1190,17 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(actual.clone(), expected, span));
             }
         }
-
         actual
     }
 
     <span class="doccomment">/// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type(<span class="kw-2">&amp;</span><span class="self">self</span>, actual: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span>Type, span: Span) {
         <span class="self">self</span>.check_type(|actual: <span class="kw-2">&amp;</span>Type| actual.eq_flat(expected), expected.to_string(), actual, span)
+    }
+
+    <span class="doccomment">/// Emits an error to the error handler if the given type is not an address.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_address_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
+        <span class="self">self</span>.check_type(|type_: <span class="kw-2">&amp;</span>Type| ADDRESS_TYPE.eq(type_), ADDRESS_TYPE.to_string(), type_, span)
     }
 
     <span class="doccomment">/// Emits an error to the handler if the given type is not a boolean.
@@ -1196,6 +1221,11 @@
     <span class="doccomment">/// Emits an error to the handler if the given type is not a scalar.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_scalar_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
         <span class="self">self</span>.check_type(|type_: <span class="kw-2">&amp;</span>Type| SCALAR_TYPE.eq(type_), SCALAR_TYPE.to_string(), type_, span)
+    }
+
+    <span class="doccomment">/// Emits an error to the handler if the given type is not a signature.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_signature_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
+        <span class="self">self</span>.check_type(|type_: <span class="kw-2">&amp;</span>Type| SIGNATURE_TYPE.eq(type_), SIGNATURE_TYPE.to_string(), type_, span)
     }
 
     <span class="doccomment">/// Emits an error to the handler if the given type is not an integer.
@@ -1913,6 +1943,14 @@
             CoreFunction::ChaChaRandU32 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U32)),
             CoreFunction::ChaChaRandU64 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U64)),
             CoreFunction::ChaChaRandU128 =&gt; <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U128)),
+            CoreFunction::SignatureVerify =&gt; {
+                <span class="comment">// Check that the first argument is a signature.
+                </span><span class="self">self</span>.assert_signature_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>);
+                <span class="comment">// Check that the second argument is an address.
+                </span><span class="self">self</span>.assert_address_type(<span class="kw-2">&amp;</span>arguments[<span class="number">1</span>].<span class="number">0</span>, arguments[<span class="number">1</span>].<span class="number">1</span>);
+                <span class="comment">// Return a boolean.
+                </span><span class="prelude-val">Some</span>(Type::Boolean)
+            }
         }
     }
 
