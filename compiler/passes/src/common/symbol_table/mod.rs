@@ -178,8 +178,22 @@ impl SymbolTable {
 
     /// Serializes the symbol table into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_symbol_table_to_json_string(&e))?)
+        Ok(serde_json::to_string_pretty(&self)
+            .map_err(|e| AstError::failed_to_convert_symbol_table_to_json_string(&e))?)
     }
 
+    /// Converts the symbol table into a JSON value
+    pub fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_symbol_table_to_json_value(&e))?)
+    }
 
+    // Serializes the symbol table into a JSON file.
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+        path.push(file_name);
+        let file =
+            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+        Ok(serde_json::to_writer_pretty(writer, &self)
+            .map_err(|e| AstError::failed_to_write_symbol_table_to_json_file(&path, &e))?)
+    }
 }

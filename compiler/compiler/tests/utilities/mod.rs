@@ -61,8 +61,6 @@ pub fn hash_symbol_tables() -> (String, String, String) {
     let type_checked_symbol_table = hash_file("/tmp/output/test.type_checked_symbol_table.json");
     let unrolled_symbol_table = hash_file("/tmp/output/test.unrolled_symbol_table.json");
     println!("hashed the st's");
-
-
     (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table)
 }
 

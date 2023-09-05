@@ -312,7 +312,6 @@ impl<'a> Compiler<'a> {
     /// Writes the Symbol Table to a JSON file.
     fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
         symbol_table.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
-
         Ok(())
     }
 }
