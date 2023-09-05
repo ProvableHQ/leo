@@ -165,12 +165,24 @@ impl<'a> Compiler<'a> {
 
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
-        SymbolTableCreator::do_pass((&self.ast, self.handler))
+        match SymbolTableCreator::do_pass((&self.ast, self.handler)) {
+            Ok(symbol_table) => {
+                self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
+                Ok(symbol_table)
+            }
+            Err(e) => Err(e),
+        }
     }
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
+        match TypeChecker::do_pass((&self.ast, self.handler, symbol_table)) {
+            Ok((symbol_table, struct_graph, call_graph)) => {
+                self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+                Ok((symbol_table, struct_graph, call_graph))
+            }
+            Err(e) => Err(e),
+        }
     }
 
     /// Runs the loop unrolling pass.
@@ -182,6 +194,8 @@ impl<'a> Compiler<'a> {
         if self.compiler_options.output.unrolled_ast {
             self.write_ast_to_json("unrolled_ast.json")?;
         }
+
+        self.write_symbol_table_to_json("unrolled_symbol_table.json", &symbol_table)?;
 
         Ok(symbol_table)
     }
@@ -292,6 +306,13 @@ impl<'a> Compiler<'a> {
                 &["span"],
             )?;
         }
+        Ok(())
+    }
+
+    /// Writes the Symbol Table to a JSON file.
+    fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
+        symbol_table.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+
         Ok(())
     }
 }

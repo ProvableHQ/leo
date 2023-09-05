@@ -28,7 +28,10 @@ use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 
-#[derive(Clone, Debug, Default)]
+use serde_json;
+use snarkvm_console::account::Serialize;
+
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
@@ -172,4 +175,11 @@ impl SymbolTable {
     pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
     }
+
+    /// Serializes the symbol table into a JSON string.
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self).map_err(|e| AstError::failed_to_convert_symbol_table_to_json_string(&e))?)
+    }
+
+
 }

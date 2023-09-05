@@ -22,6 +22,7 @@ use utilities::{
     get_build_options,
     get_cwd_option,
     hash_asts,
+    hash_symbol_tables,
     hash_content,
     parse_program,
     setup_build_directory,
@@ -66,6 +67,9 @@ impl Namespace for ExecuteNamespace {
 // TODO: Format this better.
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 struct ExecuteOutput {
+    pub initial_symbol_table: String,
+    pub type_checked_symbol_table: String,
+    pub unrolled_symbol_table: String,
     pub initial_ast: String,
     pub unrolled_ast: String,
     pub ssa_ast: String,
@@ -192,12 +196,18 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         // Hash the ast files.
         let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
 
+        // Hash the symbol tables.
+        let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+
         // Clean up the output directory.
         if fs::read_dir("/tmp/output").is_ok() {
             fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
         }
 
         let final_output = ExecuteOutput {
+            initial_symbol_table,
+            type_checked_symbol_table,
+            unrolled_symbol_table,
             initial_ast,
             unrolled_ast,
             ssa_ast,

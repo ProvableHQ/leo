@@ -1414,6 +1414,8 @@ dependencies = [
  "leo-parser",
  "leo-span",
  "num-traits",
+ "serde",
+ "serde_json",
  "snarkvm-console",
 ]
 
