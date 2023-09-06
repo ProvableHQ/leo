@@ -868,6 +868,15 @@ dependencies = [
 
 [[package]]
 name = "fastrand"
+version = "1.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e51093e27b0797c359783294ca4f0a911c270184cb10f85783b118614a1501be"
+dependencies = [
+ "instant",
+]
+
+[[package]]
+name = "fastrand"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6999dc1837253364c2ebb0704ba97994bd874e8f195d665c50b7548f6ea92764"
@@ -1362,7 +1371,7 @@ dependencies = [
  "rand_core",
  "reqwest",
  "rusty-hook",
- "self_update",
+ "self_update 0.38.0",
  "serde",
  "serde_json",
  "snarkvm",
@@ -2232,6 +2241,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "self-replace"
+version = "1.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c56335359191626938ef6fdeb478f9f6a7c6020254d7f4641c7d810369fa0ec1"
+dependencies = [
+ "fastrand 1.9.0",
+ "tempfile",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "self_update"
 version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2243,6 +2263,25 @@ dependencies = [
  "quick-xml",
  "regex",
  "reqwest",
+ "semver",
+ "serde_json",
+ "tempfile",
+ "urlencoding",
+]
+
+[[package]]
+name = "self_update"
+version = "0.38.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b3c585a1ced6b97ac13bd5e56f66559e5a75f477da5913f70df98e114518446"
+dependencies = [
+ "hyper",
+ "indicatif",
+ "log",
+ "quick-xml",
+ "regex",
+ "reqwest",
+ "self-replace",
  "semver",
  "serde_json",
  "tempfile",
@@ -2386,7 +2425,7 @@ dependencies = [
  "parking_lot",
  "rand",
  "rayon",
- "self_update",
+ "self_update 0.37.0",
  "serde_json",
  "snarkvm-circuit",
  "snarkvm-console",
@@ -3255,7 +3294,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb94d2f3cc536af71caac6b6fcebf65860b347e7ce0cc9ebe8f70d3e521054ef"
 dependencies = [
  "cfg-if",
- "fastrand",
+ "fastrand 2.0.0",
  "redox_syscall 0.3.5",
  "rustix",
  "windows-sys 0.48.0",
