@@ -85,7 +85,11 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         let compiler_options = CompilerOptions {
             build,
             output: OutputOptions {
-                spans_enabled: false,
+                symbol_table_spans_enabled: false,
+                initial_symbol_table: true,
+                type_checked_symbol_table: true,
+                unrolled_symbol_table: true,
+                ast_spans_enabled: false,
                 initial_input_ast: true,
                 initial_ast: true,
                 unrolled_ast: true,

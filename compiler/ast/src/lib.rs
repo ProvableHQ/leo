@@ -152,7 +152,7 @@ impl AsRef<Program> for Ast {
 }
 
 /// Helper function to recursively filter keys from AST JSON
-pub(crate) fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
+pub fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
         serde_json::Value::Object(map) => serde_json::Value::Object(
             map.into_iter().filter(|(k, _)| k != key).map(|(k, v)| (k, remove_key_from_json(v, key))).collect(),
@@ -170,7 +170,7 @@ pub(crate) fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde
 /// 1. Remove empty object mappings from JSON arrays
 /// 2. If there are two elements in a JSON array and one is an empty object
 ///     mapping and the other is not, then lift up the one that isn't
-pub(crate) fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+pub fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
     match value {
         serde_json::Value::Array(vec) => {
             let orig_length = vec.len();
