@@ -319,7 +319,8 @@ impl<'a> Compiler<'a> {
     fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
         // Remove `Span`s if they are not enabled.
         if self.compiler_options.output.symbol_table_spans_enabled {
-            symbol_table.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+            symbol_table
+                .to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
         } else {
             symbol_table.to_json_file_without_keys(
                 self.output_directory.clone(),

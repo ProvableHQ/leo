@@ -22,13 +22,13 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{Function, Struct, remove_key_from_json, normalize_json_value};
+use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
-use serde_json;
 use serde::{Deserialize, Serialize};
+use serde_json;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SymbolTable {
@@ -204,7 +204,8 @@ impl SymbolTable {
         excluded_keys: &[&str],
     ) -> Result<()> {
         path.push(file_name);
-        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
+        let file =
+            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
 
         let mut value = self.to_json_value().unwrap();
@@ -219,7 +220,8 @@ impl SymbolTable {
 
     /// Deserializes the JSON string into a symbol table.
     pub fn from_json_string(json: &str) -> Result<Self> {
-        let symbol_table: SymbolTable = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_symbol_table(&e))?;
+        let symbol_table: SymbolTable =
+            serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_symbol_table(&e))?;
         Ok(symbol_table)
     }
 
@@ -228,6 +230,4 @@ impl SymbolTable {
         let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
         Self::from_json_string(&data)
     }
-
-
 }
