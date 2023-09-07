@@ -232,8 +232,6 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     let st = parsed.loop_unrolling_pass(st)?;
 
-    // println!("{}", st.to_json_string()?);
-
     parsed.static_single_assignment_pass(&st)?;
 
     parsed.flattening_pass(&st)?;

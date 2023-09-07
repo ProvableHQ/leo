@@ -165,28 +165,20 @@ impl<'a> Compiler<'a> {
 
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
-        match SymbolTableCreator::do_pass((&self.ast, self.handler)) {
-            Ok(symbol_table) => {
-                if self.compiler_options.output.initial_symbol_table {
-                    self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
-                }
-                Ok(symbol_table)
-            }
-            Err(e) => Err(e),
+        let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
+        if self.compiler_options.output.initial_symbol_table {
+            self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
         }
+        Ok(symbol_table)
     }
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        match TypeChecker::do_pass((&self.ast, self.handler, symbol_table)) {
-            Ok((symbol_table, struct_graph, call_graph)) => {
-                if self.compiler_options.output.type_checked_symbol_table {
-                    self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
-                }
-                Ok((symbol_table, struct_graph, call_graph))
-            }
-            Err(e) => Err(e),
+        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((&self.ast, self.handler, symbol_table))?;
+        if self.compiler_options.output.type_checked_symbol_table {
+            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
         }
+        Ok((symbol_table, struct_graph, call_graph))
     }
 
     /// Runs the loop unrolling pass.
