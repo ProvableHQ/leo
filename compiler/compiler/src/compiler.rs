@@ -144,7 +144,7 @@ impl<'a> Compiler<'a> {
                 leo_parser::parse_input(self.handler, &self.node_builder, &input_sf.src, input_sf.start_pos)?;
             if self.compiler_options.output.initial_ast {
                 // Write the input AST snapshot post parsing.
-                if self.compiler_options.output.spans_enabled {
+                if self.compiler_options.output.ast_spans_enabled {
                     input_ast.to_json_file(
                         self.output_directory.clone(),
                         &format!("{}.initial_input_ast.json", self.program_name),
@@ -165,12 +165,20 @@ impl<'a> Compiler<'a> {
 
     /// Runs the symbol table pass.
     pub fn symbol_table_pass(&self) -> Result<SymbolTable> {
-        SymbolTableCreator::do_pass((&self.ast, self.handler))
+        let symbol_table = SymbolTableCreator::do_pass((&self.ast, self.handler))?;
+        if self.compiler_options.output.initial_symbol_table {
+            self.write_symbol_table_to_json("initial_symbol_table.json", &symbol_table)?;
+        }
+        Ok(symbol_table)
     }
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        TypeChecker::do_pass((&self.ast, self.handler, symbol_table))
+        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((&self.ast, self.handler, symbol_table))?;
+        if self.compiler_options.output.type_checked_symbol_table {
+            self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
+        }
+        Ok((symbol_table, struct_graph, call_graph))
     }
 
     /// Runs the loop unrolling pass.
@@ -181,6 +189,10 @@ impl<'a> Compiler<'a> {
 
         if self.compiler_options.output.unrolled_ast {
             self.write_ast_to_json("unrolled_ast.json")?;
+        }
+
+        if self.compiler_options.output.unrolled_symbol_table {
+            self.write_symbol_table_to_json("unrolled_symbol_table.json", &symbol_table)?;
         }
 
         Ok(symbol_table)
@@ -283,13 +295,29 @@ impl<'a> Compiler<'a> {
     /// Writes the AST to a JSON file.
     fn write_ast_to_json(&self, file_suffix: &str) -> Result<()> {
         // Remove `Span`s if they are not enabled.
-        if self.compiler_options.output.spans_enabled {
+        if self.compiler_options.output.ast_spans_enabled {
             self.ast.to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
         } else {
             self.ast.to_json_file_without_keys(
                 self.output_directory.clone(),
                 &format!("{}.{file_suffix}", self.program_name),
-                &["span"],
+                &["_span", "span"],
+            )?;
+        }
+        Ok(())
+    }
+
+    /// Writes the Symbol Table to a JSON file.
+    fn write_symbol_table_to_json(&self, file_suffix: &str, symbol_table: &SymbolTable) -> Result<()> {
+        // Remove `Span`s if they are not enabled.
+        if self.compiler_options.output.symbol_table_spans_enabled {
+            symbol_table
+                .to_json_file(self.output_directory.clone(), &format!("{}.{file_suffix}", self.program_name))?;
+        } else {
+            symbol_table.to_json_file_without_keys(
+                self.output_directory.clone(),
+                &format!("{}.{file_suffix}", self.program_name),
+                &["_span", "span"],
             )?;
         }
         Ok(())

@@ -122,8 +122,16 @@ pub struct BuildOptions {
     #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]
-    pub enable_spans: bool,
+    pub enable_symbol_table_spans: bool,
     #[clap(long, help = "Enables dead code elimination in the compiler.")]
+    pub enable_initial_symbol_table_snapshot: bool,
+    #[clap(long, help = "Writes symbol table snapshot of the type checked symbol table.")]
+    pub enable_type_checked_symbol_table_snapshot: bool,
+    #[clap(long, help = "Writes symbol table snapshot of the unrolled symbol table.")]
+    pub enable_unrolled_symbol_table_snapshot: bool,
+    #[clap(long, help = "Enable spans in AST snapshots.")]
+    pub enable_ast_spans: bool,
+    #[clap(long, help = "Enable spans in symbol table snapshots.")]
     pub enable_dce: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,

@@ -17,10 +17,12 @@
 use leo_ast::{Function, Input, Type, Variant};
 use leo_span::Span;
 
+use serde::{Deserialize, Serialize};
+
 use crate::SymbolTable;
 
 /// Metadata associated with the finalize block.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FinalizeData {
     /// The inputs to the finalize block.
     pub(crate) input: Vec<Input>,
@@ -29,7 +31,7 @@ pub struct FinalizeData {
 }
 
 /// An entry for a function in the symbol table.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,

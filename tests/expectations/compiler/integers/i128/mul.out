@@ -2,7 +2,10 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_ast: e0b040a28c05ee2ba215aefba8fdf0c9e596031ee8aad8da19e5ce6b07266831
+  - - initial_symbol_table: 318333ec5b971a7080d5446acd4f6931703fcb36c1430925528fe655d0d903b5
+      type_checked_symbol_table: 9df21559cca2d8fe49e78a8989b590f740238dc795e1e6c99b50eee4528aa407
+      unrolled_symbol_table: 9df21559cca2d8fe49e78a8989b590f740238dc795e1e6c99b50eee4528aa407
+      initial_ast: e0b040a28c05ee2ba215aefba8fdf0c9e596031ee8aad8da19e5ce6b07266831
       unrolled_ast: e0b040a28c05ee2ba215aefba8fdf0c9e596031ee8aad8da19e5ce6b07266831
       ssa_ast: 52ebc7e6f3e15d13730539df5b320e36c689f54c7e148437e189a332ee4e6f43
       flattened_ast: 83f382d05f2e855ad67276702ce039acd75c17a41641f2e8c5a76dc32d6c1682

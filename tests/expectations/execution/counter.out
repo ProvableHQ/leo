@@ -2,7 +2,10 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_ast: 437dad4042f19f778819ccccf9964ff9b6b701c2805417ba378d8d5d643d59bc
+  - - initial_symbol_table: f31833e998d9512dee2ed5218e9cc0d2e9d57486d84df0ea857f5c41133d7aeb
+      type_checked_symbol_table: 63d9794287aee3f3c70ff462c095ea292a490663a211d41306fe06b5d990f8f2
+      unrolled_symbol_table: 63d9794287aee3f3c70ff462c095ea292a490663a211d41306fe06b5d990f8f2
+      initial_ast: 437dad4042f19f778819ccccf9964ff9b6b701c2805417ba378d8d5d643d59bc
       unrolled_ast: 437dad4042f19f778819ccccf9964ff9b6b701c2805417ba378d8d5d643d59bc
       ssa_ast: 8f85576cdcb97f4b8c348fbad7ab7d85696cbdc1a26a19226903446785db9d20
       flattened_ast: 83c91f6cefa549e6fc788d063aa22446b095e1b37e8a20d2109c2ba10068230a

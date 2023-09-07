@@ -22,13 +22,15 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{Function, Struct};
+use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
+use serde_json;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
@@ -171,5 +173,61 @@ impl SymbolTable {
     /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
+    }
+
+    /// Serializes the symbol table into a JSON string.
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self)
+            .map_err(|e| AstError::failed_to_convert_symbol_table_to_json_string(&e))?)
+    }
+
+    /// Converts the symbol table into a JSON value
+    pub fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(self).map_err(|e| AstError::failed_to_convert_symbol_table_to_json_value(&e))?)
+    }
+
+    // Serializes the symbol table into a JSON file.
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+        path.push(file_name);
+        let file =
+            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+        Ok(serde_json::to_writer_pretty(writer, &self)
+            .map_err(|e| AstError::failed_to_write_symbol_table_to_json_file(&path, &e))?)
+    }
+
+    /// Serializes the symbol table into a JSON value and removes keys from object mappings before writing to a file.
+    pub fn to_json_file_without_keys(
+        &self,
+        mut path: std::path::PathBuf,
+        file_name: &str,
+        excluded_keys: &[&str],
+    ) -> Result<()> {
+        path.push(file_name);
+        let file =
+            std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_symbol_table_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+
+        let mut value = self.to_json_value().unwrap();
+        for key in excluded_keys {
+            value = remove_key_from_json(value, key);
+        }
+        value = normalize_json_value(value);
+
+        Ok(serde_json::to_writer_pretty(writer, &value)
+            .map_err(|e| AstError::failed_to_write_symbol_table_to_json_file(&path, &e))?)
+    }
+
+    /// Deserializes the JSON string into a symbol table.
+    pub fn from_json_string(json: &str) -> Result<Self> {
+        let symbol_table: SymbolTable =
+            serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_symbol_table(&e))?;
+        Ok(symbol_table)
+    }
+
+    /// Deserializes the JSON string into a symbol table from a file.
+    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
+        let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
+        Self::from_json_string(&data)
     }
 }

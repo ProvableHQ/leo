@@ -88,7 +88,11 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
         Some(CompilerOptions {
             build: BuildOptions { dce_enabled: true },
             output: OutputOptions {
-                spans_enabled: false,
+                symbol_table_spans_enabled: false,
+                initial_symbol_table: false,
+                type_checked_symbol_table: false,
+                unrolled_symbol_table: false,
+                ast_spans_enabled: false,
                 initial_ast: false,
                 initial_input_ast: false,
                 unrolled_ast: false,

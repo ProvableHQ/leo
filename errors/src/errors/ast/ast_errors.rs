@@ -105,4 +105,44 @@ create_messages!(
         msg: format!("variable `{var}` shadowed by"),
         help: None,
     }
+
+    /// For when the symbol table fails to be represented as a JSON string.
+    @backtraced
+    failed_to_convert_symbol_table_to_json_string {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert symbol_table to a json string {error}"),
+        help: None,
+    }
+
+    /// For when the symbol table fails to create the symbol table JSON file.
+    @backtraced
+    failed_to_create_symbol_table_json_file {
+        args: (path: impl Debug, error: impl ErrorArg),
+        msg: format!("failed to create symbol_table json file `{path:?}` {error}"),
+        help: None,
+    }
+
+    /// For when the symbol table fails to write the symbol table JSON file.
+    @backtraced
+    failed_to_write_symbol_table_to_json_file {
+        args: (path: impl Debug, error: impl ErrorArg),
+        msg: format!("failed to write symbol_table to a json file `{path:?}` {error}"),
+        help: None,
+    }
+
+    /// For when the a JSON string fails to be represented as an symbol table.
+    @backtraced
+    failed_to_read_json_string_to_symbol_table {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert json string to an symbol_table {error}"),
+        help: None,
+    }
+
+    /// For when the symbol table fails to be represented as a JSON value.
+    @backtraced
+    failed_to_convert_symbol_table_to_json_value {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert symbol_table to a json value {error}"),
+        help: None,
+    }
 );

@@ -16,11 +16,13 @@
 
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 use leo_ast::{Mode, Type};
 use leo_span::Span;
 
 /// An enumeration of the different types of variable type.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum VariableType {
     Const,
     Input(Mode),
@@ -40,7 +42,7 @@ impl Display for VariableType {
 }
 
 /// An entry for a variable in the symbol table.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct VariableSymbol {
     /// The `Type` of the variable.
     pub type_: Type,
