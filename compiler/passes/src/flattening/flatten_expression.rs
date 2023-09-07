@@ -130,7 +130,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     elements: first
                         .elements
                         .into_iter()
-                        .zip_eq(second.elements.into_iter())
+                        .zip_eq(second.elements)
                         .map(|(if_true, if_false)| {
                             // Reconstruct the true case.
                             let (if_true, stmts) = self.reconstruct_expression(if_true);

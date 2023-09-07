@@ -26,6 +26,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Field
             | Type::Group
             | Type::Scalar
+            | Type::Signature
             | Type::String
             | Type::Integer(..) => format!("{input}"),
             Type::Identifier(ident) => format!("{ident}"),

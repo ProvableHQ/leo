@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370021]: The type of `signature` has no associated function `verify` that takes 3 argument(s).\n    --> test:5:23\n     |\n   5 |         let a: bool = signature.verify(s, a, v);\n     |                       ^^^^^^^^^^^^^^^^^^^^^^^^^\nError [EPAR0370005]: expected ) -- found ','\n    --> test:6:17\n     |\n   6 |         assert(a, b);\n     |                 ^"
