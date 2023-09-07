@@ -346,7 +346,7 @@
 }
 
 <span class="doccomment">/// Helper function to recursively filter keys from AST JSON
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>remove_key_from_json(value: serde_json::Value, key: <span class="kw-2">&amp;</span>str) -&gt; serde_json::Value {
+</span><span class="kw">pub fn </span>remove_key_from_json(value: serde_json::Value, key: <span class="kw-2">&amp;</span>str) -&gt; serde_json::Value {
     <span class="kw">match </span>value {
         serde_json::Value::Object(map) =&gt; serde_json::Value::Object(
             map.into_iter().filter(|(k, <span class="kw">_</span>)| k != key).map(|(k, v)| (k, remove_key_from_json(v, key))).collect(),
@@ -364,7 +364,7 @@
 /// 1. Remove empty object mappings from JSON arrays
 /// 2. If there are two elements in a JSON array and one is an empty object
 ///     mapping and the other is not, then lift up the one that isn&#39;t
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>normalize_json_value(value: serde_json::Value) -&gt; serde_json::Value {
+</span><span class="kw">pub fn </span>normalize_json_value(value: serde_json::Value) -&gt; serde_json::Value {
     <span class="kw">match </span>value {
         serde_json::Value::Array(vec) =&gt; {
             <span class="kw">let </span>orig_length = vec.len();

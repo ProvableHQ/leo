@@ -56,6 +56,8 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -74,11 +76,13 @@
 
 </span><span class="kw">use </span>std::fmt::Display;
 
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+
 <span class="kw">use </span>leo_ast::{Mode, Type};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="doccomment">/// An enumeration of the different types of variable type.
-</span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+</span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>VariableType {
     Const,
     Input(Mode),
@@ -98,7 +102,7 @@
 }
 
 <span class="doccomment">/// An entry for a variable in the symbol table.
-</span><span class="attr">#[derive(Clone, Debug, Eq, PartialEq)]
+</span><span class="attr">#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>VariableSymbol {
     <span class="doccomment">/// The `Type` of the variable.
     </span><span class="kw">pub </span>type_: Type,
