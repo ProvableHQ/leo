@@ -114,7 +114,27 @@ pub trait ExpressionReconstructor {
     }
 
     fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
-        (Expression::Struct(input), Default::default())
+        (
+            Expression::Struct(StructExpression {
+                name: input.name,
+                members: input
+                    .members
+                    .into_iter()
+                    .map(|member| StructVariableInitializer {
+                        identifier: member.identifier,
+                        expression: match member.expression {
+                            Some(expression) => Some(self.reconstruct_expression(expression).0),
+                            None => Some(self.reconstruct_expression(Expression::Identifier(member.identifier)).0),
+                        },
+                        span: member.span,
+                        id: member.id,
+                    })
+                    .collect(),
+                span: input.span,
+                id: input.id,
+            }),
+            Default::default(),
+        )
     }
 
     fn reconstruct_err(&mut self, _input: ErrExpression) -> (Expression, Self::AdditionalOutput) {
