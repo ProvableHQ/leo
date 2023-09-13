@@ -297,7 +297,7 @@ impl<'a> CodeGenerator<'a> {
                 write!(instruction, " {argument}").expect("failed to write to string");
             }
             let destination_register = get_destination_register();
-            write!(instruction, " into {destination_register} as {return_type};").expect("failed to write to string");
+            writeln!(instruction, " into {destination_register} as {return_type};").expect("failed to write to string");
             (destination_register, instruction)
         };
 
