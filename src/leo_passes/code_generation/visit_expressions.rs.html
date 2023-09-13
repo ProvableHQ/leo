@@ -827,7 +827,7 @@
                 <span class="macro">write!</span>(instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             }
             <span class="kw">let </span>destination_register = get_destination_register();
-            <span class="macro">write!</span>(instruction, <span class="string">&quot; into {destination_register} as {return_type};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(instruction, <span class="string">&quot; into {destination_register} as {return_type};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             (destination_register, instruction)
         };
 
