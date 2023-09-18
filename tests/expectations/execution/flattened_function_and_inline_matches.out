@@ -2,33 +2,33 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 054d3814a6ee68b36846e8bb0a850749c9f80828a06106a3408c3a3445bf9e5c
-      type_checked_symbol_table: 13284925b72baff0d5ecb7bb256a8bfb9fd6e3f936997707c6c832b3f2d34b43
-      unrolled_symbol_table: 13284925b72baff0d5ecb7bb256a8bfb9fd6e3f936997707c6c832b3f2d34b43
-      initial_ast: 312ddd4f956e0c21463e992634f659afb147d2916b2dd3ea3b4cdf77da83ea2d
-      unrolled_ast: 312ddd4f956e0c21463e992634f659afb147d2916b2dd3ea3b4cdf77da83ea2d
-      ssa_ast: 916c11c30f5603bd550dd9f02a59cff5ad3dac9519817506e44ab4e041ae53dd
-      flattened_ast: fa0c633312b9e571902cc78901d6daf2f05121c9081ff23d76d5521af8b9dc35
-      inlined_ast: f2fb9af6d7aa19ee8bad573bb9cdb2d96cb80022e2bbee84d0f2679e98a49259
-      dce_ast: f2fb9af6d7aa19ee8bad573bb9cdb2d96cb80022e2bbee84d0f2679e98a49259
-      bytecode: 05437006a7a0a278a18c8ff76e9fec336ec4f86f6ff8abfb06b816256babef45
+  - - initial_symbol_table: 9ee9bfe1921cee5f4de19fea4d372a2a54deb758471e5745e12164eb44c447cb
+      type_checked_symbol_table: 8c2546e10d7482d30a2650f0119041c8a6a20201eb47a4facfe20336976e5654
+      unrolled_symbol_table: 8c2546e10d7482d30a2650f0119041c8a6a20201eb47a4facfe20336976e5654
+      initial_ast: 68d7ba720407b7ac2fc26611b2f22c2d2f43766df3a30c05745f152aa9d3caa0
+      unrolled_ast: 68d7ba720407b7ac2fc26611b2f22c2d2f43766df3a30c05745f152aa9d3caa0
+      ssa_ast: a66901fb9ee02bc0cd23f2ca49f2b47d7dea7ee398098bc3b72edbf01977b8cc
+      flattened_ast: 4e3c46685c28a9d7a4169000de7d3c888e3a0ad28500b17b31eb784d189ce86d
+      inlined_ast: 3fbe6e8a6cd5e19c47e8f8b0a9bceca1534a2219fb6a4443529056cdbb1799c7
+      dce_ast: 3fbe6e8a6cd5e19c47e8f8b0a9bceca1534a2219fb6a4443529056cdbb1799c7
+      bytecode: a52c852c5ea5e31d35c812e4ab15e4c098022431bb58b592d797137abf015e29
       warnings: ""
       results:
         bar:
           - input: "[true, true, 1u8, 0u8]"
-            output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 0u8,\n  c: {\n    c: 1u8\n  }\n}]"
+            output: "[4u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
           - input: "[true, false, 1u8, 1u8]"
             output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
           - input: "[false, true, 2u8, 1u8]"
-            output: "[1u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+            output: "[5u8, 2u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
           - input: "[false, false, 2u8, 2u8]"
             output: "[2u8, 2u8, {\n  a: 2u8,\n  b: 2u8,\n  c: {\n    c: 2u8\n  }\n}]"
         blar:
           - input: "[true, true, 1u8, 0u8]"
-            output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
+            output: "[4u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
           - input: "[true, false, 1u8, 1u8]"
             output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
           - input: "[false, true, 2u8, 1u8]"
-            output: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
+            output: "[5u8, 2u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
           - input: "[false, false, 2u8, 2u8]"
             output: "[2u8, 2u8, {\n  a: 2u8,\n  b: 2u8,\n  c: {\n    c: 2u8\n  }\n}]"
