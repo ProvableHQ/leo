@@ -387,6 +387,26 @@
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
 <a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -503,7 +523,27 @@
     }
 
     <span class="kw">fn </span>reconstruct_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: StructExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-        (Expression::Struct(input), Default::default())
+        (
+            Expression::Struct(StructExpression {
+                name: input.name,
+                members: input
+                    .members
+                    .into_iter()
+                    .map(|member| StructVariableInitializer {
+                        identifier: member.identifier,
+                        expression: <span class="kw">match </span>member.expression {
+                            <span class="prelude-val">Some</span>(expression) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.reconstruct_expression(expression).<span class="number">0</span>),
+                            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.reconstruct_expression(Expression::Identifier(member.identifier)).<span class="number">0</span>),
+                        },
+                        span: member.span,
+                        id: member.id,
+                    })
+                    .collect(),
+                span: input.span,
+                id: input.id,
+            }),
+            Default::default(),
+        )
     }
 
     <span class="kw">fn </span>reconstruct_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: ErrExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
