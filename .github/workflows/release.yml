@@ -139,7 +139,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Xcode Select
-        uses: devbotsxyz/xcode-select@v1.1.0
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
 
       - name: Checkout
         uses: actions/checkout@v2
