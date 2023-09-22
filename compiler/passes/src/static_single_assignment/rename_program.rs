@@ -133,6 +133,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
             structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.consume_function(f))).collect(),
+            consts: input.consts,
             span: input.span,
         }
     }
