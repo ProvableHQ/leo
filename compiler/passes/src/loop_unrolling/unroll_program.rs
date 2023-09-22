@@ -70,4 +70,56 @@ impl ProgramReconstructor for Unroller<'_> {
 
         reconstructed_function
     }
+
+    fn reconstruct_const(&mut self, input: DefinitionStatement) -> DefinitionStatement {
+        // Reconstruct the RHS expression to allow for constant propagation
+        let reconstructed_value_expression = self.reconstruct_expression(input.value.clone()).0;
+
+        // Helper function to add global constants to constant variable table
+        let insert_variable = |symbol: Symbol, value: &Expression| {
+            if let Literal(literal) = value {
+                if let Err(err) = self.constant_propagation_table.borrow_mut().insert_constant(symbol, literal.clone())
+                {
+                    self.handler.emit_err(err);
+                }
+            } else {
+                unreachable!("Type checking guarantees that the value of a constant is a literal.");
+            }
+        };
+
+        // No matter if doing multiple definitions in one line or not, insert all global constants into the constant propagation table
+        match &input.place {
+            Expression::Identifier(identifier) => {
+                insert_variable(identifier.name, &reconstructed_value_expression);
+            }
+            Expression::Tuple(tuple_expression) => {
+                let tuple_values: &Vec<Expression> = match &reconstructed_value_expression {
+                    Expression::Tuple(tuple_value_expression) => &tuple_value_expression.elements,
+                    _ => unreachable!(
+                        "Definition statement that defines tuple of variables must be assigned to tuple of values"
+                    ),
+                };
+
+                for (i, element) in tuple_expression.elements.iter().enumerate() {
+                    let identifier = match element {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => unreachable!("All elements of a definition tuple must be identifiers"),
+                    };
+                    insert_variable(identifier.name, &tuple_values[i].clone());
+                }
+            }
+            _ => unreachable!(
+                "Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
+            ),
+        }
+
+        DefinitionStatement {
+            declaration_type: input.declaration_type,
+            place: input.place,
+            type_: input.type_,
+            value: reconstructed_value_expression,
+            span: input.span,
+            id: input.id,
+        }
+    }
 }
