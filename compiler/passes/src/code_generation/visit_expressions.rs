@@ -315,6 +315,15 @@ impl<'a> CodeGenerator<'a> {
             Type::Identifier(Identifier { name: sym::BHP1024, .. }) => {
                 construct_simple_function_call(&input.name, "bhp1024", arguments)
             }
+            Type::Identifier(Identifier { name: sym::Keccak256, .. }) => {
+                construct_simple_function_call(&input.name, "keccak256", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Keccak384, .. }) => {
+                construct_simple_function_call(&input.name, "keccak384", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::Keccak512, .. }) => {
+                construct_simple_function_call(&input.name, "keccak512", arguments)
+            }
             Type::Identifier(Identifier { name: sym::Pedersen64, .. }) => {
                 construct_simple_function_call(&input.name, "ped64", arguments)
             }

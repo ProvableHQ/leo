@@ -107,6 +107,51 @@ pub enum CoreFunction {
     ChaChaRandU128,
     ChaChaRandScalar,
 
+    Keccak256HashToAddress,
+    Keccak256HashToField,
+    Keccak256HashToGroup,
+    Keccak256HashToI8,
+    Keccak256HashToI16,
+    Keccak256HashToI32,
+    Keccak256HashToI64,
+    Keccak256HashToI128,
+    Keccak256HashToU8,
+    Keccak256HashToU16,
+    Keccak256HashToU32,
+    Keccak256HashToU64,
+    Keccak256HashToU128,
+    Keccak256HashToScalar,
+
+    Keccak384HashToAddress,
+    Keccak384HashToField,
+    Keccak384HashToGroup,
+    Keccak384HashToI8,
+    Keccak384HashToI16,
+    Keccak384HashToI32,
+    Keccak384HashToI64,
+    Keccak384HashToI128,
+    Keccak384HashToU8,
+    Keccak384HashToU16,
+    Keccak384HashToU32,
+    Keccak384HashToU64,
+    Keccak384HashToU128,
+    Keccak384HashToScalar,
+
+    Keccak512HashToAddress,
+    Keccak512HashToField,
+    Keccak512HashToGroup,
+    Keccak512HashToI8,
+    Keccak512HashToI16,
+    Keccak512HashToI32,
+    Keccak512HashToI64,
+    Keccak512HashToI128,
+    Keccak512HashToU8,
+    Keccak512HashToU16,
+    Keccak512HashToU32,
+    Keccak512HashToU64,
+    Keccak512HashToU128,
+    Keccak512HashToScalar,
+
     Pedersen64CommitToAddress,
     Pedersen64CommitToField,
     Pedersen64CommitToGroup,
@@ -292,6 +337,51 @@ impl CoreFunction {
             (sym::ChaCha, sym::rand_u32) => Self::ChaChaRandU32,
             (sym::ChaCha, sym::rand_u64) => Self::ChaChaRandU64,
             (sym::ChaCha, sym::rand_u128) => Self::ChaChaRandU128,
+
+            (sym::Keccak256, sym::hash_to_address) => Self::Keccak256HashToAddress,
+            (sym::Keccak256, sym::hash_to_field) => Self::Keccak256HashToField,
+            (sym::Keccak256, sym::hash_to_group) => Self::Keccak256HashToGroup,
+            (sym::Keccak256, sym::hash_to_i8) => Self::Keccak256HashToI8,
+            (sym::Keccak256, sym::hash_to_i16) => Self::Keccak256HashToI16,
+            (sym::Keccak256, sym::hash_to_i32) => Self::Keccak256HashToI32,
+            (sym::Keccak256, sym::hash_to_i64) => Self::Keccak256HashToI64,
+            (sym::Keccak256, sym::hash_to_i128) => Self::Keccak256HashToI128,
+            (sym::Keccak256, sym::hash_to_u8) => Self::Keccak256HashToU8,
+            (sym::Keccak256, sym::hash_to_u16) => Self::Keccak256HashToU16,
+            (sym::Keccak256, sym::hash_to_u32) => Self::Keccak256HashToU32,
+            (sym::Keccak256, sym::hash_to_u64) => Self::Keccak256HashToU64,
+            (sym::Keccak256, sym::hash_to_u128) => Self::Keccak256HashToU128,
+            (sym::Keccak256, sym::hash_to_scalar) => Self::Keccak256HashToScalar,
+
+            (sym::Keccak384, sym::hash_to_address) => Self::Keccak384HashToAddress,
+            (sym::Keccak384, sym::hash_to_field) => Self::Keccak384HashToField,
+            (sym::Keccak384, sym::hash_to_group) => Self::Keccak384HashToGroup,
+            (sym::Keccak384, sym::hash_to_i8) => Self::Keccak384HashToI8,
+            (sym::Keccak384, sym::hash_to_i16) => Self::Keccak384HashToI16,
+            (sym::Keccak384, sym::hash_to_i32) => Self::Keccak384HashToI32,
+            (sym::Keccak384, sym::hash_to_i64) => Self::Keccak384HashToI64,
+            (sym::Keccak384, sym::hash_to_i128) => Self::Keccak384HashToI128,
+            (sym::Keccak384, sym::hash_to_u8) => Self::Keccak384HashToU8,
+            (sym::Keccak384, sym::hash_to_u16) => Self::Keccak384HashToU16,
+            (sym::Keccak384, sym::hash_to_u32) => Self::Keccak384HashToU32,
+            (sym::Keccak384, sym::hash_to_u64) => Self::Keccak384HashToU64,
+            (sym::Keccak384, sym::hash_to_u128) => Self::Keccak384HashToU128,
+            (sym::Keccak384, sym::hash_to_scalar) => Self::Keccak384HashToScalar,
+
+            (sym::Keccak512, sym::hash_to_address) => Self::Keccak512HashToAddress,
+            (sym::Keccak512, sym::hash_to_field) => Self::Keccak512HashToField,
+            (sym::Keccak512, sym::hash_to_group) => Self::Keccak512HashToGroup,
+            (sym::Keccak512, sym::hash_to_i8) => Self::Keccak512HashToI8,
+            (sym::Keccak512, sym::hash_to_i16) => Self::Keccak512HashToI16,
+            (sym::Keccak512, sym::hash_to_i32) => Self::Keccak512HashToI32,
+            (sym::Keccak512, sym::hash_to_i64) => Self::Keccak512HashToI64,
+            (sym::Keccak512, sym::hash_to_i128) => Self::Keccak512HashToI128,
+            (sym::Keccak512, sym::hash_to_u8) => Self::Keccak512HashToU8,
+            (sym::Keccak512, sym::hash_to_u16) => Self::Keccak512HashToU16,
+            (sym::Keccak512, sym::hash_to_u32) => Self::Keccak512HashToU32,
+            (sym::Keccak512, sym::hash_to_u64) => Self::Keccak512HashToU64,
+            (sym::Keccak512, sym::hash_to_u128) => Self::Keccak512HashToU128,
+            (sym::Keccak512, sym::hash_to_scalar) => Self::Keccak512HashToScalar,
 
             (sym::Pedersen64, sym::commit_to_address) => Self::Pedersen64CommitToAddress,
             (sym::Pedersen64, sym::commit_to_field) => Self::Pedersen64CommitToField,
@@ -480,6 +570,51 @@ impl CoreFunction {
             Self::ChaChaRandU128 => 0,
             Self::ChaChaRandScalar => 0,
 
+            Self::Keccak256HashToAddress => 1,
+            Self::Keccak256HashToField => 1,
+            Self::Keccak256HashToGroup => 1,
+            Self::Keccak256HashToI8 => 1,
+            Self::Keccak256HashToI16 => 1,
+            Self::Keccak256HashToI32 => 1,
+            Self::Keccak256HashToI64 => 1,
+            Self::Keccak256HashToI128 => 1,
+            Self::Keccak256HashToU8 => 1,
+            Self::Keccak256HashToU16 => 1,
+            Self::Keccak256HashToU32 => 1,
+            Self::Keccak256HashToU64 => 1,
+            Self::Keccak256HashToU128 => 1,
+            Self::Keccak256HashToScalar => 1,
+
+            Self::Keccak384HashToAddress => 1,
+            Self::Keccak384HashToField => 1,
+            Self::Keccak384HashToGroup => 1,
+            Self::Keccak384HashToI8 => 1,
+            Self::Keccak384HashToI16 => 1,
+            Self::Keccak384HashToI32 => 1,
+            Self::Keccak384HashToI64 => 1,
+            Self::Keccak384HashToI128 => 1,
+            Self::Keccak384HashToU8 => 1,
+            Self::Keccak384HashToU16 => 1,
+            Self::Keccak384HashToU32 => 1,
+            Self::Keccak384HashToU64 => 1,
+            Self::Keccak384HashToU128 => 1,
+            Self::Keccak384HashToScalar => 1,
+
+            Self::Keccak512HashToAddress => 1,
+            Self::Keccak512HashToField => 1,
+            Self::Keccak512HashToGroup => 1,
+            Self::Keccak512HashToI8 => 1,
+            Self::Keccak512HashToI16 => 1,
+            Self::Keccak512HashToI32 => 1,
+            Self::Keccak512HashToI64 => 1,
+            Self::Keccak512HashToI128 => 1,
+            Self::Keccak512HashToU8 => 1,
+            Self::Keccak512HashToU16 => 1,
+            Self::Keccak512HashToU32 => 1,
+            Self::Keccak512HashToU64 => 1,
+            Self::Keccak512HashToU128 => 1,
+            Self::Keccak512HashToScalar => 1,
+
             Self::Pedersen64CommitToAddress => 2,
             Self::Pedersen64CommitToField => 2,
             Self::Pedersen64CommitToGroup => 2,
@@ -665,6 +800,48 @@ impl CoreFunction {
             | CoreFunction::BHP1024HashToU64
             | CoreFunction::BHP1024HashToU128
             | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::Keccak256HashToAddress
+            | CoreFunction::Keccak256HashToField
+            | CoreFunction::Keccak256HashToGroup
+            | CoreFunction::Keccak256HashToI8
+            | CoreFunction::Keccak256HashToI16
+            | CoreFunction::Keccak256HashToI32
+            | CoreFunction::Keccak256HashToI64
+            | CoreFunction::Keccak256HashToI128
+            | CoreFunction::Keccak256HashToU8
+            | CoreFunction::Keccak256HashToU16
+            | CoreFunction::Keccak256HashToU32
+            | CoreFunction::Keccak256HashToU64
+            | CoreFunction::Keccak256HashToU128
+            | CoreFunction::Keccak256HashToScalar
+            | CoreFunction::Keccak384HashToAddress
+            | CoreFunction::Keccak384HashToField
+            | CoreFunction::Keccak384HashToGroup
+            | CoreFunction::Keccak384HashToI8
+            | CoreFunction::Keccak384HashToI16
+            | CoreFunction::Keccak384HashToI32
+            | CoreFunction::Keccak384HashToI64
+            | CoreFunction::Keccak384HashToI128
+            | CoreFunction::Keccak384HashToU8
+            | CoreFunction::Keccak384HashToU16
+            | CoreFunction::Keccak384HashToU32
+            | CoreFunction::Keccak384HashToU64
+            | CoreFunction::Keccak384HashToU128
+            | CoreFunction::Keccak384HashToScalar
+            | CoreFunction::Keccak512HashToAddress
+            | CoreFunction::Keccak512HashToField
+            | CoreFunction::Keccak512HashToGroup
+            | CoreFunction::Keccak512HashToI8
+            | CoreFunction::Keccak512HashToI16
+            | CoreFunction::Keccak512HashToI32
+            | CoreFunction::Keccak512HashToI64
+            | CoreFunction::Keccak512HashToI128
+            | CoreFunction::Keccak512HashToU8
+            | CoreFunction::Keccak512HashToU16
+            | CoreFunction::Keccak512HashToU32
+            | CoreFunction::Keccak512HashToU64
+            | CoreFunction::Keccak512HashToU128
+            | CoreFunction::Keccak512HashToScalar
             | CoreFunction::Pedersen64CommitToAddress
             | CoreFunction::Pedersen64CommitToField
             | CoreFunction::Pedersen64CommitToGroup

@@ -480,6 +480,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToAddress
             | CoreFunction::BHP768HashToAddress
             | CoreFunction::BHP1024HashToAddress
+            | CoreFunction::Keccak256HashToAddress
+            | CoreFunction::Keccak384HashToAddress
+            | CoreFunction::Keccak512HashToAddress
             | CoreFunction::Poseidon2HashToAddress
             | CoreFunction::Poseidon4HashToAddress
             | CoreFunction::Poseidon8HashToAddress => {
@@ -491,6 +494,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToField
             | CoreFunction::BHP768HashToField
             | CoreFunction::BHP1024HashToField
+            | CoreFunction::Keccak256HashToField
+            | CoreFunction::Keccak384HashToField
+            | CoreFunction::Keccak512HashToField
             | CoreFunction::Poseidon2HashToField
             | CoreFunction::Poseidon4HashToField
             | CoreFunction::Poseidon8HashToField => {
@@ -502,6 +508,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToGroup
             | CoreFunction::BHP768HashToGroup
             | CoreFunction::BHP1024HashToGroup
+            | CoreFunction::Keccak256HashToGroup
+            | CoreFunction::Keccak384HashToGroup
+            | CoreFunction::Keccak512HashToGroup
             | CoreFunction::Poseidon2HashToGroup
             | CoreFunction::Poseidon4HashToGroup
             | CoreFunction::Poseidon8HashToGroup => {
@@ -513,6 +522,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToI8
             | CoreFunction::BHP768HashToI8
             | CoreFunction::BHP1024HashToI8
+            | CoreFunction::Keccak256HashToI8
+            | CoreFunction::Keccak384HashToI8
+            | CoreFunction::Keccak512HashToI8
             | CoreFunction::Poseidon2HashToI8
             | CoreFunction::Poseidon4HashToI8
             | CoreFunction::Poseidon8HashToI8 => {
@@ -524,6 +536,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToI16
             | CoreFunction::BHP768HashToI16
             | CoreFunction::BHP1024HashToI16
+            | CoreFunction::Keccak256HashToI16
+            | CoreFunction::Keccak384HashToI16
+            | CoreFunction::Keccak512HashToI16
             | CoreFunction::Poseidon2HashToI16
             | CoreFunction::Poseidon4HashToI16
             | CoreFunction::Poseidon8HashToI16 => {
@@ -535,6 +550,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToI32
             | CoreFunction::BHP768HashToI32
             | CoreFunction::BHP1024HashToI32
+            | CoreFunction::Keccak256HashToI32
+            | CoreFunction::Keccak384HashToI32
+            | CoreFunction::Keccak512HashToI32
             | CoreFunction::Poseidon2HashToI32
             | CoreFunction::Poseidon4HashToI32
             | CoreFunction::Poseidon8HashToI32 => {
@@ -546,6 +564,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToI64
             | CoreFunction::BHP768HashToI64
             | CoreFunction::BHP1024HashToI64
+            | CoreFunction::Keccak256HashToI64
+            | CoreFunction::Keccak384HashToI64
+            | CoreFunction::Keccak512HashToI64
             | CoreFunction::Poseidon2HashToI64
             | CoreFunction::Poseidon4HashToI64
             | CoreFunction::Poseidon8HashToI64 => {
@@ -557,6 +578,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToI128
             | CoreFunction::BHP768HashToI128
             | CoreFunction::BHP1024HashToI128
+            | CoreFunction::Keccak256HashToI128
+            | CoreFunction::Keccak384HashToI128
+            | CoreFunction::Keccak512HashToI128
             | CoreFunction::Poseidon2HashToI128
             | CoreFunction::Poseidon4HashToI128
             | CoreFunction::Poseidon8HashToI128 => {
@@ -568,6 +592,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToU8
             | CoreFunction::BHP768HashToU8
             | CoreFunction::BHP1024HashToU8
+            | CoreFunction::Keccak256HashToU8
+            | CoreFunction::Keccak384HashToU8
+            | CoreFunction::Keccak512HashToU8
             | CoreFunction::Poseidon2HashToU8
             | CoreFunction::Poseidon4HashToU8
             | CoreFunction::Poseidon8HashToU8 => {
@@ -579,6 +606,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToU16
             | CoreFunction::BHP768HashToU16
             | CoreFunction::BHP1024HashToU16
+            | CoreFunction::Keccak256HashToU16
+            | CoreFunction::Keccak384HashToU16
+            | CoreFunction::Keccak512HashToU16
             | CoreFunction::Poseidon2HashToU16
             | CoreFunction::Poseidon4HashToU16
             | CoreFunction::Poseidon8HashToU16 => {
@@ -590,6 +620,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToU32
             | CoreFunction::BHP768HashToU32
             | CoreFunction::BHP1024HashToU32
+            | CoreFunction::Keccak256HashToU32
+            | CoreFunction::Keccak384HashToU32
+            | CoreFunction::Keccak512HashToU32
             | CoreFunction::Poseidon2HashToU32
             | CoreFunction::Poseidon4HashToU32
             | CoreFunction::Poseidon8HashToU32 => {
@@ -601,6 +634,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToU64
             | CoreFunction::BHP768HashToU64
             | CoreFunction::BHP1024HashToU64
+            | CoreFunction::Keccak256HashToU64
+            | CoreFunction::Keccak384HashToU64
+            | CoreFunction::Keccak512HashToU64
             | CoreFunction::Poseidon2HashToU64
             | CoreFunction::Poseidon4HashToU64
             | CoreFunction::Poseidon8HashToU64 => {
@@ -612,6 +648,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToU128
             | CoreFunction::BHP768HashToU128
             | CoreFunction::BHP1024HashToU128
+            | CoreFunction::Keccak256HashToU128
+            | CoreFunction::Keccak384HashToU128
+            | CoreFunction::Keccak512HashToU128
             | CoreFunction::Poseidon2HashToU128
             | CoreFunction::Poseidon4HashToU128
             | CoreFunction::Poseidon8HashToU128 => {
@@ -623,6 +662,9 @@ impl<'a> TypeChecker<'a> {
             | CoreFunction::BHP512HashToScalar
             | CoreFunction::BHP768HashToScalar
             | CoreFunction::BHP1024HashToScalar
+            | CoreFunction::Keccak256HashToScalar
+            | CoreFunction::Keccak384HashToScalar
+            | CoreFunction::Keccak512HashToScalar
             | CoreFunction::Poseidon2HashToScalar
             | CoreFunction::Poseidon4HashToScalar
             | CoreFunction::Poseidon8HashToScalar => {
