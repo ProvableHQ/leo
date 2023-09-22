@@ -14,11 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::*;
+use leo_ast::{Expression::Literal, *};
+use leo_span::Symbol;
 
 use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
+    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        let new_consts = input.consts.into_iter().map(|(i, c)| (i, self.reconstruct_const(c))).collect();
+        ProgramScope {
+            program_id: input.program_id,
+            structs: input.structs,
+            mappings: input.mappings,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            consts: new_consts,
+            span: input.span,
+        }
+    }
+
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
