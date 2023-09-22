@@ -537,6 +537,15 @@
 <a href="#537" id="537">537</a>
 <a href="#538" id="538">538</a>
 <a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -877,6 +886,15 @@
             }
             Type::Identifier(Identifier { name: sym::Poseidon8, .. }) =&gt; {
                 construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd8&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::SHA3_256, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_256&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::SHA3_384, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_384&quot;</span>, arguments)
+            }
+            Type::Identifier(Identifier { name: sym::SHA3_512, .. }) =&gt; {
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_512&quot;</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Mapping, .. }) =&gt; <span class="kw">match </span>input.name.name {
                 sym::get =&gt; {

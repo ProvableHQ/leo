@@ -1055,6 +1055,48 @@
 <a href="#1055" id="1055">1055</a>
 <a href="#1056" id="1056">1056</a>
 <a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1542,7 +1584,10 @@
             | CoreFunction::Keccak512HashToAddress
             | CoreFunction::Poseidon2HashToAddress
             | CoreFunction::Poseidon4HashToAddress
-            | CoreFunction::Poseidon8HashToAddress =&gt; {
+            | CoreFunction::Poseidon8HashToAddress
+            | CoreFunction::SHA3_256HashToAddress
+            | CoreFunction::SHA3_384HashToAddress
+            | CoreFunction::SHA3_512HashToAddress =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Address)
@@ -1556,7 +1601,10 @@
             | CoreFunction::Keccak512HashToField
             | CoreFunction::Poseidon2HashToField
             | CoreFunction::Poseidon4HashToField
-            | CoreFunction::Poseidon8HashToField =&gt; {
+            | CoreFunction::Poseidon8HashToField
+            | CoreFunction::SHA3_256HashToField
+            | CoreFunction::SHA3_384HashToField
+            | CoreFunction::SHA3_512HashToField =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Field)
@@ -1570,7 +1618,10 @@
             | CoreFunction::Keccak512HashToGroup
             | CoreFunction::Poseidon2HashToGroup
             | CoreFunction::Poseidon4HashToGroup
-            | CoreFunction::Poseidon8HashToGroup =&gt; {
+            | CoreFunction::Poseidon8HashToGroup
+            | CoreFunction::SHA3_256HashToGroup
+            | CoreFunction::SHA3_384HashToGroup
+            | CoreFunction::SHA3_512HashToGroup =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Group)
@@ -1584,7 +1635,10 @@
             | CoreFunction::Keccak512HashToI8
             | CoreFunction::Poseidon2HashToI8
             | CoreFunction::Poseidon4HashToI8
-            | CoreFunction::Poseidon8HashToI8 =&gt; {
+            | CoreFunction::Poseidon8HashToI8
+            | CoreFunction::SHA3_256HashToI8
+            | CoreFunction::SHA3_384HashToI8
+            | CoreFunction::SHA3_512HashToI8 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I8))
@@ -1598,7 +1652,10 @@
             | CoreFunction::Keccak512HashToI16
             | CoreFunction::Poseidon2HashToI16
             | CoreFunction::Poseidon4HashToI16
-            | CoreFunction::Poseidon8HashToI16 =&gt; {
+            | CoreFunction::Poseidon8HashToI16
+            | CoreFunction::SHA3_256HashToI16
+            | CoreFunction::SHA3_384HashToI16
+            | CoreFunction::SHA3_512HashToI16 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I16))
@@ -1612,7 +1669,10 @@
             | CoreFunction::Keccak512HashToI32
             | CoreFunction::Poseidon2HashToI32
             | CoreFunction::Poseidon4HashToI32
-            | CoreFunction::Poseidon8HashToI32 =&gt; {
+            | CoreFunction::Poseidon8HashToI32
+            | CoreFunction::SHA3_256HashToI32
+            | CoreFunction::SHA3_384HashToI32
+            | CoreFunction::SHA3_512HashToI32 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I32))
@@ -1626,7 +1686,10 @@
             | CoreFunction::Keccak512HashToI64
             | CoreFunction::Poseidon2HashToI64
             | CoreFunction::Poseidon4HashToI64
-            | CoreFunction::Poseidon8HashToI64 =&gt; {
+            | CoreFunction::Poseidon8HashToI64
+            | CoreFunction::SHA3_256HashToI64
+            | CoreFunction::SHA3_384HashToI64
+            | CoreFunction::SHA3_512HashToI64 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I64))
@@ -1640,7 +1703,10 @@
             | CoreFunction::Keccak512HashToI128
             | CoreFunction::Poseidon2HashToI128
             | CoreFunction::Poseidon4HashToI128
-            | CoreFunction::Poseidon8HashToI128 =&gt; {
+            | CoreFunction::Poseidon8HashToI128
+            | CoreFunction::SHA3_256HashToI128
+            | CoreFunction::SHA3_384HashToI128
+            | CoreFunction::SHA3_512HashToI128 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::I128))
@@ -1654,7 +1720,10 @@
             | CoreFunction::Keccak512HashToU8
             | CoreFunction::Poseidon2HashToU8
             | CoreFunction::Poseidon4HashToU8
-            | CoreFunction::Poseidon8HashToU8 =&gt; {
+            | CoreFunction::Poseidon8HashToU8
+            | CoreFunction::SHA3_256HashToU8
+            | CoreFunction::SHA3_384HashToU8
+            | CoreFunction::SHA3_512HashToU8 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U8))
@@ -1668,7 +1737,10 @@
             | CoreFunction::Keccak512HashToU16
             | CoreFunction::Poseidon2HashToU16
             | CoreFunction::Poseidon4HashToU16
-            | CoreFunction::Poseidon8HashToU16 =&gt; {
+            | CoreFunction::Poseidon8HashToU16
+            | CoreFunction::SHA3_256HashToU16
+            | CoreFunction::SHA3_384HashToU16
+            | CoreFunction::SHA3_512HashToU16 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U16))
@@ -1682,7 +1754,10 @@
             | CoreFunction::Keccak512HashToU32
             | CoreFunction::Poseidon2HashToU32
             | CoreFunction::Poseidon4HashToU32
-            | CoreFunction::Poseidon8HashToU32 =&gt; {
+            | CoreFunction::Poseidon8HashToU32
+            | CoreFunction::SHA3_256HashToU32
+            | CoreFunction::SHA3_384HashToU32
+            | CoreFunction::SHA3_512HashToU32 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U32))
@@ -1696,7 +1771,10 @@
             | CoreFunction::Keccak512HashToU64
             | CoreFunction::Poseidon2HashToU64
             | CoreFunction::Poseidon4HashToU64
-            | CoreFunction::Poseidon8HashToU64 =&gt; {
+            | CoreFunction::Poseidon8HashToU64
+            | CoreFunction::SHA3_256HashToU64
+            | CoreFunction::SHA3_384HashToU64
+            | CoreFunction::SHA3_512HashToU64 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U64))
@@ -1710,7 +1788,10 @@
             | CoreFunction::Keccak512HashToU128
             | CoreFunction::Poseidon2HashToU128
             | CoreFunction::Poseidon4HashToU128
-            | CoreFunction::Poseidon8HashToU128 =&gt; {
+            | CoreFunction::Poseidon8HashToU128
+            | CoreFunction::SHA3_256HashToU128
+            | CoreFunction::SHA3_384HashToU128
+            | CoreFunction::SHA3_512HashToU128 =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Integer(IntegerType::U128))
@@ -1724,7 +1805,10 @@
             | CoreFunction::Keccak512HashToScalar
             | CoreFunction::Poseidon2HashToScalar
             | CoreFunction::Poseidon4HashToScalar
-            | CoreFunction::Poseidon8HashToScalar =&gt; {
+            | CoreFunction::Poseidon8HashToScalar
+            | CoreFunction::SHA3_256HashToScalar
+            | CoreFunction::SHA3_384HashToScalar
+            | CoreFunction::SHA3_512HashToScalar =&gt; {
                 <span class="comment">// Check that the first argument is not a mapping, tuple, err, or unit type.
                 </span>check_not_mapping_tuple_err_unit(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">1</span>);
                 <span class="prelude-val">Some</span>(Type::Scalar)
