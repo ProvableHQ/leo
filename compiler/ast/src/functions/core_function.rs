@@ -233,6 +233,51 @@ pub enum CoreFunction {
     Poseidon8HashToU128,
     Poseidon8HashToScalar,
 
+    SHA3_256HashToAddress,
+    SHA3_256HashToField,
+    SHA3_256HashToGroup,
+    SHA3_256HashToI8,
+    SHA3_256HashToI16,
+    SHA3_256HashToI32,
+    SHA3_256HashToI64,
+    SHA3_256HashToI128,
+    SHA3_256HashToU8,
+    SHA3_256HashToU16,
+    SHA3_256HashToU32,
+    SHA3_256HashToU64,
+    SHA3_256HashToU128,
+    SHA3_256HashToScalar,
+
+    SHA3_384HashToAddress,
+    SHA3_384HashToField,
+    SHA3_384HashToGroup,
+    SHA3_384HashToI8,
+    SHA3_384HashToI16,
+    SHA3_384HashToI32,
+    SHA3_384HashToI64,
+    SHA3_384HashToI128,
+    SHA3_384HashToU8,
+    SHA3_384HashToU16,
+    SHA3_384HashToU32,
+    SHA3_384HashToU64,
+    SHA3_384HashToU128,
+    SHA3_384HashToScalar,
+
+    SHA3_512HashToAddress,
+    SHA3_512HashToField,
+    SHA3_512HashToGroup,
+    SHA3_512HashToI8,
+    SHA3_512HashToI16,
+    SHA3_512HashToI32,
+    SHA3_512HashToI64,
+    SHA3_512HashToI128,
+    SHA3_512HashToU8,
+    SHA3_512HashToU16,
+    SHA3_512HashToU32,
+    SHA3_512HashToU64,
+    SHA3_512HashToU128,
+    SHA3_512HashToScalar,
+
     MappingGet,
     MappingGetOrUse,
     MappingSet,
@@ -463,6 +508,51 @@ impl CoreFunction {
             (sym::Poseidon8, sym::hash_to_u64) => Self::Poseidon8HashToU64,
             (sym::Poseidon8, sym::hash_to_u128) => Self::Poseidon8HashToU128,
             (sym::Poseidon8, sym::hash_to_scalar) => Self::Poseidon8HashToScalar,
+
+            (sym::SHA3_256, sym::hash_to_address) => Self::SHA3_256HashToAddress,
+            (sym::SHA3_256, sym::hash_to_field) => Self::SHA3_256HashToField,
+            (sym::SHA3_256, sym::hash_to_group) => Self::SHA3_256HashToGroup,
+            (sym::SHA3_256, sym::hash_to_i8) => Self::SHA3_256HashToI8,
+            (sym::SHA3_256, sym::hash_to_i16) => Self::SHA3_256HashToI16,
+            (sym::SHA3_256, sym::hash_to_i32) => Self::SHA3_256HashToI32,
+            (sym::SHA3_256, sym::hash_to_i64) => Self::SHA3_256HashToI64,
+            (sym::SHA3_256, sym::hash_to_i128) => Self::SHA3_256HashToI128,
+            (sym::SHA3_256, sym::hash_to_u8) => Self::SHA3_256HashToU8,
+            (sym::SHA3_256, sym::hash_to_u16) => Self::SHA3_256HashToU16,
+            (sym::SHA3_256, sym::hash_to_u32) => Self::SHA3_256HashToU32,
+            (sym::SHA3_256, sym::hash_to_u64) => Self::SHA3_256HashToU64,
+            (sym::SHA3_256, sym::hash_to_u128) => Self::SHA3_256HashToU128,
+            (sym::SHA3_256, sym::hash_to_scalar) => Self::SHA3_256HashToScalar,
+
+            (sym::SHA3_384, sym::hash_to_address) => Self::SHA3_384HashToAddress,
+            (sym::SHA3_384, sym::hash_to_field) => Self::SHA3_384HashToField,
+            (sym::SHA3_384, sym::hash_to_group) => Self::SHA3_384HashToGroup,
+            (sym::SHA3_384, sym::hash_to_i8) => Self::SHA3_384HashToI8,
+            (sym::SHA3_384, sym::hash_to_i16) => Self::SHA3_384HashToI16,
+            (sym::SHA3_384, sym::hash_to_i32) => Self::SHA3_384HashToI32,
+            (sym::SHA3_384, sym::hash_to_i64) => Self::SHA3_384HashToI64,
+            (sym::SHA3_384, sym::hash_to_i128) => Self::SHA3_384HashToI128,
+            (sym::SHA3_384, sym::hash_to_u8) => Self::SHA3_384HashToU8,
+            (sym::SHA3_384, sym::hash_to_u16) => Self::SHA3_384HashToU16,
+            (sym::SHA3_384, sym::hash_to_u32) => Self::SHA3_384HashToU32,
+            (sym::SHA3_384, sym::hash_to_u64) => Self::SHA3_384HashToU64,
+            (sym::SHA3_384, sym::hash_to_u128) => Self::SHA3_384HashToU128,
+            (sym::SHA3_384, sym::hash_to_scalar) => Self::SHA3_384HashToScalar,
+
+            (sym::SHA3_512, sym::hash_to_address) => Self::SHA3_512HashToAddress,
+            (sym::SHA3_512, sym::hash_to_field) => Self::SHA3_512HashToField,
+            (sym::SHA3_512, sym::hash_to_group) => Self::SHA3_512HashToGroup,
+            (sym::SHA3_512, sym::hash_to_i8) => Self::SHA3_512HashToI8,
+            (sym::SHA3_512, sym::hash_to_i16) => Self::SHA3_512HashToI16,
+            (sym::SHA3_512, sym::hash_to_i32) => Self::SHA3_512HashToI32,
+            (sym::SHA3_512, sym::hash_to_i64) => Self::SHA3_512HashToI64,
+            (sym::SHA3_512, sym::hash_to_i128) => Self::SHA3_512HashToI128,
+            (sym::SHA3_512, sym::hash_to_u8) => Self::SHA3_512HashToU8,
+            (sym::SHA3_512, sym::hash_to_u16) => Self::SHA3_512HashToU16,
+            (sym::SHA3_512, sym::hash_to_u32) => Self::SHA3_512HashToU32,
+            (sym::SHA3_512, sym::hash_to_u64) => Self::SHA3_512HashToU64,
+            (sym::SHA3_512, sym::hash_to_u128) => Self::SHA3_512HashToU128,
+            (sym::SHA3_512, sym::hash_to_scalar) => Self::SHA3_512HashToScalar,
 
             (sym::Mapping, sym::get) => Self::MappingGet,
             (sym::Mapping, sym::get_or_use) => Self::MappingGetOrUse,
@@ -696,6 +786,51 @@ impl CoreFunction {
             Self::Poseidon8HashToU128 => 1,
             Self::Poseidon8HashToScalar => 1,
 
+            Self::SHA3_256HashToAddress => 1,
+            Self::SHA3_256HashToField => 1,
+            Self::SHA3_256HashToGroup => 1,
+            Self::SHA3_256HashToI8 => 1,
+            Self::SHA3_256HashToI16 => 1,
+            Self::SHA3_256HashToI32 => 1,
+            Self::SHA3_256HashToI64 => 1,
+            Self::SHA3_256HashToI128 => 1,
+            Self::SHA3_256HashToU8 => 1,
+            Self::SHA3_256HashToU16 => 1,
+            Self::SHA3_256HashToU32 => 1,
+            Self::SHA3_256HashToU64 => 1,
+            Self::SHA3_256HashToU128 => 1,
+            Self::SHA3_256HashToScalar => 1,
+
+            Self::SHA3_384HashToAddress => 1,
+            Self::SHA3_384HashToField => 1,
+            Self::SHA3_384HashToGroup => 1,
+            Self::SHA3_384HashToI8 => 1,
+            Self::SHA3_384HashToI16 => 1,
+            Self::SHA3_384HashToI32 => 1,
+            Self::SHA3_384HashToI64 => 1,
+            Self::SHA3_384HashToI128 => 1,
+            Self::SHA3_384HashToU8 => 1,
+            Self::SHA3_384HashToU16 => 1,
+            Self::SHA3_384HashToU32 => 1,
+            Self::SHA3_384HashToU64 => 1,
+            Self::SHA3_384HashToU128 => 1,
+            Self::SHA3_384HashToScalar => 1,
+
+            Self::SHA3_512HashToAddress => 1,
+            Self::SHA3_512HashToField => 1,
+            Self::SHA3_512HashToGroup => 1,
+            Self::SHA3_512HashToI8 => 1,
+            Self::SHA3_512HashToI16 => 1,
+            Self::SHA3_512HashToI32 => 1,
+            Self::SHA3_512HashToI64 => 1,
+            Self::SHA3_512HashToI128 => 1,
+            Self::SHA3_512HashToU8 => 1,
+            Self::SHA3_512HashToU16 => 1,
+            Self::SHA3_512HashToU32 => 1,
+            Self::SHA3_512HashToU64 => 1,
+            Self::SHA3_512HashToU128 => 1,
+            Self::SHA3_512HashToScalar => 1,
+
             Self::MappingGet => 2,
             Self::MappingGetOrUse => 3,
             Self::MappingSet => 3,
@@ -918,6 +1053,48 @@ impl CoreFunction {
             | CoreFunction::Poseidon8HashToU64
             | CoreFunction::Poseidon8HashToU128
             | CoreFunction::Poseidon8HashToScalar
+            | CoreFunction::SHA3_256HashToAddress
+            | CoreFunction::SHA3_256HashToField
+            | CoreFunction::SHA3_256HashToGroup
+            | CoreFunction::SHA3_256HashToI8
+            | CoreFunction::SHA3_256HashToI16
+            | CoreFunction::SHA3_256HashToI32
+            | CoreFunction::SHA3_256HashToI64
+            | CoreFunction::SHA3_256HashToI128
+            | CoreFunction::SHA3_256HashToU8
+            | CoreFunction::SHA3_256HashToU16
+            | CoreFunction::SHA3_256HashToU32
+            | CoreFunction::SHA3_256HashToU64
+            | CoreFunction::SHA3_256HashToU128
+            | CoreFunction::SHA3_256HashToScalar
+            | CoreFunction::SHA3_384HashToAddress
+            | CoreFunction::SHA3_384HashToField
+            | CoreFunction::SHA3_384HashToGroup
+            | CoreFunction::SHA3_384HashToI8
+            | CoreFunction::SHA3_384HashToI16
+            | CoreFunction::SHA3_384HashToI32
+            | CoreFunction::SHA3_384HashToI64
+            | CoreFunction::SHA3_384HashToI128
+            | CoreFunction::SHA3_384HashToU8
+            | CoreFunction::SHA3_384HashToU16
+            | CoreFunction::SHA3_384HashToU32
+            | CoreFunction::SHA3_384HashToU64
+            | CoreFunction::SHA3_384HashToU128
+            | CoreFunction::SHA3_384HashToScalar
+            | CoreFunction::SHA3_512HashToAddress
+            | CoreFunction::SHA3_512HashToField
+            | CoreFunction::SHA3_512HashToGroup
+            | CoreFunction::SHA3_512HashToI8
+            | CoreFunction::SHA3_512HashToI16
+            | CoreFunction::SHA3_512HashToI32
+            | CoreFunction::SHA3_512HashToI64
+            | CoreFunction::SHA3_512HashToI128
+            | CoreFunction::SHA3_512HashToU8
+            | CoreFunction::SHA3_512HashToU16
+            | CoreFunction::SHA3_512HashToU32
+            | CoreFunction::SHA3_512HashToU64
+            | CoreFunction::SHA3_512HashToU128
+            | CoreFunction::SHA3_512HashToScalar
             | CoreFunction::GroupToXCoordinate
             | CoreFunction::GroupToYCoordinate
             | CoreFunction::SignatureVerify => false,

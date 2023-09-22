@@ -339,6 +339,15 @@ impl<'a> CodeGenerator<'a> {
             Type::Identifier(Identifier { name: sym::Poseidon8, .. }) => {
                 construct_simple_function_call(&input.name, "psd8", arguments)
             }
+            Type::Identifier(Identifier { name: sym::SHA3_256, .. }) => {
+                construct_simple_function_call(&input.name, "sha3_256", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::SHA3_384, .. }) => {
+                construct_simple_function_call(&input.name, "sha3_384", arguments)
+            }
+            Type::Identifier(Identifier { name: sym::SHA3_512, .. }) => {
+                construct_simple_function_call(&input.name, "sha3_512", arguments)
+            }
             Type::Identifier(Identifier { name: sym::Mapping, .. }) => match input.name.name {
                 sym::get => {
                     let mut instruction = "    get".to_string();
