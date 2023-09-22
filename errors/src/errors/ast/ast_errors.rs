@@ -145,4 +145,11 @@ create_messages!(
         msg: format!("failed to convert symbol_table to a json value {error}"),
         help: None,
     }
+
+    @backtraced
+    variable_not_found {
+        args: (var: impl Display),
+        msg: format!("variable `{var}` not found in symbol table"),
+        help: None,
+    }
 );
