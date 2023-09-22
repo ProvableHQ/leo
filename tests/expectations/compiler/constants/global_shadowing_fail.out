@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370034]: global definition of `HELLO` shadows previous definition of `HELLO`\n    --> compiler-test:5:5\n     |\n   5 |     const HELLO: u8 = 0u8;\n     |     ^^^^^^^^^^^^^^^^^^^^^"

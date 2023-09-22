@@ -2,4 +2,4 @@
 namespace: Input
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected : -- found 'a'\n    --> test:4:7\n     |\n   4 | const a: bool  = true;\n     |       ^"
+  - "Error [EPAR0370000]: const\n    --> test:4:1\n     |\n   4 | const a: bool  = true;\n     | ^^^^^"
