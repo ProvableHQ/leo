@@ -17,7 +17,6 @@
 use indexmap::IndexMap;
 use std::{
     cell::RefCell,
-    fmt,
     fmt::{Debug, Display},
 };
 
