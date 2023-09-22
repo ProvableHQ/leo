@@ -40,23 +40,25 @@ impl StatementReconstructor for Unroller<'_> {
     }
 
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Helper function to add  variables to symbol table
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
+            {
+                self.handler.emit_err(err);
+            }
+        };
+
+        let declaration =
+            if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
+
         // If we are unrolling a loop, then we need to repopulate the symbol table.
-        if self.is_unrolling {
-            let declaration =
-                if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
-
-            let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-                if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
-                {
-                    self.handler.emit_err(err);
-                }
-            };
-
-            // Insert the variables in the into the symbol table.
+        // If we are not unrolling a loop, the we need to remove constants from the symbol table.
+        // We always need to add constant variables to the constant variable table.
+        if declaration == VariableType::Mut && self.is_unrolling {
             match &input.place {
                 Expression::Identifier(identifier) => {
-                    insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                    insert_variable(identifier.name, input.type_.clone(), input.span, declaration);
                 }
                 Expression::Tuple(tuple_expression) => {
                     let tuple_type = match input.type_ {
@@ -65,20 +67,34 @@ impl StatementReconstructor for Unroller<'_> {
                             "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                         ),
                     };
-                    tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
+                    tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, _type_)| {
                         let identifier = match expression {
                             Expression::Identifier(identifier) => identifier,
                             _ => unreachable!("Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.")
                         };
-                        insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                        insert_variable(identifier.name, input.type_.clone(), input.span, declaration);
                     });
                 }
                 _ => unreachable!(
                     "Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
                 ),
             }
+        } else if declaration == VariableType::Const {
+            return (Statement::Definition(self.reconstruct_const(input.clone())), true);
         }
-        (Statement::Definition(input), Default::default())
+
+        // Reconstruct the expression and return
+        (
+            Statement::Definition(DefinitionStatement {
+                declaration_type: input.declaration_type,
+                place: input.place,
+                type_: input.type_,
+                value: self.reconstruct_expression(input.value).0,
+                span: input.span,
+                id: input.id,
+            }),
+            false,
+        )
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
