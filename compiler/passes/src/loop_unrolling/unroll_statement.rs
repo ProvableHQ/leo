@@ -98,28 +98,76 @@ impl StatementReconstructor for Unroller<'_> {
     }
 
     fn reconstruct_iteration(&mut self, input: IterationStatement) -> (Statement, Self::AdditionalOutput) {
-        // We match on start and stop cause loops require
-        // bounds to be constants.
-        match (input.start_value.clone().into_inner(), input.stop_value.clone().into_inner()) {
-            (Some(start), Some(stop)) => match (Type::from(&start), Type::from(&stop)) {
-                (Type::Integer(IntegerType::I8), Type::Integer(IntegerType::I8))
-                | (Type::Integer(IntegerType::I16), Type::Integer(IntegerType::I16))
-                | (Type::Integer(IntegerType::I32), Type::Integer(IntegerType::I32))
-                | (Type::Integer(IntegerType::I64), Type::Integer(IntegerType::I64))
-                | (Type::Integer(IntegerType::I128), Type::Integer(IntegerType::I128)) => {
-                    (self.unroll_iteration_statement::<i128>(input, start, stop), Default::default())
-                }
-                (Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U8))
-                | (Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U16))
-                | (Type::Integer(IntegerType::U32), Type::Integer(IntegerType::U32))
-                | (Type::Integer(IntegerType::U64), Type::Integer(IntegerType::U64))
-                | (Type::Integer(IntegerType::U128), Type::Integer(IntegerType::U128)) => {
-                    (self.unroll_iteration_statement::<u128>(input, start, stop), Default::default())
-                }
-                _ => unreachable!("Type checking ensures that `start` and `stop` have the same type."),
-            },
-            // If both loop bounds are not constant, then the loop is not unrolled.
-            _ => (Statement::Iteration(Box::from(input)), Default::default()),
+        // Reconstruct the bound expressions
+        let (new_start, _) = self.reconstruct_expression(input.start);
+        let (new_stop, _) = self.reconstruct_expression(input.stop);
+
+        // Convert into values
+        match (new_start.clone(), new_stop.clone()) {
+            (Literal(start_lit), Literal(stop_lit)) => {
+                input.start_value.replace(Some(Value::try_from(&start_lit).unwrap()));
+                input.stop_value.replace(Some(Value::try_from(&stop_lit).unwrap()));
+            }
+            (Literal(_), _) => self.emit_err(LoopUnrollerError::loop_bound_must_be_a_literal(new_stop.span())),
+            (_, _) => self.emit_err(LoopUnrollerError::loop_bound_must_be_a_literal(new_start.span())),
+        };
+
+        // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation occurs in this pass.
+        if match (input.type_.clone(), input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
+            (Integer(IntegerType::I8), Some(Value::I8(lower_bound, _)), Some(Value::I8(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::I16), Some(Value::I16(lower_bound, _)), Some(Value::I16(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::I32), Some(Value::I32(lower_bound, _)), Some(Value::I32(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::I64), Some(Value::I64(lower_bound, _)), Some(Value::I64(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::I128), Some(Value::I128(lower_bound, _)), Some(Value::I128(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::U8), Some(Value::U8(lower_bound, _)), Some(Value::U8(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::U16), Some(Value::U16(lower_bound, _)), Some(Value::U16(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::U32), Some(Value::U32(lower_bound, _)), Some(Value::U32(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::U64), Some(Value::U64(lower_bound, _)), Some(Value::U64(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            (Integer(IntegerType::U128), Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => {
+                lower_bound >= upper_bound
+            }
+            _ => {
+                self.emit_err(LoopUnrollerError::loop_bounds_must_have_same_type_as_loop_variable(
+                    input.variable.span(),
+                ));
+                false
+            }
+        } {
+            self.emit_err(LoopUnrollerError::loop_range_decreasing(new_stop.span()));
         }
+
+        (
+            self.unroll_iteration_statement::<i128>(IterationStatement {
+                variable: input.variable,
+                type_: input.type_,
+                start: new_start,
+                stop: new_stop,
+                start_value: input.start_value.clone(),
+                stop_value: input.stop_value.clone(),
+                inclusive: false,
+                block: input.block,
+                span: input.span,
+                id: input.id,
+            }),
+            Default::default(),
+        )
     }
 }
