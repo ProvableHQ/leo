@@ -215,6 +215,8 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
 
         input.functions.values().for_each(|function| self.visit_function(function));
+
+        input.consts.values().for_each(|constant| self.visit_const(constant));
     }
 
     fn visit_import(&mut self, input: &'a Program) {
@@ -231,4 +233,6 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
             self.visit_block(&finalize.block);
         }
     }
+
+    fn visit_const(&mut self, _input: &'a DefinitionStatement) {}
 }
