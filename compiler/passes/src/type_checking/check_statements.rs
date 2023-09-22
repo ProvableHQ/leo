@@ -177,7 +177,27 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             _ => (), // Do nothing
         }
 
-        // Check the expression on the left-hand side.
+        // Enforce additional constraint that constant definitions can only be literals or tuples of literals. This will be removed after constant folding.
+        if input.declaration_type == DeclarationType::Const {
+            // Enforce that Constant variables have literal expressions on right-hand side
+            match &input.value {
+                Expression::Literal(_) => (),
+                Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
+                    0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                    _ => {
+                        if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
+                            self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
+                                input.span,
+                            ))
+                        }
+                    }
+                },
+                _ => self
+                    .emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
+            }
+        }
+
+        // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // TODO: Dedup with unrolling pass.
@@ -270,43 +290,41 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.start, iter_type);
 
         // If `input.start` is a valid literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.start {
-            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            if let Ok(value) = Value::try_from(literal) {
-                input.start_value.replace(Some(value));
+        match &input.start {
+            Expression::Literal(literal) => {
+                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                if let Ok(value) = Value::try_from(literal) {
+                    input.start_value.replace(Some(value));
+                }
             }
-        } else {
-            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
+            Expression::Identifier(id) => {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                    if VariableType::Const != var.declaration {
+                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
         self.visit_expression(&input.stop, iter_type);
 
-        // If `input.stop` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.stop {
-            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            if let Ok(value) = Value::try_from(literal) {
-                input.stop_value.replace(Some(value));
+        // If `input.stop` is a valid literal, instantiate it as a value.
+        match &input.stop {
+            Expression::Literal(literal) => {
+                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                if let Ok(value) = Value::try_from(literal) {
+                    input.stop_value.replace(Some(value));
+                }
             }
-        } else {
-            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
-        }
-
-        // Ensure loop bounds are not decreasing.
-        if match (input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
-            (Some(Value::I8(lower_bound, _)), Some(Value::I8(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I16(lower_bound, _)), Some(Value::I16(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I32(lower_bound, _)), Some(Value::I32(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I64(lower_bound, _)), Some(Value::I64(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I128(lower_bound, _)), Some(Value::I128(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U8(lower_bound, _)), Some(Value::U8(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U16(lower_bound, _)), Some(Value::U16(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U32(lower_bound, _)), Some(Value::U32(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U64(lower_bound, _)), Some(Value::U64(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => lower_bound >= upper_bound,
-            // Note that type mismatch and non-literal errors will already be emitted by here.
-            _ => false,
-        } {
-            self.emit_err(TypeCheckerError::loop_range_decreasing(input.stop.span()));
+            Expression::Identifier(id) => {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                    if VariableType::Const != var.declaration {
+                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.stop.span())),
         }
     }
 
