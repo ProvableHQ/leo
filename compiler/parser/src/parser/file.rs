@@ -138,12 +138,17 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
 
         // Parse the body of the program scope.
+        let mut consts = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut structs = IndexMap::new();
         let mut mappings = IndexMap::new();
 
         while self.has_next() {
             match &self.token.token {
+                Token::Const => {
+                    let definition = self.parse_const_definition_statement()?;
+                    consts.insert(Symbol::intern(&definition.place.to_string()), definition);
+                }
                 Token::Struct | Token::Record => {
                     let (id, struct_) = self.parse_struct()?;
                     structs.insert(id, struct_);
@@ -175,7 +180,7 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok(ProgramScope { program_id, functions, structs, mappings, span: start + end })
+        Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
