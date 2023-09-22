@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372002]: Cannot assign to const variable `HELLO`\n    --> compiler-test:4:11\n     |\n   4 |     const HELLO: u8 = 0u8;\n     |           ^^^^^\n"
