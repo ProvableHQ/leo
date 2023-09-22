@@ -48,6 +48,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
             structs: input.structs,
             mappings: input.mappings,
             functions,
+            consts: input.consts,
             span: input.span,
         }
     }
