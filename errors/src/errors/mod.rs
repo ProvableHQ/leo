@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::loop_unroller::LoopUnrollerError;
 /// Contains the ASG error definitions.
 use crate::LeoMessageCode;
 
@@ -45,8 +46,10 @@ pub use self::package::*;
 pub mod parser;
 pub use self::parser::*;
 
+pub mod loop_unroller;
 /// Contains the Type Checker error definitions.
 pub mod type_checker;
+
 pub use self::type_checker::*;
 
 /// The LeoError type that contains all sub error types.
@@ -74,6 +77,9 @@ pub enum LeoError {
     /// Represents a Type Checker Error in a Leo Error.
     #[error(transparent)]
     TypeCheckerError(#[from] TypeCheckerError),
+    /// Represents a Loop Unroller Error in a Leo Error.
+    #[error(transparent)]
+    LoopUnrollerError(#[from] LoopUnrollerError),
     /// Represents a Flatten Error in a Leo Error.
     #[error(transparent)]
     FlattenError(#[from] FlattenError),
@@ -99,6 +105,7 @@ impl LeoError {
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
+            LoopUnrollerError(error) => error.error_code(),
             FlattenError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
             Anyhow(_) => unimplemented!(), // todo: implement error codes for snarkvm errors.
@@ -117,6 +124,7 @@ impl LeoError {
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),
+            LoopUnrollerError(error) => error.exit_code(),
             FlattenError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
             Anyhow(_) => unimplemented!(), // todo: implement exit codes for snarkvm errors.
