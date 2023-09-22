@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use itertools::Itertools;
-use leo_ast::*;
+use leo_ast::{Expression::Literal, Type::Integer, *};
+use leo_errors::loop_unroller::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
 use crate::{unroller::Unroller, VariableSymbol, VariableType};
@@ -27,11 +28,21 @@ impl StatementReconstructor for Unroller<'_> {
         // Enter the block scope.
         let previous_scope_index = self.enter_scope(scope_index);
 
-        let block = Block {
-            statements: input.statements.into_iter().map(|s| self.reconstruct_statement(s).0).collect(),
-            span: input.span,
-            id: input.id,
-        };
+        // Filter out the statements that have additional output = true
+        let filtered_statements: Vec<_> = input
+            .statements
+            .into_iter()
+            .filter_map(|s| {
+                let (reconstructed_statement, additional_output) = self.reconstruct_statement(s);
+                if additional_output {
+                    None // Exclude this statement from the block since it is a constant variable definition
+                } else {
+                    Some(reconstructed_statement)
+                }
+            })
+            .collect();
+
+        let block = Block { statements: filtered_statements, span: input.span, id: input.id };
 
         // Exit the block scope.
         self.exit_scope(previous_scope_index);
