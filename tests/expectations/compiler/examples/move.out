@@ -6,7 +6,7 @@ outputs:
       type_checked_symbol_table: 1d7d583684c95811cd86e4ed36c9d20ac015eef8804fa6f5a9a53b5648c5d0c2
       unrolled_symbol_table: 1d7d583684c95811cd86e4ed36c9d20ac015eef8804fa6f5a9a53b5648c5d0c2
       initial_ast: 2a86fb752956bca7fd055cefa7ca6c22d06a38e88793d2146a3d0287c085f12c
-      unrolled_ast: 2a86fb752956bca7fd055cefa7ca6c22d06a38e88793d2146a3d0287c085f12c
+      unrolled_ast: 45608178c7283548ac3b01decc9bcdd8a4dcbe697aa8e182928a72b2ab830d36
       ssa_ast: 851e93ba5642957b13104c09f1832fbb6c8fcb74fdddc31578510c5277caa93f
       flattened_ast: 9b7e343ebbcf93421eb89f53b3667e96841a6fb25ecf28613c395338fdbe5be4
       inlined_ast: 9b7e343ebbcf93421eb89f53b3667e96841a6fb25ecf28613c395338fdbe5be4
