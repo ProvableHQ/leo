@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use indexmap::IndexMap;
-use std::{
-    cell::RefCell,
-    fmt::{Debug, Display},
-};
+use std::cell::RefCell;
 
 use leo_ast::Literal;
 use leo_errors::Result;
