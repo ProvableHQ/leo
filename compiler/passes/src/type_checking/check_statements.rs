@@ -210,7 +210,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        // Insert the variables in the into the symbol table.
+        // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
                 insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
@@ -222,6 +222,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     ),
                 };
+                if tuple_expression.elements.len() != tuple_type.len() {
+                    return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
+                        tuple_expression.elements.len(),
+                        tuple_type.len(),
+                        input.span(),
+                    ));
+                }
                 tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
                     let identifier = match expression {
                         Expression::Identifier(identifier) => identifier,

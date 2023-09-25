@@ -671,4 +671,11 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    incorrect_num_tuple_elements {
+        args: (identifiers: impl Display, types: impl Display),
+        msg: format!("Tuple length mismatch:`length {identifiers}` tuple of identifiers declared, but length `{types}` tuple of types given`"),
+        help: None,
+    }
+
 );
