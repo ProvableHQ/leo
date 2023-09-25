@@ -240,7 +240,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        // Insert the variables in the into the symbol table.
+        // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
                 insert_variable(identifier.name, input.type_.clone(), identifier.span)
