@@ -5,11 +5,11 @@ outputs:
   - - initial_symbol_table: 7d3e81836aac05a2a6db39e7ec14faec547577c597f679d9dbac20397151355c
       type_checked_symbol_table: f07cd29832076504537fcecac318aa3b8c3fb7c3247ce5e3e9181fdccce5449a
       unrolled_symbol_table: f07cd29832076504537fcecac318aa3b8c3fb7c3247ce5e3e9181fdccce5449a
-      initial_ast: 03fc4feeec9423e7b97b5504dd0d3bce2c13ad74e64eb55cd771c73ecea49e6b
-      unrolled_ast: 03fc4feeec9423e7b97b5504dd0d3bce2c13ad74e64eb55cd771c73ecea49e6b
-      ssa_ast: 76f388d2bf88315509e02d25adc246d5498628d07fdc4a904a58a1ad57a306ee
-      flattened_ast: 9d25999c45f1473cfff6331ff540184f078c91d615d2396f559bd47472be4f70
-      inlined_ast: 9d25999c45f1473cfff6331ff540184f078c91d615d2396f559bd47472be4f70
-      dce_ast: 9d25999c45f1473cfff6331ff540184f078c91d615d2396f559bd47472be4f70
+      initial_ast: 9eba61f6026ff05f9b8d67d7c1c60acb0bca4d53c8626239d35b517fa42969c1
+      unrolled_ast: 9eba61f6026ff05f9b8d67d7c1c60acb0bca4d53c8626239d35b517fa42969c1
+      ssa_ast: babb91818fd9b6a08dea97ce6b53e64e31eedcd18e1d9bcccfc70696a90c8923
+      flattened_ast: ce7c670a12719a1b10eda37188731c5deb65314e4cca5476add99ec70b8180a8
+      inlined_ast: ce7c670a12719a1b10eda37188731c5deb65314e4cca5476add99ec70b8180a8
+      dce_ast: ce7c670a12719a1b10eda37188731c5deb65314e4cca5476add99ec70b8180a8
       bytecode: 8060d7771b9a815e84dd576354e32cd26c7bf342fb513fe3b589de4c094701b4
       warnings: ""

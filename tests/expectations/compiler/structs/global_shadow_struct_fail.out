@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372007]: struct `s1` shadowed by\n    --> compiler-test:9:5\n     |\n   9 |     struct s1 {\n  10 |         f1: u32,\n  11 |         f2: u32,\n  12 |         f3: u32\n  13 |     }\n     |     ^\n"

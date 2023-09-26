@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372009]: variable `one` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     transition one() -> u8 {\n   9 |         return 1u8 + 1u8;\n  10 |     }\n     |     ^\n"
+  - "Error [EAST0372009]: variable `one` shadowed by\n    --> compiler-test:6:5\n     |\n   6 |     mapping one: field => field;\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [EAST0372009]: variable `one` shadowed by\n    --> compiler-test:8:5\n     |\n   8 |     transition one() -> u8 {\n   9 |         return 1u8 + 1u8;\n  10 |     }\n     |     ^\n"
