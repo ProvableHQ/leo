@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372006]: function `f1` shadowed by\n    --> compiler-test:10:5\n     |\n  10 |     function f1(a: u8) -> u8 {\n  11 |         return a * 100u8;\n  12 |     }\n     |     ^\n"
