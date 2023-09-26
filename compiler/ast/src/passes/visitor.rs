@@ -215,13 +215,13 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(&c)));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
 
-        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(&c)));
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
 
-        input.functions.iter().for_each(|(_, c)| (self.visit_function(&c)));
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
 
-        input.consts.iter().for_each(|(_, c)| (self.visit_const(&c)));
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
     }
 
     fn visit_import(&mut self, input: &'a Program) {
