@@ -48,7 +48,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
         // Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        let callee = self.reconstructed_functions.get(&function_name).unwrap();
+        let (_, callee) = self.reconstructed_functions.iter().find(|(symbol, _)| *symbol == function_name).unwrap();
 
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {

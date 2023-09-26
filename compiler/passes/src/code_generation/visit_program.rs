@@ -62,9 +62,9 @@ impl<'a> CodeGenerator<'a> {
             &order
                 .into_iter()
                 .map(|name| {
-                    match program_scope.structs.get(&name) {
+                    match program_scope.structs.iter().find(|(identifier, _)| *identifier == name) {
                         // If the struct is found, it is a local struct.
-                        Some(struct_) => self.visit_struct_or_record(struct_),
+                        Some((_, struct_)) => self.visit_struct_or_record(struct_),
                         // If the struct is not found, it is an imported struct.
                         None => String::new(),
                     }
@@ -76,7 +76,8 @@ impl<'a> CodeGenerator<'a> {
         program_string.push('\n');
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        program_string.push_str(&program_scope.mappings.values().map(|mapping| self.visit_mapping(mapping)).join("\n"));
+        program_string
+            .push_str(&program_scope.mappings.iter().map(|(_, mapping)| self.visit_mapping(mapping)).join("\n"));
 
         // Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -84,8 +85,8 @@ impl<'a> CodeGenerator<'a> {
         program_string.push_str(
             &program_scope
                 .functions
-                .values()
-                .map(|function| {
+                .iter()
+                .map(|(_, function)| {
                     // Set the `is_transition_function` flag.
                     self.is_transition_function = matches!(function.variant, Variant::Transition);
 

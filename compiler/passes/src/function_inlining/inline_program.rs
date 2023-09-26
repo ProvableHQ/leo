@@ -29,11 +29,12 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         for function_name in order.into_iter() {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
-            if let Some(function) = input.functions.remove(&function_name) {
+            if let Some(pos) = input.functions.iter().position(|(symbol, _)| *symbol == function_name) {
+                let (_, function) = input.functions.remove(pos);
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.insert(function_name, reconstructed_function);
+                self.reconstructed_functions.push((function_name, reconstructed_function));
             }
         }
         // Check that `input.functions` is empty.
