@@ -28,7 +28,7 @@ pub struct FunctionInliner<'a> {
     /// A wrapper around an Assigner used to create unique variable assignments.
     pub(crate) assignment_renamer: AssignmentRenamer<'a>,
     /// A map of reconstructed functions in the current program scope.
-    pub(crate) reconstructed_functions: IndexMap<Symbol, Function>,
+    pub(crate) reconstructed_functions: Vec<(Symbol, Function)>,
 }
 
 impl<'a> FunctionInliner<'a> {
