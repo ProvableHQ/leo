@@ -252,6 +252,7 @@ symbols! {
     main,
     mapping,
     Mut: "mut",
+    parent,
     Return: "return",
     SelfLower: "self",
     SelfUpper: "Self",
