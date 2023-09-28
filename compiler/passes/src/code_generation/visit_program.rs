@@ -273,10 +273,10 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Create the key string, e.g. `    key as address.public`.
-        mapping_string.push_str(&format!("\tkey left as {};\n", create_type(&mapping.key_type)));
+        mapping_string.push_str(&format!("\tkey as {};\n", create_type(&mapping.key_type)));
 
         // Create the value string, e.g. `    value as address.public`.
-        mapping_string.push_str(&format!("\tvalue right as {};\n", create_type(&mapping.value_type)));
+        mapping_string.push_str(&format!("\tvalue as {};\n", create_type(&mapping.value_type)));
 
         // Add the mapping to the variable mapping.
         self.global_mapping.insert(&mapping.identifier.name, mapping.identifier.to_string());
