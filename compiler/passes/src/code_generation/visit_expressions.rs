@@ -525,7 +525,6 @@ impl<'a> CodeGenerator<'a> {
             Type::Tuple(tuple) => match tuple.len() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
-                    let mut destinations = Vec::new();
                     for _ in 0..len {
                         let destination_register = format!("r{}", self.next_register);
                         destinations.push(destination_register);
@@ -544,7 +543,6 @@ impl<'a> CodeGenerator<'a> {
         if has_finalize {
             // Construct the future register.
             let future_register = format!("r{}", self.next_register);
-            destinations.push(future_register.clone());
             self.next_register += 1;
 
             // Construct the future type.

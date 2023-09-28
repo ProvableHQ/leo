@@ -148,7 +148,7 @@ impl<'a> CodeGenerator<'a> {
         // create an `async` instruction that uses them.
         if !self.futures.is_empty() || input.finalize_arguments.is_some() {
             // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-            let function_id = self.current_function.unwrap().id;
+            let function_id = self.current_function.unwrap().name();
             let mut async_instruction = format!("    async {function_id}");
             // Add the futures to the async instruction.
             for (future_register, _) in self.futures.iter() {
