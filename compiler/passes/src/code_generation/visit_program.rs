@@ -46,6 +46,8 @@ impl<'a> CodeGenerator<'a> {
         // Note that type checking guarantees that there is exactly one program scope.
         let program_scope: &ProgramScope = input.program_scopes.values().next().unwrap();
 
+        self.program_id = Some(program_scope.program_id);
+
         // Print the program id.
         writeln!(program_string, "program {};", program_scope.program_id)
             .expect("Failed to write program id to string.");
@@ -157,6 +159,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
+        self.futures.clear();
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.variable_mapping.insert(&sym::block, "block".to_string());
@@ -214,6 +217,17 @@ impl<'a> CodeGenerator<'a> {
 
             function_string.push_str(&format!("\nfinalize {}:\n", finalize.identifier));
 
+            // If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
+            // Store the new future registers.
+            let mut future_registers = Vec::new();
+            for (_, future_type) in &self.futures {
+                let register_string = format!("r{}", self.next_register);
+                writeln!(function_string, "    input {register_string} as {future_type};")
+                    .expect("failed to write to string");
+                future_registers.push(register_string);
+                self.next_register += 1;
+            }
+
             // Construct and append the input declarations of the finalize block.
             for input in finalize.input.iter() {
                 let register_string = format!("r{}", self.next_register);
@@ -238,6 +252,11 @@ impl<'a> CodeGenerator<'a> {
 
                 writeln!(function_string, "    input {register_string} as {type_string};",)
                     .expect("failed to write to string");
+            }
+
+            // Invoke `await` on each future.
+            for register in future_registers {
+                writeln!(function_string, "    await {register};").expect("failed to write to string");
             }
 
             // Construct and append the finalize block body.
