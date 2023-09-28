@@ -16,10 +16,10 @@ outputs:
       results:
         dubble:
           - input: "[]"
-            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1typrz69dxc53t785hzqge5mfn2yd5m6asp69q0zkktjfvz74jcps55ddr9\n  ]\n}]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1ujk4sm9yqm49au0jw36freu2k5pzvfeut4hymuxxxwxqmztndc8qgfyjwy\n  ]\n}]"
           - input: "[]"
-            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1typrz69dxc53t785hzqge5mfn2yd5m6asp69q0zkktjfvz74jcps55ddr9\n  ]\n}]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1ujk4sm9yqm49au0jw36freu2k5pzvfeut4hymuxxxwxqmztndc8qgfyjwy\n  ]\n}]"
           - input: "[]"
-            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1typrz69dxc53t785hzqge5mfn2yd5m6asp69q0zkktjfvz74jcps55ddr9\n  ]\n}]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1ujk4sm9yqm49au0jw36freu2k5pzvfeut4hymuxxxwxqmztndc8qgfyjwy\n  ]\n}]"
           - input: "[]"
-            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1typrz69dxc53t785hzqge5mfn2yd5m6asp69q0zkktjfvz74jcps55ddr9\n  ]\n}]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo1ujk4sm9yqm49au0jw36freu2k5pzvfeut4hymuxxxwxqmztndc8qgfyjwy\n  ]\n}]"
