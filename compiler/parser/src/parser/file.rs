@@ -43,7 +43,7 @@ impl ParserContext<'_> {
                         false => {
                             parsed_program_scope = true;
                             let program_scope = self.parse_program_scope()?;
-                            program_scopes.insert(program_scope.program_id, program_scope);
+                            program_scopes.insert(program_scope.program_id.name.name, program_scope);
                         }
                     }
                 }

@@ -34,7 +34,7 @@ pub struct Program {
     /// A map from import names to import definitions.
     pub imports: IndexMap<Symbol, (Program, Span)>,
     /// A map from program names to program scopes.
-    pub program_scopes: IndexMap<ProgramId, ProgramScope>,
+    pub program_scopes: IndexMap<Symbol, ProgramScope>,
 }
 
 impl fmt::Display for Program {
