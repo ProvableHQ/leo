@@ -116,16 +116,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 ))
                             }
                             return Some(Type::Address);
-                        },
-                        sym::parent => {
+                        }
+                        sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
                             if self.is_finalize {
                                 self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
-                                    "self.parent",
+                                    "self.signer",
                                     access.name.span(),
                                 ))
                             }
-                            return Some(Type::Address)
+                            return Some(Type::Address);
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_self_access(access.name.span()));
