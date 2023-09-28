@@ -548,7 +548,7 @@ impl<'a> CodeGenerator<'a> {
             self.next_register += 1;
 
             // Construct the future type.
-            let program_id = match input.external.as_ref().and_then(|expression| Some(&**expression)) {
+            let program_id = match input.external.as_deref() {
                 Some(Expression::Identifier(identifier)) => identifier,
                 _ => unreachable!("If `has_finalize` is true, then the external call must be an identifier."),
             };

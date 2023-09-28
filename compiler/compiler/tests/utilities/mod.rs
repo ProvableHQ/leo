@@ -241,7 +241,7 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
     parsed.dead_code_elimination_pass()?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph))?;
+    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph, &parsed.ast.ast))?;
 
     Ok(bytecode)
 }
