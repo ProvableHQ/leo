@@ -312,7 +312,7 @@ echo "Building and running the \`vote\` program..."
   cd $EXAMPLES/vote || exit
 
   chmod +x $EXAMPLES/vote/run.sh || exit
-  export -f leo
+  export -f leo || exit
   $EXAMPLES/vote/run.sh || exit
 )
 # Check that the vote program ran successfully.
