@@ -530,7 +530,7 @@
                         <span class="bool-val">false </span>=&gt; {
                             parsed_program_scope = <span class="bool-val">true</span>;
                             <span class="kw">let </span>program_scope = <span class="self">self</span>.parse_program_scope()<span class="question-mark">?</span>;
-                            program_scopes.insert(program_scope.program_id, program_scope);
+                            program_scopes.insert(program_scope.program_id.name.name, program_scope);
                         }
                     }
                 }

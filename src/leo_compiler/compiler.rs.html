@@ -584,7 +584,7 @@
         struct_graph: <span class="kw-2">&amp;</span>StructGraph,
         call_graph: <span class="kw-2">&amp;</span>CallGraph,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, symbol_table, struct_graph, call_graph))
+        CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, symbol_table, struct_graph, call_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.ast.ast))
     }
 
     <span class="doccomment">/// Runs the compiler stages.

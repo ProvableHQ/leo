@@ -64,6 +64,21 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -82,7 +97,7 @@
 
 </span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable};
 
-<span class="kw">use </span>leo_ast::Function;
+<span class="kw">use </span>leo_ast::{Function, Program, ProgramId};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -110,11 +125,23 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_transition_function: bool,
     <span class="doccomment">/// Are we traversing a finalize block?
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) in_finalize: bool,
+    <span class="comment">// TODO (@d0cd): There are a temporary solution to be compatible with futures introduced in Aleo instructions.
+    // The registers containing futures produced in the current transition.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) futures: Vec&lt;(String, String)&gt;,
+    <span class="comment">// A reference to program. This is needed to look up external programs.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program,
+    <span class="comment">// The program ID of the current program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_id: <span class="prelude-ty">Option</span>&lt;ProgramId&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `CodeGenerator`.
-    </span><span class="kw">pub fn </span>new(symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph, _call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(
+        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+        struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph,
+        _call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
+        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program,
+    ) -&gt; <span class="self">Self </span>{
         <span class="comment">// Initialize variable mapping.
         </span><span class="self">Self </span>{
             symbol_table,
@@ -127,6 +154,9 @@
             global_mapping: IndexMap::new(),
             is_transition_function: <span class="bool-val">false</span>,
             in_finalize: <span class="bool-val">false</span>,
+            futures: Vec::new(),
+            program,
+            program_id: <span class="prelude-val">None</span>,
         }
     }
 }

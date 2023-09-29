@@ -751,6 +751,16 @@
 <a href="#751" id="751">751</a>
 <a href="#752" id="752">752</a>
 <a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -865,6 +875,16 @@
                             </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
                                 <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
                                     <span class="string">&quot;self.caller&quot;</span>,
+                                    access.name.span(),
+                                ))
+                            }
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Address);
+                        }
+                        sym::signer =&gt; {
+                            <span class="comment">// Check that operation is not invoked in a `finalize` block.
+                            </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
+                                <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
+                                    <span class="string">&quot;self.signer&quot;</span>,
                                     access.name.span(),
                                 ))
                             }

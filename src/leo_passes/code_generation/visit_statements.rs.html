@@ -220,6 +220,32 @@
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -300,7 +326,7 @@
     }
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>instructions = <span class="kw">match </span>input.expression {
+        <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="kw">match </span>input.expression {
             <span class="comment">// Skip empty return statements.
             </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
             <span class="kw">_ </span>=&gt; {
@@ -363,20 +389,46 @@
             }
         };
 
-        <span class="comment">// Output a finalize instruction if needed.
-        // TODO: Check formatting.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
-            <span class="kw">let </span><span class="kw-2">mut </span>finalize_instruction = <span class="string">&quot;\n    finalize&quot;</span>.to_string();
+        <span class="comment">// Initialize storage for the instructions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
-            <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
-                <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-                <span class="macro">write!</span>(finalize_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
-                instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
+        <span class="comment">// If there are any futures or if the return instruction has `finalize_arguments`, then
+        // create an `async` instruction that uses them.
+        </span><span class="kw">if </span>!<span class="self">self</span>.futures.is_empty() || input.finalize_arguments.is_some() {
+            <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+            </span><span class="kw">let </span>function_id = <span class="self">self</span>.current_function.unwrap().name();
+            <span class="kw">let </span><span class="kw-2">mut </span>async_instruction = <span class="macro">format!</span>(<span class="string">&quot;    async {function_id}&quot;</span>);
+            <span class="comment">// Add the futures to the async instruction.
+            </span><span class="kw">for </span>(future_register, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.futures.iter() {
+                <span class="macro">write!</span>(async_instruction, <span class="string">&quot; {}&quot;</span>, future_register).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             }
-            <span class="macro">writeln!</span>(finalize_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="comment">// Add the finalize arguments to the async instruction.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
+                <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
+                    <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
+                    <span class="macro">write!</span>(async_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
+                }
+            }
+            <span class="comment">// Write the destination register.
+            </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            <span class="macro">write!</span>(async_instruction, <span class="string">&quot; into {};&quot;</span>, destination_register).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="comment">// Increment the register counter.
+            </span><span class="self">self</span>.next_register += <span class="number">1</span>;
+            <span class="comment">// Add the async instruction to the instructions.
+            </span>instructions.push_str(<span class="kw-2">&amp;</span>async_instruction);
 
-            instructions.push_str(<span class="kw-2">&amp;</span>finalize_instruction);
+            <span class="comment">// Add the destination register to the outputs.
+            </span><span class="kw">let </span>program_id = <span class="kw">match </span><span class="self">self</span>.program_id {
+                <span class="prelude-val">Some</span>(program_id) =&gt; program_id,
+                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`program_id` should be set in `visit_function`&quot;</span>),
+            };
+            outputs
+                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    output {} as {}/{}.future;\n&quot;</span>, destination_register, program_id, function_id));
         }
+
+        <span class="comment">// Extend the instructions with the outputs.
+        </span>instructions.push_str(<span class="kw-2">&amp;</span>outputs);
 
         instructions
     }

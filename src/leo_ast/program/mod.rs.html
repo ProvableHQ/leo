@@ -92,7 +92,7 @@
     <span class="doccomment">/// A map from import names to import definitions.
     </span><span class="kw">pub </span>imports: IndexMap&lt;Symbol, (Program, Span)&gt;,
     <span class="doccomment">/// A map from program names to program scopes.
-    </span><span class="kw">pub </span>program_scopes: IndexMap&lt;ProgramId, ProgramScope&gt;,
+    </span><span class="kw">pub </span>program_scopes: IndexMap&lt;Symbol, ProgramScope&gt;,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Program {

@@ -284,6 +284,25 @@
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -331,6 +350,8 @@
         <span class="comment">// Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
         </span><span class="kw">let </span>program_scope: <span class="kw-2">&amp;</span>ProgramScope = input.program_scopes.values().next().unwrap();
+
+        <span class="self">self</span>.program_id = <span class="prelude-val">Some</span>(program_scope.program_id);
 
         <span class="comment">// Print the program id.
         </span><span class="macro">writeln!</span>(program_string, <span class="string">&quot;program {};&quot;</span>, program_scope.program_id)
@@ -443,6 +464,7 @@
         <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.
         </span><span class="self">self</span>.next_register = <span class="number">0</span>;
         <span class="self">self</span>.variable_mapping = IndexMap::new();
+        <span class="self">self</span>.futures.clear();
         <span class="comment">// TODO: Figure out a better way to initialize.
         </span><span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">&quot;self&quot;</span>.to_string());
         <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">&quot;block&quot;</span>.to_string());
@@ -500,6 +522,17 @@
 
             function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nfinalize {}:\n&quot;</span>, finalize.identifier));
 
+            <span class="comment">// If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
+            // Store the new future registers.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>future_registers = Vec::new();
+            <span class="kw">for </span>(<span class="kw">_</span>, future_type) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.futures {
+                <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {future_type};&quot;</span>)
+                    .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                future_registers.push(register_string);
+                <span class="self">self</span>.next_register += <span class="number">1</span>;
+            }
+
             <span class="comment">// Construct and append the input declarations of the finalize block.
             </span><span class="kw">for </span>input <span class="kw">in </span>finalize.input.iter() {
                 <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
@@ -524,6 +557,11 @@
 
                 <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
                     .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            }
+
+            <span class="comment">// Invoke `await` on each future.
+            </span><span class="kw">for </span>register <span class="kw">in </span>future_registers {
+                <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    await {register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
             }
 
             <span class="comment">// Construct and append the finalize block body.
@@ -559,10 +597,10 @@
         };
 
         <span class="comment">// Create the key string, e.g. `    key as address.public`.
-        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey left as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)));
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)));
 
         <span class="comment">// Create the value string, e.g. `    value as address.public`.
-        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue right as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
 
         <span class="comment">// Add the mapping to the variable mapping.
         </span><span class="self">self</span>.global_mapping.insert(<span class="kw-2">&amp;</span>mapping.identifier.name, mapping.identifier.to_string());
