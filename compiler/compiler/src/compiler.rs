@@ -259,7 +259,7 @@ impl<'a> Compiler<'a> {
         struct_graph: &StructGraph,
         call_graph: &CallGraph,
     ) -> Result<String> {
-        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph))
+        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph, &self.ast.ast))
     }
 
     /// Runs the compiler stages.

@@ -6,9 +6,13 @@ initial_state:
 cases:
     dubble:
     - input: []
+      private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
     - input: []
+      private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
     - input: []
+      private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
     - input: []
+      private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
 */
 
 program test.aleo {

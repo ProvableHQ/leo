@@ -78,7 +78,7 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        let mut instructions = match input.expression {
+        let mut outputs = match input.expression {
             // Skip empty return statements.
             Expression::Unit(_) => String::new(),
             _ => {
@@ -141,20 +141,46 @@ impl<'a> CodeGenerator<'a> {
             }
         };
 
-        // Output a finalize instruction if needed.
-        // TODO: Check formatting.
-        if let Some(arguments) = &input.finalize_arguments {
-            let mut finalize_instruction = "\n    finalize".to_string();
+        // Initialize storage for the instructions.
+        let mut instructions = String::new();
 
-            for argument in arguments.iter() {
-                let (argument, argument_instructions) = self.visit_expression(argument);
-                write!(finalize_instruction, " {argument}").expect("failed to write to string");
-                instructions.push_str(&argument_instructions);
+        // If there are any futures or if the return instruction has `finalize_arguments`, then
+        // create an `async` instruction that uses them.
+        if !self.futures.is_empty() || input.finalize_arguments.is_some() {
+            // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+            let function_id = self.current_function.unwrap().name();
+            let mut async_instruction = format!("    async {function_id}");
+            // Add the futures to the async instruction.
+            for (future_register, _) in self.futures.iter() {
+                write!(async_instruction, " {}", future_register).expect("failed to write to string");
             }
-            writeln!(finalize_instruction, ";").expect("failed to write to string");
+            // Add the finalize arguments to the async instruction.
+            if let Some(arguments) = &input.finalize_arguments {
+                for argument in arguments.iter() {
+                    let (argument, argument_instructions) = self.visit_expression(argument);
+                    write!(async_instruction, " {argument}").expect("failed to write to string");
+                    instructions.push_str(&argument_instructions);
+                }
+            }
+            // Write the destination register.
+            let destination_register = format!("r{}", self.next_register);
+            write!(async_instruction, " into {};", destination_register).expect("failed to write to string");
+            // Increment the register counter.
+            self.next_register += 1;
+            // Add the async instruction to the instructions.
+            instructions.push_str(&async_instruction);
 
-            instructions.push_str(&finalize_instruction);
+            // Add the destination register to the outputs.
+            let program_id = match self.program_id {
+                Some(program_id) => program_id,
+                None => unreachable!("`program_id` should be set in `visit_function`"),
+            };
+            outputs
+                .push_str(&format!("    output {} as {}/{}.future;\n", destination_register, program_id, function_id));
         }
+
+        // Extend the instructions with the outputs.
+        instructions.push_str(&outputs);
 
         instructions
     }

@@ -255,6 +255,7 @@ symbols! {
     Return: "return",
     SelfLower: "self",
     SelfUpper: "Self",
+    signer,
     Star: "*",
     then,
     transition,

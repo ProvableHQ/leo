@@ -471,9 +471,36 @@ impl<'a> CodeGenerator<'a> {
 
     // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
-        let mut call_instruction = match &input.external {
-            Some(external) => format!("    call {external}.aleo/{}", input.function),
-            None => format!("    call {}", input.function),
+        let (mut call_instruction, has_finalize) = match &input.external {
+            Some(external) => {
+                // If the function is an external call, then check whether or not it has an associated finalize block.
+                // Extract the program name from the external call.
+                let program_name = match **external {
+                    Expression::Identifier(identifier) => identifier.name,
+                    _ => unreachable!("Parsing guarantees that a program name is always an identifier."),
+                };
+                // Lookup the imported program scope.
+                let imported_program_scope = match self
+                    .program
+                    .imports
+                    .get(&program_name)
+                    .and_then(|(program, _)| program.program_scopes.get(&program_name))
+                {
+                    Some(program) => program,
+                    None => unreachable!("Type checking guarantees that imported programs are well defined."),
+                };
+                // Check if the external function has a finalize block.
+                let function_name = match *input.function {
+                    Expression::Identifier(identifier) => identifier.name,
+                    _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
+                };
+                let has_finalize = match imported_program_scope.functions.get(&function_name) {
+                    Some(function) => function.finalize.is_some(),
+                    None => unreachable!("Type checking guarantees that imported functions are well defined."),
+                };
+                (format!("    call {external}.aleo/{}", input.function), has_finalize)
+            }
+            None => (format!("    call {}", input.function), false),
         };
         let mut instructions = String::new();
 
@@ -488,41 +515,60 @@ impl<'a> CodeGenerator<'a> {
             Expression::Identifier(identifier) => identifier.name,
             _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
         };
+
+        // Initialize storage for the destination registers.
+        let mut destinations = Vec::new();
+
         let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
         match return_type {
-            Type::Unit => {
-                call_instruction.push(';');
-                instructions.push_str(&call_instruction);
-                (String::new(), instructions)
-            } // Do nothing
+            Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.len() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
-                    let mut destinations = Vec::new();
                     for _ in 0..len {
                         let destination_register = format!("r{}", self.next_register);
                         destinations.push(destination_register);
                         self.next_register += 1;
                     }
-                    let destinations = destinations.join(" ");
-                    writeln!(call_instruction, " into {destinations};").expect("failed to write to string");
-                    instructions.push_str(&call_instruction);
-
-                    (destinations, instructions)
                 }
             },
             _ => {
-                // Push destination register to call instruction.
                 let destination_register = format!("r{}", self.next_register);
-                writeln!(call_instruction, " into {destination_register};").expect("failed to write to string");
-                instructions.push_str(&call_instruction);
-
-                // Increment the register counter.
+                destinations.push(destination_register);
                 self.next_register += 1;
-
-                (destination_register, instructions)
             }
         }
+
+        // If `has_finalize`, create another destination register for the future.
+        if has_finalize {
+            // Construct the future register.
+            let future_register = format!("r{}", self.next_register);
+            self.next_register += 1;
+
+            // Construct the future type.
+            let program_id = match input.external.as_deref() {
+                Some(Expression::Identifier(identifier)) => identifier,
+                _ => unreachable!("If `has_finalize` is true, then the external call must be an identifier."),
+            };
+            self.futures.push((future_register, format!("{program_id}/{function_name}")));
+        }
+
+        // If destination registers were created, write them to the call instruction.
+        if !destinations.is_empty() {
+            write!(call_instruction, " into").expect("failed to write to string");
+            for destination in &destinations {
+                write!(call_instruction, " {}", destination).expect("failed to write to string");
+            }
+        }
+
+        // Write the closing semicolon.
+        writeln!(call_instruction, ";").expect("failed to write to string");
+
+        // Push the call instruction to the list of instructions.
+        instructions.push_str(&call_instruction);
+
+        // Return the destination registers as a string and the instructions.
+        (destinations.join(" "), instructions)
     }
 
     fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {

@@ -387,7 +387,7 @@ create_messages!(
     @formatted
     invalid_self_access {
         args: (),
-        msg: format!("The allowed accesses to `self` are `self.caller`."),
+        msg: format!("The allowed accesses to `self` are `self.caller` and `self.signer`."),
         help: None,
     }
 
