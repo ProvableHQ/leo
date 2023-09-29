@@ -17,8 +17,9 @@
 use super::*;
 
 use leo_ast::{NodeBuilder, Struct, Stub};
-use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
+use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
+
 use leo_span::{symbol::with_session_globals, Symbol};
 
 use snarkvm::{
