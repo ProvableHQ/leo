@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 use snarkvm::console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -623,16 +623,7 @@ impl ParserContext<'_> {
     }
 
     fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
-        let identifier = if self.allow_identifier_underscores && self.eat(&Token::Underscore) {
-            // Allow `_nonce` for struct records.
-            let identifier_without_underscore = self.expect_identifier()?;
-            Identifier::new(
-                Symbol::intern(&format!("_{}", identifier_without_underscore.name)),
-                self.node_builder.next_id(),
-            )
-        } else {
-            self.expect_identifier()?
-        };
+        let identifier = self.expect_identifier()?;
 
         let (expression, span) = if self.eat(&Token::Colon) {
             // Parse individual struct variable declarations.
