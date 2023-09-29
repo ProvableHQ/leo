@@ -18,9 +18,10 @@ use super::*;
 
 use leo_ast::{NodeBuilder, Struct, Stub};
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
-use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
+use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
 
-use leo_span::{symbol::with_session_globals, Symbol};
+use leo_span::{Symbol};
+
 
 use snarkvm::{
     package::Package,
