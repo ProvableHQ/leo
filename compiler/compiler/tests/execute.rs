@@ -157,15 +157,17 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                     .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
                     .collect();
                 let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
+                let private_key = match case.get(&Value::from("private_key")) {
+                    Some(private_key) => {
+                        PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
+                            .expect("unable to parse private key")
+                    }
+                    None => dotenv_private_key(package.directory()).unwrap(),
+                };
 
                 // TODO: Add support for custom config like custom private keys.
                 // Execute the program and get the outputs.
-                let output_string = match package.run::<Aleo, _>(
-                    &dotenv_private_key(package.directory()).unwrap(),
-                    function_name,
-                    &inputs,
-                    rng,
-                ) {
+                let output_string = match package.run::<Aleo, _>(&private_key, function_name, &inputs, rng) {
                     Ok((response, _)) => format!(
                         "[{}]",
                         response
