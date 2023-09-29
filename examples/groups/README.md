@@ -4,14 +4,14 @@
 
 To run this program, run:
 ```bash
-leo run main
+leo run main <inputs>
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute main
+leo execute main <inputs>
 ```
 
 ## Overview

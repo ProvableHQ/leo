@@ -87,7 +87,7 @@ leo new helloworld
 cd helloworld
 
 # build & setup & prove & verify
-leo run
+leo run main 0u32 1u32
 ```
 
 The `leo new` command creates a new Leo project with a given name.

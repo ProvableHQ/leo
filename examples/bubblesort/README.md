@@ -4,14 +4,14 @@
 
 To run this program, run:
 ```bash
-leo run bubble_sort
+leo run bubble_sort <inputs>
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute bubble_sort
+leo execute bubble_sort <inputs>
 ```
 
 ## Overview

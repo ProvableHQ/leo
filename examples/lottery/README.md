@@ -4,7 +4,7 @@
 
 To run this program, run:
 ```bash
-leo run play
+leo run play <inputs>
 
 or 
 
@@ -15,5 +15,5 @@ or
 
 To execute this program, run:
 ```bash
-leo execute play
+leo execute play <inputs>
 ```

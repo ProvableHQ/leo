@@ -33,7 +33,7 @@ Anyone can issue a new proposal publicly by calling `propose` function.
 Run `propose`:
 
 ```
-leo run propose
+leo run propose <inputs>
 ```
 
 Output sample:
@@ -62,7 +62,7 @@ and can only be used(voted) by the ticket `owner`.
 Run `new_ticket`:
 
 ```
-leo run new_ticket
+leo run new_ticket <inputs>
 ```
 
 Output sample:
@@ -84,11 +84,11 @@ Since the ticket record can be used as an input privately, the voter's privacy i
 Run `agree`:
 
 ```
-leo run agree
+leo run agree <inputs>
 ```
 
 Run `disagree`:
 
 ```
-leo run disagree
+leo run disagree <inputs>
 ```
