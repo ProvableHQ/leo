@@ -43,16 +43,8 @@ impl Command for Run {
         (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
-        // If input values are provided, then run the program with those inputs.
-        // Otherwise, use the input file.
-        let mut inputs = match self.inputs.is_empty() {
-            true => match input {
-                (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
-                _ => Vec::new(),
-            },
-            false => self.inputs,
-        };
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let mut inputs = self.inputs;
 
         // Compose the `run` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];

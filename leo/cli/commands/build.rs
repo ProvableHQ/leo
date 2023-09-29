@@ -48,7 +48,6 @@ impl From<BuildOptions> for CompilerOptions {
                 type_checked_symbol_table: options.enable_type_checked_symbol_table_snapshot,
                 unrolled_symbol_table: options.enable_unrolled_symbol_table_snapshot,
                 ast_spans_enabled: options.enable_ast_spans,
-                initial_input_ast: options.enable_initial_input_ast_snapshot,
                 initial_ast: options.enable_initial_ast_snapshot,
                 unrolled_ast: options.enable_unrolled_ast_snapshot,
                 ssa_ast: options.enable_ssa_ast_snapshot,
@@ -58,7 +57,6 @@ impl From<BuildOptions> for CompilerOptions {
             },
         };
         if options.enable_all_ast_snapshots {
-            out_options.output.initial_input_ast = true;
             out_options.output.initial_ast = true;
             out_options.output.unrolled_ast = true;
             out_options.output.ssa_ast = true;
@@ -80,7 +78,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Option<InputAst>, IndexMap<Symbol, Struct>);
+    type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
@@ -106,9 +104,6 @@ impl Command for Build {
 
         // Initialize error handler
         let handler = Handler::default();
-
-        // Initialize a node counter.
-        let node_builder = NodeBuilder::default();
 
         // Fetch paths to all .leo files in the source directory.
         let source_files = SourceDirectory::files(&package_path)?;
@@ -155,23 +150,6 @@ impl Command for Build {
             }
         }
 
-        // Load the input file at `package_name.in`
-        let input_file_path = InputFile::new(&manifest.program_id().name().to_string()).setup_file_path(&package_path);
-
-        // Parse the input file.
-        let input_ast = if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
-
-            // TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
-            leo_parser::parse_input(&handler, &node_builder, &input_sf.src, input_sf.start_pos)
-                .map_err(|_e| println!("Warning: Failed to parse input file"))
-                .ok()
-        } else {
-            None
-        };
-
         // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
         Package::<CurrentNetwork>::open(&build_directory).map_err(CliError::failed_to_execute_build)?;
 
@@ -193,7 +171,7 @@ impl Command for Build {
         // // Log the result of the build
         // tracing::info!("{}", result);
 
-        Ok((input_ast, structs))
+        Ok(())
     }
 }
 
