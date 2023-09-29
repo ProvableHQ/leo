@@ -1,8 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: inputs/u32_3.in
-cwd: statement
 */
 import foo.leo;
 
