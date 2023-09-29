@@ -20,7 +20,7 @@ do
 done
 
 # Try to run `leo run`.
-$LEO run || exit
+$LEO run main 0u32 1u32 || exit
 
 # Remove the dummy program.
 cd .. && rm -rf dummy
