@@ -49,7 +49,7 @@ pub use update::Update;
 
 use super::*;
 use crate::cli::helpers::context::*;
-use leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, Result};
+use leo_errors::{emitter::Handler, CliError, PackageError, Result};
 use leo_package::{build::*, outputs::OutputsDirectory, package::*};
 
 use clap::Parser;
@@ -138,8 +138,6 @@ pub struct BuildOptions {
     pub enable_dce: bool,
     #[clap(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
-    #[clap(long, help = "Writes Input AST snapshot of the initial parse.")]
-    pub enable_initial_input_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the unrolled AST.")]
