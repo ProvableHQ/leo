@@ -5,14 +5,13 @@ record Ticket:
 
 
 mapping num_winners:
-	key left as u8.public;
-	value right as u8.public;
+	key as u8.public;
+	value as u8.public;
 
 function play:
     cast self.caller into r0 as Ticket.record;
-    output r0 as Ticket.record;
-
-    finalize;
+    async play into r1;    output r0 as Ticket.record;
+    output r1 as lottery.aleo/play.future;
 
 finalize play:
     lte block.height 1000u32 into r0;
