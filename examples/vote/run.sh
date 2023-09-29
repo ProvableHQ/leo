@@ -20,9 +20,7 @@ echo "
 ###############################################################################
 "
 # Run the `propose` program function
-(
-  cat ./inputs/propose.in | xargs leo run propose || exit
-)
+cat ./inputs/propose.in | xargs leo run propose || exit
 
 echo "
 ###############################################################################
@@ -38,9 +36,7 @@ echo "
 ###############################################################################
 "
 # Run the `new_ticket` program function
-(
-  cat ./inputs/new_ticket.in | xargs leo run new_ticket || exit
-)
+cat ./inputs/new_ticket.in | xargs leo run new_ticket || exit
 
 echo "
 ###############################################################################
@@ -56,7 +52,5 @@ echo "
 ###############################################################################
 "
 # Run the `agree` or `disagree` program function
-(
-  cat ./inputs/agree.in | xargs leo run agree || exit
-  #cat ./inputs/disagree.in | xargs leo run disagree || exit
-)
+cat ./inputs/agree.in | xargs leo run agree || exit
+#cat ./inputs/disagree.in | xargs leo run disagree || exit
