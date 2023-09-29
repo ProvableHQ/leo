@@ -61,45 +61,9 @@ Parser Directory namespaces:
 - `ParseExpression` - Test a file line by line to check that each line is a valid Leo expression. 
 - `ParseStatement` - Test a file consuming multiple lines till a blank line to check that it contains a valid Leo statement.
 - `Serialize` - Test a file to check that it can be serialized to JSON.
-- `Input` - Test an input file to check that it is a valid Leo input file.
 - `Token` - Test a file line by line to check that it contains zero or more valid Leo parser tokens.
 
 Compiler Directory namespaces:
 
 - `Compiler` - Test a file to check that it is a valid Leo program, and it can be compiled without errors.
-
-### expectation
-
-```yaml
-- Mandatory: yes
-- Namespace: all
-- Values: Pass / Fail
-```
-
-This setting indicates whether the tested code is supposed to succeed or to fail.
-If the test was marked as `Pass` but it actually failed,
-you'll know that something went wrong and the test or the compiler/parser needs fixing.
-
-### input_file (Compile)
-
-```yaml
-- Mandatory: no
-- Namespace: Compile
-- Values: <input file path>, ...
-```
-
-This setting allows using one or more input files for the Leo program.
-The program will be run with every provided input.
-See this example:
-
-```yaml
-/*
-namespace: Compile
-expectation: Pass
-input_file:
- - inputs/a_0.in
- - inputs/a_1.in
-*/
-
-function main(a: u32) {}
-```
+- `Execute` - Test a file to check that it is a valid Leo program, and it can be compiled and executed without errors.
