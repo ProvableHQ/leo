@@ -49,10 +49,6 @@ The errors for the `leo-compiler` crate. Its error codes will range from 6_000-6
 
 The errors for the `leo-imports` crate. Its error codes will range from 4_000-4_999 and be prefixed with the characters `IMP`.
 
-### Input
-
-The errors for the `leo-ast` crate. Its error codes will range from 8_000-8_999 and be prefixed with the characters `INP`.
-
 ### Loop Unrolling
 
 The errors for loop unrolling in the `leo-passes` crate. Its error codes will range from 9_000-9_999 and be prefixed with the characters `LUN`.
@@ -69,10 +65,6 @@ The errors for the `leo-parser` crate. Its error codes will range from 0-999 and
 
 The errors from SnarkVM that bubble up into Leo in some situations. For right now, they have an exit code of 1.
 When SnarkVM implements better error codes and messages, we can bubble them up.
-
-### State
-
-The errors for the `leo-state` crate. Its error codes will range from 1_000-1_999 and be prefixed with the characters `STA`.
 
 ### Utils
 
