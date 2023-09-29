@@ -24,7 +24,7 @@ pub struct Run {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
     name: String,
 
-    #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
+    #[clap(name = "INPUTS", help = "The inputs to the program.")]
     inputs: Vec<String>,
 
     #[clap(flatten)]
