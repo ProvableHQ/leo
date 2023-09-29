@@ -17,7 +17,7 @@
 use super::*;
 
 use leo_ast::{NodeBuilder, Struct};
-use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
+use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_package::{
     build::BuildDirectory,
     imports::ImportsDirectory,

@@ -17,7 +17,7 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-pub use leo_ast::{Ast, InputAst};
+pub use leo_ast::Ast;
 use leo_ast::{NodeBuilder, Program};
 use leo_errors::{emitter::Handler, CompilerError, Result};
 pub use leo_passes::SymbolTable;
@@ -44,8 +44,6 @@ pub struct Compiler<'a> {
     pub network: String,
     /// The AST for the program.
     pub ast: Ast,
-    /// The input ast for the program if it exists.
-    pub input_ast: Option<InputAst>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
     /// The `NodeCounter` used to generate sequentially increasing `NodeID`s.
@@ -73,7 +71,6 @@ impl<'a> Compiler<'a> {
             program_name,
             network,
             ast: Ast::new(Program::default()),
-            input_ast: None,
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
@@ -130,37 +127,6 @@ impl<'a> Compiler<'a> {
             .map_err(|e| CompilerError::file_read_error(&self.main_file_path, e))?;
 
         self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
-    }
-
-    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
-    pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
-        if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
-
-            // Parse and serialize it.
-            let input_ast =
-                leo_parser::parse_input(self.handler, &self.node_builder, &input_sf.src, input_sf.start_pos)?;
-            if self.compiler_options.output.initial_ast {
-                // Write the input AST snapshot post parsing.
-                if self.compiler_options.output.ast_spans_enabled {
-                    input_ast.to_json_file(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                    )?;
-                } else {
-                    input_ast.to_json_file_without_keys(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                        &["span"],
-                    )?;
-                }
-            }
-
-            self.input_ast = Some(input_ast);
-        }
-        Ok(())
     }
 
     /// Runs the symbol table pass.
