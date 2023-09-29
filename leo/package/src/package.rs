@@ -16,7 +16,7 @@
 
 use crate::{
     build::BuildDirectory,
-    inputs::{InputFile, InputsDirectory},
+    inputs::InputsDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
@@ -97,13 +97,6 @@ impl<N: Network> Package<N> {
         let mut result = true;
         let mut existing_files = vec![];
 
-        // Check if the input file already exists.
-        let input_file = InputFile::new(package_name);
-        if input_file.exists_at(path) {
-            existing_files.push(input_file.filename());
-            result = false;
-        }
-
         // Check if the main file already exists.
         if MainFile::exists_at(path) {
             existing_files.push(MainFile::filename());
@@ -121,12 +114,6 @@ impl<N: Network> Package<N> {
     pub fn is_initialized(package_name: &str, path: &Path) -> bool {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return false;
-        }
-
-        // Check if the input file exists.
-        let input_file = InputFile::new(package_name);
-        if !input_file.exists_at(path) {
             return false;
         }
 
@@ -160,9 +147,6 @@ impl<N: Network> Package<N> {
 
         // Create the Leo build/ directory
         BuildDirectory::create(path)?;
-
-        // Create the input file in the inputs directory.
-        InputFile::new(package_name).write_to(path)?;
 
         // Create the main file in the source directory.
         MainFile::new(package_name).write_to(path)?;
