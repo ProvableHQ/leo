@@ -16,16 +16,15 @@
 
 use super::*;
 
-use leo_ast::{NodeBuilder, Struct};
+use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_package::{
     build::BuildDirectory,
     imports::ImportsDirectory,
-    inputs::InputFile,
     outputs::OutputsDirectory,
     source::SourceDirectory,
 };
-use leo_span::{symbol::with_session_globals, Symbol};
+use leo_span::Symbol;
 
 use snarkvm::{
     package::Package,
