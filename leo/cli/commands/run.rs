@@ -25,7 +25,7 @@ pub struct Run {
     pub(crate) name: String,
 
     #[clap(name = "INPUTS", help = "The inputs to the program.")]
-    inputs: Vec<String>,
+    pub(crate) inputs: Vec<String>,
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
