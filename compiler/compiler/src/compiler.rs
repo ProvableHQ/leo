@@ -248,14 +248,14 @@ impl<'a> Compiler<'a> {
     }
 
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
+    pub fn compile(&mut self) -> Result<String> {
         // Parse the program.
         self.parse_program()?;
         // Run the intermediate compiler stages.
         let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
         // Run code generation.
         let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
-        Ok((symbol_table, bytecode))
+        Ok(bytecode)
     }
 
     /// Writes the AST to a JSON file.

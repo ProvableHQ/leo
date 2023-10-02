@@ -16,7 +16,6 @@
 
 use super::*;
 
-use leo_ast::Struct;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_package::{
     build::BuildDirectory,
@@ -24,14 +23,12 @@ use leo_package::{
     outputs::OutputsDirectory,
     source::SourceDirectory,
 };
-use leo_span::Symbol;
 
 use snarkvm::{
     package::Package,
     prelude::{ProgramID, Testnet3},
 };
 
-use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -110,12 +107,9 @@ impl Command for Build {
         // Check the source files.
         SourceDirectory::check_files(&source_files)?;
 
-        // Store all struct declarations made in the source files.
-        let mut structs = IndexMap::new();
-
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
-            structs.extend(compile_leo_file(
+            compile_leo_file(
                 file_path,
                 &package_path,
                 program_id,
@@ -124,7 +118,7 @@ impl Command for Build {
                 &handler,
                 self.options.clone(),
                 false,
-            )?);
+            )?;
         }
 
         if !ImportsDirectory::is_empty(&package_path)? {
@@ -136,7 +130,7 @@ impl Command for Build {
 
             // Compile all .leo files into .aleo files.
             for file_path in import_files.into_iter() {
-                structs.extend(compile_leo_file(
+                compile_leo_file(
                     file_path,
                     &package_path,
                     program_id,
@@ -145,7 +139,7 @@ impl Command for Build {
                     &handler,
                     self.options.clone(),
                     true,
-                )?);
+                )?;
             }
         }
 
@@ -185,7 +179,7 @@ fn compile_leo_file(
     handler: &Handler,
     options: BuildOptions,
     is_import: bool,
-) -> Result<IndexMap<Symbol, Struct>> {
+) -> Result<()> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
         file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
@@ -215,7 +209,7 @@ fn compile_leo_file(
     );
 
     // Compile the Leo program into Aleo instructions.
-    let (symbol_table, instructions) = compiler.compile()?;
+    let instructions = compiler.compile()?;
 
     // Write the instructions.
     std::fs::File::create(&aleo_file_path)
@@ -224,5 +218,5 @@ fn compile_leo_file(
         .map_err(CliError::failed_to_load_instructions)?;
 
     tracing::info!("✅ Compiled '{}' into Aleo instructions", file_name);
-    Ok(symbol_table.structs)
+    Ok(())
 }
