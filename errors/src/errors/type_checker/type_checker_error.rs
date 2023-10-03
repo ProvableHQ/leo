@@ -684,4 +684,5 @@ create_messages!(
         msg: format!("A constant declaration statement can only bind a single value"),
         help: None,
     }
+
 );

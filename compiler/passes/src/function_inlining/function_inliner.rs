@@ -15,11 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Assigner, AssignmentRenamer, CallGraph};
+use indexmap::IndexMap;
 
 use leo_ast::{Function, NodeBuilder};
 use leo_span::Symbol;
-
-use indexmap::IndexMap;
 
 pub struct FunctionInliner<'a> {
     /// A counter used to create unique NodeIDs.
