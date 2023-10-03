@@ -17,7 +17,7 @@
 use indexmap::IndexMap;
 use std::cell::RefCell;
 
-use leo_ast::Literal;
+use leo_ast::Expression;
 use leo_errors::Result;
 use leo_span::Symbol;
 
@@ -30,7 +30,7 @@ pub struct ConstantPropagationTable {
     pub(crate) parent: Option<Box<ConstantPropagationTable>>,
     /// The known constants in the current scope
     /// This field is populated as necessary.
-    pub(crate) constants: IndexMap<Symbol, Literal>,
+    pub(crate) constants: IndexMap<Symbol, Expression>,
     /// The index of the current scope.
     pub(crate) scope_index: usize,
     /// The sub-scopes of this scope.
@@ -47,8 +47,8 @@ impl ConstantPropagationTable {
     }
 
     /// Inserts a constant into the constant propagation table.
-    pub fn insert_constant(&mut self, symbol: Symbol, literal: Literal) -> Result<()> {
-        self.constants.insert(symbol, literal);
+    pub fn insert_constant(&mut self, symbol: Symbol, expr: Expression) -> Result<()> {
+        self.constants.insert(symbol, expr);
         Ok(())
     }
 
@@ -66,7 +66,7 @@ impl ConstantPropagationTable {
     }
 
     /// Attempts to lookup a constant in the constant propagation table.
-    pub fn lookup_constant(&self, symbol: Symbol) -> Option<&Literal> {
+    pub fn lookup_constant(&self, symbol: Symbol) -> Option<&Expression> {
         if let Some(constant) = self.constants.get(&symbol) {
             Some(constant)
         } else if let Some(parent) = self.parent.as_ref() {

@@ -44,6 +44,9 @@ impl<'a> CodeGenerator<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Const(_) => {
+                unreachable!("`ConstStatement`s should not be in the AST at this phase of compilation.")
+            }
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),

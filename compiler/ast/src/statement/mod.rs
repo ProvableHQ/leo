@@ -29,6 +29,9 @@ pub use conditional::*;
 pub mod console;
 pub use console::*;
 
+pub mod const_;
+pub use const_::*;
+
 pub mod definition;
 pub use definition::*;
 
@@ -61,6 +64,8 @@ pub enum Statement {
     Conditional(ConditionalStatement),
     /// A console logging statement.
     Console(ConsoleStatement),
+    /// A binding from identifier to constant value.
+    Const(ConstDeclaration),
     /// A binding or set of bindings / variables to declare.
     Definition(DefinitionStatement),
     /// An expression statement
@@ -86,6 +91,7 @@ impl fmt::Display for Statement {
             Statement::Block(x) => x.fmt(f),
             Statement::Conditional(x) => x.fmt(f),
             Statement::Console(x) => x.fmt(f),
+            Statement::Const(x) => x.fmt(f),
             Statement::Definition(x) => x.fmt(f),
             Statement::Expression(x) => x.fmt(f),
             Statement::Iteration(x) => x.fmt(f),
@@ -103,6 +109,7 @@ impl Node for Statement {
             Block(n) => n.span(),
             Conditional(n) => n.span(),
             Console(n) => n.span(),
+            Const(n) => n.span(),
             Definition(n) => n.span(),
             Expression(n) => n.span(),
             Iteration(n) => n.span(),
@@ -118,6 +125,7 @@ impl Node for Statement {
             Block(n) => n.set_span(span),
             Conditional(n) => n.set_span(span),
             Console(n) => n.set_span(span),
+            Const(n) => n.set_span(span),
             Definition(n) => n.set_span(span),
             Expression(n) => n.set_span(span),
             Iteration(n) => n.set_span(span),
@@ -133,6 +141,7 @@ impl Node for Statement {
             Block(n) => n.id(),
             Conditional(n) => n.id(),
             Console(n) => n.id(),
+            Const(n) => n.id(),
             Definition(n) => n.id(),
             Expression(n) => n.id(),
             Iteration(n) => n.id(),
@@ -148,6 +157,7 @@ impl Node for Statement {
             Block(n) => n.set_id(id),
             Conditional(n) => n.set_id(id),
             Console(n) => n.set_id(id),
+            Const(n) => n.set_id(id),
             Definition(n) => n.set_id(id),
             Expression(n) => n.set_id(id),
             Iteration(n) => n.set_id(id),

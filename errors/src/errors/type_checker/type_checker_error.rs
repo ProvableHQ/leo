@@ -671,4 +671,17 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    incorrect_num_tuple_elements {
+        args: (identifiers: impl Display, types: impl Display),
+        msg: format!("Expected a tuple with {types} elements, found one with {identifiers} elements"),
+        help: None,
+    }
+
+    @formatted
+    const_declaration_can_only_have_one_binding {
+        args: (),
+        msg: format!("A constant declaration statement can only bind a single value"),
+        help: None,
+    }
 );

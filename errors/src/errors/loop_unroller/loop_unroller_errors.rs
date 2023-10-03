@@ -18,9 +18,9 @@ use crate::create_messages;
 use std::fmt::Debug;
 
 create_messages!(
-    /// AstError enum that represents all the errors for the `leo-ast` crate.
+    /// LoopUnrollerError enum that represents all the errors for the loop unrolling errors in the `leo-loop_unroller` crate.
     LoopUnrollerError,
-    code_mask: 8000i32,
+    code_mask: 9000i32,
     code_prefix: "LUN",
 
     @formatted

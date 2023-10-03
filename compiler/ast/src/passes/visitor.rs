@@ -128,6 +128,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -175,6 +176,10 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
                 self.visit_expression(right, &Default::default());
             }
         };
+    }
+
+    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+        self.visit_expression(&input.value, &Default::default());
     }
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
@@ -233,6 +238,4 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
             self.visit_block(&finalize.block);
         }
     }
-
-    fn visit_const(&mut self, _input: &'a DefinitionStatement) {}
 }

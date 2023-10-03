@@ -45,7 +45,7 @@ impl ParserContext<'_> {
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
             Token::Let => Ok(Statement::Definition(self.parse_definition_statement()?)),
-            Token::Const => Ok(Statement::Definition(self.parse_const_definition_statement()?)),
+            Token::Const => Ok(Statement::Const(self.parse_const_declaration_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
             Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
             Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
@@ -315,34 +315,19 @@ impl ParserContext<'_> {
         Ok(ConsoleStatement { span: keyword + span, function, id: self.node_builder.next_id() })
     }
 
-    /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a const definition statement.
-    pub(super) fn parse_const_definition_statement(&mut self) -> Result<DefinitionStatement> {
+    /// Returns a [`ConstDeclaration`] AST node if the next tokens represent a const declaration statement.
+    pub(super) fn parse_const_declaration_statement(&mut self) -> Result<ConstDeclaration> {
         self.expect(&Token::Const)?;
         let decl_span = self.prev_token.span;
-        let decl_type = match &self.prev_token.token {
-            Token::Const => DeclarationType::Const,
-            _ => unreachable!(
-                "parse_const_definition_statement shouldn't produce this as have already ensured that first token was 'Const'"
-            ),
-        };
 
         // Parse variable name and type.
-        let place = self.parse_expression()?;
-        self.expect(&Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let (place, type_, _) = self.parse_typed_ident()?;
 
         self.expect(&Token::Assign)?;
         let value = self.parse_expression()?;
         self.expect(&Token::Semicolon)?;
 
-        Ok(DefinitionStatement {
-            span: decl_span + value.span(),
-            declaration_type: decl_type,
-            place,
-            type_,
-            value,
-            id: self.node_builder.next_id(),
-        })
+        Ok(ConstDeclaration { span: decl_span + value.span(), place, type_, value, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
