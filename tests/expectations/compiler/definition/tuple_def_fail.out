@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372061]: Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers.\n    --> compiler-test:5:14\n     |\n   5 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);\n     |              ^^^^^^^\nError [ETYC0372061]: Tuples on the left-hand side of a `DefinitionStatement` can only contain identifiers.\n    --> compiler-test:5:22\n     |\n   5 |         let (1u8+1u8,1u8+1u8): (u8,u8) = (1u8,2u8);\n     |                      ^^^^^^^\n"
