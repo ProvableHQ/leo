@@ -54,7 +54,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
         // Typecheck each const definition, and append to symbol table.
-        input.consts.iter().for_each(|(_, c)| self.vist_const(c));
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
 
         // Typecheck each struct definition.
         input.structs.iter().for_each(|(_, function)| self.visit_struct(function));

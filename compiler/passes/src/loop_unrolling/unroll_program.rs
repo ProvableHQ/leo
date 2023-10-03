@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::IndexMap;
 use leo_ast::*;
 
 use crate::Unroller;
@@ -30,7 +29,7 @@ impl ProgramReconstructor for Unroller<'_> {
             structs: input.structs,
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
-            consts: IndexMap::new(),
+            consts: Vec::new(),
             span: input.span,
         }
     }

@@ -29,12 +29,13 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         for function_name in order.into_iter() {
             // None: If `function_name` is not in `input.functions`, then it must be an external function.
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
+
             if let Some(pos) = input.functions.iter().position(|(symbol, _)| *symbol == function_name) {
                 let (_, function) = input.functions.remove(pos);
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.push((function_name, reconstructed_function));
+                self.reconstructed_functions.insert(function_name, reconstructed_function);
             }
         }
         // Check that `input.functions` is empty.
@@ -42,7 +43,9 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         assert!(input.functions.is_empty(), "All functions in the program scope should have been processed.");
 
         // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
-        let functions = core::mem::take(&mut self.reconstructed_functions);
+        let functions = core::mem::take(
+            &mut self.reconstructed_functions.iter().map(|(symbol, function)| (*symbol, function.clone())).collect(),
+        );
 
         ProgramScope {
             program_id: input.program_id,

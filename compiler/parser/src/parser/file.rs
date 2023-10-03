@@ -138,7 +138,7 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
 
         // Parse the body of the program scope.
-        let mut consts: Vec<(Symbol, DefinitionStatement)> = Vec::new();
+        let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
         let mut functions: Vec<(Symbol, Function)> = Vec::new();
         let mut structs: Vec<(Symbol, Struct)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
@@ -146,7 +146,7 @@ impl ParserContext<'_> {
         while self.has_next() {
             match &self.token.token {
                 Token::Const => {
-                    let definition = self.parse_const_definition_statement()?;
+                    let definition = self.parse_const_declaration_statement()?;
                     consts.push((Symbol::intern(&definition.place.to_string()), definition));
                 }
                 Token::Struct | Token::Record => {

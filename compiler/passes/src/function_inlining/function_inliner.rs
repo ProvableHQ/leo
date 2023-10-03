@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Assigner, AssignmentRenamer, CallGraph};
+use indexmap::IndexMap;
 
 use leo_ast::{Function, NodeBuilder};
 use leo_span::Symbol;
@@ -27,7 +28,7 @@ pub struct FunctionInliner<'a> {
     /// A wrapper around an Assigner used to create unique variable assignments.
     pub(crate) assignment_renamer: AssignmentRenamer<'a>,
     /// A map of reconstructed functions in the current program scope.
-    pub(crate) reconstructed_functions: Vec<(Symbol, Function)>,
+    pub(crate) reconstructed_functions: IndexMap<Symbol, Function>,
 }
 
 impl<'a> FunctionInliner<'a> {
