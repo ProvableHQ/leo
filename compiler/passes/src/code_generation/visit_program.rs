@@ -57,14 +57,22 @@ impl<'a> CodeGenerator<'a> {
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
         let order = self.struct_graph.post_order().unwrap();
 
+        // Create a mapping of symbols to references of structs so can perform constant-time lookups.
+        let structs_map: IndexMap<Symbol, &Struct> = program_scope.structs.iter().map(|(name, struct_)| {
+            (
+                *name,
+                struct_
+            )
+        }).collect();
+
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
             &order
                 .into_iter()
                 .map(|name| {
-                    match program_scope.structs.iter().find(|(identifier, _)| *identifier == name) {
+                    match structs_map.get(&name) {
                         // If the struct is found, it is a local struct.
-                        Some((_, struct_)) => self.visit_struct_or_record(struct_),
+                        Some(struct_) => self.visit_struct_or_record(*struct_),
                         // If the struct is not found, it is an imported struct.
                         None => String::new(),
                     }
