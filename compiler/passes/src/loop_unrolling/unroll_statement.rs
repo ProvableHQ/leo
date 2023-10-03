@@ -50,26 +50,51 @@ impl StatementReconstructor for Unroller<'_> {
         (block, Default::default())
     }
 
+    fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
+        // Reconstruct the RHS expression to allow for constant propagation
+        let reconstructed_value_expression = self.reconstruct_expression(input.value.clone()).0;
+
+        // Add to constant propagation table. Since TC completed we know that the RHS is a literal or tuple of literals.
+        if let Err(err) = self.constant_propagation_table.borrow_mut().insert_constant(input.place.name, input.value) {
+            self.handler.emit_err(err);
+        }
+
+        // Remove from symbol table
+        if self.symbol_table.borrow().lookup_variable(input.place.name).is_some() {
+            if let Err(err) = self.symbol_table.borrow_mut().remove_variable_from_current_scope(input.place.name) {
+                self.handler.emit_err(err);
+            }
+        }
+
+        (
+            Statement::Const(ConstDeclaration {
+                place: input.place,
+                type_: input.type_,
+                value: reconstructed_value_expression,
+                span: input.span,
+                id: input.id,
+            }),
+            true,
+        )
+    }
+
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Helper function to add  variables to symbol table
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
-            {
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
+                type_,
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 self.handler.emit_err(err);
             }
         };
 
-        let declaration =
-            if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
-
         // If we are unrolling a loop, then we need to repopulate the symbol table.
-        // If we are not unrolling a loop, the we need to remove constants from the symbol table.
-        // We always need to add constant variables to the constant variable table.
-        if declaration == VariableType::Mut && self.is_unrolling {
+        if self.is_unrolling {
             match &input.place {
                 Expression::Identifier(identifier) => {
-                    insert_variable(identifier.name, input.type_.clone(), input.span, declaration);
+                    insert_variable(identifier.name, input.type_.clone(), input.span);
                 }
                 Expression::Tuple(tuple_expression) => {
                     let tuple_type = match input.type_ {
@@ -83,15 +108,13 @@ impl StatementReconstructor for Unroller<'_> {
                             Expression::Identifier(identifier) => identifier,
                             _ => unreachable!("Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.")
                         };
-                        insert_variable(identifier.name, input.type_.clone(), input.span, declaration);
+                        insert_variable(identifier.name, input.type_.clone(), input.span);
                     });
                 }
                 _ => unreachable!(
                     "Type checking guarantees that the lhs of a `DefinitionStatement` is either an identifier or tuple."
                 ),
             }
-        } else if declaration == VariableType::Const {
-            return (Statement::Definition(self.reconstruct_const(input.clone())), true);
         }
 
         // Reconstruct the expression and return
@@ -104,7 +127,7 @@ impl StatementReconstructor for Unroller<'_> {
                 span: input.span,
                 id: input.id,
             }),
-            false,
+            Default::default(),
         )
     }
 

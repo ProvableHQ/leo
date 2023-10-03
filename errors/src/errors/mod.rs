@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::loop_unroller::LoopUnrollerError;
 /// Contains the ASG error definitions.
 use crate::LeoMessageCode;
 
@@ -38,6 +37,9 @@ pub use self::flattener::*;
 pub mod input;
 pub use self::input::*;
 
+pub mod loop_unroller;
+pub use self::loop_unroller::*;
+
 /// Contains the Package error definitions.
 pub mod package;
 pub use self::package::*;
@@ -46,7 +48,6 @@ pub use self::package::*;
 pub mod parser;
 pub use self::parser::*;
 
-pub mod loop_unroller;
 /// Contains the Type Checker error definitions.
 pub mod type_checker;
 

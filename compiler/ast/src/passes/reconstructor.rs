@@ -202,6 +202,7 @@ pub trait StatementReconstructor: ExpressionReconstructor {
             }
             Statement::Conditional(stmt) => self.reconstruct_conditional(stmt),
             Statement::Console(stmt) => self.reconstruct_console(stmt),
+            Statement::Const(stmt) => self.reconstruct_const(stmt),
             Statement::Definition(stmt) => self.reconstruct_definition(stmt),
             Statement::Expression(stmt) => self.reconstruct_expression_statement(stmt),
             Statement::Iteration(stmt) => self.reconstruct_iteration(*stmt),
@@ -280,6 +281,19 @@ pub trait StatementReconstructor: ExpressionReconstructor {
                         self.reconstruct_expression(right).0,
                     ),
                 },
+                span: input.span,
+                id: input.id,
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_const(&mut self, input: ConstDeclaration) -> (Statement, Self::AdditionalOutput) {
+        (
+            Statement::Const(ConstDeclaration {
+                place: input.place,
+                type_: input.type_,
+                value: self.reconstruct_expression(input.value).0,
                 span: input.span,
                 id: input.id,
             }),
@@ -368,7 +382,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
             structs: input.structs.into_iter().map(|(i, c)| (i, self.reconstruct_struct(c))).collect(),
             mappings: input.mappings.into_iter().map(|(id, mapping)| (id, self.reconstruct_mapping(mapping))).collect(),
             functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
-            consts: input.consts.into_iter().map(|(i, c)| (i, self.reconstruct_const(c))).collect(),
+            consts: input.consts.into_iter().map(|(i, c)| (i, self.reconstruct_global_const(c))).collect(),
             span: input.span,
         }
     }
@@ -396,7 +410,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
         }
     }
 
-    fn reconstruct_const(&mut self, input: DefinitionStatement) -> DefinitionStatement {
+    fn reconstruct_global_const(&mut self, input: ConstDeclaration) -> ConstDeclaration {
         input
     }
 

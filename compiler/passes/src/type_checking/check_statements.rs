@@ -35,6 +35,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -150,10 +151,57 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration =
-            if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
+    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        match &input.type_ {
+            // If the type is an empty tuple, return an error.
+            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
+            // If the type is a singleton tuple, return an error.
+            Type::Tuple(tuple) => match tuple.len() {
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                _ => {
+                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    }
+                }
+            },
+            Type::Mapping(_) | Type::Err => unreachable!(
+                "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
+            ),
+            // Otherwise, the type is valid.
+            _ => (), // Do nothing
+        }
 
+        // Enforce that Constant variables have literal expressions on right-hand side
+        match &input.value {
+            Expression::Literal(_) => (),
+            Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                _ => {
+                    if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
+                        self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
+                            input.span,
+                        ))
+                    }
+                }
+            },
+            _ => self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
+        }
+
+        // Check the expression on the right-hand side.
+        self.visit_expression(&input.value, &Some(input.type_.clone()));
+
+        // Add constants to symbol table so that any references to them in later statements will pass TC
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
+            type_: input.type_.clone(),
+            span: input.place.span,
+            declaration: VariableType::Const,
+        }) {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         // Check that the type of the definition is defined.
         self.assert_type_is_defined(&input.type_, input.span);
 
@@ -177,35 +225,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             _ => (), // Do nothing
         }
 
-        // Enforce additional constraint that constant definitions can only be literals or tuples of literals. This will be removed after constant folding.
-        if input.declaration_type == DeclarationType::Const {
-            // Enforce that Constant variables have literal expressions on right-hand side
-            match &input.value {
-                Expression::Literal(_) => (),
-                Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
-                    0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
-                    _ => {
-                        if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
-                            self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
-                                input.span,
-                            ))
-                        }
-                    }
-                },
-                _ => self
-                    .emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
-            }
-        }
-
         // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
-            {
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
+                type_,
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 self.handler.emit_err(err);
             }
         };
@@ -213,7 +243,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Insert the variables in the into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                insert_variable(identifier.name, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -222,6 +252,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     ),
                 };
+                if tuple_expression.elements.len() != tuple_type.len() {
+                    return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
+                        tuple_expression.elements.len(),
+                        tuple_type.len(),
+                        input.place.span(),
+                    ));
+                }
+
                 tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
                     let identifier = match expression {
                         Expression::Identifier(identifier) => identifier,
@@ -231,7 +269,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                             ));
                         }
                     };
-                    insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    insert_variable(identifier.name, type_.clone(), identifier.span)
                 });
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),

@@ -16,6 +16,7 @@
 
 use leo_ast::{
     Block,
+    Expression,
     IntegerType,
     IterationStatement,
     Literal,
@@ -240,12 +241,24 @@ impl<'a> Unroller<'a> {
         // Add the loop variable as a constant for the current scope
         self.constant_propagation_table
             .borrow_mut()
-            .insert_constant(input.variable.name, value)
+            .insert_constant(input.variable.name, Expression::Literal(value.clone()))
             .expect("Failed to insert constant into CPT");
 
         // Reconstruct the statements in the loop body.
-        let statements: Vec<_> =
-            input.block.statements.clone().into_iter().map(|s| self.reconstruct_statement(s).0).collect();
+        let statements: Vec<_> = input
+            .block
+            .statements
+            .clone()
+            .into_iter()
+            .filter_map(|s| {
+                let (reconstructed_statement, additional_output) = self.reconstruct_statement(s);
+                if additional_output {
+                    None // Exclude this statement from the block since it is a constant variable definition
+                } else {
+                    Some(reconstructed_statement)
+                }
+            })
+            .collect();
 
         let block = Statement::Block(Block { statements, span: input.block.span, id: input.block.id });
 

@@ -49,9 +49,13 @@ The errors for the `leo-compiler` crate. Its error codes will range from 6_000-6
 
 The errors for the `leo-imports` crate. Its error codes will range from 4_000-4_999 and be prefixed with the characters `IMP`.
 
-## Input
+### Input
 
 The errors for the `leo-ast` crate. Its error codes will range from 8_000-8_999 and be prefixed with the characters `INP`.
+
+### Loop Unrolling
+
+The errors for loop unrolling in the `leo-passes` crate. Its error codes will range from 9_000-9_999 and be prefixed with the characters `LUN`.
 
 ### Package
 
