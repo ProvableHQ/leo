@@ -60,11 +60,7 @@ impl StatementReconstructor for Unroller<'_> {
         }
 
         // Remove from symbol table
-        if self.symbol_table.borrow().lookup_variable(input.place.name).is_some() {
-            if let Err(err) = self.symbol_table.borrow_mut().remove_variable_from_current_scope(input.place.name) {
-                self.handler.emit_err(err);
-            }
-        }
+        self.symbol_table.borrow_mut().remove_variable_from_current_scope(input.place.name);
 
         (
             Statement::Const(ConstDeclaration {
