@@ -146,8 +146,8 @@ impl ParserContext<'_> {
         while self.has_next() {
             match &self.token.token {
                 Token::Const => {
-                    let definition = self.parse_const_declaration_statement()?;
-                    consts.push((Symbol::intern(&definition.place.to_string()), definition));
+                    let declaration = self.parse_const_declaration_statement()?;
+                    consts.push((Symbol::intern(&declaration.place.to_string()), definition));
                 }
                 Token::Struct | Token::Record => {
                     let (id, struct_) = self.parse_struct()?;
