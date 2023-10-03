@@ -58,12 +58,8 @@ impl<'a> CodeGenerator<'a> {
         let order = self.struct_graph.post_order().unwrap();
 
         // Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        let structs_map: IndexMap<Symbol, &Struct> = program_scope.structs.iter().map(|(name, struct_)| {
-            (
-                *name,
-                struct_
-            )
-        }).collect();
+        let structs_map: IndexMap<Symbol, &Struct> =
+            program_scope.structs.iter().map(|(name, struct_)| (*name, struct_)).collect();
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
@@ -72,7 +68,7 @@ impl<'a> CodeGenerator<'a> {
                 .map(|name| {
                     match structs_map.get(&name) {
                         // If the struct is found, it is a local struct.
-                        Some(struct_) => self.visit_struct_or_record(*struct_),
+                        Some(struct_) => self.visit_struct_or_record(struct_),
                         // If the struct is not found, it is an imported struct.
                         None => String::new(),
                     }
