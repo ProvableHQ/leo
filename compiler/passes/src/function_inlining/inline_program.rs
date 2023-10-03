@@ -43,9 +43,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         assert!(input.functions.is_empty(), "All functions in the program scope should have been processed.");
 
         // Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
-        let functions = core::mem::take(
-            &mut self.reconstructed_functions.iter().map(|(symbol, function)| (*symbol, function.clone())).collect(),
-        );
+        let functions = core::mem::take(&mut self.reconstructed_functions).into_iter().map(|(symbol, function)| (*symbol, function.clone())).collect();
 
         ProgramScope {
             program_id: input.program_id,
