@@ -28,7 +28,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
         let order = self.call_graph.post_order().unwrap();
 
         // Construct map to provide faster lookup of functions
-        let function_map: IndexMap<Symbol, Function> = input.functions.clone().into_iter().collect();
+        let mut function_map: IndexMap<Symbol, Function> = input.functions.clone().into_iter().collect();
 
         // Construct set to keep track of the remaining functions that still need to be processed.
         let mut function_set: IndexSet<Symbol> = function_map.keys().cloned().collect();
