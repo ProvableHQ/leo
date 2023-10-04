@@ -29,19 +29,4 @@ create_messages!(
         msg: format!("The loop range must be increasing."),
         help: None,
     }
-
-    @formatted
-    loop_bound_must_be_a_literal {
-        args: (),
-        msg: format!("Loop bound must be a literal after constant propagation."),
-        help: None,
-    }
-
-    @formatted
-    loop_bounds_must_have_same_type_as_loop_variable {
-        args: (),
-        msg: format!("Loop bounds must be the same type"),
-        help: None,
-    }
-
 );

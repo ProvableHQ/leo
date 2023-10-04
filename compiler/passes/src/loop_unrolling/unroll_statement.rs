@@ -138,8 +138,7 @@ impl StatementReconstructor for Unroller<'_> {
                 input.start_value.replace(Some(Value::try_from(&start_lit).unwrap()));
                 input.stop_value.replace(Some(Value::try_from(&stop_lit).unwrap()));
             }
-            (Literal(_), _) => self.emit_err(LoopUnrollerError::loop_bound_must_be_a_literal(new_stop.span())),
-            (_, _) => self.emit_err(LoopUnrollerError::loop_bound_must_be_a_literal(new_start.span())),
+            _ => unreachable!("Type checking guarantees that the loop bounds are literals."),
         };
 
         // Ensure loop bounds are increasing. This cannot be done in the type checker because constant propagation occurs in this pass.
@@ -174,12 +173,7 @@ impl StatementReconstructor for Unroller<'_> {
             (Integer(IntegerType::U128), Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => {
                 lower_bound >= upper_bound
             }
-            _ => {
-                self.emit_err(LoopUnrollerError::loop_bounds_must_have_same_type_as_loop_variable(
-                    input.variable.span(),
-                ));
-                false
-            }
+            _ => unreachable!("Type checking guarantees that the loop bounds have same type as loop variable."),
         } {
             self.emit_err(LoopUnrollerError::loop_range_decreasing(new_stop.span()));
         }
