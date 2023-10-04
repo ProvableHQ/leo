@@ -39,7 +39,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
             if let Some(function) = function_map.remove(&function_name) {
                 // Reconstruct the function.
-                let reconstructed_function = self.reconstruct_function(function.clone());
+                let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
                 self.reconstructed_functions.insert(function_name, reconstructed_function);
             }
