@@ -19,8 +19,6 @@ use crate::{Assigner, AssignmentRenamer, CallGraph};
 use leo_ast::{Function, NodeBuilder};
 use leo_span::Symbol;
 
-use indexmap::IndexMap;
-
 pub struct FunctionInliner<'a> {
     /// A counter used to create unique NodeIDs.
     pub(crate) node_builder: &'a NodeBuilder,

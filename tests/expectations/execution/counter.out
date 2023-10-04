@@ -4,22 +4,22 @@ expectation: Pass
 outputs:
   - - initial_symbol_table: 4194c6207c716b52d30529becd081afc9b7313e8e1ce400cc65c33fac50fab31
       type_checked_symbol_table: 51dec1877b8da96c81929eabd624019ae50c181362703756b68d94d002cb2f56
-      unrolled_symbol_table: f62721c061790b66cf66c0dbac8f85ca582bb420e6b315e081e7894bb81e8cdf
-      initial_ast: fea2ee7658bbedd9ec63e374e3156684ce765145bb1d648ff394f5ef7be1cb83
-      unrolled_ast: 3163751aa919b500d72df1ba3698cf4e6718ce7c725cb69cd39af9e2e4017eaa
-      ssa_ast: b8fd721ad8640ed982e5ca8ddbad91b251c3b27786382db9b7fc21e48b2cf273
-      flattened_ast: fcb6269c7559318b13e56b087272f6e8edcd99e4566ac10922758f23c4f544e8
-      inlined_ast: fcb6269c7559318b13e56b087272f6e8edcd99e4566ac10922758f23c4f544e8
-      dce_ast: fcb6269c7559318b13e56b087272f6e8edcd99e4566ac10922758f23c4f544e8
-      bytecode: 6f468335c2ba73721aece1b1018fff421437eee9d52956368d33822d46e8c012
+      unrolled_symbol_table: 0b6340ef766a4154f31b5fa00d9bebe8478a8e3c81f091b8433e870ad7213b25
+      initial_ast: 5e6213c6449862e08e395bf930911f84cf9a4fef38817908de100336191b2f4a
+      unrolled_ast: 46f0aa90dbb7f0e4e8dbb4c1d618eeb2c2fc65f0d95c87ef98421ab5934a8d8c
+      ssa_ast: 645d8ddd30de2f2c176b46e16a9ee79ea9c3e4ba5896e0b9103714baaad44794
+      flattened_ast: 5109c9f62312f616bb3f381a85915b53de1f60221ce12aafb0e55f232e7ac72a
+      inlined_ast: 5109c9f62312f616bb3f381a85915b53de1f60221ce12aafb0e55f232e7ac72a
+      dce_ast: 5109c9f62312f616bb3f381a85915b53de1f60221ce12aafb0e55f232e7ac72a
+      bytecode: 1e66c9ede8e702226a86a9402cb1737dc8a02b285ddf708e3996d57e82e6ee65
       warnings: ""
       results:
         dubble:
           - input: "[]"
-            output: "[]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
           - input: "[]"
-            output: "[]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
           - input: "[]"
-            output: "[]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
           - input: "[]"
-            output: "[]"
+            output: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"

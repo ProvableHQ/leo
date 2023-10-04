@@ -39,7 +39,7 @@ impl ProgramReconstructor for FunctionInliner<'_> {
                 // Reconstruct the function.
                 let reconstructed_function = self.reconstruct_function(function);
                 // Add the reconstructed function to the mapping.
-                self.reconstructed_functions.insert(*function_name, reconstructed_function);
+                self.reconstructed_functions.push((*function_name, reconstructed_function));
             }
         }
         // This is a sanity check to ensure that functions in the program scope have been processed.

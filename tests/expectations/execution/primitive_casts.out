@@ -5,57 +5,57 @@ outputs:
   - - initial_symbol_table: 14ede2e4de7f1fd89ef12b547145e5a622e0bc3fc9e8611d0b64f6d0d09ef307
       type_checked_symbol_table: 58dfa99219bbe9fe8ca60c795951fa43b3e3348dc19d80feff4776f5a039e078
       unrolled_symbol_table: 58dfa99219bbe9fe8ca60c795951fa43b3e3348dc19d80feff4776f5a039e078
-      initial_ast: a5f27a6708ad3ff9e219014c4d2ec852b172da42d9eda1e361dddbd5f231c753
-      unrolled_ast: a5f27a6708ad3ff9e219014c4d2ec852b172da42d9eda1e361dddbd5f231c753
-      ssa_ast: b63c9d361ef75d8f9353e3c99ea90c79b54d762d2edb49dc297253d982186b96
-      flattened_ast: 9bcafcbc76347838e03957f1b82fa466b74f2bfb097dc3433c10db06528febf3
-      inlined_ast: 9bcafcbc76347838e03957f1b82fa466b74f2bfb097dc3433c10db06528febf3
-      dce_ast: 9bcafcbc76347838e03957f1b82fa466b74f2bfb097dc3433c10db06528febf3
+      initial_ast: 5549113c4101aa88368e92bdefa4620e6ada433010e92efa64a6050c538f9ecf
+      unrolled_ast: 5549113c4101aa88368e92bdefa4620e6ada433010e92efa64a6050c538f9ecf
+      ssa_ast: 977c17621c6cca0c617c685d0a25d300576e0466b4517a27298e68b004f95e2f
+      flattened_ast: fa2504bf5152c6db0724b5686765c53be5e5373f6f004bdb8379d8c5bac2cc5d
+      inlined_ast: fa2504bf5152c6db0724b5686765c53be5e5373f6f004bdb8379d8c5bac2cc5d
+      dce_ast: fa2504bf5152c6db0724b5686765c53be5e5373f6f004bdb8379d8c5bac2cc5d
       bytecode: 9f8baa3f1bada186c32440e4880e858bd76b54dedb2d667a2b93c2d2a98f0752
       warnings: ""
       results:
         address_casts:
           - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r2 as boolean;): Cannot downcast a field literal to a boolean type (yet).)"
+            output: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 4215828253063057579372973753238191915437678788189540242352627279098623010748field, 4215828253063057579372973753238191915437678788189540242352627279098623010748group, -68i8, -22596i16, -919361604i32, -1115211937480464452i64, 69581248500420848509480883781010433980i128, 188u8, 42940u16, 3375605692u32, 17331532136229087164u64, 69581248500420848509480883781010433980u128, 597325464396926472386380471716694795022991767388272616119577778851337709500scalar]"
         bool_casts:
           - input: "[false]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a boolean literal to another type.)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         field_casts:
           - input: "[0field]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a field literal to an address type.)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         group_casts:
           - input: "[0group]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r2 as boolean;): Cannot downcast a field literal to a boolean type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         i128_casts:
           - input: "[0i128]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i128 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         i16_casts:
           - input: "[0i16]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i16 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         i32_casts:
           - input: "[0i32]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i32 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         i64_casts:
           - input: "[0i64]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i64 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         i8_casts:
           - input: "[0i8]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast an i8 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         scalar_casts:
           - input: "[0scalar]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a scalar literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         u128_casts:
           - input: "[0u128]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u128 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         u16_casts:
           - input: "[0u16]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u16 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         u32_casts:
           - input: "[0u32]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u32 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         u64_casts:
           - input: "[0u64]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u64 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
         u8_casts:
           - input: "[0u8]"
-            output: "SnarkVMError(Failed to execute instruction (cast r0 into r1 as address;): Cannot downcast a u8 literal to another type (yet).)"
+            output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
