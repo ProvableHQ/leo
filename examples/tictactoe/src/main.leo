@@ -96,7 +96,7 @@ program tictactoe.aleo {
         let updated: Board = Board {
             r1: Row { c1: r1c1, c2: r1c2, c3: r1c3 },
             r2: Row { c1: r2c1, c2: r2c2, c3: r2c3 },
-            r3: Row { c1: r3c1, c2: r2c2, c3: r2c3 },
+            r3: Row { c1: r3c1, c2: r3c2, c3: r3c3 },
         };
 
         // Check if the game is over.
