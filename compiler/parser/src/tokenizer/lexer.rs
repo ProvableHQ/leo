@@ -386,6 +386,7 @@ impl Token {
                     "block" => Token::Block,
                     "bool" => Token::Bool,
                     "console" => Token::Console,
+                    "const" => Token::Const,
                     "constant" => Token::Constant,
                     "else" => Token::Else,
                     "false" => Token::False,

@@ -6,24 +6,25 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        consts: []
         structs:
-          token:
-            identifier: "{\"id\":\"2\",\"name\":\"token\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":38}\"}"
-            members:
-              - mode: Private
-                identifier: "{\"id\":\"3\",\"name\":\"owner\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":62}\"}"
-                type_: Address
-                span:
-                  lo: 57
-                  hi: 71
-                id: 4
-            is_record: true
-            span:
-              lo: 26
-              hi: 78
-            id: 5
-        mappings: {}
-        functions: {}
+          - - token
+            - identifier: "{\"id\":\"2\",\"name\":\"token\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":38}\"}"
+              members:
+                - mode: Private
+                  identifier: "{\"id\":\"3\",\"name\":\"owner\",\"span\":\"{\\\"lo\\\":57,\\\"hi\\\":62}\"}"
+                  type_: Address
+                  span:
+                    lo: 57
+                    hi: 71
+                  id: 4
+              is_record: true
+              span:
+                lo: 26
+                hi: 78
+              id: 5
+        mappings: []
+        functions: []
         span:
           lo: 2
           hi: 80

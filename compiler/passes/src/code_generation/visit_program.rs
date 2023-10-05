@@ -59,12 +59,16 @@ impl<'a> CodeGenerator<'a> {
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
         let order = self.struct_graph.post_order().unwrap();
 
+        // Create a mapping of symbols to references of structs so can perform constant-time lookups.
+        let structs_map: IndexMap<Symbol, &Struct> =
+            program_scope.structs.iter().map(|(name, struct_)| (*name, struct_)).collect();
+
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
             &order
                 .into_iter()
                 .map(|name| {
-                    match program_scope.structs.get(&name) {
+                    match structs_map.get(&name) {
                         // If the struct is found, it is a local struct.
                         Some(struct_) => self.visit_struct_or_record(struct_),
                         // If the struct is not found, it is an imported struct.
@@ -78,7 +82,8 @@ impl<'a> CodeGenerator<'a> {
         program_string.push('\n');
 
         // Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        program_string.push_str(&program_scope.mappings.values().map(|mapping| self.visit_mapping(mapping)).join("\n"));
+        program_string
+            .push_str(&program_scope.mappings.iter().map(|(_, mapping)| self.visit_mapping(mapping)).join("\n"));
 
         // Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -86,8 +91,8 @@ impl<'a> CodeGenerator<'a> {
         program_string.push_str(
             &program_scope
                 .functions
-                .values()
-                .map(|function| {
+                .iter()
+                .map(|(_, function)| {
                     // Set the `is_transition_function` flag.
                     self.is_transition_function = matches!(function.variant, Variant::Transition);
 

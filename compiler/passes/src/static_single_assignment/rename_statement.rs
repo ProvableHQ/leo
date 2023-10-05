@@ -26,6 +26,7 @@ use leo_ast::{
     CallExpression,
     ConditionalStatement,
     ConsoleStatement,
+    ConstDeclaration,
     DefinitionStatement,
     Expression,
     ExpressionConsumer,
@@ -212,6 +213,10 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
     /// Parsing guarantees that console statements are not present in the program.
     fn consume_console(&mut self, _: ConsoleStatement) -> Self::Output {
         unreachable!("Parsing guarantees that console statements are not present in the program.")
+    }
+
+    fn consume_const(&mut self, _: ConstDeclaration) -> Self::Output {
+        unreachable!("Loop unrolling pass removes all constant declaration statements in the program.")
     }
 
     /// Consumes the `DefinitionStatement` into an `AssignStatement`, renaming the left-hand-side as appropriate.

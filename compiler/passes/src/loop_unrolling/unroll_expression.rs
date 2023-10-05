@@ -19,5 +19,13 @@ use leo_ast::*;
 use crate::Unroller;
 
 impl ExpressionReconstructor for Unroller<'_> {
-    type AdditionalOutput = ();
+    type AdditionalOutput = bool;
+
+    fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
+        // Substitute the identifier with the constant value if it is a constant.
+        if let Some(expr) = self.constant_propagation_table.borrow().lookup_constant(input.name) {
+            return (expr.clone(), Default::default());
+        }
+        (Expression::Identifier(input), Default::default())
+    }
 }

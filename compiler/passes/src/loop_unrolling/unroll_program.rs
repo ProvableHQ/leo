@@ -19,6 +19,21 @@ use leo_ast::*;
 use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
+    fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        // Don't need to reconstructed consts, just need to add them to constant propagation table
+        input.consts.into_iter().for_each(|(_, c)| {
+            self.reconstruct_const(c);
+        });
+        ProgramScope {
+            program_id: input.program_id,
+            structs: input.structs,
+            mappings: input.mappings,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function(f))).collect(),
+            consts: Vec::new(),
+            span: input.span,
+        }
+    }
+
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.

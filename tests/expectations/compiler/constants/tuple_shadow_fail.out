@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found '('\n    --> compiler-test:4:11\n     |\n   4 |     const (HELLO,GOODBYE): (u8,u8) = (0u8,0u8);\n     |           ^"

@@ -6,28 +6,29 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
-        structs: {}
+        consts: []
+        structs: []
         mappings:
-          balances:
-            identifier: "{\"id\":\"2\",\"name\":\"balances\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":46}\"}"
-            key_type: Address
-            value_type:
-              Integer: U128
-            span:
-              lo: 30
-              hi: 64
-            id: 3
-          foo:
-            identifier: "{\"id\":\"4\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":82,\\\"hi\\\":85}\"}"
-            key_type:
-              Identifier: "{\"id\":\"5\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
-            value_type:
-              Identifier: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
-            span:
-              lo: 74
-              hi: 98
-            id: 7
-        functions: {}
+          - - balances
+            - identifier: "{\"id\":\"2\",\"name\":\"balances\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":46}\"}"
+              key_type: Address
+              value_type:
+                Integer: U128
+              span:
+                lo: 30
+                hi: 64
+              id: 3
+          - - foo
+            - identifier: "{\"id\":\"4\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":82,\\\"hi\\\":85}\"}"
+              key_type:
+                Identifier: "{\"id\":\"5\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
+              value_type:
+                Identifier: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
+              span:
+                lo: 74
+                hi: 98
+              id: 7
+        functions: []
         span:
           lo: 2
           hi: 100

@@ -6,9 +6,10 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":126,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":130}\\\\\\\"}\\\"\"}"
-        structs: {}
-        mappings: {}
-        functions: {}
+        consts: []
+        structs: []
+        mappings: []
+        functions: []
         span:
           lo: 113
           hi: 235

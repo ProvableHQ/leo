@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `u8` but type `u32` was found\n    --> compiler-test:8:22\n     |\n   8 |         for i: u8 in START..STOP {\n     |                      ^^^^^\n"

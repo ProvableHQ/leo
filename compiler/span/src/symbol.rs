@@ -235,6 +235,7 @@ symbols! {
     assert_neq,
     caller,
     console,
+    Const: "const",
     constant,
     decrement,
     Else: "else",

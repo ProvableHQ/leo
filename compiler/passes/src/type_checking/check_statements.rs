@@ -35,6 +35,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -150,10 +151,57 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         unreachable!("Parsing guarantees that console statements are not present in the AST.");
     }
 
-    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
-        let declaration =
-            if input.declaration_type == DeclarationType::Const { VariableType::Const } else { VariableType::Mut };
+    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        match &input.type_ {
+            // If the type is an empty tuple, return an error.
+            Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
+            // If the type is a singleton tuple, return an error.
+            Type::Tuple(tuple) => match tuple.len() {
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                _ => {
+                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    }
+                }
+            },
+            Type::Mapping(_) | Type::Err => unreachable!(
+                "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
+            ),
+            // Otherwise, the type is valid.
+            _ => (), // Do nothing
+        }
 
+        // Enforce that Constant variables have literal expressions on right-hand side
+        match &input.value {
+            Expression::Literal(_) => (),
+            Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
+                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                _ => {
+                    if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
+                        self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
+                            input.span,
+                        ))
+                    }
+                }
+            },
+            _ => self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
+        }
+
+        // Check the expression on the right-hand side.
+        self.visit_expression(&input.value, &Some(input.type_.clone()));
+
+        // Add constants to symbol table so that any references to them in later statements will pass TC
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
+            type_: input.type_.clone(),
+            span: input.place.span,
+            declaration: VariableType::Const,
+        }) {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         // Check that the type of the definition is defined.
         self.assert_type_is_defined(&input.type_, input.span);
 
@@ -177,23 +225,25 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             _ => (), // Do nothing
         }
 
-        // Check the expression on the left-hand side.
+        // Check the expression on the right-hand side.
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
-            {
+        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
+                type_,
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 self.handler.emit_err(err);
             }
         };
 
-        // Insert the variables in the into the symbol table.
+        // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                insert_variable(identifier.name, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -202,6 +252,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     ),
                 };
+                if tuple_expression.elements.len() != tuple_type.len() {
+                    return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
+                        tuple_expression.elements.len(),
+                        tuple_type.len(),
+                        input.place.span(),
+                    ));
+                }
+
                 tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
                     let identifier = match expression {
                         Expression::Identifier(identifier) => identifier,
@@ -211,7 +269,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                             ));
                         }
                     };
-                    insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    insert_variable(identifier.name, type_.clone(), identifier.span)
                 });
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -270,43 +328,41 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.start, iter_type);
 
         // If `input.start` is a valid literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.start {
-            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            if let Ok(value) = Value::try_from(literal) {
-                input.start_value.replace(Some(value));
+        match &input.start {
+            Expression::Literal(literal) => {
+                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                if let Ok(value) = Value::try_from(literal) {
+                    input.start_value.replace(Some(value));
+                }
             }
-        } else {
-            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
+            Expression::Identifier(id) => {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                    if VariableType::Const != var.declaration {
+                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
         self.visit_expression(&input.stop, iter_type);
 
-        // If `input.stop` is a literal, instantiate it as a value.
-        if let Expression::Literal(literal) = &input.stop {
-            // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            if let Ok(value) = Value::try_from(literal) {
-                input.stop_value.replace(Some(value));
+        // If `input.stop` is a valid literal, instantiate it as a value.
+        match &input.stop {
+            Expression::Literal(literal) => {
+                // Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                if let Ok(value) = Value::try_from(literal) {
+                    input.stop_value.replace(Some(value));
+                }
             }
-        } else {
-            self.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
-        }
-
-        // Ensure loop bounds are not decreasing.
-        if match (input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
-            (Some(Value::I8(lower_bound, _)), Some(Value::I8(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I16(lower_bound, _)), Some(Value::I16(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I32(lower_bound, _)), Some(Value::I32(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I64(lower_bound, _)), Some(Value::I64(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::I128(lower_bound, _)), Some(Value::I128(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U8(lower_bound, _)), Some(Value::U8(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U16(lower_bound, _)), Some(Value::U16(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U32(lower_bound, _)), Some(Value::U32(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U64(lower_bound, _)), Some(Value::U64(upper_bound, _))) => lower_bound >= upper_bound,
-            (Some(Value::U128(lower_bound, _)), Some(Value::U128(upper_bound, _))) => lower_bound >= upper_bound,
-            // Note that type mismatch and non-literal errors will already be emitted by here.
-            _ => false,
-        } {
-            self.emit_err(TypeCheckerError::loop_range_decreasing(input.stop.span()));
+            Expression::Identifier(id) => {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                    if VariableType::Const != var.declaration {
+                        self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            _ => self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.stop.span())),
         }
     }
 

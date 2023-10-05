@@ -6,107 +6,108 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
-        structs: {}
-        mappings: {}
+        consts: []
+        structs: []
+        mappings: []
         functions:
-          "inf":
-            annotations: []
-            variant: Standard
-            identifier: "{\"id\":\"2\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
-            input: []
-            output:
-              - Internal:
-                  mode: None
-                  type_:
-                    Integer: U8
-                  span:
-                    lo: 48
-                    hi: 50
-                  id: 3
-            output_type:
-              Integer: U8
-            block:
-              statements:
-                - Expression:
-                    expression:
-                      Call:
-                        function:
-                          Identifier: "{\"id\":\"4\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
-                        arguments: []
-                        external: ~
-                        span:
-                          lo: 61
-                          hi: 66
-                        id: 5
+          - - "inf"
+            - annotations: []
+              variant: Standard
+              identifier: "{\"id\":\"2\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
+              input: []
+              output:
+                - Internal:
+                    mode: None
+                    type_:
+                      Integer: U8
                     span:
-                      lo: 61
-                      hi: 67
-                    id: 6
+                      lo: 48
+                      hi: 50
+                    id: 3
+              output_type:
+                Integer: U8
+              block:
+                statements:
+                  - Expression:
+                      expression:
+                        Call:
+                          function:
+                            Identifier: "{\"id\":\"4\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
+                          arguments: []
+                          external: ~
+                          span:
+                            lo: 61
+                            hi: 66
+                          id: 5
+                      span:
+                        lo: 61
+                        hi: 67
+                      id: 6
+                span:
+                  lo: 51
+                  hi: 73
+                id: 7
+              finalize: ~
               span:
-                lo: 51
+                lo: 30
                 hi: 73
-              id: 7
-            finalize: ~
-            span:
-              lo: 30
-              hi: 73
-            id: 8
-          main:
-            annotations: []
-            variant: Standard
-            identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
-            input:
-              - Internal:
-                  identifier: "{\"id\":\"10\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
-                  mode: None
-                  type_: Boolean
-                  span:
-                    lo: 97
-                    hi: 98
-                  id: 11
-            output:
-              - Internal:
-                  mode: None
-                  type_: Boolean
-                  span:
-                    lo: 109
-                    hi: 113
-                  id: 12
-            output_type: Boolean
-            block:
-              statements:
-                - Expression:
-                    expression:
-                      Call:
-                        function:
-                          Identifier: "{\"id\":\"13\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
-                        arguments: []
-                        external: ~
-                        span:
-                          lo: 124
-                          hi: 129
-                        id: 14
+              id: 8
+          - - main
+            - annotations: []
+              variant: Standard
+              identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
+              input:
+                - Internal:
+                    identifier: "{\"id\":\"10\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
+                    mode: None
+                    type_: Boolean
                     span:
-                      lo: 124
-                      hi: 130
-                    id: 15
-                - Return:
-                    expression:
-                      Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
-                    finalize_arguments: ~
+                      lo: 97
+                      hi: 98
+                    id: 11
+              output:
+                - Internal:
+                    mode: None
+                    type_: Boolean
                     span:
-                      lo: 139
-                      hi: 148
-                    id: 17
+                      lo: 109
+                      hi: 113
+                    id: 12
+              output_type: Boolean
+              block:
+                statements:
+                  - Expression:
+                      expression:
+                        Call:
+                          function:
+                            Identifier: "{\"id\":\"13\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
+                          arguments: []
+                          external: ~
+                          span:
+                            lo: 124
+                            hi: 129
+                          id: 14
+                      span:
+                        lo: 124
+                        hi: 130
+                      id: 15
+                  - Return:
+                      expression:
+                        Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
+                      finalize_arguments: ~
+                      span:
+                        lo: 139
+                        hi: 148
+                      id: 17
+                span:
+                  lo: 114
+                  hi: 154
+                id: 18
+              finalize: ~
               span:
-                lo: 114
+                lo: 83
                 hi: 154
-              id: 18
-            finalize: ~
-            span:
-              lo: 83
-              hi: 154
-            id: 19
+              id: 19
         span:
           lo: 2
           hi: 156

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372062]: The left-hand side of a `DefinitionStatement` can only be an identifier or tuple. Note that a tuple must contain at least two elements.\n    --> compiler-test:7:9\n     |\n   7 |         const A: () = ();\n     |         ^^^^^^^^^^^^^^^^\nError [ETYC0372080]: The value of a const declaration must be a literal\n    --> compiler-test:7:9\n     |\n   7 |         const A: () = ();\n     |         ^^^^^^^^^^^^^^^^\nError [ETYC0372063]: Unit expressions can only be used in return statements.\n    --> compiler-test:7:23\n     |\n   7 |         const A: () = ();\n     |                       ^^\nError [ETYC0372080]: The value of a const declaration must be a literal\n    --> compiler-test:8:9\n     |\n   8 |         const B: u8 = ((1u8,1u8),1u8);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372023]: Tuples must be explicitly typed in Leo\n    --> compiler-test:8:23\n     |\n   8 |         const B: u8 = ((1u8,1u8),1u8);\n     |                       ^^^^^^^^^^^^^^^\n     |\n     = The function definition must match the function return statement\n"

@@ -128,6 +128,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
             Statement::Block(stmt) => self.visit_block(stmt),
             Statement::Conditional(stmt) => self.visit_conditional(stmt),
             Statement::Console(stmt) => self.visit_console(stmt),
+            Statement::Const(stmt) => self.visit_const(stmt),
             Statement::Definition(stmt) => self.visit_definition(stmt),
             Statement::Expression(stmt) => self.visit_expression_statement(stmt),
             Statement::Iteration(stmt) => self.visit_iteration(stmt),
@@ -177,6 +178,10 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         };
     }
 
+    fn visit_const(&mut self, input: &'a ConstDeclaration) {
+        self.visit_expression(&input.value, &Default::default());
+    }
+
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         self.visit_expression(&input.value, &Default::default());
     }
@@ -210,11 +215,13 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
-        input.structs.values().for_each(|function| self.visit_struct(function));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
 
-        input.mappings.values().for_each(|mapping| self.visit_mapping(mapping));
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
 
-        input.functions.values().for_each(|function| self.visit_function(function));
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
     }
 
     fn visit_import(&mut self, input: &'a Program) {

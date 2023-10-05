@@ -494,8 +494,9 @@ impl<'a> CodeGenerator<'a> {
                     Expression::Identifier(identifier) => identifier.name,
                     _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
                 };
-                let has_finalize = match imported_program_scope.functions.get(&function_name) {
-                    Some(function) => function.finalize.is_some(),
+                let has_finalize = match imported_program_scope.functions.iter().find(|(sym, _)| *sym == function_name)
+                {
+                    Some((_, function)) => function.finalize.is_some(),
                     None => unreachable!("Type checking guarantees that imported functions are well defined."),
                 };
                 (format!("    call {external}.aleo/{}", input.function), has_finalize)

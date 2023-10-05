@@ -16,8 +16,6 @@
 
 use leo_ast::{
     Block,
-    DeclarationType,
-    DefinitionStatement,
     Expression,
     IntegerType,
     IterationStatement,
@@ -30,11 +28,13 @@ use leo_ast::{
 };
 use std::cell::RefCell;
 
-use leo_errors::emitter::Handler;
+use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 
-use crate::{Clusivity, LoopBound, RangeIterator, SymbolTable};
+use crate::{constant_propagation_table::ConstantPropagationTable, Clusivity, LoopBound, RangeIterator, SymbolTable};
 
 pub struct Unroller<'a> {
+    /// A table of constant variables.
+    pub(crate) constant_propagation_table: RefCell<ConstantPropagationTable>,
     /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// The index of the current scope.
@@ -49,7 +49,14 @@ pub struct Unroller<'a> {
 
 impl<'a> Unroller<'a> {
     pub(crate) fn new(symbol_table: SymbolTable, handler: &'a Handler, node_builder: &'a NodeBuilder) -> Self {
-        Self { symbol_table: RefCell::new(symbol_table), scope_index: 0, handler, node_builder, is_unrolling: false }
+        Self {
+            constant_propagation_table: RefCell::new(ConstantPropagationTable::default()),
+            symbol_table: RefCell::new(symbol_table),
+            scope_index: 0,
+            handler,
+            node_builder,
+            is_unrolling: false,
+        }
     }
 
     /// Returns the index of the current scope.
@@ -63,24 +70,40 @@ impl<'a> Unroller<'a> {
         let previous_symbol_table = std::mem::take(&mut self.symbol_table);
         self.symbol_table.swap(previous_symbol_table.borrow().lookup_scope_by_index(index).unwrap());
         self.symbol_table.borrow_mut().parent = Some(Box::new(previous_symbol_table.into_inner()));
+
+        // Can assume that CPT has not constructed any scoping yet, since have never seen this scope before
+        self.constant_propagation_table.borrow_mut().insert_block();
+
+        // Build CPT recursive scoping structure just like symbol table
+        let previous_constant_propagation_table = std::mem::take(&mut self.constant_propagation_table);
+        self.constant_propagation_table
+            .swap(previous_constant_propagation_table.borrow().lookup_scope_by_index(index).unwrap());
+        self.constant_propagation_table.borrow_mut().parent =
+            Some(Box::new(previous_constant_propagation_table.into_inner()));
         core::mem::replace(&mut self.scope_index, 0)
     }
 
     /// Exits the current block scope.
     pub(crate) fn exit_scope(&mut self, index: usize) {
+        let prev_ct = *self.constant_propagation_table.borrow_mut().parent.take().unwrap();
+        self.constant_propagation_table.swap(prev_ct.lookup_scope_by_index(index).unwrap());
+        self.constant_propagation_table = RefCell::new(prev_ct);
         let prev_st = *self.symbol_table.borrow_mut().parent.take().unwrap();
         self.symbol_table.swap(prev_st.lookup_scope_by_index(index).unwrap());
         self.symbol_table = RefCell::new(prev_st);
         self.scope_index = index + 1;
     }
 
+    /// Emits a Loop Unrolling Error
+    pub(crate) fn emit_err(&self, err: LoopUnrollerError) {
+        self.handler.emit_err(err);
+    }
+
     /// Unrolls an IterationStatement.
-    pub(crate) fn unroll_iteration_statement<I: LoopBound>(
-        &mut self,
-        input: IterationStatement,
-        start: Value,
-        stop: Value,
-    ) -> Statement {
+    pub(crate) fn unroll_iteration_statement<I: LoopBound>(&mut self, input: IterationStatement) -> Statement {
+        let start: Value = input.start_value.borrow().as_ref().expect("Failed to get start value").clone();
+        let stop: Value = input.stop_value.borrow().as_ref().expect("Failed to get stop value").clone();
+
         // Closure to check that the constant values are valid u128.
         // We already know these are integers since loop unrolling occurs after type checking.
         let cast_to_number = |v: Value| -> Result<I, Statement> {
@@ -110,8 +133,8 @@ impl<'a> Unroller<'a> {
         // Enter the scope of the loop body.
         let previous_scope_index = self.enter_scope(scope_index);
 
-        // Clear the symbol table for the loop body.
-        // This is necessary because loop unrolling transforms the program, which requires reconstructing the symbol table.
+        // Clear the symbol table and constant propagation table for the loop body.
+        // This is necessary because loop unrolling transforms the program, which requires reconstructing the tables
         self.symbol_table.borrow_mut().variables.clear();
         self.symbol_table.borrow_mut().scopes.clear();
         self.symbol_table.borrow_mut().scope_index = 0;
@@ -215,23 +238,27 @@ impl<'a> Unroller<'a> {
             ),
         };
 
-        // The first statement in the block is the assignment of the loop variable to the current iteration count.
-        let mut statements = vec![
-            self.reconstruct_definition(DefinitionStatement {
-                declaration_type: DeclarationType::Const,
-                type_: input.type_.clone(),
-                value: Expression::Literal(value),
-                span: Default::default(),
-                place: Expression::Identifier(input.variable),
-                id: self.node_builder.next_id(),
-            })
-            .0,
-        ];
+        // Add the loop variable as a constant for the current scope
+        self.constant_propagation_table
+            .borrow_mut()
+            .insert_constant(input.variable.name, Expression::Literal(value.clone()))
+            .expect("Failed to insert constant into CPT");
 
         // Reconstruct the statements in the loop body.
-        input.block.statements.clone().into_iter().for_each(|s| {
-            statements.push(self.reconstruct_statement(s).0);
-        });
+        let statements: Vec<_> = input
+            .block
+            .statements
+            .clone()
+            .into_iter()
+            .filter_map(|s| {
+                let (reconstructed_statement, additional_output) = self.reconstruct_statement(s);
+                if additional_output {
+                    None // Exclude this statement from the block since it is a constant variable definition
+                } else {
+                    Some(reconstructed_statement)
+                }
+            })
+            .collect();
 
         let block = Statement::Block(Block { statements, span: input.block.span, id: input.block.id });
 

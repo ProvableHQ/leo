@@ -6,43 +6,44 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
-        structs: {}
-        mappings: {}
+        consts: []
+        structs: []
+        mappings: []
         functions:
-          main:
-            annotations: []
-            variant: Standard
-            identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
-            input: []
-            output:
-              - Internal:
-                  mode: None
-                  type_:
-                    Integer: U8
-                  id: 3
-            output_type:
-              Integer: U8
-            block:
-              statements:
-                - Return:
-                    expression:
-                      Binary:
-                        left:
-                          Literal:
-                            Integer:
-                              - U8
-                              - "1"
-                              - 4
-                        right:
-                          Literal:
-                            Integer:
-                              - U8
-                              - "1"
-                              - 5
-                        op: Add
-                        id: 6
-                    finalize_arguments: ~
-                    id: 7
-              id: 8
-            finalize: ~
-            id: 9
+          - - main
+            - annotations: []
+              variant: Standard
+              identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
+              input: []
+              output:
+                - Internal:
+                    mode: None
+                    type_:
+                      Integer: U8
+                    id: 3
+              output_type:
+                Integer: U8
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        Binary:
+                          left:
+                            Literal:
+                              Integer:
+                                - U8
+                                - "1"
+                                - 4
+                          right:
+                            Literal:
+                              Integer:
+                                - U8
+                                - "1"
+                                - 5
+                          op: Add
+                          id: 6
+                      finalize_arguments: ~
+                      id: 7
+                id: 8
+              finalize: ~
+              id: 9

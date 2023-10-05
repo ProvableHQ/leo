@@ -6,69 +6,70 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
-        structs: {}
-        mappings: {}
+        consts: []
+        structs: []
+        mappings: []
         functions:
-          foo:
-            annotations: []
-            variant: Inline
-            identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":36}\"}"
-            input:
-              - Internal:
-                  identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
-                  mode: None
-                  type_:
-                    Integer: U32
-                  span:
-                    lo: 37
-                    hi: 38
-                  id: 4
-              - Internal:
-                  identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}"
-                  mode: None
-                  type_:
-                    Integer: I32
-                  span:
-                    lo: 45
-                    hi: 46
-                  id: 6
-            output:
-              - Internal:
-                  mode: None
-                  type_:
-                    Integer: U32
-                  span:
-                    lo: 56
-                    hi: 59
-                  id: 7
-            output_type:
-              Integer: U32
-            block:
-              statements:
-                - Return:
-                    expression:
-                      Literal:
-                        Integer:
-                          - U32
-                          - "0"
-                          - span:
-                              lo: 77
-                              hi: 81
-                          - 8
-                    finalize_arguments: ~
+          - - foo
+            - annotations: []
+              variant: Inline
+              identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":36}\"}"
+              input:
+                - Internal:
+                    identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":38}\"}"
+                    mode: None
+                    type_:
+                      Integer: U32
                     span:
-                      lo: 70
-                      hi: 82
-                    id: 9
+                      lo: 37
+                      hi: 38
+                    id: 4
+                - Internal:
+                    identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":45,\\\"hi\\\":46}\"}"
+                    mode: None
+                    type_:
+                      Integer: I32
+                    span:
+                      lo: 45
+                      hi: 46
+                    id: 6
+              output:
+                - Internal:
+                    mode: None
+                    type_:
+                      Integer: U32
+                    span:
+                      lo: 56
+                      hi: 59
+                    id: 7
+              output_type:
+                Integer: U32
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        Literal:
+                          Integer:
+                            - U32
+                            - "0"
+                            - span:
+                                lo: 77
+                                hi: 81
+                            - 8
+                      finalize_arguments: ~
+                      span:
+                        lo: 70
+                        hi: 82
+                      id: 9
+                span:
+                  lo: 60
+                  hi: 88
+                id: 10
+              finalize: ~
               span:
-                lo: 60
+                lo: 26
                 hi: 88
-              id: 10
-            finalize: ~
-            span:
-              lo: 26
-              hi: 88
-            id: 11
+              id: 11
         span:
           lo: 2
           hi: 90

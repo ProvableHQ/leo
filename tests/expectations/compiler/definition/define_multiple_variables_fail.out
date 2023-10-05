@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372082]: Expected a tuple with 2 elements, found one with 3 elements\n    --> compiler-test:5:13\n     |\n   5 |         let (a,b,c): (u8,u8) = (2u8,3u8);\n     |             ^^^^^^^\nError [ETYC0372082]: Expected a tuple with 3 elements, found one with 2 elements\n    --> compiler-test:6:13\n     |\n   6 |         let (d,e): (u8,u8,u8) = (1u8,2u8,3u8);\n     |             ^^^^^\nError [ETYC0372003]: Expected type `(u8,u8,u8)` but type `u8` was found\n    --> compiler-test:7:36\n     |\n   7 |         let (g,h,i): (u8,u8,u8) = (1u8);\n     |                                    ^^^\n"

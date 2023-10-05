@@ -53,8 +53,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        // Typecheck each const definition, and append to symbol table.
+        input.consts.iter().for_each(|(_, c)| self.visit_const(c));
+
         // Typecheck each struct definition.
-        input.structs.values().for_each(|function| self.visit_struct(function));
+        input.structs.iter().for_each(|(_, function)| self.visit_struct(function));
 
         // Check that the struct dependency graph does not have any cycles.
         if let Err(DiGraphError::CycleDetected(path)) = self.struct_graph.post_order() {
@@ -63,7 +66,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Typecheck each mapping definition.
         let mut mapping_count = 0;
-        for mapping in input.mappings.values() {
+        for (_, mapping) in input.mappings.iter() {
             self.visit_mapping(mapping);
             mapping_count += 1;
         }
@@ -78,7 +81,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Typecheck each function definitions.
         let mut transition_count = 0;
-        for function in input.functions.values() {
+        for (_, function) in input.functions.iter() {
             self.visit_function(function);
             if matches!(function.variant, Variant::Transition) {
                 transition_count += 1;

@@ -138,23 +138,28 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
 
         // Parse the body of the program scope.
-        let mut functions = IndexMap::new();
-        let mut structs = IndexMap::new();
-        let mut mappings = IndexMap::new();
+        let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
+        let mut functions: Vec<(Symbol, Function)> = Vec::new();
+        let mut structs: Vec<(Symbol, Struct)> = Vec::new();
+        let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
 
         while self.has_next() {
             match &self.token.token {
+                Token::Const => {
+                    let declaration = self.parse_const_declaration_statement()?;
+                    consts.push((Symbol::intern(&declaration.place.to_string()), declaration));
+                }
                 Token::Struct | Token::Record => {
                     let (id, struct_) = self.parse_struct()?;
-                    structs.insert(id, struct_);
+                    structs.push((id, struct_));
                 }
                 Token::Mapping => {
                     let (id, mapping) = self.parse_mapping()?;
-                    mappings.insert(id, mapping);
+                    mappings.push((id, mapping));
                 }
                 Token::At | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
-                    functions.insert(id, function);
+                    functions.push((id, function));
                 }
                 Token::RightCurly => break,
                 _ => {
@@ -175,7 +180,7 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok(ProgramScope { program_id, functions, structs, mappings, span: start + end })
+        Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.

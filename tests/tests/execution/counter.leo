@@ -16,6 +16,7 @@ cases:
 */
 
 program test.aleo {
+    const SMALL:u64 = 0_1u64;
     mapping counter: address => u64;
 
     transition dubble() {
@@ -23,7 +24,8 @@ program test.aleo {
     }
 
     finalize dubble(addr: address) {
-        let current_value: u64 = Mapping::get_or_use(counter, addr, 0_0u64);
+        const BIG: u64 = 234u64;
+        let current_value: u64 = Mapping::get_or_use(counter, addr, 0_0u64 + BIG + SMALL);
         Mapping::set(counter, addr, current_value + 1__u64);
         current_value = Mapping::get(counter, addr);
         Mapping::set(counter, addr, current_value + 0___1u64);
@@ -35,6 +37,9 @@ program test.aleo {
 
     finalize unsafe_increment(addr: address) {
         let current_value: u64 = Mapping::get(counter, addr);
+        for i:u64 in SMALL..10u64 {
+            current_value = current_value + 1u64;
+        }
         Mapping::set(counter, addr, current_value + 0__1u64);
     }
 }

@@ -78,6 +78,7 @@ pub trait StatementConsumer {
             Statement::Block(stmt) => self.consume_block(stmt),
             Statement::Conditional(stmt) => self.consume_conditional(stmt),
             Statement::Console(stmt) => self.consume_console(stmt),
+            Statement::Const(stmt) => self.consume_const(stmt),
             Statement::Definition(stmt) => self.consume_definition(stmt),
             Statement::Expression(stmt) => self.consume_expression_statement(stmt),
             Statement::Iteration(stmt) => self.consume_iteration(*stmt),
@@ -94,6 +95,8 @@ pub trait StatementConsumer {
     fn consume_conditional(&mut self, input: ConditionalStatement) -> Self::Output;
 
     fn consume_console(&mut self, input: ConsoleStatement) -> Self::Output;
+
+    fn consume_const(&mut self, input: ConstDeclaration) -> Self::Output;
 
     fn consume_definition(&mut self, input: DefinitionStatement) -> Self::Output;
 

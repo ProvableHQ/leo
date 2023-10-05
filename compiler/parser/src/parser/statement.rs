@@ -45,6 +45,7 @@ impl ParserContext<'_> {
             Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Assert | Token::AssertEq | Token::AssertNeq => Ok(self.parse_assert_statement()?),
             Token::Let => Ok(Statement::Definition(self.parse_definition_statement()?)),
+            Token::Const => Ok(Statement::Const(self.parse_const_declaration_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
             Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
             Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
@@ -312,6 +313,21 @@ impl ParserContext<'_> {
         self.expect(&Token::Semicolon)?;
 
         Ok(ConsoleStatement { span: keyword + span, function, id: self.node_builder.next_id() })
+    }
+
+    /// Returns a [`ConstDeclaration`] AST node if the next tokens represent a const declaration statement.
+    pub(super) fn parse_const_declaration_statement(&mut self) -> Result<ConstDeclaration> {
+        self.expect(&Token::Const)?;
+        let decl_span = self.prev_token.span;
+
+        // Parse variable name and type.
+        let (place, type_, _) = self.parse_typed_ident()?;
+
+        self.expect(&Token::Assign)?;
+        let value = self.parse_expression()?;
+        self.expect(&Token::Semicolon)?;
+
+        Ok(ConstDeclaration { span: decl_span + value.span(), place, type_, value, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ELUN0379000]: The loop range must be increasing.\n    --> compiler-test:6:26\n     |\n   6 |         const STOP: u8 = 0u8;\n     |                          ^^^\n"

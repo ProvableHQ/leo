@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372049]: Loop bound must be a literal.\n    --> compiler-test:11:28\n     |\n  11 |         for i:u64 in 0u64..amount {\n     |                            ^^^^^^\n"
+  - "Error [ETYC0372081]: The loop bound must be a literal or a const\n    --> compiler-test:11:28\n     |\n  11 |         for i:u64 in 0u64..amount {\n     |                            ^^^^^^\n"

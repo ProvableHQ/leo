@@ -656,4 +656,32 @@ create_messages!(
         msg: format!("The loop bounds must be same type"),
         help: None,
     }
+
+    @formatted
+    const_declaration_must_be_literal_or_tuple_of_literals {
+        args: (),
+        msg: format!("The value of a const declaration must be a literal"),
+        help: None,
+    }
+
+    @formatted
+    loop_bound_must_be_literal_or_const {
+        args: (),
+        msg: format!("The loop bound must be a literal or a const"),
+        help: None,
+    }
+
+    @formatted
+    incorrect_num_tuple_elements {
+        args: (identifiers: impl Display, types: impl Display),
+        msg: format!("Expected a tuple with {types} elements, found one with {identifiers} elements"),
+        help: None,
+    }
+
+    @formatted
+    const_declaration_can_only_have_one_binding {
+        args: (),
+        msg: format!("A constant declaration statement can only bind a single value"),
+        help: None,
+    }
 );

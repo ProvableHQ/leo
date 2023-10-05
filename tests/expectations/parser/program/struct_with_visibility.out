@@ -6,39 +6,40 @@ outputs:
     program_scopes:
       test:
         program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":15,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":19}\\\\\\\"}\\\"\"}"
+        consts: []
         structs:
-          foo:
-            identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":36}\"}"
-            members:
-              - mode: Public
-                identifier: "{\"id\":\"3\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":54,\\\"hi\\\":57}\"}"
-                type_: Address
-                span:
-                  lo: 54
-                  hi: 66
-                id: 4
-              - mode: Private
-                identifier: "{\"id\":\"5\",\"name\":\"floo\",\"span\":\"{\\\"lo\\\":84,\\\"hi\\\":88}\"}"
-                type_:
-                  Integer: U64
-                span:
-                  lo: 84
-                  hi: 93
-                id: 6
-              - mode: None
-                identifier: "{\"id\":\"7\",\"name\":\"data\",\"span\":\"{\\\"lo\\\":103,\\\"hi\\\":107}\"}"
-                type_: Boolean
-                span:
-                  lo: 103
-                  hi: 113
-                id: 8
-            is_record: false
-            span:
-              lo: 26
-              hi: 120
-            id: 9
-        mappings: {}
-        functions: {}
+          - - foo
+            - identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":33,\\\"hi\\\":36}\"}"
+              members:
+                - mode: Public
+                  identifier: "{\"id\":\"3\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":54,\\\"hi\\\":57}\"}"
+                  type_: Address
+                  span:
+                    lo: 54
+                    hi: 66
+                  id: 4
+                - mode: Private
+                  identifier: "{\"id\":\"5\",\"name\":\"floo\",\"span\":\"{\\\"lo\\\":84,\\\"hi\\\":88}\"}"
+                  type_:
+                    Integer: U64
+                  span:
+                    lo: 84
+                    hi: 93
+                  id: 6
+                - mode: None
+                  identifier: "{\"id\":\"7\",\"name\":\"data\",\"span\":\"{\\\"lo\\\":103,\\\"hi\\\":107}\"}"
+                  type_: Boolean
+                  span:
+                    lo: 103
+                    hi: 113
+                  id: 8
+              is_record: false
+              span:
+                lo: 26
+                hi: 120
+              id: 9
+        mappings: []
+        functions: []
         span:
           lo: 2
           hi: 122

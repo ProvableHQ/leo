@@ -101,6 +101,11 @@ impl SymbolTable {
         Ok(())
     }
 
+    /// Removes a variable from the symbol table.
+    pub fn remove_variable_from_current_scope(&mut self, symbol: Symbol) {
+        self.variables.remove(&symbol);
+    }
+
     /// Creates a new scope for the block and stores it in the symbol table.
     pub fn insert_block(&mut self) -> usize {
         self.scopes.push(RefCell::new(Default::default()));

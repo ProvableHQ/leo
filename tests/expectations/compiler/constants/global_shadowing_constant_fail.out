@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372009]: variable `HELLO` shadowed by\n    --> compiler-test:5:11\n     |\n   5 |     const HELLO: u8 = 1u8;\n     |           ^^^^^\n"
