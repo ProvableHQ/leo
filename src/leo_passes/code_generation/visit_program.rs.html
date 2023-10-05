@@ -303,6 +303,11 @@
 <a href="#303" id="303">303</a>
 <a href="#304" id="304">304</a>
 <a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -364,12 +369,16 @@
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
         </span><span class="kw">let </span>order = <span class="self">self</span>.struct_graph.post_order().unwrap();
 
+        <span class="comment">// Create a mapping of symbols to references of structs so can perform constant-time lookups.
+        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Struct&gt; =
+            program_scope.structs.iter().map(|(name, struct_)| (<span class="kw-2">*</span>name, struct_)).collect();
+
         <span class="comment">// Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         </span>program_string.push_str(
             <span class="kw-2">&amp;</span>order
                 .into_iter()
                 .map(|name| {
-                    <span class="kw">match </span>program_scope.structs.get(<span class="kw-2">&amp;</span>name) {
+                    <span class="kw">match </span>structs_map.get(<span class="kw-2">&amp;</span>name) {
                         <span class="comment">// If the struct is found, it is a local struct.
                         </span><span class="prelude-val">Some</span>(struct_) =&gt; <span class="self">self</span>.visit_struct_or_record(struct_),
                         <span class="comment">// If the struct is not found, it is an imported struct.
@@ -383,7 +392,8 @@
         </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
 
         <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
-        </span>program_string.push_str(<span class="kw-2">&amp;</span>program_scope.mappings.values().map(|mapping| <span class="self">self</span>.visit_mapping(mapping)).join(<span class="string">&quot;\n&quot;</span>));
+        </span>program_string
+            .push_str(<span class="kw-2">&amp;</span>program_scope.mappings.iter().map(|(<span class="kw">_</span>, mapping)| <span class="self">self</span>.visit_mapping(mapping)).join(<span class="string">&quot;\n&quot;</span>));
 
         <span class="comment">// Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -391,8 +401,8 @@
         </span>program_string.push_str(
             <span class="kw-2">&amp;</span>program_scope
                 .functions
-                .values()
-                .map(|function| {
+                .iter()
+                .map(|(<span class="kw">_</span>, function)| {
                     <span class="comment">// Set the `is_transition_function` flag.
                     </span><span class="self">self</span>.is_transition_function = <span class="macro">matches!</span>(function.variant, Variant::Transition);
 

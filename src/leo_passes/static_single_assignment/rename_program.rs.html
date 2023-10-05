@@ -156,6 +156,7 @@
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -291,6 +292,7 @@
             structs: input.structs.into_iter().map(|(i, s)| (i, <span class="self">self</span>.consume_struct(s))).collect(),
             mappings: input.mappings,
             functions: input.functions.into_iter().map(|(i, f)| (i, <span class="self">self</span>.consume_function(f))).collect(),
+            consts: input.consts,
             span: input.span,
         }
     }

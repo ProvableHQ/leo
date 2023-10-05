@@ -425,6 +425,9 @@
 <a href="#425" id="425">425</a>
 <a href="#426" id="426">426</a>
 <a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -480,8 +483,11 @@
     }
 
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
+        <span class="comment">// Typecheck each const definition, and append to symbol table.
+        </span>input.consts.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_const(c));
+
         <span class="comment">// Typecheck each struct definition.
-        </span>input.structs.values().for_each(|function| <span class="self">self</span>.visit_struct(function));
+        </span>input.structs.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_struct(function));
 
         <span class="comment">// Check that the struct dependency graph does not have any cycles.
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(DiGraphError::CycleDetected(path)) = <span class="self">self</span>.struct_graph.post_order() {
@@ -490,7 +496,7 @@
 
         <span class="comment">// Typecheck each mapping definition.
         </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_count = <span class="number">0</span>;
-        <span class="kw">for </span>mapping <span class="kw">in </span>input.mappings.values() {
+        <span class="kw">for </span>(<span class="kw">_</span>, mapping) <span class="kw">in </span>input.mappings.iter() {
             <span class="self">self</span>.visit_mapping(mapping);
             mapping_count += <span class="number">1</span>;
         }
@@ -505,7 +511,7 @@
 
         <span class="comment">// Typecheck each function definitions.
         </span><span class="kw">let </span><span class="kw-2">mut </span>transition_count = <span class="number">0</span>;
-        <span class="kw">for </span>function <span class="kw">in </span>input.functions.values() {
+        <span class="kw">for </span>(<span class="kw">_</span>, function) <span class="kw">in </span>input.functions.iter() {
             <span class="self">self</span>.visit_function(function);
             <span class="kw">if </span><span class="macro">matches!</span>(function.variant, Variant::Transition) {
                 transition_count += <span class="number">1</span>;

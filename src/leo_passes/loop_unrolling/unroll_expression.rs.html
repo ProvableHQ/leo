@@ -21,6 +21,14 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
+<a href="#31" id="31">31</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -42,6 +50,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::Unroller;
 
 <span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">type </span>AdditionalOutput = ();
+    <span class="kw">type </span>AdditionalOutput = bool;
+
+    <span class="kw">fn </span>reconstruct_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Identifier) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Substitute the identifier with the constant value if it is a constant.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(expr) = <span class="self">self</span>.constant_propagation_table.borrow().lookup_constant(input.name) {
+            <span class="kw">return </span>(expr.clone(), Default::default());
+        }
+        (Expression::Identifier(input), Default::default())
+    }
 }
 </code></pre></div></section></main></body></html>

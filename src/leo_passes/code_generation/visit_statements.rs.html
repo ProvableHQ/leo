@@ -246,6 +246,9 @@
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
 <a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -292,6 +295,9 @@
             Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
+            Statement::Const(<span class="kw">_</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">&quot;`ConstStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
+            }
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),

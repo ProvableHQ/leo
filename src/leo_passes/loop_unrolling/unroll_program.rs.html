@@ -71,6 +71,21 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -92,6 +107,21 @@
 <span class="kw">use </span><span class="kw">crate</span>::Unroller;
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; ProgramScope {
+        <span class="comment">// Don&#39;t need to reconstructed consts, just need to add them to constant propagation table
+        </span>input.consts.into_iter().for_each(|(<span class="kw">_</span>, c)| {
+            <span class="self">self</span>.reconstruct_const(c);
+        });
+        ProgramScope {
+            program_id: input.program_id,
+            structs: input.structs,
+            mappings: input.mappings,
+            functions: input.functions.into_iter().map(|(i, f)| (i, <span class="self">self</span>.reconstruct_function(f))).collect(),
+            consts: Vec::new(),
+            span: input.span,
+        }
+    }
+
     <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: Function) -&gt; Function {
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.

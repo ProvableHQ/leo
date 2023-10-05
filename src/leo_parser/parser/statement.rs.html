@@ -343,6 +343,22 @@
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
 <a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -390,6 +406,7 @@
             Token::For =&gt; <span class="prelude-val">Ok</span>(Statement::Iteration(Box::new(<span class="self">self</span>.parse_loop_statement()<span class="question-mark">?</span>))),
             Token::Assert | Token::AssertEq | Token::AssertNeq =&gt; <span class="prelude-val">Ok</span>(<span class="self">self</span>.parse_assert_statement()<span class="question-mark">?</span>),
             Token::Let =&gt; <span class="prelude-val">Ok</span>(Statement::Definition(<span class="self">self</span>.parse_definition_statement()<span class="question-mark">?</span>)),
+            Token::Const =&gt; <span class="prelude-val">Ok</span>(Statement::Const(<span class="self">self</span>.parse_const_declaration_statement()<span class="question-mark">?</span>)),
             Token::LeftCurly =&gt; <span class="prelude-val">Ok</span>(Statement::Block(<span class="self">self</span>.parse_block()<span class="question-mark">?</span>)),
             Token::Console =&gt; <span class="prelude-val">Err</span>(ParserError::console_statements_are_not_yet_supported(<span class="self">self</span>.token.span).into()),
             Token::Finalize =&gt; <span class="prelude-val">Err</span>(ParserError::finalize_statements_are_deprecated(<span class="self">self</span>.token.span).into()),
@@ -657,6 +674,21 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(ConsoleStatement { span: keyword + span, function, id: <span class="self">self</span>.node_builder.next_id() })
+    }
+
+    <span class="doccomment">/// Returns a [`ConstDeclaration`] AST node if the next tokens represent a const declaration statement.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_const_declaration_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ConstDeclaration&gt; {
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Const)<span class="question-mark">?</span>;
+        <span class="kw">let </span>decl_span = <span class="self">self</span>.prev_token.span;
+
+        <span class="comment">// Parse variable name and type.
+        </span><span class="kw">let </span>(place, type_, <span class="kw">_</span>) = <span class="self">self</span>.parse_typed_ident()<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Assign)<span class="question-mark">?</span>;
+        <span class="kw">let </span>value = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+        <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(ConstDeclaration { span: decl_span + value.span(), place, type_, value, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.

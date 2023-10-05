@@ -144,6 +144,9 @@
 <a href="#144" id="144">144</a>
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -224,6 +227,7 @@
             Statement::Block(stmt) =&gt; <span class="self">self</span>.consume_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.consume_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.consume_console(stmt),
+            Statement::Const(stmt) =&gt; <span class="self">self</span>.consume_const(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.consume_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.consume_expression_statement(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.consume_iteration(<span class="kw-2">*</span>stmt),
@@ -240,6 +244,8 @@
     <span class="kw">fn </span>consume_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConsoleStatement) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConstDeclaration) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; <span class="self">Self</span>::Output;
 

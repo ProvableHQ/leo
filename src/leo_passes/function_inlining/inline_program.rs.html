@@ -52,6 +52,12 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -70,38 +76,44 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::FunctionInliner;
 
-<span class="kw">use </span>leo_ast::{ProgramReconstructor, ProgramScope};
+<span class="kw">use </span>leo_ast::{Function, ProgramReconstructor, ProgramScope};
+<span class="kw">use </span>leo_span::Symbol;
+
+<span class="kw">use </span>indexmap::IndexMap;
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>FunctionInliner&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>input: ProgramScope) -&gt; ProgramScope {
+    <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; ProgramScope {
         <span class="comment">// Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.
         </span><span class="kw">let </span>order = <span class="self">self</span>.call_graph.post_order().unwrap();
 
+        <span class="comment">// Construct map to provide faster lookup of functions
+        </span><span class="kw">let </span><span class="kw-2">mut </span>function_map: IndexMap&lt;Symbol, Function&gt; = input.functions.into_iter().collect();
+
         <span class="comment">// Reconstruct and accumulate each of the functions in post-order.
-        </span><span class="kw">for </span>function_name <span class="kw">in </span>order.into_iter() {
+        </span><span class="kw">for </span>function_name <span class="kw">in </span><span class="kw-2">&amp;</span>order {
             <span class="comment">// None: If `function_name` is not in `input.functions`, then it must be an external function.
             // TODO: Check that this is indeed an external function. Requires a redesign of the symbol table.
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(function) = input.functions.remove(<span class="kw-2">&amp;</span>function_name) {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(function) = function_map.remove(function_name) {
                 <span class="comment">// Reconstruct the function.
                 </span><span class="kw">let </span>reconstructed_function = <span class="self">self</span>.reconstruct_function(function);
                 <span class="comment">// Add the reconstructed function to the mapping.
-                </span><span class="self">self</span>.reconstructed_functions.insert(function_name, reconstructed_function);
+                </span><span class="self">self</span>.reconstructed_functions.push((<span class="kw-2">*</span>function_name, reconstructed_function));
             }
         }
-        <span class="comment">// Check that `input.functions` is empty.
-        // This is a sanity check to ensure that functions in the program scope have been processed.
-        </span><span class="macro">assert!</span>(input.functions.is_empty(), <span class="string">&quot;All functions in the program scope should have been processed.&quot;</span>);
+        <span class="comment">// This is a sanity check to ensure that functions in the program scope have been processed.
+        </span><span class="macro">assert!</span>(function_map.is_empty(), <span class="string">&quot;All functions in the program scope should have been processed.&quot;</span>);
 
         <span class="comment">// Note that this intentionally clears `self.reconstructed_functions` for the next program scope.
-        </span><span class="kw">let </span>functions = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_functions);
+        </span><span class="kw">let </span>functions = core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.reconstructed_functions).into_iter().collect();
 
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
             functions,
+            consts: input.consts,
             span: input.span,
         }
     }

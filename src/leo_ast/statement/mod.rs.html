@@ -155,6 +155,16 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -185,6 +195,9 @@
 
 <span class="kw">pub mod </span>console;
 <span class="kw">pub use </span>console::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>const_;
+<span class="kw">pub use </span>const_::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>definition;
 <span class="kw">pub use </span>definition::<span class="kw-2">*</span>;
@@ -218,6 +231,8 @@
     </span>Conditional(ConditionalStatement),
     <span class="doccomment">/// A console logging statement.
     </span>Console(ConsoleStatement),
+    <span class="doccomment">/// A binding from identifier to constant value.
+    </span>Const(ConstDeclaration),
     <span class="doccomment">/// A binding or set of bindings / variables to declare.
     </span>Definition(DefinitionStatement),
     <span class="doccomment">/// An expression statement
@@ -243,6 +258,7 @@
             Statement::Block(x) =&gt; x.fmt(f),
             Statement::Conditional(x) =&gt; x.fmt(f),
             Statement::Console(x) =&gt; x.fmt(f),
+            Statement::Const(x) =&gt; x.fmt(f),
             Statement::Definition(x) =&gt; x.fmt(f),
             Statement::Expression(x) =&gt; x.fmt(f),
             Statement::Iteration(x) =&gt; x.fmt(f),
@@ -260,6 +276,7 @@
             Block(n) =&gt; n.span(),
             Conditional(n) =&gt; n.span(),
             Console(n) =&gt; n.span(),
+            Const(n) =&gt; n.span(),
             Definition(n) =&gt; n.span(),
             Expression(n) =&gt; n.span(),
             Iteration(n) =&gt; n.span(),
@@ -275,6 +292,7 @@
             Block(n) =&gt; n.set_span(span),
             Conditional(n) =&gt; n.set_span(span),
             Console(n) =&gt; n.set_span(span),
+            Const(n) =&gt; n.set_span(span),
             Definition(n) =&gt; n.set_span(span),
             Expression(n) =&gt; n.set_span(span),
             Iteration(n) =&gt; n.set_span(span),
@@ -290,6 +308,7 @@
             Block(n) =&gt; n.id(),
             Conditional(n) =&gt; n.id(),
             Console(n) =&gt; n.id(),
+            Const(n) =&gt; n.id(),
             Definition(n) =&gt; n.id(),
             Expression(n) =&gt; n.id(),
             Iteration(n) =&gt; n.id(),
@@ -305,6 +324,7 @@
             Block(n) =&gt; n.set_id(id),
             Conditional(n) =&gt; n.set_id(id),
             Console(n) =&gt; n.set_id(id),
+            Const(n) =&gt; n.set_id(id),
             Definition(n) =&gt; n.set_id(id),
             Expression(n) =&gt; n.set_id(id),
             Iteration(n) =&gt; n.set_id(id),

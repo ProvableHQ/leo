@@ -147,7 +147,7 @@
 
         <span class="comment">// Lookup the reconstructed callee function.
         // Since this pass processes functions in post-order, the callee function is guaranteed to exist in `self.reconstructed_functions`
-        </span><span class="kw">let </span>callee = <span class="self">self</span>.reconstructed_functions.get(<span class="kw-2">&amp;</span>function_name).unwrap();
+        </span><span class="kw">let </span>(<span class="kw">_</span>, callee) = <span class="self">self</span>.reconstructed_functions.iter().find(|(symbol, <span class="kw">_</span>)| <span class="kw-2">*</span>symbol == function_name).unwrap();
 
         <span class="comment">// Inline the callee function, if required, otherwise, return the call expression.
         </span><span class="kw">match </span>callee.variant {

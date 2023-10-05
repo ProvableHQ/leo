@@ -387,6 +387,10 @@
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
 <a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -503,6 +507,7 @@
     AssertEq,
     AssertNeq,
     Console,
+    Const,
     Constant,
     Else,
     Finalize,
@@ -543,6 +548,7 @@
     Token::AssertNeq,
     Token::Bool,
     Token::Console,
+    Token::Const,
     Token::Constant,
     Token::Else,
     Token::False,
@@ -599,6 +605,7 @@
             Token::Block =&gt; sym::block,
             Token::Bool =&gt; sym::bool,
             Token::Console =&gt; sym::console,
+            Token::Const =&gt; sym::Const,
             Token::Constant =&gt; sym::constant,
             Token::Else =&gt; sym::Else,
             Token::False =&gt; sym::False,
@@ -732,6 +739,7 @@
             AssertEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_eq&quot;</span>),
             AssertNeq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_neq&quot;</span>),
             Console =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;console&quot;</span>),
+            Const =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;const&quot;</span>),
             Constant =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;constant&quot;</span>),
             Else =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;else&quot;</span>),
             Finalize =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;finalize&quot;</span>),

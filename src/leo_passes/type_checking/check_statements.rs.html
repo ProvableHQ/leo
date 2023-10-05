@@ -374,6 +374,62 @@
 <a href="#374" id="374">374</a>
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -411,6 +467,7 @@
             Statement::Block(stmt) =&gt; <span class="self">self</span>.visit_block(stmt),
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
+            Statement::Const(stmt) =&gt; <span class="self">self</span>.visit_const(stmt),
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
             Statement::Iteration(stmt) =&gt; <span class="self">self</span>.visit_iteration(stmt),
@@ -526,10 +583,57 @@
         <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the AST.&quot;</span>);
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
-        <span class="kw">let </span>declaration =
-            <span class="kw">if </span>input.declaration_type == DeclarationType::Const { VariableType::Const } <span class="kw">else </span>{ VariableType::Mut };
+    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConstDeclaration) {
+        <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
+            <span class="comment">// If the type is an empty tuple, return an error.
+            </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
+            <span class="comment">// If the type is a singleton tuple, return an error.
+            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.len() {
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">if </span>tuple.iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    }
+                }
+            },
+            Type::Mapping(<span class="kw">_</span>) | Type::Err =&gt; <span class="macro">unreachable!</span>(
+                <span class="string">&quot;Parsing guarantees that `mapping` and `err` types are not present at this location in the AST.&quot;
+            </span>),
+            <span class="comment">// Otherwise, the type is valid.
+            </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
+        </span>}
 
+        <span class="comment">// Enforce that Constant variables have literal expressions on right-hand side
+        </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.value {
+            Expression::Literal(<span class="kw">_</span>) =&gt; (),
+            Expression::Tuple(tuple_expression) =&gt; <span class="kw">match </span>tuple_expression.elements.len() {
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">if </span>tuple_expression.elements.iter().any(|expr| !<span class="macro">matches!</span>(expr, Expression::Literal(<span class="kw">_</span>))) {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
+                            input.span,
+                        ))
+                    }
+                }
+            },
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
+        }
+
+        <span class="comment">// Check the expression on the right-hand side.
+        </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
+
+        <span class="comment">// Add constants to symbol table so that any references to them in later statements will pass TC
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
+            type_: input.type_.clone(),
+            span: input.place.span,
+            declaration: VariableType::Const,
+        }) {
+            <span class="self">self</span>.handler.emit_err(err);
+        }
+    }
+
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
         <span class="comment">// Check that the type of the definition is defined.
         </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.type_, input.span);
 
@@ -553,23 +657,25 @@
             </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
         </span>}
 
-        <span class="comment">// Check the expression on the left-hand side.
+        <span class="comment">// Check the expression on the right-hand side.
         </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
         <span class="comment">// TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
-        </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span, declaration: VariableType| {
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol { type_, span, declaration })
-            {
+        </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
+                type_,
+                span,
+                declaration: VariableType::Mut,
+            }) {
                 <span class="self">self</span>.handler.emit_err(err);
             }
         };
 
-        <span class="comment">// Insert the variables in the into the symbol table.
+        <span class="comment">// Insert the variables into the symbol table.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.place {
             Expression::Identifier(identifier) =&gt; {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span, declaration)
+                insert_variable(identifier.name, input.type_.clone(), identifier.span)
             }
             Expression::Tuple(tuple_expression) =&gt; {
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
@@ -578,6 +684,14 @@
                         <span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;
                     </span>),
                 };
+                <span class="kw">if </span>tuple_expression.elements.len() != tuple_type.len() {
+                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
+                        tuple_expression.elements.len(),
+                        tuple_type.len(),
+                        input.place.span(),
+                    ));
+                }
+
                 tuple_expression.elements.iter().zip_eq(tuple_type.<span class="number">0</span>.iter()).for_each(|(expression, type_)| {
                     <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
                         Expression::Identifier(identifier) =&gt; identifier,
@@ -587,7 +701,7 @@
                             ));
                         }
                     };
-                    insert_variable(identifier.name, type_.clone(), identifier.span, declaration)
+                    insert_variable(identifier.name, type_.clone(), identifier.span)
                 });
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
@@ -646,43 +760,41 @@
         </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.start, iter_type);
 
         <span class="comment">// If `input.start` is a valid literal, instantiate it as a value.
-        </span><span class="kw">if let </span>Expression::Literal(literal) = <span class="kw-2">&amp;</span>input.start {
-            <span class="comment">// Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = Value::try_from(literal) {
-                input.start_value.replace(<span class="prelude-val">Some</span>(value));
+        </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.start {
+            Expression::Literal(literal) =&gt; {
+                <span class="comment">// Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = Value::try_from(literal) {
+                    input.start_value.replace(<span class="prelude-val">Some</span>(value));
+                }
             }
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.start.span()));
+            Expression::Identifier(id) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(id.name) {
+                    <span class="kw">if </span>VariableType::Const != var.declaration {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.start.span())),
         }
 
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.stop, iter_type);
 
-        <span class="comment">// If `input.stop` is a literal, instantiate it as a value.
-        </span><span class="kw">if let </span>Expression::Literal(literal) = <span class="kw-2">&amp;</span>input.stop {
-            <span class="comment">// Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
-            </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = Value::try_from(literal) {
-                input.stop_value.replace(<span class="prelude-val">Some</span>(value));
+        <span class="comment">// If `input.stop` is a valid literal, instantiate it as a value.
+        </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.stop {
+            Expression::Literal(literal) =&gt; {
+                <span class="comment">// Note that this check is needed because the pass attempts to make progress, even though the literal may be invalid.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(value) = Value::try_from(literal) {
+                    input.stop_value.replace(<span class="prelude-val">Some</span>(value));
+                }
             }
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_a_literal(input.stop.span()));
-        }
-
-        <span class="comment">// Ensure loop bounds are not decreasing.
-        </span><span class="kw">if match </span>(input.start_value.borrow().as_ref(), input.stop_value.borrow().as_ref()) {
-            (<span class="prelude-val">Some</span>(Value::I8(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I8(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::I16(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I16(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::I32(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I32(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::I64(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I64(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::I128(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::I128(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::U8(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U8(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::U16(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U16(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::U32(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U32(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::U64(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U64(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            (<span class="prelude-val">Some</span>(Value::U128(lower_bound, <span class="kw">_</span>)), <span class="prelude-val">Some</span>(Value::U128(upper_bound, <span class="kw">_</span>))) =&gt; lower_bound &gt;= upper_bound,
-            <span class="comment">// Note that type mismatch and non-literal errors will already be emitted by here.
-            </span><span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
-        } {
-            <span class="self">self</span>.emit_err(TypeCheckerError::loop_range_decreasing(input.stop.span()));
+            Expression::Identifier(id) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(id.name) {
+                    <span class="kw">if </span>VariableType::Const != var.declaration {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
+                    }
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(input.stop.span())),
         }
     }
 

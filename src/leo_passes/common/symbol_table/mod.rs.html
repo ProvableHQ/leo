@@ -231,6 +231,11 @@
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -332,6 +337,11 @@
         <span class="self">self</span>.check_shadowing(symbol, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(symbol, insert);
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Removes a variable from the symbol table.
+    </span><span class="kw">pub fn </span>remove_variable_from_current_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol) {
+        <span class="self">self</span>.variables.remove(<span class="kw-2">&amp;</span>symbol);
     }
 
     <span class="doccomment">/// Creates a new scope for the block and stores it in the symbol table.

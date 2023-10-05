@@ -485,6 +485,11 @@
 <a href="#485" id="485">485</a>
 <a href="#486" id="486">486</a>
 <a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -625,23 +630,28 @@
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
 
         <span class="comment">// Parse the body of the program scope.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>functions = IndexMap::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>structs = IndexMap::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>mappings = IndexMap::new();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>functions: Vec&lt;(Symbol, Function)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>structs: Vec&lt;(Symbol, Struct)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>mappings: Vec&lt;(Symbol, Mapping)&gt; = Vec::new();
 
         <span class="kw">while </span><span class="self">self</span>.has_next() {
             <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
+                Token::Const =&gt; {
+                    <span class="kw">let </span>declaration = <span class="self">self</span>.parse_const_declaration_statement()<span class="question-mark">?</span>;
+                    consts.push((Symbol::intern(<span class="kw-2">&amp;</span>declaration.place.to_string()), declaration));
+                }
                 Token::Struct | Token::Record =&gt; {
                     <span class="kw">let </span>(id, struct_) = <span class="self">self</span>.parse_struct()<span class="question-mark">?</span>;
-                    structs.insert(id, struct_);
+                    structs.push((id, struct_));
                 }
                 Token::Mapping =&gt; {
                     <span class="kw">let </span>(id, mapping) = <span class="self">self</span>.parse_mapping()<span class="question-mark">?</span>;
-                    mappings.insert(id, mapping);
+                    mappings.push((id, mapping));
                 }
                 Token::At | Token::Function | Token::Transition | Token::Inline =&gt; {
                     <span class="kw">let </span>(id, function) = <span class="self">self</span>.parse_function()<span class="question-mark">?</span>;
-                    functions.insert(id, function);
+                    functions.push((id, function));
                 }
                 Token::RightCurly =&gt; <span class="kw">break</span>,
                 <span class="kw">_ </span>=&gt; {
@@ -662,7 +672,7 @@
         <span class="comment">// Parse `}`.
         </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightCurly)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ProgramScope { program_id, functions, structs, mappings, span: start + end })
+        <span class="prelude-val">Ok</span>(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
     }
 
     <span class="doccomment">/// Returns a [`Vec&lt;Member&gt;`] AST node if the next tokens represent a struct member.

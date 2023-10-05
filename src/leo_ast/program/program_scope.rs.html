@@ -53,6 +53,7 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -71,9 +72,8 @@
 
 </span><span class="doccomment">//! A Leo program scope consists of struct, function, and mapping definitions.
 
-</span><span class="kw">use crate</span>::{Function, Mapping, ProgramId, Struct};
+</span><span class="kw">use crate</span>::{ConstDeclaration, Function, Mapping, ProgramId, Struct};
 
-<span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
@@ -83,12 +83,14 @@
 </span><span class="kw">pub struct </span>ProgramScope {
     <span class="doccomment">/// The program id of the program scope.
     </span><span class="kw">pub </span>program_id: ProgramId,
-    <span class="doccomment">/// A map from struct names to struct definitions.
-    </span><span class="kw">pub </span>structs: IndexMap&lt;Symbol, Struct&gt;,
-    <span class="doccomment">/// A map from mapping names to mapping definitions.
-    </span><span class="kw">pub </span>mappings: IndexMap&lt;Symbol, Mapping&gt;,
-    <span class="doccomment">/// A map from function names to function definitions.
-    </span><span class="kw">pub </span>functions: IndexMap&lt;Symbol, Function&gt;,
+    <span class="doccomment">/// A vector of const definitions
+    </span><span class="kw">pub </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt;,
+    <span class="doccomment">/// A vector of struct definitions.
+    </span><span class="kw">pub </span>structs: Vec&lt;(Symbol, Struct)&gt;,
+    <span class="doccomment">/// A vector of mapping definitions.
+    </span><span class="kw">pub </span>mappings: Vec&lt;(Symbol, Mapping)&gt;,
+    <span class="doccomment">/// A vector of function definitions.
+    </span><span class="kw">pub </span>functions: Vec&lt;(Symbol, Function)&gt;,
     <span class="doccomment">/// The span associated with the program scope.
     </span><span class="kw">pub </span>span: Span,
 }

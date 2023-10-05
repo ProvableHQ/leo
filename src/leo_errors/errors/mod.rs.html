@@ -146,6 +146,15 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -185,6 +194,9 @@
 </span><span class="kw">pub mod </span>input;
 <span class="kw">pub use </span><span class="self">self</span>::input::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>loop_unroller;
+<span class="kw">pub use </span><span class="self">self</span>::loop_unroller::<span class="kw-2">*</span>;
+
 <span class="doccomment">/// Contains the Package error definitions.
 </span><span class="kw">pub mod </span>package;
 <span class="kw">pub use </span><span class="self">self</span>::package::<span class="kw-2">*</span>;
@@ -195,6 +207,7 @@
 
 <span class="doccomment">/// Contains the Type Checker error definitions.
 </span><span class="kw">pub mod </span>type_checker;
+
 <span class="kw">pub use </span><span class="self">self</span>::type_checker::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// The LeoError type that contains all sub error types.
@@ -222,6 +235,9 @@
     <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>TypeCheckerError(<span class="attr">#[from] </span>TypeCheckerError),
+    <span class="doccomment">/// Represents a Loop Unroller Error in a Leo Error.
+    </span><span class="attr">#[error(transparent)]
+    </span>LoopUnrollerError(<span class="attr">#[from] </span>LoopUnrollerError),
     <span class="doccomment">/// Represents a Flatten Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>FlattenError(<span class="attr">#[from] </span>FlattenError),
@@ -247,6 +263,7 @@
             ParserError(error) =&gt; error.error_code(),
             PackageError(error) =&gt; error.error_code(),
             TypeCheckerError(error) =&gt; error.error_code(),
+            LoopUnrollerError(error) =&gt; error.error_code(),
             FlattenError(error) =&gt; error.error_code(),
             LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement error codes for snarkvm errors.
@@ -265,6 +282,7 @@
             ParserError(error) =&gt; error.exit_code(),
             PackageError(error) =&gt; error.exit_code(),
             TypeCheckerError(error) =&gt; error.exit_code(),
+            LoopUnrollerError(error) =&gt; error.exit_code(),
             FlattenError(error) =&gt; error.exit_code(),
             LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
             Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement exit codes for snarkvm errors.
