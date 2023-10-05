@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "liolikus",
+      "name": "the_liolik (Alex_B)",
+      "avatar_url": "https://avatars.githubusercontent.com/u/85246338?v=4",
+      "profile": "https://github.com/liolikus",
+      "contributions": [
+        "content"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "leo",
+  "projectOwner": "AleoHQ"
+}
