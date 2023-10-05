@@ -1,4 +1,4 @@
-var sourcesIndex = JSON.parse('{\
+var srcIndex = JSON.parse('{\
 "errcov":["",[],["errcov.rs"]],\
 "leo":["",[],["main.rs"]],\
 "leo_abnf":["",[],["main.rs"]],\
@@ -12,4 +12,4 @@ var sourcesIndex = JSON.parse('{\
 "leo_span":["",[],["lib.rs","source_map.rs","span.rs","span_json.rs","symbol.rs"]],\
 "leo_test_framework":["",[],["error.rs","fetch.rs","lib.rs","output.rs","runner.rs","test.rs"]]\
 }');
-createSourceSidebar();
+createSrcSidebar();
