@@ -379,6 +379,7 @@ impl Token {
                 match &*identifier {
                     x if x.starts_with("aleo1") => Token::AddressLit(identifier),
                     "address" => Token::Address,
+                    "aleo" => Token::Aleo,
                     "as" => Token::As,
                     "assert" => Token::Assert,
                     "assert_eq" => Token::AssertEq,

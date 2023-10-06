@@ -292,6 +292,14 @@ create_messages!(
         help: None,
     }
 
+    /// Enforce that empty functions cannot have finalize functions attached to them
+    @formatted
+    empty_function_cannot_have_finalize {
+        args: (),
+        msg: format!("Empty functions cannot have finalize functions attached to them."),
+        help: None,
+    }
+
     @formatted
     array_must_have_at_least_one_element {
         args: (kind: impl Display),

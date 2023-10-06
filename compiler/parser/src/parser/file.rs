@@ -25,6 +25,7 @@ impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
+        let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
         let mut program_scopes = IndexMap::new();
 
         // TODO: Remove restrictions on multiple program scopes
@@ -35,6 +36,10 @@ impl ParserContext<'_> {
                 Token::Import => {
                     let (id, import) = self.parse_import()?;
                     imports.insert(id, import);
+                }
+                Token::Stub => {
+                    let (id, stub) = self.parse_stub()?;
+                    stubs.insert(id, stub);
                 }
                 Token::Program => {
                     match parsed_program_scope {
@@ -56,7 +61,7 @@ impl ParserContext<'_> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, program_scopes })
+        Ok(Program { imports, stubs, program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -114,25 +119,20 @@ impl ParserContext<'_> {
         Ok((import_name.name, (program_ast.into_repr(), start + end)))
     }
 
-    /// Parsers a program scope `program foo.aleo { ... }`.
-    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
-        // Parse `program` keyword.
-        let start = self.expect(&Token::Program)?;
-
+    /// Parses a program body `credits.aleo { ... }`
+    fn parse_program_body(&mut self, start: Span) -> Result<ProgramScope> {
         // Parse the program name.
         let name = self.expect_identifier()?;
 
         // Parse the program network.
         self.expect(&Token::Dot)?;
-        let network = self.expect_identifier()?;
+
+        // Otherwise throw parser error
+        self.expect(&Token::Aleo).or_else(|_| Err(ParserError::invalid_network(self.token.span)))?;
 
         // Construct the program id.
-        let program_id = ProgramId { name, network };
-
-        // Check that the program network is valid.
-        if network.name != sym::aleo {
-            return Err(ParserError::invalid_network(network.span).into());
-        }
+        let program_id =
+            ProgramId { name, network: Identifier::new(Symbol::intern("aleo"), self.node_builder.next_id()) };
 
         // Parse `{`.
         self.expect(&Token::LeftCurly)?;
@@ -181,6 +181,23 @@ impl ParserContext<'_> {
         let end = self.expect(&Token::RightCurly)?;
 
         Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
+    }
+
+    /// Parses a stub `stub credits.aleo { ... }`.
+    fn parse_stub(&mut self) -> Result<(Symbol, Stub)> {
+        // Parse `stub` keyword.
+        let start = self.expect(&Token::Stub)?;
+        let stub = Stub::from(self.parse_program_body(start)?);
+
+        Ok((stub.stub_id.name.name, stub))
+    }
+
+    /// Parses a program scope `program foo.aleo { ... }`.
+    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
+        // Parse `program` keyword.
+        let start = self.expect(&Token::Program)?;
+
+        self.parse_program_body(start)
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
@@ -433,13 +450,25 @@ impl ParserContext<'_> {
             }
         };
 
-        // Parse the function body.
-        let block = self.parse_block()?;
+        // Parse the function body. Allow empty blocks. `fn foo(a:u8);`
+        let (has_empty_block, block) = match &self.token.token {
+            Token::LeftCurly => (false, self.parse_block()?),
+            Token::Semicolon => {
+                let semicolon = self.expect(&Token::Semicolon)?;
+                (true, Block { statements: Vec::new(), span: semicolon, id: self.node_builder.next_id() })
+            }
+            _ => self.unexpected("block or semicolon")?,
+        };
 
         // Parse the `finalize` block if it exists.
         let finalize = match self.eat(&Token::Finalize) {
             false => None,
             true => {
+                // Make sure has function body. Don't want `fn foo(); finalize foo { ... }` to be valid parsing.
+                if has_empty_block {
+                    return Err(ParserError::empty_function_cannot_have_finalize(self.token.span).into());
+                }
+
                 // Get starting span.
                 let start = self.prev_token.span;
 
