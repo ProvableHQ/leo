@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370034]: Empty functions cannot have finalize functions attached to them.\n    --> test:7:14\n     |\n   7 |     finalize foo() {\n     |              ^^^"
