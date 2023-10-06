@@ -417,6 +417,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
                 .collect(),
+            stubs: input.stubs,
             program_scopes: input
                 .program_scopes
                 .into_iter()
