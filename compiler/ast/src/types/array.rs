@@ -22,19 +22,19 @@ use std::fmt;
 /// An array type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayType {
-    element: Box<Type>,
+    element_type: Box<Type>,
     size: u32,
 }
 
 impl ArrayType {
     /// Creates a new array type.
     pub fn new(element: Type, size: u32) -> Self {
-        Self { element: Box::new(element), size }
+        Self { element_type: Box::new(element), size }
     }
 
     /// Returns the element type of the array.
-    pub fn element(&self) -> &Type {
-        &self.element
+    pub fn element_type(&self) -> &Type {
+        &self.element_type
     }
 
     /// Returns the size of the array.
@@ -45,6 +45,6 @@ impl ArrayType {
 
 impl fmt::Display for ArrayType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}; {}]", self.element, self.size)
+        write!(f, "[{}; {}]", self.element_type, self.size)
     }
 }
