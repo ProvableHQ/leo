@@ -25,6 +25,8 @@ use std::fmt;
 pub enum Type {
     /// The `address` type.
     Address,
+    /// The array type.
+    Array(ArrayType),
     /// The `bool` type.
     Boolean,
     /// The `field` type.
@@ -68,6 +70,10 @@ impl Type {
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
+            (Type::Array(left), Type::Array(right)) => {
+                left.element_type().eq_flat(right.element_type()) && left.size() == right.size()
+            }
+            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
@@ -75,7 +81,6 @@ impl Type {
             (Type::Tuple(left), Type::Tuple(right)) if left.len() == right.len() => {
                 left.iter().zip_eq(right.iter()).all(|(left_type, right_type)| left_type.eq_flat(right_type))
             }
-            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             _ => false,
         }
     }
@@ -85,6 +90,7 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::Address => write!(f, "address"),
+            Type::Array(ref array_type) => write!(f, "{array_type}"),
             Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),

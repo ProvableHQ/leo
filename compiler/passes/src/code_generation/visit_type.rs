@@ -28,8 +28,9 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Identifier(ident) => format!("{ident}"),
+            Type::Array(_) => todo!(),
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
