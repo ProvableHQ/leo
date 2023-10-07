@@ -23,9 +23,9 @@ use std::{fmt, ops::Deref};
 
 /// A type list of at least two types.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Tuple(pub Vec<Type>);
+pub struct TupleType(pub Vec<Type>);
 
-impl Deref for Tuple {
+impl Deref for TupleType {
     type Target = Vec<Type>;
 
     fn deref(&self) -> &Self::Target {
@@ -33,7 +33,7 @@ impl Deref for Tuple {
     }
 }
 
-impl fmt::Display for Tuple {
+impl fmt::Display for TupleType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({})", self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
