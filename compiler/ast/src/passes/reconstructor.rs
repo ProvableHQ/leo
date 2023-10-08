@@ -45,6 +45,12 @@ pub trait ExpressionReconstructor {
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Access(match input {
+                AccessExpression::Array(array) => AccessExpression::Array(ArrayAccess {
+                    array: Box::new(self.reconstruct_expression(*array.array).0),
+                    index: Box::new(self.reconstruct_expression(*array.index).0),
+                    span: array.span,
+                    id: array.id,
+                }),
                 AccessExpression::AssociatedFunction(function) => {
                     AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,

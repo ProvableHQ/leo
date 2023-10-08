@@ -23,8 +23,8 @@ use std::fmt;
 /// An access expressions, extracting a smaller part out of a whole.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AccessExpression {
-    // /// An `array[index]` expression.
-    // Array(ArrayAccess),
+    /// An `array[index]` expression.
+    Array(ArrayAccess),
     // /// An expression accessing a range of an array.
     // ArrayRange(ArrayRangeAccess),
     /// Access to an associated variable of a struct e.g `u8::MAX`.
@@ -40,6 +40,7 @@ pub enum AccessExpression {
 impl Node for AccessExpression {
     fn span(&self) -> Span {
         match self {
+            AccessExpression::Array(n) => n.span(),
             AccessExpression::AssociatedConstant(n) => n.span(),
             AccessExpression::AssociatedFunction(n) => n.span(),
             AccessExpression::Member(n) => n.span(),
@@ -49,6 +50,7 @@ impl Node for AccessExpression {
 
     fn set_span(&mut self, span: Span) {
         match self {
+            AccessExpression::Array(n) => n.set_span(span),
             AccessExpression::AssociatedConstant(n) => n.set_span(span),
             AccessExpression::AssociatedFunction(n) => n.set_span(span),
             AccessExpression::Member(n) => n.set_span(span),
@@ -58,6 +60,7 @@ impl Node for AccessExpression {
 
     fn id(&self) -> NodeID {
         match self {
+            AccessExpression::Array(n) => n.id(),
             AccessExpression::AssociatedConstant(n) => n.id(),
             AccessExpression::AssociatedFunction(n) => n.id(),
             AccessExpression::Member(n) => n.id(),
@@ -67,6 +70,7 @@ impl Node for AccessExpression {
 
     fn set_id(&mut self, id: NodeID) {
         match self {
+            AccessExpression::Array(n) => n.set_id(id),
             AccessExpression::AssociatedConstant(n) => n.set_id(id),
             AccessExpression::AssociatedFunction(n) => n.set_id(id),
             AccessExpression::Member(n) => n.set_id(id),
@@ -79,6 +83,7 @@ impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use AccessExpression::*;
         match self {
+            Array(access) => access.fmt(f),
             AssociatedConstant(access) => access.fmt(f),
             AssociatedFunction(access) => access.fmt(f),
             Member(access) => access.fmt(f),
