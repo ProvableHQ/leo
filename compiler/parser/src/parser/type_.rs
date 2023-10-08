@@ -80,6 +80,13 @@ impl ParserContext<'_> {
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         if let Some(ident) = self.eat_identifier() {
             Ok((Type::Identifier(ident), ident.span))
+        } else if self.token.token == Token::LeftSquare {
+            // Parse the element type.
+            let (element_type, _) = self.parse_type()?;
+            // Parse the length.
+            let (length, _) = self.eat_whole_number()?;
+            // Return the array type.
+            Ok((Type::Array(ArrayType::new(element_type, length)), self.prev_token.span))
         } else if self.token.token == Token::LeftParen {
             let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
             match types.len() {
