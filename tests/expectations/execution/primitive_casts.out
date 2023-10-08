@@ -16,7 +16,7 @@ outputs:
       results:
         address_casts:
           - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey]"
-            output: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey, false, 4215828253063057579372973753238191915437678788189540242352627279098623010748field, 4215828253063057579372973753238191915437678788189540242352627279098623010748group, -68i8, -22596i16, -919361604i32, -1115211937480464452i64, 69581248500420848509480883781010433980i128, 188u8, 42940u16, 3375605692u32, 17331532136229087164u64, 69581248500420848509480883781010433980u128, 597325464396926472386380471716694795022991767388272616119577778851337709500scalar]"
+            output: "SnarkVMError('test.aleo/address_casts' is not satisfied on the given inputs (35900 constraints).)"
         bool_casts:
           - input: "[false]"
             output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
