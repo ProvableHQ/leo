@@ -543,6 +543,19 @@ impl ParserContext<'_> {
         }
     }
 
+    /// Returns an [`Expression`] AST node if the next tokens represent an array initialization expression.
+    fn parse_array_expression(&mut self) -> Result<Expression> {
+        let (elements, _, span) = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?;
+
+        match elements.is_empty() {
+            // If the array expression is empty, return an error.
+            true => Err(ParserError::array_must_have_at_least_one_element("expression", span).into()),
+            // Otherwise, return an array expression.
+            // Note: This is the only place where `ArrayExpression` is constructed in the parser.
+            false => Ok(Expression::Array(ArrayExpression { elements, span, id: self.node_builder.next_id() })),
+        }
+    }
+
     /// Returns a reference to the next token if it is a [`GroupCoordinate`], or [None] if
     /// the next token is not a [`GroupCoordinate`].
     fn peek_group_coordinate(&self, dist: &mut usize) -> Option<GroupCoordinate> {
@@ -651,6 +664,8 @@ impl ParserContext<'_> {
     fn parse_primary_expression(&mut self) -> Result<Expression> {
         if let Token::LeftParen = self.token.token {
             return self.parse_tuple_expression();
+        } else if let Token::LeftSquare = self.token.token {
+            return self.parse_array_expression();
         }
 
         let SpannedToken { token, span } = self.token.clone();

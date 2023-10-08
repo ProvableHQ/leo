@@ -240,6 +240,14 @@ impl<'a> ParserContext<'a> {
         self.parse_list(Delimiter::Parenthesis, Some(Token::Comma), f)
     }
 
+    /// Parse a list separated by `,` and delimited by brackets.
+    pub(super) fn parse_bracket_comma_list<T>(
+        &mut self,
+        f: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        self.parse_list(Delimiter::Bracket, Some(Token::Comma), f)
+    }
+
     /// Returns true if the current token is `(`.
     pub(super) fn peek_is_left_par(&self) -> bool {
         matches!(self.token.token, Token::LeftParen)

@@ -291,4 +291,11 @@ create_messages!(
         msg: format!("expected no underscores or leading zeros -- found '{found}'"),
         help: None,
     }
+
+    @formatted
+    array_must_have_at_least_one_element {
+        args: (kind: impl Display),
+        msg: format!("An array {kind} must have at least one element."),
+        help: None,
+    }
 );
