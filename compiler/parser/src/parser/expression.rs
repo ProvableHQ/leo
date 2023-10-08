@@ -485,6 +485,17 @@ impl ParserContext<'_> {
             } else if self.eat(&Token::DoubleColon) {
                 // Eat a core struct constant or core struct function call.
                 expr = self.parse_associated_access_expression(expr)?;
+            } else if self.eat(&Token::LeftSquare) {
+                // Eat an array access.
+                let index = self.parse_expression()?;
+                // Eat the closing bracket.
+                let span = self.expect(&Token::RightSquare)?;
+                expr = Expression::Access(AccessExpression::Array(ArrayAccess {
+                    span: expr.span() + span,
+                    array: Box::new(expr),
+                    index: Box::new(index),
+                    id: self.node_builder.next_id(),
+                }))
             } else if self.check(&Token::LeftParen) {
                 // Check that the expression is an identifier.
                 if !matches!(expr, Expression::Identifier(_)) {
