@@ -71,7 +71,7 @@ impl Type {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                left.element_type().eq_flat(right.element_type()) && left.size() == right.size()
+                left.element_type().eq_flat(right.element_type()) && left.length() == right.length()
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
