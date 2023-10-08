@@ -18,6 +18,7 @@ use crate::DeadCodeEliminator;
 
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
     AssociatedFunction,
     Expression,
     ExpressionReconstructor,
@@ -37,6 +38,12 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Access(match input {
+                AccessExpression::Array(array) => AccessExpression::Array(ArrayAccess {
+                    array: Box::new(self.reconstruct_expression(*array.array).0),
+                    index: Box::new(self.reconstruct_expression(*array.index).0),
+                    span: array.span,
+                    id: array.id,
+                }),
                 AccessExpression::AssociatedFunction(function) => {
                     // If the associated function manipulates a mapping, mark the statement as necessary.
                     match (&function.ty, function.name.name) {

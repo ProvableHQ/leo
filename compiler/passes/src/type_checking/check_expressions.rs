@@ -42,6 +42,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
+            AccessExpression::Array(array) => todo!(),
             AccessExpression::AssociatedFunction(access) => {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {

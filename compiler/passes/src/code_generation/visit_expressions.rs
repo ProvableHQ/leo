@@ -492,6 +492,7 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
         match input {
+            AccessExpression::Array(array) => todo!(),
             AccessExpression::Member(access) => self.visit_member_access(access),
             AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
