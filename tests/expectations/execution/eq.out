@@ -16,10 +16,10 @@ outputs:
       results:
         main:
           - input: "[0u32, 1u32]"
-            output: "[false]"
+            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (18459 constraints).)"
           - input: "[1u32, 1u32]"
             output: "[true]"
           - input: "[1u32, 2u32]"
-            output: "[false]"
+            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (18459 constraints).)"
           - input: "[2u32, 2u32]"
             output: "[true]"
