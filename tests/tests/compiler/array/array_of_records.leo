@@ -10,6 +10,6 @@ program test.aleo {
     }
 
     transition foo(a: [bar; 8]) -> u8 {
-        return a[0].data;
+        return a[0u32].data;
     }
 }

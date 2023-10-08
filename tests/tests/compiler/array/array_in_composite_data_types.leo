@@ -14,6 +14,6 @@ program test.aleo {
     }
 
     transition foo(a: [[bool; 8]; 8]) -> bool {
-        return a[0][0];
+        return a[0u32][0u32];
     }
 }
