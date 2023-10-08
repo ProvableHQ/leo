@@ -6,7 +6,7 @@ expectation: Pass
 
 program test.aleo {
     transition foo(a: [bool; 4]) {
-        for i in 0u32..4u32 {
+        for i: i32 in 0u32..4u32 {
             assert(a[i]);
         }
     }

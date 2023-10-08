@@ -16,7 +16,7 @@ program test.aleo {
 
     transition sum_with_loop(a: [u64; 4]) -> u64 {
         let sum: u64 = 0u64;
-        for i in 0u8..4u8 {
+        for i: u8 in 0u8..4u8 {
             sum += a[i];
         }
         return sum;

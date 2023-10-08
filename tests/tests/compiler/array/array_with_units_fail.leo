@@ -5,6 +5,6 @@ expectation: Pass
 
 program test.aleo {
     transition foo() -> bool {
-        let bar: [(), 2] = [(), ()];
+        let bar: [(); 2] = [(), ()];
     }
 }
