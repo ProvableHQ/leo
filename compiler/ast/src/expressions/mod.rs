@@ -23,6 +23,9 @@ use std::fmt;
 mod access;
 pub use access::*;
 
+mod array;
+pub use array::*;
+
 mod binary;
 pub use binary::*;
 
