@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression,
+    ArrayExpression,
     AssociatedConstant,
     AssociatedFunction,
     BinaryExpression,
@@ -49,6 +50,7 @@ impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_expression(&mut self, input: &'a Expression) -> (String, String) {
         match input {
             Expression::Access(expr) => self.visit_access(expr),
+            Expression::Array(expr) => self.visit_array(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
             Expression::Cast(expr) => self.visit_cast(expr),
@@ -130,18 +132,46 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_cast(&mut self, input: &'a CastExpression) -> (String, String) {
-        let (expression_operand, expression_instructions) = self.visit_expression(&input.expression);
+        let (expression_operand, mut instructions) = self.visit_expression(&input.expression);
 
+        // Construct the destination register.
         let destination_register = format!("r{}", self.next_register);
-        let cast_instruction =
-            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
-
         // Increment the register counter.
         self.next_register += 1;
 
+        let cast_instruction =
+            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
+
         // Concatenate the instructions.
-        let mut instructions = expression_instructions;
         instructions.push_str(&cast_instruction);
+
+        (destination_register, instructions)
+    }
+
+    fn visit_array(&mut self, input: &'a ArrayExpression) -> (String, String) {
+        let (expression_operands, mut instructions) =
+            input.elements.iter().map(|expr| self.visit_expression(expr)).fold(
+                (String::new(), String::new()),
+                |(mut operands, mut instructions), (operand, operand_instructions)| {
+                    operands.push_str(&operand);
+                    instructions.push_str(&operand_instructions);
+                    (operands, instructions)
+                },
+            );
+
+        // Construct the destination register.
+        let destination_register = format!("r{}", self.next_register);
+        // Increment the register counter.
+        self.next_register += 1;
+
+        // Get the array type.
+        let array_type: String = todo!();
+
+        let array_instruction =
+            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+
+        // Concatenate the instructions.
+        instructions.push_str(&array_instruction);
 
         (destination_register, instructions)
     }

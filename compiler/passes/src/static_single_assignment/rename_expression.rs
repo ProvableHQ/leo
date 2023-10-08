@@ -18,6 +18,7 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression,
+    ArrayExpression,
     AssociatedFunction,
     BinaryExpression,
     CallExpression,
@@ -103,6 +104,32 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             expr => (expr, Vec::new()),
         };
         let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
+    }
+
+    /// Consumes an array expression, accumulating any statements that are generated.
+    fn consume_array(&mut self, input: ArrayExpression) -> Self::Output {
+        let mut statements = Vec::new();
+
+        // Process the elements, accumulating any statements produced.
+        let elements = input
+            .elements
+            .into_iter()
+            .map(|element| {
+                let (element, mut stmts) = self.consume_expression(element);
+                statements.append(&mut stmts);
+                element
+            })
+            .collect();
+
+        // Construct and accumulate a new assignment statement for the array expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Array(ArrayExpression {
+            elements,
+            span: input.span,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
