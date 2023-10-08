@@ -59,8 +59,10 @@ pub use literal::*;
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
-    /// A struct access expression, e.g., `Foo.bar`.
+    /// A struct access expression, e.g. `Foo.bar`.
     Access(AccessExpression),
+    /// An array expression, e.g., `[true, false, true, false]`.
+    Array(ArrayExpression),
     /// A binary expression, e.g., `42 + 24`.
     Binary(BinaryExpression),
     /// A call expression, e.g., `my_fun(args)`.
@@ -91,6 +93,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.span(),
+            Array(n) => n.span(),
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
@@ -109,6 +112,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.set_span(span),
+            Array(n) => n.set_span(span),
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
@@ -127,6 +131,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.id(),
+            Array(n) => n.id(),
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
@@ -145,6 +150,7 @@ impl Node for Expression {
         use Expression::*;
         match self {
             Access(n) => n.set_id(id),
+            Array(n) => n.set_id(id),
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
@@ -165,6 +171,7 @@ impl fmt::Display for Expression {
         use Expression::*;
         match &self {
             Access(n) => n.fmt(f),
+            Array(n) => n.fmt(f),
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),

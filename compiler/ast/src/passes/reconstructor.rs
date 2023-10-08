@@ -27,6 +27,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
             Expression::Access(access) => self.reconstruct_access(access),
+            Expression::Array(array) => self.reconstruct_array(array),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
             Expression::Cast(cast) => self.reconstruct_cast(cast),
@@ -70,6 +71,17 @@ pub trait ExpressionReconstructor {
                     id: tuple.id,
                 }),
                 AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
+            }),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_array(&mut self, input: ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Array(ArrayExpression {
+                elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
+                span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )

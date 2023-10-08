@@ -81,10 +81,16 @@ impl ParserContext<'_> {
         if let Some(ident) = self.eat_identifier() {
             Ok((Type::Identifier(ident), ident.span))
         } else if self.token.token == Token::LeftSquare {
+            // Parse the left bracket.
+            self.expect(&Token::LeftSquare)?;
             // Parse the element type.
             let (element_type, _) = self.parse_type()?;
+            // Parse the semi-colon.
+            self.expect(&Token::Semicolon)?;
             // Parse the length.
             let (length, _) = self.eat_whole_number()?;
+            // Parse the right bracket.
+            self.expect(&Token::RightSquare)?;
             // Return the array type.
             Ok((Type::Array(ArrayType::new(element_type, length)), self.prev_token.span))
         } else if self.token.token == Token::LeftParen {
