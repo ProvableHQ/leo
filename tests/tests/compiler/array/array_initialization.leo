@@ -5,6 +5,7 @@ expectation: Pass
 
 program test.aleo {
     transition bar(a: bool) -> [bool; 8] {
-        return [a, a, a, a, a, a, a, a];
+        let result: [bool; 8] = [a, a, a, a, a, a, a, a];
+        return result;
     }
 }

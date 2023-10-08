@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{Mode, Type};
 
 impl<'a> CodeGenerator<'a> {
-    fn visit_type(&mut self, input: &'a Type) -> String {
+    pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
         match input {
             Type::Address
             | Type::Boolean
