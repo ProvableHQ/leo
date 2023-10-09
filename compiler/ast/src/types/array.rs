@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{PositiveNumber, Type};
+use crate::{NonzeroNumber, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,12 +23,12 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ArrayType {
     element_type: Box<Type>,
-    length: PositiveNumber,
+    length: NonzeroNumber,
 }
 
 impl ArrayType {
     /// Creates a new array type.
-    pub fn new(element: Type, length: PositiveNumber) -> Self {
+    pub fn new(element: Type, length: NonzeroNumber) -> Self {
         Self { element_type: Box::new(element), length }
     }
 
@@ -39,7 +39,7 @@ impl ArrayType {
 
     /// Returns the length of the array.
     pub fn length(&self) -> usize {
-        self.length.to_usize()
+        self.length.value()
     }
 
     /// Returns the base element type of the array.
