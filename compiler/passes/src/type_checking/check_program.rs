@@ -109,7 +109,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // TODO: Better span to target duplicate member.
         if !input.members.iter().all(|Member { identifier, type_, span, .. }| {
             // Check that the member types are defined.
-            self.assert_type_is_defined(type_, *span);
+            self.assert_type_is_valid(type_, *span);
             used.insert(identifier.name)
         }) {
             self.emit_err(if input.is_record {
@@ -146,11 +146,20 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
             // Ensure that there are no record members.
             self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+
             // If the member is a struct, add it to the struct dependency graph.
             // Note that we have already checked that each member is defined and valid.
             if let Type::Identifier(member_type) = type_ {
                 self.struct_graph.add_edge(input.identifier.name, member_type.name);
+            } else if let Type::Array(array_type) = type_ {
+                // Get the base element type.
+                let base_element_type = array_type.base_element_type();
+                // If the base element type is a struct, then add it to the struct dependency graph.
+                if let Type::Identifier(member_type) = base_element_type {
+                    self.struct_graph.add_edge(input.identifier.name, member_type.name);
+                }
             }
+
             // If the input is a struct, then check that the member does not have a mode.
             if !input.is_record && !matches!(mode, Mode::None) {
                 self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
@@ -160,7 +169,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_mapping(&mut self, input: &'a Mapping) {
         // Check that a mapping's key type is valid.
-        self.assert_type_is_defined(&input.key_type, input.span);
+        self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a tuple, record, or mapping.
         match input.key_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
@@ -177,7 +186,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that a mapping's value type is valid.
-        self.assert_type_is_defined(&input.value_type, input.span);
+        self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a tuple, record or mapping.
         match input.value_type {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
@@ -226,7 +235,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Type check the function's parameters.
         function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is defined.
-            self.assert_type_is_defined(&input_var.type_(), input_var.span());
+            self.assert_type_is_valid(&input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
             if matches!(input_var.type_(), Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
@@ -272,7 +281,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
                 Output::Internal(function_output) => {
                     // Check that the type of output is defined.
-                    if self.assert_type_is_defined(&function_output.type_, function_output.span) {
+                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
                         // If the function is not a transition function, then it cannot output a record.
                         if let Type::Identifier(identifier) = function_output.type_ {
                             if !matches!(function.variant, Variant::Transition)
@@ -337,7 +346,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             finalize.input.iter().for_each(|input_var| {
                 // Check that the type of input parameter is defined.
-                if self.assert_type_is_defined(&input_var.type_(), input_var.span()) {
+                if self.assert_type_is_valid(&input_var.type_(), input_var.span()) {
                     // Check that the input parameter is not a tuple.
                     if matches!(input_var.type_(), Type::Tuple(_)) {
                         self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
@@ -378,7 +387,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             finalize.output.iter().for_each(|output_type| {
                 // Check that the type of output is defined.
-                if self.assert_type_is_defined(&output_type.type_(), output_type.span()) {
+                if self.assert_type_is_valid(&output_type.type_(), output_type.span()) {
                     // Check that the output is not a tuple. This is necessary to forbid nested tuples.
                     if matches!(&output_type.type_(), Type::Tuple(_)) {
                         self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
@@ -408,7 +417,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.visit_block(&finalize.block);
 
             // Check that the return type is defined. Note that the component types are already checked.
-            self.assert_type_is_defined(&finalize.output_type, finalize.span);
+            self.assert_type_is_valid(&finalize.output_type, finalize.span);
 
             // If the function has a return type, then check that it has a return.
             if finalize.output_type != Type::Unit && !self.has_return {

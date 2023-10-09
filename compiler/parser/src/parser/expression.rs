@@ -512,7 +512,7 @@ impl ParserContext<'_> {
                 });
             }
             // Check if next token is a dot to see if we are calling recursive method.
-            if !self.check(&Token::Dot) {
+            if !(self.check(&Token::Dot) || self.check(&Token::LeftSquare)) {
                 break;
             }
         }

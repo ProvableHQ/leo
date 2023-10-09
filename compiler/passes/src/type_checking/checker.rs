@@ -16,11 +16,12 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable};
 
-use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
+use leo_ast::{ArrayType, CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
 use itertools::Itertools;
+use snarkvm_console::network::{Network, Testnet3};
 use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
@@ -1054,8 +1055,8 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Emits an error if the type or its constituent types are not defined.
-    pub(crate) fn assert_type_is_defined(&self, type_: &Type, span: Span) -> bool {
+    /// Emits an error if the type or its constituent types is not valid.
+    pub(crate) fn assert_type_is_valid(&self, type_: &Type, span: Span) -> bool {
         let mut is_defined = true;
         match type_ {
             // String types are temporarily disabled.
@@ -1071,13 +1072,25 @@ impl<'a> TypeChecker<'a> {
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.iter() {
-                    is_defined &= self.assert_type_is_defined(type_, span)
+                    is_defined &= self.assert_type_is_valid(type_, span)
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                is_defined &= self.assert_type_is_defined(&mapping_type.key, span);
-                is_defined &= self.assert_type_is_defined(&mapping_type.value, span);
+                is_defined &= self.assert_type_is_valid(&mapping_type.key, span);
+                is_defined &= self.assert_type_is_valid(&mapping_type.value, span);
+            }
+            // Check that the array element types are valid.
+            Type::Array(array_type) => {
+                // Check that the array length is valid.
+                match array_type.length() {
+                    0 => self.emit_err(TypeCheckerError::array_empty(span)),
+                    1..=Testnet3::MAX_ARRAY_ELEMENTS => {}
+                    length => {
+                        self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                    }
+                }
+                is_defined &= self.assert_type_is_valid(array_type.element_type(), span)
             }
             _ => {} // Do nothing.
         }
@@ -1091,6 +1104,11 @@ impl<'a> TypeChecker<'a> {
             Some(Type::Mapping(mapping_type)) => Some(mapping_type.clone()),
             _ => None,
         }
+    }
+
+    /// Emits an error if the type is not an array.
+    pub(crate) fn assert_array_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(|type_| matches!(type_, Type::Array(_)), "array".to_string(), type_, span);
     }
 }
 

@@ -203,7 +203,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         // Check that the type of the definition is defined.
-        self.assert_type_is_defined(&input.type_, input.span);
+        self.assert_type_is_valid(&input.type_, input.span);
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
