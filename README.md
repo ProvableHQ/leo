@@ -122,7 +122,7 @@ Thank you for helping make Leo better!
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="http://www.kestrel.edu/home/people/mccarthy/"><img src="https://avatars.githubusercontent.com/u/7607035?v=4?s=100" width="100px;" alt="Eric McCarthy"/><br /><sub><b>Eric McCarthy</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=bendyarm" title="Documentation">📖</a> <a href="#research-bendyarm" title="Research">🔬</a> <a href="#question-bendyarm" title="Answering Questions">💬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Abendyarm" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.kestrel.edu/home/people/mccarthy/"><img src="https://avatars.githubusercontent.com/u/7607035?v=4?s=100" width="100px;" alt="Eric McCarthy"/><br /><sub><b>Eric McCarthy</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=bendyarm" title="Documentation">📖</a> <a href="#research-bendyarm" title="Research">🔬</a> <a href="#question-bendyarm" title="Answering Questions">💬</a> <a href="https://github.com/AleoHQ/leo/pulls?q=is%3Apr+reviewed-by%3Abendyarm" title="Reviewed Pull Requests">👀</a> <a href="#maintenance-bendyarm" title="Maintenance">🚧</a></td>
     </tr>
   </tbody>
   <tfoot>
