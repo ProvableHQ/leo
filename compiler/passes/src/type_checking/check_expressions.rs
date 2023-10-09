@@ -100,7 +100,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     match type_ {
                         Type::Tuple(tuple) => {
                             // Check out of range access.
-                            let index = access.index.to_usize();
+                            let index = access.index.value();
                             if index > tuple.len() - 1 {
                                 self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
                             } else {
@@ -255,7 +255,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_type(&element_type, &first_type, element.span());
                     }
                     // Return the array type.
-                    Type::Array(ArrayType::new(first_type, PositiveNumber { value: input.elements.len().to_string() }))
+                    Type::Array(ArrayType::new(first_type, NonzeroNumber::from(input.elements.len())))
                 })
             }
             // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.

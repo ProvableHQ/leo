@@ -17,27 +17,47 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
-/// A number string guaranteed to be positive.
+/// A number string guaranteed to be nonzero.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub struct PositiveNumber {
-    /// The string representation of the positive number.
-    // FIXME(Centril): This should become an `u128`.
-    pub value: String,
+pub struct NonzeroNumber {
+    /// The string representation of the nonzero number.
+    string: String,
+    /// The numeric value of the nonzero number.
+    value: usize,
 }
 
-impl PositiveNumber {
+impl NonzeroNumber {
+    /// Returns the string representation of the nonzero number.
+    pub fn string(&self) -> &str {
+        &self.string
+    }
+
+    /// Returns the numeric value of the nonzero number.
+    pub fn value(&self) -> usize {
+        self.value
+    }
+
     /// Returns `true` if this number is zero.
     pub fn is_zero(&self) -> bool {
-        self.value.eq("0")
-    }
-
-    /// Converts the positive number into a `usize` or panics if it was malformed.
-    pub fn to_usize(&self) -> usize {
-        usize::from_str(&self.value).expect("failed to parse positive number")
+        self.value == 0
     }
 }
 
-impl fmt::Display for PositiveNumber {
+impl From<String> for NonzeroNumber {
+    fn from(string: String) -> Self {
+        let value = usize::from_str(&string).unwrap();
+        Self { string, value }
+    }
+}
+
+impl From<usize> for NonzeroNumber {
+    fn from(value: usize) -> Self {
+        let string = value.to_string();
+        Self { string, value }
+    }
+}
+
+impl fmt::Display for NonzeroNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
     }
