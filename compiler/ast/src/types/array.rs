@@ -41,6 +41,14 @@ impl ArrayType {
     pub fn length(&self) -> usize {
         self.length.to_usize()
     }
+
+    /// Returns the base element type of the array.
+    pub fn base_element_type(&self) -> &Type {
+        match self.element_type.as_ref() {
+            Type::Array(array_type) => array_type.base_element_type(),
+            type_ => type_,
+        }
+    }
 }
 
 impl fmt::Display for ArrayType {

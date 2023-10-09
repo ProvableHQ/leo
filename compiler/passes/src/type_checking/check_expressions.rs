@@ -20,6 +20,8 @@ use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
+use itertools::Itertools;
+use snarkvm_console::network::{Network, Testnet3};
 use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
@@ -42,7 +44,29 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
-            AccessExpression::Array(array) => todo!(),
+            AccessExpression::Array(access) => {
+                // Check that the expression is an array.
+                let array_type = self.visit_expression(&access.array, &None);
+                self.assert_array_type(&array_type, access.array.span());
+
+                // Check that the index is an integer type.
+                let index_type = self.visit_expression(&access.index, &None);
+                self.assert_int_type(&index_type, access.index.span());
+
+                // Get the element type of the array.
+                let element_type = match array_type {
+                    Some(Type::Array(array_type)) => Some(array_type.element_type().clone()),
+                    _ => None,
+                };
+
+                // If the expected type is known, then check that the element type is the same as the expected type.
+                if let Some(expected) = expected {
+                    self.assert_type(&element_type, expected, input.span());
+                }
+
+                // Return the element type of the array.
+                return element_type;
+            }
             AccessExpression::AssociatedFunction(access) => {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {
@@ -207,6 +231,51 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
         }
         None
+    }
+
+    fn visit_array(&mut self, input: &'a ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Get the types of each element expression.
+        let element_types =
+            input.elements.iter().map(|element| self.visit_expression(element, &None)).collect::<Vec<_>>();
+
+        // Construct the array type.
+        let return_type = match element_types.len() {
+            // The array cannot be empty.
+            0 => {
+                self.emit_err(TypeCheckerError::array_empty(input.span()));
+                None
+            }
+            // Check that the element types match.
+            1..=Testnet3::MAX_ARRAY_ELEMENTS => {
+                let mut element_types = element_types.into_iter();
+                // Note that this unwrap is safe because we already checked that the array is not empty.
+                element_types.next().unwrap().map(|first_type| {
+                    // Check that all elements have the same type.
+                    for (element_type, element) in element_types.zip_eq(input.elements.iter().skip(1)) {
+                        self.assert_type(&element_type, &first_type, element.span());
+                    }
+                    // Return the array type.
+                    Type::Array(ArrayType::new(first_type, PositiveNumber { value: input.elements.len().to_string() }))
+                })
+            }
+            // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.
+            num_elements => {
+                self.emit_err(TypeCheckerError::array_too_large(
+                    num_elements,
+                    Testnet3::MAX_ARRAY_ELEMENTS,
+                    input.span(),
+                ));
+                None
+            }
+        };
+
+        // If the expected type is known, then check that the array type is the same as the expected type.
+        if let Some(expected) = additional {
+            self.assert_type(&return_type, expected, input.span());
+        }
+
+        // Return the array type.
+        return_type
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
