@@ -188,19 +188,7 @@ impl<'a> CodeGenerator<'a> {
         instructions
     }
 
-    fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {
-        // TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
-        // let (operand, expression_instructions) = self.visit_expression(&input.value);
-        // self.variable_mapping.insert(&input.variable_name.name, operand);
-        // expression_instructions
-        unreachable!("DefinitionStatement's should not exist in SSA form.")
-    }
-
-    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
-        self.visit_expression(&input.expression).1
-    }
-
-    fn visit_assign(&mut self, input: &'a AssignStatement) -> String {
+    fn visit_definition(&mut self, input: &'a DefinitionStatement) -> String {
         match (&input.place, &input.value) {
             (Expression::Identifier(identifier), _) => {
                 let (operand, expression_instructions) = self.visit_expression(&input.value);
@@ -225,18 +213,24 @@ impl<'a> CodeGenerator<'a> {
                 expression_instructions
             }
             _ => unimplemented!(
-                "Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
+                "Code generation for the left-hand side of a definition is only implemented for `Identifier`s."
             ),
         }
     }
 
+    fn visit_assign(&mut self, _input: &'a AssignStatement) -> String {
+        unreachable!("AssignStatement's should not exist in SSA form.")
+    }
+
+    fn visit_expression_statement(&mut self, input: &'a ExpressionStatement) -> String {
+        self.visit_expression(&input.expression).1
+    }
+
     fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {
-        // TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
         unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
     }
 
     fn visit_iteration(&mut self, _input: &'a IterationStatement) -> String {
-        // TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 
