@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, RenameTable};
+use crate::{Definer, RenameTable};
 use leo_ast::{
     AssignStatement,
     ConditionalStatement,
@@ -33,18 +33,18 @@ use leo_ast::{
 use leo_span::Symbol;
 
 // TODO: Generalize the functionality of this reconstructor to be used in other passes.
-/// An `AssignmentRenamer` renames the left-hand side of all assignment statements in an AST node.
+/// An `DefinitionRenamer` renames the left-hand side of all definition statements in an AST node.
 /// The new names are propagated to all following identifiers.
-pub struct AssignmentRenamer<'a> {
-    pub assigner: &'a Assigner,
+pub struct DefinitionRenamer<'a> {
+    pub definer: &'a Definer,
     pub rename_table: RenameTable,
     pub is_lhs: bool,
 }
 
-impl<'a> AssignmentRenamer<'a> {
+impl<'a> DefinitionRenamer<'a> {
     /// Initialize a new `AssignmentRenamer`.
-    pub fn new(assigner: &'a Assigner) -> Self {
-        Self { assigner, rename_table: RenameTable::new(None), is_lhs: false }
+    pub fn new(definer: &'a Definer) -> Self {
+        Self { definer, rename_table: RenameTable::new(None), is_lhs: false }
     }
 
     /// Load the internal rename table with a set of entries.
@@ -60,15 +60,15 @@ impl<'a> AssignmentRenamer<'a> {
     }
 }
 
-impl ExpressionReconstructor for AssignmentRenamer<'_> {
+impl ExpressionReconstructor for DefinitionRenamer<'_> {
     type AdditionalOutput = ();
 
-    /// Rename the identifier if it is the left-hand side of an assignment, otherwise look up for a new name in the internal rename table.
+    /// Rename the identifier if it is the left-hand side of a definition, otherwise look up for a new name in the internal rename table.
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         let name = match self.is_lhs {
             // If consuming the left-hand side of an assignment, a new unique name is introduced.
             true => {
-                let new_name = self.assigner.unique_symbol(input.name, "$");
+                let new_name = self.definer.unique_symbol(input.name, "$");
                 self.rename_table.update(input.name, new_name);
                 new_name
             }
@@ -110,20 +110,27 @@ impl ExpressionReconstructor for AssignmentRenamer<'_> {
     }
 }
 
-impl StatementReconstructor for AssignmentRenamer<'_> {
-    /// Rename the left-hand side of the assignment statement.
-    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // First rename the right-hand-side of the assignment.
+impl StatementReconstructor for DefinitionRenamer<'_> {
+    /// Rename the left-hand side of the definition statement.
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // First rename the right-hand-side of the definition.
         let value = self.reconstruct_expression(input.value).0;
 
-        // Then assign a new unique name to the left-hand-side of the assignment.
-        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex assignment.
+        // Then assign a new unique name to the left-hand-side of the definition.
+        // Note that this order is necessary to ensure that the right-hand-side uses the correct name when consuming a complex definition.
         self.is_lhs = true;
         let place = self.reconstruct_expression(input.place).0;
         self.is_lhs = false;
 
         (
-            Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
+            Statement::Definition(DefinitionStatement {
+                declaration_type: input.declaration_type,
+                type_: input.type_,
+                place,
+                value,
+                span: input.span,
+                id: input.id,
+            }),
             Default::default(),
         )
     }
@@ -138,9 +145,9 @@ impl StatementReconstructor for AssignmentRenamer<'_> {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Static single assignment replaces assignment statements with definition statements.
+    fn reconstruct_assign(&mut self, _: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Loop unrolling unrolls and removes iteration statements from the program.
@@ -149,4 +156,4 @@ impl StatementReconstructor for AssignmentRenamer<'_> {
     }
 }
 
-impl ProgramReconstructor for AssignmentRenamer<'_> {}
+impl ProgramReconstructor for DefinitionRenamer<'_> {}
