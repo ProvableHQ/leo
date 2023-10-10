@@ -18,18 +18,29 @@ use crate::{Assigner, SymbolTable};
 
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
+    ArrayType,
     BinaryExpression,
     BinaryOperation,
     Block,
     Expression,
     ExpressionReconstructor,
     Identifier,
+    IntegerType,
+    Literal,
     Member,
+    MemberAccess,
     NodeBuilder,
+    NonzeroNumber,
     ReturnStatement,
     Statement,
+    Struct,
+    StructExpression,
+    StructVariableInitializer,
     TernaryExpression,
+    TupleAccess,
     TupleExpression,
+    TupleType,
     Type,
     UnitExpression,
 };
@@ -55,6 +66,8 @@ pub struct Flattener<'a> {
     pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
     /// A mapping between variables and flattened tuple expressions.
     pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
+    /// A mapping from variables to array types.
+    pub(crate) arrays: IndexMap<Symbol, ArrayType>,
 }
 
 impl<'a> Flattener<'a> {
@@ -67,6 +80,7 @@ impl<'a> Flattener<'a> {
             condition_stack: Vec::new(),
             returns: Vec::new(),
             tuples: IndexMap::new(),
+            arrays: IndexMap::new(),
         }
     }
 
@@ -189,6 +203,7 @@ impl<'a> Flattener<'a> {
     }
 
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
+    // TODO (@d0cd) Update to check for tuples and arrays
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
         let name = self.assigner.unique_symbol("$var", "$");
@@ -280,5 +295,214 @@ impl<'a> Flattener<'a> {
                 id: self.node_builder.next_id(),
             }));
         }
+    }
+
+    pub(crate) fn ternary_array(
+        &mut self,
+        array: &ArrayType,
+        condition: &Expression,
+        first: &Identifier,
+        second: &Identifier,
+    ) -> (Expression, Vec<Statement>) {
+        // Initialize a vector to accumulate any statements generated.
+        let mut statements = Vec::new();
+        // For each array element, construct a new ternary expression.
+        let elements = (0..array.length()).map(|i| {
+            // Create an assignment statement for the first access expression.
+            let (first, stmt) =
+                self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    array: Box::new(Expression::Identifier(*first)),
+                    index: Box::new(Expression::Literal(Literal::Integer(
+                        IntegerType::U32,
+                        i.to_string(),
+                        Default::default(),
+                        self.node_builder.next_id(),
+                    ))),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                })));
+            statements.push(stmt);
+            // Create an assignment statement for the second access expression.
+            let (second, stmt) =
+                self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                    array: Box::new(Expression::Identifier(*second)),
+                    index: Box::new(Expression::Literal(Literal::Integer(
+                        IntegerType::U32,
+                        i.to_string(),
+                        Default::default(),
+                        self.node_builder.next_id(),
+                    ))),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                })));
+            statements.push(stmt);
+
+            // Recursively reconstruct the ternary expression.
+            let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                condition: Box::new(condition.clone()),
+                // Access the member of the first expression.
+                if_true: Box::new(Expression::Identifier(first)),
+                // Access the member of the second expression.
+                if_false: Box::new(Expression::Identifier(second)),
+                span: Default::default(),
+                id: self.node_builder.next_id(),
+            });
+
+            // Accumulate any statements generated.
+            statements.extend(stmts);
+
+            // Create a new assignment statement for the struct expression.
+            let (identifier, statement) = self.unique_simple_assign_statement(expression);
+
+            // Mark the lhs of the assignment as an array.
+            self.arrays.insert(identifier.name, array.clone());
+
+            statements.push(statement);
+
+            (Expression::Identifier(identifier), statements)
+        });
+    }
+
+    pub(crate) fn ternary_struct(
+        &mut self,
+        struct_: &Struct,
+        condition: &Expression,
+        first: &Identifier,
+        second: &Identifier,
+    ) -> (Expression, Vec<Statement>) {
+        // Initialize a vector to accumulate any statements generated.
+        let mut statements = Vec::new();
+        // For each struct member, construct a new ternary expression.
+        let members = struct_
+            .members
+            .iter()
+            .map(|Member { identifier, .. }| {
+                // Create an assignment statement for the first access expression.
+                let (first, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: Box::new(Expression::Identifier(*first)),
+                        name: *identifier,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+                // Create an assignment statement for the second access expression.
+                let (second, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: Box::new(Expression::Identifier(*second)),
+                        name: *identifier,
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+                // Recursively reconstruct the ternary expression.
+                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    // Access the member of the first expression.
+                    if_true: Box::new(Expression::Identifier(first)),
+                    // Access the member of the second expression.
+                    if_false: Box::new(Expression::Identifier(second)),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                });
+
+                // Accumulate any statements generated.
+                statements.extend(stmts);
+
+                StructVariableInitializer {
+                    identifier: *identifier,
+                    expression: Some(expression),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                }
+            })
+            .collect();
+
+        let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
+            name: struct_.identifier,
+            members,
+            span: Default::default(),
+            id: self.node_builder.next_id(),
+        });
+
+        // Accumulate any statements generated.
+        statements.extend(stmts);
+
+        // Create a new assignment statement for the struct expression.
+        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+
+        // Mark the lhs of the assignment as a struct.
+        self.structs.insert(identifier.name, struct_.identifier.name);
+
+        statements.push(statement);
+
+        (Expression::Identifier(identifier), statements)
+    }
+
+    pub(crate) fn ternary_tuple(
+        &mut self,
+        tuple: TupleType,
+        condition: &Expression,
+        first: &Identifier,
+        second: &Identifier,
+    ) -> (Expression, Vec<Statement>) {
+        // Initialize a vector to accumulate any statements generated.
+        let mut statements = Vec::new();
+        // For each tuple element, construct a new ternary expression.
+        let elements = (0..tuple.length())
+            .map(|i| {
+                // Create an assignment statement for the first access expression.
+                let (first, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(Expression::Identifier(*first)),
+                        index: NonzeroNumber::from(i),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+                // Create an assignment statement for the second access expression.
+                let (second, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(Expression::Identifier(*second)),
+                        index: NonzeroNumber::from(i),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+
+                // Recursively reconstruct the ternary expression.
+                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    // Access the member of the first expression.
+                    if_true: Box::new(Expression::Identifier(first)),
+                    // Access the member of the second expression.
+                    if_false: Box::new(Expression::Identifier(second)),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                });
+
+                // Accumulate any statements generated.
+                statements.extend(stmts);
+
+                expression
+            })
+            .collect();
+
+        // Construct the tuple expression.
+        let tuple = TupleExpression { elements, span: Default::default(), id: self.node_builder.next_id() };
+        let (expr, stmts) = self.reconstruct_tuple(tuple.clone());
+
+        // Accumulate any statements generated.
+        statements.extend(stmts);
+
+        // Create a new assignment statement for the tuple expression.
+        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+
+        // Mark the lhs of the assignment as a tuple.
+        self.tuples.insert(identifier.name, tuple);
+
+        statements.push(statement);
+
+        (Expression::Identifier(identifier), statements)
     }
 }

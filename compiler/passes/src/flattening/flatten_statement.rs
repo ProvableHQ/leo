@@ -181,8 +181,8 @@ impl StatementReconstructor for Flattener<'_> {
                     Type::Tuple(tuple) => {
                         // Create a new tuple expression with unique identifiers for each index of the lhs.
                         let tuple_expression = TupleExpression {
-                            elements: (0..tuple.len())
-                                .zip_eq(tuple.0.iter())
+                            elements: (0..tuple.length())
+                                .zip_eq(tuple.elements().iter())
                                 .map(|(i, type_)| {
                                     let identifier = Identifier::new(
                                         self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
@@ -299,7 +299,7 @@ impl StatementReconstructor for Flattener<'_> {
                     _ => unreachable!("Type checking guarantees that the output type is a tuple."),
                 };
 
-                tuple.elements.iter().zip_eq(output_type.0.iter()).for_each(|(identifier, type_)| {
+                tuple.elements.iter().zip_eq(output_type.elements().iter()).for_each(|(identifier, type_)| {
                     let identifier = match identifier {
                         Expression::Identifier(identifier) => identifier,
                         _ => unreachable!("Type checking guarantees that a tuple element on the lhs is an identifier."),

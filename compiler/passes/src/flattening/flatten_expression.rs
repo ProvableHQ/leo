@@ -19,6 +19,7 @@ use itertools::Itertools;
 
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
     AssociatedFunction,
     Expression,
     ExpressionReconstructor,
@@ -41,6 +42,12 @@ impl ExpressionReconstructor for Flattener<'_> {
         let mut statements = Vec::new();
         (
             match input {
+                AccessExpression::Array(array) => Expression::Access(AccessExpression::Array(ArrayAccess {
+                    array: Box::new(self.reconstruct_expression(*array.array).0),
+                    index: Box::new(self.reconstruct_expression(*array.index).0),
+                    span: array.span,
+                    id: array.id,
+                })),
                 AccessExpression::AssociatedFunction(function) => {
                     Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                         ty: function.ty,
@@ -71,12 +78,14 @@ impl ExpressionReconstructor for Flattener<'_> {
                     match expr {
                         Expression::Identifier(identifier) => {
                             // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
-                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.to_usize()].clone()
+                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.value()].clone()
                         }
                         _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
                     }
                 }
-                expr => Expression::Access(expr),
+                AccessExpression::AssociatedConstant(access) => {
+                    Expression::Access(AccessExpression::AssociatedConstant(access))
+                }
             },
             statements,
         )
@@ -105,7 +114,7 @@ impl ExpressionReconstructor for Flattener<'_> {
         (Expression::Struct(StructExpression { name: input.name, members, span: input.span, id: input.id }), statements)
     }
 
-    /// Reconstructs ternary expressions over tuples and structs, accumulating any statements that are generated.
+    /// Reconstructs ternary expressions over arrays, structs, and tuples, accumulating any statements that are generated.
     /// This is necessary because Aleo instructions does not support ternary expressions over composite data types.
     /// For example, the ternary expression `cond ? (a, b) : (c, d)` is flattened into the following:
     /// ```leo
@@ -123,154 +132,6 @@ impl ExpressionReconstructor for Flattener<'_> {
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         match (*input.if_true, *input.if_false) {
-            // Folds ternary expressions over tuples into a tuple of ternary expression.
-            // Note that this branch is only invoked when folding a conditional returns.
-            (Expression::Tuple(first), Expression::Tuple(second)) => {
-                let tuple = Expression::Tuple(TupleExpression {
-                    elements: first
-                        .elements
-                        .into_iter()
-                        .zip_eq(second.elements)
-                        .map(|(if_true, if_false)| {
-                            // Reconstruct the true case.
-                            let (if_true, stmts) = self.reconstruct_expression(if_true);
-                            statements.extend(stmts);
-
-                            // Reconstruct the false case.
-                            let (if_false, stmts) = self.reconstruct_expression(if_false);
-                            statements.extend(stmts);
-
-                            // Construct a new ternary expression for the tuple element.
-                            let (ternary, stmts) = self.reconstruct_ternary(TernaryExpression {
-                                condition: input.condition.clone(),
-                                if_true: Box::new(if_true),
-                                if_false: Box::new(if_false),
-                                span: input.span,
-                                id: input.id,
-                            });
-
-                            // Accumulate any statements generated.
-                            statements.extend(stmts);
-
-                            // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the tuple element.
-                            let (identifier, statement) = self.unique_simple_assign_statement(ternary);
-                            statements.push(statement);
-
-                            // Return the identifier associated with the folded tuple element.
-                            Expression::Identifier(identifier)
-                        })
-                        .collect(),
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                });
-                (tuple, statements)
-            }
-            // If both expressions are access expressions which themselves are structs, construct ternary expression for nested struct member.
-            (
-                Expression::Access(AccessExpression::Member(first)),
-                Expression::Access(AccessExpression::Member(second)),
-            ) => {
-                // Lookup the struct symbols associated with the expressions.
-                // TODO: Remove clones
-                let first_struct_symbol =
-                    self.lookup_struct_symbol(&Expression::Access(AccessExpression::Member(first.clone())));
-                let second_struct_symbol =
-                    self.lookup_struct_symbol(&Expression::Access(AccessExpression::Member(second.clone())));
-
-                match (first_struct_symbol, second_struct_symbol) {
-                    (Some(first_struct_symbol), Some(second_struct_symbol)) => {
-                        let first_member_struct = self.symbol_table.lookup_struct(first_struct_symbol).unwrap();
-                        let second_member_struct = self.symbol_table.lookup_struct(second_struct_symbol).unwrap();
-                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_member_struct, second_member_struct);
-
-                        // For each struct member, construct a new ternary expression.
-                        let members = first_member_struct
-                            .members
-                            .iter()
-                            .map(|Member { identifier, .. }| {
-                                // Construct a new ternary expression for the struct member.
-                                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                                    condition: input.condition.clone(),
-                                    if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                        inner: Box::new(Expression::Access(AccessExpression::Member(first.clone()))),
-                                        name: *identifier,
-                                        span: Default::default(),
-                                        id: self.node_builder.next_id(),
-                                    }))),
-                                    if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                        inner: Box::new(Expression::Access(AccessExpression::Member(second.clone()))),
-                                        name: *identifier,
-                                        span: Default::default(),
-                                        id: self.node_builder.next_id(),
-                                    }))),
-                                    span: Default::default(),
-                                    id: self.node_builder.next_id(),
-                                });
-
-                                // Accumulate any statements generated.
-                                statements.extend(stmts);
-
-                                // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                                let (result, statement) = self.unique_simple_assign_statement(expression);
-                                statements.push(statement);
-
-                                StructVariableInitializer {
-                                    identifier: *identifier,
-                                    expression: Some(Expression::Identifier(result)),
-                                    span: Default::default(),
-                                    id: self.node_builder.next_id(),
-                                }
-                            })
-                            .collect();
-
-                        let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
-                            name: first_member_struct.identifier,
-                            members,
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        });
-
-                        // Accumulate any statements generated.
-                        statements.extend(stmts);
-
-                        // Create a new assignment statement for the struct expression.
-                        let (identifier, statement) = self.unique_simple_assign_statement(expr);
-
-                        // Mark the lhs of the assignment as a struct.
-                        self.structs.insert(identifier.name, first_member_struct.identifier.name);
-
-                        statements.push(statement);
-
-                        (Expression::Identifier(identifier), statements)
-                    }
-                    _ => {
-                        let if_true = Expression::Access(AccessExpression::Member(first));
-                        let if_false = Expression::Access(AccessExpression::Member(second));
-                        // Reconstruct the true case.
-                        let (if_true, stmts) = self.reconstruct_expression(if_true);
-                        statements.extend(stmts);
-
-                        // Reconstruct the false case.
-                        let (if_false, stmts) = self.reconstruct_expression(if_false);
-                        statements.extend(stmts);
-
-                        let (identifier, statement) =
-                            self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
-                                condition: input.condition,
-                                if_true: Box::new(if_true),
-                                if_false: Box::new(if_false),
-                                span: input.span,
-                                id: input.id,
-                            }));
-
-                        // Accumulate the new assignment statement.
-                        statements.push(statement);
-
-                        (Expression::Identifier(identifier), statements)
-                    }
-                }
-            }
             // If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
@@ -280,65 +141,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
                 assert_eq!(first_struct, second_struct);
 
-                // For each struct member, construct a new ternary expression.
-                let members = first_struct
-                    .members
-                    .iter()
-                    .map(|Member { identifier, .. }| {
-                        // Construct a new ternary expression for the struct member.
-                        let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                            condition: input.condition.clone(),
-                            if_true: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                inner: Box::new(Expression::Identifier(first)),
-                                name: *identifier,
-                                span: Default::default(),
-                                id: self.node_builder.next_id(),
-                            }))),
-                            if_false: Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
-                                inner: Box::new(Expression::Identifier(second)),
-                                name: *identifier,
-                                span: Default::default(),
-                                id: self.node_builder.next_id(),
-                            }))),
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        });
-
-                        // Accumulate any statements generated.
-                        statements.extend(stmts);
-
-                        // Create and accumulate an intermediate assignment statement for the ternary expression corresponding to the struct member.
-                        let (result, statement) = self.unique_simple_assign_statement(expression);
-                        statements.push(statement);
-
-                        StructVariableInitializer {
-                            identifier: *identifier,
-                            expression: Some(Expression::Identifier(result)),
-                            span: Default::default(),
-                            id: self.node_builder.next_id(),
-                        }
-                    })
-                    .collect();
-
-                let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
-                    name: first_struct.identifier,
-                    members,
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                });
-
-                // Accumulate any statements generated.
-                statements.extend(stmts);
-
-                // Create a new assignment statement for the struct expression.
-                let (identifier, statement) = self.unique_simple_assign_statement(expr);
-
-                // Mark the lhs of the assignment as a struct.
-                self.structs.insert(identifier.name, first_struct.identifier.name);
-
-                statements.push(statement);
-
-                (Expression::Identifier(identifier), statements)
+                self.ternary_struct(first_struct, &input.condition, &first, &second)
             }
             // If both expressions are identifiers which map to tuples, construct ternary expression over the tuples.
             (Expression::Identifier(first), Expression::Identifier(second))
