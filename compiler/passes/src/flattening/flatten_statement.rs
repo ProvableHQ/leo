@@ -191,7 +191,9 @@ impl StatementReconstructor for Flattener<'_> {
 
                                     // If the output type is a struct, add it to `self.structs`.
                                     if let Type::Identifier(struct_name) = type_ {
-                                        self.structs.insert(identifier.name, struct_name.name);
+                                        // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                                        let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                                        self.structs.insert(identifier.name, struct_);
                                     }
 
                                     Expression::Identifier(identifier)
@@ -217,7 +219,9 @@ impl StatementReconstructor for Flattener<'_> {
                     type_ => {
                         // If the function returns a struct, add it to `self.structs`.
                         if let Type::Identifier(struct_name) = type_ {
-                            self.structs.insert(lhs_identifier.name, struct_name.name);
+                            // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                            let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                            self.structs.insert(lhs_identifier.name, struct_);
                         };
                         (
                             Statement::Assign(Box::new(AssignStatement {
@@ -266,7 +270,9 @@ impl StatementReconstructor for Flattener<'_> {
                 };
                 // If the value type is a struct, add it to `self.structs`.
                 if let Type::Identifier(struct_name) = value_type {
-                    self.structs.insert(lhs_identifier.name, struct_name.name);
+                    // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                    let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                    self.structs.insert(lhs_identifier.name, struct_);
                 }
                 // Reconstruct the assignment.
                 (
@@ -280,8 +286,7 @@ impl StatementReconstructor for Flattener<'_> {
                 )
             }
             (Expression::Identifier(identifier), expression) => {
-                self.update_structs(&identifier, &expression);
-                (self.assigner.simple_assign_statement(identifier, expression, self.node_builder.next_id()), statements)
+                (self.simple_assign_statement(identifier, expression), statements)
             }
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Call(call)) => {
@@ -306,7 +311,9 @@ impl StatementReconstructor for Flattener<'_> {
                     };
                     // If the output type is a struct, add it to `self.structs`.
                     if let Type::Identifier(struct_name) = type_ {
-                        self.structs.insert(identifier.name, struct_name.name);
+                        // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                        let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                        self.structs.insert(identifier.name, struct_);
                     }
                 });
 

@@ -28,7 +28,9 @@ impl ProgramReconstructor for Flattener<'_> {
             self.structs = Default::default();
             for input in &finalize.input {
                 if let Type::Identifier(struct_name) = input.type_() {
-                    self.structs.insert(input.identifier().name, struct_name.name);
+                    // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                    let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                    self.structs.insert(input.identifier().name, struct_);
                 }
             }
             // Flatten the finalize block.
@@ -55,7 +57,9 @@ impl ProgramReconstructor for Flattener<'_> {
         self.structs = Default::default();
         for input in &function.input {
             if let Type::Identifier(struct_name) = input.type_() {
-                self.structs.insert(input.identifier().name, struct_name.name);
+                // Note that this unwrap is safe since type checking guarantees that the struct exists.
+                let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
+                self.structs.insert(input.identifier().name, struct_);
             }
         }
 

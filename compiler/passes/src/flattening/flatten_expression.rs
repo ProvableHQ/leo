@@ -147,10 +147,10 @@ impl ExpressionReconstructor for Flattener<'_> {
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
             {
-                let first_struct = self.symbol_table.lookup_struct(*self.structs.get(&first.name).unwrap()).unwrap();
-                let second_struct = self.symbol_table.lookup_struct(*self.structs.get(&second.name).unwrap()).unwrap();
+                let first_struct = self.structs.get(&first.name).unwrap().clone();
+                let second_struct = self.structs.get(&second.name).unwrap();
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert_eq!(first_struct, second_struct);
+                assert_eq!(&first_struct, second_struct);
 
                 self.ternary_struct(first_struct, &input.condition, &first, &second)
             }

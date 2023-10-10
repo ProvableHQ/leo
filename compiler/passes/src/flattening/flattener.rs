@@ -56,7 +56,7 @@ pub struct Flattener<'a> {
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
     /// The set of variables that are structs.
-    pub(crate) structs: IndexMap<Symbol, Symbol>,
+    pub(crate) structs: IndexMap<Symbol, Struct>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated `ReturnStatement`s.
@@ -166,41 +166,8 @@ impl<'a> Flattener<'a> {
         }
     }
 
-    /// Looks up the name of the struct associated with an identifier or access expression, if it exists.
-    pub(crate) fn lookup_struct_symbol(&self, expression: &Expression) -> Option<Symbol> {
-        match expression {
-            Expression::Identifier(identifier) => self.structs.get(&identifier.name).copied(),
-            Expression::Access(AccessExpression::Member(access)) => {
-                // The inner expression of an access expression is either an identifier or another access expression.
-                let name = self.lookup_struct_symbol(&access.inner).unwrap();
-                let struct_ = self.symbol_table.lookup_struct(name).unwrap();
-                let Member { type_, .. } =
-                    struct_.members.iter().find(|member| member.name() == access.name.name).unwrap();
-                match type_ {
-                    Type::Identifier(identifier) => Some(identifier.name),
-                    _ => None,
-                }
-            }
-            _ => None,
-        }
-    }
-
-    /// Updates `self.structs` for new assignment statements.
-    /// Expects the left hand side of the assignment to be an identifier.
-    pub(crate) fn update_structs(&mut self, lhs: &Identifier, rhs: &Expression) {
-        match rhs {
-            Expression::Struct(rhs) => {
-                self.structs.insert(lhs.name, rhs.name.name);
-            }
-            // If the rhs of the assignment is an identifier that is a struct, add it to `self.structs`.
-            Expression::Identifier(rhs) if self.structs.contains_key(&rhs.name) => {
-                // Note that this unwrap is safe because we just checked that the key exists.
-                self.structs.insert(lhs.name, *self.structs.get(&rhs.name).unwrap());
-            }
-            // Otherwise, do nothing.
-            _ => (),
-        }
-    }
+    /// Gets the type of the expression, if it's being tracked.
+    pub(crate) fn get_type(&self, expression: &Expression) -> Option<Type> {}
 
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     // TODO (@d0cd) Update to check for tuples and arrays
@@ -210,7 +177,7 @@ impl<'a> Flattener<'a> {
         // Construct the lhs of the assignment.
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
         // Construct the assignment statement.
-        let statement = self.assigner.simple_assign_statement(place, expr, self.node_builder.next_id());
+        let statement = self.simple_assign_statement(place, expr);
 
         match &statement {
             Statement::Assign(assign) => {
@@ -221,10 +188,11 @@ impl<'a> Flattener<'a> {
         (place, statement)
     }
 
-    /// A wrapper around `assigner.simple_assign_statement` that updates `self.structs`.
+    /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
-        self.update_structs(&lhs, &rhs);
-        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
+        let statement = self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id());
+        self.update_types(&statement);
+        statement
     }
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -366,7 +334,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_struct(
         &mut self,
-        struct_: &Struct,
+        struct_: Struct,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -433,7 +401,7 @@ impl<'a> Flattener<'a> {
         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
         // Mark the lhs of the assignment as a struct.
-        self.structs.insert(identifier.name, struct_.identifier.name);
+        self.structs.insert(identifier.name, struct_);
 
         statements.push(statement);
 
