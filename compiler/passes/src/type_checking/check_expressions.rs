@@ -101,11 +101,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         Type::Tuple(tuple) => {
                             // Check out of range access.
                             let index = access.index.value();
-                            if index > tuple.len() - 1 {
-                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                            if index > tuple.length() - 1 {
+                                self.emit_err(TypeCheckerError::tuple_out_of_range(
+                                    index,
+                                    tuple.length(),
+                                    access.span(),
+                                ));
                             } else {
                                 // Lookup type of tuple index.
-                                let actual = tuple.get(index).expect("failed to get tuple index").clone();
+                                let actual = tuple.elements().get(index).expect("failed to get tuple index").clone();
                                 if let Some(expected) = expected {
                                     // Emit error for mismatched types.
                                     if !actual.eq_flat(expected) {
@@ -744,15 +748,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Check the expected tuple types if they are known.
                 if let Some(Type::Tuple(expected_types)) = expected {
                     // Check actual length is equal to expected length.
-                    if expected_types.len() != input.elements.len() {
+                    if expected_types.length() != input.elements.len() {
                         self.emit_err(TypeCheckerError::incorrect_tuple_length(
-                            expected_types.len(),
+                            expected_types.length(),
                             input.elements.len(),
                             input.span(),
                         ));
                     }
 
-                    expected_types.iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
+                    expected_types.elements().iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
                         // Check that the component expression is not a tuple.
                         if matches!(expr, Expression::Tuple(_)) {
                             self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))
