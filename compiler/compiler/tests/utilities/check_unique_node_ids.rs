@@ -47,7 +47,7 @@ impl<'a> CheckUniqueNodeIds<'a> {
                 self.check_ty(&mapping.value);
             }
             Type::Tuple(tuple) => {
-                for ty in &tuple.0 {
+                for ty in tuple.elements() {
                     self.check_ty(ty);
                 }
             }
