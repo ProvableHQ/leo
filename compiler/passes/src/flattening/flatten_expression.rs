@@ -132,6 +132,17 @@ impl ExpressionReconstructor for Flattener<'_> {
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {
         let mut statements = Vec::new();
         match (*input.if_true, *input.if_false) {
+            // If both expressions are identifiers which are arrays, construct ternary expressions for each of the members and an array expression for the result.
+            (Expression::Identifier(first), Expression::Identifier(second))
+                if self.arrays.contains_key(&first.name) && self.arrays.contains_key(&second.name) =>
+            {
+                let first_array = self.arrays.get(&first.name).unwrap().clone();
+                let second_array = self.arrays.get(&second.name).unwrap();
+                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                assert_eq!(&first_array, second_array);
+
+                self.ternary_array(first_array, &input.condition, &first, &second)
+            }
             // If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.
             (Expression::Identifier(first), Expression::Identifier(second))
                 if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>

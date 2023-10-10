@@ -19,6 +19,7 @@ use crate::{Assigner, SymbolTable};
 use leo_ast::{
     AccessExpression,
     ArrayAccess,
+    ArrayExpression,
     ArrayType,
     BinaryExpression,
     BinaryOperation,
@@ -285,7 +286,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_array(
         &mut self,
-        array: &ArrayType,
+        array: ArrayType,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -293,60 +294,74 @@ impl<'a> Flattener<'a> {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each array element, construct a new ternary expression.
-        let elements = (0..array.length()).map(|i| {
-            // Create an assignment statement for the first access expression.
-            let (first, stmt) =
-                self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
-                    array: Box::new(Expression::Identifier(*first)),
-                    index: Box::new(Expression::Literal(Literal::Integer(
-                        IntegerType::U32,
-                        i.to_string(),
-                        Default::default(),
-                        self.node_builder.next_id(),
-                    ))),
+        let elements = (0..array.length())
+            .map(|i| {
+                // Create an assignment statement for the first access expression.
+                let (first, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                        array: Box::new(Expression::Identifier(*first)),
+                        index: Box::new(Expression::Literal(Literal::Integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            Default::default(),
+                            self.node_builder.next_id(),
+                        ))),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+                // Create an assignment statement for the second access expression.
+                let (second, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
+                        array: Box::new(Expression::Identifier(*second)),
+                        index: Box::new(Expression::Literal(Literal::Integer(
+                            IntegerType::U32,
+                            i.to_string(),
+                            Default::default(),
+                            self.node_builder.next_id(),
+                        ))),
+                        span: Default::default(),
+                        id: self.node_builder.next_id(),
+                    })));
+                statements.push(stmt);
+
+                // Recursively reconstruct the ternary expression.
+                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    // Access the member of the first expression.
+                    if_true: Box::new(Expression::Identifier(first)),
+                    // Access the member of the second expression.
+                    if_false: Box::new(Expression::Identifier(second)),
                     span: Default::default(),
                     id: self.node_builder.next_id(),
-                })));
-            statements.push(stmt);
-            // Create an assignment statement for the second access expression.
-            let (second, stmt) =
-                self.unique_simple_assign_statement(Expression::Access(AccessExpression::Array(ArrayAccess {
-                    array: Box::new(Expression::Identifier(*second)),
-                    index: Box::new(Expression::Literal(Literal::Integer(
-                        IntegerType::U32,
-                        i.to_string(),
-                        Default::default(),
-                        self.node_builder.next_id(),
-                    ))),
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                })));
-            statements.push(stmt);
+                });
 
-            // Recursively reconstruct the ternary expression.
-            let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                condition: Box::new(condition.clone()),
-                // Access the member of the first expression.
-                if_true: Box::new(Expression::Identifier(first)),
-                // Access the member of the second expression.
-                if_false: Box::new(Expression::Identifier(second)),
-                span: Default::default(),
-                id: self.node_builder.next_id(),
-            });
+                // Accumulate any statements generated.
+                statements.extend(stmts);
 
-            // Accumulate any statements generated.
-            statements.extend(stmts);
+                expression
+            })
+            .collect();
 
-            // Create a new assignment statement for the struct expression.
-            let (identifier, statement) = self.unique_simple_assign_statement(expression);
-
-            // Mark the lhs of the assignment as an array.
-            self.arrays.insert(identifier.name, array.clone());
-
-            statements.push(statement);
-
-            (Expression::Identifier(identifier), statements)
+        // Construct the array expression.
+        let (expr, stmts) = self.reconstruct_array(ArrayExpression {
+            elements,
+            span: Default::default(),
+            id: self.node_builder.next_id(),
         });
+
+        // Accumulate any statements generated.
+        statements.extend(stmts);
+
+        // Create a new assignment statement for the array expression.
+        let (identifier, statement) = self.unique_simple_assign_statement(expr);
+
+        // Mark the lhs of the assignment as an array.
+        self.arrays.insert(identifier.name, array);
+
+        statements.push(statement);
+
+        (Expression::Identifier(identifier), statements)
     }
 
     pub(crate) fn ternary_struct(
