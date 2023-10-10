@@ -50,8 +50,8 @@ pub struct Compiler<'a> {
     compiler_options: CompilerOptions,
     /// The `NodeCounter` used to generate sequentially increasing `NodeID`s.
     node_builder: NodeBuilder,
-    /// The `Assigner` is used to construct (unique) assignment statements.
-    assigner: Assigner,
+    /// The `Definer` is used to construct (unique) definition statements.
+    definer: Definer,
 }
 
 impl<'a> Compiler<'a> {
@@ -65,7 +65,7 @@ impl<'a> Compiler<'a> {
         compiler_options: Option<CompilerOptions>,
     ) -> Self {
         let node_builder = NodeBuilder::default();
-        let assigner = Assigner::default();
+        let assigner = Definer::default();
         Self {
             handler,
             main_file_path,
@@ -76,7 +76,7 @@ impl<'a> Compiler<'a> {
             input_ast: None,
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
-            assigner,
+            definer: assigner,
         }
     }
 
@@ -203,7 +203,7 @@ impl<'a> Compiler<'a> {
         self.ast = StaticSingleAssigner::do_pass((
             std::mem::take(&mut self.ast),
             &self.node_builder,
-            &self.assigner,
+            &self.definer,
             symbol_table,
         ))?;
 
@@ -217,7 +217,7 @@ impl<'a> Compiler<'a> {
     /// Runs the flattening pass.
     pub fn flattening_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
         self.ast =
-            Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, &self.node_builder, &self.assigner))?;
+            Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, &self.node_builder, &self.definer))?;
 
         if self.compiler_options.output.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
@@ -229,7 +229,7 @@ impl<'a> Compiler<'a> {
     /// Runs the function inlining pass.
     pub fn function_inlining_pass(&mut self, call_graph: &CallGraph) -> Result<()> {
         let ast =
-            FunctionInliner::do_pass((std::mem::take(&mut self.ast), &self.node_builder, call_graph, &self.assigner))?;
+            FunctionInliner::do_pass((std::mem::take(&mut self.ast), &self.node_builder, call_graph, &self.definer))?;
         self.ast = ast;
 
         if self.compiler_options.output.inlined_ast {

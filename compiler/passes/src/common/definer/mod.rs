@@ -14,55 +14,69 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{AssignStatement, Expression, Identifier, NodeID, Statement};
+use leo_ast::{DeclarationType, DefinitionStatement, Expression, Identifier, NodeID, Statement, Type};
 use leo_span::Symbol;
 
 use std::{cell::RefCell, fmt::Display};
 
-/// A struct used to create assignment statements.
+/// A struct used to create definition statements.
 #[derive(Debug, Default, Clone)]
-pub struct Assigner {
+pub struct Definer {
     /// The inner counter.
     /// `RefCell` is used here to avoid `&mut` all over the compiler.
-    inner: RefCell<AssignerInner>,
+    inner: RefCell<DefinerInner>,
 }
 
-impl Assigner {
+impl Definer {
     /// Return a new unique `Symbol` from a `&str`.
     pub fn unique_symbol(&self, arg: impl Display, separator: impl Display) -> Symbol {
         self.inner.borrow_mut().unique_symbol(arg, separator)
     }
 
-    /// Constructs the assignment statement `place = expr;`.
-    /// This function should be the only place where `AssignStatement`s are constructed.
-    pub fn simple_assign_statement(&self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
-        self.inner.borrow_mut().simple_assign_statement(identifier, value, id)
+    /// Constructs the definition statement `let place: type = expr;`.
+    /// This function should be the only place where `DefinitionStatement`s are constructed.
+    pub fn simple_definition_statement(
+        &self,
+        type_: Type,
+        identifier: Identifier,
+        value: Expression,
+        id: NodeID,
+    ) -> Statement {
+        self.inner.borrow_mut().simple_definition_statement(type_, identifier, value, id)
     }
 }
 
-/// Contains the actual data for `Assigner`.
+/// Contains the actual data for `Definer`.
 /// Modeled this way to afford an API using interior mutability.
 #[derive(Debug, Default, Clone)]
-pub struct AssignerInner {
+pub struct DefinerInner {
     /// A strictly increasing counter, used to ensure that new variable names are unique.
     pub(crate) counter: usize,
 }
 
-impl AssignerInner {
+impl DefinerInner {
     /// Return a new unique `Symbol` from a `&str`.
     fn unique_symbol(&mut self, arg: impl Display, separator: impl Display) -> Symbol {
         self.counter += 1;
         Symbol::intern(&format!("{}{}{}", arg, separator, self.counter - 1))
     }
 
-    /// Constructs the assignment statement `place = expr;`.
-    /// This function should be the only place where `AssignStatement`s are constructed.
-    fn simple_assign_statement(&mut self, identifier: Identifier, value: Expression, id: NodeID) -> Statement {
-        Statement::Assign(Box::new(AssignStatement {
+    /// Constructs the definition statement `place: type = expr;`.
+    /// This function should be the only place where `DefinitionStatements`s are constructed.
+    fn simple_definition_statement(
+        &mut self,
+        type_: Type,
+        identifier: Identifier,
+        value: Expression,
+        id: NodeID,
+    ) -> Statement {
+        Statement::Definition(DefinitionStatement {
+            declaration_type: DeclarationType::Let,
+            type_,
             place: Expression::Identifier(identifier),
             value,
             span: Default::default(),
             id,
-        }))
+        })
     }
 }
