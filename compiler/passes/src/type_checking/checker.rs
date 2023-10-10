@@ -1047,7 +1047,7 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, identifier.name, span))
             }
             Type::Tuple(tuple_type) => {
-                for type_ in tuple_type.iter() {
+                for type_ in tuple_type.elements().iter() {
                     self.assert_member_is_not_record(span, parent, type_)
                 }
             }
@@ -1071,7 +1071,7 @@ impl<'a> TypeChecker<'a> {
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
-                for type_ in tuple_type.iter() {
+                for type_ in tuple_type.elements().iter() {
                     is_defined &= self.assert_type_is_valid(type_, span)
                 }
             }

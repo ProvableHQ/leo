@@ -99,7 +99,7 @@ impl StatementReconstructor for Unroller<'_> {
                             "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                         ),
                     };
-                    tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, _type_)| {
+                    tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
                         let identifier = match expression {
                             Expression::Identifier(identifier) => identifier,
                             _ => unreachable!("Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.")
