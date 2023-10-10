@@ -102,7 +102,7 @@ impl ParserContext<'_> {
                 1 => Err(ParserError::tuple_must_have_at_least_two_elements("type", span).into()),
                 // Otherwise, parse it into a `Tuple` type.
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
-                _ => Ok((Type::Tuple(TupleType(types.into_iter().map(|t| t.0).collect())), span)),
+                _ => Ok((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.0).collect())), span)),
             }
         } else {
             self.parse_primitive_type()
