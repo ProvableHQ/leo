@@ -78,9 +78,11 @@ impl Type {
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) if left.len() == right.len() => {
-                left.iter().zip_eq(right.iter()).all(|(left_type, right_type)| left_type.eq_flat(right_type))
-            }
+            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
         }
     }

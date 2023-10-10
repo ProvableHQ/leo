@@ -53,7 +53,7 @@ impl Finalize {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => output[0].type_(),
-            _ => Type::Tuple(TupleType(output.iter().map(|output| output.type_()).collect())),
+            _ => Type::Tuple(TupleType::new(output.iter().map(|output| output.type_()).collect())),
         };
 
         Self { identifier, input, output, output_type, block, span, id }
