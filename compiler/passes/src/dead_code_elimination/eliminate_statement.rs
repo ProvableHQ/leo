@@ -60,48 +60,9 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
         (statement, Default::default())
     }
 
-    /// Reconstruct an assignment statement by eliminating any dead code.
-    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // Check the lhs of the assignment to see any of variables are used.
-        let lhs_is_used = match &input.place {
-            Expression::Identifier(identifier) => self.used_variables.contains(&identifier.name),
-            Expression::Tuple(tuple_expression) => tuple_expression
-                .elements
-                .iter()
-                .map(|element| match element {
-                    Expression::Identifier(identifier) => identifier.name,
-                    _ => unreachable!(
-                        "The previous compiler passes guarantee the tuple elements on the lhs are identifiers."
-                    ),
-                })
-                .any(|symbol| self.used_variables.contains(&symbol)),
-            _ => unreachable!(
-                "The previous compiler passes guarantee that `place` is either an identifier or tuple of identifiers."
-            ),
-        };
-
-        match lhs_is_used {
-            // If the lhs is used, then we return the original statement.
-            true => {
-                // Set the `is_necessary` flag.
-                self.is_necessary = true;
-
-                // Visit the statement.
-                let statement = Statement::Assign(Box::new(AssignStatement {
-                    place: input.place,
-                    value: self.reconstruct_expression(input.value).0,
-                    span: input.span,
-                    id: input.id,
-                }));
-
-                // Unset the `is_necessary` flag.
-                self.is_necessary = false;
-
-                (statement, Default::default())
-            }
-            // Otherwise, we can eliminate it.
-            false => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
-        }
+    /// Static single assignment replaces assignment statements with definition statements.
+    fn reconstruct_assign(&mut self, _: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Reconstructs the statements inside a basic block, eliminating any dead code.
@@ -126,9 +87,50 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Reconstruct a definition statement by eliminating any dead code.
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Check the lhs of the definition to see any of variables are used.
+        let lhs_is_used = match &input.place {
+            Expression::Identifier(identifier) => self.used_variables.contains(&identifier.name),
+            Expression::Tuple(tuple_expression) => tuple_expression
+                .elements
+                .iter()
+                .map(|element| match element {
+                    Expression::Identifier(identifier) => identifier.name,
+                    _ => unreachable!(
+                        "The previous compiler passes guarantee the tuple elements on the lhs are identifiers."
+                    ),
+                })
+                .any(|symbol| self.used_variables.contains(&symbol)),
+            _ => unreachable!(
+                "The previous compiler passes guarantee that `place` is either an identifier or tuple of identifiers."
+            ),
+        };
+
+        match lhs_is_used {
+            // If the lhs is used, then we return the original statement.
+            true => {
+                // Set the `is_necessary` flag.
+                self.is_necessary = true;
+
+                // Visit the statement.
+                let statement = Statement::Definition(DefinitionStatement {
+                    declaration_type: input.declaration_type,
+                    place: input.place,
+                    type_: input.type_,
+                    value: self.reconstruct_expression(input.value).0,
+                    span: input.span,
+                    id: input.id,
+                });
+
+                // Unset the `is_necessary` flag.
+                self.is_necessary = false;
+
+                (statement, Default::default())
+            }
+            // Otherwise, we can eliminate it.
+            false => (Statement::dummy(Default::default(), self.node_builder.next_id()), Default::default()),
+        }
     }
 
     /// Reconstructs expression statements by eliminating any dead code.
