@@ -28,32 +28,15 @@ use leo_ast::{
     IterationStatement,
     Statement,
     StatementReconstructor,
+    Type,
 };
 
-impl StatementReconstructor for FunctionInliner<'_> {
-    /// Reconstruct an assignment statement by inlining any function calls.
-    /// This function also segments tuple assignment statements into multiple assignment statements.
-    fn reconstruct_assign(&mut self, input: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        let (value, mut statements) = self.reconstruct_expression(input.value.clone());
-        match (input.place, value) {
-            // If the function call produces a tuple, we need to segment the tuple into multiple assignment statements.
-            (Expression::Tuple(left), Expression::Tuple(right)) if left.elements.len() == right.elements.len() => {
-                statements.extend(left.elements.into_iter().zip(right.elements).map(|(lhs, rhs)| {
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: lhs,
-                        value: rhs,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    }))
-                }));
-                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
-            }
+use itertools::Itertools;
 
-            (place, value) => (
-                Statement::Assign(Box::new(AssignStatement { place, value, span: input.span, id: input.id })),
-                statements,
-            ),
-        }
+impl StatementReconstructor for FunctionInliner<'_> {
+    /// Static single assignment replaces assignment statements with definition statements.
+    fn reconstruct_assign(&mut self, _: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     /// Reconstructs the statements inside a basic block, accumulating any statements produced by function inlining.
@@ -79,9 +62,42 @@ impl StatementReconstructor for FunctionInliner<'_> {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    /// Static single assignment replaces definition statements with assignment statements.
-    fn reconstruct_definition(&mut self, _: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Reconstruct a definition statement by inlining any function calls.
+    /// This function also segments tuple definition statements into multiple definition statements.
+    fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        let (value, mut statements) = self.reconstruct_expression(input.value.clone());
+        match (input.type_, input.place, value) {
+            // If the function call produces a tuple, we need to segment the tuple into multiple definition statements.
+            (Type::Tuple(tuple), Expression::Tuple(left), Expression::Tuple(right))
+                if left.elements.len() == right.elements.len() =>
+            {
+                statements.extend(tuple.0.into_iter().zip_eq(left.elements.into_iter().zip_eq(right.elements)).map(
+                    |(type_, (lhs, rhs))| {
+                        Statement::Definition(DefinitionStatement {
+                            declaration_type: input.declaration_type,
+                            type_,
+                            place: lhs,
+                            value: rhs,
+                            span: Default::default(),
+                            id: self.node_builder.next_id(),
+                        })
+                    },
+                ));
+                (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
+            }
+
+            (type_, place, value) => (
+                Statement::Definition(DefinitionStatement {
+                    declaration_type: input.declaration_type,
+                    type_,
+                    place,
+                    value,
+                    span: input.span,
+                    id: input.id,
+                }),
+                statements,
+            ),
+        }
     }
 
     /// Reconstructs expression statements by inlining any function calls.
