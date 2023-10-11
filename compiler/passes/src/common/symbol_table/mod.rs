@@ -22,7 +22,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Function, NodeID, Struct, Type};
+use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -50,8 +50,6 @@ pub struct SymbolTable {
     pub(crate) scope_index: usize,
     /// The sub-scopes of this scope.
     pub(crate) scopes: Vec<RefCell<SymbolTable>>,
-    /// A mapping from node IDs to types.
-    pub(crate) types: IndexMap<NodeID, Type>,
 }
 
 impl SymbolTable {
@@ -103,11 +101,6 @@ impl SymbolTable {
         self.check_shadowing(symbol, insert.span)?;
         self.variables.insert(symbol, insert);
         Ok(())
-    }
-
-    /// Inserts a type for a node ID into the symbol table.
-    pub fn insert_type(&mut self, node_id: NodeID, type_: Type) {
-        self.types.insert(node_id, type_);
     }
 
     /// Removes a variable from the symbol table.
@@ -187,11 +180,6 @@ impl SymbolTable {
     /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
-    }
-
-    /// Returns the type associated with the node ID, if it exists in the symbol table.
-    pub fn lookup_type(&self, node_id: NodeID) -> Option<&Type> {
-        self.types.get(&node_id)
     }
 
     /// Serializes the symbol table into a JSON string.
