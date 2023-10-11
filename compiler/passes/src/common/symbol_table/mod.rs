@@ -31,6 +31,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 
 // TODO (@d0cd) Consider a safe interface for the symbol table.
+// TODO (@d0cd) Cleanup API
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SymbolTable {
     /// The parent scope if it exists.
@@ -105,9 +106,8 @@ impl SymbolTable {
     }
 
     /// Inserts a type for a node ID into the symbol table.
-    pub fn insert_type(&mut self, node_id: NodeID, type_: Type) -> Result<()> {
+    pub fn insert_type(&mut self, node_id: NodeID, type_: Type) {
         self.types.insert(node_id, type_);
-        Ok(())
     }
 
     /// Removes a variable from the symbol table.
