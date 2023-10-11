@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, RenameTable, SymbolTable};
+use crate::{Definer, RenameTable, SymbolTable};
 
 use leo_ast::{Expression, Identifier, NodeBuilder, Statement};
 
@@ -27,14 +27,14 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) rename_table: RenameTable,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
     pub(crate) is_lhs: bool,
-    /// A struct used to construct (unique) assignment statements.
-    pub(crate) assigner: &'a Assigner,
+    /// A struct used to construct (unique) definition statements.
+    pub(crate) definer: &'a Definer,
 }
 
 impl<'a> StaticSingleAssigner<'a> {
     /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
-    pub(crate) fn new(node_builder: &'a NodeBuilder, symbol_table: &'a SymbolTable, assigner: &'a Assigner) -> Self {
-        Self { node_builder, symbol_table, rename_table: RenameTable::new(None), is_lhs: false, assigner }
+    pub(crate) fn new(node_builder: &'a NodeBuilder, symbol_table: &'a SymbolTable, definer: &'a Definer) -> Self {
+        Self { node_builder, symbol_table, rename_table: RenameTable::new(None), is_lhs: false, definer }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.
@@ -54,13 +54,13 @@ impl<'a> StaticSingleAssigner<'a> {
     /// The lhs is guaranteed to be unique with respect to the `Assigner`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
-        let name = self.assigner.unique_symbol("$var", "$");
+        let name = self.definer.unique_symbol("$var", "$");
 
         // Create a new identifier for the variable.
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
 
         // Construct the statement.
-        let statement = self.assigner.simple_assign_statement(place, expr, self.node_builder.next_id());
+        let statement = self.definer.simple_definition_statement(place, expr, self.node_builder.next_id());
 
         // Construct the identifier to be returned. Note that it must have a unique node ID.
         let identifier = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };

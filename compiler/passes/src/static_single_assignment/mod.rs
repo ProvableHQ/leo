@@ -59,13 +59,13 @@ mod rename_statement;
 pub mod static_single_assigner;
 pub use static_single_assigner::*;
 
-use crate::{Assigner, Pass, SymbolTable};
+use crate::{Definer, Pass, SymbolTable};
 
 use leo_ast::{Ast, NodeBuilder, ProgramConsumer};
 use leo_errors::Result;
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
-    type Input = (Ast, &'a NodeBuilder, &'a Assigner, &'a SymbolTable);
+    type Input = (Ast, &'a NodeBuilder, &'a Definer, &'a SymbolTable);
     type Output = Result<Ast>;
 
     fn do_pass((ast, node_builder, assigner, symbol_table): Self::Input) -> Self::Output {

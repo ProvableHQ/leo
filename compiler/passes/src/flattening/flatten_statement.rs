@@ -142,18 +142,18 @@ impl StatementReconstructor for Flattener<'_> {
         }
     }
 
-    /// Flattens an assign statement, if necessary.
+    /// Flattens a definition statement, if necessary.
     /// Marks variables as structs as necessary.
     /// Note that new statements are only produced if the right hand side is a ternary expression over structs.
     /// Otherwise, the statement is returned as is.
-    fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
-        // Flatten the rhs of the assignment.
-        let (value, mut statements) = self.reconstruct_expression(assign.value);
-        match (assign.place, value.clone()) {
+    fn reconstruct_definition(&mut self, definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
+        // Flatten the rhs of the definition.
+        let (value, mut statements) = self.reconstruct_expression(definition.value);
+        match (definition.place, value.clone()) {
             // If the lhs is an identifier and the rhs is a tuple, then add the tuple to `self.tuples`.
             (Expression::Identifier(identifier), Expression::Tuple(tuple)) => {
                 self.tuples.insert(identifier.name, tuple);
-                // Note that tuple assignments are removed from the AST.
+                // Note that tuple definitions are removed from the AST.
                 (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is an identifier and the rhs is an identifier that is a tuple, then add it to `self.tuples`.
@@ -163,7 +163,7 @@ impl StatementReconstructor for Flattener<'_> {
                 // Lookup the entry in `self.tuples` and add it for the lhs of the assignment.
                 // Note that the `unwrap` is safe since the match arm checks that the entry exists.
                 self.tuples.insert(lhs_identifier.name, self.tuples.get(&rhs_identifier.name).unwrap().clone());
-                // Note that tuple assignments are removed from the AST.
+                // Note that tuple definitions are removed from the AST.
                 (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is an identifier and the rhs is a function call that produces a tuple, then add it to `self.tuples`.
@@ -185,7 +185,7 @@ impl StatementReconstructor for Flattener<'_> {
                                 .zip_eq(tuple.0.iter())
                                 .map(|(i, type_)| {
                                     let identifier = Identifier::new(
-                                        self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
+                                        self.definer.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
                                         self.node_builder.next_id(),
                                     );
 
@@ -281,7 +281,10 @@ impl StatementReconstructor for Flattener<'_> {
             }
             (Expression::Identifier(identifier), expression) => {
                 self.update_structs(&identifier, &expression);
-                (self.assigner.simple_assign_statement(identifier, expression, self.node_builder.next_id()), statements)
+                (
+                    self.definer.simple_definition_statement(identifier, expression, self.node_builder.next_id()),
+                    statements,
+                )
             }
             // If the lhs is a tuple and the rhs is a function call, then return the reconstructed statement.
             (Expression::Tuple(tuple), Expression::Call(call)) => {
@@ -429,9 +432,9 @@ impl StatementReconstructor for Flattener<'_> {
         unreachable!("`ConsoleStatement`s should not be in the AST at this phase of compilation.")
     }
 
-    /// Static single assignment converts definition statements into assignment statements.
-    fn reconstruct_definition(&mut self, _definition: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`DefinitionStatement`s should not exist in the AST at this phase of compilation.")
+    /// Static single assignment converts assignment statements into definition statements.
+    fn reconstruct_assign(&mut self, _: AssignStatement) -> (Statement, Self::AdditionalOutput) {
+        unreachable!("`AssignStatement`s should not exist in the AST at this phase of compilation.")
     }
 
     // TODO: Error message requesting the user to enable loop-unrolling.

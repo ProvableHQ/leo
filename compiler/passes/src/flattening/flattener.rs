@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, SymbolTable};
+use crate::{Definer, SymbolTable};
 
 use leo_ast::{
     AccessExpression,
@@ -41,8 +41,8 @@ pub struct Flattener<'a> {
     pub(crate) symbol_table: &'a SymbolTable,
     /// A counter used to generate unique node IDs.
     pub(crate) node_builder: &'a NodeBuilder,
-    /// A struct used to construct (unique) assignment statements.
-    pub(crate) assigner: &'a Assigner,
+    /// A struct used to construct (unique) definition statements.
+    pub(crate) definer: &'a Definer,
     /// The set of variables that are structs.
     pub(crate) structs: IndexMap<Symbol, Symbol>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
@@ -57,11 +57,11 @@ pub struct Flattener<'a> {
 }
 
 impl<'a> Flattener<'a> {
-    pub(crate) fn new(symbol_table: &'a SymbolTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
+    pub(crate) fn new(symbol_table: &'a SymbolTable, node_builder: &'a NodeBuilder, assigner: &'a Definer) -> Self {
         Self {
             symbol_table,
             node_builder,
-            assigner,
+            definer: assigner,
             structs: IndexMap::new(),
             condition_stack: Vec::new(),
             returns: Vec::new(),
@@ -115,7 +115,7 @@ impl<'a> Flattener<'a> {
                 let mut construct_ternary_assignment =
                     |guard: Expression, if_true: Expression, if_false: Expression| {
                         let place = Identifier {
-                            name: self.assigner.unique_symbol(prefix, "$"),
+                            name: self.definer.unique_symbol(prefix, "$"),
                             span: Default::default(),
                             id: self.node_builder.next_id(),
                         };
@@ -190,11 +190,11 @@ impl<'a> Flattener<'a> {
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
-        let name = self.assigner.unique_symbol("$var", "$");
+        let name = self.definer.unique_symbol("$var", "$");
         // Construct the lhs of the assignment.
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
         // Construct the assignment statement.
-        let statement = self.assigner.simple_assign_statement(place, expr, self.node_builder.next_id());
+        let statement = self.definer.simple_definition_statement(place, expr, self.node_builder.next_id());
 
         match &statement {
             Statement::Assign(assign) => {
@@ -208,7 +208,7 @@ impl<'a> Flattener<'a> {
     /// A wrapper around `assigner.simple_assign_statement` that updates `self.structs`.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
         self.update_structs(&lhs, &rhs);
-        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
+        self.definer.simple_definition_statement(lhs, rhs, self.node_builder.next_id())
     }
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.

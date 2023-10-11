@@ -95,7 +95,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
         self.is_lhs = false;
 
-        statements.push(self.assigner.simple_assign_statement(place, value, self.node_builder.next_id()));
+        statements.push(self.definer.simple_definition_statement(place, value, self.node_builder.next_id()));
 
         statements
     }
@@ -180,7 +180,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
-                let new_name = self.assigner.unique_symbol(symbol, "$");
+                let new_name = self.definer.unique_symbol(symbol, "$");
 
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
@@ -193,7 +193,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 statements.extend(stmts);
 
                 // Create a new `AssignStatement` for the phi function.
-                let assignment = self.assigner.simple_assign_statement(
+                let assignment = self.definer.simple_definition_statement(
                     Identifier { name: new_name, span: Default::default(), id: self.node_builder.next_id() },
                     value,
                     self.node_builder.next_id(),
@@ -233,7 +233,11 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     Expression::Identifier(identifier) => identifier,
                     _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
                 };
-                statements.push(self.assigner.simple_assign_statement(identifier, value, self.node_builder.next_id()));
+                statements.push(self.definer.simple_definition_statement(
+                    identifier,
+                    value,
+                    self.node_builder.next_id(),
+                ));
             }
             Expression::Tuple(tuple) => {
                 let elements = tuple.elements.into_iter().map(|element| {
