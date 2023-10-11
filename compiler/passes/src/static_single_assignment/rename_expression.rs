@@ -283,7 +283,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
                 let new_name = self.assigner.unique_symbol(identifier.name, "$");
-                self.rename_table.update(identifier.name, new_name);
+                self.rename_table.update(identifier.name, new_name, identifier.id);
                 new_name
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
