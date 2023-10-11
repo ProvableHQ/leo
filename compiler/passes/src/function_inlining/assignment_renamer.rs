@@ -24,6 +24,7 @@ use leo_ast::{
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
+    NodeID,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -48,9 +49,9 @@ impl<'a> AssignmentRenamer<'a> {
     }
 
     /// Load the internal rename table with a set of entries.
-    pub fn load(&mut self, entries: impl Iterator<Item = (Symbol, Symbol)>) {
-        for (key, value) in entries {
-            self.rename_table.update(key, value);
+    pub fn load(&mut self, entries: impl Iterator<Item = (Symbol, Symbol, NodeID)>) {
+        for (key, value, id) in entries {
+            self.rename_table.update(key, value, id);
         }
     }
 
@@ -69,7 +70,7 @@ impl ExpressionReconstructor for AssignmentRenamer<'_> {
             // If consuming the left-hand side of an assignment, a new unique name is introduced.
             true => {
                 let new_name = self.assigner.unique_symbol(input.name, "$");
-                self.rename_table.update(input.name, new_name);
+                self.rename_table.update(input.name, new_name, input.id);
                 new_name
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
