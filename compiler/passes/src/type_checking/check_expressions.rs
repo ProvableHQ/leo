@@ -59,7 +59,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
         };
         // If the output type is known, add the expression and its associated type to the symbol table.
         if let Some(type_) = &output {
-            self.symbol_table.borrow_mut().insert_type(input.id(), type_.clone());
+            self.type_table.insert(input.id(), type_.clone());
         }
         // Return the output type.
         output

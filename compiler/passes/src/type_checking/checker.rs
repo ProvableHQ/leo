@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{ArrayType, CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
@@ -27,6 +27,8 @@ use std::cell::RefCell;
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// A mapping from nod IDs to their respective type.
+    pub(crate) type_table: TypeTable,
     /// A dependency graph of the structs in program.
     pub(crate) struct_graph: StructGraph,
     /// The call graph for the program.
@@ -104,6 +106,7 @@ impl<'a> TypeChecker<'a> {
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
             symbol_table: RefCell::new(symbol_table),
+            type_table: Default::default(),
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,

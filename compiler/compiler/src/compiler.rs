@@ -173,12 +173,16 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the type checker pass.
-    pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((&self.ast, self.handler, symbol_table))?;
+    pub fn type_checker_pass(
+        &'a self,
+        symbol_table: SymbolTable,
+    ) -> Result<(SymbolTable, TypeTable, StructGraph, CallGraph)> {
+        let (symbol_table, type_table, struct_graph, call_graph) =
+            TypeChecker::do_pass((&self.ast, self.handler, symbol_table))?;
         if self.compiler_options.output.type_checked_symbol_table {
             self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
         }
-        Ok((symbol_table, struct_graph, call_graph))
+        Ok((symbol_table, type_table, struct_graph, call_graph))
     }
 
     /// Runs the loop unrolling pass.
@@ -265,7 +269,7 @@ impl<'a> Compiler<'a> {
     /// Runs the compiler stages.
     pub fn compiler_stages(&mut self) -> Result<(SymbolTable, StructGraph, CallGraph)> {
         let st = self.symbol_table_pass()?;
-        let (st, struct_graph, call_graph) = self.type_checker_pass(st)?;
+        let (st, _, struct_graph, call_graph) = self.type_checker_pass(st)?;
 
         // TODO: Make this pass optional.
         let st = self.loop_unrolling_pass(st)?;
