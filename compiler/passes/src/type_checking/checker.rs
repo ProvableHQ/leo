@@ -27,7 +27,7 @@ use std::cell::RefCell;
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
-    /// A mapping from nod IDs to their respective type.
+    /// A mapping from node IDs to their types.
     pub(crate) type_table: TypeTable,
     /// A dependency graph of the structs in program.
     pub(crate) struct_graph: StructGraph,
