@@ -59,7 +59,7 @@ workspace = true
 features = [ "circuit", "console" ]
 
 [dev-dependencies.regex]
-version = "1.9.6"
+version = "1.10.0"
 
 [dev-dependencies.serde]
 version = "1.0.183"
