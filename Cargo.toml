@@ -45,7 +45,7 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.15.3"
+version = "0.15.4"
 
 
 [workspace.dependencies.snarkvm-console]
