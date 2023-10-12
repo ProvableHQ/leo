@@ -72,4 +72,16 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
             self.handler.emit_err(err);
         }
     }
+
+    fn visit_stub(&mut self, input: &'a Stub) {
+        input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
+
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+    }
+
+    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+        if let Err(err) = self.symbol_table.insert_fn(input.name(), &Function::from(input.clone())) {
+            self.handler.emit_err(err);
+        }
+    }
 }
