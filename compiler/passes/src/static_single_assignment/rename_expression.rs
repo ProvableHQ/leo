@@ -298,7 +298,9 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
-        (Expression::Literal(input), Default::default())
+        // Construct and accumulate a new assignment statement for the literal.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Literal(input));
+        (Expression::Identifier(place), vec![statement])
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.

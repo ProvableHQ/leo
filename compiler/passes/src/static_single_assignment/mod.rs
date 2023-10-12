@@ -65,13 +65,13 @@ use leo_ast::{Ast, NodeBuilder, ProgramConsumer};
 use leo_errors::Result;
 
 impl<'a> Pass for StaticSingleAssigner<'a> {
-    type Input = (Ast, &'a NodeBuilder, &'a Assigner, &'a SymbolTable, TypeTable);
-    type Output = Result<(Ast, TypeTable)>;
+    type Input = (Ast, &'a NodeBuilder, &'a Assigner, &'a SymbolTable, &'a TypeTable);
+    type Output = Result<Ast>;
 
     fn do_pass((ast, node_builder, assigner, symbol_table, type_table): Self::Input) -> Self::Output {
         let mut consumer = StaticSingleAssigner::new(node_builder, symbol_table, type_table, assigner);
         let program = consumer.consume_program(ast.into_repr());
 
-        Ok((Ast::new(program), consumer.type_table))
+        Ok(Ast::new(program))
     }
 }
