@@ -1,6 +1,6 @@
 /*
-namespace: Parse
-expectation: Pass
+namespace: Compile
+expectation: Fail
 */
 
 stub credits.aleo {
@@ -8,12 +8,6 @@ stub credits.aleo {
         owner: address,
         micrcredits: u64,
     }
-    struct Row {
-        c1: u8,
-        c2: u8,
-        c3: u8
-    }
-    mapping num_winners: u8 => u8;
 
     record board_state {
         owner: address,
@@ -48,11 +42,20 @@ stub credits.aleo {
     finalize foo() {
         let c:u8 = 1u8;
     }
+
+    struct Row {
+        c1: u8,
+        c2: u8,
+        c3: u8
+    }
+    mapping num_winners: u8 => u8;
 }
 
 program test.aleo {
-    transition foo(arg1: address, arg1: u64, cred: credits.aleo/credits)->credits.aleo/credits {
+    transition main(arg1: address, arg2: u64, arg3: credits.aleo/credits) -> credits.aleo/credits {
+        // External call
         credits.aleo/transfer_public(arg1, arg2);
-        credits.leo/transfer_public(arg1, arg2);
+
+        return mint(arg1, arg2);
     }
 }

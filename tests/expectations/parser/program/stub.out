@@ -576,55 +576,72 @@ outputs:
                       lo: 1345
                       hi: 1349
                     id: 126
-              output: []
-              output_type: Unit
+                - External:
+                    identifier: "{\"id\":\"127\",\"name\":\"cred\",\"span\":\"{\\\"lo\\\":1356,\\\"hi\\\":1360}\"}"
+                    program_name: "{\"id\":\"128\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1362,\\\"hi\\\":1369}\"}"
+                    record: "{\"id\":\"129\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1375,\\\"hi\\\":1382}\"}"
+                    span:
+                      lo: 1356
+                      hi: 1382
+                    id: 130
+              output:
+                - External:
+                    identifier: "{\"id\":\"133\",\"name\":\"dummy\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
+                    program_name: "{\"id\":\"131\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1385,\\\"hi\\\":1392}\"}"
+                    record: "{\"id\":\"132\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1398,\\\"hi\\\":1405}\"}"
+                    span:
+                      lo: 1385
+                      hi: 1405
+                    id: 134
+              output_type:
+                Identifier: "{\"id\":\"132\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1398,\\\"hi\\\":1405}\"}"
               block:
                 statements:
                   - Expression:
                       expression:
                         Call:
                           function:
-                            Identifier: "{\"id\":\"128\",\"name\":\"transfer_public\",\"span\":\"{\\\"lo\\\":1379,\\\"hi\\\":1394}\"}"
+                            Identifier: "{\"id\":\"136\",\"name\":\"transfer_public\",\"span\":\"{\\\"lo\\\":1429,\\\"hi\\\":1444}\"}"
                           arguments:
-                            - Identifier: "{\"id\":\"129\",\"name\":\"arg1\",\"span\":\"{\\\"lo\\\":1395,\\\"hi\\\":1399}\"}"
-                            - Identifier: "{\"id\":\"130\",\"name\":\"arg2\",\"span\":\"{\\\"lo\\\":1401,\\\"hi\\\":1405}\"}"
+                            - Identifier: "{\"id\":\"137\",\"name\":\"arg1\",\"span\":\"{\\\"lo\\\":1445,\\\"hi\\\":1449}\"}"
+                            - Identifier: "{\"id\":\"138\",\"name\":\"arg2\",\"span\":\"{\\\"lo\\\":1451,\\\"hi\\\":1455}\"}"
                           external:
-                            Identifier: "{\"id\":\"127\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1366,\\\"hi\\\":1373}\"}"
+                            Identifier: "{\"id\":\"135\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1416,\\\"hi\\\":1423}\"}"
                           span:
-                            lo: 1366
-                            hi: 1406
-                          id: 131
+                            lo: 1416
+                            hi: 1456
+                          id: 139
                       span:
-                        lo: 1366
-                        hi: 1407
-                      id: 132
+                        lo: 1416
+                        hi: 1457
+                      id: 140
                   - Expression:
                       expression:
                         Call:
                           function:
-                            Identifier: "{\"id\":\"134\",\"name\":\"transfer_public\",\"span\":\"{\\\"lo\\\":1428,\\\"hi\\\":1443}\"}"
+                            Identifier: "{\"id\":\"142\",\"name\":\"transfer_public\",\"span\":\"{\\\"lo\\\":1478,\\\"hi\\\":1493}\"}"
                           arguments:
-                            - Identifier: "{\"id\":\"135\",\"name\":\"arg1\",\"span\":\"{\\\"lo\\\":1444,\\\"hi\\\":1448}\"}"
-                            - Identifier: "{\"id\":\"136\",\"name\":\"arg2\",\"span\":\"{\\\"lo\\\":1450,\\\"hi\\\":1454}\"}"
+                            - Identifier: "{\"id\":\"143\",\"name\":\"arg1\",\"span\":\"{\\\"lo\\\":1494,\\\"hi\\\":1498}\"}"
+                            - Identifier: "{\"id\":\"144\",\"name\":\"arg2\",\"span\":\"{\\\"lo\\\":1500,\\\"hi\\\":1504}\"}"
                           external:
-                            Identifier: "{\"id\":\"133\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1416,\\\"hi\\\":1423}\"}"
+                            Identifier: "{\"id\":\"141\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":1466,\\\"hi\\\":1473}\"}"
                           span:
-                            lo: 1416
-                            hi: 1455
-                          id: 137
+                            lo: 1466
+                            hi: 1505
+                          id: 145
                       span:
-                        lo: 1416
-                        hi: 1456
-                      id: 138
+                        lo: 1466
+                        hi: 1506
+                      id: 146
                 span:
-                  lo: 1356
-                  hi: 1462
-                id: 139
+                  lo: 1406
+                  hi: 1512
+                id: 147
               finalize: ~
               span:
                 lo: 1315
-                hi: 1462
-              id: 140
+                hi: 1512
+              id: 148
         span:
           lo: 1291
-          hi: 1464
+          hi: 1514

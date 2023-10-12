@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372003]: Expected type `u64` but type `u32` was found\n    --> compiler-test:15:33\n     |\n  15 |         credits.aleo/mint(arg1, 1u32);\n     |                                 ^^^^\n"

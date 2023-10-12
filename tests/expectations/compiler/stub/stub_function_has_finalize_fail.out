@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372087]: Function stubs finalize blocks\n    --> compiler-test:10:7\n     |\n  10 |     } finalize mint() {\n  11 |         let a:u8 = 1u8;\n  12 |     }\n     |      ^\n"
