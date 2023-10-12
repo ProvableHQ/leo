@@ -226,7 +226,7 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
-    let (st, _, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
+    let (st, struct_graph, call_graph) = parsed.type_checker_pass(st)?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
 
