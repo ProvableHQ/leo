@@ -25,11 +25,12 @@ use leo_ast::{
     ExpressionReconstructor,
     Member,
     MemberAccess,
+    Node,
     Statement,
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
-    TupleExpression,
+    Type,
 };
 
 // TODO: Clean up logic. To be done in a follow-up PR (feat/tuples)
@@ -133,68 +134,55 @@ impl ExpressionReconstructor for Flattener<'_> {
         let mut statements = Vec::new();
         match (*input.if_true, *input.if_false) {
             // If both expressions are identifiers which are arrays, construct ternary expressions for each of the members and an array expression for the result.
-            (Expression::Identifier(first), Expression::Identifier(second))
-                if self.arrays.contains_key(&first.name) && self.arrays.contains_key(&second.name) =>
-            {
-                let first_array = self.arrays.get(&first.name).unwrap().clone();
-                let second_array = self.arrays.get(&second.name).unwrap();
-                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert_eq!(&first_array, second_array);
+            (Expression::Identifier(first), Expression::Identifier(second)) => {
+                match (self.type_table.get(&first.id()), self.type_table.get(&second.id())) {
+                    (Some(Type::Array(first_type)), Some(Type::Array(second_type))) => {
+                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                        assert_eq!(first_type, second_type);
+                        self.ternary_array(&first_type, &input.condition, &first, &second)
+                    }
+                    (Some(Type::Identifier(first_type)), Some(Type::Identifier(second_type))) => {
+                        // Get the struct definitions.
+                        let first_type = self.symbol_table.lookup_struct(first_type.name).unwrap();
+                        let second_type = self.symbol_table.lookup_struct(second_type.name).unwrap();
+                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                        assert_eq!(first_type, second_type);
+                        self.ternary_struct(first_type, &input.condition, &first, &second)
+                    }
+                    (Some(Type::Tuple(first_type)), Some(Type::Tuple(second_type))) => {
+                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                        assert_eq!(first_type, second_type);
+                        self.ternary_tuple(&first_type, &input.condition, &first, &second)
+                    }
+                    _ => {
+                        // Reconstruct the true case.
+                        let (if_true, stmts) = self.reconstruct_expression(Expression::Identifier(first));
+                        statements.extend(stmts);
 
-                self.ternary_array(first_array, &input.condition, &first, &second)
+                        // Reconstruct the false case.
+                        let (if_false, stmts) = self.reconstruct_expression(Expression::Identifier(second));
+                        statements.extend(stmts);
+
+                        let (identifier, statement) =
+                            self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
+                                condition: input.condition,
+                                if_true: Box::new(if_true),
+                                if_false: Box::new(if_false),
+                                span: input.span,
+                                id: input.id,
+                            }));
+
+                        // Accumulate the new assignment statement.
+                        statements.push(statement);
+
+                        (Expression::Identifier(identifier), statements)
+                    }
+                }
             }
-            // If both expressions are identifiers which are structs, construct ternary expression for each of the members and a struct expression for the result.
-            (Expression::Identifier(first), Expression::Identifier(second))
-                if self.structs.contains_key(&first.name) && self.structs.contains_key(&second.name) =>
-            {
-                let first_struct = self.structs.get(&first.name).unwrap().clone();
-                let second_struct = self.structs.get(&second.name).unwrap();
-                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert_eq!(&first_struct, second_struct);
-
-                self.ternary_struct(first_struct, &input.condition, &first, &second)
-            }
-            // If both expressions are identifiers which map to tuples, construct ternary expression over the tuples.
-            (Expression::Identifier(first), Expression::Identifier(second))
-                if self.tuples.contains_key(&first.name) && self.tuples.contains_key(&second.name) =>
-            {
-                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
-                let first_tuple = self.tuples.get(&first.name).unwrap();
-                // Note that this unwrap is safe since we check that `self.tuples` contains the key.
-                let second_tuple = self.tuples.get(&second.name).unwrap();
-                // Note that type checking guarantees that both expressions have the same same type.
-                self.reconstruct_ternary(TernaryExpression {
-                    condition: input.condition,
-                    if_true: Box::new(Expression::Tuple(first_tuple.clone())),
-                    if_false: Box::new(Expression::Tuple(second_tuple.clone())),
-                    span: input.span,
-                    id: input.id,
-                })
-            }
-            // Otherwise, create a new intermediate assignment for the ternary expression are return the assigned variable.
-            // Note that a new assignment must be created to flattened nested ternary expressions.
-            (if_true, if_false) => {
-                // Reconstruct the true case.
-                let (if_true, stmts) = self.reconstruct_expression(if_true);
-                statements.extend(stmts);
-
-                // Reconstruct the false case.
-                let (if_false, stmts) = self.reconstruct_expression(if_false);
-                statements.extend(stmts);
-
-                let (identifier, statement) =
-                    self.unique_simple_assign_statement(Expression::Ternary(TernaryExpression {
-                        condition: input.condition,
-                        if_true: Box::new(if_true),
-                        if_false: Box::new(if_false),
-                        span: input.span,
-                        id: input.id,
-                    }));
-
-                // Accumulate the new assignment statement.
-                statements.push(statement);
-
-                (Expression::Identifier(identifier), statements)
+            (expr1, expr2) => {
+                println!("expr1: {:?}", expr1);
+                println!("expr2: {:?}", expr2);
+                unreachable!("SSA guarantees that the subexpressions of a ternary expression are identifiers.")
             }
         }
     }

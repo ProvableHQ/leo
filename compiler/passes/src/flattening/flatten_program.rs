@@ -24,15 +24,6 @@ impl ProgramReconstructor for Flattener<'_> {
         // First, flatten the finalize block. This allows us to initialize self.finalizes correctly.
         // Note that this is safe since the finalize block is independent of the function body.
         let finalize = function.finalize.map(|finalize| {
-            // Initialize `self.structs` with the finalize's input as necessary.
-            self.structs = Default::default();
-            for input in &finalize.input {
-                if let Type::Identifier(struct_name) = input.type_() {
-                    // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                    let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                    self.structs.insert(input.identifier().name, struct_);
-                }
-            }
             // Flatten the finalize block.
             let mut block = self.reconstruct_block(finalize.block).0;
 
@@ -52,16 +43,6 @@ impl ProgramReconstructor for Flattener<'_> {
                 id: finalize.id,
             }
         });
-
-        // Initialize `self.structs` with the function's input as necessary.
-        self.structs = Default::default();
-        for input in &function.input {
-            if let Type::Identifier(struct_name) = input.type_() {
-                // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                self.structs.insert(input.identifier().name, struct_);
-            }
-        }
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;

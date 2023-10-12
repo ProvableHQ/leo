@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, SymbolTable};
+use crate::{Assigner, SymbolTable, TypeTable};
 
 use leo_ast::{
     AccessExpression,
@@ -31,6 +31,7 @@ use leo_ast::{
     Literal,
     Member,
     MemberAccess,
+    Node,
     NodeBuilder,
     NonzeroNumber,
     ReturnStatement,
@@ -49,15 +50,17 @@ use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
+// TODO: TypeTable should be placed behind a RefCell.
+
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
     pub(crate) symbol_table: &'a SymbolTable,
+    /// A mapping between node IDs and their types.
+    pub(crate) type_table: &'a TypeTable,
     /// A counter used to generate unique node IDs.
     pub(crate) node_builder: &'a NodeBuilder,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
-    /// The set of variables that are structs.
-    pub(crate) structs: IndexMap<Symbol, Struct>,
     /// A stack of condition `Expression`s visited up to the current point in the AST.
     pub(crate) condition_stack: Vec<Expression>,
     /// A list containing tuples of guards and expressions associated `ReturnStatement`s.
@@ -67,21 +70,23 @@ pub struct Flattener<'a> {
     pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
     /// A mapping between variables and flattened tuple expressions.
     pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
-    /// A mapping from variables to array types.
-    pub(crate) arrays: IndexMap<Symbol, ArrayType>,
 }
 
 impl<'a> Flattener<'a> {
-    pub(crate) fn new(symbol_table: &'a SymbolTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
+    pub(crate) fn new(
+        symbol_table: &'a SymbolTable,
+        type_table: &'a TypeTable,
+        node_builder: &'a NodeBuilder,
+        assigner: &'a Assigner,
+    ) -> Self {
         Self {
             symbol_table,
+            type_table,
             node_builder,
             assigner,
-            structs: IndexMap::new(),
             condition_stack: Vec::new(),
             returns: Vec::new(),
             tuples: IndexMap::new(),
-            arrays: IndexMap::new(),
         }
     }
 
@@ -97,12 +102,19 @@ impl<'a> Flattener<'a> {
             false => {
                 let (first, rest) = self.condition_stack.split_first().unwrap();
                 Some(rest.iter().cloned().fold(first.clone(), |acc, condition| {
+                    // Construct the binary expression.
                     Expression::Binary(BinaryExpression {
                         op: BinaryOperation::And,
                         left: Box::new(acc),
                         right: Box::new(condition),
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the binary expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, Type::Boolean);
+                            id
+                        },
                     })
                 }))
             }
@@ -136,11 +148,22 @@ impl<'a> Flattener<'a> {
                             id: self.node_builder.next_id(),
                         };
                         let (value, stmts) = self.reconstruct_ternary(TernaryExpression {
+                            id: {
+                                // Create a new node ID for the ternary expression.
+                                let id = self.node_builder.next_id();
+                                // Get the type of the node ID.
+                                let type_ = match self.type_table.get(&if_true.id()) {
+                                    Some(type_) => type_,
+                                    None => unreachable!("Type checking guarantees that all expressions have a type."),
+                                };
+                                // Set the type of the node ID.
+                                self.type_table.insert(id, type_);
+                                id
+                            },
                             condition: Box::new(guard),
                             if_true: Box::new(if_true),
                             if_false: Box::new(if_false),
                             span: Default::default(),
-                            id: self.node_builder.next_id(),
                         });
                         statements.extend(stmts);
 
@@ -167,11 +190,7 @@ impl<'a> Flattener<'a> {
         }
     }
 
-    /// Gets the type of the expression, if it's being tracked.
-    pub(crate) fn get_type(&self, expression: &Expression) -> Option<Type> {}
-
     /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
-    // TODO (@d0cd) Update to check for tuples and arrays
     pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
         // Create a new variable for the expression.
         let name = self.assigner.unique_symbol("$var", "$");
@@ -180,20 +199,19 @@ impl<'a> Flattener<'a> {
         // Construct the assignment statement.
         let statement = self.simple_assign_statement(place, expr);
 
-        match &statement {
-            Statement::Assign(assign) => {
-                self.update_structs(&place, &assign.value);
-            }
-            _ => unreachable!("`assigner.unique_simple_assign_statement` always returns an assignment statement."),
-        }
         (place, statement)
     }
 
     /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
     pub(crate) fn simple_assign_statement(&mut self, lhs: Identifier, rhs: Expression) -> Statement {
-        let statement = self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id());
-        self.update_types(&statement);
-        statement
+        // Update the type table.
+        let type_ = match self.type_table.get(&rhs.id()) {
+            Some(type_) => type_,
+            None => unreachable!("Type checking guarantees that all expressions have a type."),
+        };
+        self.type_table.insert(lhs.id(), type_);
+        // Construct the statement.
+        self.assigner.simple_assign_statement(lhs, rhs, self.node_builder.next_id())
     }
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
@@ -268,7 +286,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_array(
         &mut self,
-        array: ArrayType,
+        array: &ArrayType,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -286,10 +304,22 @@ impl<'a> Flattener<'a> {
                             IntegerType::U32,
                             i.to_string(),
                             Default::default(),
-                            self.node_builder.next_id(),
+                            {
+                                // Create a new node ID for the literal.
+                                let id = self.node_builder.next_id();
+                                // Set the type of the node ID.
+                                self.type_table.insert(id, Type::Integer(IntegerType::U32));
+                                id
+                            },
                         ))),
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, array.element_type().clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
@@ -300,10 +330,22 @@ impl<'a> Flattener<'a> {
                             IntegerType::U32,
                             i.to_string(),
                             Default::default(),
-                            self.node_builder.next_id(),
+                            {
+                                // Create a new node ID for the literal.
+                                let id = self.node_builder.next_id();
+                                // Set the type of the node ID.
+                                self.type_table.insert(id, Type::Integer(IntegerType::U32));
+                                id
+                            },
                         ))),
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, array.element_type().clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
 
@@ -315,7 +357,13 @@ impl<'a> Flattener<'a> {
                     // Access the member of the second expression.
                     if_false: Box::new(Expression::Identifier(second)),
                     span: Default::default(),
-                    id: self.node_builder.next_id(),
+                    id: {
+                        // Create a new node ID for the ternary expression.
+                        let id = self.node_builder.next_id();
+                        // Set the type of the node ID.
+                        self.type_table.insert(id, array.element_type().clone());
+                        id
+                    },
                 });
 
                 // Accumulate any statements generated.
@@ -329,7 +377,13 @@ impl<'a> Flattener<'a> {
         let (expr, stmts) = self.reconstruct_array(ArrayExpression {
             elements,
             span: Default::default(),
-            id: self.node_builder.next_id(),
+            id: {
+                // Create a node ID for the array expression.
+                let id = self.node_builder.next_id();
+                // Set the type of the node ID.
+                self.type_table.insert(id, Type::Array(array.clone()));
+                id
+            },
         });
 
         // Accumulate any statements generated.
@@ -338,9 +392,6 @@ impl<'a> Flattener<'a> {
         // Create a new assignment statement for the array expression.
         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
-        // Mark the lhs of the assignment as an array.
-        self.arrays.insert(identifier.name, array);
-
         statements.push(statement);
 
         (Expression::Identifier(identifier), statements)
@@ -348,7 +399,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_struct(
         &mut self,
-        struct_: Struct,
+        struct_: &Struct,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -359,14 +410,20 @@ impl<'a> Flattener<'a> {
         let members = struct_
             .members
             .iter()
-            .map(|Member { identifier, .. }| {
+            .map(|Member { identifier, type_, .. }| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) =
                     self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
                         inner: Box::new(Expression::Identifier(*first)),
                         name: *identifier,
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
@@ -375,7 +432,13 @@ impl<'a> Flattener<'a> {
                         inner: Box::new(Expression::Identifier(*second)),
                         name: *identifier,
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
                 // Recursively reconstruct the ternary expression.
@@ -386,7 +449,13 @@ impl<'a> Flattener<'a> {
                     // Access the member of the second expression.
                     if_false: Box::new(Expression::Identifier(second)),
                     span: Default::default(),
-                    id: self.node_builder.next_id(),
+                    id: {
+                        // Create a new node ID for the ternary expression.
+                        let id = self.node_builder.next_id();
+                        // Set the type of the node ID.
+                        self.type_table.insert(id, type_.clone());
+                        id
+                    },
                 });
 
                 // Accumulate any statements generated.
@@ -405,7 +474,13 @@ impl<'a> Flattener<'a> {
             name: struct_.identifier,
             members,
             span: Default::default(),
-            id: self.node_builder.next_id(),
+            id: {
+                // Create a new node ID for the struct expression.
+                let id = self.node_builder.next_id();
+                // Set the type of the node ID.
+                self.type_table.insert(id, Type::Identifier(struct_.identifier));
+                id
+            },
         });
 
         // Accumulate any statements generated.
@@ -414,9 +489,6 @@ impl<'a> Flattener<'a> {
         // Create a new assignment statement for the struct expression.
         let (identifier, statement) = self.unique_simple_assign_statement(expr);
 
-        // Mark the lhs of the assignment as a struct.
-        self.structs.insert(identifier.name, struct_);
-
         statements.push(statement);
 
         (Expression::Identifier(identifier), statements)
@@ -424,7 +496,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_tuple(
         &mut self,
-        tuple: TupleType,
+        tuple_type: &TupleType,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -432,15 +504,24 @@ impl<'a> Flattener<'a> {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each tuple element, construct a new ternary expression.
-        let elements = (0..tuple.length())
-            .map(|i| {
+        let elements = tuple_type
+            .elements()
+            .iter()
+            .enumerate()
+            .map(|(i, type_)| {
                 // Create an assignment statement for the first access expression.
                 let (first, stmt) =
                     self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(*first)),
                         index: NonzeroNumber::from(i),
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
                 // Create an assignment statement for the second access expression.
@@ -449,7 +530,13 @@ impl<'a> Flattener<'a> {
                         tuple: Box::new(Expression::Identifier(*second)),
                         index: NonzeroNumber::from(i),
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
                     })));
                 statements.push(stmt);
 
@@ -461,7 +548,13 @@ impl<'a> Flattener<'a> {
                     // Access the member of the second expression.
                     if_false: Box::new(Expression::Identifier(second)),
                     span: Default::default(),
-                    id: self.node_builder.next_id(),
+                    id: {
+                        // Create a new node ID for the ternary expression.
+                        let id = self.node_builder.next_id();
+                        // Set the type of the node ID.
+                        self.type_table.insert(id, type_.clone());
+                        id
+                    },
                 });
 
                 // Accumulate any statements generated.
@@ -472,7 +565,17 @@ impl<'a> Flattener<'a> {
             .collect();
 
         // Construct the tuple expression.
-        let tuple = TupleExpression { elements, span: Default::default(), id: self.node_builder.next_id() };
+        let tuple = TupleExpression {
+            elements,
+            span: Default::default(),
+            id: {
+                // Create a new node ID for the tuple expression.
+                let id = self.node_builder.next_id();
+                // Set the type of the node ID.
+                self.type_table.insert(id, Type::Tuple(tuple_type.clone()));
+                id
+            },
+        };
         let (expr, stmts) = self.reconstruct_tuple(tuple.clone());
 
         // Accumulate any statements generated.
