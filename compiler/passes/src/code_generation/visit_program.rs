@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
+use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Stub, Type, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -41,6 +41,9 @@ impl<'a> CodeGenerator<'a> {
             // Newline separator.
             program_string.push('\n');
         }
+
+        // Import stub programs
+        program_string.push_str(&input.stubs.values().map(|stub| self.visit_stub(stub)).join("\n"));
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
@@ -107,6 +110,10 @@ impl<'a> CodeGenerator<'a> {
         );
 
         program_string
+    }
+
+    fn visit_stub(&mut self, input: &'a Stub) -> String {
+        format!("import {}.aleo;", input.stub_id.name)
     }
 
     fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> String {
