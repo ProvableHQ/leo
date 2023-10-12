@@ -252,4 +252,8 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
             self.visit_block(&finalize.block);
         }
     }
+
+    fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}
+
+    fn visit_struct_stub(&mut self, _input: &'a Struct) {}
 }
