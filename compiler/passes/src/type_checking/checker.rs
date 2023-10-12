@@ -28,7 +28,7 @@ pub struct TypeChecker<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// A mapping from node IDs to their types.
-    pub(crate) type_table: TypeTable,
+    pub(crate) type_table: &'a TypeTable,
     /// A dependency graph of the structs in program.
     pub(crate) struct_graph: StructGraph,
     /// The call graph for the program.
@@ -98,7 +98,7 @@ const MAGNITUDE_TYPES: [Type; 3] =
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
         let struct_names = symbol_table.structs.keys().cloned().collect();
 
         let function_names = symbol_table.functions.keys().cloned().collect();
@@ -106,7 +106,7 @@ impl<'a> TypeChecker<'a> {
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
             symbol_table: RefCell::new(symbol_table),
-            type_table: Default::default(),
+            type_table,
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
