@@ -14,23 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod assigner;
-pub use assigner::*;
+use leo_ast::{NodeID, Type};
 
-pub mod graph;
-pub use graph::*;
+use indexmap::IndexMap;
+use std::{
+    cell::{Ref, RefCell},
+    fmt::Display,
+};
 
-pub mod rename_table;
-pub use rename_table::*;
+/// A mapping between node IDs and their types.
+#[derive(Debug, Default, Clone)]
+pub struct TypeTable {
+    /// The inner table.
+    /// `RefCell` is used here to avoid `&mut` all over the compiler.
+    inner: RefCell<IndexMap<NodeID, Type>>,
+}
 
-pub mod replacer;
-pub use replacer::*;
+impl TypeTable {
+    /// Gets an entry from the table.
+    pub fn get(&self, index: &NodeID) -> Option<Type> {
+        self.inner.borrow().get(index).cloned()
+    }
 
-pub mod constant_propagation_table;
-pub use constant_propagation_table::*;
-
-pub mod symbol_table;
-pub use symbol_table::*;
-
-pub mod type_table;
-pub use type_table::*;
+    /// Inserts an entry into the table.
+    pub fn insert(&self, index: NodeID, value: Type) {
+        self.inner.borrow_mut().insert(index, value);
+    }
+}

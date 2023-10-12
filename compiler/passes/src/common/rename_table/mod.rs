@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{NodeID};
+use leo_ast::NodeID;
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -62,8 +62,8 @@ impl RenameTable {
     }
 
     /// Looks up the node ID for `symbol`, recursively checking the parent if it is not found.
-    pub(crate) fn lookup_id(&self, symbol: Symbol) -> Option<&NodeID> {
-        if let Some(id) = self.ids.get(&symbol) {
+    pub(crate) fn lookup_id(&self, symbol: &Symbol) -> Option<&NodeID> {
+        if let Some(id) = self.ids.get(symbol) {
             Some(id)
         } else if let Some(parent) = &self.parent {
             parent.lookup_id(symbol)
