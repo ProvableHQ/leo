@@ -107,13 +107,25 @@ impl StatementReconstructor for Flattener<'_> {
                     variant: AssertVariant::Assert(Expression::Binary(BinaryExpression {
                         op: BinaryOperation::Or,
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
+                        id: {
+                            // Create a new node ID for the binary expression.
+                            let id = self.node_builder.next_id();
+                            // Update the type table with the type of the binary expression.
+                            self.type_table.insert(id, Type::Boolean);
+                            id
+                        },
                         // Take the logical negation of the guard.
                         left: Box::new(Expression::Unary(UnaryExpression {
                             op: UnaryOperation::Not,
                             receiver: Box::new(guard),
                             span: Default::default(),
-                            id: self.node_builder.next_id(),
+                            id: {
+                                // Create a new node ID for the unary expression.
+                                let id = self.node_builder.next_id();
+                                // Update the type table with the type of the unary expression.
+                                self.type_table.insert(id, Type::Boolean);
+                                id
+                            },
                         })),
                         right: Box::new(match assert.variant {
                             // If the assert statement is an `assert`, use the expression as is.
@@ -124,7 +136,13 @@ impl StatementReconstructor for Flattener<'_> {
                                 op: BinaryOperation::Eq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: self.node_builder.next_id(),
+                                id: {
+                                    // Create a new node ID for the unary expression.
+                                    let id = self.node_builder.next_id();
+                                    // Update the type table with the type of the unary expression.
+                                    self.type_table.insert(id, Type::Boolean);
+                                    id
+                                },
                             }),
                             // If the assert statement is an `assert_ne`, construct a new inequality expression.
                             AssertVariant::AssertNeq(left, right) => Expression::Binary(BinaryExpression {
@@ -132,7 +150,13 @@ impl StatementReconstructor for Flattener<'_> {
                                 op: BinaryOperation::Neq,
                                 right: Box::new(right),
                                 span: Default::default(),
-                                id: self.node_builder.next_id(),
+                                id: {
+                                    // Create a new node ID for the unary expression.
+                                    let id = self.node_builder.next_id();
+                                    // Update the type table with the type of the unary expression.
+                                    self.type_table.insert(id, Type::Boolean);
+                                    id
+                                },
                             }),
                         }),
                     })),
@@ -184,26 +208,34 @@ impl StatementReconstructor for Flattener<'_> {
                             elements: (0..tuple.length())
                                 .zip_eq(tuple.elements().iter())
                                 .map(|(i, type_)| {
-                                    let identifier = Identifier::new(
+                                    // Return the identifier as an expression.
+                                    Expression::Identifier(Identifier::new(
                                         self.assigner.unique_symbol(lhs_identifier.name, format!("$index${i}$")),
-                                        self.node_builder.next_id(),
-                                    );
-
-                                    // If the output type is a struct, add it to `self.structs`.
-                                    if let Type::Identifier(struct_name) = type_ {
-                                        // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                                        let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                                        self.structs.insert(identifier.name, struct_);
-                                    }
-
-                                    Expression::Identifier(identifier)
+                                        {
+                                            // Construct a node ID for the identifier.
+                                            let id = self.node_builder.next_id();
+                                            // Update the type table with the type.
+                                            self.type_table.insert(id, type_.clone());
+                                            id
+                                        },
+                                    ))
                                 })
                                 .collect(),
                             span: Default::default(),
-                            id: self.node_builder.next_id(),
+                            id: {
+                                // Construct a node ID for the tuple expression.
+                                let id = self.node_builder.next_id();
+                                // Update the type table with the type.
+                                self.type_table.insert(id, Type::Tuple(tuple.clone()));
+                                id
+                            },
                         };
                         // Add the `tuple_expression` to `self.tuples`.
                         self.tuples.insert(lhs_identifier.name, tuple_expression.clone());
+
+                        // Update the type table with the type of the tuple expression.
+                        self.type_table.insert(tuple_expression.id, Type::Tuple(tuple.clone()));
+
                         // Construct a new assignment statement with a tuple expression on the lhs.
                         (
                             Statement::Assign(Box::new(AssignStatement {
@@ -216,23 +248,7 @@ impl StatementReconstructor for Flattener<'_> {
                         )
                     }
                     // Otherwise, reconstruct the assignment as is.
-                    type_ => {
-                        // If the function returns a struct, add it to `self.structs`.
-                        if let Type::Identifier(struct_name) = type_ {
-                            // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                            let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                            self.structs.insert(lhs_identifier.name, struct_);
-                        };
-                        (
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: Expression::Identifier(lhs_identifier),
-                                value: Expression::Call(call),
-                                span: Default::default(),
-                                id: self.node_builder.next_id(),
-                            })),
-                            statements,
-                        )
-                    }
+                    _ => (self.simple_assign_statement(lhs_identifier, Expression::Call(call)), statements),
                 }
             }
             // If the `rhs` is an invocation of `get` or `get_or_use` on a mapping, then check if the value type is a struct.
@@ -268,22 +284,8 @@ impl StatementReconstructor for Flattener<'_> {
                     }
                     _ => unreachable!("Type checking guarantee that `arguments[0]` is the name of the mapping."),
                 };
-                // If the value type is a struct, add it to `self.structs`.
-                if let Type::Identifier(struct_name) = value_type {
-                    // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                    let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                    self.structs.insert(lhs_identifier.name, struct_);
-                }
                 // Reconstruct the assignment.
-                (
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: Expression::Identifier(lhs_identifier),
-                        value,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    })),
-                    statements,
-                )
+                (self.simple_assign_statement(lhs_identifier, value), statements)
             }
             (Expression::Identifier(identifier), expression) => {
                 (self.simple_assign_statement(identifier, expression), statements)
@@ -300,7 +302,7 @@ impl StatementReconstructor for Flattener<'_> {
                 let function = self.symbol_table.lookup_fn_symbol(function_name).unwrap();
 
                 let output_type = match &function.output_type {
-                    Type::Tuple(tuple) => tuple.clone(),
+                    Type::Tuple(tuple_type) => tuple_type.clone(),
                     _ => unreachable!("Type checking guarantees that the output type is a tuple."),
                 };
 
@@ -309,13 +311,12 @@ impl StatementReconstructor for Flattener<'_> {
                         Expression::Identifier(identifier) => identifier,
                         _ => unreachable!("Type checking guarantees that a tuple element on the lhs is an identifier."),
                     };
-                    // If the output type is a struct, add it to `self.structs`.
-                    if let Type::Identifier(struct_name) = type_ {
-                        // Note that this unwrap is safe since type checking guarantees that the struct exists.
-                        let struct_ = self.symbol_table.lookup_struct(struct_name.name).unwrap().clone();
-                        self.structs.insert(identifier.name, struct_);
-                    }
+                    // Add the type of each identifier to the type table.
+                    self.type_table.insert(identifier.id, type_.clone());
                 });
+
+                // Set the type of the tuple expression.
+                self.type_table.insert(tuple.id, Type::Tuple(output_type.clone()));
 
                 (
                     Statement::Assign(Box::new(AssignStatement {
@@ -330,11 +331,14 @@ impl StatementReconstructor for Flattener<'_> {
             // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
                 statements.extend(lhs_tuple.elements.into_iter().zip(rhs_tuple.elements).map(|(lhs, rhs)| {
-                    let identifier = match &lhs {
-                        Expression::Identifier(identifier) => identifier,
-                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    // Get the type of the rhs.
+                    let type_ = match self.type_table.get(&lhs.id()) {
+                        Some(type_) => type_.clone(),
+                        None => unreachable!("Type checking guarantees that the type of the lhs is in the type table."),
                     };
-                    self.update_structs(identifier, &rhs);
+                    // Set the type of the lhs.
+                    self.type_table.insert(rhs.id(), type_);
+                    // Return the assign statement.
                     Statement::Assign(Box::new(AssignStatement {
                         place: lhs,
                         value: rhs,
@@ -353,12 +357,14 @@ impl StatementReconstructor for Flattener<'_> {
                 let rhs_tuple = self.tuples.get(&identifier.name).unwrap().clone();
                 // Create a new assign statement for each tuple element.
                 for (lhs, rhs) in lhs_tuple.elements.into_iter().zip(rhs_tuple.elements) {
-                    let identifier = match &lhs {
-                        Expression::Identifier(identifier) => identifier,
-                        _ => unreachable!("Type checking guarantees that `lhs` is an identifier."),
+                    // Get the type of the rhs.
+                    let type_ = match self.type_table.get(&lhs.id()) {
+                        Some(type_) => type_.clone(),
+                        None => unreachable!("Type checking guarantees that the type of the lhs is in the type table."),
                     };
-                    self.update_structs(identifier, &rhs);
-
+                    // Set the type of the lhs.
+                    self.type_table.insert(rhs.id(), type_);
+                    // Return the assign statement.
                     statements.push(Statement::Assign(Box::new(AssignStatement {
                         place: lhs,
                         value: rhs,
