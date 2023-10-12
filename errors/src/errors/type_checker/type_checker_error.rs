@@ -686,6 +686,34 @@ create_messages!(
     }
 
     @formatted
+    stubs_can_only_have_records_and_transitions {
+        args: (found: impl Display),
+        msg: format!("Stubs can only have records and transitions -- found {found}"),
+        help: None,
+    }
+
+    @formatted
+    stub_functions_must_be_transitions {
+        args: (),
+        msg: format!("Function stubs must be transitions"),
+        help: None,
+    }
+
+    @formatted
+    stub_functions_must_be_empty {
+        args: (),
+        msg: format!("Functions stubs must be empty"),
+        help: None,
+    }
+
+    @formatted
+    stub_functions_must_have_no_finalize {
+        args: (),
+        msg: format!("Function stubs must not have finalize blocks"),
+        help: None,
+    }
+
+    @formatted
     array_empty {
         args: (),
         msg: format!("An array cannot be empty"),
