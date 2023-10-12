@@ -48,8 +48,79 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
         }
 
+        // Typecheck the program's stubs.
+        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_stub(&mut self, input: &'a Stub) {
+        // Cannot have mappings in stubs.
+        if input.mappings.len() != 0 {
+            self.emit_err(TypeCheckerError::stubs_can_only_have_records_and_transitions(
+                "mapping",
+                input.mappings.get(0).unwrap().1.span,
+            ));
+        }
+
+        // Cannot have constant declarations in stubs.
+        if input.consts.len() != 0 {
+            self.emit_err(TypeCheckerError::stubs_can_only_have_records_and_transitions(
+                "constant declaration",
+                input.consts.get(0).unwrap().1.span,
+            ));
+        }
+
+        // Typecheck the program's structs.
+        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
+
+        // Typecheck the program's functions.
+        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
+    }
+
+    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+        // Cannot have finalize scopes
+        if input.finalize.is_some() {
+            self.emit_err(TypeCheckerError::stub_functions_must_have_no_finalize(
+                input.finalize.as_ref().unwrap().span,
+            ));
+        }
+
+        // Must be transition functions
+        if input.variant != Variant::Transition {
+            self.emit_err(TypeCheckerError::stub_functions_must_be_transitions(input.span));
+        }
+
+        // Must be empty
+        if !input.block.statements.is_empty() {
+            self.emit_err(TypeCheckerError::stub_functions_must_be_empty(input.block.span));
+        }
+
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+
+        // Enter the function's scope.
+        self.enter_scope(function_index);
+
+        // Query helper function to type check function parameters and outputs.
+        self.check_function_signature(&Function::from(input.clone()));
+
+        // Exit the function's scope.
+        self.exit_scope(function_index);
+    }
+
+    fn visit_struct_stub(&mut self, input: &'a Struct) {
+        // Allow records only.
+        if !input.is_record {
+            self.emit_err(TypeCheckerError::stubs_can_only_have_records_and_transitions(
+                "non-record struct",
+                input.span,
+            ));
+        }
+
+        self.visit_struct(input);
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -232,77 +303,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Create a new child scope for the function's parameters and body.
         let scope_index = self.create_child_scope();
 
-        // Type check the function's parameters.
-        function.input.iter().for_each(|input_var| {
-            // Check that the type of input parameter is defined.
-            self.assert_type_is_valid(&input_var.type_(), input_var.span());
-            // Check that the type of the input parameter is not a tuple.
-            if matches!(input_var.type_(), Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
-            }
-
-            // Note that this unwrap is safe since we assign to `self.variant` above.
-            match self.variant.unwrap() {
-                // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition if input_var.mode() == Mode::Constant => {
-                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
-                }
-                // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
-                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
-                }
-                _ => {} // Do nothing.
-            }
-
-            // Check for conflicting variable names.
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                self.handler.emit_err(err);
-            }
-        });
-
-        // Type check the function's return type.
-        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().for_each(|output| {
-            match output {
-                Output::External(external) => {
-                    // If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    if !matches!(function.variant, Variant::Transition) {
-                        self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
-                    }
-                    // Otherwise, do not type check external record function outputs.
-                    // TODO: Verify that this is not needed when the import system is updated.
-                }
-                Output::Internal(function_output) => {
-                    // Check that the type of output is defined.
-                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
-                        // If the function is not a transition function, then it cannot output a record.
-                        if let Type::Identifier(identifier) = function_output.type_ {
-                            if !matches!(function.variant, Variant::Transition)
-                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
-                            {
-                                self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
-                            }
-                        }
-                    }
-                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&function_output.type_, Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    // Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    if function_output.mode == Mode::Constant {
-                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
-                    }
-                }
-            }
-        });
+        // Query helper function to type check function parameters and outputs.
+        self.check_function_signature(function);
 
         self.visit_block(&function.block);
 

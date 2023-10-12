@@ -14,9 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
+use crate::{CallGraph, StructGraph, SymbolTable, VariableSymbol, VariableType, TypeTable};
 
-use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
+use leo_ast::{
+    CoreConstant,
+    CoreFunction,
+    Function,
+    Identifier,
+    IntegerType,
+    MappingType,
+    Mode,
+    Node,
+    Output,
+    Type,
+    Variant,
+};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -1129,6 +1141,83 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the type is not an array.
     pub(crate) fn assert_array_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(|type_| matches!(type_, Type::Array(_)), "array".to_string(), type_, span);
+    }
+
+    /// Helper function to check that the input and output of function are valid
+    pub(crate) fn check_function_signature(&mut self, function: &Function) {
+        self.variant = Some(function.variant);
+
+        // Type check the function's parameters.
+        function.input.iter().for_each(|input_var| {
+            // Check that the type of input parameter is defined.
+            self.assert_type_is_valid(&input_var.type_(), input_var.span());
+            // Check that the type of the input parameter is not a tuple.
+            if matches!(input_var.type_(), Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
+            }
+
+            // Note that this unwrap is safe since we assign to `self.variant` above.
+            match self.variant.unwrap() {
+                // If the function is a transition function, then check that the parameter mode is not a constant.
+                Variant::Transition if input_var.mode() == Mode::Constant => {
+                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                }
+                // If the function is not a transition function, then check that the parameters do not have an associated mode.
+                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
+                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
+                _ => {} // Do nothing.
+            }
+
+            // Check for conflicting variable names.
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                    type_: input_var.type_(),
+                    span: input_var.identifier().span(),
+                    declaration: VariableType::Input(input_var.mode()),
+                })
+            {
+                self.handler.emit_err(err);
+            }
+        });
+
+        // Type check the function's return type.
+        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
+        function.output.iter().for_each(|output| {
+            match output {
+                Output::External(external) => {
+                    // If the function is not a transition function, then it cannot output a record.
+                    // Note that an external output must always be a record.
+                    if !matches!(function.variant, Variant::Transition) {
+                        self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
+                    }
+                    // Otherwise, do not type check external record function outputs.
+                    // TODO: Verify that this is not needed when the import system is updated.
+                }
+                Output::Internal(function_output) => {
+                    // Check that the type of output is defined.
+                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
+                        // If the function is not a transition function, then it cannot output a record.
+                        if let Type::Identifier(identifier) = function_output.type_ {
+                            if !matches!(function.variant, Variant::Transition)
+                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
+                            {
+                                self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                            }
+                        }
+                    }
+                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+                    if matches!(&function_output.type_, Type::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+                    }
+                    // Check that the mode of the output is valid.
+                    // For functions, only public and private outputs are allowed
+                    if function_output.mode == Mode::Constant {
+                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+                    }
+                }
+            }
+        });
     }
 }
 
