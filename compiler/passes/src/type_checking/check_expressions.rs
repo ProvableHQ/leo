@@ -45,6 +45,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         let output = match input {
             Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Array(array) => self.visit_array(array, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),

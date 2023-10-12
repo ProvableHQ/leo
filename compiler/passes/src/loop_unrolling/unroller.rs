@@ -30,7 +30,14 @@ use std::cell::RefCell;
 
 use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 
-use crate::{constant_propagation_table::ConstantPropagationTable, Clusivity, LoopBound, RangeIterator, SymbolTable, TypeTable};
+use crate::{
+    constant_propagation_table::ConstantPropagationTable,
+    Clusivity,
+    LoopBound,
+    RangeIterator,
+    SymbolTable,
+    TypeTable,
+};
 
 pub struct Unroller<'a> {
     /// A table of constant variables.
@@ -38,7 +45,7 @@ pub struct Unroller<'a> {
     /// The symbol table for the function being processed.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// A mapping from node IDs to their types.
-    pub(crate) type_table: &'a mut TypeTable,
+    pub(crate) type_table: &'a TypeTable,
     /// The index of the current scope.
     pub(crate) scope_index: usize,
     /// An error handler used for any errors found during unrolling.
@@ -50,7 +57,12 @@ pub struct Unroller<'a> {
 }
 
 impl<'a> Unroller<'a> {
-    pub(crate) fn new(symbol_table: SymbolTable, type_table: &'a mut TypeTable, handler: &'a Handler, node_builder: &'a NodeBuilder) -> Self {
+    pub(crate) fn new(
+        symbol_table: SymbolTable,
+        type_table: &'a TypeTable,
+        handler: &'a Handler,
+        node_builder: &'a NodeBuilder,
+    ) -> Self {
         Self {
             constant_propagation_table: RefCell::new(ConstantPropagationTable::default()),
             symbol_table: RefCell::new(symbol_table),
@@ -177,70 +189,40 @@ impl<'a> Unroller<'a> {
         // Construct a new node ID.
         let id = self.node_builder.next_id();
         // Update the type table.
-        self.type_table.insert(id, input.type_);
+        self.type_table.insert(id, input.type_.clone());
 
         // Reconstruct `iteration_count` as a `Literal`.
         let value = match input.type_ {
-            Type::Integer(IntegerType::I8) => Literal::Integer(
-                IntegerType::I8,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::I16) => Literal::Integer(
-                IntegerType::I16,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::I32) => Literal::Integer(
-                IntegerType::I32,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::I64) => Literal::Integer(
-                IntegerType::I64,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::I128) => Literal::Integer(
-                IntegerType::I128,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::U8) => Literal::Integer(
-                IntegerType::U8,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::U16) => Literal::Integer(
-                IntegerType::U16,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::U32) => Literal::Integer(
-                IntegerType::U32,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::U64) => Literal::Integer(
-                IntegerType::U64,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
-            Type::Integer(IntegerType::U128) => Literal::Integer(
-                IntegerType::U128,
-                iteration_count.to_string(),
-                Default::default(),
-                id
-            ),
+            Type::Integer(IntegerType::I8) => {
+                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I16) => {
+                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I32) => {
+                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I64) => {
+                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I128) => {
+                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U8) => {
+                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U16) => {
+                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U32) => {
+                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U64) => {
+                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U128) => {
+                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
+            }
             _ => unreachable!(
                 "The iteration variable must be an integer type. This should be enforced by type checking."
             ),
