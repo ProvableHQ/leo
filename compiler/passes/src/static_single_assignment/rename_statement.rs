@@ -176,8 +176,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     let name =
                         *table.lookup(symbol).unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
                     let id = *table
-                        .lookup_id(symbol)
-                        .unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
+                        .lookup_id(&name)
+                        .unwrap_or_else(|| panic!("Symbol {name} should exist in the rename table."));
                     Box::new(Expression::Identifier(Identifier { name, span: Default::default(), id }))
                 };
 
@@ -192,7 +192,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 let id = self.node_builder.next_id();
                 // Update the type of the node ID.
                 let type_ = match self.type_table.get(&if_true.id()) {
-                    Some(type_) => type_.clone(),
+                    Some(type_) => type_,
                     None => unreachable!("Type checking guarantees that all expressions have a type."),
                 };
                 self.type_table.insert(id, type_);
@@ -208,15 +208,19 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
                 statements.extend(stmts);
 
-                // Update the `RenameTable` with the new name of the variable.
-                let id = match self.rename_table.lookup_id(**symbol) {
-                    Some(id) => id,
-                    None => unreachable!("The ID for the symbol `{}` should already exist in the program.", symbol),
+                // Get the ID for the new name of the variable.
+                let id = match self.rename_table.lookup_id(symbol) {
+                    Some(id) => *id,
+                    None => {
+                        unreachable!("The ID for the symbol `{}` should already exist in the rename table.", symbol)
+                    }
                 };
-                self.rename_table.update(*(*symbol), new_name, *id);
+
+                // Update the `RenameTable` with the new name of the variable.
+                self.rename_table.update(*(*symbol), new_name, id);
 
                 // Create a new `AssignStatement` for the phi function.
-                let identifier = Identifier { name: new_name, span: Default::default(), id: *id };
+                let identifier = Identifier { name: new_name, span: Default::default(), id };
                 let assignment = self.simple_assign_statement(identifier, value);
 
                 // Store the generated phi function.
@@ -246,20 +250,28 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.is_lhs = true;
         match definition.place {
             Expression::Identifier(identifier) => {
+                // Add the identifier to the rename table.
+                self.rename_table.update(identifier.name, identifier.name, identifier.id);
+                // Rename the identifier.
                 let identifier = match self.consume_identifier(identifier).0 {
                     Expression::Identifier(identifier) => identifier,
                     _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
                 };
+                // Create a new assignment statement.
                 statements.push(self.simple_assign_statement(identifier, value));
             }
             Expression::Tuple(tuple) => {
                 let elements: Vec<Expression> = tuple.elements.into_iter().map(|element| {
                     match element {
                         Expression::Identifier(identifier) => {
+                            // Add the identifier to the rename table.
+                            self.rename_table.update(identifier.name, identifier.name, identifier.id);
+                            // Rename the identifier.
                             let identifier = match self.consume_identifier(identifier).0 {
                                 Expression::Identifier(identifier) => identifier,
                                 _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
                             };
+                            // Return the renamed identifier.
                             Expression::Identifier(identifier)
                         }
                         _ => unreachable!("Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."),
@@ -268,7 +280,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
 
                 // Get the type of `value`.
                 let tuple_type_ = match self.type_table.get(&value.id()) {
-                    Some(Type::Tuple(type_)) => type_.clone(),
+                    Some(Type::Tuple(type_)) => type_,
                     _ => unreachable!("Type checking guarantees that this expression is a tuple."),
                 };
 
