@@ -319,9 +319,9 @@ impl ParserContext<'_> {
             let external = self.expect_identifier()?;
             let mut span = name.span + external.span;
 
-            // Parse `.leo/`.
+            // Parse `.leo/` or `.aleo/`.
             self.eat(&Token::Dot);
-            self.eat(&Token::Leo);
+            self.eat_any(&[Token::Leo, Token::Aleo]);
             self.eat(&Token::Div);
 
             // Parse record name.
@@ -366,9 +366,9 @@ impl ParserContext<'_> {
             let external = self.expect_identifier()?;
             let mut span = external.span;
 
-            // Parse `.leo/`.
+            // Parse `.leo/` or `.aleo/`.
             self.eat(&Token::Dot);
-            self.eat(&Token::Leo);
+            self.eat_any(&[Token::Leo, Token::Aleo]);
             self.eat(&Token::Div);
 
             // Parse record name.
@@ -391,7 +391,7 @@ impl ParserContext<'_> {
         }
     }
 
-    fn peek_is_external(&self) -> bool {
+    pub fn peek_is_external(&self) -> bool {
         matches!((&self.token.token, self.look_ahead(1, |t| &t.token)), (Token::Identifier(_), Token::Dot))
     }
 

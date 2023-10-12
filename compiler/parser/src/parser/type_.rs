@@ -79,6 +79,17 @@ impl ParserContext<'_> {
     /// Also returns the span of the parsed token.
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         if let Some(ident) = self.eat_identifier() {
+            // Check if using external type
+            let file_type = self.look_ahead(1, |t| &t.token);
+            if &self.token.token == &Token::Dot && (file_type == &Token::Leo || file_type == &Token::Aleo) {
+                return Err(ParserError::external_type_cannot_be_used_inside_function(
+                    ident,
+                    file_type,
+                    self.token.span,
+                )
+                .into());
+            }
+
             Ok((Type::Identifier(ident), ident.span))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
