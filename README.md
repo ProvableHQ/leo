@@ -160,6 +160,7 @@ Thank you for helping make Leo better!
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/features/security"><img src="https://avatars.githubusercontent.com/u/27347476?v=4?s=100" width="100px;" alt="dependabot[bot]"/><br /><sub><b>dependabot[bot]</b></sub></a><br /><a href="https://github.com/AleoHQ/leo/commits?author=dependabot" title="Documentation">📖</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/liolikus"><img src="https://avatars.githubusercontent.com/u/85246338?v=4?s=100" width="100px;" alt="liolikus"/><br /><sub><b>liolikus</b></sub></a><br /><a href="https://github.com/liolikus/quiz_token_with_username" title="Content">🖋</a></td>
     </tr>
   </tbody>
   <tfoot>
