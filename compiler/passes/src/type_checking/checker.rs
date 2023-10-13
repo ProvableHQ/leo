@@ -1093,9 +1093,21 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
                     }
                 }
-                // Check that the array element type is not a tuple.
-                if let Type::Tuple(_) = array_type.element_type() {
-                    self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span))
+                // Check that the array element type is valid.
+                match array_type.element_type() {
+                    // Array elements cannot be tuples.
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
+                    // Array elements cannot be records.
+                    Type::Identifier(identifier) => {
+                        // Look up the type.
+                        if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                            // Check that the type is not a record.
+                            if struct_.is_record {
+                                self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
+                            }
+                        }
+                    }
+                    _ => {} // Do nothing.
                 }
                 is_valid &= self.assert_type_is_valid(array_type.element_type(), span)
             }
