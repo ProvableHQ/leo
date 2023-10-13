@@ -17,10 +17,7 @@
 use leo_ast::{NodeID, Type};
 
 use indexmap::IndexMap;
-use std::{
-    cell::{Ref, RefCell},
-    fmt::Display,
-};
+use std::cell::RefCell;
 
 /// A mapping between node IDs and their types.
 #[derive(Debug, Default, Clone)]

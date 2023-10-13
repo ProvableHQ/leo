@@ -15,22 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Flattener;
-use itertools::Itertools;
 
 use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    AssociatedFunction,
     Expression,
     ExpressionReconstructor,
-    Member,
-    MemberAccess,
     Node,
     Statement,
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
-    TupleAccess,
     Type,
 };
 

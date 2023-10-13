@@ -14,37 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, SymbolTable, TypeTable};
+use crate::{Assigner, TypeTable};
 
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    ArrayType,
-    BinaryExpression,
-    BinaryOperation,
-    Block,
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
-    IntegerType,
-    Literal,
-    Member,
-    MemberAccess,
-    Node,
-    NodeBuilder,
-    NonzeroNumber,
-    ReturnStatement,
-    Statement,
-    Struct,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    TupleExpression,
-    TupleType,
-    Type,
-};
+use leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement, TupleExpression};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;

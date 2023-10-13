@@ -16,12 +16,13 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
-use leo_ast::{ArrayType, CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
+use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use itertools::Itertools;
 use snarkvm_console::network::{Network, Testnet3};
+
+use itertools::Itertools;
 use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {

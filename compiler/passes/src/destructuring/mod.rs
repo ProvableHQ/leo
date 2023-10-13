@@ -16,8 +16,6 @@
 
 //! The destructuring pass traverses the AST and destructures tuples into individual variables.
 //! This pass assumes that tuples have a depth of 1, which is ensured by the type checking pass.
-//!
-//! TODO(@d0cd)
 
 mod destructure_expression;
 
@@ -28,7 +26,7 @@ mod destructure_statement;
 pub mod destructurer;
 pub use destructurer::*;
 
-use crate::{Assigner, Pass, SymbolTable, TypeTable};
+use crate::{Assigner, Pass, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;

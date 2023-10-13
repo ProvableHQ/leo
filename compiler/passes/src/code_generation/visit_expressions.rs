@@ -170,7 +170,7 @@ impl<'a> CodeGenerator<'a> {
             Some(Type::Array(array_type)) => Type::Array(array_type),
             _ => unreachable!("All types should be known at this phase of compilation"),
         };
-        let array_type: String = self.visit_type(&array_type);
+        let array_type: String = Self::visit_type(&array_type);
 
         let array_instruction =
             format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);

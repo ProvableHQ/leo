@@ -16,7 +16,7 @@
 
 use crate::{Assigner, RenameTable, SymbolTable, TypeTable};
 
-use leo_ast::{AssignStatement, Expression, Identifier, Node, NodeBuilder, Statement};
+use leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement};
 
 pub struct StaticSingleAssigner<'a> {
     /// A counter used to generate unique node IDs.

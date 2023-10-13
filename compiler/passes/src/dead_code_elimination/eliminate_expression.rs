@@ -18,15 +18,12 @@ use crate::DeadCodeEliminator;
 
 use leo_ast::{
     AccessExpression,
-    ArrayAccess,
     AssociatedFunction,
     Expression,
     ExpressionReconstructor,
     Identifier,
-    MemberAccess,
     StructExpression,
     StructVariableInitializer,
-    TupleAccess,
     Type,
 };
 use leo_span::sym;
