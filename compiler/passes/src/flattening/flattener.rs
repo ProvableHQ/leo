@@ -45,11 +45,6 @@ use leo_ast::{
     TupleType,
     Type,
 };
-use leo_span::Symbol;
-
-use indexmap::IndexMap;
-
-// TODO: TypeTable should be placed behind a RefCell.
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
@@ -67,8 +62,6 @@ pub struct Flattener<'a> {
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
     pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
-    /// A mapping between variables and flattened tuple expressions.
-    pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
 }
 
 impl<'a> Flattener<'a> {
@@ -78,15 +71,7 @@ impl<'a> Flattener<'a> {
         node_builder: &'a NodeBuilder,
         assigner: &'a Assigner,
     ) -> Self {
-        Self {
-            symbol_table,
-            type_table,
-            node_builder,
-            assigner,
-            condition_stack: Vec::new(),
-            returns: Vec::new(),
-            tuples: IndexMap::new(),
-        }
+        Self { symbol_table, type_table, node_builder, assigner, condition_stack: Vec::new(), returns: Vec::new() }
     }
 
     /// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.
@@ -569,9 +554,6 @@ impl<'a> Flattener<'a> {
 
         // Create a new assignment statement for the tuple expression.
         let (identifier, statement) = self.unique_simple_assign_statement(expr);
-
-        // Mark the lhs of the assignment as a tuple.
-        self.tuples.insert(identifier.name, tuple);
 
         statements.push(statement);
 
