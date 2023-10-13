@@ -17,6 +17,7 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
     ArrayExpression,
     AssociatedConstant,
     AssociatedFunction,
@@ -165,7 +166,11 @@ impl<'a> CodeGenerator<'a> {
         self.next_register += 1;
 
         // Get the array type.
-        let array_type: String = todo!();
+        let array_type = match self.type_table.get(&input.id) {
+            Some(Type::Array(array_type)) => Type::Array(array_type),
+            _ => unreachable!("All types should be known at this phase of compilation"),
+        };
+        let array_type: String = self.visit_type(&array_type);
 
         let array_instruction =
             format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
@@ -279,11 +284,22 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
-        let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner);
-        let member_access_instruction = format!("{inner_struct}.{}", input.name);
+    fn visit_array_access(&mut self, input: &'a ArrayAccess) -> (String, String) {
+        let (array_operand, _) = self.visit_expression(&input.array);
+        let index_operand = match input.index.as_ref() {
+            Expression::Literal(Literal::Integer(_, string, _, _)) => format!("{}u32", string),
+            _ => unreachable!("Array indices must be integer literals"),
+        };
+        let array_access = format!("{}[{}]", array_operand, index_operand);
 
-        (member_access_instruction, String::new())
+        (array_access, String::new())
+    }
+
+    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
+        let (inner_struct, _) = self.visit_expression(&input.inner);
+        let member_access = format!("{inner_struct}.{}", input.name);
+
+        (member_access, String::new())
     }
 
     // group::GEN -> group::GEN
@@ -492,11 +508,13 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
         match input {
-            AccessExpression::Array(array) => todo!(),
+            AccessExpression::Array(array) => self.visit_array_access(array),
             AccessExpression::Member(access) => self.visit_member_access(access),
             AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
-            AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
+            AccessExpression::Tuple(_) => {
+                unreachable!("Tuple access should not be in the AST at this phase of compilation.")
+            }
         }
     }
 

@@ -243,10 +243,9 @@ impl<'a> Compiler<'a> {
     }
 
     /// Runs the destructuring pass.
-    pub fn destructuring_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+    pub fn destructuring_pass(&mut self) -> Result<()> {
         self.ast = Destructurer::do_pass((
             std::mem::take(&mut self.ast),
-            symbol_table,
             &self.type_table,
             &self.node_builder,
             &self.assigner,
@@ -297,7 +296,7 @@ impl<'a> Compiler<'a> {
         struct_graph: &StructGraph,
         call_graph: &CallGraph,
     ) -> Result<String> {
-        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph, &self.ast.ast))
+        CodeGenerator::do_pass((&self.ast, symbol_table, &self.type_table, struct_graph, call_graph, &self.ast.ast))
     }
 
     /// Runs the compiler stages.
@@ -312,7 +311,7 @@ impl<'a> Compiler<'a> {
 
         self.flattening_pass(&st)?;
 
-        self.destructuring_pass(&st)?;
+        self.destructuring_pass()?;
 
         self.function_inlining_pass(&call_graph)?;
 

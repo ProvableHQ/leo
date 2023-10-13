@@ -30,6 +30,7 @@ use leo_ast::{
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
+    TupleAccess,
     Type,
 };
 
@@ -37,30 +38,18 @@ impl ExpressionReconstructor for Destructurer<'_> {
     type AdditionalOutput = Vec<Statement>;
 
     /// Replaces a tuple access expression with the appropriate expression.
-    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            match input {
-                AccessExpression::Tuple(tuple_access) => {
-                    // Lookup the expression in the tuple map.
-                    match tuple_access.tuple.as_ref() {
-                        Expression::Identifier(identifier) => {
-                            match self
-                                .tuples
-                                .get(&identifier.name)
-                                .and_then(|tuple| tuple.elements.get(tuple_access.index.value()))
-                            {
-                                Some(element) => element.clone(),
-                                None => {
-                                    unreachable!("SSA guarantees that all tuples are declared and indices are valid.")
-                                }
-                            }
-                        }
-                        _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
+    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        // Lookup the expression in the tuple map.
+        match input.tuple.as_ref() {
+            Expression::Identifier(identifier) => {
+                match self.tuples.get(&identifier.name).and_then(|tuple| tuple.elements.get(input.index.value())) {
+                    Some(element) => (element.clone(), Default::default()),
+                    None => {
+                        unreachable!("SSA guarantees that all tuples are declared and indices are valid.")
                     }
                 }
-                _ => Expression::Access(input),
-            },
-            Default::default(),
-        )
+            }
+            _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
+        }
     }
 }
