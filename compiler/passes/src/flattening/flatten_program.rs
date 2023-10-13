@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
+use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.

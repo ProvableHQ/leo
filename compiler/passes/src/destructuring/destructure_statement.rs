@@ -15,17 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Destructurer;
-use itertools::Itertools;
-use std::borrow::Borrow;
 
 use leo_ast::{
-    AccessExpression,
-    AssertStatement,
-    AssertVariant,
     AssignStatement,
-    AssociatedFunction,
-    BinaryExpression,
-    BinaryOperation,
     Block,
     ConditionalStatement,
     ConsoleStatement,
@@ -40,10 +32,9 @@ use leo_ast::{
     StatementReconstructor,
     TupleExpression,
     Type,
-    UnaryExpression,
-    UnaryOperation,
 };
-use leo_span::sym;
+
+use itertools::Itertools;
 
 impl StatementReconstructor for Destructurer<'_> {
     /// Flattens an assign statement, if necessary.

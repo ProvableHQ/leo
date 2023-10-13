@@ -130,7 +130,7 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
-            writeln!(output_string, "    {} as {};", var.identifier, self.visit_type(&var.type_),)
+            writeln!(output_string, "    {} as {};", var.identifier, Self::visit_type(&var.type_),)
                 .expect("failed to write to string");
         }
 
@@ -154,7 +154,7 @@ impl<'a> CodeGenerator<'a> {
                 output_string,
                 "    {} as {}.{mode};", // todo: CAUTION private record variables only.
                 var.identifier,
-                self.visit_type(&var.type_)
+                Self::visit_type(&var.type_)
             )
             .expect("failed to write to string");
         }

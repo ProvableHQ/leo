@@ -16,6 +16,6 @@
 
 use crate::Destructurer;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
+use leo_ast::ProgramReconstructor;
 
 impl ProgramReconstructor for Destructurer<'_> {}

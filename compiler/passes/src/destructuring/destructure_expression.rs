@@ -15,24 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Destructurer;
-use itertools::Itertools;
 
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    AssociatedFunction,
-    Expression,
-    ExpressionReconstructor,
-    Member,
-    MemberAccess,
-    Node,
-    Statement,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    Type,
-};
+use leo_ast::{Expression, ExpressionReconstructor, Statement, TupleAccess};
 
 impl ExpressionReconstructor for Destructurer<'_> {
     type AdditionalOutput = Vec<Statement>;

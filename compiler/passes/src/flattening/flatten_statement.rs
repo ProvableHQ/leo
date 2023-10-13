@@ -15,15 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Flattener;
-use itertools::Itertools;
-use std::borrow::Borrow;
 
 use leo_ast::{
-    AccessExpression,
     AssertStatement,
     AssertVariant,
     AssignStatement,
-    AssociatedFunction,
     BinaryExpression,
     BinaryOperation,
     Block,
@@ -32,18 +28,17 @@ use leo_ast::{
     DefinitionStatement,
     Expression,
     ExpressionReconstructor,
-    Identifier,
     IterationStatement,
     Node,
     ReturnStatement,
     Statement,
     StatementReconstructor,
-    TupleExpression,
     Type,
     UnaryExpression,
     UnaryOperation,
 };
-use leo_span::sym;
+
+use itertools::Itertools;
 
 impl StatementReconstructor for Flattener<'_> {
     /// Rewrites an assert statement into a flattened form.
@@ -172,7 +167,7 @@ impl StatementReconstructor for Flattener<'_> {
     /// Otherwise, the statement is returned as is.
     fn reconstruct_assign(&mut self, assign: AssignStatement) -> (Statement, Self::AdditionalOutput) {
         // Flatten the rhs of the assignment.
-        let (value, mut statements) = self.reconstruct_expression(assign.value);
+        let (value, statements) = self.reconstruct_expression(assign.value);
         match (assign.place, &value) {
             (Expression::Identifier(identifier), _) => (self.simple_assign_statement(identifier, value), statements),
             (Expression::Tuple(tuple), expression) => {

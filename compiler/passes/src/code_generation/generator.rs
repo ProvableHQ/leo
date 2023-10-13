@@ -20,7 +20,6 @@ use leo_ast::{Function, Program, ProgramId};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
-use snarkvm_console::program::Access;
 
 pub struct CodeGenerator<'a> {
     /// The symbol table for the program.
