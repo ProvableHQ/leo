@@ -145,6 +145,8 @@ pub struct BuildOptions {
     pub enable_ssa_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the flattened AST.")]
     pub enable_flattened_ast_snapshot: bool,
+    #[clap(long, help = "Writes AST snapshot of the destructured AST.")]
+    pub enable_destructured_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the inlined AST.")]
     pub enable_inlined_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
