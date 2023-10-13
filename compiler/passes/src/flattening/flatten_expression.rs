@@ -30,6 +30,7 @@ use leo_ast::{
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
+    TupleAccess,
     Type,
 };
 
@@ -37,60 +38,6 @@ use leo_ast::{
 
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;
-
-    /// Replaces a tuple access expression with the appropriate expression.
-    fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
-        let mut statements = Vec::new();
-        (
-            match input {
-                AccessExpression::Array(array) => Expression::Access(AccessExpression::Array(ArrayAccess {
-                    array: Box::new(self.reconstruct_expression(*array.array).0),
-                    index: Box::new(self.reconstruct_expression(*array.index).0),
-                    span: array.span,
-                    id: array.id,
-                })),
-                AccessExpression::AssociatedFunction(function) => {
-                    Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        arguments: function
-                            .arguments
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
-                        span: function.span,
-                        id: function.id,
-                    }))
-                }
-                AccessExpression::Member(member) => Expression::Access(AccessExpression::Member(MemberAccess {
-                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
-                    name: member.name,
-                    span: member.span,
-                    id: member.id,
-                })),
-                AccessExpression::Tuple(tuple) => {
-                    // Reconstruct the tuple expression.
-                    let (expr, stmts) = self.reconstruct_expression(*tuple.tuple);
-
-                    // Accumulate any statements produced.
-                    statements.extend(stmts);
-
-                    // Lookup the expression in the tuple map.
-                    match expr {
-                        Expression::Identifier(identifier) => {
-                            // Note that this unwrap is safe since TYC guarantees that all tuples are declared and indices are valid.
-                            self.tuples.get(&identifier.name).unwrap().elements[tuple.index.value()].clone()
-                        }
-                        _ => unreachable!("SSA guarantees that subexpressions are identifiers or literals."),
-                    }
-                }
-                AccessExpression::AssociatedConstant(access) => {
-                    Expression::Access(AccessExpression::AssociatedConstant(access))
-                }
-            },
-            statements,
-        )
-    }
 
     /// Reconstructs a struct init expression, flattening any tuples in the expression.
     fn reconstruct_struct_init(&mut self, input: StructExpression) -> (Expression, Self::AdditionalOutput) {
