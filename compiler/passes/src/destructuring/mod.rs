@@ -34,11 +34,11 @@ use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
 impl<'a> Pass for Destructurer<'a> {
-    type Input = (Ast, &'a SymbolTable, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
+    type Input = (Ast, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, st, tt, node_builder, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Destructurer::new(st, tt, node_builder, assigner);
+    fn do_pass((ast, tt, node_builder, assigner): Self::Input) -> Self::Output {
+        let mut reconstructor = Destructurer::new(tt, node_builder, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
         Ok(Ast::new(program))

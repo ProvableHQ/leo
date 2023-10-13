@@ -50,8 +50,6 @@ use leo_span::Symbol;
 use indexmap::IndexMap;
 
 pub struct Destructurer<'a> {
-    /// The symbol table associated with the program.
-    pub(crate) symbol_table: &'a SymbolTable,
     /// A mapping between node IDs and their types.
     pub(crate) type_table: &'a TypeTable,
     /// A counter used to generate unique node IDs.
@@ -63,25 +61,8 @@ pub struct Destructurer<'a> {
 }
 
 impl<'a> Destructurer<'a> {
-    pub(crate) fn new(
-        symbol_table: &'a SymbolTable,
-        type_table: &'a TypeTable,
-        node_builder: &'a NodeBuilder,
-        assigner: &'a Assigner,
-    ) -> Self {
-        Self { symbol_table, type_table, node_builder, assigner, tuples: IndexMap::new() }
-    }
-
-    /// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
-    pub(crate) fn unique_simple_assign_statement(&mut self, expr: Expression) -> (Identifier, Statement) {
-        // Create a new variable for the expression.
-        let name = self.assigner.unique_symbol("$var", "$");
-        // Construct the lhs of the assignment.
-        let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
-        // Construct the assignment statement.
-        let statement = self.simple_assign_statement(place, expr);
-
-        (place, statement)
+    pub(crate) fn new(type_table: &'a TypeTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
+        Self { type_table, node_builder, assigner, tuples: IndexMap::new() }
     }
 
     /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.

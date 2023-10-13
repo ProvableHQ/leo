@@ -130,7 +130,8 @@ impl<'a> CodeGenerator<'a> {
 
         // Construct and append the record variables.
         for var in struct_.members.iter() {
-            writeln!(output_string, "    {} as {};", var.identifier, var.type_,).expect("failed to write to string");
+            writeln!(output_string, "    {} as {};", var.identifier, self.visit_type(&var.type_),)
+                .expect("failed to write to string");
         }
 
         output_string
@@ -152,7 +153,8 @@ impl<'a> CodeGenerator<'a> {
             writeln!(
                 output_string,
                 "    {} as {}.{mode};", // todo: CAUTION private record variables only.
-                var.identifier, var.type_
+                var.identifier,
+                self.visit_type(&var.type_)
             )
             .expect("failed to write to string");
         }
@@ -287,9 +289,9 @@ impl<'a> CodeGenerator<'a> {
                     let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
                     match is_record {
                         // If the type is a record, then declare the type as is.
-                        true => format!("{identifier}.record"),
                         // If the type is a struct, then add the public modifier.
                         false => format!("{identifier}.public"),
+                        true => unreachable!("Type checking guarantees that mappings cannot contain records."),
                     }
                 }
                 type_ => format!("{type_}.public"),

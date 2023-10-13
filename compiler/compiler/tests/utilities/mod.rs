@@ -24,7 +24,6 @@ use leo_errors::{
     LeoWarning,
 };
 use leo_package::root::env::Env;
-use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
 use leo_test_framework::{test::TestConfig, Test};
 
@@ -237,14 +236,14 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     parsed.flattening_pass(&st)?;
 
-    parsed.destructuring_pass(&st)?;
+    parsed.destructuring_pass()?;
 
     parsed.function_inlining_pass(&call_graph)?;
 
     parsed.dead_code_elimination_pass()?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph, &parsed.ast.ast))?;
+    let bytecode = parsed.code_generation_pass(&st, &struct_graph, &call_graph)?;
 
     Ok(bytecode)
 }

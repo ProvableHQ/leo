@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{Mode, Type};
 
 impl<'a> CodeGenerator<'a> {
-    pub(crate) fn visit_type(&mut self, input: &'a Type) -> String {
+    pub(crate) fn visit_type(&mut self, input: &Type) -> String {
         match input {
             Type::Address
             | Type::Boolean
@@ -30,7 +30,9 @@ impl<'a> CodeGenerator<'a> {
             | Type::String
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Array(_) => todo!(),
+            Type::Array(array_type) => {
+                format!("[{}; {}u32]", self.visit_type(&array_type.element_type()), array_type.length())
+            }
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
