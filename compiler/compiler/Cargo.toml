@@ -62,7 +62,7 @@ features = [ "circuit", "console" ]
 version = "1.10.0"
 
 [dev-dependencies.serde]
-version = "1.0.183"
+version = "1.0.189"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
