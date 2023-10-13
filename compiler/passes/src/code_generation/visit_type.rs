@@ -44,7 +44,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub(crate) fn visit_type_with_visibility(&mut self, type_: &'a Type, visibility: Mode) -> String {
+    pub(crate) fn visit_type_with_visibility(&self, type_: &'a Type, visibility: Mode) -> String {
         match type_ {
             // When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
