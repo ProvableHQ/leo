@@ -705,4 +705,11 @@ create_messages!(
         msg: format!("An array cannot have a tuple as an element type"),
         help: None,
     }
+
+    @formatted
+    array_element_cannot_be_record {
+        args: (),
+        msg: format!("An array cannot have a record as an element type"),
+        help: None,
+    }
 );
