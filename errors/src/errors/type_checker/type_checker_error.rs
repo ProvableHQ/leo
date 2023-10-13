@@ -698,4 +698,11 @@ create_messages!(
         msg: format!("An array cannot have more than {max} elements, found one with {size} elements"),
         help: None,
     }
+
+    @formatted
+    array_element_cannot_be_tuple {
+        args: (),
+        msg: format!("An array cannot have a tuple as an element type"),
+        help: None,
+    }
 );

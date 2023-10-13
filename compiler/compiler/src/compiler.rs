@@ -242,6 +242,23 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
+    /// Runs the destructuring pass.
+    pub fn destructuring_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
+        self.ast = Destructurer::do_pass((
+            std::mem::take(&mut self.ast),
+            symbol_table,
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
+
+        if self.compiler_options.output.destructured_ast {
+            self.write_ast_to_json("destructured_ast.json")?;
+        }
+
+        Ok(())
+    }
+
     /// Runs the function inlining pass.
     pub fn function_inlining_pass(&mut self, call_graph: &CallGraph) -> Result<()> {
         let ast = FunctionInliner::do_pass((
@@ -294,6 +311,8 @@ impl<'a> Compiler<'a> {
         self.static_single_assignment_pass(&st)?;
 
         self.flattening_pass(&st)?;
+
+        self.destructuring_pass(&st)?;
 
         self.function_inlining_pass(&call_graph)?;
 

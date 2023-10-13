@@ -53,6 +53,7 @@ impl From<BuildOptions> for CompilerOptions {
                 unrolled_ast: options.enable_unrolled_ast_snapshot,
                 ssa_ast: options.enable_ssa_ast_snapshot,
                 flattened_ast: options.enable_flattened_ast_snapshot,
+                destructured_ast: options.enable_destructured_ast_snapshot,
                 inlined_ast: options.enable_inlined_ast_snapshot,
                 dce_ast: options.enable_dce_ast_snapshot,
             },
@@ -63,6 +64,7 @@ impl From<BuildOptions> for CompilerOptions {
             out_options.output.unrolled_ast = true;
             out_options.output.ssa_ast = true;
             out_options.output.flattened_ast = true;
+            out_options.output.destructured_ast = true;
             out_options.output.inlined_ast = true;
             out_options.output.dce_ast = true;
         }

@@ -26,6 +26,9 @@ pub use common::*;
 pub mod dead_code_elimination;
 pub use dead_code_elimination::*;
 
+pub mod destructuring;
+pub use destructuring::*;
+
 pub mod flattening;
 pub use flattening::*;
 

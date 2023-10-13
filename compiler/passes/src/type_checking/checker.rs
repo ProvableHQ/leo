@@ -1060,28 +1060,28 @@ impl<'a> TypeChecker<'a> {
 
     /// Emits an error if the type or its constituent types is not valid.
     pub(crate) fn assert_type_is_valid(&self, type_: &Type, span: Span) -> bool {
-        let mut is_defined = true;
+        let mut is_valid = true;
         match type_ {
             // String types are temporarily disabled.
             Type::String => {
-                is_defined = false;
+                is_valid = false;
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
-                is_defined = false;
+                is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
-                    is_defined &= self.assert_type_is_valid(type_, span)
+                    is_valid &= self.assert_type_is_valid(type_, span)
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                is_defined &= self.assert_type_is_valid(&mapping_type.key, span);
-                is_defined &= self.assert_type_is_valid(&mapping_type.value, span);
+                is_valid &= self.assert_type_is_valid(&mapping_type.key, span);
+                is_valid &= self.assert_type_is_valid(&mapping_type.value, span);
             }
             // Check that the array element types are valid.
             Type::Array(array_type) => {
@@ -1093,11 +1093,15 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
                     }
                 }
-                is_defined &= self.assert_type_is_valid(array_type.element_type(), span)
+                // Check that the array element type is not a tuple.
+                if let Type::Tuple(_) = array_type.element_type() {
+                    self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span))
+                }
+                is_valid &= self.assert_type_is_valid(array_type.element_type(), span)
             }
             _ => {} // Do nothing.
         }
-        is_defined
+        is_valid
     }
 
     /// Emits an error if the type is not a mapping.
