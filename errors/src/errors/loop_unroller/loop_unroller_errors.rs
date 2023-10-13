@@ -29,4 +29,11 @@ create_messages!(
         msg: format!("The loop range must be increasing."),
         help: None,
     }
+
+    @formatted
+    variable_array_access {
+        args: (),
+        msg: format!("The array index must be constant."),
+        help: None,
+    }
 );
