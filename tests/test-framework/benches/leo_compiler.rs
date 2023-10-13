@@ -242,7 +242,7 @@ impl Sample {
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
             let start = Instant::now();
-            let out = compiler.destructuring_pass(&symbol_table);
+            let out = compiler.destructuring_pass();
             let time = start.elapsed();
             out.expect("failed to run destructurer pass");
             time
@@ -257,7 +257,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
-            compiler.destructuring_pass(&symbol_table).expect("failed to run destructurer pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             let start = Instant::now();
             let out = compiler.function_inlining_pass(&call_graph);
             let time = start.elapsed();
@@ -274,7 +274,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
-            compiler.destructuring_pass(&symbol_table).expect("failed to run destructurer pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             let start = Instant::now();
             let out = compiler.dead_code_elimination_pass();
@@ -292,7 +292,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
-            compiler.destructuring_pass(&symbol_table).expect("failed to run destructurer pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             let start = Instant::now();
@@ -314,7 +314,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattening pass");
-            compiler.destructuring_pass(&symbol_table).expect("failed to run destructuring pass");
+            compiler.destructuring_pass().expect("failed to run destructuring pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run function inlining pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             compiler

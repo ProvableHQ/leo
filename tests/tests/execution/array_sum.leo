@@ -11,7 +11,7 @@ cases:
 
 program test.aleo {
     transition sum_manually(a: [u64; 4]) -> u64 {
-        return a[0] + a[1] + a[2] + a[3];
+        return a[0u8] + a[1u8] + a[2u8] + a[3u8];
     }
 
     transition sum_with_loop(a: [u64; 4]) -> u64 {
