@@ -120,7 +120,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses a program body `credits.aleo { ... }`
-    fn parse_program_body(&mut self, start: Span) -> Result<ProgramScope> {
+    fn parse_program_body(&mut self, start: Span) -> Result<(ProgramScope, Vec<Identifier>)> {
         // Parse the program name.
         let name = self.expect_identifier()?;
 
@@ -142,9 +142,18 @@ impl ParserContext<'_> {
         let mut functions: Vec<(Symbol, Function)> = Vec::new();
         let mut structs: Vec<(Symbol, Struct)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
+        let mut imports: Vec<Identifier> = Vec::new();
 
         while self.has_next() {
             match &self.token.token {
+                Token::Import => {
+                    self.expect(&Token::Import)?;
+                    let import_name = self.expect_identifier()?;
+                    self.expect(&Token::Dot)?;
+                    self.expect(&Token::Aleo)?;
+                    self.expect(&Token::Semicolon)?;
+                    imports.push(import_name);
+                }
                 Token::Const => {
                     let declaration = self.parse_const_declaration_statement()?;
                     consts.push((Symbol::intern(&declaration.place.to_string()), declaration));
@@ -180,24 +189,39 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
+        Ok((ProgramScope { program_id, consts, functions, structs, mappings, span: start + end }, imports))
     }
 
     /// Parses a stub `stub credits.aleo { ... }`.
     fn parse_stub(&mut self) -> Result<(Symbol, Stub)> {
         // Parse `stub` keyword.
         let start = self.expect(&Token::Stub)?;
-        let stub = Stub::from(self.parse_program_body(start)?);
+        let (program_body, imports) = self.parse_program_body(start)?;
 
-        Ok((stub.stub_id.name.name, stub))
+        Ok((program_body.program_id.name.name, Stub {
+            imports,
+            stub_id: program_body.program_id,
+            consts: program_body.consts,
+            structs: program_body.structs,
+            mappings: program_body.mappings,
+            functions: program_body
+                .functions
+                .into_iter()
+                .map(|(symbol, function)| (symbol, FunctionStub::from(function)))
+                .collect(),
+            span: program_body.span,
+        }))
     }
 
     /// Parses a program scope `program foo.aleo { ... }`.
     fn parse_program_scope(&mut self) -> Result<ProgramScope> {
         // Parse `program` keyword.
         let start = self.expect(&Token::Program)?;
-
-        self.parse_program_body(start)
+        let (program_scope, imports) = self.parse_program_body(start)?;
+        if imports.len() != 0 {
+            self.emit_err(ParserError::cannot_import_inside_program_body(self.token.span));
+        }
+        Ok(program_scope)
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.

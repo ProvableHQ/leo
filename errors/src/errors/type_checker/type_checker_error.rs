@@ -688,14 +688,14 @@ create_messages!(
     @formatted
     stubs_can_only_have_records_and_transitions {
         args: (found: impl Display),
-        msg: format!("Stubs can only have records and transitions -- found {found}"),
+        msg: format!("Stubs can only have records, transitions, functions and imports -- found {found}"),
         help: None,
     }
 
     @formatted
-    stub_functions_must_be_transitions {
+    stub_functions_must_not_be_inlines {
         args: (),
-        msg: format!("Function stubs must be transitions"),
+        msg: format!("Function stubs must be transitions or function variants not inlines"),
         help: None,
     }
 

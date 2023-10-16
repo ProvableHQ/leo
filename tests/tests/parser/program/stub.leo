@@ -4,6 +4,8 @@ expectation: Pass
 */
 
 stub credits.aleo {
+    import battleship.aleo;
+    import exchange.aleo;
     record credits {
         owner: address,
         micrcredits: u64,
@@ -30,7 +32,7 @@ stub credits.aleo {
 
     transition mint(public a1: address, public a2: u64) -> credits;
 
-    transition transfer_public(public a1: address, public a2: u64);
+    transition transfer_public(public a1: address, public a2: u64) -> exchange.aleo/tokens;
 
     transition transfer_private(a1: credits, a2: address, a3: u64) -> (credits, credits);
 

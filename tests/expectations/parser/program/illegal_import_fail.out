@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370036]: Cannot use import inside program body.\n    --> test:13:1\n     |\n  13 | }\n     | ^"

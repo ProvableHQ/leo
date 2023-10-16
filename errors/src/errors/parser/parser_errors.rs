@@ -308,6 +308,14 @@ create_messages!(
         help: None,
     }
 
+    /// Enforce that cannot use import in program scope
+    @formatted
+    cannot_import_inside_program_body {
+        args: (),
+        msg: format!("Cannot use import inside program body."),
+        help: None,
+    }
+
     @formatted
     array_must_have_at_least_one_element {
         args: (kind: impl Display),

@@ -24,6 +24,7 @@ stub credits.aleo {
 
     transition mint(public a1: address, public a2: u64) -> credits;
 
+    function add_up(a1: u64, a2: u64) -> u64;
 
     transition transfer_public(public b1: address, public b2: u64);
 
@@ -42,6 +43,8 @@ program test.aleo {
     transition foo(arg1: address, arg2: u64, arg3: credits.aleo/credits) -> credits.aleo/credits {
         // External call
         credits.aleo/transfer_public(arg1, arg2);
+
+        let c: u64 = credits.aleo/add_up(arg2, arg2);
 
         return credits.aleo/mint(arg1, arg2);
     }

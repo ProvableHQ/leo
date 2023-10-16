@@ -17,9 +17,10 @@
 //! A stub contains function templates as well as definitions for mappings, structs, records, and constants.
 
 pub mod function_stub;
+
 pub use function_stub::*;
 
-use crate::{ConstDeclaration, Mapping, ProgramId, ProgramScope, Struct};
+use crate::{ConstDeclaration, Identifier, Mapping, ProgramId, Struct};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,9 +28,11 @@ use std::fmt;
 /// Stores the Leo stub abstract syntax tree.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Stub {
+    /// A vector of imported programs.
+    pub imports: Vec<Identifier>,
     /// The stub id
     pub stub_id: ProgramId,
-    /// A vector of const definitions
+    /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of struct definitions.
     pub structs: Vec<(Symbol, Struct)>,
@@ -39,23 +42,6 @@ pub struct Stub {
     pub functions: Vec<(Symbol, FunctionStub)>,
     /// The span associated with the stub.
     pub span: Span,
-}
-
-impl From<ProgramScope> for Stub {
-    fn from(program_scope: ProgramScope) -> Self {
-        Self {
-            stub_id: program_scope.program_id,
-            consts: program_scope.consts,
-            structs: program_scope.structs,
-            mappings: program_scope.mappings,
-            functions: program_scope
-                .functions
-                .into_iter()
-                .map(|(symbol, function)| (symbol, FunctionStub::from(function)))
-                .collect(),
-            span: program_scope.span,
-        }
-    }
 }
 
 impl fmt::Display for Stub {

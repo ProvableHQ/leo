@@ -88,8 +88,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Must be transition functions
-        if input.variant != Variant::Transition {
-            self.emit_err(TypeCheckerError::stub_functions_must_be_transitions(input.span));
+        if input.variant == Variant::Inline {
+            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
         }
 
         // Must be empty
