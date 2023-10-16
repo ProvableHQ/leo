@@ -336,4 +336,12 @@ create_messages!(
         msg: format!("External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."),
         help: None,
     }
+
+    /// Enforce that cannot use import in program scope
+    @formatted
+    cannot_import_inside_program_body {
+        args: (),
+        msg: format!("Cannot use import inside program body."),
+        help: None,
+    }
 );
