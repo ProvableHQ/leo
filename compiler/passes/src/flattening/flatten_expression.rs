@@ -86,13 +86,13 @@ impl ExpressionReconstructor for Flattener<'_> {
                 assert!(first_type.eq_flat(&second_type));
 
                 match &first_type {
-                    Type::Array(first_type) => self.ternary_array(&first_type, &input.condition, &first, &second),
+                    Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),
                     Type::Identifier(first_type) => {
                         // Get the struct definitions.
                         let first_type = self.symbol_table.lookup_struct(first_type.name).unwrap();
-                        self.ternary_struct(&first_type, &input.condition, &first, &second)
+                        self.ternary_struct(first_type, &input.condition, &first, &second)
                     }
-                    Type::Tuple(first_type) => self.ternary_tuple(&first_type, &input.condition, &first, &second),
+                    Type::Tuple(first_type) => self.ternary_tuple(first_type, &input.condition, &first, &second),
                     _ => {
                         // Reconstruct the true case.
                         let (if_true, stmts) = self.reconstruct_expression(Expression::Identifier(first));
