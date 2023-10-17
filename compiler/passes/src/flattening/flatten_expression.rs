@@ -73,25 +73,26 @@ impl ExpressionReconstructor for Flattener<'_> {
         match (*input.if_true, *input.if_false) {
             // If both expressions are identifiers which are arrays, construct ternary expressions for each of the members and an array expression for the result.
             (Expression::Identifier(first), Expression::Identifier(second)) => {
-                match (self.type_table.get(&first.id()), self.type_table.get(&second.id())) {
-                    (Some(Type::Array(first_type)), Some(Type::Array(second_type))) => {
-                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_type, second_type);
-                        self.ternary_array(&first_type, &input.condition, &first, &second)
-                    }
-                    (Some(Type::Identifier(first_type)), Some(Type::Identifier(second_type))) => {
+                let first_type = match self.type_table.get(&first.id()) {
+                    Some(first_type) => first_type,
+                    _ => unreachable!("Type checking guarantees that all expressions are typed."),
+                };
+                let second_type = match self.type_table.get(&second.id()) {
+                    Some(second_type) => second_type,
+                    _ => unreachable!("Type checking guarantees that all expressions are typed."),
+                };
+
+                // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
+                assert!(first_type.eq_flat(&second_type));
+
+                match &first_type {
+                    Type::Array(first_type) => self.ternary_array(&first_type, &input.condition, &first, &second),
+                    Type::Identifier(first_type) => {
                         // Get the struct definitions.
                         let first_type = self.symbol_table.lookup_struct(first_type.name).unwrap();
-                        let second_type = self.symbol_table.lookup_struct(second_type.name).unwrap();
-                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_type, second_type);
-                        self.ternary_struct(first_type, &input.condition, &first, &second)
+                        self.ternary_struct(&first_type, &input.condition, &first, &second)
                     }
-                    (Some(Type::Tuple(first_type)), Some(Type::Tuple(second_type))) => {
-                        // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                        assert_eq!(first_type, second_type);
-                        self.ternary_tuple(&first_type, &input.condition, &first, &second)
-                    }
+                    Type::Tuple(first_type) => self.ternary_tuple(&first_type, &input.condition, &first, &second),
                     _ => {
                         // Reconstruct the true case.
                         let (if_true, stmts) = self.reconstruct_expression(Expression::Identifier(first));
@@ -117,9 +118,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                     }
                 }
             }
-            (expr1, expr2) => {
-                println!("expr1: {:?}", expr1);
-                println!("expr2: {:?}", expr2);
+            _ => {
                 unreachable!("SSA guarantees that the subexpressions of a ternary expression are identifiers.")
             }
         }

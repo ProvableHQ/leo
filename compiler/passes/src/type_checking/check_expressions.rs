@@ -555,7 +555,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Assert right type is a magnitude (u8, u16, u32).
                 self.assert_magnitude_type(&t2, input.right.span());
 
-                return_incorrect_type(t1, t2, destination)
+                t1
             }
         }
     }

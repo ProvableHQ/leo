@@ -18,6 +18,7 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
     ArrayExpression,
     AssociatedFunction,
     BinaryExpression,
@@ -97,6 +98,19 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                         index: tuple.index,
                         span: tuple.span,
                         id: tuple.id,
+                    }),
+                    statements,
+                )
+            }
+            AccessExpression::Array(input) => {
+                let (array, statements) = self.consume_expression(*input.array);
+
+                (
+                    AccessExpression::Array(ArrayAccess {
+                        array: Box::new(array),
+                        index: input.index,
+                        span: input.span,
+                        id: input.id,
                     }),
                     statements,
                 )
