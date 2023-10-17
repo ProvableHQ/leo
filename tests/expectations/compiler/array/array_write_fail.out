@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372000]: invalid assignment target\n    --> compiler-test:5:9\n     |\n   5 |         a[0u32] = false;\n     |         ^^^^^^^\nError [ETYC0372000]: invalid assignment target\n    --> compiler-test:6:9\n     |\n   6 |         a[1u32] = true;\n     |         ^^^^^^^\n"

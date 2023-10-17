@@ -292,13 +292,12 @@ impl<'a> CodeGenerator<'a> {
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
                     let (is_record, _) = self.composite_mapping.get(&identifier.name).unwrap();
                     match is_record {
-                        // If the type is a record, then declare the type as is.
                         // If the type is a struct, then add the public modifier.
-                        false => format!("{identifier}.public"),
+                        false => self.visit_type_with_visibility(type_, Mode::Public),
                         true => unreachable!("Type checking guarantees that mappings cannot contain records."),
                     }
                 }
-                type_ => format!("{type_}.public"),
+                type_ => self.visit_type_with_visibility(type_, Mode::Public),
             }
         };
 
