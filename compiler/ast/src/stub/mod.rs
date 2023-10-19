@@ -21,7 +21,8 @@ pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{ConstDeclaration, Identifier, Mapping, ProgramId, Struct};
+
+use crate::{ConstDeclaration, Mapping, ProgramId, Struct};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -30,7 +31,7 @@ use std::fmt;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Stub {
     /// A vector of imported programs.
-    pub imports: Vec<Identifier>,
+    pub imports: Vec<ProgramId>,
     /// The stub id
     pub stub_id: ProgramId,
     /// A vector of const definitions.

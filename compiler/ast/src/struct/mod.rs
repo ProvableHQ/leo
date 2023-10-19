@@ -17,11 +17,19 @@
 pub mod member;
 pub use member::*;
 
-use crate::{Identifier, Node, NodeID};
+use crate::{Identifier, Mode, Node, NodeID, Type};
 use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+
+use snarkvm::{
+    console::program::{RecordType, StructType},
+    prelude::{
+        EntryType::{Private, Public, Constant},
+        Network,
+    },
+};
 
 /// A struct type definition, e.g., `struct Foo { my_field: Bar }`.
 /// In some languages these are called `struct`s.
@@ -77,3 +85,51 @@ impl fmt::Display for Struct {
 }
 
 crate::simple_node_impl!(Struct);
+
+// impl<N: Network> From<&StructType<N>> for Struct {
+//     fn from(input: &StructType<N>) -> Self {
+//         Self {
+//             identifier: Identifier::from(input.name()),
+//             members: input
+//                 .members()
+//                 .iter()
+//                 .map(|(id, type_)| Member {
+//                     mode: Mode::None,
+//                     identifier: Identifier::from(id),
+//                     type_: Type::from(type_),
+//                     span: Default::default(),
+//                     id: Default::default(),
+//                 })
+//                 .collect(),
+//             is_record: false,
+//             span: Default::default(),
+//             id: Default::default(),
+//         }
+//     }
+// }
+//
+// impl<N: Network> From<&RecordType<N>> for Struct {
+//     fn from(input: &RecordType<N>) -> Self {
+//         Self {
+//             identifier: Identifier::from(input.name()),
+//             members: input
+//                 .entries()
+//                 .iter()
+//                 .map(|(id, entry)| Member {
+//                     mode: Mode::None,
+//                     identifier: Identifier::from(id),
+//                     type_: match entry {
+//                         Public(t) => Type::from(t),
+//                         Private(t) => Type::from(t),
+//                         Constant(t) => Type::from(t),
+//                     },
+//                     span: Default::default(),
+//                     id: Default::default(),
+//                 })
+//                 .collect(),
+//             is_record: true,
+//             span: Default::default(),
+//             id: Default::default(),
+//         }
+//     }
+// }

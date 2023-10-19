@@ -16,6 +16,7 @@
 
 use leo_errors::Result;
 use leo_span::{Span, Symbol};
+use snarkvm::console::program::Identifier as IdentifierCore;
 
 use crate::{simple_node_impl, Node, NodeID};
 use serde::{
@@ -27,6 +28,9 @@ use serde::{
     Deserializer,
     Serialize,
     Serializer,
+};
+use snarkvm::{
+    prelude::Network,
 };
 use std::{
     collections::BTreeMap,
@@ -150,5 +154,13 @@ impl<'de> Deserialize<'de> for Identifier {
         }
 
         deserializer.deserialize_str(IdentifierVisitor)
+    }
+}
+impl<N: Network> From<IdentifierCore<N>> for Identifier {
+    fn from(id: IdentifierCore<N>) -> Self {
+        let id_str = id.to_string();
+        dbg!(id_str.clone());
+        let a = "Dummy";
+        Self { name: Symbol::intern(a), span: Default::default(), id: Default::default() }
     }
 }

@@ -1,0 +1,17 @@
+[package]
+name = "disassembler"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies.snarkvm]
+workspace = true
+
+[dependencies.leo-ast]
+path = "../../compiler/ast"
+version = "=1.9.4"
+
+[dependencies.leo-span]
+path = "../../compiler/span"
+version = "1.9.3"

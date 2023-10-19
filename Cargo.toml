@@ -41,7 +41,8 @@ members = [
   "docs/grammar",
   "errors",
   "leo/package",
-  "tests/test-framework"
+  "tests/test-framework",
+    "utils/disassembler"
 ]
 
 [workspace.dependencies.snarkvm]
