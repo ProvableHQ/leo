@@ -1,6 +1,6 @@
 [package]
 name = "leo-test-framework"
-version = "1.9.4"
+version = "1.10.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The testing framework for the Leo programming language"
 homepage = "https://aleo.org"
@@ -24,7 +24,7 @@ harness = false
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "=1.9.4"
+version = "=1.10.0"
 
 [dependencies.backtrace]
 version = "0.3.68"
