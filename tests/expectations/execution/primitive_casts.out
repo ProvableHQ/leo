@@ -16,7 +16,7 @@ outputs:
       results:
         address_casts:
           - input: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey]"
-            output: "SnarkVMError('test.aleo/address_casts' is not satisfied on the given inputs (35900 constraints).)"
+            output: "SnarkVMError('test.aleo/address_casts' is not satisfied on the given inputs (30871 constraints).)"
         bool_casts:
           - input: "[false]"
             output: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
