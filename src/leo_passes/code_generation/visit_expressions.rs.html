@@ -593,6 +593,11 @@
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
 <a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1146,7 +1151,12 @@
                 <span class="prelude-val">Some</span>(Expression::Identifier(identifier)) =&gt; identifier,
                 <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;If `has_finalize` is true, then the external call must be an identifier.&quot;</span>),
             };
-            <span class="self">self</span>.futures.push((future_register, <span class="macro">format!</span>(<span class="string">&quot;{program_id}/{function_name}&quot;</span>)));
+
+            <span class="comment">// Add the futures register to the list of futures.
+            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">&quot;{program_id}/{function_name}&quot;</span>)));
+
+            <span class="comment">// Add the future register to the list of destinations.
+            </span>destinations.push(future_register);
         }
 
         <span class="comment">// If destination registers were created, write them to the call instruction.
