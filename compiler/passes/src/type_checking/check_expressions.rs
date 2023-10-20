@@ -283,7 +283,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_type(&element_type, &first_type, element.span());
                     }
                     // Return the array type.
-                    Type::Array(ArrayType::new(first_type, NonzeroNumber::from(input.elements.len())))
+                    Type::Array(ArrayType::new(first_type, NonNegativeNumber::from(input.elements.len())))
                 })
             }
             // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.

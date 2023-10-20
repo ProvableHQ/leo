@@ -156,7 +156,7 @@ impl<'a> ParserContext<'a> {
     /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
     /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
     ///
-    pub fn eat_whole_number(&mut self) -> Result<(NonzeroNumber, Span)> {
+    pub fn eat_whole_number(&mut self) -> Result<(NonNegativeNumber, Span)> {
         if let Token::Integer(value) = &self.token.token {
             let value = value.clone();
             self.bump();
@@ -165,7 +165,7 @@ impl<'a> ParserContext<'a> {
                 return Err(ParserError::tuple_index_must_be_whole_number(&self.token.token, self.token.span).into());
             }
 
-            Ok((NonzeroNumber::from(value), self.prev_token.span))
+            Ok((NonNegativeNumber::from(value), self.prev_token.span))
         } else {
             Err(ParserError::unexpected(&self.token.token, "integer literal", self.token.span).into())
         }

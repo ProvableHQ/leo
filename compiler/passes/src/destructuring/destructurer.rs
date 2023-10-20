@@ -33,7 +33,7 @@ use leo_ast::{
     MemberAccess,
     Node,
     NodeBuilder,
-    NonzeroNumber,
+    NonNegativeNumber,
     ReturnStatement,
     Statement,
     Struct,

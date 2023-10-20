@@ -33,7 +33,7 @@ use leo_ast::{
     MemberAccess,
     Node,
     NodeBuilder,
-    NonzeroNumber,
+    NonNegativeNumber,
     ReturnStatement,
     Statement,
     Struct,
@@ -498,7 +498,7 @@ impl<'a> Flattener<'a> {
                 let (first, stmt) =
                     self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(*first)),
-                        index: NonzeroNumber::from(i),
+                        index: NonNegativeNumber::from(i),
                         span: Default::default(),
                         id: {
                             // Create a new node ID for the access expression.
@@ -513,7 +513,7 @@ impl<'a> Flattener<'a> {
                 let (second, stmt) =
                     self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: Box::new(Expression::Identifier(*second)),
-                        index: NonzeroNumber::from(i),
+                        index: NonNegativeNumber::from(i),
                         span: Default::default(),
                         id: {
                             // Create a new node ID for the access expression.

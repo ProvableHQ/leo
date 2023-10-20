@@ -17,22 +17,22 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
-/// A number string guaranteed to be nonzero.
+/// A number string guaranteed to be non-negative.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
-pub struct NonzeroNumber {
-    /// The string representation of the nonzero number.
+pub struct NonNegativeNumber {
+    /// The string representation of the non-negative number.
     string: String,
-    /// The numeric value of the nonzero number.
+    /// The numeric value of the non-negative number.
     value: usize,
 }
 
-impl NonzeroNumber {
-    /// Returns the string representation of the nonzero number.
+impl NonNegativeNumber {
+    /// Returns the string representation of the non-negative number.
     pub fn string(&self) -> &str {
         &self.string
     }
 
-    /// Returns the numeric value of the nonzero number.
+    /// Returns the numeric value of the non-negative number.
     pub fn value(&self) -> usize {
         self.value
     }
@@ -43,21 +43,21 @@ impl NonzeroNumber {
     }
 }
 
-impl From<String> for NonzeroNumber {
+impl From<String> for NonNegativeNumber {
     fn from(string: String) -> Self {
         let value = usize::from_str(&string).unwrap();
         Self { string, value }
     }
 }
 
-impl From<usize> for NonzeroNumber {
+impl From<usize> for NonNegativeNumber {
     fn from(value: usize) -> Self {
         let string = value.to_string();
         Self { string, value }
     }
 }
 
-impl fmt::Display for NonzeroNumber {
+impl fmt::Display for NonNegativeNumber {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
     }
