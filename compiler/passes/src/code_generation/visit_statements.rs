@@ -167,7 +167,7 @@ impl<'a> CodeGenerator<'a> {
             }
             // Write the destination register.
             let destination_register = format!("r{}", self.next_register);
-            write!(async_instruction, " into {};", destination_register).expect("failed to write to string");
+            writeln!(async_instruction, " into {};", destination_register).expect("failed to write to string");
             // Increment the register counter.
             self.next_register += 1;
             // Add the async instruction to the instructions.

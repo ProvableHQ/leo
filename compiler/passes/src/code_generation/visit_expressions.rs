@@ -551,7 +551,12 @@ impl<'a> CodeGenerator<'a> {
                 Some(Expression::Identifier(identifier)) => identifier,
                 _ => unreachable!("If `has_finalize` is true, then the external call must be an identifier."),
             };
-            self.futures.push((future_register, format!("{program_id}/{function_name}")));
+
+            // Add the futures register to the list of futures.
+            self.futures.push((future_register.clone(), format!("{program_id}/{function_name}")));
+
+            // Add the future register to the list of destinations.
+            destinations.push(future_register);
         }
 
         // If destination registers were created, write them to the call instruction.
