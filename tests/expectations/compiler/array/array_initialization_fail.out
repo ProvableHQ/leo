@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372007]: Expected one type from `[boolean; 8]`, but got `[boolean; 7]`\n    --> compiler-test:5:16\n     |\n   5 |         return [a, a, a, a, a, a, a];\n     |                ^^^^^^^^^^^^^^^^^^^^^\nError [ETYC0372007]: Expected one type from `u8`, but got `u32`\n    --> compiler-test:9:52\n     |\n   9 |         return [1u8, 2u8, 3u8, 4u8, 5u8, 6u8, 7u8, 8u32];\n     |                                                    ^^^^\n"

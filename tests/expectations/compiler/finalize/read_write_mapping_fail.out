@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370005]: expected ; -- found '['\n    --> compiler-test:7:24\n     |\n   7 |         return balances[addr];\n     |                        ^"
+  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> compiler-test:15:9\n     |\n  15 |         finalize(addr);\n     |         ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."

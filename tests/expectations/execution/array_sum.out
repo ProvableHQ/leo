@@ -1,0 +1,23 @@
+---
+namespace: Execute
+expectation: Pass
+outputs:
+  - - initial_symbol_table: 2636d609084c5edbbc22b952f4619fe7a599d7ff8e343ac2068e0b96b7f76632
+      type_checked_symbol_table: 45b59b6a193e80b647beae0fa1223d042b716e5e66595a1396daebd825e10113
+      unrolled_symbol_table: 82ec549e32104983d7af9d4bccfbebb5997ecf2b22bc1823851f0a438362e293
+      initial_ast: cc486e21e2196e8be55ec7ae9dbf21f2f7056029e3dc60d8b0bb7ceb7a67909a
+      unrolled_ast: 260f45294e0c4ec11209a68174d0ee04a1b2a68fc1a6c5a584ec8de54e04daa4
+      ssa_ast: 9840379281538c36a8b6c5754052bb538456926b47c31a17fbf649eb4c7c4660
+      flattened_ast: 0964c710087baaf0787b00fd3c9c1134b89a6f7ec2b7757f57baec1efed090f9
+      destructured_ast: 216671ce931250967f68579064173439324e2b1f696a18891803659db5c8f201
+      inlined_ast: 216671ce931250967f68579064173439324e2b1f696a18891803659db5c8f201
+      dce_ast: 216671ce931250967f68579064173439324e2b1f696a18891803659db5c8f201
+      bytecode: f8442f404e7a865ea2161ba7fa50f682ad3b4fe62585456913ccc47a01a6c5ef
+      warnings: ""
+      results:
+        sum_manually:
+          - input: "[[\n  1u64,\n  2u64,\n  3u64,\n  4u64\n]]"
+            output: "[10u64]"
+        sum_with_loop:
+          - input: "[[\n  1u64,\n  2u64,\n  3u64,\n  4u64\n]]"
+            output: "[10u64]"

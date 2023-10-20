@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372087]: An array cannot have a record as an element type\n    --> compiler-test:9:20\n     |\n   9 |     transition foo(a: [bar; 8]) -> u8 {\n     |                    ^\n"
