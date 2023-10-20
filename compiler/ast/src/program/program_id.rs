@@ -94,8 +94,8 @@ impl<'de> Deserialize<'de> for ProgramId {
     }
 }
 
-impl<N: Network> From<ProgramID<N>> for ProgramId {
-    fn from(program: ProgramID<N>) -> Self {
-        Self { name: Identifier::from(*program.name()), network: Identifier::from(*program.network()) }
+impl<N: Network> From<&ProgramID<N>> for ProgramId {
+    fn from(program: &ProgramID<N>) -> Self {
+        Self { name: Identifier::from(program.name()), network: Identifier::from(program.network()) }
     }
 }

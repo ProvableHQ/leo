@@ -113,3 +113,31 @@ impl fmt::Display for Type {
         }
     }
 }
+
+impl<N: Network> From<&PlaintextType<N>> for Type {
+    fn from(t: &PlaintextType<N>) -> Self {
+        match t {
+            Literal(lit) => match lit {
+                snarkvm::prelude::LiteralType::Address => Type::Address,
+                snarkvm::prelude::LiteralType::Boolean => Type::Boolean,
+                snarkvm::prelude::LiteralType::Field => Type::Field,
+                snarkvm::prelude::LiteralType::Group => Type::Group,
+                snarkvm::prelude::LiteralType::U8 => Type::Integer(IntegerType::U8),
+                snarkvm::prelude::LiteralType::U16 => Type::Integer(IntegerType::U16),
+                snarkvm::prelude::LiteralType::U32 => Type::Integer(IntegerType::U32),
+                snarkvm::prelude::LiteralType::U64 => Type::Integer(IntegerType::U64),
+                snarkvm::prelude::LiteralType::U128 => Type::Integer(IntegerType::U128),
+                snarkvm::prelude::LiteralType::I8 => Type::Integer(IntegerType::I8),
+                snarkvm::prelude::LiteralType::I16 => Type::Integer(IntegerType::I16),
+                snarkvm::prelude::LiteralType::I32 => Type::Integer(IntegerType::I32),
+                snarkvm::prelude::LiteralType::I64 => Type::Integer(IntegerType::I64),
+                snarkvm::prelude::LiteralType::I128 => Type::Integer(IntegerType::I128),
+                snarkvm::prelude::LiteralType::Scalar => Type::Scalar,
+                snarkvm::prelude::LiteralType::Signature => Type::Signature,
+                snarkvm::prelude::LiteralType::String => Type::String,
+            },
+            Struct(s) => Type::Identifier(common::Identifier::from(s)),
+            Array(_) => panic!("Array type not supported"),
+        }
+    }
+}

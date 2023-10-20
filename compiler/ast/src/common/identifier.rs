@@ -29,9 +29,7 @@ use serde::{
     Serialize,
     Serializer,
 };
-use snarkvm::{
-    prelude::Network,
-};
+use snarkvm::prelude::Network;
 use std::{
     collections::BTreeMap,
     fmt,
@@ -156,11 +154,8 @@ impl<'de> Deserialize<'de> for Identifier {
         deserializer.deserialize_str(IdentifierVisitor)
     }
 }
-impl<N: Network> From<IdentifierCore<N>> for Identifier {
-    fn from(id: IdentifierCore<N>) -> Self {
-        let id_str = id.to_string();
-        dbg!(id_str.clone());
-        let a = "Dummy";
-        Self { name: Symbol::intern(a), span: Default::default(), id: Default::default() }
+impl<N: Network> From<&IdentifierCore<N>> for Identifier {
+    fn from(id: &IdentifierCore<N>) -> Self {
+        Self { name: Symbol::intern(&id.to_string()), span: Default::default(), id: Default::default() }
     }
 }

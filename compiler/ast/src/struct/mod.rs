@@ -20,13 +20,14 @@ pub use member::*;
 use crate::{Identifier, Mode, Node, NodeID, Type};
 use leo_span::{Span, Symbol};
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use snarkvm::{
     console::program::{RecordType, StructType},
     prelude::{
-        EntryType::{Private, Public, Constant},
+        EntryType::{Constant, Private, Public},
         Network,
     },
 };
@@ -78,58 +79,68 @@ impl fmt::Display for Struct {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
         writeln!(f, " {} {{ ", self.identifier)?;
         for field in self.members.iter() {
-            writeln!(f, "    {field}")?;
+            writeln!(f, "        {field}")?;
         }
-        write!(f, "}}")
+        write!(f, "    }}")
     }
 }
 
 crate::simple_node_impl!(Struct);
 
-// impl<N: Network> From<&StructType<N>> for Struct {
-//     fn from(input: &StructType<N>) -> Self {
-//         Self {
-//             identifier: Identifier::from(input.name()),
-//             members: input
-//                 .members()
-//                 .iter()
-//                 .map(|(id, type_)| Member {
-//                     mode: Mode::None,
-//                     identifier: Identifier::from(id),
-//                     type_: Type::from(type_),
-//                     span: Default::default(),
-//                     id: Default::default(),
-//                 })
-//                 .collect(),
-//             is_record: false,
-//             span: Default::default(),
-//             id: Default::default(),
-//         }
-//     }
-// }
-//
-// impl<N: Network> From<&RecordType<N>> for Struct {
-//     fn from(input: &RecordType<N>) -> Self {
-//         Self {
-//             identifier: Identifier::from(input.name()),
-//             members: input
-//                 .entries()
-//                 .iter()
-//                 .map(|(id, entry)| Member {
-//                     mode: Mode::None,
-//                     identifier: Identifier::from(id),
-//                     type_: match entry {
-//                         Public(t) => Type::from(t),
-//                         Private(t) => Type::from(t),
-//                         Constant(t) => Type::from(t),
-//                     },
-//                     span: Default::default(),
-//                     id: Default::default(),
-//                 })
-//                 .collect(),
-//             is_record: true,
-//             span: Default::default(),
-//             id: Default::default(),
-//         }
-//     }
-// }
+impl<N: Network> From<&StructType<N>> for Struct {
+    fn from(input: &StructType<N>) -> Self {
+        Self {
+            identifier: Identifier::from(input.name()),
+            members: input
+                .members()
+                .iter()
+                .map(|(id, type_)| Member {
+                    mode: Mode::None,
+                    identifier: Identifier::from(id),
+                    type_: Type::from(type_),
+                    span: Default::default(),
+                    id: Default::default(),
+                })
+                .collect(),
+            is_record: false,
+            span: Default::default(),
+            id: Default::default(),
+        }
+    }
+}
+
+impl<N: Network> From<&RecordType<N>> for Struct {
+    fn from(input: &RecordType<N>) -> Self {
+        Self {
+            identifier: Identifier::from(input.name()),
+            members: [
+                vec![Member {
+                    mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
+                    identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
+                    type_: Type::Address,
+                    span: Default::default(),
+                    id: Default::default(),
+                }],
+                input
+                    .entries()
+                    .iter()
+                    .map(|(id, entry)| Member {
+                        mode: Mode::None,
+                        identifier: Identifier::from(id),
+                        type_: match entry {
+                            Public(t) => Type::from(t),
+                            Private(t) => Type::from(t),
+                            Constant(t) => Type::from(t),
+                        },
+                        span: Default::default(),
+                        id: Default::default(),
+                    })
+                    .collect_vec(),
+            ]
+            .concat(),
+            is_record: true,
+            span: Default::default(),
+            id: Default::default(),
+        }
+    }
+}

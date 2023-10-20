@@ -21,7 +21,6 @@ pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
-
 use crate::{ConstDeclaration, Mapping, ProgramId, Struct};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -49,6 +48,9 @@ pub struct Stub {
 impl fmt::Display for Stub {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "stub {} {{", self.stub_id)?;
+        for import in self.imports.iter() {
+            writeln!(f, "    import {import}")?;
+        }
         for (_, struct_) in self.structs.iter() {
             writeln!(f, "    {struct_}")?;
         }
@@ -58,6 +60,7 @@ impl fmt::Display for Stub {
         for (_, function) in self.functions.iter() {
             writeln!(f, "    {function}")?;
         }
+        writeln!(f, "}}")?;
         Ok(())
     }
 }
