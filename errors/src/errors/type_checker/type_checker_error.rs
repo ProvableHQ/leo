@@ -534,9 +534,9 @@ create_messages!(
     }
 
     @formatted
-    function_cannot_output_record {
+    function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("A `function` cannot output a record."),
+        msg: format!("A `function` cannot have a record as input or output."),
         help: None,
     }
 
