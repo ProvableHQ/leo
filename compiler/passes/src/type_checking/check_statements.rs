@@ -60,33 +60,44 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_assign(&mut self, input: &'a AssignStatement) {
-        let var_name = match input.place {
-            Expression::Identifier(id) => id,
+        let lookup_variable = |id: Identifier| -> Option<Type> {
+            if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(id.name) {
+                match &var.declaration {
+                    VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(id, var.span)),
+                    VariableType::Input(Mode::Constant) => {
+                        self.emit_err(TypeCheckerError::cannot_assign_to_const_input(id, var.span))
+                    }
+                    _ => {}
+                }
+                Some(var.type_.clone())
+            } else {
+                self.emit_err(TypeCheckerError::unknown_sym("variable", id.name, id.span));
+                None
+            }
+        };
+
+        let var_type = match &input.place {
+            Expression::Identifier(id) => lookup_variable(*id),
+            Expression::Access(AccessExpression::Array(array_access)) => match array_access.array.as_ref() {
+                Expression::Identifier(id) => match lookup_variable(*id) {
+                    Some(Type::Array(array_type)) => Some(array_type.element_type().clone()),
+                    type_ => {
+                        self.assert_array_type(&type_, array_access.array.span());
+                        None
+                    }
+                },
+                _ => {
+                    self.emit_err(TypeCheckerError::invalid_assignment_target(array_access.array.span()));
+                    return;
+                }
+            },
             _ => {
                 self.emit_err(TypeCheckerError::invalid_assignment_target(input.place.span()));
                 return;
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
-            match &var.declaration {
-                VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(Mode::Constant) => {
-                    self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
-                }
-                _ => {}
-            }
-
-            Some(var.type_.clone())
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-
-            None
-        };
-
-        if var_type.is_some() {
-            self.visit_expression(&input.value, &var_type);
-        }
+        self.visit_expression(&input.value, &var_type);
     }
 
     fn visit_block(&mut self, input: &'a Block) {

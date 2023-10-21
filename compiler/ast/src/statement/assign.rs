@@ -25,7 +25,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct AssignStatement {
     /// The place to assign to.
-    /// Note that `place` can either be an identifier or tuple.
+    /// Note that `place` can either be an identifier, tuple, or access expression.
     pub place: Expression,
     /// The value to assign to the `assignee`.
     pub value: Expression,
