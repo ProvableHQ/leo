@@ -32,7 +32,7 @@ version = "0.3.68"
 version = "2.0.4"
 
 [dependencies.color-backtrace]
-version = "0.6.0"
+version = "0.6.1"
 
 [dependencies.derivative]
 version = "2.2.0"
