@@ -94,7 +94,7 @@ version = "4.4"
 features = [ "derive", "env", "color", "unstable-styles" ]
 
 [dependencies.color-backtrace]
-version = "0.6.0"
+version = "0.6.1"
 
 [dependencies.colored]
 version = "2.0"
