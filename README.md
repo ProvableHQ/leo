@@ -10,7 +10,7 @@
     <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
     <a href="https://GitHub.com/AleoHQ/leo"><img src="https://img.shields.io/badge/contributors-29-ee8449"/></a>
 </p>
-
+<div id="top"></div>
 Leo is a functional, statically-typed programming language built for writing private applications.
 
 ## <a name='TableofContents'></a>Table of Contents
@@ -590,3 +590,5 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 ## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
+
+<p align="right"><a href="#top">🔼 Back to top</a></p>
