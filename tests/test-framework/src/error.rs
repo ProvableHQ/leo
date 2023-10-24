@@ -38,9 +38,8 @@ pub enum TestError {
 
 impl fmt::Display for TestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let format_test = |test: &str| -> String {
-            if test.len() > 50 { String::new() } else { format!("\n\n{test}\n\n") }
-        };
+        let format_test =
+            |test: &str| -> String { if test.len() > 50 { String::new() } else { format!("\n\n{test}\n\n") } };
         match self {
             TestError::Panicked { test, index, error } => {
                 write!(f, "test #{}: {}encountered a rust panic:\n{}", index + 1, format_test(test), error)

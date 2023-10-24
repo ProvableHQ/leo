@@ -23,7 +23,7 @@ echo "
 leo run propose "{
   title: 2077160157502449938194577302446444field,
   content: 1452374294790018907888397545906607852827800436field,
-  proposer: aleo1kkk52quhnxgn2nfrcd9jqk7c9x27c23f2wvw7fyzcze56yahvcgszgttu2
+  proposer: aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau
 }" || exit
 
 echo "
