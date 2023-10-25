@@ -540,6 +540,9 @@ impl<'a> CodeGenerator<'a> {
             }
         }
 
+        // Construct the output operands. These are the destination registers **without** the future.
+        let output_operands = destinations.join(" ");
+
         // If `has_finalize`, create another destination register for the future.
         if has_finalize {
             // Construct the future register.
@@ -553,7 +556,7 @@ impl<'a> CodeGenerator<'a> {
             };
 
             // Add the futures register to the list of futures.
-            self.futures.push((future_register.clone(), format!("{program_id}/{function_name}")));
+            self.futures.push((future_register.clone(), format!("{program_id}.aleo/{function_name}")));
 
             // Add the future register to the list of destinations.
             destinations.push(future_register);
@@ -573,8 +576,8 @@ impl<'a> CodeGenerator<'a> {
         // Push the call instruction to the list of instructions.
         instructions.push_str(&call_instruction);
 
-        // Return the destination registers as a string and the instructions.
-        (destinations.join(" "), instructions)
+        // Return the output operands and the instructions.
+        (output_operands, instructions)
     }
 
     fn visit_tuple(&mut self, input: &'a TupleExpression) -> (String, String) {

@@ -209,7 +209,7 @@ impl<'a> CodeGenerator<'a> {
         function_string.push_str(&block_string);
 
         // If the finalize block exists, generate the appropriate bytecode.
-        if let Some(finalize) = &function.finalize {
+        if !self.futures.is_empty() || function.finalize.is_some() {
             // Clear the register count.
             self.next_register = 0;
             self.in_finalize = true;
@@ -220,43 +220,45 @@ impl<'a> CodeGenerator<'a> {
             self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
             self.variable_mapping.insert(&sym::block, "block".to_string());
 
-            function_string.push_str(&format!("\nfinalize {}:\n", finalize.identifier));
+            function_string.push_str(&format!("\nfinalize {}:\n", function.identifier));
 
             // If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
             // Store the new future registers.
             let mut future_registers = Vec::new();
             for (_, future_type) in &self.futures {
                 let register_string = format!("r{}", self.next_register);
-                writeln!(function_string, "    input {register_string} as {future_type};")
+                writeln!(function_string, "    input {register_string} as {future_type}.future;")
                     .expect("failed to write to string");
                 future_registers.push(register_string);
                 self.next_register += 1;
             }
 
-            // Construct and append the input declarations of the finalize block.
-            for input in finalize.input.iter() {
-                let register_string = format!("r{}", self.next_register);
-                self.next_register += 1;
+            // Construct and append the input declarations of the finalize block, if it exists.
+            if let Some(finalize) = &function.finalize {
+                for input in finalize.input.iter() {
+                    let register_string = format!("r{}", self.next_register);
+                    self.next_register += 1;
 
-                // TODO: Dedup code.
-                let type_string = match input {
-                    functions::Input::Internal(input) => {
-                        self.variable_mapping.insert(&input.identifier.name, register_string.clone());
+                    // TODO: Dedup code.
+                    let type_string = match input {
+                        functions::Input::Internal(input) => {
+                            self.variable_mapping.insert(&input.identifier.name, register_string.clone());
 
-                        let visibility = match (self.is_transition_function, input.mode) {
-                            (true, Mode::None) => Mode::Public,
-                            _ => input.mode,
-                        };
-                        self.visit_type_with_visibility(&input.type_, visibility)
-                    }
-                    functions::Input::External(input) => {
-                        self.variable_mapping.insert(&input.program_name.name, register_string.clone());
-                        format!("{}.aleo/{}.record", input.program_name, input.record)
-                    }
-                };
+                            let visibility = match (self.is_transition_function, input.mode) {
+                                (true, Mode::None) => Mode::Public,
+                                _ => input.mode,
+                            };
+                            self.visit_type_with_visibility(&input.type_, visibility)
+                        }
+                        functions::Input::External(input) => {
+                            self.variable_mapping.insert(&input.program_name.name, register_string.clone());
+                            format!("{}.aleo/{}.record", input.program_name, input.record)
+                        }
+                    };
 
-                writeln!(function_string, "    input {register_string} as {type_string};",)
-                    .expect("failed to write to string");
+                    writeln!(function_string, "    input {register_string} as {type_string};",)
+                        .expect("failed to write to string");
+                }
             }
 
             // Invoke `await` on each future.
@@ -264,8 +266,10 @@ impl<'a> CodeGenerator<'a> {
                 writeln!(function_string, "    await {register};").expect("failed to write to string");
             }
 
-            // Construct and append the finalize block body.
-            function_string.push_str(&self.visit_block(&finalize.block));
+            // Construct and append the finalize block body, if it exists.
+            if let Some(finalize) = &function.finalize {
+                function_string.push_str(&self.visit_block(&finalize.block));
+            }
 
             self.in_finalize = false;
         }
