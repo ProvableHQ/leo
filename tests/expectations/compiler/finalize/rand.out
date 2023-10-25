@@ -8,8 +8,8 @@ outputs:
       initial_ast: a13e41d10136d37224ddfb9b54eaf15926a3db8217ecd5ddf8f72bd7a9624c2d
       unrolled_ast: a13e41d10136d37224ddfb9b54eaf15926a3db8217ecd5ddf8f72bd7a9624c2d
       ssa_ast: cd75edd82d90a0f69080370969bb97159c5ef5ea366be0d1e8c392274021ab95
-      flattened_ast: 888b5240508f78bee53ec724f8ddfd6e597ff195e17124fbd0314feff4495559
-      inlined_ast: 888b5240508f78bee53ec724f8ddfd6e597ff195e17124fbd0314feff4495559
-      dce_ast: 795c2624ef40b83a85d12ecae86d465ec508f4271824efe7a8ff1052fef946aa
+      flattened_ast: fffd7c38f8fa3a6d10a09dcf16921114d3fcbe6a9c29537b69ed29e863748fbd
+      inlined_ast: fffd7c38f8fa3a6d10a09dcf16921114d3fcbe6a9c29537b69ed29e863748fbd
+      dce_ast: c4f1e570c710539546c718ff2f70078f4f363af79020dedcaaab0f55769e17ef
       bytecode: c5e80399ab1edccfae4591f3c38695e9a4129b35ad2cc75238859a2e109a245f
       warnings: ""
