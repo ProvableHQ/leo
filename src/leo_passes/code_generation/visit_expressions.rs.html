@@ -598,6 +598,9 @@
 <a href="#598" id="598">598</a>
 <a href="#599" id="599">599</a>
 <a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1140,6 +1143,9 @@
             }
         }
 
+        <span class="comment">// Construct the output operands. These are the destination registers **without** the future.
+        </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">&quot; &quot;</span>);
+
         <span class="comment">// If `has_finalize`, create another destination register for the future.
         </span><span class="kw">if </span>has_finalize {
             <span class="comment">// Construct the future register.
@@ -1153,7 +1159,7 @@
             };
 
             <span class="comment">// Add the futures register to the list of futures.
-            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">&quot;{program_id}/{function_name}&quot;</span>)));
+            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">&quot;{program_id}.aleo/{function_name}&quot;</span>)));
 
             <span class="comment">// Add the future register to the list of destinations.
             </span>destinations.push(future_register);
@@ -1173,8 +1179,8 @@
         <span class="comment">// Push the call instruction to the list of instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
 
-        <span class="comment">// Return the destination registers as a string and the instructions.
-        </span>(destinations.join(<span class="string">&quot; &quot;</span>), instructions)
+        <span class="comment">// Return the output operands and the instructions.
+        </span>(output_operands, instructions)
     }
 
     <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression) -&gt; (String, String) {

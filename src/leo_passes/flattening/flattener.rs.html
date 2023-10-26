@@ -268,6 +268,20 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -301,6 +315,7 @@
     TernaryExpression,
     TupleExpression,
     Type,
+    UnitExpression,
 };
 <span class="kw">use </span>leo_span::Symbol;
 
@@ -483,7 +498,8 @@
 
     <span class="doccomment">/// Folds a list of return statements into a single return statement and adds the produced statements to the block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fold_returns(<span class="kw-2">&amp;mut </span><span class="self">self</span>, block: <span class="kw-2">&amp;mut </span>Block, returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;) {
-        <span class="kw">if </span>!returns.is_empty() {
+        <span class="comment">// If the list of returns is not empty, then fold them into a single return statement.
+        </span><span class="kw">if </span>!returns.is_empty() {
             <span class="kw">let </span><span class="kw-2">mut </span>return_expressions = Vec::with_capacity(returns.len());
 
             <span class="comment">// Construct a vector for each argument position.
@@ -532,6 +548,18 @@
             </span>block.statements.push(Statement::Return(ReturnStatement {
                 expression,
                 finalize_arguments,
+                span: Default::default(),
+                id: <span class="self">self</span>.node_builder.next_id(),
+            }));
+        }
+        <span class="comment">// Otherwise, push a dummy return statement to the end of the block.
+        </span><span class="kw">else </span>{
+            block.statements.push(Statement::Return(ReturnStatement {
+                expression: {
+                    <span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+                    Expression::Unit(UnitExpression { span: Default::default(), id })
+                },
+                finalize_arguments: <span class="prelude-val">None</span>,
                 span: Default::default(),
                 id: <span class="self">self</span>.node_builder.next_id(),
             }));
