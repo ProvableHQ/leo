@@ -31,6 +31,7 @@ use leo_ast::{
     TernaryExpression,
     TupleExpression,
     Type,
+    UnitExpression,
 };
 use leo_span::Symbol;
 
@@ -213,6 +214,7 @@ impl<'a> Flattener<'a> {
 
     /// Folds a list of return statements into a single return statement and adds the produced statements to the block.
     pub(crate) fn fold_returns(&mut self, block: &mut Block, returns: Vec<(Option<Expression>, ReturnStatement)>) {
+        // If the list of returns is not empty, then fold them into a single return statement.
         if !returns.is_empty() {
             let mut return_expressions = Vec::with_capacity(returns.len());
 
@@ -262,6 +264,18 @@ impl<'a> Flattener<'a> {
             block.statements.push(Statement::Return(ReturnStatement {
                 expression,
                 finalize_arguments,
+                span: Default::default(),
+                id: self.node_builder.next_id(),
+            }));
+        }
+        // Otherwise, push a dummy return statement to the end of the block.
+        else {
+            block.statements.push(Statement::Return(ReturnStatement {
+                expression: {
+                    let id = self.node_builder.next_id();
+                    Expression::Unit(UnitExpression { span: Default::default(), id })
+                },
+                finalize_arguments: None,
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             }));
