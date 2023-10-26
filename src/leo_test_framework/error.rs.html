@@ -118,7 +118,6 @@
 <a href="#118" id="118">118</a>
 <a href="#119" id="119">119</a>
 <a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -159,9 +158,8 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>TestError {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">let </span>format_test = |test: <span class="kw-2">&amp;</span>str| -&gt; String {
-            <span class="kw">if </span>test.len() &gt; <span class="number">50 </span>{ String::new() } <span class="kw">else </span>{ <span class="macro">format!</span>(<span class="string">&quot;\n\n{test}\n\n&quot;</span>) }
-        };
+        <span class="kw">let </span>format_test =
+            |test: <span class="kw-2">&amp;</span>str| -&gt; String { <span class="kw">if </span>test.len() &gt; <span class="number">50 </span>{ String::new() } <span class="kw">else </span>{ <span class="macro">format!</span>(<span class="string">&quot;\n\n{test}\n\n&quot;</span>) } };
         <span class="kw">match </span><span class="self">self </span>{
             TestError::Panicked { test, index, error } =&gt; {
                 <span class="macro">write!</span>(f, <span class="string">&quot;test #{}: {}encountered a rust panic:\n{}&quot;</span>, index + <span class="number">1</span>, format_test(test), error)
