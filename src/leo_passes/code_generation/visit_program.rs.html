@@ -539,7 +539,7 @@
             <span class="comment">// If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
             // Store the new future registers.
             </span><span class="kw">let </span><span class="kw-2">mut </span>future_registers = Vec::new();
-            <span class="kw">for </span>(<span class="kw">_</span>, future_type) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.futures {
+            <span class="kw">for </span>(<span class="kw">_</span>, future_type) <span class="kw">in </span><span class="self">self</span>.futures.drain(..) {
                 <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
                 <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {future_type}.future;&quot;</span>)
                     .expect(<span class="string">&quot;failed to write to string&quot;</span>);
