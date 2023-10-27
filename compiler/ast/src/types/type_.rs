@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, IntegerType, MappingType, Tuple};
+use crate::{ArrayType, Identifier, IntegerType, MappingType, TupleType};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -23,9 +23,10 @@ use std::fmt;
 /// Explicit type used for defining a variable or expression type
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Type {
-    // Data types
     /// The `address` type.
     Address,
+    /// The array type.
+    Array(ArrayType),
     /// The `bool` type.
     Boolean,
     /// The `field` type.
@@ -45,7 +46,7 @@ pub enum Type {
     /// The `string` type.
     String,
     /// A static tuple of at least one type.
-    Tuple(Tuple),
+    Tuple(TupleType),
     /// The `unit` type.
     Unit,
     /// Placeholder for a type that could not be resolved or was not well-formed.
@@ -69,14 +70,19 @@ impl Type {
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
+            (Type::Array(left), Type::Array(right)) => {
+                left.element_type().eq_flat(right.element_type()) && left.length() == right.length()
+            }
+            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) if left.len() == right.len() => {
-                left.iter().zip_eq(right.iter()).all(|(left_type, right_type)| left_type.eq_flat(right_type))
-            }
-            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
+            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
         }
     }
@@ -86,6 +92,7 @@ impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Type::Address => write!(f, "address"),
+            Type::Array(ref array_type) => write!(f, "{array_type}"),
             Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),

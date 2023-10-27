@@ -27,6 +27,10 @@ pub mod replacer;
 pub use replacer::*;
 
 pub mod constant_propagation_table;
-pub mod symbol_table;
+pub use constant_propagation_table::*;
 
+pub mod symbol_table;
 pub use symbol_table::*;
+
+pub mod type_table;
+pub use type_table::*;

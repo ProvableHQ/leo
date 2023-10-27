@@ -28,6 +28,7 @@ pub trait ExpressionVisitor<'a> {
     fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
             Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Array(array) => self.visit_array(array, additional),
             Expression::Binary(binary) => self.visit_binary(binary, additional),
             Expression::Call(call) => self.visit_call(call, additional),
             Expression::Cast(cast) => self.visit_cast(cast, additional),
@@ -44,6 +45,10 @@ pub trait ExpressionVisitor<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression, additional: &Self::AdditionalInput) -> Self::Output {
         match input {
+            AccessExpression::Array(array) => {
+                self.visit_expression(&array.array, additional);
+                self.visit_expression(&array.index, additional);
+            }
             AccessExpression::AssociatedFunction(function) => {
                 function.arguments.iter().for_each(|arg| {
                     self.visit_expression(arg, &Default::default());
@@ -58,6 +63,13 @@ pub trait ExpressionVisitor<'a> {
             _ => {}
         }
 
+        Default::default()
+    }
+
+    fn visit_array(&mut self, input: &'a ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        input.elements.iter().for_each(|expr| {
+            self.visit_expression(expr, additional);
+        });
         Default::default()
     }
 

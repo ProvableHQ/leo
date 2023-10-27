@@ -52,6 +52,8 @@ pub struct Compiler<'a> {
     node_builder: NodeBuilder,
     /// The `Assigner` is used to construct (unique) assignment statements.
     assigner: Assigner,
+    /// The type table.
+    type_table: TypeTable,
 }
 
 impl<'a> Compiler<'a> {
@@ -66,6 +68,7 @@ impl<'a> Compiler<'a> {
     ) -> Self {
         let node_builder = NodeBuilder::default();
         let assigner = Assigner::default();
+        let type_table = TypeTable::default();
         Self {
             handler,
             main_file_path,
@@ -77,6 +80,7 @@ impl<'a> Compiler<'a> {
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
+            type_table,
         }
     }
 
@@ -174,7 +178,8 @@ impl<'a> Compiler<'a> {
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((&self.ast, self.handler, symbol_table))?;
+        let (symbol_table, struct_graph, call_graph) =
+            TypeChecker::do_pass((&self.ast, self.handler, symbol_table, &self.type_table))?;
         if self.compiler_options.output.type_checked_symbol_table {
             self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
         }
@@ -183,8 +188,13 @@ impl<'a> Compiler<'a> {
 
     /// Runs the loop unrolling pass.
     pub fn loop_unrolling_pass(&mut self, symbol_table: SymbolTable) -> Result<SymbolTable> {
-        let (ast, symbol_table) =
-            Unroller::do_pass((std::mem::take(&mut self.ast), self.handler, &self.node_builder, symbol_table))?;
+        let (ast, symbol_table) = Unroller::do_pass((
+            std::mem::take(&mut self.ast),
+            self.handler,
+            &self.node_builder,
+            symbol_table,
+            &self.type_table,
+        ))?;
         self.ast = ast;
 
         if self.compiler_options.output.unrolled_ast {
@@ -205,6 +215,7 @@ impl<'a> Compiler<'a> {
             &self.node_builder,
             &self.assigner,
             symbol_table,
+            &self.type_table,
         ))?;
 
         if self.compiler_options.output.ssa_ast {
@@ -216,8 +227,13 @@ impl<'a> Compiler<'a> {
 
     /// Runs the flattening pass.
     pub fn flattening_pass(&mut self, symbol_table: &SymbolTable) -> Result<()> {
-        self.ast =
-            Flattener::do_pass((std::mem::take(&mut self.ast), symbol_table, &self.node_builder, &self.assigner))?;
+        self.ast = Flattener::do_pass((
+            std::mem::take(&mut self.ast),
+            symbol_table,
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
 
         if self.compiler_options.output.flattened_ast {
             self.write_ast_to_json("flattened_ast.json")?;
@@ -226,10 +242,31 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
+    /// Runs the destructuring pass.
+    pub fn destructuring_pass(&mut self) -> Result<()> {
+        self.ast = Destructurer::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
+
+        if self.compiler_options.output.destructured_ast {
+            self.write_ast_to_json("destructured_ast.json")?;
+        }
+
+        Ok(())
+    }
+
     /// Runs the function inlining pass.
     pub fn function_inlining_pass(&mut self, call_graph: &CallGraph) -> Result<()> {
-        let ast =
-            FunctionInliner::do_pass((std::mem::take(&mut self.ast), &self.node_builder, call_graph, &self.assigner))?;
+        let ast = FunctionInliner::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.node_builder,
+            call_graph,
+            &self.assigner,
+            &self.type_table,
+        ))?;
         self.ast = ast;
 
         if self.compiler_options.output.inlined_ast {
@@ -259,7 +296,7 @@ impl<'a> Compiler<'a> {
         struct_graph: &StructGraph,
         call_graph: &CallGraph,
     ) -> Result<String> {
-        CodeGenerator::do_pass((&self.ast, symbol_table, struct_graph, call_graph, &self.ast.ast))
+        CodeGenerator::do_pass((&self.ast, symbol_table, &self.type_table, struct_graph, call_graph, &self.ast.ast))
     }
 
     /// Runs the compiler stages.
@@ -273,6 +310,8 @@ impl<'a> Compiler<'a> {
         self.static_single_assignment_pass(&st)?;
 
         self.flattening_pass(&st)?;
+
+        self.destructuring_pass()?;
 
         self.function_inlining_pass(&call_graph)?;
 

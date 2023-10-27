@@ -27,17 +27,17 @@ pub use check_statements::*;
 pub mod checker;
 pub use checker::*;
 
-use crate::{CallGraph, Pass, StructGraph, SymbolTable};
+use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
 impl<'a> Pass for TypeChecker<'a> {
-    type Input = (&'a Ast, &'a Handler, SymbolTable);
+    type Input = (&'a Ast, &'a Handler, SymbolTable, &'a TypeTable);
     type Output = Result<(SymbolTable, StructGraph, CallGraph)>;
 
-    fn do_pass((ast, handler, st): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(st, handler);
+    fn do_pass((ast, handler, st, tt): Self::Input) -> Self::Output {
+        let mut visitor = TypeChecker::new(st, tt, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)?;
 

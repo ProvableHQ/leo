@@ -33,15 +33,18 @@ use leo_ast::{
     ExpressionStatement,
     Identifier,
     IterationStatement,
+    Node,
     ReturnStatement,
     Statement,
     StatementConsumer,
     TernaryExpression,
     TupleExpression,
+    Type,
 };
 use leo_span::Symbol;
 
 use indexmap::IndexSet;
+use itertools::Itertools;
 
 impl StatementConsumer for StaticSingleAssigner<'_> {
     type Output = Vec<Statement>;
@@ -95,7 +98,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         };
         self.is_lhs = false;
 
-        statements.push(self.assigner.simple_assign_statement(place, value, self.node_builder.next_id()));
+        statements.push(self.simple_assign_statement(place, value));
 
         statements
     }
@@ -168,39 +171,57 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         for symbol in write_set {
             // Note that phi functions only need to be instantiated if the variable exists before the `ConditionalStatement`.
             if self.rename_table.lookup(**symbol).is_some() {
-                // Helper to lookup a symbol and create an argument for the phi function.
+                // Helper to lookup an and create an argument for the phi function.
                 let create_phi_argument = |table: &RenameTable, symbol: Symbol| {
                     let name =
                         *table.lookup(symbol).unwrap_or_else(|| panic!("Symbol {symbol} should exist in the program."));
-                    Box::new(Expression::Identifier(Identifier {
-                        name,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    }))
+                    let id = *table
+                        .lookup_id(&name)
+                        .unwrap_or_else(|| panic!("Symbol {name} should exist in the rename table."));
+                    Box::new(Expression::Identifier(Identifier { name, span: Default::default(), id }))
                 };
 
                 // Create a new name for the variable written to in the `ConditionalStatement`.
                 let new_name = self.assigner.unique_symbol(symbol, "$");
 
+                // Create the arguments for the phi function.
+                let if_true = create_phi_argument(&if_table, **symbol);
+                let if_false = create_phi_argument(&else_table, **symbol);
+
+                // Create a new node ID for the the phi function.
+                let id = self.node_builder.next_id();
+                // Update the type of the node ID.
+                let type_ = match self.type_table.get(&if_true.id()) {
+                    Some(type_) => type_,
+                    None => unreachable!("Type checking guarantees that all expressions have a type."),
+                };
+                self.type_table.insert(id, type_);
+
+                // Construct a ternary expression for the phi function.
                 let (value, stmts) = self.consume_ternary(TernaryExpression {
                     condition: Box::new(condition.clone()),
-                    if_true: create_phi_argument(&if_table, **symbol),
-                    if_false: create_phi_argument(&else_table, **symbol),
+                    if_true,
+                    if_false,
                     span: Default::default(),
-                    id: self.node_builder.next_id(),
+                    id,
                 });
 
                 statements.extend(stmts);
 
-                // Create a new `AssignStatement` for the phi function.
-                let assignment = self.assigner.simple_assign_statement(
-                    Identifier { name: new_name, span: Default::default(), id: self.node_builder.next_id() },
-                    value,
-                    self.node_builder.next_id(),
-                );
+                // Get the ID for the new name of the variable.
+                let id = match self.rename_table.lookup_id(symbol) {
+                    Some(id) => *id,
+                    None => {
+                        unreachable!("The ID for the symbol `{}` should already exist in the rename table.", symbol)
+                    }
+                };
 
                 // Update the `RenameTable` with the new name of the variable.
-                self.rename_table.update(*(*symbol), new_name);
+                self.rename_table.update(*(*symbol), new_name, id);
+
+                // Create a new `AssignStatement` for the phi function.
+                let identifier = Identifier { name: new_name, span: Default::default(), id };
+                let assignment = self.simple_assign_statement(identifier, value);
 
                 // Store the generated phi function.
                 statements.push(assignment);
@@ -229,35 +250,64 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         self.is_lhs = true;
         match definition.place {
             Expression::Identifier(identifier) => {
+                // Add the identifier to the rename table.
+                self.rename_table.update(identifier.name, identifier.name, identifier.id);
+                // Rename the identifier.
                 let identifier = match self.consume_identifier(identifier).0 {
                     Expression::Identifier(identifier) => identifier,
                     _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
                 };
-                statements.push(self.assigner.simple_assign_statement(identifier, value, self.node_builder.next_id()));
+                // Create a new assignment statement.
+                statements.push(self.simple_assign_statement(identifier, value));
             }
             Expression::Tuple(tuple) => {
-                let elements = tuple.elements.into_iter().map(|element| {
+                let elements: Vec<Expression> = tuple.elements.into_iter().map(|element| {
                     match element {
                         Expression::Identifier(identifier) => {
+                            // Add the identifier to the rename table.
+                            self.rename_table.update(identifier.name, identifier.name, identifier.id);
+                            // Rename the identifier.
                             let identifier = match self.consume_identifier(identifier).0 {
                                 Expression::Identifier(identifier) => identifier,
                                 _ => unreachable!("`self.consume_identifier` will always return an `Identifier`."),
                             };
+                            // Return the renamed identifier.
                             Expression::Identifier(identifier)
                         }
                         _ => unreachable!("Type checking guarantees that the tuple elements on the lhs of a `DefinitionStatement` are always be identifiers."),
                     }
                 }).collect();
-                statements.push(Statement::Assign(Box::new(AssignStatement {
-                    place: Expression::Tuple(TupleExpression {
-                        elements,
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    }),
-                    value,
+
+                // Get the type of `value`.
+                let tuple_type_ = match self.type_table.get(&value.id()) {
+                    Some(Type::Tuple(type_)) => type_,
+                    _ => unreachable!("Type checking guarantees that this expression is a tuple."),
+                };
+
+                // Update the type of each element in the tuple.
+                for (element, type_) in elements.iter().zip_eq(tuple_type_.elements()) {
+                    self.type_table.insert(element.id(), type_.clone());
+                }
+
+                // Construct the lhs of the assignment.
+                let place = Expression::Tuple(TupleExpression {
+                    elements,
                     span: Default::default(),
                     id: self.node_builder.next_id(),
-                })));
+                });
+
+                // Update the type of the lhs.
+                self.type_table.insert(place.id(), Type::Tuple(tuple_type_));
+
+                // Create the assignment statement.
+                let assignment = Statement::Assign(Box::new(AssignStatement {
+                    place,
+                    value,
+                    span: definition.span,
+                    id: definition.id,
+                }));
+
+                statements.push(assignment);
             }
             _ => unreachable!(
                 "Type checking guarantees that the left-hand-side of a `DefinitionStatement` is an identifier or tuple."

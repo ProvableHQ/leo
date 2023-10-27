@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor, Type};
+use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a function's body and finalize block, if it exists.
@@ -24,13 +24,6 @@ impl ProgramReconstructor for Flattener<'_> {
         // First, flatten the finalize block. This allows us to initialize self.finalizes correctly.
         // Note that this is safe since the finalize block is independent of the function body.
         let finalize = function.finalize.map(|finalize| {
-            // Initialize `self.structs` with the finalize's input as necessary.
-            self.structs = Default::default();
-            for input in &finalize.input {
-                if let Type::Identifier(struct_name) = input.type_() {
-                    self.structs.insert(input.identifier().name, struct_name.name);
-                }
-            }
             // Flatten the finalize block.
             let mut block = self.reconstruct_block(finalize.block).0;
 
@@ -50,14 +43,6 @@ impl ProgramReconstructor for Flattener<'_> {
                 id: finalize.id,
             }
         });
-
-        // Initialize `self.structs` with the function's input as necessary.
-        self.structs = Default::default();
-        for input in &function.input {
-            if let Type::Identifier(struct_name) = input.type_() {
-                self.structs.insert(input.identifier().name, struct_name.name);
-            }
-        }
 
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;

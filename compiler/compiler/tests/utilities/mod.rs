@@ -24,7 +24,6 @@ use leo_errors::{
     LeoWarning,
 };
 use leo_package::root::env::Env;
-use leo_passes::{CodeGenerator, Pass};
 use leo_span::source_map::FileName;
 use leo_test_framework::{test::TestConfig, Test};
 
@@ -45,15 +44,16 @@ pub type Network = Testnet3;
 #[allow(unused)]
 pub type Aleo = snarkvm::circuit::AleoV0;
 
-pub fn hash_asts() -> (String, String, String, String, String, String) {
+pub fn hash_asts() -> (String, String, String, String, String, String, String) {
     let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
     let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
     let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
     let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
+    let destructured_ast = hash_file("/tmp/output/test.destructured_ast.json");
     let inlined_ast = hash_file("/tmp/output/test.inlined_ast.json");
     let dce_ast = hash_file("/tmp/output/test.dce_ast.json");
 
-    (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast)
+    (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast)
 }
 
 pub fn hash_symbol_tables() -> (String, String, String) {
@@ -236,12 +236,14 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     parsed.flattening_pass(&st)?;
 
+    parsed.destructuring_pass()?;
+
     parsed.function_inlining_pass(&call_graph)?;
 
     parsed.dead_code_elimination_pass()?;
 
     // Compile Leo program to bytecode.
-    let bytecode = CodeGenerator::do_pass((&parsed.ast, &st, &struct_graph, &call_graph, &parsed.ast.ast))?;
+    let bytecode = parsed.code_generation_pass(&st, &struct_graph, &call_graph)?;
 
     Ok(bytecode)
 }

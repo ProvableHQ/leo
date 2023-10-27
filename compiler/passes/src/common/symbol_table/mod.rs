@@ -30,6 +30,8 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
+// TODO (@d0cd) Consider a safe interface for the symbol table.
+// TODO (@d0cd) Cleanup API
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SymbolTable {
     /// The parent scope if it exists.

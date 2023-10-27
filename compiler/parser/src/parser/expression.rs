@@ -485,6 +485,17 @@ impl ParserContext<'_> {
             } else if self.eat(&Token::DoubleColon) {
                 // Eat a core struct constant or core struct function call.
                 expr = self.parse_associated_access_expression(expr)?;
+            } else if self.eat(&Token::LeftSquare) {
+                // Eat an array access.
+                let index = self.parse_expression()?;
+                // Eat the closing bracket.
+                let span = self.expect(&Token::RightSquare)?;
+                expr = Expression::Access(AccessExpression::Array(ArrayAccess {
+                    span: expr.span() + span,
+                    array: Box::new(expr),
+                    index: Box::new(index),
+                    id: self.node_builder.next_id(),
+                }))
             } else if self.check(&Token::LeftParen) {
                 // Check that the expression is an identifier.
                 if !matches!(expr, Expression::Identifier(_)) {
@@ -501,7 +512,7 @@ impl ParserContext<'_> {
                 });
             }
             // Check if next token is a dot to see if we are calling recursive method.
-            if !self.check(&Token::Dot) {
+            if !(self.check(&Token::Dot) || self.check(&Token::LeftSquare)) {
                 break;
             }
         }
@@ -529,6 +540,19 @@ impl ParserContext<'_> {
             // Otherwise, return a tuple expression.
             // Note: This is the only place where `TupleExpression` is constructed in the parser.
             _ => Ok(Expression::Tuple(TupleExpression { elements, span, id: self.node_builder.next_id() })),
+        }
+    }
+
+    /// Returns an [`Expression`] AST node if the next tokens represent an array initialization expression.
+    fn parse_array_expression(&mut self) -> Result<Expression> {
+        let (elements, _, span) = self.parse_bracket_comma_list(|p| p.parse_expression().map(Some))?;
+
+        match elements.is_empty() {
+            // If the array expression is empty, return an error.
+            true => Err(ParserError::array_must_have_at_least_one_element("expression", span).into()),
+            // Otherwise, return an array expression.
+            // Note: This is the only place where `ArrayExpression` is constructed in the parser.
+            false => Ok(Expression::Array(ArrayExpression { elements, span, id: self.node_builder.next_id() })),
         }
     }
 
@@ -640,6 +664,8 @@ impl ParserContext<'_> {
     fn parse_primary_expression(&mut self) -> Result<Expression> {
         if let Token::LeftParen = self.token.token {
             return self.parse_tuple_expression();
+        } else if let Token::LeftSquare = self.token.token {
+            return self.parse_array_expression();
         }
 
         let SpannedToken { token, span } = self.token.clone();

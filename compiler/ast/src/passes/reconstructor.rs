@@ -27,6 +27,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_expression(&mut self, input: Expression) -> (Expression, Self::AdditionalOutput) {
         match input {
             Expression::Access(access) => self.reconstruct_access(access),
+            Expression::Array(array) => self.reconstruct_array(array),
             Expression::Binary(binary) => self.reconstruct_binary(binary),
             Expression::Call(call) => self.reconstruct_call(call),
             Expression::Cast(cast) => self.reconstruct_cast(cast),
@@ -42,34 +43,82 @@ pub trait ExpressionReconstructor {
     }
 
     fn reconstruct_access(&mut self, input: AccessExpression) -> (Expression, Self::AdditionalOutput) {
+        match input {
+            AccessExpression::Array(array) => self.reconstruct_array_access(array),
+            AccessExpression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
+            AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
+            AccessExpression::Member(member) => self.reconstruct_member_access(member),
+            AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
+        }
+    }
+
+    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
         (
-            Expression::Access(match input {
-                AccessExpression::AssociatedFunction(function) => {
-                    AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        arguments: function
-                            .arguments
-                            .into_iter()
-                            .map(|arg| self.reconstruct_expression(arg).0)
-                            .collect(),
-                        span: function.span,
-                        id: function.id,
-                    })
-                }
-                AccessExpression::Member(member) => AccessExpression::Member(MemberAccess {
-                    inner: Box::new(self.reconstruct_expression(*member.inner).0),
-                    name: member.name,
-                    span: member.span,
-                    id: member.id,
-                }),
-                AccessExpression::Tuple(tuple) => AccessExpression::Tuple(TupleAccess {
-                    tuple: Box::new(self.reconstruct_expression(*tuple.tuple).0),
-                    index: tuple.index,
-                    span: tuple.span,
-                    id: tuple.id,
-                }),
-                AccessExpression::AssociatedConstant(constant) => AccessExpression::AssociatedConstant(constant),
+            Expression::Access(AccessExpression::Array(ArrayAccess {
+                array: Box::new(self.reconstruct_expression(*input.array).0),
+                index: Box::new(self.reconstruct_expression(*input.index).0),
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_associated_constant(&mut self, input: AssociatedConstant) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::AssociatedConstant(AssociatedConstant {
+                ty: input.ty,
+                name: input.name,
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: input.ty,
+                name: input.name,
+                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_member_access(&mut self, input: MemberAccess) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::Member(MemberAccess {
+                inner: Box::new(self.reconstruct_expression(*input.inner).0),
+                name: input.name,
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_tuple_access(&mut self, input: TupleAccess) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::Tuple(TupleAccess {
+                tuple: Box::new(self.reconstruct_expression(*input.tuple).0),
+                index: input.index,
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_array(&mut self, input: ArrayExpression) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Array(ArrayExpression {
+                elements: input.elements.into_iter().map(|element| self.reconstruct_expression(element).0).collect(),
+                span: input.span,
+                id: input.id,
             }),
             Default::default(),
         )

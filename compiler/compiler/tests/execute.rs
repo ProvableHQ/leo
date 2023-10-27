@@ -74,6 +74,7 @@ struct ExecuteOutput {
     pub unrolled_ast: String,
     pub ssa_ast: String,
     pub flattened_ast: String,
+    pub destructured_ast: String,
     pub inlined_ast: String,
     pub dce_ast: String,
     pub bytecode: String,
@@ -109,6 +110,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 unrolled_ast: true,
                 ssa_ast: true,
                 flattened_ast: true,
+                destructured_ast: true,
                 inlined_ast: true,
                 dce_ast: true,
             },
@@ -200,7 +202,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         }
 
         // Hash the ast files.
-        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, inlined_ast, dce_ast) = hash_asts();
+        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) = hash_asts();
 
         // Hash the symbol tables.
         let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
@@ -218,6 +220,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             unrolled_ast,
             ssa_ast,
             flattened_ast,
+            destructured_ast,
             inlined_ast,
             dce_ast,
             bytecode: hash_content(&bytecode),

@@ -18,6 +18,8 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
     AssociatedFunction,
     BinaryExpression,
     CallExpression,
@@ -100,9 +102,48 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                     statements,
                 )
             }
+            AccessExpression::Array(input) => {
+                let (array, statements) = self.consume_expression(*input.array);
+
+                (
+                    AccessExpression::Array(ArrayAccess {
+                        array: Box::new(array),
+                        index: input.index,
+                        span: input.span,
+                        id: input.id,
+                    }),
+                    statements,
+                )
+            }
             expr => (expr, Vec::new()),
         };
         let (place, statement) = self.unique_simple_assign_statement(Expression::Access(expr));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
+    }
+
+    /// Consumes an array expression, accumulating any statements that are generated.
+    fn consume_array(&mut self, input: ArrayExpression) -> Self::Output {
+        let mut statements = Vec::new();
+
+        // Process the elements, accumulating any statements produced.
+        let elements = input
+            .elements
+            .into_iter()
+            .map(|element| {
+                let (element, mut stmts) = self.consume_expression(element);
+                statements.append(&mut stmts);
+                element
+            })
+            .collect();
+
+        // Construct and accumulate a new assignment statement for the array expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Array(ArrayExpression {
+            elements,
+            span: input.span,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -256,7 +297,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             // If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             true => {
                 let new_name = self.assigner.unique_symbol(identifier.name, "$");
-                self.rename_table.update(identifier.name, new_name);
+                self.rename_table.update(identifier.name, new_name, identifier.id);
                 new_name
             }
             // Otherwise, we look up the previous name in the `RenameTable`.
@@ -271,7 +312,9 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes and returns the literal without making any modifications.
     fn consume_literal(&mut self, input: Literal) -> Self::Output {
-        (Expression::Literal(input), Default::default())
+        // Construct and accumulate a new assignment statement for the literal.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Literal(input));
+        (Expression::Identifier(place), vec![statement])
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.

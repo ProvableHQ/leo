@@ -25,17 +25,17 @@ mod visit_statements;
 
 mod visit_type;
 
-use crate::{CallGraph, Pass, StructGraph, SymbolTable};
+use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, Program};
 use leo_errors::Result;
 
 impl<'a> Pass for CodeGenerator<'a> {
-    type Input = (&'a Ast, &'a SymbolTable, &'a StructGraph, &'a CallGraph, &'a Program);
+    type Input = (&'a Ast, &'a SymbolTable, &'a TypeTable, &'a StructGraph, &'a CallGraph, &'a Program);
     type Output = Result<String>;
 
-    fn do_pass((ast, symbol_table, struct_graph, call_graph, program): Self::Input) -> Self::Output {
-        let mut generator = Self::new(symbol_table, struct_graph, call_graph, program);
+    fn do_pass((ast, symbol_table, type_table, struct_graph, call_graph, program): Self::Input) -> Self::Output {
+        let mut generator = Self::new(symbol_table, type_table, struct_graph, call_graph, program);
         let bytecode = generator.visit_program(ast.as_repr());
 
         Ok(bytecode)

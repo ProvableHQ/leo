@@ -41,6 +41,8 @@ enum BenchMode {
     Ssa,
     /// Benchmarks flattening.
     Flatten,
+    /// Benchmarks destructuring.
+    Destructure,
     /// Benchmarks function inlining.
     Inline,
     /// Benchmarks dead code elimination.
@@ -98,6 +100,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
                 unrolled_ast: false,
                 ssa_ast: false,
                 flattened_ast: false,
+                destructured_ast: false,
                 inlined_ast: false,
                 dce_ast: false,
             },
@@ -125,6 +128,7 @@ impl Sample {
             BenchMode::Unroll => self.bench_loop_unroller(c),
             BenchMode::Ssa => self.bench_ssa(c),
             BenchMode::Flatten => self.bench_flattener(c),
+            BenchMode::Destructure => self.bench_destructurer(c),
             BenchMode::Inline => self.bench_inline(c),
             BenchMode::Dce => self.bench_dce(c),
             BenchMode::Codegen => self.bench_codegen(c),
@@ -229,6 +233,22 @@ impl Sample {
         });
     }
 
+    fn bench_destructurer(&self, c: &mut Criterion) {
+        self.bencher_after_parse(c, "destructurer pass", |mut compiler| {
+            let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
+            let (symbol_table, _struct_graph, _call_graph) =
+                compiler.type_checker_pass(symbol_table).expect("failed to run type check pass");
+            let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
+            compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
+            compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            let start = Instant::now();
+            let out = compiler.destructuring_pass();
+            let time = start.elapsed();
+            out.expect("failed to run destructurer pass");
+            time
+        });
+    }
+
     fn bench_inline(&self, c: &mut Criterion) {
         self.bencher_after_parse(c, "inliner pass", |mut compiler| {
             let symbol_table = compiler.symbol_table_pass().expect("failed to generate symbol table");
@@ -237,6 +257,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             let start = Instant::now();
             let out = compiler.function_inlining_pass(&call_graph);
             let time = start.elapsed();
@@ -253,6 +274,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             let start = Instant::now();
             let out = compiler.dead_code_elimination_pass();
@@ -270,6 +292,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattener pass");
+            compiler.destructuring_pass().expect("failed to run destructurer pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run inliner pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             let start = Instant::now();
@@ -291,6 +314,7 @@ impl Sample {
             let symbol_table = compiler.loop_unrolling_pass(symbol_table).expect("failed to run loop unrolling pass");
             compiler.static_single_assignment_pass(&symbol_table).expect("failed to run ssa pass");
             compiler.flattening_pass(&symbol_table).expect("failed to run flattening pass");
+            compiler.destructuring_pass().expect("failed to run destructuring pass");
             compiler.function_inlining_pass(&call_graph).expect("failed to run function inlining pass");
             compiler.dead_code_elimination_pass().expect("failed to run dce pass");
             compiler
@@ -315,6 +339,7 @@ bench!(bench_type, BenchMode::Type);
 bench!(bench_unroll, BenchMode::Unroll);
 bench!(bench_ssa, BenchMode::Ssa);
 bench!(bench_flatten, BenchMode::Flatten);
+bench!(bench_destructure, BenchMode::Destructure);
 bench!(bench_inline, BenchMode::Inline);
 bench!(bench_dce, BenchMode::Dce);
 bench!(bench_codegen, BenchMode::Codegen);
@@ -330,6 +355,7 @@ criterion_group!(
         bench_unroll,
         bench_ssa,
         bench_flatten,
+        bench_destructure,
         bench_inline,
         bench_dce,
         bench_codegen,

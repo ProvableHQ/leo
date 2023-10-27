@@ -26,6 +26,7 @@ pub trait ExpressionConsumer {
     fn consume_expression(&mut self, input: Expression) -> Self::Output {
         match input {
             Expression::Access(access) => self.consume_access(access),
+            Expression::Array(array) => self.consume_array(array),
             Expression::Binary(binary) => self.consume_binary(binary),
             Expression::Call(call) => self.consume_call(call),
             Expression::Cast(cast) => self.consume_cast(cast),
@@ -41,6 +42,8 @@ pub trait ExpressionConsumer {
     }
 
     fn consume_access(&mut self, _input: AccessExpression) -> Self::Output;
+
+    fn consume_array(&mut self, _input: ArrayExpression) -> Self::Output;
 
     fn consume_binary(&mut self, _input: BinaryExpression) -> Self::Output;
 

@@ -59,17 +59,17 @@ mod flatten_statement;
 pub mod flattener;
 pub use flattener::*;
 
-use crate::{Assigner, Pass, SymbolTable};
+use crate::{Assigner, Pass, SymbolTable, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
 impl<'a> Pass for Flattener<'a> {
-    type Input = (Ast, &'a SymbolTable, &'a NodeBuilder, &'a Assigner);
+    type Input = (Ast, &'a SymbolTable, &'a TypeTable, &'a NodeBuilder, &'a Assigner);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, st, node_builder, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = Flattener::new(st, node_builder, assigner);
+    fn do_pass((ast, st, tt, node_builder, assigner): Self::Input) -> Self::Output {
+        let mut reconstructor = Flattener::new(st, tt, node_builder, assigner);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
         Ok(Ast::new(program))

@@ -15,11 +15,31 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::*;
+use leo_errors::LoopUnrollerError;
 
 use crate::Unroller;
 
 impl ExpressionReconstructor for Unroller<'_> {
     type AdditionalOutput = bool;
+
+    fn reconstruct_array_access(&mut self, input: ArrayAccess) -> (Expression, Self::AdditionalOutput) {
+        // Reconstruct the index.
+        let index = self.reconstruct_expression(*input.index).0;
+        // If the index is not a literal, then emit an error.
+        if !matches!(index, Expression::Literal(_)) {
+            self.emit_err(LoopUnrollerError::variable_array_access(input.span));
+        }
+
+        (
+            Expression::Access(AccessExpression::Array(ArrayAccess {
+                array: Box::new(self.reconstruct_expression(*input.array).0),
+                index: Box::new(index),
+                span: input.span,
+                id: input.id,
+            })),
+            Default::default(),
+        )
+    }
 
     fn reconstruct_identifier(&mut self, input: Identifier) -> (Expression, Self::AdditionalOutput) {
         // Substitute the identifier with the constant value if it is a constant.

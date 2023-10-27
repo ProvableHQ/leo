@@ -64,17 +64,17 @@ mod inline_program;
 pub mod function_inliner;
 pub use function_inliner::*;
 
-use crate::{Assigner, CallGraph, Pass};
+use crate::{Assigner, CallGraph, Pass, TypeTable};
 
 use leo_ast::{Ast, NodeBuilder, ProgramReconstructor};
 use leo_errors::Result;
 
 impl<'a> Pass for FunctionInliner<'a> {
-    type Input = (Ast, &'a NodeBuilder, &'a CallGraph, &'a Assigner);
+    type Input = (Ast, &'a NodeBuilder, &'a CallGraph, &'a Assigner, &'a TypeTable);
     type Output = Result<Ast>;
 
-    fn do_pass((ast, node_builder, call_graph, assigner): Self::Input) -> Self::Output {
-        let mut reconstructor = FunctionInliner::new(node_builder, call_graph, assigner);
+    fn do_pass((ast, node_builder, call_graph, assigner, tt): Self::Input) -> Self::Output {
+        let mut reconstructor = FunctionInliner::new(node_builder, call_graph, assigner, tt);
         let program = reconstructor.reconstruct_program(ast.into_repr());
 
         Ok(Ast::new(program))

@@ -14,15 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Assigner, RenameTable, SymbolTable};
+use crate::{Assigner, RenameTable, SymbolTable, TypeTable};
 
-use leo_ast::{Expression, Identifier, NodeBuilder, Statement};
+use leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement};
 
 pub struct StaticSingleAssigner<'a> {
     /// A counter used to generate unique node IDs.
     pub(crate) node_builder: &'a NodeBuilder,
     /// The `SymbolTable` of the program.
     pub(crate) symbol_table: &'a SymbolTable,
+    /// A mapping from node IDs to their types.
+    pub(crate) type_table: &'a TypeTable,
     /// The `RenameTable` for the current basic block in the AST
     pub(crate) rename_table: RenameTable,
     /// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
@@ -33,8 +35,13 @@ pub struct StaticSingleAssigner<'a> {
 
 impl<'a> StaticSingleAssigner<'a> {
     /// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
-    pub(crate) fn new(node_builder: &'a NodeBuilder, symbol_table: &'a SymbolTable, assigner: &'a Assigner) -> Self {
-        Self { node_builder, symbol_table, rename_table: RenameTable::new(None), is_lhs: false, assigner }
+    pub(crate) fn new(
+        node_builder: &'a NodeBuilder,
+        symbol_table: &'a SymbolTable,
+        type_table: &'a TypeTable,
+        assigner: &'a Assigner,
+    ) -> Self {
+        Self { node_builder, symbol_table, type_table, rename_table: RenameTable::new(None), is_lhs: false, assigner }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.
@@ -49,6 +56,19 @@ impl<'a> StaticSingleAssigner<'a> {
         core::mem::replace(&mut self.rename_table, *parent)
     }
 
+    pub(crate) fn simple_assign_statement(&mut self, identifier: Identifier, rhs: Expression) -> Statement {
+        // Update the type table.
+        let type_ = match self.type_table.get(&rhs.id()) {
+            Some(type_) => type_,
+            None => unreachable!("Type checking guarantees that all expressions have a type."),
+        };
+        self.type_table.insert(identifier.id(), type_);
+        // Update the rename table.
+        self.rename_table.update(identifier.name, identifier.name, identifier.id);
+        // Construct the statement.
+        self.assigner.simple_assign_statement(identifier, rhs, self.node_builder.next_id())
+    }
+
     /// Constructs a simple assign statement for `expr` with a unique name.
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     /// The lhs is guaranteed to be unique with respect to the `Assigner`.
@@ -60,11 +80,8 @@ impl<'a> StaticSingleAssigner<'a> {
         let place = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
 
         // Construct the statement.
-        let statement = self.assigner.simple_assign_statement(place, expr, self.node_builder.next_id());
+        let statement = self.simple_assign_statement(place, expr);
 
-        // Construct the identifier to be returned. Note that it must have a unique node ID.
-        let identifier = Identifier { name, span: Default::default(), id: self.node_builder.next_id() };
-
-        (identifier, statement)
+        (place, statement)
     }
 }

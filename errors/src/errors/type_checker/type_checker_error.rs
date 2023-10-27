@@ -684,4 +684,32 @@ create_messages!(
         msg: format!("A constant declaration statement can only bind a single value"),
         help: None,
     }
+
+    @formatted
+    array_empty {
+        args: (),
+        msg: format!("An array cannot be empty"),
+        help: None,
+    }
+
+    @formatted
+    array_too_large {
+        args: (size: impl Display, max: impl Display),
+        msg: format!("An array cannot have more than {max} elements, found one with {size} elements"),
+        help: None,
+    }
+
+    @formatted
+    array_element_cannot_be_tuple {
+        args: (),
+        msg: format!("An array cannot have a tuple as an element type"),
+        help: None,
+    }
+
+    @formatted
+    array_element_cannot_be_record {
+        args: (),
+        msg: format!("An array cannot have a record as an element type"),
+        help: None,
+    }
 );

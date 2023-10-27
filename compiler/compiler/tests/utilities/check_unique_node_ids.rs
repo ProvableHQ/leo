@@ -47,7 +47,7 @@ impl<'a> CheckUniqueNodeIds<'a> {
                 self.check_ty(&mapping.value);
             }
             Type::Tuple(tuple) => {
-                for ty in &tuple.0 {
+                for ty in tuple.elements() {
                     self.check_ty(ty);
                 }
             }
@@ -62,6 +62,11 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression, _: &Self::AdditionalInput) -> Self::Output {
         match input {
+            AccessExpression::Array(ArrayAccess { array, index, id, .. }) => {
+                self.visit_expression(array, &Default::default());
+                self.visit_expression(index, &Default::default());
+                self.check(*id);
+            }
             AccessExpression::AssociatedConstant(AssociatedConstant { ty, name, id, .. }) => {
                 self.check_ty(ty);
                 self.visit_identifier(name, &Default::default());

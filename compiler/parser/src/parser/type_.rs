@@ -80,6 +80,19 @@ impl ParserContext<'_> {
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         if let Some(ident) = self.eat_identifier() {
             Ok((Type::Identifier(ident), ident.span))
+        } else if self.token.token == Token::LeftSquare {
+            // Parse the left bracket.
+            self.expect(&Token::LeftSquare)?;
+            // Parse the element type.
+            let (element_type, _) = self.parse_type()?;
+            // Parse the semi-colon.
+            self.expect(&Token::Semicolon)?;
+            // Parse the length.
+            let (length, _) = self.eat_whole_number()?;
+            // Parse the right bracket.
+            self.expect(&Token::RightSquare)?;
+            // Return the array type.
+            Ok((Type::Array(ArrayType::new(element_type, length)), self.prev_token.span))
         } else if self.token.token == Token::LeftParen {
             let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
             match types.len() {
@@ -89,7 +102,7 @@ impl ParserContext<'_> {
                 1 => Err(ParserError::tuple_must_have_at_least_two_elements("type", span).into()),
                 // Otherwise, parse it into a `Tuple` type.
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
-                _ => Ok((Type::Tuple(Tuple(types.into_iter().map(|t| t.0).collect())), span)),
+                _ => Ok((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.0).collect())), span)),
             }
         } else {
             self.parse_primitive_type()

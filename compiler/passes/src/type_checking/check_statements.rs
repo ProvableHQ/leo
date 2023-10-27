@@ -157,10 +157,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // If the type is an empty tuple, return an error.
             Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) => match tuple.len() {
+            Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
-                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                    if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
                         self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                     }
                 }
@@ -203,17 +203,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_definition(&mut self, input: &'a DefinitionStatement) {
         // Check that the type of the definition is defined.
-        self.assert_type_is_defined(&input.type_, input.span);
+        self.assert_type_is_valid(&input.type_, input.span);
 
         // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
             Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             // If the type is a singleton tuple, return an error.
-            Type::Tuple(tuple) => match tuple.len() {
+            Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
-                    if tuple.iter().any(|type_| matches!(type_, Type::Tuple(_))) {
+                    if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
                         self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                     }
                 }
@@ -252,25 +252,27 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         "Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     ),
                 };
-                if tuple_expression.elements.len() != tuple_type.len() {
+                if tuple_expression.elements.len() != tuple_type.length() {
                     return self.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
                         tuple_expression.elements.len(),
-                        tuple_type.len(),
+                        tuple_type.length(),
                         input.place.span(),
                     ));
                 }
 
-                tuple_expression.elements.iter().zip_eq(tuple_type.0.iter()).for_each(|(expression, type_)| {
-                    let identifier = match expression {
-                        Expression::Identifier(identifier) => identifier,
-                        _ => {
-                            return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
-                                expression.span(),
-                            ));
-                        }
-                    };
-                    insert_variable(identifier.name, type_.clone(), identifier.span)
-                });
+                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(
+                    |(expression, type_)| {
+                        let identifier = match expression {
+                            Expression::Identifier(identifier) => identifier,
+                            _ => {
+                                return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
+                                    expression.span(),
+                                ));
+                            }
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span)
+                    },
+                );
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }

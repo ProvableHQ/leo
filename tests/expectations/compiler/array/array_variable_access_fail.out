@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ELUN0379001]: The array index must be constant.\n    --> compiler-test:5:16\n     |\n   5 |         return a[index];\n     |                ^^^^^^^^\n"

@@ -17,24 +17,33 @@
 use crate::Type;
 
 use serde::{Deserialize, Serialize};
-use std::{fmt, ops::Deref};
-
-// TODO: Consider defining a safe interface for constructing a tuple type.
+use std::fmt;
 
 /// A type list of at least two types.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Tuple(pub Vec<Type>);
+pub struct TupleType {
+    elements: Vec<Type>,
+}
 
-impl Deref for Tuple {
-    type Target = Vec<Type>;
+impl TupleType {
+    /// Creates a new tuple type.
+    pub fn new(elements: Vec<Type>) -> Self {
+        Self { elements }
+    }
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
+    /// Returns the elements of the tuple type.
+    pub fn elements(&self) -> &[Type] {
+        &self.elements
+    }
+
+    /// Returns the length of the tuple type.
+    pub fn length(&self) -> usize {
+        self.elements.len()
     }
 }
 
-impl fmt::Display for Tuple {
+impl fmt::Display for TupleType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({})", self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
+        write!(f, "({})", self.elements.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
 }

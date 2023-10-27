@@ -20,6 +20,8 @@ use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
+use itertools::Itertools;
+use snarkvm_console::network::{Network, Testnet3};
 use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
@@ -40,8 +42,55 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
+    fn visit_expression(&mut self, input: &'a Expression, additional: &Self::AdditionalInput) -> Self::Output {
+        let output = match input {
+            Expression::Access(access) => self.visit_access(access, additional),
+            Expression::Array(array) => self.visit_array(array, additional),
+            Expression::Binary(binary) => self.visit_binary(binary, additional),
+            Expression::Call(call) => self.visit_call(call, additional),
+            Expression::Cast(cast) => self.visit_cast(cast, additional),
+            Expression::Struct(struct_) => self.visit_struct_init(struct_, additional),
+            Expression::Err(err) => self.visit_err(err, additional),
+            Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
+            Expression::Literal(literal) => self.visit_literal(literal, additional),
+            Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
+            Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
+            Expression::Unary(unary) => self.visit_unary(unary, additional),
+            Expression::Unit(unit) => self.visit_unit(unit, additional),
+        };
+        // If the output type is known, add the expression and its associated type to the symbol table.
+        if let Some(type_) = &output {
+            self.type_table.insert(input.id(), type_.clone());
+        }
+        // Return the output type.
+        output
+    }
+
     fn visit_access(&mut self, input: &'a AccessExpression, expected: &Self::AdditionalInput) -> Self::Output {
         match input {
+            AccessExpression::Array(access) => {
+                // Check that the expression is an array.
+                let array_type = self.visit_expression(&access.array, &None);
+                self.assert_array_type(&array_type, access.array.span());
+
+                // Check that the index is an integer type.
+                let index_type = self.visit_expression(&access.index, &None);
+                self.assert_int_type(&index_type, access.index.span());
+
+                // Get the element type of the array.
+                let element_type = match array_type {
+                    Some(Type::Array(array_type)) => Some(array_type.element_type().clone()),
+                    _ => None,
+                };
+
+                // If the expected type is known, then check that the element type is the same as the expected type.
+                if let Some(expected) = expected {
+                    self.assert_type(&element_type, expected, input.span());
+                }
+
+                // Return the element type of the array.
+                return element_type;
+            }
             AccessExpression::AssociatedFunction(access) => {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {
@@ -75,12 +124,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     match type_ {
                         Type::Tuple(tuple) => {
                             // Check out of range access.
-                            let index = access.index.to_usize();
-                            if index > tuple.len() - 1 {
-                                self.emit_err(TypeCheckerError::tuple_out_of_range(index, tuple.len(), access.span()));
+                            let index = access.index.value();
+                            if index > tuple.length() - 1 {
+                                self.emit_err(TypeCheckerError::tuple_out_of_range(
+                                    index,
+                                    tuple.length(),
+                                    access.span(),
+                                ));
                             } else {
                                 // Lookup type of tuple index.
-                                let actual = tuple.get(index).expect("failed to get tuple index").clone();
+                                let actual = tuple.elements().get(index).expect("failed to get tuple index").clone();
                                 if let Some(expected) = expected {
                                     // Emit error for mismatched types.
                                     if !actual.eq_flat(expected) {
@@ -206,6 +259,51 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
         }
         None
+    }
+
+    fn visit_array(&mut self, input: &'a ArrayExpression, additional: &Self::AdditionalInput) -> Self::Output {
+        // Get the types of each element expression.
+        let element_types =
+            input.elements.iter().map(|element| self.visit_expression(element, &None)).collect::<Vec<_>>();
+
+        // Construct the array type.
+        let return_type = match element_types.len() {
+            // The array cannot be empty.
+            0 => {
+                self.emit_err(TypeCheckerError::array_empty(input.span()));
+                None
+            }
+            // Check that the element types match.
+            1..=Testnet3::MAX_ARRAY_ELEMENTS => {
+                let mut element_types = element_types.into_iter();
+                // Note that this unwrap is safe because we already checked that the array is not empty.
+                element_types.next().unwrap().map(|first_type| {
+                    // Check that all elements have the same type.
+                    for (element_type, element) in element_types.zip_eq(input.elements.iter().skip(1)) {
+                        self.assert_type(&element_type, &first_type, element.span());
+                    }
+                    // Return the array type.
+                    Type::Array(ArrayType::new(first_type, NonNegativeNumber::from(input.elements.len())))
+                })
+            }
+            // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.
+            num_elements => {
+                self.emit_err(TypeCheckerError::array_too_large(
+                    num_elements,
+                    Testnet3::MAX_ARRAY_ELEMENTS,
+                    input.span(),
+                ));
+                None
+            }
+        };
+
+        // If the expected type is known, then check that the array type is the same as the expected type.
+        if let Some(expected) = additional {
+            self.assert_type(&return_type, expected, input.span());
+        }
+
+        // Return the array type.
+        return_type
     }
 
     fn visit_binary(&mut self, input: &'a BinaryExpression, destination: &Self::AdditionalInput) -> Self::Output {
@@ -457,7 +555,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Assert right type is a magnitude (u8, u16, u32).
                 self.assert_magnitude_type(&t2, input.right.span());
 
-                return_incorrect_type(t1, t2, destination)
+                t1
             }
         }
     }
@@ -674,15 +772,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Check the expected tuple types if they are known.
                 if let Some(Type::Tuple(expected_types)) = expected {
                     // Check actual length is equal to expected length.
-                    if expected_types.len() != input.elements.len() {
+                    if expected_types.length() != input.elements.len() {
                         self.emit_err(TypeCheckerError::incorrect_tuple_length(
-                            expected_types.len(),
+                            expected_types.length(),
                             input.elements.len(),
                             input.span(),
                         ));
                     }
 
-                    expected_types.iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
+                    expected_types.elements().iter().zip(input.elements.iter()).for_each(|(expected, expr)| {
                         // Check that the component expression is not a tuple.
                         if matches!(expr, Expression::Tuple(_)) {
                             self.emit_err(TypeCheckerError::nested_tuple_expression(expr.span()))

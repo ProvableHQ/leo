@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Function, Program, ProgramId};
 use leo_span::Symbol;
@@ -24,6 +24,8 @@ use indexmap::IndexMap;
 pub struct CodeGenerator<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: &'a SymbolTable,
+    /// A mapping between expressions and their types.
+    pub(crate) type_table: &'a TypeTable,
     /// The struct dependency graph for the program.
     pub(crate) struct_graph: &'a StructGraph,
     /// The call graph for the program.
@@ -57,6 +59,7 @@ impl<'a> CodeGenerator<'a> {
     /// Initializes a new `CodeGenerator`.
     pub fn new(
         symbol_table: &'a SymbolTable,
+        type_table: &'a TypeTable,
         struct_graph: &'a StructGraph,
         _call_graph: &'a CallGraph,
         program: &'a Program,
@@ -64,6 +67,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize variable mapping.
         Self {
             symbol_table,
+            type_table,
             struct_graph,
             _call_graph,
             next_register: 0,

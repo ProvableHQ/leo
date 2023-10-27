@@ -38,7 +38,7 @@ pub use output::*;
 pub mod mode;
 pub use mode::*;
 
-use crate::{Block, Identifier, Node, NodeID, Tuple, Type};
+use crate::{Block, Identifier, Node, NodeID, TupleType, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -100,7 +100,7 @@ impl Function {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => get_output_type(&output[0]),
-            _ => Type::Tuple(Tuple(output.iter().map(get_output_type).collect())),
+            _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
         Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }

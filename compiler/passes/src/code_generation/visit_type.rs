@@ -19,7 +19,7 @@ use crate::CodeGenerator;
 use leo_ast::{Mode, Type};
 
 impl<'a> CodeGenerator<'a> {
-    fn visit_type(&mut self, input: &'a Type) -> String {
+    pub(crate) fn visit_type(input: &Type) -> String {
         match input {
             Type::Address
             | Type::Boolean
@@ -28,8 +28,11 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
-            Type::Identifier(ident) => format!("{ident}"),
+            Type::Array(array_type) => {
+                format!("[{}; {}u32]", Self::visit_type(array_type.element_type()), array_type.length())
+            }
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
@@ -41,7 +44,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub(crate) fn visit_type_with_visibility(&mut self, type_: &'a Type, visibility: Mode) -> String {
+    pub(crate) fn visit_type_with_visibility(&self, type_: &'a Type, visibility: Mode) -> String {
         match type_ {
             // When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
@@ -49,8 +52,8 @@ impl<'a> CodeGenerator<'a> {
                 format!("{identifier}.record")
             }
             _ => match visibility {
-                Mode::None => self.visit_type(type_),
-                _ => format!("{}.{visibility}", self.visit_type(type_)),
+                Mode::None => Self::visit_type(type_),
+                _ => format!("{}.{visibility}", Self::visit_type(type_)),
             },
         }
     }

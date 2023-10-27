@@ -17,6 +17,8 @@
 use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
     AssociatedConstant,
     AssociatedFunction,
     BinaryExpression,
@@ -49,6 +51,7 @@ impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_expression(&mut self, input: &'a Expression) -> (String, String) {
         match input {
             Expression::Access(expr) => self.visit_access(expr),
+            Expression::Array(expr) => self.visit_array(expr),
             Expression::Binary(expr) => self.visit_binary(expr),
             Expression::Call(expr) => self.visit_call(expr),
             Expression::Cast(expr) => self.visit_cast(expr),
@@ -130,18 +133,50 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_cast(&mut self, input: &'a CastExpression) -> (String, String) {
-        let (expression_operand, expression_instructions) = self.visit_expression(&input.expression);
+        let (expression_operand, mut instructions) = self.visit_expression(&input.expression);
 
+        // Construct the destination register.
         let destination_register = format!("r{}", self.next_register);
-        let cast_instruction =
-            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
-
         // Increment the register counter.
         self.next_register += 1;
 
+        let cast_instruction =
+            format!("    cast {expression_operand} into {destination_register} as {};\n", input.type_);
+
         // Concatenate the instructions.
-        let mut instructions = expression_instructions;
         instructions.push_str(&cast_instruction);
+
+        (destination_register, instructions)
+    }
+
+    fn visit_array(&mut self, input: &'a ArrayExpression) -> (String, String) {
+        let (expression_operands, mut instructions) =
+            input.elements.iter().map(|expr| self.visit_expression(expr)).fold(
+                (String::new(), String::new()),
+                |(mut operands, mut instructions), (operand, operand_instructions)| {
+                    operands.push_str(&operand);
+                    instructions.push_str(&operand_instructions);
+                    (operands, instructions)
+                },
+            );
+
+        // Construct the destination register.
+        let destination_register = format!("r{}", self.next_register);
+        // Increment the register counter.
+        self.next_register += 1;
+
+        // Get the array type.
+        let array_type = match self.type_table.get(&input.id) {
+            Some(Type::Array(array_type)) => Type::Array(array_type),
+            _ => unreachable!("All types should be known at this phase of compilation"),
+        };
+        let array_type: String = Self::visit_type(&array_type);
+
+        let array_instruction =
+            format!("    cast {expression_operands} into {destination_register} as {};\n", array_type);
+
+        // Concatenate the instructions.
+        instructions.push_str(&array_instruction);
 
         (destination_register, instructions)
     }
@@ -249,11 +284,22 @@ impl<'a> CodeGenerator<'a> {
         (destination_register, instructions)
     }
 
-    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
-        let (inner_struct, _inner_instructions) = self.visit_expression(&input.inner);
-        let member_access_instruction = format!("{inner_struct}.{}", input.name);
+    fn visit_array_access(&mut self, input: &'a ArrayAccess) -> (String, String) {
+        let (array_operand, _) = self.visit_expression(&input.array);
+        let index_operand = match input.index.as_ref() {
+            Expression::Literal(Literal::Integer(_, string, _, _)) => format!("{}u32", string),
+            _ => unreachable!("Array indices must be integer literals"),
+        };
+        let array_access = format!("{}[{}]", array_operand, index_operand);
 
-        (member_access_instruction, String::new())
+        (array_access, String::new())
+    }
+
+    fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
+        let (inner_struct, _) = self.visit_expression(&input.inner);
+        let member_access = format!("{inner_struct}.{}", input.name);
+
+        (member_access, String::new())
     }
 
     // group::GEN -> group::GEN
@@ -462,10 +508,13 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_access(&mut self, input: &'a AccessExpression) -> (String, String) {
         match input {
+            AccessExpression::Array(array) => self.visit_array_access(array),
             AccessExpression::Member(access) => self.visit_member_access(access),
             AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
-            AccessExpression::Tuple(_) => todo!(), // Tuples are not supported in AVM yet.
+            AccessExpression::Tuple(_) => {
+                unreachable!("Tuple access should not be in the AST at this phase of compilation.")
+            }
         }
     }
 
@@ -523,7 +572,7 @@ impl<'a> CodeGenerator<'a> {
         let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
-            Type::Tuple(tuple) => match tuple.len() {
+            Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
                 len => {
                     for _ in 0..len {

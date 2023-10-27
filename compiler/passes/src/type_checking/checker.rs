@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
+
+use snarkvm_console::network::{Network, Testnet3};
 
 use itertools::Itertools;
 use std::cell::RefCell;
@@ -26,6 +28,8 @@ use std::cell::RefCell;
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
+    /// A mapping from node IDs to their types.
+    pub(crate) type_table: &'a TypeTable,
     /// A dependency graph of the structs in program.
     pub(crate) struct_graph: StructGraph,
     /// The call graph for the program.
@@ -95,7 +99,7 @@ const MAGNITUDE_TYPES: [Type; 3] =
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, handler: &'a Handler) -> Self {
+    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
         let struct_names = symbol_table.structs.keys().cloned().collect();
 
         let function_names = symbol_table.functions.keys().cloned().collect();
@@ -103,6 +107,7 @@ impl<'a> TypeChecker<'a> {
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
             symbol_table: RefCell::new(symbol_table),
+            type_table,
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
@@ -1046,7 +1051,7 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, identifier.name, span))
             }
             Type::Tuple(tuple_type) => {
-                for type_ in tuple_type.iter() {
+                for type_ in tuple_type.elements().iter() {
                     self.assert_member_is_not_record(span, parent, type_)
                 }
             }
@@ -1054,34 +1059,62 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
-    /// Emits an error if the type or its constituent types are not defined.
-    pub(crate) fn assert_type_is_defined(&self, type_: &Type, span: Span) -> bool {
-        let mut is_defined = true;
+    /// Emits an error if the type or its constituent types is not valid.
+    pub(crate) fn assert_type_is_valid(&self, type_: &Type, span: Span) -> bool {
+        let mut is_valid = true;
         match type_ {
             // String types are temporarily disabled.
             Type::String => {
-                is_defined = false;
+                is_valid = false;
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
             Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
-                is_defined = false;
+                is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
-                for type_ in tuple_type.iter() {
-                    is_defined &= self.assert_type_is_defined(type_, span)
+                for type_ in tuple_type.elements().iter() {
+                    is_valid &= self.assert_type_is_valid(type_, span)
                 }
             }
             // Check that the constituent types of mapping are valid.
             Type::Mapping(mapping_type) => {
-                is_defined &= self.assert_type_is_defined(&mapping_type.key, span);
-                is_defined &= self.assert_type_is_defined(&mapping_type.value, span);
+                is_valid &= self.assert_type_is_valid(&mapping_type.key, span);
+                is_valid &= self.assert_type_is_valid(&mapping_type.value, span);
+            }
+            // Check that the array element types are valid.
+            Type::Array(array_type) => {
+                // Check that the array length is valid.
+                match array_type.length() {
+                    0 => self.emit_err(TypeCheckerError::array_empty(span)),
+                    1..=Testnet3::MAX_ARRAY_ELEMENTS => {}
+                    length => {
+                        self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                    }
+                }
+                // Check that the array element type is valid.
+                match array_type.element_type() {
+                    // Array elements cannot be tuples.
+                    Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
+                    // Array elements cannot be records.
+                    Type::Identifier(identifier) => {
+                        // Look up the type.
+                        if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                            // Check that the type is not a record.
+                            if struct_.is_record {
+                                self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
+                            }
+                        }
+                    }
+                    _ => {} // Do nothing.
+                }
+                is_valid &= self.assert_type_is_valid(array_type.element_type(), span)
             }
             _ => {} // Do nothing.
         }
-        is_defined
+        is_valid
     }
 
     /// Emits an error if the type is not a mapping.
@@ -1091,6 +1124,11 @@ impl<'a> TypeChecker<'a> {
             Some(Type::Mapping(mapping_type)) => Some(mapping_type.clone()),
             _ => None,
         }
+    }
+
+    /// Emits an error if the type is not an array.
+    pub(crate) fn assert_array_type(&self, type_: &Option<Type>, span: Span) {
+        self.check_type(|type_| matches!(type_, Type::Array(_)), "array".to_string(), type_, span);
     }
 }
 
