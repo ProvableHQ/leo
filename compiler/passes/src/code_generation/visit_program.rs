@@ -266,6 +266,9 @@ impl<'a> CodeGenerator<'a> {
                 writeln!(function_string, "    await {register};").expect("failed to write to string");
             }
 
+            // Clear the futures.
+            self.futures.clear();
+
             // Construct and append the finalize block body, if it exists.
             if let Some(finalize) = &function.finalize {
                 function_string.push_str(&self.visit_block(&finalize.block));
