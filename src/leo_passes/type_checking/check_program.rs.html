@@ -428,6 +428,15 @@
 <a href="#428" id="428">428</a>
 <a href="#429" id="429">429</a>
 <a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -539,7 +548,7 @@
         <span class="comment">// TODO: Better span to target duplicate member.
         </span><span class="kw">if </span>!input.members.iter().all(|Member { identifier, type_, span, .. }| {
             <span class="comment">// Check that the member types are defined.
-            </span><span class="self">self</span>.assert_type_is_defined(type_, <span class="kw-2">*</span>span);
+            </span><span class="self">self</span>.assert_type_is_valid(type_, <span class="kw-2">*</span>span);
             used.insert(identifier.name)
         }) {
             <span class="self">self</span>.emit_err(<span class="kw">if </span>input.is_record {
@@ -576,11 +585,20 @@
             }
             <span class="comment">// Ensure that there are no record members.
             </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+
             <span class="comment">// If the member is a struct, add it to the struct dependency graph.
             // Note that we have already checked that each member is defined and valid.
             </span><span class="kw">if let </span>Type::Identifier(member_type) = type_ {
                 <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.name);
+            } <span class="kw">else if let </span>Type::Array(array_type) = type_ {
+                <span class="comment">// Get the base element type.
+                </span><span class="kw">let </span>base_element_type = array_type.base_element_type();
+                <span class="comment">// If the base element type is a struct, then add it to the struct dependency graph.
+                </span><span class="kw">if let </span>Type::Identifier(member_type) = base_element_type {
+                    <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.name);
+                }
             }
+
             <span class="comment">// If the input is a struct, then check that the member does not have a mode.
             </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="macro">matches!</span>(mode, Mode::None) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_cannot_have_member_mode(<span class="kw-2">*</span>span));
@@ -590,7 +608,7 @@
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) {
         <span class="comment">// Check that a mapping&#39;s key type is valid.
-        </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.key_type, input.span);
+        </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.key_type, input.span);
         <span class="comment">// Check that a mapping&#39;s key type is not a tuple, record, or mapping.
         </span><span class="kw">match </span>input.key_type {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
@@ -607,7 +625,7 @@
         }
 
         <span class="comment">// Check that a mapping&#39;s value type is valid.
-        </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.value_type, input.span);
+        </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.value_type, input.span);
         <span class="comment">// Check that a mapping&#39;s value type is not a tuple, record or mapping.
         </span><span class="kw">match </span>input.value_type {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
@@ -656,7 +674,7 @@
         <span class="comment">// Type check the function&#39;s parameters.
         </span>function.input.iter().for_each(|input_var| {
             <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
+            </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
             <span class="comment">// Check that the type of the input parameter is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
@@ -702,7 +720,7 @@
                 </span>}
                 Output::Internal(function_output) =&gt; {
                     <span class="comment">// Check that the type of output is defined.
-                    </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
+                    </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
                         <span class="comment">// If the function is not a transition function, then it cannot output a record.
                         </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
                             <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
@@ -767,7 +785,7 @@
 
             finalize.input.iter().for_each(|input_var| {
                 <span class="comment">// Check that the type of input parameter is defined.
-                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span()) {
+                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span()) {
                     <span class="comment">// Check that the input parameter is not a tuple.
                     </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
@@ -808,7 +826,7 @@
             // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
             </span>finalize.output.iter().for_each(|output_type| {
                 <span class="comment">// Check that the type of output is defined.
-                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>output_type.type_(), output_type.span()) {
+                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>output_type.type_(), output_type.span()) {
                     <span class="comment">// Check that the output is not a tuple. This is necessary to forbid nested tuples.
                     </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_(), Type::Tuple(<span class="kw">_</span>)) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
@@ -838,7 +856,7 @@
             </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
 
             <span class="comment">// Check that the return type is defined. Note that the component types are already checked.
-            </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
+            </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
 
             <span class="comment">// If the function has a return type, then check that it has a return.
             </span><span class="kw">if </span>finalize.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {

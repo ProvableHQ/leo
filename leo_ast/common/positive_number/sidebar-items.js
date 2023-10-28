@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["PositiveNumber"]};
+window.SIDEBAR_ITEMS = {"struct":["NonNegativeNumber"]};

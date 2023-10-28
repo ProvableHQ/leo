@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["destructure_expression","destructure_program","destructure_statement","destructurer"]};

@@ -296,7 +296,7 @@
                             <span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;
                         </span>),
                     };
-                    tuple_expression.elements.iter().zip_eq(tuple_type.<span class="number">0</span>.iter()).for_each(|(expression, _type_)| {
+                    tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(|(expression, _type_)| {
                         <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
                             Expression::Identifier(identifier) =&gt; identifier,
                             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that if the lhs is a tuple, all of its elements are identifiers.&quot;</span>)

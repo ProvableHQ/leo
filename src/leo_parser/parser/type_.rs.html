@@ -96,6 +96,19 @@
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -178,6 +191,19 @@
     </span><span class="kw">pub fn </span>parse_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Type, Span)&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="self">self</span>.eat_identifier() {
             <span class="prelude-val">Ok</span>((Type::Identifier(ident), ident.span))
+        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
+            <span class="comment">// Parse the left bracket.
+            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftSquare)<span class="question-mark">?</span>;
+            <span class="comment">// Parse the element type.
+            </span><span class="kw">let </span>(element_type, <span class="kw">_</span>) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+            <span class="comment">// Parse the semi-colon.
+            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+            <span class="comment">// Parse the length.
+            </span><span class="kw">let </span>(length, <span class="kw">_</span>) = <span class="self">self</span>.eat_whole_number()<span class="question-mark">?</span>;
+            <span class="comment">// Parse the right bracket.
+            </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightSquare)<span class="question-mark">?</span>;
+            <span class="comment">// Return the array type.
+            </span><span class="prelude-val">Ok</span>((Type::Array(ArrayType::new(element_type, length)), <span class="self">self</span>.prev_token.span))
         } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftParen {
             <span class="kw">let </span>(types, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
             <span class="kw">match </span>types.len() {
@@ -187,7 +213,7 @@
                 </span><span class="number">1 </span>=&gt; <span class="prelude-val">Err</span>(ParserError::tuple_must_have_at_least_two_elements(<span class="string">&quot;type&quot;</span>, span).into()),
                 <span class="comment">// Otherwise, parse it into a `Tuple` type.
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
-                </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(Tuple(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
+                </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
             }
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_primitive_type()

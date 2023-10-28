@@ -1097,6 +1097,44 @@
 <a href="#1097" id="1097">1097</a>
 <a href="#1098" id="1098">1098</a>
 <a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1113,11 +1151,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable};
+</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 <span class="kw">use </span>leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
 <span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
 <span class="kw">use </span>leo_span::{Span, Symbol};
+
+<span class="kw">use </span>snarkvm_console::network::{Network, Testnet3};
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::cell::RefCell;
@@ -1125,6 +1165,8 @@
 <span class="kw">pub struct </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    <span class="doccomment">/// A mapping from node IDs to their types.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
     <span class="doccomment">/// A dependency graph of the structs in program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) struct_graph: StructGraph,
     <span class="doccomment">/// The call graph for the program.
@@ -1194,7 +1236,7 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
-    </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>struct_names = symbol_table.structs.keys().cloned().collect();
 
         <span class="kw">let </span>function_names = symbol_table.functions.keys().cloned().collect();
@@ -1202,6 +1244,7 @@
         <span class="comment">// Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         </span><span class="self">Self </span>{
             symbol_table: RefCell::new(symbol_table),
+            type_table,
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
@@ -2145,7 +2188,7 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, identifier.name, span))
             }
             Type::Tuple(tuple_type) =&gt; {
-                <span class="kw">for </span>type_ <span class="kw">in </span>tuple_type.iter() {
+                <span class="kw">for </span>type_ <span class="kw">in </span>tuple_type.elements().iter() {
                     <span class="self">self</span>.assert_member_is_not_record(span, parent, type_)
                 }
             }
@@ -2153,34 +2196,62 @@
         </span>}
     }
 
-    <span class="doccomment">/// Emits an error if the type or its constituent types are not defined.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_defined(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, span: Span) -&gt; bool {
-        <span class="kw">let </span><span class="kw-2">mut </span>is_defined = <span class="bool-val">true</span>;
+    <span class="doccomment">/// Emits an error if the type or its constituent types is not valid.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, span: Span) -&gt; bool {
+        <span class="kw">let </span><span class="kw-2">mut </span>is_valid = <span class="bool-val">true</span>;
         <span class="kw">match </span>type_ {
             <span class="comment">// String types are temporarily disabled.
             </span>Type::String =&gt; {
-                is_defined = <span class="bool-val">false</span>;
+                is_valid = <span class="bool-val">false</span>;
                 <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             <span class="comment">// Check that the named composite type has been defined.
             </span>Type::Identifier(identifier) <span class="kw">if </span><span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).is_none() =&gt; {
-                is_defined = <span class="bool-val">false</span>;
+                is_valid = <span class="bool-val">false</span>;
                 <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
             }
             <span class="comment">// Check that the constituent types of the tuple are valid.
             </span>Type::Tuple(tuple_type) =&gt; {
-                <span class="kw">for </span>type_ <span class="kw">in </span>tuple_type.iter() {
-                    is_defined &amp;= <span class="self">self</span>.assert_type_is_defined(type_, span)
+                <span class="kw">for </span>type_ <span class="kw">in </span>tuple_type.elements().iter() {
+                    is_valid &amp;= <span class="self">self</span>.assert_type_is_valid(type_, span)
                 }
             }
             <span class="comment">// Check that the constituent types of mapping are valid.
             </span>Type::Mapping(mapping_type) =&gt; {
-                is_defined &amp;= <span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>mapping_type.key, span);
-                is_defined &amp;= <span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>mapping_type.value, span);
+                is_valid &amp;= <span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>mapping_type.key, span);
+                is_valid &amp;= <span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>mapping_type.value, span);
+            }
+            <span class="comment">// Check that the array element types are valid.
+            </span>Type::Array(array_type) =&gt; {
+                <span class="comment">// Check that the array length is valid.
+                </span><span class="kw">match </span>array_type.length() {
+                    <span class="number">0 </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::array_empty(span)),
+                    <span class="number">1</span>..=Testnet3::MAX_ARRAY_ELEMENTS =&gt; {}
+                    length =&gt; {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                    }
+                }
+                <span class="comment">// Check that the array element type is valid.
+                </span><span class="kw">match </span>array_type.element_type() {
+                    <span class="comment">// Array elements cannot be tuples.
+                    </span>Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
+                    <span class="comment">// Array elements cannot be records.
+                    </span>Type::Identifier(identifier) =&gt; {
+                        <span class="comment">// Look up the type.
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name) {
+                            <span class="comment">// Check that the type is not a record.
+                            </span><span class="kw">if </span>struct_.is_record {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
+                            }
+                        }
+                    }
+                    <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
+                </span>}
+                is_valid &amp;= <span class="self">self</span>.assert_type_is_valid(array_type.element_type(), span)
             }
             <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
         </span>}
-        is_defined
+        is_valid
     }
 
     <span class="doccomment">/// Emits an error if the type is not a mapping.
@@ -2190,6 +2261,11 @@
             <span class="prelude-val">Some</span>(Type::Mapping(mapping_type)) =&gt; <span class="prelude-val">Some</span>(mapping_type.clone()),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
+    }
+
+    <span class="doccomment">/// Emits an error if the type is not an array.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_array_type(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
+        <span class="self">self</span>.check_type(|type_| <span class="macro">matches!</span>(type_, Type::Array(<span class="kw">_</span>)), <span class="string">&quot;array&quot;</span>.to_string(), type_, span);
     }
 }
 

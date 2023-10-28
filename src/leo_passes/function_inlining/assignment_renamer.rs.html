@@ -150,6 +150,7 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -176,6 +177,7 @@
     ExpressionReconstructor,
     Identifier,
     IterationStatement,
+    NodeID,
     ProgramReconstructor,
     Statement,
     StatementReconstructor,
@@ -200,9 +202,9 @@
     }
 
     <span class="doccomment">/// Load the internal rename table with a set of entries.
-    </span><span class="kw">pub fn </span>load(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entries: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Symbol)&gt;) {
-        <span class="kw">for </span>(key, value) <span class="kw">in </span>entries {
-            <span class="self">self</span>.rename_table.update(key, value);
+    </span><span class="kw">pub fn </span>load(<span class="kw-2">&amp;mut </span><span class="self">self</span>, entries: <span class="kw">impl </span>Iterator&lt;Item = (Symbol, Symbol, NodeID)&gt;) {
+        <span class="kw">for </span>(key, value, id) <span class="kw">in </span>entries {
+            <span class="self">self</span>.rename_table.update(key, value, id);
         }
     }
 
@@ -221,7 +223,7 @@
             <span class="comment">// If consuming the left-hand side of an assignment, a new unique name is introduced.
             </span><span class="bool-val">true </span>=&gt; {
                 <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(input.name, <span class="string">&quot;$&quot;</span>);
-                <span class="self">self</span>.rename_table.update(input.name, new_name);
+                <span class="self">self</span>.rename_table.update(input.name, new_name, input.id);
                 new_name
             }
             <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.

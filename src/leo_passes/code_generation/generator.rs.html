@@ -79,6 +79,10 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -95,7 +99,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable};
+</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 <span class="kw">use </span>leo_ast::{Function, Program, ProgramId};
 <span class="kw">use </span>leo_span::Symbol;
@@ -105,6 +109,8 @@
 <span class="kw">pub struct </span>CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// The symbol table for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+    <span class="doccomment">/// A mapping between expressions and their types.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
     <span class="doccomment">/// The struct dependency graph for the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph,
     <span class="doccomment">/// The call graph for the program.
@@ -138,6 +144,7 @@
     <span class="doccomment">/// Initializes a new `CodeGenerator`.
     </span><span class="kw">pub fn </span>new(
         symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
         struct_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructGraph,
         _call_graph: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallGraph,
         program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program,
@@ -145,6 +152,7 @@
         <span class="comment">// Initialize variable mapping.
         </span><span class="self">Self </span>{
             symbol_table,
+            type_table,
             struct_graph,
             _call_graph,
             next_register: <span class="number">0</span>,

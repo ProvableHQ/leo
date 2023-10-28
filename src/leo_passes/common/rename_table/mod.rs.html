@@ -55,6 +55,23 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -71,7 +88,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_span::Symbol;
+</span><span class="kw">use </span>leo_ast::NodeID;
+<span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
 
@@ -81,32 +99,48 @@
     <span class="doccomment">/// The `RenameTable` of the parent scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) parent: <span class="prelude-ty">Option</span>&lt;Box&lt;RenameTable&gt;&gt;,
     <span class="doccomment">/// The mapping from names in the original AST to new names in the renamed AST.
-    </span>mapping: IndexMap&lt;Symbol, Symbol&gt;,
+    </span>names: IndexMap&lt;Symbol, Symbol&gt;,
+    <span class="doccomment">/// The mapping from symbols to node IDs.
+    /// These are used to ensure that newly introduced symbols reference the appropriate information
+    /// that has been previously indexed by node ID. e,g. `TypeTable`.
+    </span>ids: IndexMap&lt;Symbol, NodeID&gt;,
 }
 
 <span class="kw">impl </span>RenameTable {
     <span class="doccomment">/// Create a new `RenameTable` with the given parent.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(parent: <span class="prelude-ty">Option</span>&lt;Box&lt;RenameTable&gt;&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ parent, mapping: IndexMap::new() }
+        <span class="self">Self </span>{ parent, names: IndexMap::new(), ids: IndexMap::new() }
     }
 
     <span class="doccomment">/// Returns the symbols that were renamed in the current scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>local_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Symbol&gt; {
-        <span class="self">self</span>.mapping.keys()
+        <span class="self">self</span>.names.keys()
     }
 
     <span class="doccomment">/// Updates `self.mapping` with the desired entry.
     /// Creates a new entry if `symbol` is not already in `self.mapping`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, new_symbol: Symbol) {
-        <span class="self">self</span>.mapping.insert(symbol, new_symbol);
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, new_symbol: Symbol, id: NodeID) {
+        <span class="self">self</span>.names.insert(symbol, new_symbol);
+        <span class="self">self</span>.ids.insert(new_symbol, id);
     }
 
     <span class="doccomment">/// Looks up the new name for `symbol`, recursively checking the parent if it is not found.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lookup(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Symbol&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.mapping.get(<span class="kw-2">&amp;</span>symbol) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.names.get(<span class="kw-2">&amp;</span>symbol) {
             <span class="prelude-val">Some</span>(var)
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="kw-2">&amp;</span><span class="self">self</span>.parent {
             parent.lookup(symbol)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    }
+
+    <span class="doccomment">/// Looks up the node ID for `symbol`, recursively checking the parent if it is not found.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lookup_id(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: <span class="kw-2">&amp;</span>Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>NodeID&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.ids.get(symbol) {
+            <span class="prelude-val">Some</span>(id)
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="kw-2">&amp;</span><span class="self">self</span>.parent {
+            parent.lookup_id(symbol)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}

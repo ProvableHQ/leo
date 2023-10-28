@@ -147,6 +147,9 @@
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -175,6 +178,7 @@
     <span class="kw">fn </span>consume_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Expression) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.consume_access(access),
+            Expression::Array(array) =&gt; <span class="self">self</span>.consume_array(array),
             Expression::Binary(binary) =&gt; <span class="self">self</span>.consume_binary(binary),
             Expression::Call(call) =&gt; <span class="self">self</span>.consume_call(call),
             Expression::Cast(cast) =&gt; <span class="self">self</span>.consume_cast(cast),
@@ -190,6 +194,8 @@
     }
 
     <span class="kw">fn </span>consume_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: AccessExpression) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: ArrayExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: BinaryExpression) -&gt; <span class="self">Self</span>::Output;
 

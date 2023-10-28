@@ -176,6 +176,16 @@
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -200,6 +210,9 @@
 
 <span class="kw">mod </span>access;
 <span class="kw">pub use </span>access::<span class="kw-2">*</span>;
+
+<span class="kw">mod </span>array;
+<span class="kw">pub use </span>array::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>binary;
 <span class="kw">pub use </span>binary::<span class="kw-2">*</span>;
@@ -234,8 +247,10 @@
 <span class="doccomment">/// Expression that evaluates to a value.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Expression {
-    <span class="doccomment">/// A struct access expression, e.g., `Foo.bar`.
+    <span class="doccomment">/// A struct access expression, e.g. `Foo.bar`.
     </span>Access(AccessExpression),
+    <span class="doccomment">/// An array expression, e.g., `[true, false, true, false]`.
+    </span>Array(ArrayExpression),
     <span class="doccomment">/// A binary expression, e.g., `42 + 24`.
     </span>Binary(BinaryExpression),
     <span class="doccomment">/// A call expression, e.g., `my_fun(args)`.
@@ -266,6 +281,7 @@
         <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
             Access(n) =&gt; n.span(),
+            Array(n) =&gt; n.span(),
             Binary(n) =&gt; n.span(),
             Call(n) =&gt; n.span(),
             Cast(n) =&gt; n.span(),
@@ -284,6 +300,7 @@
         <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
             Access(n) =&gt; n.set_span(span),
+            Array(n) =&gt; n.set_span(span),
             Binary(n) =&gt; n.set_span(span),
             Call(n) =&gt; n.set_span(span),
             Cast(n) =&gt; n.set_span(span),
@@ -302,6 +319,7 @@
         <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
             Access(n) =&gt; n.id(),
+            Array(n) =&gt; n.id(),
             Binary(n) =&gt; n.id(),
             Call(n) =&gt; n.id(),
             Cast(n) =&gt; n.id(),
@@ -320,6 +338,7 @@
         <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
             Access(n) =&gt; n.set_id(id),
+            Array(n) =&gt; n.set_id(id),
             Binary(n) =&gt; n.set_id(id),
             Call(n) =&gt; n.set_id(id),
             Cast(n) =&gt; n.set_id(id),
@@ -340,6 +359,7 @@
         <span class="kw">use </span>Expression::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             Access(n) =&gt; n.fmt(f),
+            Array(n) =&gt; n.fmt(f),
             Binary(n) =&gt; n.fmt(f),
             Call(n) =&gt; n.fmt(f),
             Cast(n) =&gt; n.fmt(f),

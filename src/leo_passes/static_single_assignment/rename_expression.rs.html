@@ -347,6 +347,49 @@
 <a href="#347" id="347">347</a>
 <a href="#348" id="348">348</a>
 <a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -367,6 +410,8 @@
 
 <span class="kw">use </span>leo_ast::{
     AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
     AssociatedFunction,
     BinaryExpression,
     CallExpression,
@@ -449,9 +494,48 @@
                     statements,
                 )
             }
+            AccessExpression::Array(input) =&gt; {
+                <span class="kw">let </span>(array, statements) = <span class="self">self</span>.consume_expression(<span class="kw-2">*</span>input.array);
+
+                (
+                    AccessExpression::Array(ArrayAccess {
+                        array: Box::new(array),
+                        index: input.index,
+                        span: input.span,
+                        id: input.id,
+                    }),
+                    statements,
+                )
+            }
             expr =&gt; (expr, Vec::new()),
         };
         <span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Access(expr));
+        statements.push(statement);
+
+        (Expression::Identifier(place), statements)
+    }
+
+    <span class="doccomment">/// Consumes an array expression, accumulating any statements that are generated.
+    </span><span class="kw">fn </span>consume_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ArrayExpression) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+
+        <span class="comment">// Process the elements, accumulating any statements produced.
+        </span><span class="kw">let </span>elements = input
+            .elements
+            .into_iter()
+            .map(|element| {
+                <span class="kw">let </span>(element, <span class="kw-2">mut </span>stmts) = <span class="self">self</span>.consume_expression(element);
+                statements.append(<span class="kw-2">&amp;mut </span>stmts);
+                element
+            })
+            .collect();
+
+        <span class="comment">// Construct and accumulate a new assignment statement for the array expression.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Array(ArrayExpression {
+            elements,
+            span: input.span,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -605,7 +689,7 @@
             <span class="comment">// If consuming the left-hand side of a definition or assignment, a new unique name is introduced.
             </span><span class="bool-val">true </span>=&gt; {
                 <span class="kw">let </span>new_name = <span class="self">self</span>.assigner.unique_symbol(identifier.name, <span class="string">&quot;$&quot;</span>);
-                <span class="self">self</span>.rename_table.update(identifier.name, new_name);
+                <span class="self">self</span>.rename_table.update(identifier.name, new_name, identifier.id);
                 new_name
             }
             <span class="comment">// Otherwise, we look up the previous name in the `RenameTable`.
@@ -620,7 +704,9 @@
 
     <span class="doccomment">/// Consumes and returns the literal without making any modifications.
     </span><span class="kw">fn </span>consume_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Literal) -&gt; <span class="self">Self</span>::Output {
-        (Expression::Literal(input), Default::default())
+        <span class="comment">// Construct and accumulate a new assignment statement for the literal.
+        </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Literal(input));
+        (Expression::Identifier(place), <span class="macro">vec!</span>[statement])
     }
 
     <span class="doccomment">/// Consumes a ternary expression, accumulating any statements that are generated.

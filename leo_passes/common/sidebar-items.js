@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["assigner","constant_propagation_table","graph","rename_table","replacer","symbol_table"]};
+window.SIDEBAR_ITEMS = {"mod":["assigner","constant_propagation_table","graph","rename_table","replacer","symbol_table","type_table"]};

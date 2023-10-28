@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["associated_constant_access","associated_function_access","member_access","tuple_access"],"struct":["AssociatedConstant","AssociatedFunction","MemberAccess","TupleAccess"]};
+window.SIDEBAR_ITEMS = {"mod":["array_access","associated_constant_access","associated_function_access","member_access","tuple_access"],"struct":["ArrayAccess","AssociatedConstant","AssociatedFunction","MemberAccess","TupleAccess"]};

@@ -430,6 +430,8 @@
 <a href="#430" id="430">430</a>
 <a href="#431" id="431">431</a>
 <a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -589,10 +591,10 @@
             <span class="comment">// If the type is an empty tuple, return an error.
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             <span class="comment">// If the type is a singleton tuple, return an error.
-            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.len() {
+            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">if </span>tuple.iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
+                    <span class="kw">if </span>tuple.elements().iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                     }
                 }
@@ -635,17 +637,17 @@
 
     <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
         <span class="comment">// Check that the type of the definition is defined.
-        </span><span class="self">self</span>.assert_type_is_defined(<span class="kw-2">&amp;</span>input.type_, input.span);
+        </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.type_, input.span);
 
         <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
             <span class="comment">// If the type is an empty tuple, return an error.
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             <span class="comment">// If the type is a singleton tuple, return an error.
-            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.len() {
+            </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">if </span>tuple.iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
+                    <span class="kw">if </span>tuple.elements().iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                     }
                 }
@@ -684,25 +686,27 @@
                         <span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;
                     </span>),
                 };
-                <span class="kw">if </span>tuple_expression.elements.len() != tuple_type.len() {
+                <span class="kw">if </span>tuple_expression.elements.len() != tuple_type.length() {
                     <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::incorrect_num_tuple_elements(
                         tuple_expression.elements.len(),
-                        tuple_type.len(),
+                        tuple_type.length(),
                         input.place.span(),
                     ));
                 }
 
-                tuple_expression.elements.iter().zip_eq(tuple_type.<span class="number">0</span>.iter()).for_each(|(expression, type_)| {
-                    <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
-                        Expression::Identifier(identifier) =&gt; identifier,
-                        <span class="kw">_ </span>=&gt; {
-                            <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
-                                expression.span(),
-                            ));
-                        }
-                    };
-                    insert_variable(identifier.name, type_.clone(), identifier.span)
-                });
+                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(
+                    |(expression, type_)| {
+                        <span class="kw">let </span>identifier = <span class="kw">match </span>expression {
+                            Expression::Identifier(identifier) =&gt; identifier,
+                            <span class="kw">_ </span>=&gt; {
+                                <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
+                                    expression.span(),
+                                ));
+                            }
+                        };
+                        insert_variable(identifier.name, type_.clone(), identifier.span)
+                    },
+                );
             }
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }

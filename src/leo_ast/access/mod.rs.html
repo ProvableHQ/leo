@@ -25,6 +25,9 @@
 <a href="#25" id="25">25</a>
 <a href="#26" id="26">26</a>
 <a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+<a href="#29" id="29">29</a>
+<a href="#30" id="30">30</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -41,7 +44,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">mod </span>associated_constant_access;
+</span><span class="kw">mod </span>array_access;
+<span class="kw">pub use </span>array_access::<span class="kw-2">*</span>;
+
+<span class="kw">mod </span>associated_constant_access;
 <span class="kw">pub use </span>associated_constant_access::<span class="kw-2">*</span>;
 
 <span class="kw">mod </span>associated_function_access;

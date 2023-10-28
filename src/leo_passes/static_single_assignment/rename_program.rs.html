@@ -157,6 +157,8 @@
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -229,7 +231,8 @@
         <span class="comment">// There is no need to reconstruct `function.inputs`.
         // However, for each input, we must add each symbol to the rename table.
         </span><span class="kw">for </span>input_variable <span class="kw">in </span>function.input.iter() {
-            <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
+            <span class="kw">let </span>identifier = input_variable.identifier();
+            <span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
         }
 
         <span class="kw">let </span>block =
@@ -245,7 +248,8 @@
             <span class="comment">// There is no need to reconstruct `finalize.inputs`.
             // However, for each input, we must add each symbol to the rename table.
             </span><span class="kw">for </span>input_variable <span class="kw">in </span>finalize.input.iter() {
-                <span class="self">self</span>.rename_table.update(input_variable.identifier().name, input_variable.identifier().name);
+                <span class="kw">let </span>identifier = input_variable.identifier();
+                <span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
             }
 
             <span class="kw">let </span>block = Block {

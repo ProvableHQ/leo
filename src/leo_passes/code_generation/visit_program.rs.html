@@ -312,6 +312,7 @@
 <a href="#312" id="312">312</a>
 <a href="#313" id="313">313</a>
 <a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -444,7 +445,8 @@
 
         // Construct and append the record variables.
         </span><span class="kw">for </span>var <span class="kw">in </span>struct_.members.iter() {
-            <span class="macro">writeln!</span>(output_string, <span class="string">&quot;    {} as {};&quot;</span>, var.identifier, var.type_,).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(output_string, <span class="string">&quot;    {} as {};&quot;</span>, var.identifier, <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>var.type_),)
+                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
 
         output_string
@@ -466,7 +468,8 @@
             <span class="macro">writeln!</span>(
                 output_string,
                 <span class="string">&quot;    {} as {}.{mode};&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.
-                </span>var.identifier, var.type_
+                </span>var.identifier,
+                <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>var.type_)
             )
             .expect(<span class="string">&quot;failed to write to string&quot;</span>);
         }
@@ -604,13 +607,12 @@
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
                     </span><span class="kw">let </span>(is_record, <span class="kw">_</span>) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>identifier.name).unwrap();
                     <span class="kw">match </span>is_record {
-                        <span class="comment">// If the type is a record, then declare the type as is.
-                        </span><span class="bool-val">true </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.record&quot;</span>),
                         <span class="comment">// If the type is a struct, then add the public modifier.
-                        </span><span class="bool-val">false </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{identifier}.public&quot;</span>),
+                        </span><span class="bool-val">false </span>=&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
+                        <span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that mappings cannot contain records.&quot;</span>),
                     }
                 }
-                type_ =&gt; <span class="macro">format!</span>(<span class="string">&quot;{type_}.public&quot;</span>),
+                type_ =&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
             }
         };
 

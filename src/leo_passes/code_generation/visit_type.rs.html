@@ -55,6 +55,9 @@
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -76,7 +79,7 @@
 <span class="kw">use </span>leo_ast::{Mode, Type};
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>visit_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type) -&gt; String {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type(input: <span class="kw-2">&amp;</span>Type) -&gt; String {
         <span class="kw">match </span>input {
             Type::Address
             | Type::Boolean
@@ -85,8 +88,11 @@
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Identifier(..)
             | Type::Integer(..) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>),
-            Type::Identifier(ident) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{ident}&quot;</span>),
+            Type::Array(array_type) =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;[{}; {}u32]&quot;</span>, <span class="self">Self</span>::visit_type(array_type.element_type()), array_type.length())
+            }
             Type::Mapping(<span class="kw">_</span>) =&gt; {
                 <span class="macro">unreachable!</span>(<span class="string">&quot;Mapping types are not supported at this phase of compilation&quot;</span>)
             }
@@ -98,7 +104,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type_with_visibility(<span class="kw-2">&amp;mut </span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type, visibility: Mode) -&gt; String {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Type, visibility: Mode) -&gt; String {
         <span class="kw">match </span>type_ {
             <span class="comment">// When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
@@ -106,8 +112,8 @@
                 <span class="macro">format!</span>(<span class="string">&quot;{identifier}.record&quot;</span>)
             }
             <span class="kw">_ </span>=&gt; <span class="kw">match </span>visibility {
-                Mode::None =&gt; <span class="self">self</span>.visit_type(type_),
-                <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.{visibility}&quot;</span>, <span class="self">self</span>.visit_type(type_)),
+                Mode::None =&gt; <span class="self">Self</span>::visit_type(type_),
+                <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{}.{visibility}&quot;</span>, <span class="self">Self</span>::visit_type(type_)),
             },
         }
     }

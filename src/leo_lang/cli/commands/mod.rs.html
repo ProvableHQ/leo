@@ -150,6 +150,8 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -297,6 +299,8 @@
     </span><span class="kw">pub </span>enable_ssa_ast_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the flattened AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_flattened_ast_snapshot: bool,
+    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the destructured AST.&quot;</span>)]
+    </span><span class="kw">pub </span>enable_destructured_ast_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the inlined AST.&quot;</span>)]
     </span><span class="kw">pub </span>enable_inlined_ast_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the dead code eliminated (DCE) AST.&quot;</span>)]

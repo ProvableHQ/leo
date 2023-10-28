@@ -197,7 +197,7 @@
 <span class="kw">pub mod </span>mode;
 <span class="kw">pub use </span>mode::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Block, Identifier, Node, NodeID, Tuple, Type};
+<span class="kw">use crate</span>::{Block, Identifier, Node, NodeID, TupleType, Type};
 <span class="kw">use </span>leo_span::{sym, Span, Symbol};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -259,7 +259,7 @@
         <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
             <span class="number">1 </span>=&gt; get_output_type(<span class="kw-2">&amp;</span>output[<span class="number">0</span>]),
-            <span class="kw">_ </span>=&gt; Type::Tuple(Tuple(output.iter().map(get_output_type).collect())),
+            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
         Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }

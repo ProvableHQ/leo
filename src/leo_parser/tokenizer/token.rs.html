@@ -391,6 +391,9 @@
 <a href="#391" id="391">391</a>
 <a href="#392" id="392">392</a>
 <a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -773,6 +776,8 @@
     </span>Parenthesis,
     <span class="doccomment">/// `{ ... }`
     </span>Brace,
+    <span class="doccomment">/// `[ ... ]`
+    </span>Bracket,
 }
 
 <span class="kw">impl </span>Delimiter {
@@ -781,6 +786,7 @@
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Parenthesis =&gt; (Token::LeftParen, Token::RightParen),
             <span class="self">Self</span>::Brace =&gt; (Token::LeftCurly, Token::RightCurly),
+            <span class="self">Self</span>::Bracket =&gt; (Token::LeftSquare, Token::RightSquare),
         }
     }
 }

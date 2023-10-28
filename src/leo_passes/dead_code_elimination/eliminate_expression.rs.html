@@ -95,30 +95,6 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -143,10 +119,8 @@
     Expression,
     ExpressionReconstructor,
     Identifier,
-    MemberAccess,
     StructExpression,
     StructVariableInitializer,
-    TupleAccess,
     Type,
 };
 <span class="kw">use </span>leo_span::sym;
@@ -154,52 +128,30 @@
 <span class="kw">impl </span>ExpressionReconstructor <span class="kw">for </span>DeadCodeEliminator&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="kw">type </span>AdditionalOutput = ();
 
-    <span class="doccomment">/// Reconstructs the components of an access expression.
-    </span><span class="kw">fn </span>reconstruct_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AccessExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
-        (
-            Expression::Access(<span class="kw">match </span>input {
-                AccessExpression::AssociatedFunction(function) =&gt; {
-                    <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
-                    </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>function.ty, function.name.name) {
-                        (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get)
-                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::get_or_use)
-                        | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) =&gt; {
-                            <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
-                        }
-                        <span class="kw">_ </span>=&gt; {}
-                    };
-                    <span class="comment">// Reconstruct the access expression.
-                    </span><span class="kw">let </span>result = AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
-                        name: function.name,
-                        arguments: function
-                            .arguments
-                            .into_iter()
-                            .map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>)
-                            .collect(),
-                        span: function.span,
-                        id: function.id,
-                    });
-                    <span class="comment">// Unset `self.is_necessary`.
-                    </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
-                    result
-                }
-                AccessExpression::Member(member) =&gt; AccessExpression::Member(MemberAccess {
-                    inner: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>member.inner).<span class="number">0</span>),
-                    name: member.name,
-                    span: member.span,
-                    id: member.id,
-                }),
-                AccessExpression::Tuple(tuple) =&gt; AccessExpression::Tuple(TupleAccess {
-                    tuple: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>tuple.tuple).<span class="number">0</span>),
-                    index: tuple.index,
-                    span: tuple.span,
-                    id: tuple.id,
-                }),
-                AccessExpression::AssociatedConstant(constant) =&gt; AccessExpression::AssociatedConstant(constant),
-            }),
+    <span class="doccomment">/// Reconstructs the associated function access expression.
+    </span><span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
+        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.ty, input.name.name) {
+            (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::remove)
+            | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) =&gt; {
+                <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
+            }
+            <span class="kw">_ </span>=&gt; {}
+        };
+        <span class="comment">// Reconstruct the access expression.
+        </span><span class="kw">let </span>result = (
+            Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                ty: input.ty,
+                name: input.name,
+                arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
+                span: input.span,
+                id: input.id,
+            })),
             Default::default(),
-        )
+        );
+        <span class="comment">// Unset `self.is_necessary`.
+        </span><span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
+        result
     }
 
     <span class="doccomment">/// Reconstruct the components of the struct init expression.

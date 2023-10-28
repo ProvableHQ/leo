@@ -292,6 +292,13 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -583,6 +590,13 @@
     tuple_index_must_be_whole_number {
         args: (found: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;expected no underscores or leading zeros -- found &#39;{found}&#39;&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    array_must_have_at_least_one_element {
+        args: (kind: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;An array {kind} must have at least one element.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

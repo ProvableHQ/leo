@@ -101,6 +101,13 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -117,7 +124,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Identifier, IntegerType, MappingType, Tuple};
+</span><span class="kw">use crate</span>::{ArrayType, Identifier, IntegerType, MappingType, TupleType};
 
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -126,9 +133,10 @@
 <span class="doccomment">/// Explicit type used for defining a variable or expression type
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Type {
-    <span class="comment">// Data types
-    </span><span class="doccomment">/// The `address` type.
+    <span class="doccomment">/// The `address` type.
     </span>Address,
+    <span class="doccomment">/// The array type.
+    </span>Array(ArrayType),
     <span class="doccomment">/// The `bool` type.
     </span>Boolean,
     <span class="doccomment">/// The `field` type.
@@ -148,7 +156,7 @@
     <span class="doccomment">/// The `string` type.
     </span>String,
     <span class="doccomment">/// A static tuple of at least one type.
-    </span>Tuple(Tuple),
+    </span>Tuple(TupleType),
     <span class="doccomment">/// The `unit` type.
     </span>Unit,
     <span class="doccomment">/// Placeholder for a type that could not be resolved or was not well-formed.
@@ -172,14 +180,19 @@
             | (Type::Signature, Type::Signature)
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
+            (Type::Array(left), Type::Array(right)) =&gt; {
+                left.element_type().eq_flat(right.element_type()) &amp;&amp; left.length() == right.length()
+            }
+            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
             (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) =&gt; {
                 left.key.eq_flat(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
             }
-            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.len() == right.len() =&gt; {
-                left.iter().zip_eq(right.iter()).all(|(left_type, right_type)| left_type.eq_flat(right_type))
-            }
-            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
+            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.length() == right.length() =&gt; left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
@@ -189,6 +202,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;address&quot;</span>),
+            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{array_type}&quot;</span>),
             Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;boolean&quot;</span>),
             Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;field&quot;</span>),
             Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;group&quot;</span>),

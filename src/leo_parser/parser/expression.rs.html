@@ -726,6 +726,32 @@
 <a href="#726" id="726">726</a>
 <a href="#727" id="727">727</a>
 <a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1213,6 +1239,17 @@
             } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::DoubleColon) {
                 <span class="comment">// Eat a core struct constant or core struct function call.
                 </span>expr = <span class="self">self</span>.parse_associated_access_expression(expr)<span class="question-mark">?</span>;
+            } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::LeftSquare) {
+                <span class="comment">// Eat an array access.
+                </span><span class="kw">let </span>index = <span class="self">self</span>.parse_expression()<span class="question-mark">?</span>;
+                <span class="comment">// Eat the closing bracket.
+                </span><span class="kw">let </span>span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightSquare)<span class="question-mark">?</span>;
+                expr = Expression::Access(AccessExpression::Array(ArrayAccess {
+                    span: expr.span() + span,
+                    array: Box::new(expr),
+                    index: Box::new(index),
+                    id: <span class="self">self</span>.node_builder.next_id(),
+                }))
             } <span class="kw">else if </span><span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftParen) {
                 <span class="comment">// Check that the expression is an identifier.
                 </span><span class="kw">if </span>!<span class="macro">matches!</span>(expr, Expression::Identifier(<span class="kw">_</span>)) {
@@ -1229,7 +1266,7 @@
                 });
             }
             <span class="comment">// Check if next token is a dot to see if we are calling recursive method.
-            </span><span class="kw">if </span>!<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::Dot) {
+            </span><span class="kw">if </span>!(<span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::Dot) || <span class="self">self</span>.check(<span class="kw-2">&amp;</span>Token::LeftSquare)) {
                 <span class="kw">break</span>;
             }
         }
@@ -1257,6 +1294,19 @@
             <span class="comment">// Otherwise, return a tuple expression.
             // Note: This is the only place where `TupleExpression` is constructed in the parser.
             </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Tuple(TupleExpression { elements, span, id: <span class="self">self</span>.node_builder.next_id() })),
+        }
+    }
+
+    <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an array initialization expression.
+    </span><span class="kw">fn </span>parse_array_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="kw">let </span>(elements, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_bracket_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+
+        <span class="kw">match </span>elements.is_empty() {
+            <span class="comment">// If the array expression is empty, return an error.
+            </span><span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(ParserError::array_must_have_at_least_one_element(<span class="string">&quot;expression&quot;</span>, span).into()),
+            <span class="comment">// Otherwise, return an array expression.
+            // Note: This is the only place where `ArrayExpression` is constructed in the parser.
+            </span><span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(Expression::Array(ArrayExpression { elements, span, id: <span class="self">self</span>.node_builder.next_id() })),
         }
     }
 
@@ -1368,6 +1418,8 @@
     </span><span class="kw">fn </span>parse_primary_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="kw">if let </span>Token::LeftParen = <span class="self">self</span>.token.token {
             <span class="kw">return </span><span class="self">self</span>.parse_tuple_expression();
+        } <span class="kw">else if let </span>Token::LeftSquare = <span class="self">self</span>.token.token {
+            <span class="kw">return </span><span class="self">self</span>.parse_array_expression();
         }
 
         <span class="kw">let </span>SpannedToken { token, span } = <span class="self">self</span>.token.clone();

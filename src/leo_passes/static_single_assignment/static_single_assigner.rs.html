@@ -68,6 +68,23 @@
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
 <a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -84,15 +101,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Assigner, RenameTable, SymbolTable};
+</span><span class="kw">use crate</span>::{Assigner, RenameTable, SymbolTable, TypeTable};
 
-<span class="kw">use </span>leo_ast::{Expression, Identifier, NodeBuilder, Statement};
+<span class="kw">use </span>leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement};
 
 <span class="kw">pub struct </span>StaticSingleAssigner&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// A counter used to generate unique node IDs.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
     <span class="doccomment">/// The `SymbolTable` of the program.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+    <span class="doccomment">/// A mapping from node IDs to their types.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
     <span class="doccomment">/// The `RenameTable` for the current basic block in the AST
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) rename_table: RenameTable,
     <span class="doccomment">/// A flag to determine whether or not the traversal is on the left-hand side of a definition or an assignment.
@@ -103,8 +122,13 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StaticSingleAssigner&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// Initializes a new `StaticSingleAssigner` with an empty `RenameTable`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable, assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ node_builder, symbol_table, rename_table: RenameTable::new(<span class="prelude-val">None</span>), is_lhs: <span class="bool-val">false</span>, assigner }
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
+        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
+        assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ node_builder, symbol_table, type_table, rename_table: RenameTable::new(<span class="prelude-val">None</span>), is_lhs: <span class="bool-val">false</span>, assigner }
     }
 
     <span class="doccomment">/// Pushes a new scope, setting the current scope as the new scope&#39;s parent.
@@ -119,6 +143,19 @@
         core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.rename_table, <span class="kw-2">*</span>parent)
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, identifier: Identifier, rhs: Expression) -&gt; Statement {
+        <span class="comment">// Update the type table.
+        </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>rhs.id()) {
+            <span class="prelude-val">Some</span>(type_) =&gt; type_,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that all expressions have a type.&quot;</span>),
+        };
+        <span class="self">self</span>.type_table.insert(identifier.id(), type_);
+        <span class="comment">// Update the rename table.
+        </span><span class="self">self</span>.rename_table.update(identifier.name, identifier.name, identifier.id);
+        <span class="comment">// Construct the statement.
+        </span><span class="self">self</span>.assigner.simple_assign_statement(identifier, rhs, <span class="self">self</span>.node_builder.next_id())
+    }
+
     <span class="doccomment">/// Constructs a simple assign statement for `expr` with a unique name.
     /// For example, `expr` is transformed into `$var$0 = expr;`.
     /// The lhs is guaranteed to be unique with respect to the `Assigner`.
@@ -130,12 +167,9 @@
         </span><span class="kw">let </span>place = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
 
         <span class="comment">// Construct the statement.
-        </span><span class="kw">let </span>statement = <span class="self">self</span>.assigner.simple_assign_statement(place, expr, <span class="self">self</span>.node_builder.next_id());
+        </span><span class="kw">let </span>statement = <span class="self">self</span>.simple_assign_statement(place, expr);
 
-        <span class="comment">// Construct the identifier to be returned. Note that it must have a unique node ID.
-        </span><span class="kw">let </span>identifier = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
-
-        (identifier, statement)
+        (place, statement)
     }
 }
 </code></pre></div></section></main></body></html>

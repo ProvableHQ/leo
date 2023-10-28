@@ -323,6 +323,45 @@
 <a href="#323" id="323">323</a>
 <a href="#324" id="324">324</a>
 <a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -377,6 +416,8 @@
     </span>node_builder: NodeBuilder,
     <span class="doccomment">/// The `Assigner` is used to construct (unique) assignment statements.
     </span>assigner: Assigner,
+    <span class="doccomment">/// The type table.
+    </span>type_table: TypeTable,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Compiler&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -391,6 +432,7 @@
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>node_builder = NodeBuilder::default();
         <span class="kw">let </span>assigner = Assigner::default();
+        <span class="kw">let </span>type_table = TypeTable::default();
         <span class="self">Self </span>{
             handler,
             main_file_path,
@@ -402,6 +444,7 @@
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
+            type_table,
         }
     }
 
@@ -499,7 +542,8 @@
 
     <span class="doccomment">/// Runs the type checker pass.
     </span><span class="kw">pub fn </span>type_checker_pass(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, StructGraph, CallGraph)&gt; {
-        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table))<span class="question-mark">?</span>;
+        <span class="kw">let </span>(symbol_table, struct_graph, call_graph) =
+            TypeChecker::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, <span class="self">self</span>.handler, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table))<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.type_checked_symbol_table {
             <span class="self">self</span>.write_symbol_table_to_json(<span class="string">&quot;type_checked_symbol_table.json&quot;</span>, <span class="kw-2">&amp;</span>symbol_table)<span class="question-mark">?</span>;
         }
@@ -508,8 +552,13 @@
 
     <span class="doccomment">/// Runs the loop unrolling pass.
     </span><span class="kw">pub fn </span>loop_unrolling_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;SymbolTable&gt; {
-        <span class="kw">let </span>(ast, symbol_table) =
-            Unroller::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="self">self</span>.handler, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, symbol_table))<span class="question-mark">?</span>;
+        <span class="kw">let </span>(ast, symbol_table) = Unroller::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            <span class="self">self</span>.handler,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+            symbol_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+        ))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.unrolled_ast {
@@ -530,6 +579,7 @@
             <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
             <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
             symbol_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
         ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.ssa_ast {
@@ -541,8 +591,13 @@
 
     <span class="doccomment">/// Runs the flattening pass.
     </span><span class="kw">pub fn </span>flattening_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol_table: <span class="kw-2">&amp;</span>SymbolTable) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.ast =
-            Flattener::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span><span class="self">self</span>.assigner))<span class="question-mark">?</span>;
+        <span class="self">self</span>.ast = Flattener::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            symbol_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
+        ))<span class="question-mark">?</span>;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.flattened_ast {
             <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;flattened_ast.json&quot;</span>)<span class="question-mark">?</span>;
@@ -551,10 +606,31 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// Runs the destructuring pass.
+    </span><span class="kw">pub fn </span>destructuring_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="self">self</span>.ast = Destructurer::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
+        ))<span class="question-mark">?</span>;
+
+        <span class="kw">if </span><span class="self">self</span>.compiler_options.output.destructured_ast {
+            <span class="self">self</span>.write_ast_to_json(<span class="string">&quot;destructured_ast.json&quot;</span>)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
     <span class="doccomment">/// Runs the function inlining pass.
     </span><span class="kw">pub fn </span>function_inlining_pass(<span class="kw-2">&amp;mut </span><span class="self">self</span>, call_graph: <span class="kw-2">&amp;</span>CallGraph) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">let </span>ast =
-            FunctionInliner::do_pass((std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast), <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder, call_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.assigner))<span class="question-mark">?</span>;
+        <span class="kw">let </span>ast = FunctionInliner::do_pass((
+            std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.ast),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.node_builder,
+            call_graph,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.assigner,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.type_table,
+        ))<span class="question-mark">?</span>;
         <span class="self">self</span>.ast = ast;
 
         <span class="kw">if </span><span class="self">self</span>.compiler_options.output.inlined_ast {
@@ -584,7 +660,7 @@
         struct_graph: <span class="kw-2">&amp;</span>StructGraph,
         call_graph: <span class="kw-2">&amp;</span>CallGraph,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, symbol_table, struct_graph, call_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.ast.ast))
+        CodeGenerator::do_pass((<span class="kw-2">&amp;</span><span class="self">self</span>.ast, symbol_table, <span class="kw-2">&amp;</span><span class="self">self</span>.type_table, struct_graph, call_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.ast.ast))
     }
 
     <span class="doccomment">/// Runs the compiler stages.
@@ -598,6 +674,8 @@
         <span class="self">self</span>.static_single_assignment_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.flattening_pass(<span class="kw-2">&amp;</span>st)<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.destructuring_pass()<span class="question-mark">?</span>;
 
         <span class="self">self</span>.function_inlining_pass(<span class="kw-2">&amp;</span>call_graph)<span class="question-mark">?</span>;
 

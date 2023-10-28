@@ -249,6 +249,8 @@
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
 <a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -304,6 +306,7 @@
                 unrolled_ast: options.enable_unrolled_ast_snapshot,
                 ssa_ast: options.enable_ssa_ast_snapshot,
                 flattened_ast: options.enable_flattened_ast_snapshot,
+                destructured_ast: options.enable_destructured_ast_snapshot,
                 inlined_ast: options.enable_inlined_ast_snapshot,
                 dce_ast: options.enable_dce_ast_snapshot,
             },
@@ -314,6 +317,7 @@
             out_options.output.unrolled_ast = <span class="bool-val">true</span>;
             out_options.output.ssa_ast = <span class="bool-val">true</span>;
             out_options.output.flattened_ast = <span class="bool-val">true</span>;
+            out_options.output.destructured_ast = <span class="bool-val">true</span>;
             out_options.output.inlined_ast = <span class="bool-val">true</span>;
             out_options.output.dce_ast = <span class="bool-val">true</span>;
         }

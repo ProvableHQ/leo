@@ -260,16 +260,6 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -302,13 +292,22 @@
 
 <span class="kw">use </span>leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
 
-<span class="kw">use crate</span>::{constant_propagation_table::ConstantPropagationTable, Clusivity, LoopBound, RangeIterator, SymbolTable};
+<span class="kw">use crate</span>::{
+    constant_propagation_table::ConstantPropagationTable,
+    Clusivity,
+    LoopBound,
+    RangeIterator,
+    SymbolTable,
+    TypeTable,
+};
 
 <span class="kw">pub struct </span>Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="doccomment">/// A table of constant variables.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) constant_propagation_table: RefCell&lt;ConstantPropagationTable&gt;,
     <span class="doccomment">/// The symbol table for the function being processed.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: RefCell&lt;SymbolTable&gt;,
+    <span class="doccomment">/// A mapping from node IDs to their types.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
     <span class="doccomment">/// The index of the current scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) scope_index: usize,
     <span class="doccomment">/// An error handler used for any errors found during unrolling.
@@ -320,10 +319,16 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Unroller&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(symbol_table: SymbolTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        symbol_table: SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
+        handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+        node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
+    ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             constant_propagation_table: RefCell::new(ConstantPropagationTable::default()),
             symbol_table: RefCell::new(symbol_table),
+            type_table,
             scope_index: <span class="number">0</span>,
             handler,
             node_builder,
@@ -443,68 +448,43 @@
         <span class="kw">let </span>prior_is_unrolling = <span class="self">self</span>.is_unrolling;
         <span class="self">self</span>.is_unrolling = <span class="bool-val">true</span>;
 
+        <span class="comment">// Construct a new node ID.
+        </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
+        <span class="comment">// Update the type table.
+        </span><span class="self">self</span>.type_table.insert(id, input.type_.clone());
+
         <span class="comment">// Reconstruct `iteration_count` as a `Literal`.
         </span><span class="kw">let </span>value = <span class="kw">match </span>input.type_ {
-            Type::Integer(IntegerType::I8) =&gt; Literal::Integer(
-                IntegerType::I8,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::I16) =&gt; Literal::Integer(
-                IntegerType::I16,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::I32) =&gt; Literal::Integer(
-                IntegerType::I32,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::I64) =&gt; Literal::Integer(
-                IntegerType::I64,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::I128) =&gt; Literal::Integer(
-                IntegerType::I128,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::U8) =&gt; Literal::Integer(
-                IntegerType::U8,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::U16) =&gt; Literal::Integer(
-                IntegerType::U16,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::U32) =&gt; Literal::Integer(
-                IntegerType::U32,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::U64) =&gt; Literal::Integer(
-                IntegerType::U64,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
-            Type::Integer(IntegerType::U128) =&gt; Literal::Integer(
-                IntegerType::U128,
-                iteration_count.to_string(),
-                Default::default(),
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
+            Type::Integer(IntegerType::I8) =&gt; {
+                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I16) =&gt; {
+                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I32) =&gt; {
+                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I64) =&gt; {
+                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I128) =&gt; {
+                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U8) =&gt; {
+                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U16) =&gt; {
+                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U32) =&gt; {
+                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U64) =&gt; {
+                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U128) =&gt; {
+                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
+            }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
                 <span class="string">&quot;The iteration variable must be an integer type. This should be enforced by type checking.&quot;
             </span>),

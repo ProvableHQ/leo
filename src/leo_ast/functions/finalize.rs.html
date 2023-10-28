@@ -89,7 +89,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Block, Identifier, Input, Node, NodeID, Output, Tuple, Type};
+</span><span class="kw">use crate</span>::{Block, Identifier, Input, Node, NodeID, Output, TupleType, Type};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -128,7 +128,7 @@
         <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
             <span class="number">1 </span>=&gt; output[<span class="number">0</span>].type_(),
-            <span class="kw">_ </span>=&gt; Type::Tuple(Tuple(output.iter().map(|output| output.type_()).collect())),
+            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|output| output.type_()).collect())),
         };
 
         <span class="self">Self </span>{ identifier, input, output, output_type, block, span, id }

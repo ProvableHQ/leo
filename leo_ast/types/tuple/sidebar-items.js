@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Tuple"]};
+window.SIDEBAR_ITEMS = {"struct":["TupleType"]};

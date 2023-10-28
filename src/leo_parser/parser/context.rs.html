@@ -245,6 +245,14 @@
 <a href="#245" id="245">245</a>
 <a href="#246" id="246">246</a>
 <a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -403,7 +411,7 @@
     /// Removes the next token if it is a [`Token::Integer(_)`] and returns it, or [None] if
     /// the next token is not a [`Token::Integer(_)`] or if the next token does not exist.
     ///
-    </span><span class="kw">pub fn </span>eat_whole_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(PositiveNumber, Span)&gt; {
+    </span><span class="kw">pub fn </span>eat_whole_number(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(NonNegativeNumber, Span)&gt; {
         <span class="kw">if let </span>Token::Integer(value) = <span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
             <span class="kw">let </span>value = value.clone();
             <span class="self">self</span>.bump();
@@ -412,7 +420,7 @@
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::tuple_index_must_be_whole_number(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.token.span).into());
             }
 
-            <span class="prelude-val">Ok</span>((PositiveNumber { value }, <span class="self">self</span>.prev_token.span))
+            <span class="prelude-val">Ok</span>((NonNegativeNumber::from(value), <span class="self">self</span>.prev_token.span))
         } <span class="kw">else </span>{
             <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;integer literal&quot;</span>, <span class="self">self</span>.token.span).into())
         }
@@ -485,6 +493,14 @@
         f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;T&gt;, bool, Span)&gt; {
         <span class="self">self</span>.parse_list(Delimiter::Parenthesis, <span class="prelude-val">Some</span>(Token::Comma), f)
+    }
+
+    <span class="doccomment">/// Parse a list separated by `,` and delimited by brackets.
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_bracket_comma_list&lt;T&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;T&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(Vec&lt;T&gt;, bool, Span)&gt; {
+        <span class="self">self</span>.parse_list(Delimiter::Bracket, <span class="prelude-val">Some</span>(Token::Comma), f)
     }
 
     <span class="doccomment">/// Returns true if the current token is `(`.

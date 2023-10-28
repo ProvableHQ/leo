@@ -30,6 +30,10 @@
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
 <a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
+<a href="#34" id="34">34</a>
+<a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -59,7 +63,11 @@
 <span class="kw">pub use </span>replacer::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>constant_propagation_table;
-<span class="kw">pub mod </span>symbol_table;
+<span class="kw">pub use </span>constant_propagation_table::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>symbol_table;
 <span class="kw">pub use </span>symbol_table::<span class="kw-2">*</span>;
+
+<span class="kw">pub mod </span>type_table;
+<span class="kw">pub use </span>type_table::<span class="kw-2">*</span>;
 </code></pre></div></section></main></body></html>
