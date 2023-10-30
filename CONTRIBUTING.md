@@ -8,7 +8,7 @@ Please follow the instructions below when filing pull requests:
 
 - Ensure that your branch is forked from the current [testnet3](https://github.com/AleoHQ/leo/tree/testnet3) branch.
 - Fill out the provided markdown template for the feature or proposal. Be sure to link the pull request to any issues by using keywords. For example: "closes #130".
-- Run `cargo fmt` before you commit, we use the `nightly` version of `rustfmt` to format the code, so you'll need to have the `nightly` toolchain installed on your machine. There's a [git hook](https://git-scm.com/docs/githooks) that ensures proper formatting before any commits can be made, and [`.rustfmt.toml`](https://github.com/AleoHQ/Leo/blob/testnet3/.rustfmt.toml) specifies some of the formatting conventions.
+- Run `cargo fmt` before you commit; we use the `nightly` version of `rustfmt` to format the code, so you'll need to have the `nightly` toolchain installed on your machine; There's a [git hook](https://git-scm.com/docs/githooks) that ensures proper formatting before any commits can be made, and [`.rustfmt.toml`](https://github.com/AleoHQ/Leo/blob/testnet3/.rustfmt.toml) specifies some of the formatting conventions.
 - Run `cargo clippy` to ensure that popular correctness and performance pitfalls are avoided.
 
 ## Style
@@ -59,23 +59,23 @@ use std::{
 
 ## Coding conventions
 
-Leo is a big project, so (non-)adherence to best practices related to performance can have a considerable impact. Below are the rules we try to follow at all times in order to ensure the high quality of the code:
+Leo is a big project, so (non-)adherence to best practices related to performance can have a considerable impact; Below are the rules we try to follow at all times in order to ensure the high quality of the code:
 
 ### Memory handling
 - If the final size is known, pre-allocate the collections (`Vec`, `HashMap` etc.) using `with_capacity` or `reserve` - this ensures that there are both fewer allocations (which involve system calls) and that the final allocated capacity is as close to the required size as possible.
-- Create the collections right before they are populated/used, as opposed to e.g. creating a few big ones at the beginning of a function and only using them later on, this reduces the amount of time they occupy memory.
+- Create the collections right before they are populated/used, as opposed to e.g. creating a few big ones at the beginning of a function and only using them later on; this reduces the amount of time they occupy memory.
 - If an intermediate vector is avoidable, use an `Iterator` instead; most of the time this just amounts to omitting the call to `.collect()` if a single-pass iteraton follows afterwards, or returning an `impl Iterator<Item = T>` from a function when the caller only needs to iterate over that result once.
 - When possible, fill/resize collections "in bulk" instead of pushing a single element in a loop; this is usually (but not always) detected by `clippy`, suggesting to create vectors containing a repeated value with `vec![x; N]` or extending them with `.resize(N, x)`.
-- When a value is to eventually be consumed in a chain of function calls, pass it by value instead of by reference, this has the following benefits:
+- When a value is to eventually be consumed in a chain of function calls, pass it by value instead of by reference; this has the following benefits:
   * It makes the fact that the value is needed by value clear to the caller, who can then potentially reclaim it from the object afterwards if it is "heavy", limiting allocations.
   * It often enables the value to be cloned fewer times (whenever it's no longer needed at the callsite).
   * When the value is consumed and is not needed afterwards, the memory it occupies is freed, improving memory utilization.
-- If a slice may or may not be extended (which requires promotion to a vector) and does not need to be consumed afterwards, consider using a [`Cow<'a, [T]>`](https://doc.rust-lang.org/std/borrow/enum.Cow.html) combined with `Cow::to_mut` instead to potentially avoid an extra allocation, an example in Leo could be conditional padding of bits.
+- If a slice may or may not be extended (which requires promotion to a vector) and does not need to be consumed afterwards, consider using a [`Cow<'a, [T]>`](https://doc.rust-lang.org/std/borrow/enum.Cow.html) combined with `Cow::to_mut` instead to potentially avoid an extra allocation; an example in Leo could be conditional padding of bits.
 - Prefer arrays and temporary slices to vectors where possible; arrays are often a good choice if their final size is known in advance and isn't too great (as they are stack-bound), and a small temporary slice `&[x, y, z]` is preferable to a `vec![x, y, z]` if it's applicable.
-- If a reference is sufficient, don't use `.clone()`/`to_vec()`, which is often the case with methods on `struct`s that provide access to their contents. If they only need to be referenced, there's no need for the extra allocation.
+- If a reference is sufficient, don't use `.clone()`/`to_vec()`, which is often the case with methods on `struct`s that provide access to their contents; If they only need to be referenced, there's no need for the extra allocation.
 - Use `into_iter()` instead of `iter().cloned()` where possible, i.e. whenever the values being iterated over can be consumed altogether.
 - If possible, reuse collections; an example would be a loop that needs a clean vector on each iteration: instead of creating and allocating it over and over, create it _before_ the loop and use `.clear()` on every iteration instead.
-- Try to keep the sizes of `enum` variants uniform, use `Box<T>` on ones that are large.
+- Try to keep the sizes of `enum` variants uniform; use `Box<T>` on ones that are large.
 
 ### Misc. performance
 
