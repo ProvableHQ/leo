@@ -57,7 +57,7 @@ fi
 echo "Building and running the \`bubblesort\` program..."
 (
   cd $EXAMPLES/bubblesort || exit
-  cat $EXAMPLES/bubblesort/inputs/bubblesort.in | xargs $LEO run bubble_sort || exit
+  $LEO run bubble_sort --file $EXAMPLES/bubblesort/inputs/bubblesort.in || exit
 )
 # Check that the bubblesort program ran successfully.
 EXITCODE=$?
@@ -70,7 +70,7 @@ fi
 echo "Building and running the \`core\` program..."
 (
   cd $EXAMPLES/core || exit
-  cat $EXAMPLES/core/inputs/core.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/core/inputs/core.in || exit
 )
 # Check that the core program ran successfully.
 EXITCODE=$?
@@ -83,7 +83,7 @@ fi
 echo "Building and running the \`groups\` program..."
 (
   cd $EXAMPLES/groups || exit
-  cat $EXAMPLES/groups/inputs/groups.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/groups/inputs/groups.in || exit
 )
 # Check that the groups program ran successfully.
 EXITCODE=$?
@@ -96,7 +96,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzdebruijn\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzdebruijn || exit
-  cat $EXAMPLES/hackers-delight/ntzdebruijn/inputs/ntzdebruijn.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzdebruijn/inputs/ntzdebruijn.in || exit
 )
 # Check that the hackers-delight/ntzdebruijn program ran successfully.
 EXITCODE=$?
@@ -109,7 +109,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzgaudet\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzgaudet || exit
-  cat $EXAMPLES/hackers-delight/ntzgaudet/inputs/ntzgaudet.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzgaudet/inputs/ntzgaudet.in || exit
 )
 # Check that the hackers-delight/ntzgaudet program ran successfully.
 EXITCODE=$?
@@ -122,7 +122,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzloops\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzloops || exit
-  cat $EXAMPLES/hackers-delight/ntzloops/inputs/ntzloops.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzloops/inputs/ntzloops.in || exit
 )
 # Check that the hackers-delight/ntzloops program ran successfully.
 EXITCODE=$?
@@ -135,7 +135,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzmasks\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzmasks || exit
-  cat $EXAMPLES/hackers-delight/ntzmasks/inputs/ntzmasks.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzmasks/inputs/ntzmasks.in || exit
 )
 # Check that the hackers-delight/ntzmasks program ran successfully.
 EXITCODE=$?
@@ -148,7 +148,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzreisers\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzreisers || exit
-  cat $EXAMPLES/hackers-delight/ntzreisers/inputs/ntzreisers.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzreisers/inputs/ntzreisers.in || exit
 )
 # Check that the hackers-delight/ntzreisers program ran successfully.
 EXITCODE=$?
@@ -161,7 +161,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzseals\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzseals || exit
-  cat $EXAMPLES/hackers-delight/ntzseals/inputs/ntzseals.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzseals/inputs/ntzseals.in || exit
 )
 # Check that the hackers-delight/ntzseals program ran successfully.
 EXITCODE=$?
@@ -174,7 +174,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzsearchtree\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzsearchtree || exit
-  cat $EXAMPLES/hackers-delight/ntzsearchtree/inputs/ntzsearchtree.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzsearchtree/inputs/ntzsearchtree.in || exit
 )
 # Check that the hackers-delight/ntzsearchtree program ran successfully.
 EXITCODE=$?
@@ -187,7 +187,7 @@ fi
 echo "Building and running the \`hackers-delight/ntzsmallvals\` program..."
 (
   cd $EXAMPLES/hackers-delight/ntzsmallvals || exit
-  cat $EXAMPLES/hackers-delight/ntzsmallvals/inputs/ntzsmallvals.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/hackers-delight/ntzsmallvals/inputs/ntzsmallvals.in || exit
 )
 # Check that the hackers-delight/ntzsmallvals program ran successfully.
 EXITCODE=$?
@@ -200,7 +200,7 @@ fi
 echo "Building and running the \`helloworld\` program..."
 (
   cd $EXAMPLES/helloworld || exit
-  cat $EXAMPLES/helloworld/inputs/helloworld.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/helloworld/inputs/helloworld.in || exit
 )
 # Check that the helloworld program ran successfully.
 EXITCODE=$?
@@ -216,10 +216,10 @@ echo "Building and running the \`interest\` programs..."
   cd $EXAMPLES/interest || exit
 
   # Run the fixed period interest program.
-  cat $EXAMPLES/interest/inputs/fixed.in | xargs $LEO run fixed_iteration_interest || exit
+  $LEO run fixed_iteration_interest --file $EXAMPLES/interest/inputs/fixed.in || exit
 
   # Run the bounded period interest program.
-  cat $EXAMPLES/interest/inputs/bounded.in | xargs $LEO run bounded_iteration_interest || exit
+  $LEO run bounded_iteration_interest --file $EXAMPLES/interest/inputs/bounded.in || exit
 )
 # Check that the interest programs ran successfully.
 EXITCODE=$?
@@ -232,7 +232,7 @@ fi
 echo "Building and running the \`message\` program..."
 (
   cd $EXAMPLES/message || exit
-  cat $EXAMPLES/message/inputs/message.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/message/inputs/message.in || exit
 )
 # Check that the message program ran successfully.
 EXITCODE=$?
@@ -246,7 +246,7 @@ echo "Building and running the \`tictactoe\` program..."
 (
   cd $EXAMPLES/tictactoe || exit
   $LEO run new || exit
-  cat $EXAMPLES/tictactoe/inputs/tictactoe.in | xargs $LEO run make_move || exit
+  $LEO run make_move --file $EXAMPLES/tictactoe/inputs/tictactoe.in || exit
 
   chmod +x $EXAMPLES/tictactoe/run.sh || exit
   export -f leo
@@ -265,10 +265,10 @@ echo "Building and running the \`simple_token\` programs..."
   cd $EXAMPLES/simple_token || exit
 
   # Run the mint program.
-  cat $EXAMPLES/simple_token/inputs/mint.in | xargs $LEO run mint || exit
+  $LEO run mint --file $EXAMPLES/simple_token/inputs/mint.in || exit
 
   # Run the transfer program.
-  cat $EXAMPLES/simple_token/inputs/transfer.in | xargs $LEO run transfer || exit
+  $LEO run transfer --file $EXAMPLES/simple_token/inputs/transfer.in || exit
 )
 # Check that the simple token programs ran successfully.
 EXITCODE=$?
@@ -297,7 +297,7 @@ fi
 echo "Building and running the \`twoadicity\` program..."
 (
   cd $EXAMPLES/twoadicity || exit
-  cat $EXAMPLES/twoadicity/inputs/twoadicity.in | xargs $LEO run main || exit
+  $LEO run main --file $EXAMPLES/twoadicity/inputs/twoadicity.in || exit
 )
 # Check that the two-adicity program ran successfully.
 EXITCODE=$?

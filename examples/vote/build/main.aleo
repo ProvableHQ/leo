@@ -39,8 +39,7 @@ function propose:
     assert.eq self.caller r0.proposer;
     hash.bhp256 r0.title into r1 as field;
     cast self.caller r1 r0 into r2 as Proposal.record;
-    async propose r1 into r3;
-    output r2 as Proposal.record;
+    async propose r1 into r3;    output r2 as Proposal.record;
     output r3 as vote.aleo/propose.future;
 
 finalize propose:
@@ -52,8 +51,7 @@ function new_ticket:
     input r0 as field.public;
     input r1 as address.public;
     cast r1 r0 into r2 as Ticket.record;
-    async new_ticket r0 into r3;
-    output r2 as Ticket.record;
+    async new_ticket r0 into r3;    output r2 as Ticket.record;
     output r3 as vote.aleo/new_ticket.future;
 
 finalize new_ticket:
@@ -65,8 +63,7 @@ finalize new_ticket:
 
 function agree:
     input r0 as Ticket.record;
-    async agree r0.pid into r1;
-    output r1 as vote.aleo/agree.future;
+    async agree r0.pid into r1;    output r1 as vote.aleo/agree.future;
 
 finalize agree:
     input r0 as field.public;
@@ -77,8 +74,7 @@ finalize agree:
 
 function disagree:
     input r0 as Ticket.record;
-    async disagree r0.pid into r1;
-    output r1 as vote.aleo/disagree.future;
+    async disagree r0.pid into r1;    output r1 as vote.aleo/disagree.future;
 
 finalize disagree:
     input r0 as field.public;
