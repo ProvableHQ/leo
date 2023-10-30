@@ -16,7 +16,7 @@
 
 use super::*;
 
-use snarkvm::cli::Execute as SnarkVMExecute;
+use snarkvm::{cli::Execute as SnarkVMExecute, prelude::Parser as SnarkVMParser};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -34,6 +34,9 @@ pub struct Execute {
         long
     )]
     endpoint: String,
+
+    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
+    file: Option<String>,
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
@@ -57,8 +60,31 @@ impl Command for Execute {
         // Compose the `execute` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
 
-        // Add the program inputs to the arguments.
-        arguments.append(&mut inputs);
+        // Add the inputs to the arguments.
+        match self.file {
+            Some(file) => {
+                // Get the contents from the file.
+                let path = context.dir()?.join(file);
+                let raw_content = std::fs::read_to_string(&path)
+                    .map_err(|err| PackageError::failed_to_read_file(path.display(), err))?;
+                // Parse the values from the file.
+                let mut content = raw_content.as_str();
+                let mut values = vec![];
+                while let Ok((remaining, value)) = snarkvm::prelude::Value::<CurrentNetwork>::parse(content) {
+                    content = remaining;
+                    values.push(value);
+                }
+                // Check that the remaining content is empty.
+                if !content.trim().is_empty() {
+                    return Err(PackageError::failed_to_read_input_file(path.display()).into());
+                }
+                // Convert the values to strings.
+                let mut inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::<Vec<String>>();
+                // Add the inputs from the file to the arguments.
+                arguments.append(&mut inputs_from_file);
+            }
+            None => arguments.append(&mut inputs),
+        }
 
         // Add the compiler options to the arguments.
         if self.compiler_options.offline {
