@@ -18,16 +18,17 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 pub use leo_ast::{Ast, InputAst};
-use leo_ast::{NodeBuilder, Program};
+use leo_ast::{NodeBuilder, Program, Stub};
 use leo_errors::{emitter::Handler, CompilerError, Result};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
-use leo_span::{source_map::FileName, symbol::with_session_globals};
+use leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
 
 use sha2::{Digest, Sha256};
 use std::{fs, path::PathBuf};
 
 use crate::CompilerOptions;
+use indexmap::IndexMap;
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
@@ -54,6 +55,8 @@ pub struct Compiler<'a> {
     assigner: Assigner,
     /// The type table.
     type_table: TypeTable,
+    /// The stubs for imported programs. Produced by `Retriever` module.
+    import_stubs: IndexMap<Symbol, Stub>,
 }
 
 impl<'a> Compiler<'a> {
@@ -65,6 +68,7 @@ impl<'a> Compiler<'a> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
+        import_stubs: IndexMap<Symbol, Stub>,
     ) -> Self {
         let node_builder = NodeBuilder::default();
         let assigner = Assigner::default();
@@ -80,6 +84,7 @@ impl<'a> Compiler<'a> {
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
+            import_stubs,
             type_table,
         }
     }
@@ -324,6 +329,8 @@ impl<'a> Compiler<'a> {
     pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
         // Parse the program.
         self.parse_program()?;
+        // Merge stubs
+        self.add_import_stubs();
         // Run the intermediate compiler stages.
         let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
         // Run code generation.
