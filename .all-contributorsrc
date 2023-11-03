@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "Whizzy6868",
+      "name": "Whizzy6868",
+      "avatar_url": "https://avatars.githubusercontent.com/u/90416273?v=4",
+      "profile": "https://github.com/Whizzy6868",
+      "contributions": [
+        "tutorial"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "leo",
+  "projectOwner": "AleoHQ"
+}
