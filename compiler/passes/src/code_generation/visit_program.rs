@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CodeGenerator;
+use crate::{CodeGenerator, DiGraph};
 
 use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Stub, Type, Variant};
 
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
@@ -42,8 +42,53 @@ impl<'a> CodeGenerator<'a> {
             program_string.push('\n');
         }
 
-        // Import stub programs
-        program_string.push_str(&input.stubs.values().map(|stub| self.visit_stub(stub)).join("\n"));
+        // Create directed graph representation of program dependencies.
+        let (mut dependency_graph, mut unexplored, mut explored): (
+            DiGraph<Symbol>,
+            IndexSet<Symbol>,
+            IndexSet<Symbol>,
+        ) = (DiGraph::new(IndexSet::new()), input.stubs.keys().cloned().collect(), IndexSet::new());
+        while !unexplored.is_empty() {
+            let mut current_dependencies: IndexSet<Symbol> = IndexSet::new();
+            for program_name in unexplored.iter() {
+                // Not all dependencies will be represented as stubs, only the ones directly interacted with by `.leo` program
+                if let Some(stub) = input.stubs.get(program_name) {
+                    // Add the program to the explored set
+                    explored.insert(*program_name);
+                    for dependency in stub.imports.iter() {
+                        dependency_graph.add_edge(*program_name, dependency.name.name);
+                        // Mark each dependency the first time it is seen
+                        if explored.insert(dependency.name.name) {
+                            current_dependencies.insert(dependency.name.name);
+                        }
+                    }
+                }
+            }
+
+            // Create next batch to explore
+            unexplored = current_dependencies;
+        }
+
+        // Writes imports in post order to program string. This ordering is enforced by snarkVM.
+        program_string.push_str(
+            &dependency_graph
+                .post_order()
+                .expect("Retriever module ensures that dependency graph does not contain cycle")
+                .iter()
+                .map(|program_name| {
+                    // After all the iterations explored will have all the programs that have no dependencies themselves
+                    explored.remove(program_name);
+                    format!("import {}.aleo;", program_name)
+                })
+                .join("\n"),
+        );
+
+        // Can add in anything in explored but not in DiGraph keys as well
+        program_string
+            .push_str(&explored.iter().map(|program_name| format!("import {}.aleo;", program_name)).join("\n"));
+
+        // Newline separator.
+        program_string.push('\n');
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
