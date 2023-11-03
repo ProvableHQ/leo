@@ -1,0 +1,20 @@
+[[package]]
+name = "distrofund_private_transfer.aleo"
+network = "testnet3"
+location = "network"
+checksum = "5885825ba7350bb57c70baa44730545eb57757fade520217516ace98c9a6c6e4"
+dependencies = ["credits.aleo"]
+
+[[package]]
+name = "credits.aleo"
+network = "testnet3"
+location = "network"
+checksum = "2ac86d83bca4fbf2c021660875ea1e5b4e65c7a192d9bc020ab02a0f32c86f0d"
+dependencies = []
+
+[[package]]
+name = "artgo_aigc_v1_3.aleo"
+network = "testnet3"
+location = "network"
+checksum = "ea21b4f760709e7ab91e824f6e277631cfb2fe8717c996269fd9fbe490ea1501"
+dependencies = ["credits.aleo"]

@@ -1,0 +1,13 @@
+{
+    "program": "transfer.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "artgo_aigc_v1_3.aleo",
+            "location": "network",
+            "network": "testnet3"
+        }
+    ]
+}

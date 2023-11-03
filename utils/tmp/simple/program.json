@@ -1,0 +1,13 @@
+{
+  "program": "simple.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "distrofund_private_transfer.aleo",
+      "location": "network",
+      "network": "testnet3"
+    }
+  ]
+}

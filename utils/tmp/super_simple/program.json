@@ -1,0 +1,13 @@
+{
+  "program": "super_simple.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "credits.aleo",
+      "location": "network",
+      "network": "testnet3"
+    }
+  ]
+}
