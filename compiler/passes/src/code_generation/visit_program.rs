@@ -16,7 +16,7 @@
 
 use crate::{CodeGenerator, DiGraph};
 
-use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Stub, Type, Variant};
+use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
 
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
