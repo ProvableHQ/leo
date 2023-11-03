@@ -368,4 +368,15 @@ impl<'a> Compiler<'a> {
         }
         Ok(())
     }
+
+    /// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
+    fn add_import_stubs(&mut self) {
+        for (symbol, stub) in self.import_stubs.iter() {
+            // Only add in the ones explicitly imported in `.leo` file
+            if self.ast.ast.stubs.contains_key(symbol) {
+                self.ast.ast.stubs.remove(symbol);
+                self.ast.ast.stubs.insert(*symbol, stub.clone());
+            }
+        }
+    }
 }
