@@ -215,10 +215,10 @@ create_messages!(
     }
 
     @formatted
-    leo_imports_only {
+    leo_and_aleo_imports_only {
         args: (),
-        msg: "Invalid import call to non-leo file.",
-        help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
+        msg: "Invalid import call to non-leo non-aleo file.",
+        help: Some("Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported.".to_string()),
     }
 
     @formatted
