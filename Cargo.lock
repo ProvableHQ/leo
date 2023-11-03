@@ -1398,6 +1398,7 @@ name = "leo-compiler"
 version = "1.10.0"
 dependencies = [
  "dotenvy",
+ "indexmap 1.9.3",
  "leo-ast",
  "leo-errors",
  "leo-package",
@@ -1424,6 +1425,7 @@ dependencies = [
  "colored",
  "derivative",
  "leo-span",
+ "reqwest",
  "serde",
  "thiserror",
 ]
@@ -1453,6 +1455,7 @@ dependencies = [
  "rand_chacha",
  "rand_core",
  "reqwest",
+ "retriever",
  "rusty-hook",
  "self_update 0.39.0",
  "serde",
@@ -1475,6 +1478,7 @@ dependencies = [
  "lazy_static",
  "leo-errors",
  "rand",
+ "retriever",
  "serde",
  "snarkvm",
  "toml 0.8.8",
@@ -1533,6 +1537,7 @@ dependencies = [
  "backtrace",
  "clap",
  "criterion",
+ "indexmap 1.9.3",
  "leo-compiler",
  "leo-errors",
  "leo-span",
@@ -2189,6 +2194,23 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
+]
+
+[[package]]
+name = "retriever"
+version = "0.1.0"
+dependencies = [
+ "disassembler",
+ "indexmap 1.9.3",
+ "leo-ast",
+ "leo-errors",
+ "leo-passes",
+ "leo-span",
+ "serde",
+ "serde_json",
+ "sha2",
+ "toml 0.8.6",
+ "ureq",
 ]
 
 [[package]]
