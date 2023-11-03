@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{NodeBuilder, Struct};
+use leo_ast::{NodeBuilder, Struct, Stub};
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
 use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::{symbol::with_session_globals, Symbol};
@@ -31,6 +31,8 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+
+use retriever::Retriever;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -175,7 +177,7 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    _package_path: &Path,
+    package_path: &Path,
     program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
@@ -201,6 +203,12 @@ fn compile_leo_file(
         false => format!("main.{}", program_id.network()),
     });
 
+    // Retrieve dependencies from `program.json`
+    let mut retriever = Retriever::new(package_path);
+
+    // Only retrieve dependencies for main leo program
+    let stubs: IndexMap<Symbol, Stub> = if is_import { IndexMap::new() } else { retriever.retrieve() };
+
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
         program_name,
@@ -209,6 +217,7 @@ fn compile_leo_file(
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
+        stubs,
     );
 
     // Compile the Leo program into Aleo instructions.
