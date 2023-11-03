@@ -45,6 +45,24 @@ pub struct Stub {
     pub span: Span,
 }
 
+impl Default for Stub {
+    /// Constructs an empty program stub
+    fn default() -> Self {
+        Self {
+            imports: Vec::new(),
+            stub_id: ProgramId {
+                name: Identifier::new(Symbol::intern(""), NodeID::default()),
+                network: Identifier::new(Symbol::intern(""), NodeID::default()),
+            },
+            consts: Vec::new(),
+            structs: Vec::new(),
+            mappings: Vec::new(),
+            functions: Vec::new(),
+            span: Span::default(),
+        }
+    }
+}
+
 impl fmt::Display for Stub {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "stub {} {{", self.stub_id)?;
