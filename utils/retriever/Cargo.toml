@@ -1,0 +1,19 @@
+[package]
+name = "retriever"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0.188", features = ["derive"] }
+serde_json = "1.0.107"
+leo-errors = {version = "1.9.4", path = "../../errors"}
+indexmap = "1.9"
+leo-ast = {version = "1.9.4", path = "../../compiler/ast"}
+toml = "0.8.6"
+disassembler = {version = "0.1.0", path = "../disassembler"}
+sha2 = { version = "0.10.8", features = [] }
+leo-span = {version = "1.9.4", path = "../../compiler/span"}
+ureq = "2.7"
+leo-passes = {version = "1.9.4", path = "../../compiler/passes"}
