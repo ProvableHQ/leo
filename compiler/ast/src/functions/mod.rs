@@ -38,8 +38,7 @@ pub use output::*;
 pub mod mode;
 pub use mode::*;
 
-use crate::{Block, FunctionStub, Identifier, Node, NodeID, Tuple, Type};
-use crate::{Block, Identifier, Node, NodeID, TupleType, Type};
+use crate::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};

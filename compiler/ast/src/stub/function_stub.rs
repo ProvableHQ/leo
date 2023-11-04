@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Annotation, Block, Finalize, Function, Identifier, Input, Node, NodeID, Output, Tuple, Type, Variant};
+use crate::{Annotation, Block, Finalize, Function, Identifier, Input, Node, NodeID, Output, TupleType, Type, Variant};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -76,7 +76,7 @@ impl FunctionStub {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => get_output_type(&output[0]),
-            _ => Type::Tuple(Tuple(output.iter().map(get_output_type).collect())),
+            _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
         FunctionStub { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
