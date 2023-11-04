@@ -134,7 +134,6 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 }
 
-
 #[test]
 pub fn build_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
@@ -155,6 +154,23 @@ pub fn build_test() -> Result<()> {
 pub fn build_super_simple_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
     const BUILD_DIRECTORY: &str = "utils/tmp/super_simple";
+
+    let cli = CLI {
+        debug: false,
+        quiet: false,
+        command: Commands::Build { command: Build { options: Default::default() } },
+        path: Some(PathBuf::from(BUILD_DIRECTORY)),
+    };
+    create_session_if_not_set_then(|_| {
+        run_with_args(cli).expect("Failed to run build command");
+    });
+    Ok(())
+}
+
+#[test]
+pub fn build_nested_test() -> Result<()> {
+    use leo_span::symbol::create_session_if_not_set_then;
+    const BUILD_DIRECTORY: &str = "utils/tmp/nested";
 
     let cli = CLI {
         debug: false,

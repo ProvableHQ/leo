@@ -109,6 +109,11 @@ impl Retriever {
     // Initialize a new Retriever
     pub fn new(path: &Path) -> Self {
         let lock_path = path.to_path_buf().join("leo.lock");
+        if !lock_path.exists() {
+            std::fs::create_dir_all(path).expect("Failed to project directory.");
+            File::create(lock_path.clone()).expect("Failed to create `leo.lock`");
+        }
+
         let mut file = File::open(lock_path).expect("Failed to open `leo.lock`.");
 
         // Read `leo.lock` into a string, and deserialize from TOML to a `LockFile` struct.
@@ -347,6 +352,17 @@ mod tests {
     fn super_simple_test() {
         dbg!(std::env::current_dir().unwrap());
         const BUILD_DIRECTORY: &str = "../tmp/super_simple";
+        create_session_if_not_set_then(|_| {
+            let build_dir = PathBuf::from(BUILD_DIRECTORY);
+            let mut retriever = Retriever::new(&build_dir);
+            retriever.retrieve();
+        });
+    }
+
+    #[test]
+    fn nested_test() {
+        dbg!(std::env::current_dir().unwrap());
+        const BUILD_DIRECTORY: &str = "../tmp/nested";
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let mut retriever = Retriever::new(&build_dir);
