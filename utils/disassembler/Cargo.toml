@@ -10,7 +10,7 @@ workspace = true
 
 [dependencies.leo-ast]
 path = "../../compiler/ast"
-version = "=1.9.4"
+version = "=1.10.0"
 
 [dependencies.leo-span]
 path = "../../compiler/span"

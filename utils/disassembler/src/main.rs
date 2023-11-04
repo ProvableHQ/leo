@@ -15,16 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm::{
-    console::network::Testnet3,
     prelude::{Itertools, Network},
-    synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
+    synthesizer::program::{CommandTrait, InstructionTrait, ProgramCore},
 };
-use std::str::FromStr;
 
 use leo_ast::{FunctionStub, Identifier, ProgramId, Struct, Stub};
-use leo_span::symbol::create_session_if_not_set_then;
-
-type CurrentNetwork = Testnet3;
 
 fn main() {}
 
@@ -61,6 +56,11 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
 #[cfg(test)]
 mod tests {
     use super::*;
+    use leo_span::symbol::create_session_if_not_set_then;
+    use snarkvm::{prelude::Testnet3, synthesizer::program::Program};
+    use std::str::FromStr;
+
+    type CurrentNetwork = Testnet3;
 
     #[test]
     fn credits_test() {
@@ -68,7 +68,7 @@ mod tests {
             let aleo_prog_1 =
                 std::fs::read_to_string("/Users/evanschott/work/leo/utils/disassembler/src/tests/credits.aleo")
                     .unwrap();
-            let program = Program::<CurrentNetwork>::from_str(&*aleo_prog_1);
+            let program = Program::<CurrentNetwork>::from_str(&aleo_prog_1);
             match program {
                 Ok(p) => {
                     let disassembled = disassemble(p);
