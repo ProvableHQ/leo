@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, VariableSymbol, VariableType, TypeTable};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
 use leo_ast::{
     CoreConstant,
