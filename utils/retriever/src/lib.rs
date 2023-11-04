@@ -18,7 +18,7 @@ use disassembler::disassemble_from_str;
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::Stub;
 use leo_passes::{common::DiGraph, DiGraphError};
-use leo_span::{symbol::create_session_if_not_set_then, Symbol};
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
@@ -322,6 +322,7 @@ fn fetch_from_network(program: String, network: Network) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use leo_span::symbol::create_session_if_not_set_then;
 
     #[test]
     fn basic_test() {

@@ -19,7 +19,6 @@ use leo_errors::Result;
 
 use clap::Parser;
 use colored::Colorize;
-use leo_span::symbol::create_session_if_not_set_then;
 use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -135,8 +134,10 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     }
 }
 
+
 #[test]
 pub fn build_test() -> Result<()> {
+    use leo_span::symbol::create_session_if_not_set_then;
     const BUILD_DIRECTORY: &str = "utils/tmp/project";
 
     let cli = CLI {
@@ -152,7 +153,7 @@ pub fn build_test() -> Result<()> {
 }
 #[test]
 pub fn build_super_simple_test() -> Result<()> {
-    dbg!(std::env::current_dir().expect("TODO: panic message"));
+    use leo_span::symbol::create_session_if_not_set_then;
     const BUILD_DIRECTORY: &str = "utils/tmp/super_simple";
 
     let cli = CLI {
