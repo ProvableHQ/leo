@@ -756,6 +756,21 @@ AdityaAA2004</b></sub></a><br /><a href="https://github.com/AdityaAA2004/Aleo-wo
 </b></sub></a><br /><a href="https://github.com/MykhailoReztsov/lottery-leo_anderio" title="Tutorial">✅</a></td>
         <td align="center" valign="top" width="14.28%"><a href="https://github.com/kirkelmer"><img src="https://avatars.githubusercontent.com/u/149320665?s=80&u=b4ac88c3f74ece7a1b5eed90ed77645ec0cd1f13&v=4?s=100" width="100px;" alt="kirkelmer"/><br /><sub><b>kirkelmer</b></sub></a><br /><a href="https://github.com/kirkelmer/leo_tictactoe" title="Tutorial">✅</a></td>
       </tr>
+       <tr>
+          <td align="center" valign="top" width="14.28%"><a href="https://github.com/philbertotis"><img src="https://avatars.githubusercontent.com/u/149321452?s=80&u=bae6fafafe31ad30c4f84b125cb2f0c49dec3eaa&v=4?s=100" width="100px;" alt="philbertotis"/><br /><sub><b>
+philbertotis</b></sub></a><br /><a href="https://github.com/philbertotis/bank" title="Tutorial">✅</a></td>
+          <td align="center" valign="top" width="14.28%"><a href="https://github.com/isaiahelvis0x"><img src="https://avatars.githubusercontent.com/u/149322863?s=80&u=b727970bfdf665f0d4b127d3442047cd988261e0&v=4?s=100" width="100px;" alt="isaiahelvis0x"/><br /><sub><b>isaiahelvis0x</b></sub></a><br /><a href="https://github.com/isaiahelvis0x/aleo_token_demo" title="Tutorial">✅</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/WenQi7721"><img src="https://avatars.githubusercontent.com/u/91441855?s=80&v=4?s=100" width="100px;" alt="WenQi7721"/><br /><sub><b>WenQi7721</b></sub></a><br /><a href="https://github.com/WenQi7721/leolottery.git" title="Tutorial">✅</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/CharlesMing02"><img src="https://avatars.githubusercontent.com/u/70979542?s=80&v=4?s=100" width="100px;" alt="CharlesMing02"/><br /><sub><b>CharlesMing02</b></sub></a><br /><a href="https://github.com/CharlesMing02/leo-workshop" title="Tutorial">✅</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/AliceYeh12"><img src="https://avatars.githubusercontent.com/u/49385063?s=80&u=d76300536f72190ed6f16db667b90edd2ef91048&v=4?s=100" width="100px;" alt="AliceYeh12"/><br /><sub><b>AliceYeh12</b></sub></a><br /><a href="https://github.com/AliceYeh12/leo-workshop" title="Tutorial">✅</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/patilmayank"><img src="https://avatars.githubusercontent.com/u/67300824?s=80&v=4?s=100" width="100px;" alt="patilmayank"/><br /><sub><b>patilmayank</b></sub></a><br /><a href="https://github.com/patilmayank/Aleo" title="Tutorial">✅</a></td>
+        <td align="center" valign="top" width="14.28%"><a href="https://github.com/kilikaloko214"><img src="https://avatars.githubusercontent.com/u/148705976?s=80&u=a609b2e0f1faa31dd583a2cf54b32578fef258bd&v=4?s=100" width="100px;" alt="kilikaloko214"/><br /><sub><b>kilikaloko214</b></sub></a><br /><a href="https://github.com/kilikaloko214/aleo-tictactoe" title="Tutorial">✅</a></td>
+      </tr>
+     <tr>
+          <td align="center" valign="top" width="14.28%"><a href="https://github.com/AlexZhao6666"><img src="https://avatars.githubusercontent.com/u/136443781?s=80&u=4743c33c7861268ebd95ea89d906fd6b415f4a67&v=4?s=100" width="100px;" alt="AlexZhao6666"/><br /><sub><b>
+AlexZhao6666</b></sub></a><br /><a href="https://github.com/AlexZhao6666/double-color-ball/tree/main/contract/double_color_ball" title="Content">🖋</a></td>
+          <td align="center" valign="top" width="14.28%"><a href="https://github.com/chenxudongok"><img src="https://avatars.githubusercontent.com/u/11802831?s=80&u=b8bbb6c06b0ed89bfe35d8e93a43c250837388f8&v=4?s=100" width="100px;" alt="chenxudongok"/><br /><sub><b>chenxudongok</b></sub></a><br /><a href="https://github.com/chenxudongok/aleo" title="Tutorial">✅</a></td>
+      </tr>
   </tbody>
   <tfoot>
     <tr>
