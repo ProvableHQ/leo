@@ -257,7 +257,6 @@ async function processIssue() {
     const badgeCheckRegex = new RegExp(`<a href="https://github.com/${contributorName}/[^"]*" title=["“]${badgeType}(["”])?>`, 'i');
     
     if (badgeCheckRegex.test(readmeContent)) {
-      // TODO: commentAndTagUser
       let message = `Hey @${contributorName}, you already have the "${badgeType}" badge! 😄`;
       await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
       console.log(`The contributor "${contributorName}" already has the "${badgeType}" badge.`);
