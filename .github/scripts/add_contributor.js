@@ -121,6 +121,7 @@ async function processIssue() {
 
   // Check that they are author of the linked repo
   if (ownerName !== contributorName) {
+    console.log("owner name", ownerName, "contributor name", contributorName);
     let message = `Hey @${contributorName}, you need to link to your own repo! 😄`;
     await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
     console.log(`The contributor "${contributorName}" does not own the repo "${repoName}"`);
@@ -139,6 +140,13 @@ async function processIssue() {
     console.log("repo name", repoName);
     console.log(`The repository "${repoName}" under owner "${ownerName}" contains a valid Leo application.`);
   } catch (error) {
+    // Check if the error is a 404 and if the message indicates that the repo is not found
+    if (error.status === 404 && error.response && error.response.data && error.response.data.message.includes('repo not found')) {
+      console.log(`The repository "${repoName}" under owner "${ownerName}" does not exist or is private.`);
+      let message = `Hey @${issueOpener}, we could not access the repository you linked. Please ensure the repository exists and is public.`;
+      await commentAndTagUser(owner, repo, issueNumber, issueOpener, message);
+      return;
+    }
     // If main.leo is not found, check for any .leo file
     try {
       const { data } = await octokit.git.getTree({
@@ -154,13 +162,14 @@ async function processIssue() {
         // Found .leo files but not src/main.leo
         console.log(`Found .leo files but not src/main.leo in the repo "${repoName}" under owner "${ownerName}".`);
         let message = `Hey @${contributorName}, we found .leo files in your repo but not main.leo! Consider adding a main.leo file to your repo. 😄`;
-        await commentAndTagUser(ownerName, repo, issueNumber, contributorName, message);
+        console.log(ownerName, repo, issueNumber, contributorName, message);
+        await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
         return;
       } else {
         // No .leo files found at all
         console.log(`No .leo files found in the repo "${repoName}" under owner "${ownerName}".`);
         let message = `Hey @${contributorName}, the repo you linked does not contain a valid Leo application! 😅`;
-        await commentAndTagUser(ownerName, repo, issueNumber, contributorName, message);
+        await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
         return;
       }
     } catch (error) {
@@ -177,7 +186,7 @@ async function processIssue() {
 
   const readmeContent = Buffer.from(readme.content, 'base64').toString('utf-8');
 
-  async function commentAndTagUser(owner, repo, issueNumber, contributorName, message) {
+  async function commentAndTagUser(owner, repo, issueNumber, message) {
     try {
         await octokit.issues.createComment({
             owner,
@@ -234,7 +243,7 @@ async function processIssue() {
         owner,
         repo,
         pull_number: createdPR.number,
-        reviewers: ['AleoHQ/tech-ops']
+        reviewers: ['christianwooddell']
     });
 
     console.log(`Created a PR for "${contributorName}" with the "${badgeType}" badge.`);
@@ -248,6 +257,7 @@ async function processIssue() {
     const badgeCheckRegex = new RegExp(`<a href="https://github.com/${contributorName}/[^"]*" title=["“]${badgeType}(["”])?>`, 'i');
     
     if (badgeCheckRegex.test(readmeContent)) {
+      // TODO: commentAndTagUser
       let message = `Hey @${contributorName}, you already have the "${badgeType}" badge! 😄`;
       await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
       console.log(`The contributor "${contributorName}" already has the "${badgeType}" badge.`);
