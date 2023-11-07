@@ -186,7 +186,7 @@ async function processIssue() {
 
   const readmeContent = Buffer.from(readme.content, 'base64').toString('utf-8');
 
-  async function commentAndTagUser(owner, repo, issueNumber, message) {
+  async function commentAndTagUser(owner, repo, issueNumber, contributorName, message) {
     try {
         await octokit.issues.createComment({
             owner,
