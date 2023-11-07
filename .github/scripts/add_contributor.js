@@ -243,7 +243,7 @@ async function processIssue() {
         owner,
         repo,
         pull_number: createdPR.number,
-        reviewers: ['christianwooddell']
+        reviewers: ['AleoHQ/tech-ops']
     });
 
     console.log(`Created a PR for "${contributorName}" with the "${badgeType}" badge.`);
