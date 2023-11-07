@@ -28,7 +28,7 @@ async function processIssue() {
   // Check if the contributor name in the title matches the username of the issue opener
   if (contributorName !== issueOpener) {
     let message = `Hey @${issueOpener}, please make sure you're requesting to add your own name in the issue title! 😅`;
-    await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+    await commentAndTagUser(owner, repo, issueNumber, message);
     console.log(`The contributor name "${contributorName}" does not match the issue opener's username "${issueOpener}"`);
     return;
   }
@@ -37,7 +37,7 @@ async function processIssue() {
   const repoMatch = context.payload.issue.body.match(repoRegex);
   if (!repoMatch) {
       let message = `Hey @${contributorName}, you need to include a link to your Leo repo in the issue body! 😄`;
-      commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+      commentAndTagUser(owner, repo, issueNumber, message);
       console.error("No repo URL found in the issue body.");
       return;
   }
@@ -64,7 +64,7 @@ async function processIssue() {
       console.log(`${contributorName} has starred the repo`);
   } else {
       let message = `Hey @${contributorName}, you need to star the [Leo repo](https://github.com/AleoHQ/leo) to be added as a contributor! Go give it a 🌟!`;
-      await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+      await commentAndTagUser(owner, repo, issueNumber, message);
       console.log(`${contributorName} has not starred the repo`)
       return;
   }
@@ -75,7 +75,7 @@ async function processIssue() {
 
   if (!match) {
     let message = `Hey @${contributorName}, you need to specify the requested badge in the issue body! 😄`;
-    await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+    await commentAndTagUser(owner, repo, issueNumber, message);
     console.log('Badge not specified in the issue body.');
     return;
   }
@@ -123,7 +123,7 @@ async function processIssue() {
   if (ownerName !== contributorName) {
     console.log("owner name", ownerName, "contributor name", contributorName);
     let message = `Hey @${contributorName}, you need to link to your own repo! 😄`;
-    await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+    await commentAndTagUser(owner, repo, issueNumber, message);
     console.log(`The contributor "${contributorName}" does not own the repo "${repoName}"`);
     return;
   }
@@ -144,7 +144,7 @@ async function processIssue() {
     if (error.status === 404 && error.response && error.response.data && error.response.data.message.includes('repo not found')) {
       console.log(`The repository "${repoName}" under owner "${ownerName}" does not exist or is private.`);
       let message = `Hey @${issueOpener}, we could not access the repository you linked. Please ensure the repository exists and is public.`;
-      await commentAndTagUser(owner, repo, issueNumber, issueOpener, message);
+      await commentAndTagUser(owner, repo, issueNumber, message);
       return;
     }
     // If main.leo is not found, check for any .leo file
@@ -162,14 +162,13 @@ async function processIssue() {
         // Found .leo files but not src/main.leo
         console.log(`Found .leo files but not src/main.leo in the repo "${repoName}" under owner "${ownerName}".`);
         let message = `Hey @${contributorName}, we found .leo files in your repo but not main.leo! Consider adding a main.leo file to your repo. 😄`;
-        console.log(ownerName, repo, issueNumber, contributorName, message);
-        await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+        await commentAndTagUser(owner, repo, issueNumber, message);
         return;
       } else {
         // No .leo files found at all
         console.log(`No .leo files found in the repo "${repoName}" under owner "${ownerName}".`);
         let message = `Hey @${contributorName}, the repo you linked does not contain a valid Leo application! 😅`;
-        await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+        await commentAndTagUser(owner, repo, issueNumber, message);
         return;
       }
     } catch (error) {
@@ -186,7 +185,7 @@ async function processIssue() {
 
   const readmeContent = Buffer.from(readme.content, 'base64').toString('utf-8');
 
-  async function commentAndTagUser(owner, repo, issueNumber, contributorName, message) {
+  async function commentAndTagUser(owner, repo, issueNumber, message) {
     try {
         await octokit.issues.createComment({
             owner,
@@ -258,7 +257,7 @@ async function processIssue() {
     
     if (badgeCheckRegex.test(readmeContent)) {
       let message = `Hey @${contributorName}, you already have the "${badgeType}" badge! 😄`;
-      await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+      await commentAndTagUser(owner, repo, issueNumber, message);
       console.log(`The contributor "${contributorName}" already has the "${badgeType}" badge.`);
       return;
     } else {
@@ -273,7 +272,7 @@ async function processIssue() {
 
             if (!badgeDetails) {
                 let message = `Hey @${contributorName}, the badge type "${badgeType}" is not recognized! 😅`;
-                await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+                await commentAndTagUser(owner, repo, issueNumber, message);
                 throw new Error(`Badge type "${badgeType}" not recognized.`);
             }
 
@@ -312,7 +311,7 @@ async function processIssue() {
             console.log(`Created a PR to add the "${badgeType}" badge for the contributor "${contributorName}" in the README.`);
           } else {
             let message = `Hey @${contributorName}, we had an issue with your request, please reach out 😅`;
-            await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+            await commentAndTagUser(owner, repo, issueNumber, message);
             console.error(`Failed to find an insertion point for the "${badgeType}" badge for "${contributorName}".`);
         }
       }
@@ -324,7 +323,7 @@ async function processIssue() {
       const badgeDetails = badgeMapping[badgeType];
       if (!badgeDetails) {
           let message = `Hey @${contributorName}, we had an issue with your request, please reach out 😅`;
-          await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+          await commentAndTagUser(owner, repo, issueNumber, message);
           throw new Error(`Badge type "${badgeType}" not recognized.`);
       }
 
@@ -375,7 +374,7 @@ async function processIssue() {
           console.log(`Created a PR to add "${contributorName}" to the README contributors with the "${badgeType}" badge.`);
       } else {
           let message = `Hey @${contributorName}, we had an issue with your request, please reach out 😅`;
-          await commentAndTagUser(owner, repo, issueNumber, contributorName, message);
+          await commentAndTagUser(owner, repo, issueNumber, message);
           console.error(`Failed to find the insertion point in the README.`);
       }
     }
