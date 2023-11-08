@@ -207,5 +207,11 @@ create_messages!(
         help: None,
     }
 
+    @formatted
+    failed_to_retrieve_dependencies {
+        args: (error: impl Display),
+        msg: format!("Failed to retrieve dependencies. {error}"),
+        help: None,
+    }
 
 );

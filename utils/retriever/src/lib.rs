@@ -17,11 +17,13 @@
 use disassembler::disassemble_from_str;
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::Stub;
+use leo_errors::UtilError;
 use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
+    env,
     fmt,
     fs,
     fs::File,
@@ -30,7 +32,6 @@ use std::{
 };
 
 const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
-const ALEO_REGISTRY_DIRECTORY: &str = "../tmp/.aleo";
 
 // Struct representation of program's `program.json` specification
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,20 +108,21 @@ struct LockFileEntry {
 
 impl Retriever {
     // Initialize a new Retriever
-    pub fn new(path: &Path) -> Self {
+    pub fn new(path: &Path) -> Result<Self, UtilError> {
         let lock_path = path.to_path_buf().join("leo.lock");
         if !lock_path.exists() {
-            std::fs::create_dir_all(path).expect("Failed to project directory.");
-            File::create(lock_path.clone()).expect("Failed to create `leo.lock`");
+            std::fs::create_dir_all(path).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?; // TODO: How to get rid of requirement for span?
+            File::create(lock_path.clone()).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
         }
 
-        let mut file = File::open(lock_path).expect("Failed to open `leo.lock`.");
+        let mut file = File::open(lock_path).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
 
         // Read `leo.lock` into a string, and deserialize from TOML to a `LockFile` struct.
         let mut lock_file_contents = String::new();
-        file.read_to_string(&mut lock_file_contents).expect("Failed to read `leo.lock`.");
-        let parsed_lock_file: IndexMap<String, Vec<LockFileEntry>> =
-            toml::from_str(&lock_file_contents).expect("Failed to parse `leo.lock`.");
+        file.read_to_string(&mut lock_file_contents)
+            .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
+        let parsed_lock_file: IndexMap<String, Vec<LockFileEntry>> = toml::from_str(&lock_file_contents)
+            .map_err(|err| UtilError::toml_serizalization_error(err, Default::default()))?;
 
         // Construct a mapping of all programs in the `leo.lock` file to their specification.
         let mut lock_file_map = IndexMap::new();
@@ -153,28 +155,29 @@ impl Retriever {
         }
 
         // Open `program.json` which is located at `package_path/program.json`.
-        let mut file = File::open(path.join("program.json")).expect("Failed to open `program.json`.");
+        let mut file = File::open(path.join("program.json"))
+            .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
 
         // Read the file content
         let mut content = String::new();
-        file.read_to_string(&mut content).expect("Failed to read `program.json`.");
+        file.read_to_string(&mut content).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
 
         // Deserialize the content into Program
-        let program_data: ProgramSpecification =
-            serde_json::from_str(&content).expect("Failed to deserialize `program.json`.");
+        let program_data: ProgramSpecification = serde_json::from_str(&content)
+            .map_err(|err| UtilError::json_serialization_error(err, Default::default()))?;
 
-        Self {
+        Ok(Self {
             programs: program_data.dependencies,
             path: path.to_path_buf(),
             stubs: IndexMap::new(),
             lock_file: lock_file_map,
             explored: IndexSet::new(),
             dependency_graph: DiGraph::new(IndexSet::new()),
-        }
+        })
     }
 
     // Retrieve all dependencies for a program
-    pub fn retrieve(&mut self) -> IndexMap<Symbol, Stub> {
+    pub fn retrieve(&mut self) -> Result<IndexMap<Symbol, Stub>, UtilError> {
         let mut programs_to_retrieve = self.programs.clone();
 
         while !programs_to_retrieve.is_empty() {
@@ -186,14 +189,14 @@ impl Retriever {
                         self.path.clone(),
                         program.name.clone(),
                         program.network.clone(),
-                    )),
+                    )?),
                     Location::Git => panic!("Location::Git is not supported yet"),
                     Location::Local => panic!("Location::Local is not supported yet"),
                 }
 
                 // Mark as visited
                 if !self.explored.insert(program.clone()) {
-                    panic!("Should not ever explore same dependency twice.")
+                    Err(UtilError::circular_dependency_error(Default::default()))?;
                 }
             }
 
@@ -209,11 +212,7 @@ impl Retriever {
 
                 // Add stub to list of stubs
                 if let Some(existing) = self.stubs.insert(stub.stub_id.name.name, stub.clone()) {
-                    panic!(
-                        "Should never be creating two stubs from the same program name. Existing: {:?}, New: {:?}",
-                        existing,
-                        stub.clone()
-                    )
+                    Err(UtilError::duplicate_dependency_name_error(existing.stub_id.name.name, Default::default()))?;
                 }
 
                 // Update lock file
@@ -226,16 +225,16 @@ impl Retriever {
         // Check for dependency cycles
         match self.dependency_graph.post_order() {
             Ok(_) => (),
-            Err(DiGraphError::CycleDetected(cycle)) => panic!("Dependency cycle detected: {:?}", cycle),
+            Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
         }
 
         // Write the finalized dependency information to `leo.lock`
-        self.write_lock_file();
-        self.stubs.clone()
+        self.write_lock_file()?;
+        Ok(self.stubs.clone())
     }
 
     // Write lock file
-    fn write_lock_file(&self) {
+    fn write_lock_file(&self) -> Result<(), UtilError> {
         // Create struct representation of lock file
         let mut lock_file: IndexMap<String, Vec<LockFileEntry>> = IndexMap::new();
         let packages: Vec<LockFileEntry> = self
@@ -252,43 +251,55 @@ impl Retriever {
         lock_file.insert("package".to_string(), packages);
 
         // Serialize the data to a TOML string
-        let toml_str = toml::to_string(&lock_file).expect("Failed to serialize lock file.");
+        let toml_str =
+            toml::to_string(&lock_file).map_err(|err| UtilError::toml_serizalization_error(err, Default::default()))?;
 
         // Write the TOML string to a file
-        std::fs::write(self.path.join("leo.lock"), toml_str).expect("Failed to write file to leo.lock");
+        std::fs::write(self.path.join("leo.lock"), toml_str)
+            .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
+        Ok(())
     }
 }
 
 // Retrieve from network
-fn retrieve_from_network(project_path: PathBuf, name: String, network: Network) -> (Stub, Program, LockContents) {
+fn retrieve_from_network(
+    project_path: PathBuf,
+    name: String,
+    network: Network,
+) -> Result<(Stub, Program, LockContents), UtilError> {
     // Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
-    let path_str = &format!("{}/{}/{}", ALEO_REGISTRY_DIRECTORY, network, name);
+    let registry_directory = &format!("{}/.aleo/registry/{}", env::var("HOME").unwrap(), network);
+    let path_str = &format!("{}/{}", registry_directory, name);
     let path = Path::new(&path_str);
+    dbg!(path);
     let mut file_str: String;
     if !path.exists() {
         // Create directories along the way if they don't exist
-        std::fs::create_dir_all(Path::new(&format!("{}/{}", ALEO_REGISTRY_DIRECTORY, network)))
-            .expect("Failed to create directory `~/.aleo/registry/{network}`.");
+        std::fs::create_dir_all(Path::new(&registry_directory))
+            .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
 
+        // TODO: Refactor this so that we do the match statement here (instead of in `Retriever::retrieve()`)
         // Fetch from network
         println!("Retrieving {} from {:?}.", name.clone(), network.clone());
-        file_str = fetch_from_network(name.clone(), network.clone());
+        file_str = fetch_from_network(name.clone(), network.clone())?;
         file_str = file_str.replace("\\n", "\n").replace('\"', "");
         println!("Successfully retrieved {} from {:?}!", name, network);
 
         // Write file to cache
-        std::fs::write(path, file_str.clone().replace("\\n", "\n")).expect("Failed to write file to ~/.aleo");
+        std::fs::write(path, file_str.clone().replace("\\n", "\n"))
+            .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
     } else {
         // Read file from cache
-        file_str = fs::read_to_string(path).expect("Failed to read file.");
+        file_str = fs::read_to_string(path).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
     }
 
     // Copy the file into build directory. We can assume build directory exists because of its initialization in `leo/cli/commands/build.rs`.
     let import_dir = project_path.join("build/imports");
     let import_dir_path = import_dir.as_path();
-    std::fs::create_dir_all(import_dir_path).expect("Failed to create directory `~/.aleo/registry/{network}`.");
+    std::fs::create_dir_all(import_dir_path).map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
     let build_location = PathBuf::from(import_dir_path).join(name.clone());
-    std::fs::write(build_location, file_str.clone()).expect("Failed to write file to build/imports.");
+    std::fs::write(build_location, file_str.clone())
+        .map_err(|err| UtilError::util_file_io_error(err, Default::default()))?;
 
     // Hash the file contents
     let mut hasher = Sha256::new();
@@ -296,10 +307,10 @@ fn retrieve_from_network(project_path: PathBuf, name: String, network: Network) 
     let hash = hasher.finalize();
 
     // Disassemble into Stub
-    let stub: Stub = disassemble_from_str(file_str);
+    let stub: Stub = disassemble_from_str(file_str)?;
 
     // Create entry for leo.lock
-    (
+    Ok((
         stub.clone(),
         Program { name: name.clone(), location: Location::Network, network: network.clone() },
         LockContents {
@@ -315,13 +326,17 @@ fn retrieve_from_network(project_path: PathBuf, name: String, network: Network) 
                 .collect(),
             checksum: format!("{hash:x}"),
         },
-    )
+    ))
 }
 
-fn fetch_from_network(program: String, network: Network) -> String {
+fn fetch_from_network(program: String, network: Network) -> Result<String, UtilError> {
     let url = format!("{}/{}/program/{}", ALEO_EXPLORER_URL, network.clone(), program);
     let response = ureq::get(&url.clone()).call().unwrap();
-    if response.status() == 200 { response.into_string().unwrap() } else { panic!("Failed to fetch from {url}") }
+    if response.status() == 200 {
+        Ok(response.into_string().unwrap())
+    } else {
+        Err(UtilError::network_error(url, response.status(), Default::default()))
+    }
 }
 
 #[cfg(test)]
@@ -330,43 +345,20 @@ mod tests {
     use leo_span::symbol::create_session_if_not_set_then;
 
     #[test]
-    fn basic_test() {
-        const BUILD_DIRECTORY: &str = "../tmp/project";
-        create_session_if_not_set_then(|_| {
-            let build_dir = PathBuf::from(BUILD_DIRECTORY);
-            let mut retriever = Retriever::new(&build_dir);
-            retriever.retrieve();
-        });
-    }
+    fn temp_dir_test() {
+        // Set $HOME to tmp directory so that tests do not modify users real home directory
+        let original_home = env::var("HOME").unwrap();
+        env::set_var("HOME", "../tmp");
 
-    #[test]
-    fn simple_test() {
-        const BUILD_DIRECTORY: &str = "../tmp/simple";
-        create_session_if_not_set_then(|_| {
-            let build_dir = PathBuf::from(BUILD_DIRECTORY);
-            let mut retriever = Retriever::new(&build_dir);
-            retriever.retrieve();
-        });
-    }
-    #[test]
-    fn super_simple_test() {
-        dbg!(std::env::current_dir().unwrap());
-        const BUILD_DIRECTORY: &str = "../tmp/super_simple";
-        create_session_if_not_set_then(|_| {
-            let build_dir = PathBuf::from(BUILD_DIRECTORY);
-            let mut retriever = Retriever::new(&build_dir);
-            retriever.retrieve();
-        });
-    }
-
-    #[test]
-    fn nested_test() {
-        dbg!(std::env::current_dir().unwrap());
+        // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/nested";
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
-            let mut retriever = Retriever::new(&build_dir);
-            retriever.retrieve();
+            let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
+            retriever.retrieve().expect("failed to retrieve");
         });
+
+        // Reset $HOME
+        env::set_var("HOME", original_home);
     }
 }

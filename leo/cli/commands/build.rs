@@ -204,10 +204,15 @@ fn compile_leo_file(
     });
 
     // Retrieve dependencies from `program.json`
-    let mut retriever = Retriever::new(package_path);
+    let mut retriever = Retriever::new(package_path)
+        .map_err(|err| CliError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
     // Only retrieve dependencies for main leo program
-    let stubs: IndexMap<Symbol, Stub> = if is_import { IndexMap::new() } else { retriever.retrieve() };
+    let stubs: IndexMap<Symbol, Stub> = if is_import {
+        IndexMap::new()
+    } else {
+        retriever.retrieve().map_err(|err| CliError::failed_to_retrieve_dependencies(err, Default::default()))?
+    };
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
