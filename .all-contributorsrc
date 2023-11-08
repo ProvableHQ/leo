@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "Clasik32",
+      "name": "Classik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/133115805?v=4",
+      "profile": "https://github.com/Clasik32",
+      "contributions": [
+        "tutorial"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "leo",
+  "projectOwner": "AleoHQ"
+}
