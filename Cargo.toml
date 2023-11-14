@@ -154,7 +154,7 @@ version = "0.8"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.3.17"
+version = "0.3.18"
 features = [ "fmt" ]
 
 [dependencies.zip]
