@@ -20,7 +20,7 @@ use leo_ast::*;
 use leo_errors::TypeCheckerError;
 use leo_span::sym;
 
-use snarkvm_console::network::{Network, Testnet3};
+use snarkvm::console::network::{Network, Testnet3};
 
 use std::collections::HashSet;
 

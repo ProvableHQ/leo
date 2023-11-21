@@ -35,7 +35,7 @@ use leo_test_framework::{
     Test,
 };
 
-use snarkvm::prelude::*;
+use snarkvm::console::prelude::*;
 
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;

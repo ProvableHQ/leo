@@ -21,9 +21,8 @@ rust-version = "1.69"
 [lib]
 path = "src/lib.rs"
 
-[dependencies.snarkvm-console]
+[dependencies.snarkvm]
 workspace = true
-features = [ "network" ]
 
 [dependencies.leo-ast]
 path = "../ast"

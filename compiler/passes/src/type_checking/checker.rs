@@ -20,7 +20,7 @@ use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, 
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use snarkvm_console::network::{Network, Testnet3};
+use snarkvm::console::network::{Network, Testnet3};
 
 use itertools::Itertools;
 use std::cell::RefCell;
