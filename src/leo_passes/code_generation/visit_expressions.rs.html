@@ -806,7 +806,7 @@
             input.elements.iter().map(|expr| <span class="self">self</span>.visit_expression(expr)).fold(
                 (String::new(), String::new()),
                 |(<span class="kw-2">mut </span>operands, <span class="kw-2">mut </span>instructions), (operand, operand_instructions)| {
-                    operands.push_str(<span class="kw-2">&amp;</span>operand);
+                    operands.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {operand}&quot;</span>));
                     instructions.push_str(<span class="kw-2">&amp;</span>operand_instructions);
                     (operands, instructions)
                 },
