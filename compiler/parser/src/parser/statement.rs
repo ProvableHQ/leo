@@ -158,11 +158,9 @@ impl ParserContext<'_> {
 
             // Parse the expression as a statement.
             let end = self.expect(&Token::Semicolon)?;
-            Ok(Statement::Expression(ExpressionStatement {
-                span: place.span() + end,
-                expression: place,
-                id: self.node_builder.next_id(),
-            }))
+            Ok(Statement::Expression(
+                ExpressionStatement { span: place.span() + end, expression: place, id: self.node_builder.next_id() }
+            ))
         }
     }
 
@@ -271,45 +269,43 @@ impl ParserContext<'_> {
         let keyword = self.expect(&Token::Console)?;
         self.expect(&Token::Dot)?;
         let identifier = self.expect_identifier()?;
-        let (span, function) = match identifier.name {
-            sym::assert => {
-                self.expect(&Token::LeftParen)?;
-                let expr = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (keyword + expr.span(), ConsoleFunction::Assert(expr))
-            }
-            sym::assert_eq => {
-                self.expect(&Token::LeftParen)?;
-                let left = self.parse_expression()?;
-                self.expect(&Token::Comma)?;
-                let right = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (left.span() + right.span(), ConsoleFunction::AssertEq(left, right))
-            }
-            sym::assert_neq => {
-                self.expect(&Token::LeftParen)?;
-                let left = self.parse_expression()?;
-                self.expect(&Token::Comma)?;
-                let right = self.parse_expression()?;
-                self.expect(&Token::RightParen)?;
-                (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
-            }
-            symbol => {
-                // Not sure what it is, assume it's `log`.
-                self.emit_err(ParserError::unexpected_ident(
-                    symbol,
-                    &["assert", "assert_eq", "assert_neq"],
-                    identifier.span,
-                ));
-                (
-                    Default::default(),
-                    ConsoleFunction::Assert(Expression::Err(ErrExpression {
-                        span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    })),
-                )
-            }
-        };
+        let (span, function) =
+            match identifier.name {
+                sym::assert => {
+                    self.expect(&Token::LeftParen)?;
+                    let expr = self.parse_expression()?;
+                    self.expect(&Token::RightParen)?;
+                    (keyword + expr.span(), ConsoleFunction::Assert(expr))
+                }
+                sym::assert_eq => {
+                    self.expect(&Token::LeftParen)?;
+                    let left = self.parse_expression()?;
+                    self.expect(&Token::Comma)?;
+                    let right = self.parse_expression()?;
+                    self.expect(&Token::RightParen)?;
+                    (left.span() + right.span(), ConsoleFunction::AssertEq(left, right))
+                }
+                sym::assert_neq => {
+                    self.expect(&Token::LeftParen)?;
+                    let left = self.parse_expression()?;
+                    self.expect(&Token::Comma)?;
+                    let right = self.parse_expression()?;
+                    self.expect(&Token::RightParen)?;
+                    (left.span() + right.span(), ConsoleFunction::AssertNeq(left, right))
+                }
+                symbol => {
+                    // Not sure what it is, assume it's `log`.
+                    self.emit_err(
+                        ParserError::unexpected_ident(symbol, &["assert", "assert_eq", "assert_neq"], identifier.span)
+                    );
+                    (
+                        Default::default(),
+                        ConsoleFunction::Assert(Expression::Err(
+                            ErrExpression { span: Default::default(), id: self.node_builder.next_id() }
+                        )),
+                    )
+                }
+            };
         self.expect(&Token::Semicolon)?;
 
         Ok(ConsoleStatement { span: keyword + span, function, id: self.node_builder.next_id() })

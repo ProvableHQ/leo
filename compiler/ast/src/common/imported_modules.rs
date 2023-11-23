@@ -26,15 +26,16 @@ pub fn serialize<S: Serializer>(
     imported_modules: &IndexMap<Vec<Symbol>, Program>,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
-    let joined: IndexMap<String, Program> = with_session_globals(|s| {
-        imported_modules
-            .into_iter()
-            .map(|(package, program)| {
-                let package = package.iter().map(|x| x.as_str(s, |s| s.to_owned())).collect::<Vec<_>>();
-                (package.join("."), program.clone())
-            })
-            .collect()
-    });
+    let joined: IndexMap<String, Program> =
+        with_session_globals(|s| {
+            imported_modules
+                .into_iter()
+                .map(|(package, program)| {
+                    let package = package.iter().map(|x| x.as_str(s, |s| s.to_owned())).collect::<Vec<_>>();
+                    (package.join("."), program.clone())
+                })
+                .collect()
+        });
 
     joined.serialize(serializer)
 }

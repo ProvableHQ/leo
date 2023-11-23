@@ -237,12 +237,9 @@ impl ParserContext<'_> {
         if self.eat(&Token::As) {
             let (type_, end_span) = self.parse_primitive_type()?;
             let span = expr.span() + end_span;
-            expr = Expression::Cast(CastExpression {
-                expression: Box::new(expr),
-                type_,
-                span,
-                id: self.node_builder.next_id(),
-            });
+            expr = Expression::Cast(
+                CastExpression { expression: Box::new(expr), type_, span, id: self.node_builder.next_id() }
+            );
         }
 
         Ok(expr)
@@ -328,12 +325,9 @@ impl ParserContext<'_> {
 
         if let (true, Some(op)) = (args.is_empty(), UnaryOperation::from_symbol(method.name)) {
             // Found an unary operator and the argument list is empty.
-            Ok(Expression::Unary(UnaryExpression {
-                span,
-                op,
-                receiver: Box::new(receiver),
-                id: self.node_builder.next_id(),
-            }))
+            Ok(Expression::Unary(
+                UnaryExpression { span, op, receiver: Box::new(receiver), id: self.node_builder.next_id() }
+            ))
         } else if let (1, Some(op)) = (args.len(), BinaryOperation::from_symbol(method.name)) {
             // Found a binary operator and the argument list contains a single argument.
             Ok(Expression::Binary(BinaryExpression {
@@ -443,12 +437,10 @@ impl ParserContext<'_> {
                 if self.check_int() {
                     // Eat a tuple member access.
                     let (index, span) = self.eat_whole_number()?;
-                    expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                        tuple: Box::new(expr),
-                        index,
-                        span,
-                        id: self.node_builder.next_id(),
-                    }))
+                    expr =
+                        Expression::Access(AccessExpression::Tuple(
+                            TupleAccess { tuple: Box::new(expr), index, span, id: self.node_builder.next_id() }
+                        ))
                 } else if self.eat(&Token::Leo) {
                     // Eat an external function call.
                     self.eat(&Token::Div); // todo: Make `/` a more general token.
@@ -627,14 +619,15 @@ impl ParserContext<'_> {
             self.expect_identifier()?
         };
 
-        let (expression, span) = if self.eat(&Token::Colon) {
-            // Parse individual struct variable declarations.
-            let expression = self.parse_expression()?;
-            let span = identifier.span + expression.span();
-            (Some(expression), span)
-        } else {
-            (None, identifier.span)
-        };
+        let (expression, span) =
+            if self.eat(&Token::Colon) {
+                // Parse individual struct variable declarations.
+                let expression = self.parse_expression()?;
+                let span = identifier.span + expression.span();
+                (Some(expression), span)
+            } else {
+                (None, identifier.span)
+            };
 
         Ok(StructVariableInitializer { identifier, expression, id: self.node_builder.next_id(), span })
     }
@@ -685,11 +678,9 @@ impl ParserContext<'_> {
                     // Literal followed by `group`, e.g., `42group`.
                     Some(Token::Group) => {
                         assert_no_whitespace("group")?;
-                        Expression::Literal(Literal::Group(Box::new(GroupLiteral::Single(
-                            value,
-                            full_span,
-                            self.node_builder.next_id(),
-                        ))))
+                        Expression::Literal(Literal::Group(Box::new(
+                            GroupLiteral::Single(value, full_span, self.node_builder.next_id())
+                        )))
                     }
                     // Literal followed by `scalar` e.g., `42scalar`.
                     Some(Token::Scalar) => {
@@ -732,11 +723,9 @@ impl ParserContext<'_> {
             Token::Block => {
                 Expression::Identifier(Identifier { name: sym::block, span, id: self.node_builder.next_id() })
             }
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
-                name: t.keyword_to_symbol().unwrap(),
-                span,
-                id: self.node_builder.next_id(),
-            }),
+            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(
+                Identifier { name: t.keyword_to_symbol().unwrap(), span, id: self.node_builder.next_id() }
+            ),
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", span).into());
             }

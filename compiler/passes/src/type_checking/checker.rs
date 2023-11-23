@@ -387,11 +387,9 @@ impl<'a> TypeChecker<'a> {
     ) -> Option<Type> {
         // Check that the number of arguments is correct.
         if arguments.len() != core_function.num_args() {
-            self.emit_err(TypeCheckerError::incorrect_num_args_to_call(
-                core_function.num_args(),
-                arguments.len(),
-                function_span,
-            ));
+            self.emit_err(
+                TypeCheckerError::incorrect_num_args_to_call(core_function.num_args(), arguments.len(), function_span)
+            );
             return None;
         }
 
@@ -982,10 +980,9 @@ impl<'a> TypeChecker<'a> {
             CoreFunction::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
                 if !self.is_finalize {
-                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        "Mapping::contains",
-                        function_span,
-                    ))
+                    self.handler.emit_err(
+                        TypeCheckerError::invalid_operation_outside_finalize("Mapping::contains", function_span)
+                    )
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {

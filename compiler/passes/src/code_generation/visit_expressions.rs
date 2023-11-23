@@ -572,16 +572,18 @@ impl<'a> CodeGenerator<'a> {
         let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
-            Type::Tuple(tuple) => match tuple.length() {
-                0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
-                len => {
-                    for _ in 0..len {
-                        let destination_register = format!("r{}", self.next_register);
-                        destinations.push(destination_register);
-                        self.next_register += 1;
+            Type::Tuple(tuple) => {
+                match tuple.length() {
+                    0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
+                    len => {
+                        for _ in 0..len {
+                            let destination_register = format!("r{}", self.next_register);
+                            destinations.push(destination_register);
+                            self.next_register += 1;
+                        }
                     }
                 }
-            },
+            }
             _ => {
                 let destination_register = format!("r{}", self.next_register);
                 destinations.push(destination_register);

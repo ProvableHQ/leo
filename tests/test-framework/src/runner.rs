@@ -93,12 +93,13 @@ impl TestCases {
         let mut path_prefix = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         path_prefix.push("../../tests");
 
-        let mut new = Self {
-            tests: Vec::new(),
-            path_prefix,
-            expectation_category: expectation_category.to_string(),
-            fail_categories: Vec::new(),
-        };
+        let mut new =
+            Self {
+                tests: Vec::new(),
+                path_prefix,
+                expectation_category: expectation_category.to_string(),
+                fail_categories: Vec::new(),
+            };
         let tests = new.load_tests(additional_check);
         (new, tests)
     }
@@ -188,10 +189,11 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
     let mut outputs = vec![];
     cases.process_tests(configs, |cases, (path, content, test_name, config)| {
-        let namespace = match runner.resolve_namespace(&config.namespace) {
-            Some(ns) => ns,
-            None => return,
-        };
+        let namespace =
+            match runner.resolve_namespace(&config.namespace) {
+                Some(ns) => ns,
+                None => return,
+            };
 
         let (expectation_path, expectations) = cases.load_expectations(path);
 

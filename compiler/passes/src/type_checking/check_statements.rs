@@ -68,21 +68,24 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
-            match &var.declaration {
-                VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
-                VariableType::Input(Mode::Constant) => {
-                    self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
+        let var_type =
+            if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
+                match &var.declaration {
+                    VariableType::Const => {
+                        self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span))
+                    }
+                    VariableType::Input(Mode::Constant) => {
+                        self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
+                    }
+                    _ => {}
                 }
-                _ => {}
-            }
 
-            Some(var.type_.clone())
-        } else {
-            self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
+                Some(var.type_.clone())
+            } else {
+                self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
 
-            None
-        };
+                None
+            };
 
         if var_type.is_some() {
             self.visit_expression(&input.value, &var_type);
@@ -175,16 +178,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Enforce that Constant variables have literal expressions on right-hand side
         match &input.value {
             Expression::Literal(_) => (),
-            Expression::Tuple(tuple_expression) => match tuple_expression.elements.len() {
-                0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
-                _ => {
-                    if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
-                        self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
-                            input.span,
-                        ))
+            Expression::Tuple(tuple_expression) => {
+                match tuple_expression.elements.len() {
+                    0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
+                    _ => {
+                        if tuple_expression.elements.iter().any(|expr| !matches!(expr, Expression::Literal(_))) {
+                            self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
+                                input.span,
+                            ))
+                        }
                     }
                 }
-            },
+            }
             _ => self.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(input.span())),
         }
 

@@ -62,31 +62,32 @@ impl StatementReconstructor for Flattener<'_> {
         let mut statements = Vec::new();
 
         // Flatten the arguments of the assert statement.
-        let assert = AssertStatement {
-            span: input.span,
-            id: input.id,
-            variant: match input.variant {
-                AssertVariant::Assert(expression) => {
-                    let (expression, additional_statements) = self.reconstruct_expression(expression);
-                    statements.extend(additional_statements);
-                    AssertVariant::Assert(expression)
-                }
-                AssertVariant::AssertEq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    AssertVariant::AssertEq(left, right)
-                }
-                AssertVariant::AssertNeq(left, right) => {
-                    let (left, additional_statements) = self.reconstruct_expression(left);
-                    statements.extend(additional_statements);
-                    let (right, additional_statements) = self.reconstruct_expression(right);
-                    statements.extend(additional_statements);
-                    AssertVariant::AssertNeq(left, right)
-                }
-            },
-        };
+        let assert =
+            AssertStatement {
+                span: input.span,
+                id: input.id,
+                variant: match input.variant {
+                    AssertVariant::Assert(expression) => {
+                        let (expression, additional_statements) = self.reconstruct_expression(expression);
+                        statements.extend(additional_statements);
+                        AssertVariant::Assert(expression)
+                    }
+                    AssertVariant::AssertEq(left, right) => {
+                        let (left, additional_statements) = self.reconstruct_expression(left);
+                        statements.extend(additional_statements);
+                        let (right, additional_statements) = self.reconstruct_expression(right);
+                        statements.extend(additional_statements);
+                        AssertVariant::AssertEq(left, right)
+                    }
+                    AssertVariant::AssertNeq(left, right) => {
+                        let (left, additional_statements) = self.reconstruct_expression(left);
+                        statements.extend(additional_statements);
+                        let (right, additional_statements) = self.reconstruct_expression(right);
+                        statements.extend(additional_statements);
+                        AssertVariant::AssertNeq(left, right)
+                    }
+                },
+            };
 
         // Add the appropriate guards.
         match self.construct_guard() {

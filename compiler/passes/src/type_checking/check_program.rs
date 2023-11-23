@@ -121,18 +121,19 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // For records, enforce presence of the `owner: Address` member.
         if input.is_record {
-            let check_has_field =
-                |need, expected_ty: Type| match input.members.iter().find_map(|Member { identifier, type_, .. }| {
-                    (identifier.name == need).then_some((identifier, type_))
-                }) {
-                    Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
-                    Some((field, _)) => {
-                        self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
-                    }
-                    None => {
-                        self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
-                    }
-                };
+            let check_has_field = |need, expected_ty: Type| match input
+                .members
+                .iter()
+                .find_map(|Member { identifier, type_, .. }| (identifier.name == need).then_some((identifier, type_)))
+            {
+                Some((_, actual_ty)) if expected_ty.eq_flat(actual_ty) => {} // All good, found + right type!
+                Some((field, _)) => {
+                    self.emit_err(TypeCheckerError::record_var_wrong_type(field, expected_ty, input.span()));
+                }
+                None => {
+                    self.emit_err(TypeCheckerError::required_record_variable(need, expected_ty, input.span()));
+                }
+            };
             check_has_field(sym::owner, Type::Address);
         }
 

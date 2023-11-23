@@ -66,12 +66,9 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_associated_constant(&mut self, input: AssociatedConstant) -> (Expression, Self::AdditionalOutput) {
         (
-            Expression::Access(AccessExpression::AssociatedConstant(AssociatedConstant {
-                ty: input.ty,
-                name: input.name,
-                span: input.span,
-                id: input.id,
-            })),
+            Expression::Access(AccessExpression::AssociatedConstant(
+                AssociatedConstant { ty: input.ty, name: input.name, span: input.span, id: input.id }
+            )),
             Default::default(),
         )
     }

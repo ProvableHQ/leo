@@ -198,13 +198,14 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 self.type_table.insert(id, type_);
 
                 // Construct a ternary expression for the phi function.
-                let (value, stmts) = self.consume_ternary(TernaryExpression {
-                    condition: Box::new(condition.clone()),
-                    if_true,
-                    if_false,
-                    span: Default::default(),
-                    id,
-                });
+                let (value, stmts) =
+                    self.consume_ternary(TernaryExpression {
+                        condition: Box::new(condition.clone()),
+                        if_true,
+                        if_false,
+                        span: Default::default(),
+                        id,
+                    });
 
                 statements.extend(stmts);
 
@@ -290,22 +291,17 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 }
 
                 // Construct the lhs of the assignment.
-                let place = Expression::Tuple(TupleExpression {
-                    elements,
-                    span: Default::default(),
-                    id: self.node_builder.next_id(),
-                });
+                let place = Expression::Tuple(
+                    TupleExpression { elements, span: Default::default(), id: self.node_builder.next_id() }
+                );
 
                 // Update the type of the lhs.
                 self.type_table.insert(place.id(), Type::Tuple(tuple_type_));
 
                 // Create the assignment statement.
-                let assignment = Statement::Assign(Box::new(AssignStatement {
-                    place,
-                    value,
-                    span: definition.span,
-                    id: definition.id,
-                }));
+                let assignment = Statement::Assign(
+                    Box::new(AssignStatement { place, value, span: definition.span, id: definition.id })
+                );
 
                 statements.push(assignment);
             }
@@ -401,12 +397,9 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         });
 
         // Add the simplified return statement to the list of produced statements.
-        statements.push(Statement::Return(ReturnStatement {
-            expression,
-            finalize_arguments: finalize_args,
-            span: input.span,
-            id: input.id,
-        }));
+        statements.push(Statement::Return(
+            ReturnStatement { expression, finalize_arguments: finalize_args, span: input.span, id: input.id }
+        ));
 
         statements
     }
