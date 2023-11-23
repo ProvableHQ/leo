@@ -154,7 +154,7 @@ impl<'a> CodeGenerator<'a> {
             input.elements.iter().map(|expr| self.visit_expression(expr)).fold(
                 (String::new(), String::new()),
                 |(mut operands, mut instructions), (operand, operand_instructions)| {
-                    operands.push_str(&operand);
+                    operands.push_str(&format!(" {operand}"));
                     instructions.push_str(&operand_instructions);
                     (operands, instructions)
                 },
