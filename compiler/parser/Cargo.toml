@@ -30,9 +30,8 @@ version = "=1.10.0"
 path = "../span"
 version = "=1.10.0"
 
-[dependencies.snarkvm-console]
+[dependencies.snarkvm]
 workspace = true
-features = [ "account", "network" ]
 
 [dependencies.clap]
 version = "4.4"

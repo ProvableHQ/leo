@@ -16,7 +16,7 @@
 
 //! The `.env` file.
 use leo_errors::{PackageError, Result};
-use snarkvm_console::{account::PrivateKey, prelude::Network};
+use snarkvm::console::{account::PrivateKey, prelude::Network};
 
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, marker::PhantomData, path::Path};

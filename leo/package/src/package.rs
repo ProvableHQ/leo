@@ -21,7 +21,7 @@ use crate::{
     source::{MainFile, SourceDirectory},
 };
 use leo_errors::{PackageError, Result};
-use snarkvm_console::prelude::Network;
+use snarkvm::console::prelude::Network;
 
 use serde::Deserialize;
 use std::{marker::PhantomData, path::Path};

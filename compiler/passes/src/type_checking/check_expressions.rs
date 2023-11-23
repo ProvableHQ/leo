@@ -21,7 +21,7 @@ use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
 use itertools::Itertools;
-use snarkvm_console::network::{Network, Testnet3};
+use snarkvm::console::network::{Network, Testnet3};
 use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
