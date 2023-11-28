@@ -157,6 +157,9 @@ features = [ "fmt" ]
 [dependencies.zip]
 version = "^0.6"
 
+[dependencies.rpassword]
+version = "7.3.1"
+
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
 

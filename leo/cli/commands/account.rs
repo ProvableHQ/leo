@@ -16,7 +16,7 @@
 
 use super::*;
 use leo_package::root::Env;
-use snarkvm::prelude::{Address, PrivateKey, ViewKey};
+use snarkvm::prelude::{Address, FromStr, PrivateKey, ViewKey};
 
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
@@ -35,8 +35,6 @@ pub enum Account {
     },
     /// Derive an Aleo account from a private key.
     Import {
-        /// Private key plaintext
-        private_key: PrivateKey<CurrentNetwork>,
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
@@ -77,7 +75,9 @@ impl Command for Account {
                     write_to_env_file(private_key, &ctx)?;
                 }
             }
-            Account::Import { private_key, write } => {
+            Account::Import { write } => {
+                let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
+                let private_key = FromStr::from_str(&private_key_input).map_err(CliError::failed_to_execute_account)?;
                 // Derive the view key and address and print to stdout.
                 print_keys(private_key)?;
 

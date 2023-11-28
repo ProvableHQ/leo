@@ -178,4 +178,11 @@ create_messages!(
         msg: format!("Failed to write file.\nIO Error: {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_execute_account {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `account` command.\nSnarkVM Error: {error}"),
+        help: None,
+    }
 );
