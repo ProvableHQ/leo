@@ -55,19 +55,18 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_assert(&mut self, input: &'a AssertStatement) -> String {
-        let mut generate_assert_instruction =
-            |name: &str, left: &'a Expression, right: &'a Expression| {
-                let (left_operand, left_instructions) = self.visit_expression(left);
-                let (right_operand, right_instructions) = self.visit_expression(right);
-                let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
+        let mut generate_assert_instruction = |name: &str, left: &'a Expression, right: &'a Expression| {
+            let (left_operand, left_instructions) = self.visit_expression(left);
+            let (right_operand, right_instructions) = self.visit_expression(right);
+            let assert_instruction = format!("    {name} {left_operand} {right_operand};\n");
 
-                // Concatenate the instructions.
-                let mut instructions = left_instructions;
-                instructions.push_str(&right_instructions);
-                instructions.push_str(&assert_instruction);
+            // Concatenate the instructions.
+            let mut instructions = left_instructions;
+            instructions.push_str(&right_instructions);
+            instructions.push_str(&assert_instruction);
 
-                instructions
-            };
+            instructions
+        };
         match &input.variant {
             AssertVariant::Assert(expr) => {
                 let (operand, mut instructions) = self.visit_expression(expr);
@@ -82,69 +81,68 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        let mut outputs =
-            match input.expression {
-                // Skip empty return statements.
-                Expression::Unit(_) => String::new(),
-                _ => {
-                    let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
-                    // Get the output type of the function.
-                    let output = if self.in_finalize {
-                        // Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
-                        self.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
-                    } else {
-                        // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-                        self.current_function.unwrap().output.iter()
-                    };
-                    // If the operand string is empty, initialize an empty vector.
-                    let operand_strings = match operand.is_empty() {
-                        true => vec![],
-                        false => operand.split(' ').collect_vec(),
-                    };
-                    let instructions = operand_strings
-                        .iter()
-                        .zip_eq(output)
-                        .map(|(operand, output)| {
-                            match output {
-                                Output::Internal(output) => {
-                                    let visibility = if self.is_transition_function {
-                                        match self.in_finalize {
-                                            // If in finalize block, the default visibility is public.
-                                            true => match output.mode {
-                                                Mode::None => Mode::Public,
-                                                mode => mode,
-                                            },
-                                            // If not in finalize block, the default visibility is private.
-                                            false => match output.mode {
-                                                Mode::None => Mode::Private,
-                                                mode => mode,
-                                            },
-                                        }
-                                    } else {
-                                        // Only program functions have visibilities associated with their outputs.
-                                        Mode::None
-                                    };
-                                    format!(
-                                        "    output {} as {};\n",
-                                        operand,
-                                        self.visit_type_with_visibility(&output.type_, visibility)
-                                    )
-                                }
-                                Output::External(output) => {
-                                    format!(
-                                        "    output {} as {}.aleo/{}.record;\n",
-                                        operand, output.program_name, output.record,
-                                    )
-                                }
+        let mut outputs = match input.expression {
+            // Skip empty return statements.
+            Expression::Unit(_) => String::new(),
+            _ => {
+                let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
+                // Get the output type of the function.
+                let output = if self.in_finalize {
+                    // Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
+                } else {
+                    // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
+                    self.current_function.unwrap().output.iter()
+                };
+                // If the operand string is empty, initialize an empty vector.
+                let operand_strings = match operand.is_empty() {
+                    true => vec![],
+                    false => operand.split(' ').collect_vec(),
+                };
+                let instructions = operand_strings
+                    .iter()
+                    .zip_eq(output)
+                    .map(|(operand, output)| {
+                        match output {
+                            Output::Internal(output) => {
+                                let visibility = if self.is_transition_function {
+                                    match self.in_finalize {
+                                        // If in finalize block, the default visibility is public.
+                                        true => match output.mode {
+                                            Mode::None => Mode::Public,
+                                            mode => mode,
+                                        },
+                                        // If not in finalize block, the default visibility is private.
+                                        false => match output.mode {
+                                            Mode::None => Mode::Private,
+                                            mode => mode,
+                                        },
+                                    }
+                                } else {
+                                    // Only program functions have visibilities associated with their outputs.
+                                    Mode::None
+                                };
+                                format!(
+                                    "    output {} as {};\n",
+                                    operand,
+                                    self.visit_type_with_visibility(&output.type_, visibility)
+                                )
                             }
-                        })
-                        .join("");
+                            Output::External(output) => {
+                                format!(
+                                    "    output {} as {}.aleo/{}.record;\n",
+                                    operand, output.program_name, output.record,
+                                )
+                            }
+                        }
+                    })
+                    .join("");
 
-                    expression_instructions.push_str(&instructions);
+                expression_instructions.push_str(&instructions);
 
-                    expression_instructions
-                }
-            };
+                expression_instructions
+            }
+        };
 
         // Initialize storage for the instructions.
         let mut instructions = String::new();

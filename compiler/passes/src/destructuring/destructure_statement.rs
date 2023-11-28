@@ -137,32 +137,29 @@ impl StatementReconstructor for Destructurer<'_> {
             ),
             // If the lhs is a tuple and the rhs is a tuple, create a new assign statement for each tuple element.
             (Expression::Tuple(lhs_tuple), Expression::Tuple(rhs_tuple)) => {
-                let statements =
-                    lhs_tuple
-                        .elements
-                        .into_iter()
-                        .zip_eq(rhs_tuple.elements)
-                        .map(|(lhs, rhs)| {
-                            // Get the type of the rhs.
-                            let type_ = match self.type_table.get(&lhs.id()) {
-                                Some(type_) => type_.clone(),
-                                None => {
-                                    unreachable!(
-                                        "Type checking guarantees that the type of the lhs is in the type table."
-                                    )
-                                }
-                            };
-                            // Set the type of the lhs.
-                            self.type_table.insert(rhs.id(), type_);
-                            // Return the assign statement.
-                            Statement::Assign(Box::new(AssignStatement {
-                                place: lhs,
-                                value: rhs,
-                                span: Default::default(),
-                                id: self.node_builder.next_id(),
-                            }))
-                        })
-                        .collect();
+                let statements = lhs_tuple
+                    .elements
+                    .into_iter()
+                    .zip_eq(rhs_tuple.elements)
+                    .map(|(lhs, rhs)| {
+                        // Get the type of the rhs.
+                        let type_ = match self.type_table.get(&lhs.id()) {
+                            Some(type_) => type_.clone(),
+                            None => {
+                                unreachable!("Type checking guarantees that the type of the lhs is in the type table.")
+                            }
+                        };
+                        // Set the type of the lhs.
+                        self.type_table.insert(rhs.id(), type_);
+                        // Return the assign statement.
+                        Statement::Assign(Box::new(AssignStatement {
+                            place: lhs,
+                            value: rhs,
+                            span: Default::default(),
+                            id: self.node_builder.next_id(),
+                        }))
+                    })
+                    .collect();
                 (Statement::dummy(Default::default(), self.node_builder.next_id()), statements)
             }
             // If the lhs is a tuple and the rhs is an identifier that is a tuple, create a new assign statement for each tuple element.

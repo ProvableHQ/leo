@@ -207,13 +207,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (expression, mut statements) = self.consume_expression(*input.expression);
 
         // Construct and accumulate a unique assignment statement storing the result of the cast expression.
-        let (place, statement) =
-            self.unique_simple_assign_statement(Expression::Cast(CastExpression {
-                expression: Box::new(expression),
-                type_: input.type_,
-                span: input.span,
-                id: input.id,
-            }));
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Cast(CastExpression {
+            expression: Box::new(expression),
+            type_: input.type_,
+            span: input.span,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -281,13 +280,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         }
 
         // Construct and accumulate a new assignment statement for the struct expression.
-        let (place, statement) =
-            self.unique_simple_assign_statement(Expression::Struct(StructExpression {
-                name: input.name,
-                span: input.span,
-                members: reordered_members,
-                id: input.id,
-            }));
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Struct(StructExpression {
+            name: input.name,
+            span: input.span,
+            members: reordered_members,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)
@@ -377,9 +375,12 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (receiver, mut statements) = self.consume_expression(*input.receiver);
 
         // Construct and accumulate a new assignment statement for the unary expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(
-            UnaryExpression { op: input.op, receiver: Box::new(receiver), span: input.span, id: input.id }
-        ));
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Unary(UnaryExpression {
+            op: input.op,
+            receiver: Box::new(receiver),
+            span: input.span,
+            id: input.id,
+        }));
         statements.push(statement);
 
         (Expression::Identifier(place), statements)

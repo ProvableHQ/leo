@@ -56,8 +56,8 @@ impl InputFile {
     pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>)> {
         let path = self.setup_file_path(path);
 
-        let input =
-            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_input_file(path.clone().into_owned()))?;
+        let input = fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_input_file(path.clone().into_owned()))?;
         Ok((input, path))
     }
 

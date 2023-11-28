@@ -87,13 +87,12 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
                 self.is_necessary = true;
 
                 // Visit the statement.
-                let statement =
-                    Statement::Assign(Box::new(AssignStatement {
-                        place: input.place,
-                        value: self.reconstruct_expression(input.value).0,
-                        span: input.span,
-                        id: input.id,
-                    }));
+                let statement = Statement::Assign(Box::new(AssignStatement {
+                    place: input.place,
+                    value: self.reconstruct_expression(input.value).0,
+                    span: input.span,
+                    id: input.id,
+                }));
 
                 // Unset the `is_necessary` flag.
                 self.is_necessary = false;
@@ -182,15 +181,14 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
         self.is_necessary = true;
 
         // Visit the statement.
-        let statement =
-            Statement::Return(ReturnStatement {
-                expression: self.reconstruct_expression(input.expression).0,
-                finalize_arguments: input.finalize_arguments.map(|arguments| {
-                    arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
-                }),
-                span: input.span,
-                id: input.id,
-            });
+        let statement = Statement::Return(ReturnStatement {
+            expression: self.reconstruct_expression(input.expression).0,
+            finalize_arguments: input.finalize_arguments.map(|arguments| {
+                arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
+            }),
+            span: input.span,
+            id: input.id,
+        });
 
         // Unset the `is_necessary` flag.
         self.is_necessary = false;

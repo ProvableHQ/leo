@@ -192,42 +192,41 @@ impl<'a> Unroller<'a> {
         self.type_table.insert(id, input.type_.clone());
 
         // Reconstruct `iteration_count` as a `Literal`.
-        let value =
-            match input.type_ {
-                Type::Integer(IntegerType::I8) => {
-                    Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::I16) => {
-                    Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::I32) => {
-                    Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::I64) => {
-                    Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::I128) => {
-                    Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::U8) => {
-                    Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::U16) => {
-                    Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::U32) => {
-                    Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::U64) => {
-                    Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
-                }
-                Type::Integer(IntegerType::U128) => {
-                    Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
-                }
-                _ => unreachable!(
-                    "The iteration variable must be an integer type. This should be enforced by type checking."
-                ),
-            };
+        let value = match input.type_ {
+            Type::Integer(IntegerType::I8) => {
+                Literal::Integer(IntegerType::I8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I16) => {
+                Literal::Integer(IntegerType::I16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I32) => {
+                Literal::Integer(IntegerType::I32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I64) => {
+                Literal::Integer(IntegerType::I64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::I128) => {
+                Literal::Integer(IntegerType::I128, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U8) => {
+                Literal::Integer(IntegerType::U8, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U16) => {
+                Literal::Integer(IntegerType::U16, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U32) => {
+                Literal::Integer(IntegerType::U32, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U64) => {
+                Literal::Integer(IntegerType::U64, iteration_count.to_string(), Default::default(), id)
+            }
+            Type::Integer(IntegerType::U128) => {
+                Literal::Integer(IntegerType::U128, iteration_count.to_string(), Default::default(), id)
+            }
+            _ => unreachable!(
+                "The iteration variable must be an integer type. This should be enforced by type checking."
+            ),
+        };
 
         // Add the loop variable as a constant for the current scope
         self.constant_propagation_table

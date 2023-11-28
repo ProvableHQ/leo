@@ -392,71 +392,68 @@ impl<'a> Flattener<'a> {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each struct member, construct a new ternary expression.
-        let members =
-            struct_
-                .members
-                .iter()
-                .map(|Member { identifier, type_, .. }| {
-                    // Create an assignment statement for the first access expression.
-                    let (first, stmt) = self.unique_simple_assign_statement(Expression::Access(
-                        AccessExpression::Member(MemberAccess {
-                            inner: Box::new(Expression::Identifier(*first)),
-                            name: *identifier,
-                            span: Default::default(),
-                            id: {
-                                // Create a new node ID for the access expression.
-                                let id = self.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.type_table.insert(id, type_.clone());
-                                id
-                            },
-                        }),
-                    ));
-                    statements.push(stmt);
-                    // Create an assignment statement for the second access expression.
-                    let (second, stmt) = self.unique_simple_assign_statement(Expression::Access(
-                        AccessExpression::Member(MemberAccess {
-                            inner: Box::new(Expression::Identifier(*second)),
-                            name: *identifier,
-                            span: Default::default(),
-                            id: {
-                                // Create a new node ID for the access expression.
-                                let id = self.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.type_table.insert(id, type_.clone());
-                                id
-                            },
-                        }),
-                    ));
-                    statements.push(stmt);
-                    // Recursively reconstruct the ternary expression.
-                    let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                        condition: Box::new(condition.clone()),
-                        // Access the member of the first expression.
-                        if_true: Box::new(Expression::Identifier(first)),
-                        // Access the member of the second expression.
-                        if_false: Box::new(Expression::Identifier(second)),
+        let members = struct_
+            .members
+            .iter()
+            .map(|Member { identifier, type_, .. }| {
+                // Create an assignment statement for the first access expression.
+                let (first, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: Box::new(Expression::Identifier(*first)),
+                        name: *identifier,
                         span: Default::default(),
                         id: {
-                            // Create a new node ID for the ternary expression.
+                            // Create a new node ID for the access expression.
                             let id = self.node_builder.next_id();
                             // Set the type of the node ID.
                             self.type_table.insert(id, type_.clone());
                             id
                         },
-                    });
-
-                    // Accumulate any statements generated.
-                    statements.extend(stmts);
-
-                    StructVariableInitializer {
-                        identifier: *identifier,
-                        expression: Some(expression),
+                    })));
+                statements.push(stmt);
+                // Create an assignment statement for the second access expression.
+                let (second, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: Box::new(Expression::Identifier(*second)),
+                        name: *identifier,
                         span: Default::default(),
-                        id: self.node_builder.next_id(),
-                    }
-                })
-                .collect();
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
+                    })));
+                statements.push(stmt);
+                // Recursively reconstruct the ternary expression.
+                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    // Access the member of the first expression.
+                    if_true: Box::new(Expression::Identifier(first)),
+                    // Access the member of the second expression.
+                    if_false: Box::new(Expression::Identifier(second)),
+                    span: Default::default(),
+                    id: {
+                        // Create a new node ID for the ternary expression.
+                        let id = self.node_builder.next_id();
+                        // Set the type of the node ID.
+                        self.type_table.insert(id, type_.clone());
+                        id
+                    },
+                });
+
+                // Accumulate any statements generated.
+                statements.extend(stmts);
+
+                StructVariableInitializer {
+                    identifier: *identifier,
+                    expression: Some(expression),
+                    span: Default::default(),
+                    id: self.node_builder.next_id(),
+                }
+            })
+            .collect();
 
         let (expr, stmts) = self.reconstruct_struct_init(StructExpression {
             name: struct_.identifier,
@@ -492,66 +489,65 @@ impl<'a> Flattener<'a> {
         // Initialize a vector to accumulate any statements generated.
         let mut statements = Vec::new();
         // For each tuple element, construct a new ternary expression.
-        let elements =
-            tuple_type
-                .elements()
-                .iter()
-                .enumerate()
-                .map(|(i, type_)| {
-                    // Create an assignment statement for the first access expression.
-                    let (first, stmt) =
-                        self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
-                            tuple: Box::new(Expression::Identifier(*first)),
-                            index: NonNegativeNumber::from(i),
-                            span: Default::default(),
-                            id: {
-                                // Create a new node ID for the access expression.
-                                let id = self.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.type_table.insert(id, type_.clone());
-                                id
-                            },
-                        })));
-                    statements.push(stmt);
-                    // Create an assignment statement for the second access expression.
-                    let (second, stmt) =
-                        self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
-                            tuple: Box::new(Expression::Identifier(*second)),
-                            index: NonNegativeNumber::from(i),
-                            span: Default::default(),
-                            id: {
-                                // Create a new node ID for the access expression.
-                                let id = self.node_builder.next_id();
-                                // Set the type of the node ID.
-                                self.type_table.insert(id, type_.clone());
-                                id
-                            },
-                        })));
-                    statements.push(stmt);
-
-                    // Recursively reconstruct the ternary expression.
-                    let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
-                        condition: Box::new(condition.clone()),
-                        // Access the member of the first expression.
-                        if_true: Box::new(Expression::Identifier(first)),
-                        // Access the member of the second expression.
-                        if_false: Box::new(Expression::Identifier(second)),
+        let elements = tuple_type
+            .elements()
+            .iter()
+            .enumerate()
+            .map(|(i, type_)| {
+                // Create an assignment statement for the first access expression.
+                let (first, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(Expression::Identifier(*first)),
+                        index: NonNegativeNumber::from(i),
                         span: Default::default(),
                         id: {
-                            // Create a new node ID for the ternary expression.
+                            // Create a new node ID for the access expression.
                             let id = self.node_builder.next_id();
                             // Set the type of the node ID.
                             self.type_table.insert(id, type_.clone());
                             id
                         },
-                    });
+                    })));
+                statements.push(stmt);
+                // Create an assignment statement for the second access expression.
+                let (second, stmt) =
+                    self.unique_simple_assign_statement(Expression::Access(AccessExpression::Tuple(TupleAccess {
+                        tuple: Box::new(Expression::Identifier(*second)),
+                        index: NonNegativeNumber::from(i),
+                        span: Default::default(),
+                        id: {
+                            // Create a new node ID for the access expression.
+                            let id = self.node_builder.next_id();
+                            // Set the type of the node ID.
+                            self.type_table.insert(id, type_.clone());
+                            id
+                        },
+                    })));
+                statements.push(stmt);
 
-                    // Accumulate any statements generated.
-                    statements.extend(stmts);
+                // Recursively reconstruct the ternary expression.
+                let (expression, stmts) = self.reconstruct_ternary(TernaryExpression {
+                    condition: Box::new(condition.clone()),
+                    // Access the member of the first expression.
+                    if_true: Box::new(Expression::Identifier(first)),
+                    // Access the member of the second expression.
+                    if_false: Box::new(Expression::Identifier(second)),
+                    span: Default::default(),
+                    id: {
+                        // Create a new node ID for the ternary expression.
+                        let id = self.node_builder.next_id();
+                        // Set the type of the node ID.
+                        self.type_table.insert(id, type_.clone());
+                        id
+                    },
+                });
 
-                    expression
-                })
-                .collect();
+                // Accumulate any statements generated.
+                statements.extend(stmts);
+
+                expression
+            })
+            .collect();
 
         // Construct the tuple expression.
         let tuple = TupleExpression {

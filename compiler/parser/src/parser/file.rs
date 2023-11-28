@@ -325,9 +325,13 @@ impl ParserContext<'_> {
         } else {
             let type_ = self.parse_type()?.0;
 
-            Ok(functions::Input::Internal(
-                FunctionInput { identifier: name, mode, type_, span: name.span, id: self.node_builder.next_id() }
-            ))
+            Ok(functions::Input::Internal(FunctionInput {
+                identifier: name,
+                mode,
+                type_,
+                span: name.span,
+                id: self.node_builder.next_id(),
+            }))
         }
     }
 
@@ -416,58 +420,56 @@ impl ParserContext<'_> {
         let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
         // Parse return type.
-        let output =
-            match self.eat(&Token::Arrow) {
-                false => vec![],
-                true => {
-                    self.disallow_struct_construction = true;
-                    let output = match self.peek_is_left_par() {
-                        true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
-                        false => vec![self.parse_output()?],
-                    };
-                    self.disallow_struct_construction = false;
-                    output
-                }
-            };
+        let output = match self.eat(&Token::Arrow) {
+            false => vec![],
+            true => {
+                self.disallow_struct_construction = true;
+                let output = match self.peek_is_left_par() {
+                    true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                    false => vec![self.parse_output()?],
+                };
+                self.disallow_struct_construction = false;
+                output
+            }
+        };
 
         // Parse the function body.
         let block = self.parse_block()?;
 
         // Parse the `finalize` block if it exists.
-        let finalize =
-            match self.eat(&Token::Finalize) {
-                false => None,
-                true => {
-                    // Get starting span.
-                    let start = self.prev_token.span;
+        let finalize = match self.eat(&Token::Finalize) {
+            false => None,
+            true => {
+                // Get starting span.
+                let start = self.prev_token.span;
 
-                    // Parse the identifier.
-                    let identifier = self.expect_identifier()?;
+                // Parse the identifier.
+                let identifier = self.expect_identifier()?;
 
-                    // Parse parameters.
-                    let (input, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
+                // Parse parameters.
+                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
 
-                    // Parse return type.
-                    let output = match self.eat(&Token::Arrow) {
-                        false => vec![],
-                        true => {
-                            self.disallow_struct_construction = true;
-                            let output = match self.peek_is_left_par() {
-                                true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
-                                false => vec![self.parse_output()?],
-                            };
-                            self.disallow_struct_construction = false;
-                            output
-                        }
-                    };
+                // Parse return type.
+                let output = match self.eat(&Token::Arrow) {
+                    false => vec![],
+                    true => {
+                        self.disallow_struct_construction = true;
+                        let output = match self.peek_is_left_par() {
+                            true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
+                            false => vec![self.parse_output()?],
+                        };
+                        self.disallow_struct_construction = false;
+                        output
+                    }
+                };
 
-                    // Parse the finalize body.
-                    let block = self.parse_block()?;
-                    let span = start + block.span;
+                // Parse the finalize body.
+                let block = self.parse_block()?;
+                let span = start + block.span;
 
-                    Some(Finalize::new(identifier, input, output, block, span, self.node_builder.next_id()))
-                }
-            };
+                Some(Finalize::new(identifier, input, output, block, span, self.node_builder.next_id()))
+            }
+        };
 
         let span = start + block.span;
         Ok((

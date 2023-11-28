@@ -235,9 +235,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));
                             }
                             None => {
-                                self.emit_err(
-                                    TypeCheckerError::could_not_determine_type(&access.inner, access.inner.span())
-                                );
+                                self.emit_err(TypeCheckerError::could_not_determine_type(
+                                    &access.inner,
+                                    access.inner.span(),
+                                ));
                             }
                         }
                     }
@@ -287,9 +288,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.
             num_elements => {
-                self.emit_err(
-                    TypeCheckerError::array_too_large(num_elements, Testnet3::MAX_ARRAY_ELEMENTS, input.span())
-                );
+                self.emit_err(TypeCheckerError::array_too_large(
+                    num_elements,
+                    Testnet3::MAX_ARRAY_ELEMENTS,
+                    input.span(),
+                ));
                 None
             }
         };

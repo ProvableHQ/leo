@@ -99,11 +99,10 @@ impl SourceMap {
 
     /// Returns a displayable representation of the `span` as a string.
     pub fn span_to_string(&self, span: Span) -> String {
-        let loc =
-            match self.span_to_location(span) {
-                None => return "no-location".to_string(),
-                Some(l) => l,
-            };
+        let loc = match self.span_to_location(span) {
+            None => return "no-location".to_string(),
+            Some(l) => l,
+        };
 
         if loc.line_start == loc.line_stop {
             format!("{}:{}-{}", loc.line_start, loc.col_start, loc.col_stop)
@@ -340,11 +339,10 @@ fn normalize_newlines(src: &mut String) {
     let mut gap_len = 0;
     let mut tail = buf.as_mut_slice();
     loop {
-        let idx =
-            match find_crlf(&tail[gap_len..]) {
-                None => tail.len(),
-                Some(idx) => idx + gap_len,
-            };
+        let idx = match find_crlf(&tail[gap_len..]) {
+            None => tail.len(),
+            Some(idx) => idx + gap_len,
+        };
         tail.copy_within(gap_len..idx, 0);
         tail = &mut tail[idx - gap_len..];
         if tail.len() == gap_len {

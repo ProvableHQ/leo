@@ -55,9 +55,10 @@ impl SymbolTable {
             variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
-            finalize: func.finalize.as_ref().map(
-                |finalize| FinalizeData { input: finalize.input.clone(), output_type: finalize.output_type.clone() }
-            ),
+            finalize: func.finalize.as_ref().map(|finalize| FinalizeData {
+                input: finalize.input.clone(),
+                output_type: finalize.output_type.clone(),
+            }),
         }
     }
 }

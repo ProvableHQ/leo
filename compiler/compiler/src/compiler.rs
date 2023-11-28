@@ -244,9 +244,12 @@ impl<'a> Compiler<'a> {
 
     /// Runs the destructuring pass.
     pub fn destructuring_pass(&mut self) -> Result<()> {
-        self.ast = Destructurer::do_pass(
-            (std::mem::take(&mut self.ast), &self.type_table, &self.node_builder, &self.assigner)
-        )?;
+        self.ast = Destructurer::do_pass((
+            std::mem::take(&mut self.ast),
+            &self.type_table,
+            &self.node_builder,
+            &self.assigner,
+        ))?;
 
         if self.compiler_options.output.destructured_ast {
             self.write_ast_to_json("destructured_ast.json")?;
