@@ -157,6 +157,9 @@ features = [ "fmt" ]
 [dependencies.zip]
 version = "^0.6"
 
+[dependencies.termion]
+version = "2.0.3"
+
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
 
