@@ -100,14 +100,10 @@ fn print_keys(private_key: PrivateKey<CurrentNetwork>) -> Result<()> {
     let address = Address::<CurrentNetwork>::try_from(&view_key)?;
 
     display_string_discreetly(
-        &private_key.to_string(), 
+        &private_key.to_string(),
         "### Do not share or lose this private key! Press any key to complete. ###",
     )?;
-    println!(
-        "\n {:>12}  {view_key}\n {:>12}  {address}\n",
-        "View Key".cyan().bold(),
-        "Address".cyan().bold(),
-    );
+    println!("\n {:>12}  {view_key}\n {:>12}  {address}\n", "View Key".cyan().bold(), "Address".cyan().bold(),);
     Ok(())
 }
 
@@ -121,10 +117,7 @@ fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> 
 }
 
 /// Print the string to an alternate screen, so that the string won't been printed to the terminal.
-fn display_string_discreetly(
-    discreet_string: &str,
-    continue_message: &str,
-) -> Result<()> {
+fn display_string_discreetly(discreet_string: &str, continue_message: &str) -> Result<()> {
     use termion::screen::IntoAlternateScreen;
     let mut screen = std::io::stdout().into_alternate_screen().unwrap();
     writeln!(screen, "{discreet_string}").unwrap();
