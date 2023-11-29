@@ -15,12 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crossterm::ExecutableCommand;
 use leo_package::root::Env;
 use snarkvm::prelude::{Address, PrivateKey, ViewKey};
 
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 
 /// Commands to manage Aleo accounts.
 #[derive(Parser, Debug)]
@@ -118,12 +119,17 @@ fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> 
 
 /// Print the string to an alternate screen, so that the string won't been printed to the terminal.
 fn display_string_discreetly(discreet_string: &str, continue_message: &str) -> Result<()> {
-    use termion::screen::IntoAlternateScreen;
-    let mut screen = std::io::stdout().into_alternate_screen().unwrap();
-    writeln!(screen, "{discreet_string}").unwrap();
-    screen.flush().unwrap();
-    println!("\n{continue_message}");
+    use crossterm::{
+        style::Print,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    };
+    let mut stdout = io::stdout();
+    stdout.execute(EnterAlternateScreen).unwrap();
+    // print msg on the alternate screen
+    stdout.execute(Print(format!("{discreet_string}\n{continue_message}"))).unwrap();
+    stdout.flush().unwrap();
     wait_for_keypress();
+    stdout.execute(LeaveAlternateScreen).unwrap();
     Ok(())
 }
 
