@@ -18,13 +18,7 @@ use super::*;
 
 use leo_ast::{NodeBuilder, Struct};
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-use leo_package::{
-    build::BuildDirectory,
-    imports::ImportsDirectory,
-    inputs::InputFile,
-    outputs::OutputsDirectory,
-    source::SourceDirectory,
-};
+use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::{symbol::with_session_globals, Symbol};
 
 use snarkvm::{
@@ -133,28 +127,6 @@ impl Command for Build {
                 self.options.clone(),
                 false,
             )?);
-        }
-
-        if !ImportsDirectory::is_empty(&package_path)? {
-            // Create Aleo build/imports/ directory.
-            let build_imports_directory = ImportsDirectory::create(&build_directory)?;
-
-            // Fetch paths to all .leo files in the imports directory.
-            let import_files = ImportsDirectory::files(&package_path)?;
-
-            // Compile all .leo files into .aleo files.
-            for file_path in import_files.into_iter() {
-                structs.extend(compile_leo_file(
-                    file_path,
-                    &package_path,
-                    program_id,
-                    &outputs_directory,
-                    &build_imports_directory,
-                    &handler,
-                    self.options.clone(),
-                    true,
-                )?);
-            }
         }
 
         // Load the input file at `package_name.in`

@@ -116,11 +116,7 @@ impl<'a> CodeGenerator<'a> {
         format!("import {}.aleo;", input.stub_id.name)
     }
 
-    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> String {
-        // Load symbols into composite mapping.
-        let _import_program_string = self.visit_program(import_program);
-        // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
-
+    fn visit_import(&mut self, import_name: &'a Symbol, _import_program: &'a Program) -> String {
         // Generate string for import statement.
         format!("import {import_name}.aleo;")
     }
