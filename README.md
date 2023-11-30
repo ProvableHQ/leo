@@ -114,10 +114,8 @@ Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 
 ## ❤️ Contributors
-Thank you for helping make Leo better!  
-[What do the emojis mean?🧐](https://allcontributors.org/docs/en/emoji-key)
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+View all Leo contributors [here](../CONTRIBUTORS.md).
 
 ## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
