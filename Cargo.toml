@@ -42,7 +42,7 @@ members = [
   "errors",
   "leo/package",
   "tests/test-framework",
-    "utils/disassembler"
+  "utils/disassembler"
 ]
 
 [workspace.dependencies.snarkvm]
