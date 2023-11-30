@@ -539,9 +539,8 @@ impl<'a> CodeGenerator<'a> {
                 {
                     Some(program) => program,
                     None => {
-                        let stub_program = self.program.stubs.get(&program_name);
-                        if let Some(stub_program_unwrapped) = stub_program {
-                            stub_scope = ProgramScope::from(stub_program_unwrapped.clone());
+                        if let Some(stub_program) = self.program.stubs.get(&program_name) {
+                            stub_scope = ProgramScope::from(stub_program.clone());
                             &stub_scope
                         } else {
                             unreachable!("Type checking guarantees that imported and stub programs are well defined.")
