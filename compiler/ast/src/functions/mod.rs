@@ -146,6 +146,7 @@ impl Function {
 
 impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
+        let finalize = function.finalize_stub.map(Finalize::from);
         Self {
             annotations: function.annotations,
             variant: function.variant,
@@ -153,8 +154,8 @@ impl From<FunctionStub> for Function {
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            block: function.block,
-            finalize: function.finalize,
+            block: Block::default(),
+            finalize,
             span: function.span,
             id: function.id,
         }

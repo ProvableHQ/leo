@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FinalizeStub, Identifier, Input, Node, NodeID, Output, TupleType, Type};
+use crate::{Identifier, Input, Node, NodeID, Output, TupleType, Type};
 
 use leo_span::Span;
 
 use core::fmt;
 use serde::{Deserialize, Serialize};
 
-/// A finalize block.
+/// A finalize stub.
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
-pub struct Finalize {
+pub struct FinalizeStub {
     /// The finalize identifier.
     pub identifier: Identifier,
     /// The finalize block's input parameters.
@@ -32,35 +32,26 @@ pub struct Finalize {
     pub output: Vec<Output>,
     /// The finalize block's output type.
     pub output_type: Type,
-    /// The body of the function.
-    pub block: Block,
-    /// The entire span of the finalize block.
+    /// The entire span of the finalize stub.
     pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
 }
 
-impl Finalize {
-    /// Create a new finalize block.
-    pub fn new(
-        identifier: Identifier,
-        input: Vec<Input>,
-        output: Vec<Output>,
-        block: Block,
-        span: Span,
-        id: NodeID,
-    ) -> Self {
+impl FinalizeStub {
+    /// Create a new finalize stub.
+    pub fn new(identifier: Identifier, input: Vec<Input>, output: Vec<Output>, span: Span, id: NodeID) -> Self {
         let output_type = match output.len() {
             0 => Type::Unit,
             1 => output[0].type_(),
             _ => Type::Tuple(TupleType::new(output.iter().map(|output| output.type_()).collect())),
         };
 
-        Self { identifier, input, output, output_type, block, span, id }
+        Self { identifier, input, output, output_type, span, id }
     }
 }
 
-impl fmt::Display for Finalize {
+impl fmt::Display for FinalizeStub {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
         let returns = match self.output.len() {
@@ -68,21 +59,8 @@ impl fmt::Display for Finalize {
             1 => self.output[0].to_string(),
             _ => format!("({})", self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")),
         };
-        write!(f, " finalize {}({parameters}) -> {returns} {}", self.identifier, self.block)
+        write!(f, " finalize {}({parameters}) -> {returns}", self.identifier)
     }
 }
 
-impl From<FinalizeStub> for Finalize {
-    fn from(finalize_stub: FinalizeStub) -> Self {
-        Self::new(
-            finalize_stub.identifier,
-            finalize_stub.input,
-            finalize_stub.output,
-            Block::default(),
-            finalize_stub.span,
-            finalize_stub.id,
-        )
-    }
-}
-
-crate::simple_node_impl!(Finalize);
+crate::simple_node_impl!(FinalizeStub);

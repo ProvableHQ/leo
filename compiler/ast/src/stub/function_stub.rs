@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Annotation, Block, Finalize, Function, Identifier, Input, Node, NodeID, Output, TupleType, Type, Variant};
+use crate::{finalize_stub::*, Annotation, Identifier, Input, Node, NodeID, Output, TupleType, Type, Variant};
 use leo_span::{sym, Span, Symbol};
 
 use serde::{Deserialize, Serialize};
@@ -35,10 +35,8 @@ pub struct FunctionStub {
     pub output: Vec<Output>,
     /// The function's output type.
     pub output_type: Type,
-    /// The body of the function.
-    pub block: Block,
-    /// An optional finalize block
-    pub finalize: Option<Finalize>,
+    /// An optional finalize stub
+    pub finalize_stub: Option<FinalizeStub>,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -62,8 +60,7 @@ impl FunctionStub {
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
-        block: Block,
-        finalize: Option<Finalize>,
+        finalize_stub: Option<FinalizeStub>,
         span: Span,
         id: NodeID,
     ) -> Self {
@@ -79,7 +76,7 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
+        FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
     }
 
     /// Returns function name.
@@ -109,30 +106,13 @@ impl FunctionStub {
             1 => self.output[0].to_string(),
             _ => self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","),
         };
-        write!(f, "({parameters}) -> {returns} {}", self.block)?;
+        write!(f, "({parameters}) -> {returns}")?;
 
-        if let Some(finalize) = &self.finalize {
+        if let Some(finalize) = &self.finalize_stub {
             let parameters = finalize.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-            write!(f, " finalize ({parameters}) {}", finalize.block)
+            write!(f, " finalize ({parameters})")
         } else {
             Ok(())
-        }
-    }
-}
-
-impl From<Function> for FunctionStub {
-    fn from(function: Function) -> Self {
-        Self {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block: function.block,
-            finalize: function.finalize,
-            span: function.span,
-            id: function.id,
         }
     }
 }
