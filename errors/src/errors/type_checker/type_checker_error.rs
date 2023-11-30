@@ -688,7 +688,7 @@ create_messages!(
     @formatted
     stub_functions_must_not_be_inlines {
         args: (),
-        msg: format!("Function stubs must be transitions or function variants not inlines"),
+        msg: format!("Function stubs must be transitions or functions not inlines"),
         help: None,
     }
 
