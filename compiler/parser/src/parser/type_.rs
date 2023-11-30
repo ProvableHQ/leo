@@ -81,13 +81,24 @@ impl ParserContext<'_> {
         if let Some(ident) = self.eat_identifier() {
             // Check if using external type
             let file_type = self.look_ahead(1, |t| &t.token);
-            if &self.token.token == &Token::Dot && (file_type == &Token::Leo || file_type == &Token::Aleo) {
-                return Err(ParserError::external_type_cannot_be_used_inside_function(
-                    ident,
-                    file_type,
-                    self.token.span,
-                )
-                .into());
+            if self.token.token == Token::Dot && (file_type == &Token::Aleo) {
+                // Only allow `.aleo` as the network identifier
+                if file_type == &Token::Leo {
+                    return Err(ParserError::invalid_network(self.token.span).into());
+                }
+
+                // Parse `.aleo/`
+                self.expect(&Token::Dot)?;
+                self.expect(&Token::Aleo)?;
+                self.expect(&Token::Div)?;
+
+                // Parse the record name
+                if let Some(record_name) = self.eat_identifier() {
+                    // Return the external type
+                    return Ok((Type::Identifier(record_name), ident.span + record_name.span));
+                } else {
+                    return Err(ParserError::invalid_external_type(self.token.span).into());
+                }
             }
 
             Ok((Type::Identifier(ident), ident.span))
