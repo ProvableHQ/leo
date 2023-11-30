@@ -454,7 +454,7 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Consider chainging this to a warning.
+    // TODO: Consider changing this to a warning.
 
     @formatted
     assign_unit_expression_to_variable {
@@ -686,13 +686,6 @@ create_messages!(
     }
 
     @formatted
-    stubs_can_only_have_records_and_transitions {
-        args: (found: impl Display),
-        msg: format!("Stubs can only have records, transitions, functions and imports -- found {found}"),
-        help: None,
-    }
-
-    @formatted
     stub_functions_must_not_be_inlines {
         args: (),
         msg: format!("Function stubs must be transitions or function variants not inlines"),
@@ -703,13 +696,6 @@ create_messages!(
     stub_functions_must_be_empty {
         args: (),
         msg: format!("Functions stubs must be empty"),
-        help: None,
-    }
-
-    @formatted
-    stub_functions_must_have_no_finalize {
-        args: (),
-        msg: format!("Function stubs must not have finalize blocks"),
         help: None,
     }
 
@@ -738,6 +724,20 @@ create_messages!(
     array_element_cannot_be_record {
         args: (),
         msg: format!("An array cannot have a record as an element type"),
+        help: None,
+    }
+
+    @formatted
+    stubs_cannot_have_non_record_structs {
+        args: (),
+        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct"),
+        help: None,
+    }
+
+    @formatted
+    stubs_cannot_have_const_declarations {
+        args: (),
+        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"),
         help: None,
     }
 );
