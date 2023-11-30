@@ -14,7 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{finalize_stub::*, Annotation, Identifier, Input, Node, NodeID, Output, TupleType, Type, Variant};
+use crate::{
+    finalize_stub::*,
+    Annotation,
+    External,
+    Function,
+    FunctionInput,
+    FunctionOutput,
+    Identifier,
+    Input,
+    Mode,
+    Node,
+    NodeID,
+    Output,
+    ProgramId,
+    TupleType,
+    Type,
+    Variant,
+};
 use leo_span::{sym, Span, Symbol};
 
 use crate::Type::Identifier as IdentifierType;
@@ -133,8 +150,7 @@ impl From<Function> for FunctionStub {
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            block: function.block,
-            finalize: function.finalize,
+            finalize_stub: function.finalize.map(FinalizeStub::from),
             span: function.span,
             id: function.id,
         }
@@ -196,10 +212,9 @@ impl<N: Network, Instruction: InstructionTrait<N>> From<&ClosureCore<N, Instruct
                 .collect_vec(),
             output: outputs,
             output_type,
-            block: Block { statements: Vec::new(), span: Default::default(), id: Default::default() },
-            finalize: None,
             span: Default::default(),
             id: Default::default(),
+            finalize_stub: None,
         }
     }
 }
@@ -312,8 +327,7 @@ impl<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>
                 .collect_vec(),
             output: outputs,
             output_type,
-            block: Block { statements: Vec::new(), span: Default::default(), id: Default::default() },
-            finalize: None,
+            finalize_stub: function.finalize_logic().map(FinalizeStub::from),
             span: Default::default(),
             id: Default::default(),
         }

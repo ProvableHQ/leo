@@ -51,11 +51,11 @@ impl fmt::Display for Stub {
         for import in self.imports.iter() {
             writeln!(f, "    import {import}")?;
         }
-        for (_, struct_) in self.structs.iter() {
-            writeln!(f, "    {struct_}")?;
-        }
         for (_, mapping) in self.mappings.iter() {
             writeln!(f, "    {mapping}")?;
+        }
+        for (_, struct_) in self.structs.iter() {
+            writeln!(f, "    {struct_}")?;
         }
         for (_, function) in self.functions.iter() {
             writeln!(f, "    {function}")?;

@@ -14,12 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Input, Node, NodeID, Output, TupleType, Type};
+use crate::{Finalize, FunctionInput, Identifier, Input, Mode, Node, NodeID, Output, TupleType, Type};
 
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use core::fmt;
 use serde::{Deserialize, Serialize};
+use snarkvm::{
+    prelude::{
+        FinalizeType::{Future, Plaintext},
+        Network,
+    },
+    synthesizer::program::{CommandTrait, FinalizeCore},
+};
 
 /// A finalize stub.
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq, Debug)]
@@ -48,6 +55,34 @@ impl FinalizeStub {
         };
 
         Self { identifier, input, output, output_type, span, id }
+    }
+}
+
+impl<N: Network, Command: CommandTrait<N>> From<&FinalizeCore<N, Command>> for FinalizeStub {
+    fn from(finalize: &FinalizeCore<N, Command>) -> Self {
+        let mut inputs = Vec::new();
+
+        finalize.inputs().iter().enumerate().for_each(|(index, input)| {
+            let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+            match input.finalize_type() {
+                Plaintext(val) => inputs.push(Input::Internal(FunctionInput {
+                    identifier: arg_name,
+                    mode: Mode::None,
+                    type_: Type::from(val),
+                    span: Default::default(),
+                    id: Default::default(),
+                })),
+                Future(_) => {} // Don't need to worry about nested futures
+            }
+        });
+
+        Self::new(Identifier::from(finalize.name()), inputs, Vec::new(), Default::default(), Default::default())
+    }
+}
+
+impl From<Finalize> for FinalizeStub {
+    fn from(finalize: Finalize) -> Self {
+        Self::new(finalize.identifier, finalize.input, finalize.output, Default::default(), Default::default())
     }
 }
 
