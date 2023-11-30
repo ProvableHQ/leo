@@ -128,7 +128,6 @@ pub enum Token {
     Mapping,
     Private,
     Program,
-    Stub,
 
     // Public inputs.
     Public,
@@ -188,7 +187,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Scalar,
     Token::String,
     Token::Struct,
-    Token::Stub,
     Token::Then,
     Token::Transition,
     Token::True,
@@ -248,7 +246,6 @@ impl Token {
             Token::SelfLower => sym::SelfLower,
             Token::String => sym::string,
             Token::Struct => sym::Struct,
-            Token::Stub => sym::stub,
             Token::Then => sym::then,
             Token::Transition => sym::transition,
             Token::True => sym::True,
@@ -371,7 +368,6 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             SelfLower => write!(f, "self"),
             Struct => write!(f, "struct"),
-            Stub => write!(f, "stub"),
             Then => write!(f, "then"),
             Transition => write!(f, "transition"),
             Block => write!(f, "block"),
