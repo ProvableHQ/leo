@@ -1,4 +1,5 @@
-## ❤️ Contributors
+# ❤️ Contributors
+
 Thank you for helping make Leo better!  
 [What do the emojis mean?🧐](https://allcontributors.org/docs/en/emoji-key)
 
