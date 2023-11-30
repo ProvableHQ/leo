@@ -81,26 +81,19 @@ impl ParserContext<'_> {
         // Parse `foo`.
         let import_name = self.expect_identifier()?;
 
-        // Parse `.leo`.
+        // Parse `.aleo`.
         self.expect(&Token::Dot)?;
-        if !self.eat(&Token::Leo) {
-            // Throw error for non-leo files.
-            return Err(ParserError::leo_imports_only(self.token.span).into());
+
+        if !self.eat(&Token::Aleo) {
+            // Throw error for non-aleo files.
+            return Err(ParserError::invalid_network(self.token.span).into());
         }
 
         let end = self.expect(&Token::Semicolon)?;
 
-        // Tokenize and parse import file.
-        // Todo: move this to a different module.
-        let mut import_file_path =
-            std::env::current_dir().map_err(|err| CompilerError::cannot_open_cwd(err, self.token.span))?;
-        import_file_path.push("imports");
-        import_file_path.push(format!("{}.leo", import_name.name));
-
-        // Throw an error if the import file doesn't exist.
-        if !import_file_path.exists() {
-            return Err(CompilerError::import_not_found(import_file_path.display(), self.prev_token.span).into());
-        }
+        // Return the import name and the span.
+        Ok((import_name.name, (Program::default(), start + end)))
+    }
 
         // Read the import file into string.
         // Todo: protect against cyclic imports.
