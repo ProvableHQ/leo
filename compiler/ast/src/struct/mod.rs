@@ -125,7 +125,7 @@ impl<N: Network> From<&RecordType<N>> for Struct {
                     .entries()
                     .iter()
                     .map(|(id, entry)| Member {
-                        mode: Mode::None,
+                        mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
                         identifier: Identifier::from(id),
                         type_: match entry {
                             Public(t) => Type::from(t),
