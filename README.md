@@ -115,7 +115,7 @@ Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
 
 ## ❤️ Contributors
 
-View all Leo contributors [here](../CONTRIBUTORS.md).
+View all Leo contributors [here](./CONTRIBUTORS.md).
 
 ## 🛡️ License
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE.md)
