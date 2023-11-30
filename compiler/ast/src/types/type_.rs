@@ -137,7 +137,7 @@ impl<N: Network> From<&PlaintextType<N>> for Type {
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
             Struct(s) => Type::Identifier(common::Identifier::from(s)),
-            Array(_) => panic!("Array type not supported"),
+            Array(array) => Type::Array(ArrayType::from(array)),
         }
     }
 }
