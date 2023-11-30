@@ -15,17 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::parse_ast;
-use leo_errors::{CompilerError, ParserError, Result};
-use leo_span::{source_map::FileName, symbol::with_session_globals};
 
-use std::fs;
+use leo_errors::{ParserError, Result};
 
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = IndexMap::new();
-        let mut stubs: IndexMap<Symbol, Stub> = IndexMap::new();
         let mut program_scopes = IndexMap::new();
 
         // TODO: Remove restrictions on multiple program scopes
@@ -36,10 +32,6 @@ impl ParserContext<'_> {
                 Token::Import => {
                     let (id, import) = self.parse_import()?;
                     imports.insert(id, import);
-                }
-                Token::Stub => {
-                    let (id, stub) = self.parse_stub()?;
-                    stubs.insert(id, stub);
                 }
                 Token::Program => {
                     match parsed_program_scope {
@@ -61,7 +53,7 @@ impl ParserContext<'_> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, stubs, program_scopes })
+        Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -95,25 +87,11 @@ impl ParserContext<'_> {
         Ok((import_name.name, (Program::default(), start + end)))
     }
 
-        // Read the import file into string.
-        // Todo: protect against cyclic imports.
-        let program_string =
-            fs::read_to_string(&import_file_path).map_err(|e| CompilerError::file_read_error(&import_file_path, e))?;
+    /// Parses a program scope `program foo.aleo { ... }`.
+    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
+        // Parse `program` keyword.
+        let start = self.expect(&Token::Program)?;
 
-        // Create import file name.
-        let name: FileName = FileName::Real(import_file_path);
-
-        // Register the source (`program_string`) in the source map.
-        let prg_sf = with_session_globals(|s| s.source_map.new_source(&program_string, name));
-
-        // Use the parser to construct the imported abstract syntax tree (ast).
-        let program_ast = parse_ast(self.handler, self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
-
-        Ok((import_name.name, (program_ast.into_repr(), start + end)))
-    }
-
-    /// Parses a program body `credits.aleo { ... }`
-    fn parse_program_body(&mut self, start: Span) -> Result<(ProgramScope, Vec<Identifier>)> {
         // Parse the program name.
         let name = self.expect_identifier()?;
 
@@ -121,7 +99,7 @@ impl ParserContext<'_> {
         self.expect(&Token::Dot)?;
 
         // Otherwise throw parser error
-        self.expect(&Token::Aleo).or_else(|_| Err(ParserError::invalid_network(self.token.span)))?;
+        self.expect(&Token::Aleo).map_err(|_| ParserError::invalid_network(self.token.span))?;
 
         // Construct the program id.
         let program_id =
@@ -135,18 +113,9 @@ impl ParserContext<'_> {
         let mut functions: Vec<(Symbol, Function)> = Vec::new();
         let mut structs: Vec<(Symbol, Struct)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
-        let mut imports: Vec<Identifier> = Vec::new();
 
         while self.has_next() {
             match &self.token.token {
-                Token::Import => {
-                    self.expect(&Token::Import)?;
-                    let import_name = self.expect_identifier()?;
-                    self.expect(&Token::Dot)?;
-                    self.expect(&Token::Aleo)?;
-                    self.expect(&Token::Semicolon)?;
-                    imports.push(import_name);
-                }
                 Token::Const => {
                     let declaration = self.parse_const_declaration_statement()?;
                     consts.push((Symbol::intern(&declaration.place.to_string()), declaration));
@@ -182,39 +151,7 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok((ProgramScope { program_id, consts, functions, structs, mappings, span: start + end }, imports))
-    }
-
-    /// Parses a stub `stub credits.aleo { ... }`.
-    fn parse_stub(&mut self) -> Result<(Symbol, Stub)> {
-        // Parse `stub` keyword.
-        let start = self.expect(&Token::Stub)?;
-        let (program_body, imports) = self.parse_program_body(start)?;
-
-        Ok((program_body.program_id.name.name, Stub {
-            imports,
-            stub_id: program_body.program_id,
-            consts: program_body.consts,
-            structs: program_body.structs,
-            mappings: program_body.mappings,
-            functions: program_body
-                .functions
-                .into_iter()
-                .map(|(symbol, function)| (symbol, FunctionStub::from(function)))
-                .collect(),
-            span: program_body.span,
-        }))
-    }
-
-    /// Parses a program scope `program foo.aleo { ... }`.
-    fn parse_program_scope(&mut self) -> Result<ProgramScope> {
-        // Parse `program` keyword.
-        let start = self.expect(&Token::Program)?;
-        let (program_scope, imports) = self.parse_program_body(start)?;
-        if imports.len() != 0 {
-            self.emit_err(ParserError::cannot_import_inside_program_body(self.token.span));
-        }
-        Ok(program_scope)
+        Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
@@ -269,6 +206,13 @@ impl ParserContext<'_> {
     pub(super) fn parse_struct(&mut self) -> Result<(Symbol, Struct)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Struct, Token::Record])?;
+
+        // Check if using external type
+        let file_type = self.look_ahead(1, |t| &t.token);
+        if self.token.token == Token::Dot && (file_type == &Token::Aleo) {
+            return Err(ParserError::cannot_declare_external_struct(self.token.span).into());
+        }
+
         let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
