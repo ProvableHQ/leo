@@ -15,13 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm::{
-    prelude::{Itertools, Network},
-    synthesizer::program::{CommandTrait, InstructionTrait, ProgramCore},
+    prelude::{Itertools, Network, Testnet3},
+    synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
 };
+use std::str::FromStr;
+type CurrentNetwork = Testnet3;
 
-use leo_ast::{FunctionStub, Identifier, ProgramId, Struct, Stub};
-
-fn main() {}
+use leo_ast::{FunctionStub, Identifier, Mapping, ProgramId, Struct, Stub};
+use leo_errors::UtilError;
 
 pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
     program: ProgramCore<N, Instruction, Command>,
@@ -35,7 +36,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
             program.records().iter().map(|(id, s)| (Identifier::from(id).name, Struct::from(s))).collect_vec(),
         ]
         .concat(),
-        mappings: Vec::new(),
+        mappings: program.mappings().into_iter().map(|(id, m)| (Identifier::from(id).name, Mapping::from(m))).collect(),
         functions: [
             program
                 .closures()
@@ -53,22 +54,25 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
     }
 }
 
+pub fn disassemble_from_str(program: String) -> Result<Stub, UtilError> {
+    match Program::<CurrentNetwork>::from_str(&program) {
+        Ok(p) => Ok(disassemble(p)),
+        Err(_) => Err(UtilError::snarkvm_parsing_error(Default::default())),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use leo_span::symbol::create_session_if_not_set_then;
     use snarkvm::{prelude::Testnet3, synthesizer::program::Program};
-    use std::str::FromStr;
 
     type CurrentNetwork = Testnet3;
 
     #[test]
     fn credits_test() {
         create_session_if_not_set_then(|_| {
-            let aleo_prog_1 =
-                std::fs::read_to_string("/Users/evanschott/work/leo/utils/disassembler/src/tests/credits.aleo")
-                    .unwrap();
-            let program = Program::<CurrentNetwork>::from_str(&aleo_prog_1);
+            let program = Program::<CurrentNetwork>::credits();
             match program {
                 Ok(p) => {
                     let disassembled = disassemble(p);
