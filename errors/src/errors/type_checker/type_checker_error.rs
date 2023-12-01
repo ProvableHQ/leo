@@ -534,9 +534,9 @@ create_messages!(
     }
 
     @formatted
-    function_cannot_output_record {
+    function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("A `function` cannot output a record."),
+        msg: format!("A `function` cannot have a record as input or output."),
         help: None,
     }
 
@@ -688,7 +688,7 @@ create_messages!(
     @formatted
     stub_functions_must_not_be_inlines {
         args: (),
-        msg: format!("Function stubs must be transitions or function variants not inlines"),
+        msg: format!("Function stubs must be transitions or functions not inlines"),
         help: None,
     }
 

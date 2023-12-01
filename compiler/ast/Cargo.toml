@@ -18,6 +18,9 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.69"
 
+[dependencies.snarkvm]
+workspace = true
+
 [dependencies.leo-errors]
 path = "../../errors"
 version = "=1.10.0"

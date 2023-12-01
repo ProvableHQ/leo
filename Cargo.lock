@@ -824,6 +824,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "disassembler"
+version = "1.10.0"
+dependencies = [
+ "leo-ast",
+ "leo-errors",
+ "leo-span",
+ "snarkvm",
+]
+
+[[package]]
 name = "doc-comment"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1380,6 +1390,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
+ "snarkvm",
 ]
 
 [[package]]

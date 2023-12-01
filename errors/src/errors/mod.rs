@@ -50,8 +50,11 @@ pub use self::parser::*;
 
 /// Contains the Type Checker error definitions.
 pub mod type_checker;
-
 pub use self::type_checker::*;
+
+/// Contains the Utils error definitions.
+pub mod utils;
+pub use self::utils::*;
 
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
@@ -88,6 +91,9 @@ pub enum LeoError {
     /// not re-displaying an error.
     #[error("")]
     LastErrorCode(i32),
+    /// Represents a Utils Error in a Leo Error
+    #[error(transparent)]
+    UtilError(#[from] UtilError),
     /// Anyhow errors.
     #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
@@ -108,6 +114,7 @@ impl LeoError {
             TypeCheckerError(error) => error.error_code(),
             LoopUnrollerError(error) => error.error_code(),
             FlattenError(error) => error.error_code(),
+            UtilError(error) => error.error_code(),
             LastErrorCode(_) => unreachable!(),
             Anyhow(_) => unimplemented!(), // todo: implement error codes for snarkvm errors.
         }
@@ -127,6 +134,7 @@ impl LeoError {
             TypeCheckerError(error) => error.exit_code(),
             LoopUnrollerError(error) => error.exit_code(),
             FlattenError(error) => error.exit_code(),
+            UtilError(error) => error.exit_code(),
             LastErrorCode(code) => *code,
             Anyhow(_) => unimplemented!(), // todo: implement exit codes for snarkvm errors.
         }

@@ -1170,6 +1170,15 @@ impl<'a> TypeChecker<'a> {
                 _ => {} // Do nothing.
             }
 
+            // If the function is not a transition function, then it cannot have a record as input
+            if let Type::Identifier(identifier) = input_var.type_() {
+                if let Some(val) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                    if val.is_record && !matches!(function.variant, Variant::Transition) {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
+                    }
+                }
+            }
+
             // Check for conflicting variable names.
             if let Err(err) =
                 self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
@@ -1190,7 +1199,7 @@ impl<'a> TypeChecker<'a> {
                     // If the function is not a transition function, then it cannot output a record.
                     // Note that an external output must always be a record.
                     if !matches!(function.variant, Variant::Transition) {
-                        self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
                     }
                     // Otherwise, do not type check external record function outputs.
                     // TODO: Verify that this is not needed when the import system is updated.
@@ -1203,7 +1212,9 @@ impl<'a> TypeChecker<'a> {
                             if !matches!(function.variant, Variant::Transition)
                                 && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
                             {
-                                self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
+                                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
+                                    function_output.span,
+                                ));
                             }
                         }
                     }

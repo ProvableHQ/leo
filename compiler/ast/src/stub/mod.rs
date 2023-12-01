@@ -21,7 +21,7 @@ pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{ConstDeclaration, Identifier, Mapping, ProgramId, Struct};
+use crate::{ConstDeclaration, Mapping, ProgramId, Struct};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -30,7 +30,7 @@ use std::fmt;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Stub {
     /// A vector of imported programs.
-    pub imports: Vec<Identifier>,
+    pub imports: Vec<ProgramId>,
     /// The stub id
     pub stub_id: ProgramId,
     /// A vector of const definitions.
@@ -48,15 +48,19 @@ pub struct Stub {
 impl fmt::Display for Stub {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "stub {} {{", self.stub_id)?;
-        for (_, struct_) in self.structs.iter() {
-            writeln!(f, "    {struct_}")?;
+        for import in self.imports.iter() {
+            writeln!(f, "    import {import}")?;
         }
         for (_, mapping) in self.mappings.iter() {
             writeln!(f, "    {mapping}")?;
         }
+        for (_, struct_) in self.structs.iter() {
+            writeln!(f, "    {struct_}")?;
+        }
         for (_, function) in self.functions.iter() {
             writeln!(f, "    {function}")?;
         }
+        writeln!(f, "}}")?;
         Ok(())
     }
 }
