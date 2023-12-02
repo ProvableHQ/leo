@@ -205,8 +205,11 @@ impl Retriever {
                 entry.dependencies.clone().iter().for_each(|dep| {
                     if !self.explored.contains(dep) {
                         dependencies.push(dep.clone());
-                        self.dependency_graph
-                            .add_edge(Symbol::intern(&program.name.clone()), Symbol::intern(&dep.name.clone()));
+                        // Trim off `.aleo` from end of the program names to be consistent with formatting in AST
+                        self.dependency_graph.add_edge(
+                            Symbol::intern(&program.name.clone()[..program.name.len() - 5]),
+                            Symbol::intern(&dep.name.clone()[..dep.name.len() - 5]),
+                        );
                     }
                 });
 
@@ -222,15 +225,23 @@ impl Retriever {
             programs_to_retrieve = dependencies;
         }
 
-        // Check for dependency cycles
-        match self.dependency_graph.post_order() {
-            Ok(_) => (),
-            Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
-        }
-
         // Write the finalized dependency information to `leo.lock`
         self.write_lock_file()?;
-        Ok(self.stubs.clone())
+
+        // Check for dependency cycles
+        match self.dependency_graph.post_order() {
+            Ok(order) => {
+                // Return stubs in post order
+                Ok(order
+                    .iter()
+                    .map(|id| match self.stubs.get(id) {
+                        Some(s) => (*id, s.clone()),
+                        None => panic!("Stub {id} not found"),
+                    })
+                    .collect())
+            }
+            Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
+        }
     }
 
     // Write lock file
@@ -271,7 +282,6 @@ fn retrieve_from_network(
     let registry_directory = &format!("{}/.aleo/registry/{}", env::var("HOME").unwrap(), network);
     let path_str = &format!("{}/{}", registry_directory, name);
     let path = Path::new(&path_str);
-    dbg!(path);
     let mut file_str: String;
     if !path.exists() {
         // Create directories along the way if they don't exist
