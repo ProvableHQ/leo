@@ -74,4 +74,39 @@ create_messages!(
         msg: format!("Duplicate dependency found: {dependency}"),
         help: None,
     }
+
+    @backtraced
+    reqwest_error {
+        args: (error: impl Display),
+        msg: format!("{}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_open_file {
+        args: (error: impl Display),
+        msg: format!("Failed to open file {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_read_file {
+        args: (error: impl Display),
+        msg: format!("Failed to read file {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_deserialize_file {
+        args: (error: impl Display),
+        msg: format!("Failed to deserialize file {error}"),
+        help: None,
+    }
+
+    @formatted
+    failed_to_retrieve_dependencies {
+        args: (error: impl Display),
+        msg: format!("Failed to retrieve dependencies. {error}"),
+        help: None,
+    }
 );

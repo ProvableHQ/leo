@@ -27,6 +27,7 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+use leo_errors::UtilError;
 use std::{
     io::Write,
     path::{Path, PathBuf},
@@ -127,7 +128,6 @@ impl Command for Build {
                 &build_directory,
                 &handler,
                 self.options.clone(),
-                false,
             )?);
         }
 
@@ -183,7 +183,6 @@ fn compile_leo_file(
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-    is_import: bool,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
@@ -191,28 +190,19 @@ fn compile_leo_file(
 
     // If the program is an import, construct program name from file_path
     // Otherwise, use the program_id found in `package.json`.
-    let program_name = match is_import {
-        false => program_id.name().to_string(),
-        true => file_name.strip_suffix(".leo").ok_or_else(PackageError::failed_to_get_file_name)?.to_string(),
-    };
+    let program_name = program_id.name().to_string();
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(match is_import {
-        true => format!("{program_name}.{}", program_id.network()),
-        false => format!("main.{}", program_id.network()),
-    });
+    aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Retrieve dependencies from `program.json`
     let mut retriever = Retriever::new(package_path)
-        .map_err(|err| CliError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
     // Only retrieve dependencies for main leo program
-    let stubs: IndexMap<Symbol, Stub> = if is_import {
-        IndexMap::new()
-    } else {
-        retriever.retrieve().map_err(|err| CliError::failed_to_retrieve_dependencies(err, Default::default()))?
-    };
+    let stubs: IndexMap<Symbol, Stub> =
+        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
