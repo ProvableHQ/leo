@@ -32,7 +32,7 @@ pub enum AccessExpression {
     /// Access to an associated function of a struct e.g `Pedersen64::hash()`.
     AssociatedFunction(AssociatedFunction),
     /// An expression accessing a field in a structure, e.g., `struct_var.field`.
-    Member(MemberAccess),
+    Member(MemberAccess), 
     /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),
 }
@@ -81,13 +81,12 @@ impl Node for AccessExpression {
 
 impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use AccessExpression::*;
         match self {
-            Array(access) => access.fmt(f),
-            AssociatedConstant(access) => access.fmt(f),
-            AssociatedFunction(access) => access.fmt(f),
-            Member(access) => access.fmt(f),
-            Tuple(access) => access.fmt(f),
+            Self::Array(access) => access.fmt(f),
+            Self::AssociatedConstant(access) => access.fmt(f),
+            Self::AssociatedFunction(access) => access.fmt(f),
+            Self::Member(access) => access.fmt(f),
+            Self::Tuple(access) => access.fmt(f),
         }
     }
 }
