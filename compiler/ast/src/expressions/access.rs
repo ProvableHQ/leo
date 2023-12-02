@@ -83,14 +83,12 @@ impl Node for AccessExpression {
 
 impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use Self::*;
         match self {
-            Array(access) => access.fmt(f),
-            AssociatedConstant(access) => access.fmt(f),
-            AssociatedFunction(access) => access.fmt(f),
-            Member(access) => access.fmt(f),
-            Tuple(access) => access.fmt(f),
+            Self::Array(access) => access.fmt(f),
+            Self::AssociatedConstant(access) => access.fmt(f),
+            Self::AssociatedFunction(access) => access.fmt(f),
+            Self::Member(access) => access.fmt(f),
+            Self::Tuple(access) => access.fmt(f),
         }
     }
 }
-
