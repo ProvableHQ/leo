@@ -28,7 +28,7 @@ use sha2::{Digest, Sha256};
 use std::{fs, path::PathBuf};
 
 use crate::CompilerOptions;
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
@@ -329,8 +329,8 @@ impl<'a> Compiler<'a> {
     pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
         // Parse the program.
         self.parse_program()?;
-        // Merge stubs
-        self.add_import_stubs();
+        // Copy the dependencies specified in `program.json` into the AST.
+        self.add_import_stubs()?;
         // Run the intermediate compiler stages.
         let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
         // Run code generation.
@@ -370,13 +370,39 @@ impl<'a> Compiler<'a> {
     }
 
     /// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
-    fn add_import_stubs(&mut self) {
-        for (symbol, stub) in self.import_stubs.iter() {
-            // Only add in the ones explicitly imported in `.leo` file
-            if self.ast.ast.stubs.contains_key(symbol) {
-                self.ast.ast.stubs.remove(symbol);
-                self.ast.ast.stubs.insert(*symbol, stub.clone());
+    fn add_import_stubs(&mut self) -> Result<()> {
+        // Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
+        let (mut unexplored, mut explored): (IndexSet<Symbol>, IndexSet<Symbol>) =
+            (self.ast.ast.imports.keys().cloned().collect(), IndexSet::new());
+        while !unexplored.is_empty() {
+            let mut current_dependencies: IndexSet<Symbol> = IndexSet::new();
+            for program_name in unexplored.iter() {
+                if let Some(stub) = self.import_stubs.get(program_name) {
+                    // Add the program to the explored set
+                    explored.insert(*program_name);
+                    for dependency in stub.imports.iter() {
+                        // If dependency is already explored then don't need to re-explore it
+                        if explored.insert(dependency.name.name) {
+                            current_dependencies.insert(dependency.name.name);
+                        }
+                    }
+                } else {
+                    return Err(CompilerError::imported_program_not_found(
+                        self.program_name.clone(),
+                        *program_name,
+                        self.ast.ast.imports[program_name].1,
+                    )
+                    .into());
+                }
             }
+
+            // Create next batch to explore
+            unexplored = current_dependencies;
         }
+
+        // Combine the dependencies from `program.json` and `.leo` file while preserving the post-order
+        self.ast.ast.stubs =
+            self.import_stubs.clone().into_iter().filter(|(program_name, _)| explored.contains(program_name)).collect();
+        Ok(())
     }
 }
