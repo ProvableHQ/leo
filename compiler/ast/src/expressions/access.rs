@@ -1,5 +1,7 @@
+// License Information:
 // Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
+
 
 // The Leo library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -81,12 +83,14 @@ impl Node for AccessExpression {
 
 impl fmt::Display for AccessExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Self::*;
         match self {
-            Self::Array(access) => access.fmt(f),
-            Self::AssociatedConstant(access) => access.fmt(f),
-            Self::AssociatedFunction(access) => access.fmt(f),
-            Self::Member(access) => access.fmt(f),
-            Self::Tuple(access) => access.fmt(f),
+            Array(access) => access.fmt(f),
+            AssociatedConstant(access) => access.fmt(f),
+            AssociatedFunction(access) => access.fmt(f),
+            Member(access) => access.fmt(f),
+            Tuple(access) => access.fmt(f),
         }
     }
 }
+
