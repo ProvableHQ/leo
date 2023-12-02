@@ -2186,7 +2186,7 @@ dependencies = [
 
 [[package]]
 name = "retriever"
-version = "0.1.0"
+version = "1.10.0"
 dependencies = [
  "disassembler",
  "indexmap 1.9.3",
@@ -2198,7 +2198,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "tempfile",
- "toml 0.8.6",
+ "toml 0.8.8",
  "ureq",
 ]
 
