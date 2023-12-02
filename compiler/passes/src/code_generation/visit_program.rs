@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CodeGenerator, DiGraph};
+use crate::CodeGenerator;
 
 use leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
 use itertools::Itertools;
 use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
@@ -28,67 +28,10 @@ impl<'a> CodeGenerator<'a> {
         // Accumulate instructions into a program string.
         let mut program_string = String::new();
 
-        if !input.imports.is_empty() {
-            // Visit each import statement and produce a Aleo import instruction.
-            program_string.push_str(
-                &input
-                    .imports
-                    .iter()
-                    .map(|(identifier, (imported_program, _))| self.visit_import(identifier, imported_program))
-                    .join("\n"),
-            );
-
-            // Newline separator.
-            program_string.push('\n');
-        }
-
-        // Create directed graph representation of program dependencies.
-        let (mut dependency_graph, mut unexplored, mut explored): (
-            DiGraph<Symbol>,
-            IndexSet<Symbol>,
-            IndexSet<Symbol>,
-        ) = (DiGraph::new(IndexSet::new()), input.stubs.keys().cloned().collect(), IndexSet::new());
-        while !unexplored.is_empty() {
-            let mut current_dependencies: IndexSet<Symbol> = IndexSet::new();
-            for program_name in unexplored.iter() {
-                // Not all dependencies will be represented as stubs, only the ones directly interacted with by `.leo` program
-                if let Some(stub) = input.stubs.get(program_name) {
-                    // Add the program to the explored set
-                    explored.insert(*program_name);
-                    for dependency in stub.imports.iter() {
-                        dependency_graph.add_edge(*program_name, dependency.name.name);
-                        // Mark each dependency the first time it is seen
-                        if explored.insert(dependency.name.name) {
-                            current_dependencies.insert(dependency.name.name);
-                        }
-                    }
-                }
-            }
-
-            // Create next batch to explore
-            unexplored = current_dependencies;
-        }
-
-        // Writes imports in post order to program string. This ordering is enforced by snarkVM.
-        program_string.push_str(
-            &dependency_graph
-                .post_order()
-                .expect("Retriever module ensures that dependency graph does not contain cycle")
-                .iter()
-                .map(|program_name| {
-                    // After all the iterations explored will have all the programs that have no dependencies themselves
-                    explored.remove(program_name);
-                    format!("import {}.aleo;", program_name)
-                })
-                .join("\n"),
-        );
-
-        // Can add in anything in explored but not in DiGraph keys as well
-        program_string
-            .push_str(&explored.iter().map(|program_name| format!("import {}.aleo;", program_name)).join("\n"));
-
-        // Newline separator.
-        program_string.push('\n');
+        // Print out the dependencies of the program. Already arranged in post order by Retriever module.
+        input.stubs.iter().for_each(|(program_name, _)| {
+            program_string.push_str(&format!("import {}.aleo;\n", program_name));
+        });
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
@@ -155,15 +98,6 @@ impl<'a> CodeGenerator<'a> {
         );
 
         program_string
-    }
-
-    fn visit_stub(&mut self, input: &'a Stub) -> String {
-        format!("import {}.aleo;", input.stub_id.name)
-    }
-
-    fn visit_import(&mut self, import_name: &'a Symbol, _import_program: &'a Program) -> String {
-        // Generate string for import statement.
-        format!("import {import_name}.aleo;")
     }
 
     fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {
