@@ -43,3 +43,5 @@ features = [ "derive", "rc" ]
 
 [dependencies.thiserror]
 version = "1.0.49"
+[dependencies]
+reqwest = "0.11.22"

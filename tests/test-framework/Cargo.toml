@@ -29,6 +29,9 @@ version = "=1.10.0"
 [dependencies.backtrace]
 version = "0.3.68"
 
+[dependencies.indexmap]
+version = "1.9"
+
 [dependencies.clap]
 version = "4.4"
 features = [ "derive" ]

@@ -16,7 +16,7 @@
 
 use super::*;
 
-use leo_ast::{NodeBuilder, Struct};
+use leo_ast::{NodeBuilder, Struct, Stub};
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
 use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::{symbol::with_session_globals, Symbol};
@@ -27,10 +27,13 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+use leo_errors::UtilError;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+
+use retriever::Retriever;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -125,7 +128,6 @@ impl Command for Build {
                 &build_directory,
                 &handler,
                 self.options.clone(),
-                false,
             )?);
         }
 
@@ -175,13 +177,12 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    _package_path: &Path,
+    package_path: &Path,
     program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-    is_import: bool,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
@@ -189,17 +190,19 @@ fn compile_leo_file(
 
     // If the program is an import, construct program name from file_path
     // Otherwise, use the program_id found in `package.json`.
-    let program_name = match is_import {
-        false => program_id.name().to_string(),
-        true => file_name.strip_suffix(".leo").ok_or_else(PackageError::failed_to_get_file_name)?.to_string(),
-    };
+    let program_name = program_id.name().to_string();
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(match is_import {
-        true => format!("{program_name}.{}", program_id.network()),
-        false => format!("main.{}", program_id.network()),
-    });
+    aleo_file_path.push(format!("main.{}", program_id.network()));
+
+    // Retrieve dependencies from `program.json`
+    let mut retriever = Retriever::new(package_path)
+        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+
+    // Only retrieve dependencies for main leo program
+    let stubs: IndexMap<Symbol, Stub> =
+        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
@@ -209,6 +212,7 @@ fn compile_leo_file(
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
+        stubs,
     );
 
     // Compile the Leo program into Aleo instructions.

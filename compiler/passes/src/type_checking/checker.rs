@@ -60,8 +60,6 @@ pub struct TypeChecker<'a> {
 
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
-    /// Whether or not we are currently traversing an imported program.
-    pub(crate) is_imported: bool,
     /// Whether or not we are currently traversing a return statement.
     pub(crate) is_return: bool,
 }
@@ -129,7 +127,6 @@ impl<'a> TypeChecker<'a> {
             has_return: false,
             has_finalize: false,
             is_finalize: false,
-            is_imported: false,
             is_return: false,
         }
     }

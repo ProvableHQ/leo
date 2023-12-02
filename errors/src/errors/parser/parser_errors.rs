@@ -215,10 +215,10 @@ create_messages!(
     }
 
     @formatted
-    leo_imports_only {
+    leo_and_aleo_imports_only {
         args: (),
-        msg: "Invalid import call to non-leo file.",
-        help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
+        msg: "Invalid import call to non-leo non-aleo file.",
+        help: Some("Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported.".to_string()),
     }
 
     @formatted
@@ -289,14 +289,6 @@ create_messages!(
     tuple_index_must_be_whole_number {
         args: (found: impl Display),
         msg: format!("expected no underscores or leading zeros -- found '{found}'"),
-        help: None,
-    }
-
-    /// Enforce that empty functions cannot have finalize functions attached to them
-    @formatted
-    empty_function_cannot_have_finalize {
-        args: (),
-        msg: format!("Empty functions cannot have finalize functions attached to them."),
         help: None,
     }
 

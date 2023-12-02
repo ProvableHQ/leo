@@ -28,25 +28,7 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
-        match self.is_imported {
-            // If the program is imported, then it is not allowed to import any other programs.
-            true => {
-                input.imports.values().for_each(|(_, span)| {
-                    self.emit_err(TypeCheckerError::imported_program_cannot_import_program(*span))
-                });
-            }
-            // Otherwise, typecheck the imported programs.
-            false => {
-                // Set `self.is_imported`.
-                let previous_is_imported = core::mem::replace(&mut self.is_imported, true);
-
-                // Typecheck the imported programs.
-                input.imports.values().for_each(|import| self.visit_import(&import.0));
-
-                // Set `self.is_imported` to its previous state.
-                self.is_imported = previous_is_imported;
-            }
-        }
+        // Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
 
         // Typecheck the program's stubs.
         input.stubs.values().for_each(|stub| self.visit_stub(stub));
@@ -102,11 +84,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_stub(&mut self, input: &'a Struct) {
-        // Allow records only.
-        if !input.is_record {
-            self.emit_err(TypeCheckerError::stubs_cannot_have_non_record_structs(input.span));
-        }
-
         self.visit_struct(input);
     }
 

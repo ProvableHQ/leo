@@ -133,3 +133,30 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Update { command } => command.try_execute(context),
     }
 }
+
+#[test]
+pub fn build_nested_test() -> Result<()> {
+    use leo_span::symbol::create_session_if_not_set_then;
+    use std::env;
+    const BUILD_DIRECTORY: &str = "utils/tmp/nested";
+
+    let cli = CLI {
+        debug: false,
+        quiet: false,
+        command: Commands::Build { command: Build { options: Default::default() } },
+        path: Some(PathBuf::from(BUILD_DIRECTORY)),
+    };
+
+    // Set $HOME to tmp directory so that tests do not modify users real home directory
+    let original_home = env::var("HOME").unwrap();
+    env::set_var("HOME", "utils/tmp");
+
+    create_session_if_not_set_then(|_| {
+        run_with_args(cli).expect("Failed to run build command");
+    });
+
+    // Reset $HOME
+    env::set_var("HOME", original_home);
+
+    Ok(())
+}

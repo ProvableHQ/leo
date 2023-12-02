@@ -42,7 +42,8 @@ members = [
   "errors",
   "leo/package",
   "tests/test-framework",
-  "utils/disassembler"
+  "utils/disassembler",
+  "utils/retriever"
 ]
 
 [workspace.dependencies.snarkvm]
@@ -84,6 +85,10 @@ version = "=1.10.0"
 path = "./compiler/span"
 version = "=1.10.0"
 
+[dependencies.retriever]
+path = "./utils/retriever"
+version = "1.10.0"
+
 [dependencies.backtrace]
 version = "0.3.68"
 
@@ -122,10 +127,6 @@ default-features = false
 
 [dependencies.rand_core]
 version = "0.6.4"
-
-[dependencies.reqwest]
-version = "0.11.22"
-features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
 version = "0.39.0"

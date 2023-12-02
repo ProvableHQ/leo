@@ -21,7 +21,7 @@ pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{ConstDeclaration, Mapping, ProgramId, Struct};
+use crate::{ConstDeclaration, Identifier, Mapping, NodeID, ProgramId, Struct};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -43,6 +43,24 @@ pub struct Stub {
     pub functions: Vec<(Symbol, FunctionStub)>,
     /// The span associated with the stub.
     pub span: Span,
+}
+
+impl Default for Stub {
+    /// Constructs an empty program stub
+    fn default() -> Self {
+        Self {
+            imports: Vec::new(),
+            stub_id: ProgramId {
+                name: Identifier::new(Symbol::intern(""), NodeID::default()),
+                network: Identifier::new(Symbol::intern(""), NodeID::default()),
+            },
+            consts: Vec::new(),
+            structs: Vec::new(),
+            mappings: Vec::new(),
+            functions: Vec::new(),
+            span: Span::default(),
+        }
+    }
 }
 
 impl fmt::Display for Stub {

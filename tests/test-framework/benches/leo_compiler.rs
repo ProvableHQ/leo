@@ -16,6 +16,7 @@
 
 //! This file contains tools for benchmarking the Leo compiler and its stages.
 
+use indexmap::IndexMap;
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions, OutputOptions};
 use leo_errors::emitter::{Emitter, Handler};
 use leo_span::{source_map::FileName, symbol::SESSION_GLOBALS};
@@ -105,6 +106,7 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
                 dce_ast: false,
             },
         }),
+        IndexMap::new(),
     )
 }
 

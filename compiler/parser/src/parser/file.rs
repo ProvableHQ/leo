@@ -412,7 +412,7 @@ impl ParserContext<'_> {
         };
 
         // Parse the function body. Allow empty blocks. `fn foo(a:u8);`
-        let (has_empty_block, block) = match &self.token.token {
+        let (_has_empty_block, block) = match &self.token.token {
             Token::LeftCurly => (false, self.parse_block()?),
             Token::Semicolon => {
                 let semicolon = self.expect(&Token::Semicolon)?;
@@ -425,11 +425,6 @@ impl ParserContext<'_> {
         let finalize = match self.eat(&Token::Finalize) {
             false => None,
             true => {
-                // Make sure has function body. Don't want `fn foo(); finalize foo { ... }` to be valid parsing.
-                if has_empty_block {
-                    return Err(ParserError::empty_function_cannot_have_finalize(self.token.span).into());
-                }
-
                 // Get starting span.
                 let start = self.prev_token.span;
 
