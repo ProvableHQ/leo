@@ -79,7 +79,7 @@ leo
 
 ## 🚀 Quick Start
 
-Use the Leo CLI to create a new project
+Use the Leo CLI to create a new project:
 
 ```bash
 # create a new `hello-world` Leo project
@@ -110,7 +110,7 @@ If the issue still persists, please [open an issue](https://github.com/AleoHQ/le
 
 ## 🤝 Contributing
  
-Please see our guidelines in the [developer documentation](./CONTRIBUTING.md)
+Please see our guidelines in the [developer documentation](./CONTRIBUTING.md).
 
 
 ## ❤️ Contributors
