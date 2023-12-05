@@ -111,7 +111,7 @@ jobs:
           name: leo new
           command: |
             export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-new.sh
+            timeout 30m ./project/.circleci/leo-new.sh
 
   leo-clean:
     docker:
