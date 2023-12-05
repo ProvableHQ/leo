@@ -173,7 +173,7 @@ impl StatementReconstructor for Destructurer<'_> {
                 let statements = lhs_tuple
                     .elements
                     .into_iter()
-                    .zip_eq(rhs_tuple.elements.into_iter())
+                    .zip_eq(rhs_tuple.elements)
                     .map(|(lhs, rhs)| {
                         // Get the type of the rhs.
                         let type_ = match self.type_table.get(&lhs.id()) {
