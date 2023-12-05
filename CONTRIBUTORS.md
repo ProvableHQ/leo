@@ -668,7 +668,11 @@ AlexZhao6666</b></sub></a><br /><a href="https://github.com/AlexZhao6666/double-
           <a href="https://all-contributors.js.org/docs/en/bot/usage">Add your contributions</a>
         </img>
       </td>
-    </tr>
+ <tr>
+   <td align="center" valign="top" width="14.28%"><a href="https://github.com/wnhedaxx"><img src="https://avatars.githubusercontent.com/u/70830772?s=400&u=2ed023fa0865132977919170696b9503aa8a2107&v=4" width="100px;" alt="wnhedaxx"/><br /><sub><b>
+wnhedaxx</b></sub></a><br /><a href=https://github.com/wnhedaxx/badges.#degodsaleo title="Content">🖋</a></td> 
+ </tr>  
+</tr>
   </tfoot>
 </table>
 
