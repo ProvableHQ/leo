@@ -57,7 +57,7 @@ impl<N: Network> From<&ConsoleArrayType<N>> for ArrayType {
     fn from(array_type: &ConsoleArrayType<N>) -> Self {
         Self {
             element_type: Box::new(Type::from(array_type.next_element_type())),
-            length: NonNegativeNumber::from(array_type.length().to_string()),
+            length: NonNegativeNumber::from(array_type.length().to_string().replace("u32", "")),
         }
     }
 }
