@@ -93,7 +93,6 @@ pub struct Retriever {
     path: PathBuf,
     lock_file: IndexMap<Program, LockContents>,
     stubs: IndexMap<Symbol, Stub>,
-    explored: IndexSet<Program>,
     dependency_graph: DiGraph<Symbol>,
 }
 
@@ -171,7 +170,6 @@ impl Retriever {
             path: path.to_path_buf(),
             stubs: IndexMap::new(),
             lock_file: lock_file_map,
-            explored: IndexSet::new(),
             dependency_graph: DiGraph::new(IndexSet::new()),
         })
     }
@@ -179,6 +177,8 @@ impl Retriever {
     // Retrieve all dependencies for a program
     pub fn retrieve(&mut self) -> Result<IndexMap<Symbol, Stub>, UtilError> {
         let mut programs_to_retrieve = self.programs.clone();
+        let mut explored: IndexSet<Program> = IndexSet::new();
+        let mut solo_programs: IndexSet<Symbol> = IndexSet::new();
 
         while !programs_to_retrieve.is_empty() {
             let (mut results, mut dependencies) = (Vec::new(), Vec::new());
@@ -195,7 +195,7 @@ impl Retriever {
                 }
 
                 // Mark as visited
-                if !self.explored.insert(program.clone()) {
+                if !explored.insert(program.clone()) {
                     Err(UtilError::circular_dependency_error(Default::default()))?;
                 }
             }
@@ -203,7 +203,7 @@ impl Retriever {
             for (stub, program, entry) in results {
                 // Add dependencies to list of dependencies
                 entry.dependencies.clone().iter().for_each(|dep| {
-                    if !self.explored.contains(dep) {
+                    if !explored.contains(dep) {
                         dependencies.push(dep.clone());
                         // Trim off `.aleo` from end of the program names to be consistent with formatting in AST
                         self.dependency_graph.add_edge(
@@ -212,6 +212,11 @@ impl Retriever {
                         );
                     }
                 });
+
+                // Add programs that do not have any dependencies to list of solo programs since they are not being added to dependency graph
+                if entry.dependencies.is_empty() {
+                    solo_programs.insert(Symbol::intern(&program.name.clone()[..program.name.len() - 5]));
+                }
 
                 // Add stub to list of stubs
                 if let Some(existing) = self.stubs.insert(stub.stub_id.name.name, stub.clone()) {
@@ -231,14 +236,27 @@ impl Retriever {
         // Check for dependency cycles
         match self.dependency_graph.post_order() {
             Ok(order) => {
-                // Return stubs in post order
-                Ok(order
+                // Collect all the stubs in the order specified by the dependency graph
+                let mut stubs: IndexMap<Symbol, Stub> = order
                     .iter()
                     .map(|id| match self.stubs.get(id) {
                         Some(s) => (*id, s.clone()),
                         None => panic!("Stub {id} not found"),
                     })
-                    .collect())
+                    .collect();
+
+                // Add all the stubs that do not have any dependencies
+                solo_programs.iter().for_each(|id| {
+                    match self.stubs.get(id) {
+                        Some(s) => {
+                            if stubs.insert(*id, s.clone()).is_some() {
+                                panic!("Stub {id} cannot both have dependencies and not have dependencies")
+                            }
+                        }
+                        None => panic!("Stub {id} not found"),
+                    };
+                });
+                Ok(stubs)
             }
             Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
         }
@@ -366,6 +384,24 @@ mod tests {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
+        });
+
+        // Reset $HOME
+        env::set_var("HOME", original_home);
+    }
+
+    #[test]
+    fn temp_dir_parent_test() {
+        // Set $HOME to tmp directory so that tests do not modify users real home directory
+        let original_home = env::var("HOME").unwrap();
+        env::set_var("HOME", "../tmp");
+
+        // Test pulling nested dependencies from network
+        const BUILD_DIRECTORY: &str = "../tmp/parent";
+        create_session_if_not_set_then(|_| {
+            let build_dir = PathBuf::from(BUILD_DIRECTORY);
+            let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
+            let _stubs = retriever.retrieve().expect("failed to retrieve");
         });
 
         // Reset $HOME
