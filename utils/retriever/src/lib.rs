@@ -371,4 +371,22 @@ mod tests {
         // Reset $HOME
         env::set_var("HOME", original_home);
     }
+
+    #[test]
+    fn temp_dir_parent_test() {
+        // Set $HOME to tmp directory so that tests do not modify users real home directory
+        let original_home = env::var("HOME").unwrap();
+        env::set_var("HOME", "../tmp");
+
+        // Test pulling nested dependencies from network
+        const BUILD_DIRECTORY: &str = "../tmp/parent";
+        create_session_if_not_set_then(|_| {
+            let build_dir = PathBuf::from(BUILD_DIRECTORY);
+            let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
+            let _stubs = retriever.retrieve().expect("failed to retrieve");
+        });
+
+        // Reset $HOME
+        env::set_var("HOME", original_home);
+    }
 }
