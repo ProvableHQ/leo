@@ -519,7 +519,6 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let (mut call_instruction, has_finalize) = match &input.external {
             Some(external) => {
@@ -531,6 +530,7 @@ impl<'a> CodeGenerator<'a> {
                 };
                 let stub_scope: ProgramScope;
                 // Lookup the imported program scope.
+                // TODO: Needs refactor. All imports are stubs now.
                 let imported_program_scope = match self
                     .program
                     .imports
