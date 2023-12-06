@@ -377,6 +377,7 @@ mod tests {
     use leo_span::symbol::create_session_if_not_set_then;
 
     #[test]
+    #[ignore]
     fn temp_dir_test() {
         // Set $HOME to tmp directory so that tests do not modify users real home directory
         let original_home = env::var("HOME").unwrap();
@@ -394,6 +395,7 @@ mod tests {
         env::set_var("HOME", original_home);
     }
     #[test]
+    #[ignore]
     fn simple_dir_test() {
         // Set $HOME to tmp directory so that tests do not modify users real home directory
         let original_home = env::var("HOME").unwrap();

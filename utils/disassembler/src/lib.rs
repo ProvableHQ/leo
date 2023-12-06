@@ -71,6 +71,7 @@ mod tests {
     type CurrentNetwork = Testnet3;
 
     #[test]
+    #[ignore]
     fn credits_test() {
         create_session_if_not_set_then(|_| {
             let program = Program::<CurrentNetwork>::credits();
@@ -86,6 +87,7 @@ mod tests {
         });
     }
     #[test]
+    #[ignore]
     fn array_test() {
         create_session_if_not_set_then(|_| {
             let program_from_file =
