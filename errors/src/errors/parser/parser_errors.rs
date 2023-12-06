@@ -328,4 +328,11 @@ create_messages!(
         msg: format!("Cannot use import inside program body."),
         help: None,
     }
+
+    @formatted
+    only_aleo_external_calls {
+        args: (),
+        msg: format!("Only external calls to aleo programs are supported."),
+        help: None,
+    }
 );

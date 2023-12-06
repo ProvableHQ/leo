@@ -740,4 +740,11 @@ create_messages!(
         msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"),
         help: None,
     }
+
+    @formatted
+    stub_name_mismatch {
+        args: (stub_name: impl Display, program_name: impl Display),
+        msg: format!("`stub` name `{stub_name}` does not match program name `{program_name}`"),
+        help: Some("Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file.".to_string()),
+    }
 );
