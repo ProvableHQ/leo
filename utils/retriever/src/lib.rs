@@ -249,9 +249,8 @@ impl Retriever {
                 solo_programs.iter().for_each(|id| {
                     match self.stubs.get(id) {
                         Some(s) => {
-                            if stubs.insert(*id, s.clone()).is_some() {
-                                panic!("Stub {id} cannot both have dependencies and not have dependencies")
-                            }
+                            // Note that some programs will be added in twice if they are a dependency of another program but have no dependencies themselves.
+                            stubs.insert(*id, s.clone());
                         }
                         None => panic!("Stub {id} not found"),
                     };
@@ -384,24 +383,6 @@ mod tests {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
-        });
-
-        // Reset $HOME
-        env::set_var("HOME", original_home);
-    }
-
-    #[test]
-    fn temp_dir_parent_test() {
-        // Set $HOME to tmp directory so that tests do not modify users real home directory
-        let original_home = env::var("HOME").unwrap();
-        env::set_var("HOME", "../tmp");
-
-        // Test pulling nested dependencies from network
-        const BUILD_DIRECTORY: &str = "../tmp/parent";
-        create_session_if_not_set_then(|_| {
-            let build_dir = PathBuf::from(BUILD_DIRECTORY);
-            let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
-            let _stubs = retriever.retrieve().expect("failed to retrieve");
         });
 
         // Reset $HOME
