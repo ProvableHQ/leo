@@ -40,7 +40,7 @@ struct ProgramSpecification {
     version: String,
     description: String,
     license: String,
-    dependencies: Vec<Program>,
+    dependencies: Option<Vec<Program>>,
 }
 
 // Retrievable locations for an external program
@@ -165,8 +165,13 @@ impl Retriever {
         let program_data: ProgramSpecification = serde_json::from_str(&content)
             .map_err(|err| UtilError::json_serialization_error(err, Default::default()))?;
 
+        let dependencies = match program_data.dependencies {
+            Some(deps) => deps,
+            None => Vec::new(),
+        };
+
         Ok(Self {
-            programs: program_data.dependencies,
+            programs: dependencies,
             path: path.to_path_buf(),
             stubs: IndexMap::new(),
             lock_file: lock_file_map,
@@ -379,6 +384,23 @@ mod tests {
 
         // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/nested";
+        create_session_if_not_set_then(|_| {
+            let build_dir = PathBuf::from(BUILD_DIRECTORY);
+            let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
+            retriever.retrieve().expect("failed to retrieve");
+        });
+
+        // Reset $HOME
+        env::set_var("HOME", original_home);
+    }
+    #[test]
+    fn simple_dir_test() {
+        // Set $HOME to tmp directory so that tests do not modify users real home directory
+        let original_home = env::var("HOME").unwrap();
+        env::set_var("HOME", "../tmp");
+
+        // Test pulling nested dependencies from network
+        const BUILD_DIRECTORY: &str = "../tmp/simple";
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let mut retriever = Retriever::new(&build_dir).expect("Failed to build retriever");
