@@ -31,7 +31,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
 
         // Typecheck the program's stubs.
-        input.stubs.values().for_each(|stub| self.visit_stub(stub));
+        input.stubs.iter().for_each(|(symbol, stub)| {
+            if symbol != &stub.stub_id.name.name {
+                self.emit_err(TypeCheckerError::stub_name_mismatch(
+                    symbol,
+                    stub.stub_id.name,
+                    stub.stub_id.network.span,
+                ));
+            }
+            self.visit_stub(stub)
+        });
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
@@ -63,8 +72,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Enter the function's scope.
         self.enter_scope(function_index);
 
+        // Create a new child scope for the function's parameters and body.
+        let scope_index = self.create_child_scope();
+
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(&Function::from(input.clone()));
+
+        // Exit the scope for the function's parameters and body.
+        self.exit_scope(scope_index);
 
         // Check that the finalize scope is valid
         if input.finalize_stub.is_some() {
