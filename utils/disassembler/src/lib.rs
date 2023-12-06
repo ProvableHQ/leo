@@ -90,9 +90,7 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let program_from_file =
                 fs::read_to_string("../tmp/.aleo/registry/testnet3/zk_bitwise_stack_v0_0_2.aleo").unwrap();
-            dbg!(program_from_file.clone());
-            let program = disassemble_from_str(program_from_file).unwrap();
-            dbg!(program);
+            let _program = disassemble_from_str(program_from_file).unwrap();
         });
     }
 }
