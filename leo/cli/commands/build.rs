@@ -27,13 +27,11 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
-use leo_errors::UtilError;
+
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-use retriever::Retriever;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -92,6 +90,7 @@ impl Command for Build {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the package path.
         let package_path = context.dir()?;
+        let _home_path = context.home()?;
 
         // Get the program id.
         let manifest = context.open_manifest()?;
@@ -118,16 +117,21 @@ impl Command for Build {
         // Store all struct declarations made in the source files.
         let mut structs = IndexMap::new();
 
+        // Recursively retrieve all local dependencies in post order
+        // let mut retriever = Retriever::new(program_id.name().name().clone(), &package_path, &home_path)
+        //     .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        // let local_dependencies = retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+
         // Compile all .leo files into .aleo files.
         for file_path in source_files.into_iter() {
             structs.extend(compile_leo_file(
                 file_path,
-                &package_path,
                 program_id,
                 &outputs_directory,
                 &build_directory,
                 &handler,
                 self.options.clone(),
+                IndexMap::new(), // TODO: Replace this
             )?);
         }
 
@@ -177,32 +181,23 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    package_path: &Path,
     program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
+    stubs: IndexMap<Symbol, Stub>,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
         file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
 
-    // If the program is an import, construct program name from file_path
-    // Otherwise, use the program_id found in `package.json`.
+    // Construct program name from the program_id found in `package.json`.
     let program_name = program_id.name().to_string();
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
     aleo_file_path.push(format!("main.{}", program_id.network()));
-
-    // Retrieve dependencies from `program.json`
-    let mut retriever = Retriever::new(package_path)
-        .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-
-    // Only retrieve dependencies for main leo program
-    let stubs: IndexMap<Symbol, Stub> =
-        retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
