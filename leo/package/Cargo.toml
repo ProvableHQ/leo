@@ -18,6 +18,10 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.69"
 
+[dependencies.aleo-std]
+version = "0.1.18"
+default-features = false
+
 [dependencies.snarkvm]
 workspace = true
 

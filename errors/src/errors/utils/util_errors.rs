@@ -109,4 +109,18 @@ create_messages!(
         msg: format!("Failed to retrieve dependencies. {error}"),
         help: None,
     }
+
+    @formatted
+    missing_network_error {
+        args: (dependency: impl Display),
+        msg: format!("Dependency {dependency} is missing a network specification"),
+        help: Some("Add a network specification to the dependency in the `program.json` file. Example: `network: \"testnet3\"`".to_string()),
+    }
+
+    @formatted
+    missing_path_error {
+        args: (dependency: impl Display),
+        msg: format!("Local dependency {dependency} is missing a path specification"),
+        help: Some("Add a path in the `program.json` file to the dependency project root . Example: `path: \"../../board\"`".to_string()),
+    }
 );

@@ -61,6 +61,10 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
+[dependencies.aleo-std]
+version = "0.1.18"
+default-features = false
+
 [dependencies.leo-ast]
 path = "./compiler/ast"
 version = "=1.10.0"
