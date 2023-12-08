@@ -36,6 +36,9 @@ pub struct CLI {
 
     #[clap(long, global = true, help = "Optional path to Leo program root folder")]
     path: Option<PathBuf>,
+
+    #[clap(long, global = true, help = "Optional path to aleo program registry.")]
+    pub home: Option<PathBuf>,
 }
 
 ///Leo compiler and package manager
@@ -105,7 +108,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
-    let context = handle_error(Context::new(cli.path));
+    let context = handle_error(Context::new(cli.path, cli.home));
 
     match cli.command {
         Commands::Account { command } => command.try_execute(context),
@@ -137,26 +140,21 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 #[test]
 pub fn build_nested_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
-    use std::env;
+
     const BUILD_DIRECTORY: &str = "utils/tmp/nested";
+    const HOME_DIRECTORY: &str = "utils/tmp/.aleo/registry";
 
     let cli = CLI {
         debug: false,
         quiet: false,
         command: Commands::Build { command: Build { options: Default::default() } },
         path: Some(PathBuf::from(BUILD_DIRECTORY)),
+        home: Some(PathBuf::from(HOME_DIRECTORY)),
     };
-
-    // Set $HOME to tmp directory so that tests do not modify users real home directory
-    let original_home = env::var("HOME").unwrap();
-    env::set_var("HOME", "utils/tmp");
 
     create_session_if_not_set_then(|_| {
         run_with_args(cli).expect("Failed to run build command");
     });
-
-    // Reset $HOME
-    env::set_var("HOME", original_home);
 
     Ok(())
 }
