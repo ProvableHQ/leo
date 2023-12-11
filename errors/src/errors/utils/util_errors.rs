@@ -28,8 +28,8 @@ create_messages!(
 
     @formatted
     util_file_io_error {
-        args: (error: impl ErrorArg),
-        msg: format!("File system io error: {error}"),
+        args: (msg: impl Display, err: impl ErrorArg),
+        msg: format!("File system io error: {msg}. Error: {err}"),
         help: None,
     }
 
@@ -122,5 +122,26 @@ create_messages!(
         args: (dependency: impl Display),
         msg: format!("Local dependency {dependency} is missing a path specification"),
         help: Some("Add a path in the `program.json` file to the dependency project root . Example: `path: \"../../board\"`".to_string()),
+    }
+
+    @formatted
+    program_name_mismatch_error {
+        args: (program_json_name: impl Display, dep_name: impl Display, path: impl Display),
+        msg: format!("Name mismatch: Local program at path `{path}` is named `{program_json_name}` in `program.json` but `{dep_name}` in the program that imports it"),
+        help: Some("Change one of the names to match the other".to_string()),
+    }
+
+    @formatted
+    snarkvm_error_building_program_id {
+        args: (),
+        msg: format!("Snarkvm error building program id"),
+        help: None,
+    }
+
+    @formatted
+    failed_to_retrieve_from_endpoint {
+        args: (endpoint: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to retrieve from endpoint `{endpoint}`. Error: {error}"),
+        help: None,
     }
 );
