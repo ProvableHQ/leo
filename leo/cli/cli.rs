@@ -141,15 +141,15 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 pub fn build_nested_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
 
-    const BUILD_DIRECTORY: &str = "utils/tmp/nested";
-    const HOME_DIRECTORY: &str = "utils/tmp/.aleo";
+    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("nested");
+    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
 
     let cli = CLI {
         debug: false,
         quiet: false,
         command: Commands::Build { command: Build { options: Default::default() } },
-        path: Some(PathBuf::from(BUILD_DIRECTORY)),
-        home: Some(PathBuf::from(HOME_DIRECTORY)),
+        path: Some(build_dir),
+        home: Some(home_dir),
     };
 
     create_session_if_not_set_then(|_| {
@@ -163,15 +163,15 @@ pub fn build_nested_test() -> Result<()> {
 pub fn mixed_local_network_build_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
 
-    const BUILD_DIRECTORY: &str = "utils/tmp/local_test";
-    const HOME_DIRECTORY: &str = "utils/tmp/.aleo";
+    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("local_test");
+    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
 
     let cli = CLI {
         debug: false,
         quiet: false,
         command: Commands::Build { command: Build { options: Default::default() } },
-        path: Some(PathBuf::from(BUILD_DIRECTORY)),
-        home: Some(PathBuf::from(HOME_DIRECTORY)),
+        path: Some(build_dir),
+        home: Some(home_dir),
     };
 
     create_session_if_not_set_then(|_| {

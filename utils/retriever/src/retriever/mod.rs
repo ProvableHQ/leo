@@ -22,8 +22,12 @@ use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;
 
 use crate::{Dependency, Location, LockFileEntry, Manifest, Network, ProgramContext};
-use std::{fs, fs::File, io::Read, path::PathBuf};
-use std::path::Path;
+use std::{
+    fs,
+    fs::File,
+    io::Read,
+    path::{Path, PathBuf},
+};
 
 const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
 
@@ -65,12 +69,10 @@ impl Retriever {
         // Loop retrieving all nested dependencies for the current set of dependencies
         // Only adding non-duplicates to be searched in the future
         while !unexplored.is_empty() {
-            println!("new round:{:?}", unexplored);
             let mut new_unexplored: IndexSet<Symbol> = IndexSet::new();
             let mut new_contexts: IndexMap<Symbol, ProgramContext> = IndexMap::new();
             // Visit all programs
             for program in unexplored {
-                dbg!(program.to_string());
                 let cur_context =
                     contexts.get_mut(&program.clone()).expect("Program must have been processed before its dependency");
                 // Split into cases based on network dependency or local dependency
@@ -92,8 +94,6 @@ impl Retriever {
                         }
 
                         cur_context.add_checksum();
-
-                        dbg!(stub);
 
                         nested_dependencies
                     }
@@ -122,7 +122,8 @@ impl Retriever {
                             Location::Local => {
                                 // Impossible for a network dependency to import a local dependency
                                 dep_context.add_full_path(&cur_context.full_path().join(dep_context.path()));
-                                dep_context.add_compiled_file_path(&dep_context.full_path().join("build/main.aleo"));
+                                dep_context
+                                    .add_compiled_file_path(&dep_context.full_path().join("build").join("main.aleo"));
                             }
                             Location::Network => {
                                 dep_context.add_compiled_file_path(&self.registry_path.join(format!(
@@ -133,10 +134,6 @@ impl Retriever {
                             }
                             _ => panic!("Location::Git is not supported yet"),
                         }
-
-                        println!("Processing dependency: {}", dep_sym);
-                        dbg!(explored.clone());
-                        dbg!(new_unexplored.clone());
 
                         // Don't add a new dependency to check if it has already been processed, or will be processed in the future
                         if !explored.contains(&dep_sym)
@@ -239,7 +236,7 @@ impl Retriever {
             // Fetch stubs. They must exist in cache.
             stubs.insert(dep, dep_context.stub().clone());
 
-            let imports_path = project_path.join("build/imports");
+            let imports_path = project_path.join("build").join("imports");
 
             if !imports_path.exists() {
                 std::fs::create_dir_all(&imports_path)
@@ -248,15 +245,24 @@ impl Retriever {
 
             let destination_path = imports_path.join(dep_context.full_name());
 
-            println!(
-                "copying {path_1} to {path_2}",
-                path_1 = dep_context.compiled_file_path().to_str().unwrap_or_default(),
-                path_2 = destination_path.to_str().unwrap_or_default()
-            );
             // Move all dependencies to local build directory
-            fs::copy(dep_context.compiled_file_path(), destination_path).unwrap_or_else(|_| {
-                panic!("Failed to copy `{name}` to build directory", name = dep_context.full_name())
+            let source_string = fs::read_to_string(dep_context.compiled_file_path()).unwrap_or_else(|_| {
+                panic!(
+                    "Failed to read `{name}` from `{path}`",
+                    name = dep_context.full_name(),
+                    path = dep_context.compiled_file_path().to_str().unwrap()
+                )
             });
+            fs::write(destination_path.clone(), source_string).unwrap_or_else(|_| {
+                panic!(
+                    "Failed to write `{name}` to `{path}`",
+                    name = dep_context.full_name(),
+                    path = destination_path.to_str().unwrap()
+                )
+            });
+            // fs::copy(dep_context.compiled_file_path(), destination_path).unwrap_or_else(|_| {
+            //     panic!("Failed to copy `{name}` to build directory", name = dep_context.full_name())
+            // });
         }
 
         Ok((project_path, stubs))
@@ -400,7 +406,6 @@ fn retrieve_from_network(
     let move_to_path = home_path.join(format!("{network}"));
     let path = move_to_path.join(name.clone());
     let mut file_str: String;
-    dbg!(path.clone());
     if !path.exists() {
         // Create directories along the way if they don't exist
         std::fs::create_dir_all(&move_to_path).map_err(|err| {
@@ -437,7 +442,7 @@ fn retrieve_from_network(
     }
 
     // Copy the file into build directory. We can assume build directory exists because of its initialization in `leo/cli/commands/build.rs`.
-    let import_dir = project_path.join("build/imports");
+    let import_dir = project_path.join("build").join("imports");
     let import_dir_path = import_dir.as_path();
     std::fs::create_dir_all(import_dir_path).map_err(|err| {
         UtilError::util_file_io_error(
