@@ -28,10 +28,15 @@ use snarkvm::{
 
 use indexmap::IndexMap;
 
+use leo_errors::UtilError;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+
+use retriever::Retriever;
+
+type CurrentNetwork = Testnet3;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -90,17 +95,14 @@ impl Command for Build {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the package path.
         let package_path = context.dir()?;
-        let _home_path = context.home()?;
+        let home_path = context.home()?;
+
+        // Open the build directory.
+        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Get the program id.
         let manifest = context.open_manifest()?;
         let program_id = manifest.program_id();
-
-        // Create the outputs directory.
-        let outputs_directory = OutputsDirectory::create(&package_path)?;
-
-        // Open the build directory.
-        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
         let handler = Handler::default();
@@ -108,31 +110,52 @@ impl Command for Build {
         // Initialize a node counter.
         let node_builder = NodeBuilder::default();
 
-        // Fetch paths to all .leo files in the source directory.
-        let source_files = SourceDirectory::files(&package_path)?;
-
-        // Check the source files.
-        SourceDirectory::check_files(&source_files)?;
-
         // Store all struct declarations made in the source files.
         let mut structs = IndexMap::new();
 
-        // Recursively retrieve all local dependencies in post order
-        // let mut retriever = Retriever::new(program_id.name().name().clone(), &package_path, &home_path)
-        //     .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-        // let local_dependencies = retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        // Retrieve all local dependencies in post order
+        let main_sym = Symbol::intern(&program_id.name().to_string());
+        let mut retriever = Retriever::new(main_sym, &package_path, &home_path)
+            .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        let mut local_dependencies =
+            retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
-        // Compile all .leo files into .aleo files.
-        for file_path in source_files.into_iter() {
-            structs.extend(compile_leo_file(
-                file_path,
-                program_id,
-                &outputs_directory,
-                &build_directory,
-                &handler,
-                self.options.clone(),
-                IndexMap::new(), // TODO: Replace this
-            )?);
+        // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
+        local_dependencies.push(main_sym);
+
+        // Loop through all local dependencies and compile them in order
+        for dependency in local_dependencies.into_iter() {
+            // Get path to the local project
+            let (local_path, stubs) = retriever.prepare_local(dependency)?;
+
+            // Create the outputs directory.
+            let local_outputs_directory = OutputsDirectory::create(&local_path)?;
+
+            // Open the build directory.
+            let local_build_directory = BuildDirectory::open(&local_path)?;
+
+            // Fetch paths to all .leo files in the source directory.
+            let local_source_files = SourceDirectory::files(&local_path)?;
+
+            // Check the source files.
+            SourceDirectory::check_files(&local_source_files)?;
+
+            // Compile all .leo files into .aleo files.
+            for file_path in local_source_files {
+                structs.extend(compile_leo_file(
+                    file_path,
+                    &ProgramID::<Testnet3>::try_from(format!("{}.aleo", dependency))
+                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
+                    &local_outputs_directory,
+                    &local_build_directory,
+                    &handler,
+                    self.options.clone(),
+                    stubs.clone(),
+                )?);
+            }
+
+            // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
+            retriever.process_local(dependency)?;
         }
 
         // Load the input file at `package_name.in`
