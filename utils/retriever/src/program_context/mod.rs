@@ -19,7 +19,7 @@ pub mod network;
 use indexmap::IndexSet;
 pub use network::*;
 use sha2::{Digest, Sha256};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 pub mod location;
 pub use location::Location;
 pub mod manifest;
@@ -96,16 +96,16 @@ impl ProgramContext {
     }
 
     // Method to add 'full_path'.
-    pub fn add_full_path(&mut self, full_path: &PathBuf) {
-        self.full_path = Some(full_path.clone());
+    pub fn add_full_path(&mut self, full_path: &Path) {
+        self.full_path = Some(PathBuf::from(full_path));
     }
 
     pub fn compiled_file_path(&self) -> &PathBuf {
         self.compiled_file_path.as_ref().expect("ProgramContext compiled_file_path is None")
     }
 
-    pub fn add_compiled_file_path(&mut self, path: &PathBuf) {
-        self.compiled_file_path = Some(path.clone());
+    pub fn add_compiled_file_path(&mut self, path: &Path) {
+        self.compiled_file_path = Some(PathBuf::from(path));
     }
 
     // Method to extract 'checksum'.

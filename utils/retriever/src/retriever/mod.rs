@@ -23,6 +23,7 @@ use leo_span::Symbol;
 
 use crate::{Dependency, Location, LockFileEntry, Manifest, Network, ProgramContext};
 use std::{fs, fs::File, io::Read, path::PathBuf};
+use std::path::Path;
 
 const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
 
@@ -36,7 +37,7 @@ pub struct Retriever {
 
 impl Retriever {
     // Initialize a new Retriever.
-    pub fn new(name: Symbol, path: &PathBuf, home: &PathBuf) -> Result<Self, UtilError> {
+    pub fn new(name: Symbol, path: &PathBuf, home: &Path) -> Result<Self, UtilError> {
         // Starting point is all of the dependencies specified in the main `program.json` file
         let dependencies = retrieve_local(&format!("{name}.aleo"), path)?;
         let mut contexts = IndexMap::from([(name, ProgramContext::new_main(name, path.clone(), dependencies.clone()))]);
@@ -44,7 +45,7 @@ impl Retriever {
             contexts.insert(Symbol::from(&dep), ProgramContext::from(dep));
         }
 
-        Ok(Self { name, contexts, project_path: path.clone(), registry_path: home.clone().join("registry") })
+        Ok(Self { name, contexts, project_path: path.clone(), registry_path: home.join("registry") })
     }
 
     pub fn get_context(&self, name: &Symbol) -> &ProgramContext {
@@ -70,9 +71,8 @@ impl Retriever {
             // Visit all programs
             for program in unexplored {
                 dbg!(program.to_string());
-                let cur_context = contexts
-                    .get_mut(&program.clone())
-                    .expect("Program must have been processed before its dependency");
+                let cur_context =
+                    contexts.get_mut(&program.clone()).expect("Program must have been processed before its dependency");
                 // Split into cases based on network dependency or local dependency
                 let nested_dependencies = match cur_context.location() {
                     Location::Network => {
@@ -122,8 +122,7 @@ impl Retriever {
                             Location::Local => {
                                 // Impossible for a network dependency to import a local dependency
                                 dep_context.add_full_path(&cur_context.full_path().join(dep_context.path()));
-                                dep_context
-                                    .add_compiled_file_path(&dep_context.full_path().join("build/main.aleo"));
+                                dep_context.add_compiled_file_path(&dep_context.full_path().join("build/main.aleo"));
                             }
                             Location::Network => {
                                 dep_context.add_compiled_file_path(&self.registry_path.join(format!(
@@ -140,7 +139,10 @@ impl Retriever {
                         dbg!(new_unexplored.clone());
 
                         // Don't add a new dependency to check if it has already been processed, or will be processed in the future
-                        if !explored.contains(&dep_sym) && !new_unexplored.contains(&dep_sym) && !cur_exploring.contains(&dep_sym) {
+                        if !explored.contains(&dep_sym)
+                            && !new_unexplored.contains(&dep_sym)
+                            && !cur_exploring.contains(&dep_sym)
+                        {
                             new_unexplored.insert(dep_sym);
                         }
 
@@ -188,7 +190,6 @@ impl Retriever {
             }
             Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
         }
-
     }
 
     // Prepares all the stubs of the program's dependencies in post order, so that the program can be compiled
@@ -225,7 +226,7 @@ impl Retriever {
                     // Cache order
                     self.contexts.get_mut(&name).unwrap().add_post_order(order.clone());
                     order
-                },
+                }
                 Err(DiGraphError::CycleDetected(_)) => Err(UtilError::circular_dependency_error(Default::default()))?,
             }
         };
@@ -247,7 +248,11 @@ impl Retriever {
 
             let destination_path = imports_path.join(dep_context.full_name());
 
-            println!("copying {path_1} to {path_2}", path_1 = dep_context.compiled_file_path().to_str().unwrap_or_default(), path_2 = destination_path.to_str().unwrap_or_default());
+            println!(
+                "copying {path_1} to {path_2}",
+                path_1 = dep_context.compiled_file_path().to_str().unwrap_or_default(),
+                path_2 = destination_path.to_str().unwrap_or_default()
+            );
             // Move all dependencies to local build directory
             fs::copy(dep_context.compiled_file_path(), destination_path).unwrap_or_else(|_| {
                 panic!("Failed to copy `{name}` to build directory", name = dep_context.full_name())
@@ -263,9 +268,17 @@ impl Retriever {
         // Don't need to disassemble the main file
         if name != self.name {
             // Disassemble the program
-            let mut file = File::open(cur_context.compiled_file_path()).unwrap_or_else(|_| panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap()));
+            let mut file = File::open(cur_context.compiled_file_path()).unwrap_or_else(|_| {
+                panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap())
+            });
             let mut content = String::new();
-            file.read_to_string(&mut content).map_err(|err| UtilError::util_file_io_error(format!("Could not read {}", cur_context.compiled_file_path().to_str().unwrap()), err, Default::default()))?;
+            file.read_to_string(&mut content).map_err(|err| {
+                UtilError::util_file_io_error(
+                    format!("Could not read {}", cur_context.compiled_file_path().to_str().unwrap()),
+                    err,
+                    Default::default(),
+                )
+            })?;
             let stub: Stub = disassemble_from_str(content)?;
 
             // Cache the stub
@@ -303,8 +316,13 @@ impl Retriever {
             toml::to_string(&lock_file).map_err(|err| UtilError::toml_serizalization_error(err, Default::default()))?;
 
         // Write the TOML string to a file
-        std::fs::write(self.get_context(name).full_path().join("leo.lock"), toml_str)
-            .map_err(|err| UtilError::util_file_io_error(format!("Could not read {}", self.get_context(name).full_path().join("leo.lock").to_str().unwrap()), err, Default::default()))?;
+        std::fs::write(self.get_context(name).full_path().join("leo.lock"), toml_str).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could not read {}", self.get_context(name).full_path().join("leo.lock").to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
         Ok(())
     }
 }
@@ -314,17 +332,40 @@ fn retrieve_local(name: &String, path: &PathBuf) -> Result<Vec<Dependency>, Util
     // Create the lock file if it doesn't exist
     let lock_path = path.join("leo.lock");
     if !lock_path.exists() {
-        std::fs::create_dir_all(path).map_err(|err| UtilError::util_file_io_error(format!("Could create directory {}", lock_path.to_str().unwrap()), err, Default::default()))?;
-        File::create(lock_path.clone()).map_err(|err| UtilError::util_file_io_error(format!("Could create file {}", lock_path.to_str().unwrap()), err, Default::default()))?;
+        std::fs::create_dir_all(path).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could create directory {}", lock_path.to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
+        File::create(lock_path.clone()).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could create file {}", lock_path.to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
     }
 
     // Open `program.json` which is located at `package_path/program.json`.
-    let mut file =
-        File::open(path.join("program.json")).map_err(|err| UtilError::util_file_io_error(format!("Could not open path {}", path.join("program.json").to_str().unwrap()), err, Default::default()))?;
+    let mut file = File::open(path.join("program.json")).map_err(|err| {
+        UtilError::util_file_io_error(
+            format!("Could not open path {}", path.join("program.json").to_str().unwrap()),
+            err,
+            Default::default(),
+        )
+    })?;
 
     // Read the file content
     let mut content = String::new();
-    file.read_to_string(&mut content).map_err(|err| UtilError::util_file_io_error(format!("Could not read path {}", path.join("program.json").to_str().unwrap()),err, Default::default()))?;
+    file.read_to_string(&mut content).map_err(|err| {
+        UtilError::util_file_io_error(
+            format!("Could not read path {}", path.join("program.json").to_str().unwrap()),
+            err,
+            Default::default(),
+        )
+    })?;
 
     // Deserialize the content into Program
     let program_data: Manifest =
@@ -350,8 +391,8 @@ fn retrieve_local(name: &String, path: &PathBuf) -> Result<Vec<Dependency>, Util
 
 // Retrieve from network
 fn retrieve_from_network(
-    project_path: &PathBuf,
-    home_path: &PathBuf,
+    project_path: &Path,
+    home_path: &Path,
     name: &String,
     network: &Network,
 ) -> Result<(Stub, Vec<Dependency>), UtilError> {
@@ -362,7 +403,13 @@ fn retrieve_from_network(
     dbg!(path.clone());
     if !path.exists() {
         // Create directories along the way if they don't exist
-        std::fs::create_dir_all(&move_to_path).map_err(|err| UtilError::util_file_io_error(format!("Could not write path {}", move_to_path.to_str().unwrap()), err, Default::default()))?;
+        std::fs::create_dir_all(&move_to_path).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could not write path {}", move_to_path.to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
 
         // Fetch from network
         println!("Retrieving {} from {:?}.", name, network.clone());
@@ -371,20 +418,42 @@ fn retrieve_from_network(
         println!("Successfully retrieved {} from {:?}!", name, network);
 
         // Write file to cache
-        std::fs::write(path.clone(), file_str.clone().replace("\\n", "\n"))
-            .map_err(|err| UtilError::util_file_io_error(format!("Could not open path {}", path.to_str().unwrap()), err, Default::default()))?;
+        std::fs::write(path.clone(), file_str.clone().replace("\\n", "\n")).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could not open path {}", path.to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
     } else {
         // Read file from cache
-        file_str = fs::read_to_string(path.clone()).map_err(|err| UtilError::util_file_io_error(format!("Could not read path {}", path.clone().to_str().unwrap()), err, Default::default()))?;
+        file_str = fs::read_to_string(path.clone()).map_err(|err| {
+            UtilError::util_file_io_error(
+                format!("Could not read path {}", path.clone().to_str().unwrap()),
+                err,
+                Default::default(),
+            )
+        })?;
     }
 
     // Copy the file into build directory. We can assume build directory exists because of its initialization in `leo/cli/commands/build.rs`.
     let import_dir = project_path.join("build/imports");
     let import_dir_path = import_dir.as_path();
-    std::fs::create_dir_all(import_dir_path).map_err(|err| UtilError::util_file_io_error(format!("Could not create path {}", import_dir_path.to_str().unwrap()), err, Default::default()))?;
+    std::fs::create_dir_all(import_dir_path).map_err(|err| {
+        UtilError::util_file_io_error(
+            format!("Could not create path {}", import_dir_path.to_str().unwrap()),
+            err,
+            Default::default(),
+        )
+    })?;
     let build_location = PathBuf::from(import_dir_path).join(name.clone());
-    std::fs::write(build_location.clone(), file_str.clone())
-        .map_err(|err| UtilError::util_file_io_error(format!("Could not write to path {}", build_location.to_str().unwrap()), err, Default::default()))?;
+    std::fs::write(build_location.clone(), file_str.clone()).map_err(|err| {
+        UtilError::util_file_io_error(
+            format!("Could not write to path {}", build_location.to_str().unwrap()),
+            err,
+            Default::default(),
+        )
+    })?;
 
     // Disassemble into Stub
     let stub: Stub = disassemble_from_str(file_str)?;
@@ -409,7 +478,9 @@ fn retrieve_from_network(
 
 fn fetch_from_network(program: &String, network: Network) -> Result<String, UtilError> {
     let url = format!("{}/{}/program/{}", ALEO_EXPLORER_URL, network.clone(), program);
-    let response = ureq::get(&url.clone()).call().map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;
+    let response = ureq::get(&url.clone())
+        .call()
+        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;
     if response.status() == 200 {
         Ok(response.into_string().unwrap())
     } else {
