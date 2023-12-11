@@ -8,6 +8,11 @@
             "name": "local_dep_1.aleo",
             "location": "local",
             "path": "local_dep_1"
+        },
+        {
+            "name": "nested.aleo",
+            "location": "local",
+            "path": "../nested"
         }
     ]
 }

@@ -2190,6 +2190,7 @@ dependencies = [
 name = "retriever"
 version = "1.10.0"
 dependencies = [
+ "aleo-std",
  "disassembler",
  "indexmap 1.9.3",
  "leo-ast",
