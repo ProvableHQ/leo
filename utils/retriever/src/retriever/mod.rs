@@ -199,6 +199,7 @@ impl Retriever {
             // Construct local post order
             let mut unexplored = self.get_context(&name).dependencies();
             let mut local_digraph: DiGraph<Symbol> = DiGraph::new(IndexSet::new());
+            let mut solo_programs: IndexSet<Symbol> = IndexSet::new();
             while !unexplored.is_empty() {
                 let mut new_unexplored: Vec<Symbol> = Vec::new();
                 // Visit all programs
@@ -212,6 +213,11 @@ impl Retriever {
                         // Update dependency graph
                         local_digraph.add_edge(program, dep);
                     }
+
+                    // Make sure to include solo programs to dependency graph
+                    if self.get_context(&program).dependencies().is_empty() {
+                        solo_programs.insert(program);
+                    }
                 }
 
                 unexplored = new_unexplored;
@@ -219,7 +225,8 @@ impl Retriever {
 
             // Return the order
             match local_digraph.post_order() {
-                Ok(order) => {
+                Ok(mut order) => {
+                    order.extend(solo_programs);
                     // Cache order
                     self.contexts.get_mut(&name).unwrap().add_post_order(order.clone());
                     order
