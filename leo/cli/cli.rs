@@ -180,3 +180,27 @@ pub fn mixed_local_network_build_test() -> Result<()> {
 
     Ok(())
 }
+
+#[test]
+pub fn double_nested_program_run_test() -> Result<()> {
+    use leo_span::symbol::create_session_if_not_set_then;
+    use crate::cli::commands::Run;
+
+    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("grandparent");
+    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+
+    let cli = CLI {
+        debug: false,
+        quiet: false,
+        command: Commands::Run {command: Run { name: "double_wrapper_mint".to_string(), inputs: vec!["aleo1q30lfyggefvzzxqaaclzrn3wd94q4u8zzy8jhhfrcqrf306ayvqsdvj7s4".to_string(), "1u32".to_string()], compiler_options: Default::default() } },
+        path: Some(build_dir),
+        home: Some(home_dir),
+    };
+
+    create_session_if_not_set_then(|_| {
+        run_with_args(cli).expect("Failed to run build command");
+    });
+
+    Ok(())
+}
+

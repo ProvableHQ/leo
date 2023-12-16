@@ -1,0 +1,18 @@
+{
+    "program": "grandparent.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "child.aleo",
+            "location": "local",
+            "path": "parent/child"
+        },
+        {
+            "name": "parent.aleo",
+            "location": "local",
+            "path": "parent"
+        }
+    ]
+}

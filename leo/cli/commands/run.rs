@@ -22,10 +22,10 @@ use snarkvm::cli::Run as SnarkVMRun;
 #[derive(Parser, Debug)]
 pub struct Run {
     #[clap(name = "NAME", help = "The name of the program to run.", default_value = "main")]
-    name: String,
+    pub(crate) name: String,
 
     #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
-    inputs: Vec<String>,
+    pub(crate) inputs: Vec<String>,
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
