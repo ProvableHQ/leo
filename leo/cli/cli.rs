@@ -15,11 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::cli::{commands::*, context::*, helpers::*};
-use leo_errors::Result;
-
 use clap::Parser;
 use colored::Colorize;
-use serial_test::serial;
+use leo_errors::Result;
 use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -137,81 +135,82 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Update { command } => command.try_execute(context),
     }
 }
+#[cfg(test)]
+mod tests {
+    use crate::cli::{cli::Commands, run_with_args, Build, CLI};
+    use serial_test::serial;
+    use std::path::PathBuf;
 
-#[test]
-pub fn build_nested_test() -> Result<()> {
-    use leo_span::symbol::create_session_if_not_set_then;
+    #[test]
+    #[serial]
+    pub fn build_nested_test() {
+        use leo_span::symbol::create_session_if_not_set_then;
 
-    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("nested");
-    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("nested");
+        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
 
-    let cli = CLI {
-        debug: false,
-        quiet: false,
-        command: Commands::Build { command: Build { options: Default::default() } },
-        path: Some(build_dir),
-        home: Some(home_dir),
-    };
+        let cli = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Build { command: Build { options: Default::default() } },
+            path: Some(build_dir),
+            home: Some(home_dir),
+        };
 
-    create_session_if_not_set_then(|_| {
-        run_with_args(cli).expect("Failed to run build command");
-    });
+        create_session_if_not_set_then(|_| {
+            run_with_args(cli).expect("Failed to run build command");
+        });
+    }
 
-    Ok(())
-}
+    #[test]
+    #[serial]
+    pub fn mixed_local_network_build_test() {
+        use leo_span::symbol::create_session_if_not_set_then;
 
-#[test]
-#[serial]
-pub fn mixed_local_network_build_test() -> Result<()> {
-    use leo_span::symbol::create_session_if_not_set_then;
+        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("local_test");
+        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
 
-    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("local_test");
-    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+        let cli = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Build { command: Build { options: Default::default() } },
+            path: Some(build_dir),
+            home: Some(home_dir),
+        };
 
-    let cli = CLI {
-        debug: false,
-        quiet: false,
-        command: Commands::Build { command: Build { options: Default::default() } },
-        path: Some(build_dir),
-        home: Some(home_dir),
-    };
+        create_session_if_not_set_then(|_| {
+            run_with_args(cli).expect("Failed to run build command");
+        });
+    }
 
-    create_session_if_not_set_then(|_| {
-        run_with_args(cli).expect("Failed to run build command");
-    });
+    #[test]
+    #[serial]
+    pub fn double_nested_program_run_test() {
+        use crate::cli::commands::Run;
+        use leo_span::symbol::create_session_if_not_set_then;
 
-    Ok(())
-}
+        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("grandparent");
+        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
 
-#[test]
-#[serial]
-pub fn double_nested_program_run_test() -> Result<()> {
-    use crate::cli::commands::Run;
-    use leo_span::symbol::create_session_if_not_set_then;
-
-    let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("grandparent");
-    let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
-
-    let cli = CLI {
-        debug: false,
-        quiet: false,
-        command: Commands::Run {
-            command: Run {
-                name: "double_wrapper_mint".to_string(),
-                inputs: vec![
-                    "aleo1q30lfyggefvzzxqaaclzrn3wd94q4u8zzy8jhhfrcqrf306ayvqsdvj7s4".to_string(),
-                    "1u32".to_string(),
-                ],
-                compiler_options: Default::default(),
+        let cli = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Run {
+                command: Run {
+                    name: "double_wrapper_mint".to_string(),
+                    inputs: vec![
+                        "aleo1q30lfyggefvzzxqaaclzrn3wd94q4u8zzy8jhhfrcqrf306ayvqsdvj7s4".to_string(),
+                        "1u32".to_string(),
+                    ],
+                    compiler_options: Default::default(),
+                },
             },
-        },
-        path: Some(build_dir),
-        home: Some(home_dir),
-    };
+            path: Some(build_dir),
+            home: Some(home_dir),
+        };
 
-    create_session_if_not_set_then(|_| {
-        run_with_args(cli).expect("Failed to run build command");
-    });
-
-    Ok(())
+        create_session_if_not_set_then(|_| {
+            run_with_args(cli).expect("Failed to run build command");
+        });
+    }
 }

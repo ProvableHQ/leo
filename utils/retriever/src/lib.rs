@@ -25,8 +25,8 @@ mod tests {
     use super::*;
     use aleo_std::aleo_dir;
     use leo_span::{symbol::create_session_if_not_set_then, Symbol};
-    use std::path::PathBuf;
     use serial_test::serial;
+    use std::path::PathBuf;
 
     #[test]
     #[ignore]
