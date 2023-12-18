@@ -26,9 +26,11 @@ mod tests {
     use aleo_std::aleo_dir;
     use leo_span::{symbol::create_session_if_not_set_then, Symbol};
     use std::path::PathBuf;
+    use serial_test::serial;
 
     #[test]
     #[ignore]
+    #[serial]
     fn temp_dir_test() {
         // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/nested";
@@ -46,6 +48,7 @@ mod tests {
 
     #[test]
     #[ignore]
+    #[serial]
     fn mac_test() {
         // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/nested";
@@ -63,6 +66,7 @@ mod tests {
 
     #[test]
     #[ignore]
+    #[serial]
     fn simple_dir_test() {
         // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/simple";
@@ -80,6 +84,7 @@ mod tests {
 
     #[test]
     #[ignore]
+    #[serial]
     fn local_dir_test() {
         // Test pulling nested dependencies from network
         const BUILD_DIRECTORY: &str = "../tmp/local_test";

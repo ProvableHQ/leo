@@ -143,6 +143,9 @@ features = [ "derive" ]
 [dependencies.serde_json]
 version = "1.0"
 
+[dependencies.serial_test]
+version = "2.0.0"
+
 [dependencies.snarkvm]
 workspace = true
 features = [ "circuit", "console" ]

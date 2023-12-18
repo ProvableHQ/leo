@@ -20,6 +20,7 @@ use leo_errors::Result;
 use clap::Parser;
 use colored::Colorize;
 use std::{path::PathBuf, process::exit};
+use serial_test::serial;
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]
@@ -160,6 +161,7 @@ pub fn build_nested_test() -> Result<()> {
 }
 
 #[test]
+#[serial]
 pub fn mixed_local_network_build_test() -> Result<()> {
     use leo_span::symbol::create_session_if_not_set_then;
 
@@ -182,6 +184,7 @@ pub fn mixed_local_network_build_test() -> Result<()> {
 }
 
 #[test]
+#[serial]
 pub fn double_nested_program_run_test() -> Result<()> {
     use crate::cli::commands::Run;
     use leo_span::symbol::create_session_if_not_set_then;

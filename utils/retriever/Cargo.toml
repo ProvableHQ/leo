@@ -38,6 +38,9 @@ path = "../disassembler"
 [dependencies.sha2]
 version = "0.10.8"
 
+[dependencies.serial_test]
+version = "2.0.0"
+
 [dependencies.leo-span]
 version = "1.9.4"
 path = "../../compiler/span"
