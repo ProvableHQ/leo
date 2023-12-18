@@ -19,8 +19,8 @@ use leo_errors::Result;
 
 use clap::Parser;
 use colored::Colorize;
-use std::{path::PathBuf, process::exit};
 use serial_test::serial;
+use std::{path::PathBuf, process::exit};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(Parser, Debug)]

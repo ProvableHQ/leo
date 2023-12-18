@@ -97,12 +97,12 @@ impl Command for Build {
         let package_path = context.dir()?;
         let home_path = context.home()?;
 
+        // Open the build directory.
+        let build_directory = BuildDirectory::open(&package_path)?;
+
         // Get the program id.
         let manifest = context.open_manifest()?;
         let program_id = manifest.program_id();
-
-        // Open the build directory.
-        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
         let handler = Handler::default();
