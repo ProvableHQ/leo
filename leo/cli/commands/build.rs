@@ -97,12 +97,12 @@ impl Command for Build {
         let package_path = context.dir()?;
         let home_path = context.home()?;
 
-        // Open the build directory.
-        let build_directory = BuildDirectory::open(&package_path)?;
-
         // Get the program id.
         let manifest = context.open_manifest()?;
         let program_id = manifest.program_id();
+
+        // Open the build directory.
+        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
         let handler = Handler::default();
@@ -132,7 +132,7 @@ impl Command for Build {
             let local_outputs_directory = OutputsDirectory::create(&local_path)?;
 
             // Open the build directory.
-            let local_build_directory = BuildDirectory::open(&local_path)?;
+            let local_build_directory = BuildDirectory::create(&local_path)?;
 
             // Fetch paths to all .leo files in the source directory.
             let local_source_files = SourceDirectory::files(&local_path)?;
