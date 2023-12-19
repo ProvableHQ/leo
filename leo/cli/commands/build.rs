@@ -98,7 +98,7 @@ impl Command for Build {
         let home_path = context.home()?;
 
         // Open the build directory.
-        let build_directory = BuildDirectory::open(&package_path)?;
+        let build_directory = BuildDirectory::create(&package_path)?;
 
         // Get the program id.
         let manifest = context.open_manifest()?;
