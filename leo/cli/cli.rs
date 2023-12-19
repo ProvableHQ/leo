@@ -146,8 +146,8 @@ mod tests {
     pub fn build_nested_test() {
         use leo_span::symbol::create_session_if_not_set_then;
 
-        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("nested");
-        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+        let build_dir: PathBuf = PathBuf::from("utils").join("tests").join("build_nested_test").join("nested");
+        let home_dir: PathBuf = PathBuf::from("utils").join("tests").join("build_nested_test").join(".aleo");
 
         let cli = CLI {
             debug: false,
@@ -167,8 +167,10 @@ mod tests {
     pub fn mixed_local_network_build_test() {
         use leo_span::symbol::create_session_if_not_set_then;
 
-        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("local_test");
-        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+        let build_dir: PathBuf =
+            PathBuf::from("utils").join("tests").join("mixed_local_network_build_test").join("local_test");
+        let home_dir: PathBuf =
+            PathBuf::from("utils").join("tests").join("mixed_local_network_build_test").join(".aleo");
 
         let cli = CLI {
             debug: false,
@@ -189,8 +191,8 @@ mod tests {
         use crate::cli::commands::Run;
         use leo_span::symbol::create_session_if_not_set_then;
 
-        let build_dir: PathBuf = PathBuf::from("utils").join("tmp").join("grandparent");
-        let home_dir: PathBuf = PathBuf::from("utils").join("tmp").join(".aleo");
+        let build_dir: PathBuf =
+            PathBuf::from("utils").join("tests").join("double_nested_program_run_test").join("grandparent");
 
         let cli = CLI {
             debug: false,
@@ -206,7 +208,7 @@ mod tests {
                 },
             },
             path: Some(build_dir),
-            home: Some(home_dir),
+            home: None,
         };
 
         create_session_if_not_set_then(|_| {

@@ -1,4 +1,4 @@
-# simple.aleo
+# nested.aleo
 
 ## Build Guide
 
