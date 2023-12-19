@@ -437,7 +437,7 @@
                 </span><span class="kw">let </span>statements = lhs_tuple
                     .elements
                     .into_iter()
-                    .zip_eq(rhs_tuple.elements.into_iter())
+                    .zip_eq(rhs_tuple.elements)
                     .map(|(lhs, rhs)| {
                         <span class="comment">// Get the type of the rhs.
                         </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>lhs.id()) {

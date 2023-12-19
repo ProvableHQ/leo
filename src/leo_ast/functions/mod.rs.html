@@ -152,11 +152,6 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -198,7 +193,7 @@
 <span class="kw">pub use </span>mode::<span class="kw-2">*</span>;
 
 <span class="kw">use crate</span>::{Block, Identifier, Node, NodeID, TupleType, Type};
-<span class="kw">use </span>leo_span::{sym, Span, Symbol};
+<span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
@@ -268,11 +263,6 @@
     <span class="doccomment">/// Returns function name.
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Symbol {
         <span class="self">self</span>.identifier.name
-    }
-
-    <span class="doccomment">/// Returns `true` if the function name is `main`.
-    </span><span class="kw">pub fn </span>is_main(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.name() == sym::main
     }
 
     <span class="doccomment">///
