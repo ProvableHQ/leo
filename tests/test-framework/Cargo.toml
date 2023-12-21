@@ -42,7 +42,7 @@ version = "1.0"
 features = [ "preserve_order" ]
 
 [dependencies.serde_yaml]
-version = "0.8"
+version = "0.9"
 
 [dependencies.walkdir]
 version = "2.4"
