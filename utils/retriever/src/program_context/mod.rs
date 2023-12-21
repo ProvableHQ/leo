@@ -39,6 +39,7 @@ pub struct ProgramContext {
     full_name: String,
     location: Location,
     network: Option<Network>,
+    endpoint: Option<String>,
     path: Option<PathBuf>,
     full_path: Option<PathBuf>,
     compiled_file_path: Option<PathBuf>,
@@ -55,6 +56,7 @@ impl ProgramContext {
             full_name: format!("{}.aleo", name),
             location: Location::Local,
             network: None,
+            endpoint: None,
             path: Some(path.clone()),
             full_path: Some(path.clone()),
             compiled_file_path: Some(path.join("build/main.aleo")),
@@ -78,6 +80,11 @@ impl ProgramContext {
     // Method to extract 'network', panics if `None`. Only safe to access if location is 'Network'
     pub fn network(&self) -> &Network {
         self.network.as_ref().expect("ProgramContext network is None")
+    }
+
+    // Method to extract 'endpoint', panics if `None`. Only safe to access if location is 'Network'
+    pub fn endpoint(&self) -> &String {
+        self.endpoint.as_ref().expect("ProgramContext endpoint is None")
     }
 
     // Method to extract 'location'
@@ -173,6 +180,7 @@ impl From<Dependency> for ProgramContext {
             full_name: dependency.name().clone(),
             location: dependency.location().clone(),
             network: dependency.network().clone(),
+            endpoint: dependency.endpoint().clone(),
             path: dependency.path().clone(),
             full_path: None,
             compiled_file_path: None,

@@ -25,12 +25,19 @@ pub struct Dependency {
     name: String,
     location: Location,
     network: Option<Network>,
+    endpoint: Option<String>,
     path: Option<PathBuf>,
 }
 
 impl Dependency {
-    pub fn new(name: String, location: Location, network: Option<Network>, path: Option<PathBuf>) -> Self {
-        Self { name, location, network, path }
+    pub fn new(
+        name: String,
+        location: Location,
+        network: Option<Network>,
+        endpoint: Option<String>,
+        path: Option<PathBuf>,
+    ) -> Self {
+        Self { name, location, network, endpoint, path }
     }
 
     pub fn name(&self) -> &String {
@@ -41,8 +48,13 @@ impl Dependency {
         &self.location
     }
 
+    // TODO: Use "https://api.explorer.aleo.org/v1" as default?;
     pub fn network(&self) -> &Option<Network> {
         &self.network
+    }
+
+    pub fn endpoint(&self) -> &Option<String> {
+        &self.endpoint
     }
 
     pub fn path(&self) -> &Option<PathBuf> {

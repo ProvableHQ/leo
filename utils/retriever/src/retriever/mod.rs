@@ -29,7 +29,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
+// const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
 
 // Retriever is responsible for retrieving external programs
 pub struct Retriever {
@@ -83,6 +83,7 @@ impl Retriever {
                             &self.registry_path,
                             cur_context.full_name(),
                             cur_context.network(),
+                            cur_context.endpoint(),
                         )?;
 
                         // Cache the stubs
@@ -408,6 +409,7 @@ fn retrieve_from_network(
     home_path: &Path,
     name: &String,
     network: &Network,
+    endpoint: &str,
 ) -> Result<(Stub, Vec<Dependency>), UtilError> {
     // Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
     let move_to_path = home_path.join(format!("{network}"));
@@ -425,7 +427,7 @@ fn retrieve_from_network(
 
         // Fetch from network
         println!("Retrieving {} from {:?}.", name, network.clone());
-        file_str = fetch_from_network(name, network.clone())?;
+        file_str = fetch_from_network(name, network.clone(), endpoint)?;
         file_str = file_str.replace("\\n", "\n").replace('\"', "");
         println!("Successfully retrieved {} from {:?}!", name, network);
 
@@ -481,6 +483,7 @@ fn retrieve_from_network(
                     id.name.name.to_string() + "." + id.network.name.to_string().as_str(),
                     Location::Network,
                     Some(network.clone()),
+                    Some(endpoint.to_owned()),
                     None,
                 )
             })
@@ -488,8 +491,9 @@ fn retrieve_from_network(
     ))
 }
 
-fn fetch_from_network(program: &String, network: Network) -> Result<String, UtilError> {
-    let url = format!("{}/{}/program/{}", ALEO_EXPLORER_URL, network.clone(), program);
+fn fetch_from_network(program: &String, network: Network, endpoint: &str) -> Result<String, UtilError> {
+    // let url = format!("{}/{}/program/{}", ALEO_EXPLORER_URL, network.clone(), program);
+    let url = format!("{}/{}/program/{}", endpoint, network.clone(), program);
     let response = ureq::get(&url.clone())
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;
