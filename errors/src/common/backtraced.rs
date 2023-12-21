@@ -46,7 +46,7 @@ pub struct Backtraced {
     pub error: bool,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
-    /// The backtrace representing where the error occured in Leo.
+    /// The backtrace representing where the error occurred in Leo.
     pub backtrace: Backtrace,
 }
 
