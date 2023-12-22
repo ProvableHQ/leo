@@ -65,7 +65,7 @@ version = "1.0.193"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
-version = "0.8.25"
+version = "0.9.29"
 
 [dev-dependencies.tempfile]
 version = "3.8"
