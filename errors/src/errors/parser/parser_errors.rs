@@ -332,7 +332,7 @@ create_messages!(
     @formatted
     only_aleo_external_calls {
         args: (),
-        msg: format!("Only external calls to aleo programs are supported."),
+        msg: format!("Only external calls to `.aleo` programs are supported."),
         help: None,
     }
 );
