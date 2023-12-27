@@ -34,6 +34,9 @@ pub enum Account {
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
+        /// Print sensitive information(such as private key) discreetly to an alternate screen
+        #[clap(long)]
+        discreet: bool,
     },
     /// Derive an Aleo account from a private key.
     Import {
@@ -42,6 +45,9 @@ pub enum Account {
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
+        /// Print sensitive information(such as private key) discreetly to an alternate screen
+        #[clap(long)]
+        discreet: bool,
     },
 }
 
@@ -61,7 +67,7 @@ impl Command for Account {
         Self: Sized,
     {
         match self {
-            Account::New { seed, write } => {
+            Account::New { seed, write, discreet } => {
                 // Sample a new Aleo account.
                 let private_key = match seed {
                     // Recover the field element deterministically.
@@ -72,16 +78,16 @@ impl Command for Account {
                 .map_err(CliError::failed_to_parse_seed)?;
 
                 // Derive the view key and address and print to stdout.
-                print_keys(private_key)?;
+                print_keys(private_key, discreet)?;
 
                 // Save key data to .env file.
                 if write {
                     write_to_env_file(private_key, &ctx)?;
                 }
             }
-            Account::Import { private_key, write } => {
+            Account::Import { private_key, write, discreet } => {
                 // Derive the view key and address and print to stdout.
-                print_keys(private_key)?;
+                print_keys(private_key, discreet)?;
 
                 // Save key data to .env file.
                 if write {
@@ -96,10 +102,19 @@ impl Command for Account {
 // Helper functions
 
 // Print keys as a formatted string without log level.
-fn print_keys(private_key: PrivateKey<CurrentNetwork>) -> Result<()> {
+fn print_keys(private_key: PrivateKey<CurrentNetwork>, discreet: bool) -> Result<()> {
     let view_key = ViewKey::try_from(&private_key)?;
     let address = Address::<CurrentNetwork>::try_from(&view_key)?;
 
+    if !discreet {
+        println!(
+            "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
+            "Private Key".cyan().bold(),
+            "View Key".cyan().bold(),
+            "Address".cyan().bold(),
+        );
+        return Ok(());
+    }
     display_string_discreetly(
         &private_key.to_string(),
         "### Do not share or lose this private key! Press any key to complete. ###",
