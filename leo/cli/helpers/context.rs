@@ -80,16 +80,16 @@ impl Context {
 
         // Read the manifest file to string.
         let manifest_string =
-            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
+            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)?;
 
         // Construct the file path.
         let build_manifest_path = build_path.join(Manifest::<CurrentNetwork>::file_name());
 
         // Write the file.
         File::create(build_manifest_path)
-            .map_err(PackageError::failed_to_open_manifest)?
+            .map_err(PackageError::failed_to_create_manifest)?
             .write_all(manifest_string.as_bytes())
-            .map_err(PackageError::failed_to_open_manifest)?;
+            .map_err(PackageError::failed_to_write_manifest)?;
 
         // Get package name from program id.
         Ok(manifest)

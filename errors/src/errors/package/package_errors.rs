@@ -265,6 +265,27 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_read_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to read manifest file: {error}"),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_write_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to write manifest file: {error}"),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
+    failed_to_create_manifest {
+        args: (error: impl Display),
+        msg: format!("Failed to create manifest file: {error}"),
+        help: Some("Create a package by running `leo new`.".to_string()),
+    }
+
+    @backtraced
     failed_to_open_aleo_file {
         args: (error: impl Display),
         msg: format!("Failed to open Aleo file: {error}"),
@@ -311,6 +332,20 @@ create_messages!(
     io_error_env_file {
         args: (error: impl ErrorArg),
         msg: format!("IO error env file from the provided file path - {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_deserialize_manifest_file {
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to deserialize `program.json` from the provided file path {path} - {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_serialize_manifest_file {
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("Failed to update `program.json` from the provided file path {path} - {error}"),
         help: None,
     }
 );
