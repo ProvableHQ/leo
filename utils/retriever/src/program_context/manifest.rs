@@ -28,8 +28,36 @@ pub struct Manifest {
 }
 
 impl Manifest {
+    pub fn new(
+        program: &String,
+        version: &String,
+        description: &String,
+        license: &String,
+        dependencies: Option<Vec<Dependency>>,
+    ) -> Self {
+        Self {
+            program: program.clone(),
+            version: version.clone(),
+            description: description.clone(),
+            license: license.clone(),
+            dependencies,
+        }
+    }
+
     pub fn program(&self) -> &String {
         &self.program
+    }
+
+    pub fn version(&self) -> &String {
+        &self.version
+    }
+
+    pub fn description(&self) -> &String {
+        &self.description
+    }
+
+    pub fn license(&self) -> &String {
+        &self.license
     }
 
     pub fn dependencies(&self) -> &Option<Vec<Dependency>> {

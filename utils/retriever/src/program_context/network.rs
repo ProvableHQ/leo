@@ -26,6 +26,16 @@ pub enum Network {
     Mainnet,
 }
 
+impl From<&String> for Network {
+    fn from(network: &String) -> Self {
+        match network.to_ascii_lowercase().as_str() {
+            "testnet3" => Network::Testnet3,
+            "mainnet" => Network::Mainnet,
+            _ => panic!("Invalid network"),
+        }
+    }
+}
+
 impl fmt::Display for Network {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

@@ -1,0 +1,13 @@
+{
+    "program": "nested.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies": [
+        {
+            "name": "nested_example_layer_0.aleo",
+            "location": "network",
+            "network": "testnet3"
+        }
+    ]
+}
