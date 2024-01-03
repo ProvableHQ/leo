@@ -43,6 +43,11 @@ pub struct CLI {
 ///Leo compiler and package manager
 #[derive(Parser, Debug)]
 enum Commands {
+    #[clap(about = "Add a new dependency to the current package. Defaults to testnet3 network")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
+    },
     #[clap(about = "Create a new Aleo account")]
     Account {
         #[clap(subcommand)]
@@ -110,6 +115,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     let context = handle_error(Context::new(cli.path, cli.home));
 
     match cli.command {
+        Commands::Add { command } => command.try_execute(context),
         Commands::Account { command } => command.try_execute(context),
         Commands::New { command } => command.try_execute(context),
         Commands::Build { command } => {
@@ -137,82 +143,320 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 }
 #[cfg(test)]
 mod tests {
-    use crate::cli::{cli::Commands, run_with_args, Build, CLI};
-    use serial_test::serial;
-    use std::path::PathBuf;
+    use crate::cli::{
+        cli::{test_helpers, Commands},
+        run_with_args,
+        CLI,
+    };
+    use leo_span::symbol::create_session_if_not_set_then;
+    use std::{env::temp_dir};
 
     #[test]
-    #[serial]
-    pub fn build_nested_test() {
-        use leo_span::symbol::create_session_if_not_set_then;
+    fn nested_network_dependency_run_test() {
+        // Set current directory to temporary directory
+        let temp_dir = temp_dir();
+        let project_directory = temp_dir.join("nested");
+        let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
 
-        let build_dir: PathBuf = PathBuf::from("utils").join("tests").join("build_nested_test").join("nested");
-        let home_dir: PathBuf = PathBuf::from("utils").join("tests").join("build_nested_test").join(".aleo");
+        // Create file structure
+        test_helpers::sample_nested_package(&temp_dir);
 
-        let cli = CLI {
-            debug: false,
-            quiet: false,
-            command: Commands::Build { command: Build { options: Default::default() } },
-            path: Some(build_dir),
-            home: Some(home_dir),
-        };
-
-        create_session_if_not_set_then(|_| {
-            run_with_args(cli).expect("Failed to run build command");
-        });
-    }
-
-    #[test]
-    #[serial]
-    pub fn mixed_local_network_build_test() {
-        use leo_span::symbol::create_session_if_not_set_then;
-
-        let build_dir: PathBuf =
-            PathBuf::from("utils").join("tests").join("mixed_local_network_build_test").join("local_test");
-        let home_dir: PathBuf =
-            PathBuf::from("utils").join("tests").join("mixed_local_network_build_test").join(".aleo");
-
-        let cli = CLI {
-            debug: false,
-            quiet: false,
-            command: Commands::Build { command: Build { options: Default::default() } },
-            path: Some(build_dir),
-            home: Some(home_dir),
-        };
-
-        create_session_if_not_set_then(|_| {
-            run_with_args(cli).expect("Failed to run build command");
-        });
-    }
-
-    #[test]
-    #[serial]
-    pub fn double_nested_program_run_test() {
-        use crate::cli::commands::Run;
-        use leo_span::symbol::create_session_if_not_set_then;
-
-        let build_dir: PathBuf =
-            PathBuf::from("utils").join("tests").join("double_nested_program_run_test").join("grandparent");
-
-        let cli = CLI {
+        // Run program
+        let run = CLI {
             debug: false,
             quiet: false,
             command: Commands::Run {
-                command: Run {
+                command: crate::cli::commands::Run {
+                    name: "example".to_string(),
+                    inputs: vec!["1u32".to_string(), "2u32".to_string()],
+                    compiler_options: Default::default(),
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: Some(temp_dir.join(".aleo")),
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(run).expect("Failed to execute `leo run`");
+        });
+
+        // Clear tmp directory
+        std::fs::remove_dir_all(registry).unwrap();
+        std::fs::remove_dir_all(project_directory).unwrap();
+    }
+
+    #[test]
+    fn nested_local_dependency_run_test() {
+        // Set current directory to temporary directory
+        let temp_dir = temp_dir();
+        let project_name = "grandparent";
+        let project_directory = temp_dir.join(project_name);
+
+        // Remove it if it already exists
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create file structure
+        test_helpers::sample_grandparent_package(&temp_dir);
+
+        // Run program
+        let run = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Run {
+                command: crate::cli::commands::Run {
                     name: "double_wrapper_mint".to_string(),
                     inputs: vec![
-                        "aleo1q30lfyggefvzzxqaaclzrn3wd94q4u8zzy8jhhfrcqrf306ayvqsdvj7s4".to_string(),
-                        "1u32".to_string(),
+                        "aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs".to_string(),
+                        "2u32".to_string(),
                     ],
                     compiler_options: Default::default(),
                 },
             },
-            path: Some(build_dir),
+            path: Some(project_directory.clone()),
             home: None,
         };
 
         create_session_if_not_set_then(|_| {
-            run_with_args(cli).expect("Failed to run build command");
+            run_with_args(run).expect("Failed to execute `leo run`");
+        });
+
+        // Clear tmp directory
+        std::fs::remove_dir_all(project_directory).unwrap();
+    }
+}
+
+mod test_helpers {
+    use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
+    use leo_span::symbol::create_session_if_not_set_then;
+    use std::path::PathBuf;
+
+    pub(crate) fn sample_nested_package(temp_dir: &PathBuf) {
+        let name = "nested";
+
+        // Remove it if it already exists
+        let project_directory = temp_dir.join(name);
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create new Leo project
+        let new = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: name.to_string() } },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(new).expect("Failed to execute `leo run`");
+        });
+
+        // `nested.aleo` program
+        let program_str = "
+import nested_example_layer_0.aleo;
+program nested.aleo {
+    transition example(public a: u32, b: u32) -> u32 {
+        let c: u32 = nested_example_layer_0.aleo/main(a, b);
+        return c;
+    }
+}
+";
+        // `nested_example_layer_0.aleo` program
+        let nested_example_layer_0 = "
+import nested_example_layer_2.aleo;
+import nested_example_layer_1.aleo;
+
+program nested_example_layer_0.aleo;
+
+function main:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call nested_example_layer_1.aleo/external_function r0 r1 into r2;
+    output r2 as u32.private;
+";
+
+        // `nested_example_layer_1.aleo` program
+        let nested_example_layer_1 = "
+import nested_example_layer_2.aleo;
+
+program nested_example_layer_1.aleo;
+
+function external_function:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    call nested_example_layer_2.aleo/external_nested_function r0 r1 into r2;
+    output r2 as u32.private;
+";
+
+        // `nested_example_layer_2.aleo` program
+        let nested_example_layer_2 = "
+program nested_example_layer_2.aleo;
+
+function external_nested_function:
+    input r0 as u32.public;
+    input r1 as u32.private;
+    add r0 r1 into r2;
+    output r2 as u32.private;
+";
+
+        // Overwrite `src/main.leo` file
+        std::fs::write(project_directory.join("src").join("main.leo"), program_str).unwrap();
+
+        // Add dependencies
+        let add = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "nested_example_layer_0".to_string(),
+                    local: None,
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(add).expect("Failed to execute `leo add`");
+        });
+
+        // Add custom `.aleo` directory
+        let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
+        std::fs::create_dir_all(&registry).unwrap();
+        std::fs::write(&registry.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
+        std::fs::write(&registry.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
+        std::fs::write(&registry.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
+    }
+
+    pub(crate) fn sample_grandparent_package(temp_dir: &PathBuf) {
+        let grandparent_directory = temp_dir.join("grandparent");
+        let parent_directory = grandparent_directory.join("parent");
+        let child_directory = parent_directory.join("child");
+
+        if grandparent_directory.exists() {
+            std::fs::remove_dir_all(grandparent_directory.clone()).unwrap();
+        }
+
+        // Create project file structure `grandparent/parent/child`
+        let create_grandparent_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "grandparent".to_string() } },
+            path: Some(grandparent_directory.clone()),
+            home: None,
+        };
+
+        let create_parent_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "parent".to_string() } },
+            path: Some(parent_directory.clone()),
+            home: None,
+        };
+
+        let create_child_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "child".to_string() } },
+            path: Some(child_directory.clone()),
+            home: None,
+        };
+
+        // Add source files `grandparent/src/main.leo`, `grandparent/parent/src/main.leo`, and `grandparent/parent/child/src/main.leo`
+        let grandparent_program = "
+import child.aleo;
+import parent.aleo;
+program grandparent.aleo {
+    transition double_wrapper_mint(owner: address, val: u32) -> child.aleo/A {
+        return parent.aleo/wrapper_mint(owner, val);
+    }
+}
+";
+        let parent_program = "
+import child.aleo;
+program parent.aleo {
+    transition wrapper_mint(owner: address, val: u32) ->  child.aleo/A {
+        return child.aleo/mint(owner, val);
+    }
+}
+";
+
+        let child_program = "
+// The 'a' program.
+program child.aleo {
+    record A {
+        owner: address,
+        val: u32,
+    }
+    transition mint(owner: address, val: u32) -> A {
+        return A {owner: owner, val: val};
+    }
+}
+";
+
+        // Add dependencies `grandparent/program.json` and `grandparent/parent/program.json`
+        let add_grandparent_dependency_1 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "parent".to_string(),
+                    local: Some(parent_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(grandparent_directory.clone()),
+            home: None,
+        };
+
+        let add_grandparent_dependency_2 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "child".to_string(),
+                    local: Some(child_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(grandparent_directory.clone()),
+            home: None,
+        };
+
+        let add_parent_dependency = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "child".to_string(),
+                    local: Some(child_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(parent_directory.clone()),
+            home: None,
+        };
+
+        // Execute all commands
+        create_session_if_not_set_then(|_| {
+            // Create projects
+            run_with_args(create_grandparent_project).unwrap();
+            run_with_args(create_parent_project).unwrap();
+            run_with_args(create_child_project).unwrap();
+
+            // Write files
+            std::fs::write(grandparent_directory.join("src").join("main.leo"), grandparent_program).unwrap();
+            std::fs::write(parent_directory.join("src").join("main.leo"), parent_program).unwrap();
+            std::fs::write(child_directory.join("src").join("main.leo"), child_program).unwrap();
+
+            // Add dependencies
+            run_with_args(add_grandparent_dependency_1).unwrap();
+            run_with_args(add_grandparent_dependency_2).unwrap();
+            run_with_args(add_parent_dependency).unwrap();
         });
     }
 }
