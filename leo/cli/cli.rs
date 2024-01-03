@@ -231,7 +231,7 @@ mod tests {
 mod test_helpers {
     use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
     use leo_span::symbol::create_session_if_not_set_then;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
 
     pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
