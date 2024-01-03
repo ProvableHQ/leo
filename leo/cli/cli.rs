@@ -183,8 +183,8 @@ mod tests {
         });
 
         // Clear tmp directory
-        std::fs::remove_dir_all(registry).unwrap();
-        std::fs::remove_dir_all(project_directory).unwrap();
+        // std::fs::remove_dir_all(registry).unwrap();
+        // std::fs::remove_dir_all(project_directory).unwrap();
     }
 
     #[test]
@@ -226,7 +226,7 @@ mod tests {
         });
 
         // Clear tmp directory
-        std::fs::remove_dir_all(project_directory).unwrap();
+        // std::fs::remove_dir_all(project_directory).unwrap();
     }
 }
 
