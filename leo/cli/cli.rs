@@ -227,6 +227,7 @@ mod tests {
     }
 }
 
+#[cfg(test)]
 mod test_helpers {
     use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
     use leo_span::symbol::create_session_if_not_set_then;

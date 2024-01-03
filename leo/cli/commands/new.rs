@@ -38,9 +38,8 @@ impl Command for New {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Derive the program directory path.
-        let mut package_path = context.dir()?;
-        package_path.pop();
+        // Derive the location of the parent directory to the project.
+        let mut package_path = context.parent_dir()?;
 
         // Change the cwd to the Leo package directory to initialize all files.
         std::env::set_current_dir(&package_path)

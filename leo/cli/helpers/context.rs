@@ -44,6 +44,18 @@ impl Context {
         Ok(Context { path, home })
     }
 
+    /// Returns the path of the parent directory to the Leo package.
+    pub fn parent_dir(&self) -> Result<PathBuf> {
+        match &self.path {
+            Some(ref path) => {
+                let mut path = path.clone();
+                path.pop();
+                Ok(path)
+            }
+            None => Ok(current_dir().map_err(CliError::cli_io_error)?),
+        }
+    }
+
     /// Returns the path to the Leo package.
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
