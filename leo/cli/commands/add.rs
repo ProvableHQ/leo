@@ -49,9 +49,9 @@ impl Command for Add {
 
         // Deserialize the manifest
         let program_data: String = std::fs::read_to_string(path.join("program.json"))
-            .map_err(|err| PackageError::failed_to_read_file(&path.to_str().unwrap(), err))?;
+            .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
         let manifest: Manifest = serde_json::from_str(&program_data)
-            .map_err(|err| PackageError::failed_to_deserialize_manifest_file(&path.to_str().unwrap(), err))?;
+            .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
 
         // Allow both `credits.aleo` and `credits` syntax
         let name = match self.name {
@@ -90,9 +90,9 @@ impl Command for Add {
             Some(dependencies),
         );
         let new_manifest_data = serde_json::to_string_pretty(&new_manifest)
-            .map_err(|err| PackageError::failed_to_serialize_manifest_file(&path.to_str().unwrap(), err))?;
+            .map_err(|err| PackageError::failed_to_serialize_manifest_file(path.to_str().unwrap(), err))?;
         std::fs::write(path.join("program.json"), new_manifest_data)
-            .map_err(|err| PackageError::failed_to_write_manifest(err))?;
+            .map_err(PackageError::failed_to_write_manifest)?;
 
         Ok(())
     }

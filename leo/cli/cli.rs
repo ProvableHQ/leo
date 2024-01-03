@@ -231,9 +231,9 @@ mod tests {
 mod test_helpers {
     use crate::cli::{cli::Commands, run_with_args, Add, New, CLI};
     use leo_span::symbol::create_session_if_not_set_then;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
-    pub(crate) fn sample_nested_package(temp_dir: &PathBuf) {
+    pub(crate) fn sample_nested_package(temp_dir: &Path) {
         let name = "nested";
 
         // Remove it if it already exists
@@ -328,12 +328,12 @@ function external_nested_function:
         // Add custom `.aleo` directory
         let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
         std::fs::create_dir_all(&registry).unwrap();
-        std::fs::write(&registry.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
-        std::fs::write(&registry.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
-        std::fs::write(&registry.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
+        std::fs::write(registry.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
+        std::fs::write(registry.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
+        std::fs::write(registry.join("nested_example_layer_2.aleo"), nested_example_layer_2).unwrap();
     }
 
-    pub(crate) fn sample_grandparent_package(temp_dir: &PathBuf) {
+    pub(crate) fn sample_grandparent_package(temp_dir: &Path) {
         let grandparent_directory = temp_dir.join("grandparent");
         let parent_directory = grandparent_directory.join("parent");
         let child_directory = parent_directory.join("child");
