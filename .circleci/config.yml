@@ -50,7 +50,7 @@ commands:
 jobs:
   check-style:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - checkout
@@ -66,7 +66,7 @@ jobs:
 
   clippy:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - checkout
@@ -83,7 +83,7 @@ jobs:
 
   leo-executable:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - checkout
@@ -102,7 +102,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -111,11 +111,11 @@ jobs:
           name: leo new
           command: |
             export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-new.sh
+            timeout 30m ./project/.circleci/leo-new.sh
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -128,7 +128,7 @@ jobs:
 
   leo-example:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -141,7 +141,7 @@ jobs:
 
   test-examples:
     docker:
-      - image: cimg/rust:1.71
+      - image: cimg/rust:1.74
     resource_class: xlarge
     steps:
       - attach_workspace:

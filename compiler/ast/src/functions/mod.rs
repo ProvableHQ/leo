@@ -111,11 +111,6 @@ impl Function {
         self.identifier.name
     }
 
-    /// Returns `true` if the function name is `main`.
-    pub fn is_main(&self) -> bool {
-        self.name() == sym::main
-    }
-
     ///
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///

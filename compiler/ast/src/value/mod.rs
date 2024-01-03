@@ -73,6 +73,7 @@ macro_rules! implement_const_unary {
     ) => {
         // TODO: This is temporary since the currently unused code is used in constant folding.
         #[allow(dead_code)]
+        #[allow(clippy::redundant_closure_call)]
         pub(crate) fn $name(self, span: Span) -> Result<Self> {
             use Value::*;
 
@@ -159,6 +160,7 @@ macro_rules! implement_const_binary {
     ) => {
         // This is temporary since the currently unused code is used in constant folding.
         #[allow(dead_code)]
+        #[allow(clippy::redundant_closure_call)]
         pub(crate) fn $name(self, other: Self, span: Span) -> Result<Self> {
             use Value::*;
 
