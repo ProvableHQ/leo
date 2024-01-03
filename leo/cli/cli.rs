@@ -149,9 +149,11 @@ mod tests {
         CLI,
     };
     use leo_span::symbol::create_session_if_not_set_then;
+    use serial_test::serial;
     use std::env::temp_dir;
 
     #[test]
+    #[serial]
     fn nested_network_dependency_run_test() {
         // Set current directory to temporary directory
         let temp_dir = temp_dir();
@@ -186,6 +188,7 @@ mod tests {
     }
 
     #[test]
+    #[serial]
     fn nested_local_dependency_run_test() {
         // Set current directory to temporary directory
         let temp_dir = temp_dir();

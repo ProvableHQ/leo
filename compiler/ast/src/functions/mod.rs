@@ -39,7 +39,7 @@ pub mod mode;
 pub use mode::*;
 
 use crate::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
-use leo_span::{sym, Span, Symbol};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
