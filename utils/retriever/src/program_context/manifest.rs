@@ -29,17 +29,17 @@ pub struct Manifest {
 
 impl Manifest {
     pub fn new(
-        program: &String,
-        version: &String,
-        description: &String,
-        license: &String,
+        program: &str,
+        version: &str,
+        description: &str,
+        license: &str,
         dependencies: Option<Vec<Dependency>>,
     ) -> Self {
         Self {
-            program: program.clone(),
-            version: version.clone(),
-            description: description.clone(),
-            license: license.clone(),
+            program: program.to_owned(),
+            version: version.to_owned(),
+            description: description.to_owned(),
+            license: license.to_owned(),
             dependencies,
         }
     }

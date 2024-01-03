@@ -149,7 +149,7 @@ mod tests {
         CLI,
     };
     use leo_span::symbol::create_session_if_not_set_then;
-    use std::{env::temp_dir};
+    use std::env::temp_dir;
 
     #[test]
     fn nested_network_dependency_run_test() {
