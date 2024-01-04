@@ -158,7 +158,6 @@ mod tests {
         // Set current directory to temporary directory
         let temp_dir = temp_dir();
         let project_directory = temp_dir.join("nested");
-        // let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
 
         // Create file structure
         test_helpers::sample_nested_package(&temp_dir);
@@ -182,7 +181,8 @@ mod tests {
             run_with_args(run).expect("Failed to execute `leo run`");
         });
 
-        // Clear tmp directory
+        // TODO: Clear tmp directory
+        // let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
         // std::fs::remove_dir_all(registry).unwrap();
         // std::fs::remove_dir_all(project_directory).unwrap();
     }
@@ -225,7 +225,7 @@ mod tests {
             run_with_args(run).expect("Failed to execute `leo run`");
         });
 
-        // Clear tmp directory
+        // TODO: Clear tmp directory
         // std::fs::remove_dir_all(project_directory).unwrap();
     }
 }

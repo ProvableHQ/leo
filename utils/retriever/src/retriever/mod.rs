@@ -347,14 +347,14 @@ fn retrieve_local(name: &String, path: &PathBuf) -> Result<Vec<Dependency>, Util
     if !lock_path.exists() {
         std::fs::create_dir_all(path).map_err(|err| {
             UtilError::util_file_io_error(
-                format!("Could create directory {}", lock_path.to_str().unwrap()),
+                format!("Couldn't create directory {}", lock_path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
         })?;
         File::create(lock_path.clone()).map_err(|err| {
             UtilError::util_file_io_error(
-                format!("Could create file {}", lock_path.to_str().unwrap()),
+                format!("Couldn't create file {}", lock_path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
