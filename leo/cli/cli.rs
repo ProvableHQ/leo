@@ -158,7 +158,7 @@ mod tests {
         // Set current directory to temporary directory
         let temp_dir = temp_dir();
         let project_directory = temp_dir.join("nested");
-        let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
+        // let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
 
         // Create file structure
         test_helpers::sample_nested_package(&temp_dir);
