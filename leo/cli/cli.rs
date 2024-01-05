@@ -43,11 +43,6 @@ pub struct CLI {
 ///Leo compiler and package manager
 #[derive(Parser, Debug)]
 enum Commands {
-    #[clap(about = "Add a new dependency to the current package. Defaults to testnet3 network")]
-    Add {
-        #[clap(flatten)]
-        command: Add,
-    },
     #[clap(about = "Create a new Aleo account")]
     Account {
         #[clap(subcommand)]
@@ -63,16 +58,6 @@ enum Commands {
         #[clap(subcommand)]
         command: Example,
     },
-    #[clap(about = "Compile the current package as a program")]
-    Build {
-        #[clap(flatten)]
-        command: Build,
-    },
-    #[clap(about = "Clean the output directory")]
-    Clean {
-        #[clap(flatten)]
-        command: Clean,
-    },
     #[clap(about = "Run a program with input variables")]
     Run {
         #[clap(flatten)]
@@ -82,6 +67,26 @@ enum Commands {
     Execute {
         #[clap(flatten)]
         command: Execute,
+    },
+    #[clap(about = "Deploy a program")]
+    Deploy {
+        #[clap(flatten)]
+        command: Deploy,
+    },
+    #[clap(about = "Add a new dependency to the current package. Defaults to testnet3 network")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
+    },
+    #[clap(about = "Compile the current package as a program")]
+    Build {
+        #[clap(flatten)]
+        command: Build,
+    },
+    #[clap(about = "Clean the output directory")]
+    Clean {
+        #[clap(flatten)]
+        command: Clean,
     },
     #[clap(about = "Update the Leo CLI")]
     Update {
@@ -135,6 +140,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             command.try_execute(context)
         }
         Commands::Clean { command } => command.try_execute(context),
+        Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
