@@ -15,10 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
+use snarkvm::cli::helpers::dotenv_private_key;
+use std::path::PathBuf;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
-pub struct Deploy;
+pub struct Deploy {
+    #[clap(long, help = "Custom priority fee in microcredits", default_value = "1000000")]
+    pub(crate) priority_fee: String,
+    #[clap(long, help = "Custom query endpoint", default_value = "http://api.explorer.aleo.org/v1")]
+    pub(crate) endpoint: String,
+    #[clap(long, help = "Custom network", default_value = "testnet3")]
+    pub(crate) network: String,
+    #[clap(long, help = "Custom private key")]
+    pub(crate) private_key: Option<String>,
+    #[clap(long, help = "Disables building of the project before deployment", default_value = "false")]
+    pub(crate) no_build: bool,
+}
 
 impl Command for Deploy {
     type Input = ();
@@ -28,29 +42,53 @@ impl Command for Deploy {
         tracing::span!(tracing::Level::INFO, "Leo")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        if !self.no_build {
+            (Build { options: BuildOptions::default() }).execute(context)?;
+        }
         Ok(())
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Open the Leo build/ directory
-        let path = context.dir()?;
-        let build_directory = BuildDirectory::open(&path).map_err(|_| CliError::needs_leo_build())?;
+        // Get the program name
+        let project_name = context.open_manifest()?.program_id().to_string();
 
-        // Change the cwd to the Leo build/ directory to deploy aleo files.
-        std::env::set_current_dir(&build_directory)
-            .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
+        // Get the private key
+        let mut private_key = self.private_key;
+        if private_key.is_none() {
+            private_key =
+                Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
+        }
 
-        // Unset the Leo panic hook.
-        let _ = std::panic::take_hook();
+        // Extract post-ordered list of local dependencies' paths from `leo.lock`
+        let mut all_paths: Vec<(String, PathBuf)> = context.local_dependency_paths()?;
 
-        // Call the `node` command.
-        println!();
-        let command = SnarkVMDeploy::try_parse_from([ALEO_CLI_COMMAND]).map_err(CliError::failed_to_parse_aleo_node)?;
-        let res = command.parse().map_err(CliError::failed_to_execute_aleo_node)?;
+        // Add the parent program to be deployed last
+        all_paths.push((project_name, context.dir()?.join("build")));
 
-        // Log the output of the `node` command.
-        tracing::info!("{}", res);
+        for (name, path) in all_paths {
+            // Set deploy arguments
+            let deploy = SnarkOSDeploy::try_parse_from([
+                "snarkos",
+                "--private-key",
+                private_key.as_ref().unwrap(),
+                "--query",
+                self.endpoint.as_str(),
+                "--priority-fee",
+                self.priority_fee.as_str(),
+                "--path",
+                path.to_str().unwrap(),
+                "--broadcast",
+                format!("{}/{}/transaction/broadcast", self.endpoint, self.network).as_str(),
+                &name,
+            ])
+            .unwrap();
+
+            dbg!(&deploy); // TODO: remove
+
+            // Deploy program
+            Developer::Deploy(deploy).parse().map_err(CliError::failed_to_execute_deploy)?;
+        }
 
         Ok(())
     }
