@@ -16,11 +16,11 @@
 
 use super::*;
 
-use leo_ast::{Stub};
+use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_errors::UtilError;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
-use leo_span::{Symbol};
+use leo_span::Symbol;
 use retriever::Retriever;
 
 use snarkvm::{
@@ -33,7 +33,6 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
 
 type CurrentNetwork = Testnet3;
 
@@ -110,7 +109,6 @@ impl Command for Build {
             .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
         let mut local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
-
 
         // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
         local_dependencies.push(main_sym);

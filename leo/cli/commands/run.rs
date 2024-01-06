@@ -28,7 +28,7 @@ pub struct Run {
     pub(crate) inputs: Vec<String>,
 
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
-    file: Option<String>,
+    pub(crate) file: Option<String>,
 
     #[clap(flatten)]
     pub(crate) compiler_options: BuildOptions,
