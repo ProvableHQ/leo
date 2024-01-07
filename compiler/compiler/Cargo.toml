@@ -61,14 +61,14 @@ workspace = true
 version = "1.10.2"
 
 [dev-dependencies.serde]
-version = "1.0.193"
+version = "1.0.194"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]
 version = "0.8.25"
 
 [dev-dependencies.tempfile]
-version = "3.8"
+version = "3.9"
 
 [features]
 default = [ ]

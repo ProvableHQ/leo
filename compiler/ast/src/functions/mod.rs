@@ -39,7 +39,7 @@ pub mod mode;
 pub use mode::*;
 
 use crate::{Block, Identifier, Node, NodeID, TupleType, Type};
-use leo_span::{sym, Span, Symbol};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -109,11 +109,6 @@ impl Function {
     /// Returns function name.
     pub fn name(&self) -> Symbol {
         self.identifier.name
-    }
-
-    /// Returns `true` if the function name is `main`.
-    pub fn is_main(&self) -> bool {
-        self.name() == sym::main
     }
 
     ///
