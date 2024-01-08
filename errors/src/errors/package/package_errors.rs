@@ -195,7 +195,7 @@ create_messages!(
         help: None,
     }
 
-    /// For when the package failed to initalize.
+    /// For when the package failed to initialize.
     @backtraced
     failed_to_initialize_package {
         args: (package: impl Display, path: impl Debug),
