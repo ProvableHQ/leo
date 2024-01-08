@@ -73,7 +73,7 @@ enum Commands {
         #[clap(flatten)]
         command: Deploy,
     },
-    #[clap(about = "Add a new dependency to the current package. Defaults to testnet3 network")]
+    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
     Add {
         #[clap(flatten)]
         command: Add,
