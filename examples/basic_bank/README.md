@@ -20,7 +20,7 @@ Note that the program can be easily extended to include addition features such a
 You may have already guessed that this program has a few bugs. We list some of them below: 
 - `withdraw` can only be invoked by the bank. A malicious bank could lock users' tokens by not invoking `withdraw`.
 - `withdraw` fails if the sum of the interest and principal is greater than the user's balance. 
-- User's can increase their principal by depositing tokens multiple times, including immediately before withdrawl.
+- User's can increase their principal by depositing tokens multiple times, including immediately before withdrawal.
 - Integer division rounds down; if the calculated interest is too small, then it will be rounded down to zero.
 
 Can you find any others?
