@@ -120,14 +120,11 @@ impl Context {
             return Ok(Vec::new());
         }
 
-        dbg!(&lock_path);
         let contents = std::fs::read_to_string(&lock_path)
             .map_err(|err| PackageError::failed_to_read_file(&lock_path.to_str().unwrap(), err))?;
-        dbg!(contents.clone());
 
         let entry_map: IndexMap<String, Vec<LockFileEntry>> =
             toml::from_str(&contents).map_err(PackageError::failed_to_deserialize_lock_file)?;
-        dbg!(&entry_map);
 
         let lock_entries = entry_map.get("package").ok_or_else(PackageError::invalid_lock_file_formatting)?;
 
@@ -138,8 +135,6 @@ impl Context {
                 None => None,
             })
             .collect();
-
-        dbg!(list.clone());
 
         Ok(list)
     }

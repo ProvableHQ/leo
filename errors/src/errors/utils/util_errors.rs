@@ -134,7 +134,7 @@ create_messages!(
     @formatted
     snarkvm_error_building_program_id {
         args: (),
-        msg: format!("Snarkvm error building program id"),
+        msg: "Snarkvm error building program id".to_string(),
         help: None,
     }
 
@@ -143,5 +143,12 @@ create_messages!(
         args: (endpoint: impl Display, error: impl ErrorArg),
         msg: format!("Failed to retrieve from endpoint `{endpoint}`. Error: {error}"),
         help: None,
+    }
+
+    @formatted
+    build_file_does_not_exist {
+        args: (path: impl Display),
+        msg: format!("Compiled file at `{path}` does not exist, cannot compile parent."),
+        help: Some("If you were using the `--non-recursive` flag, remove it and try again.".to_string()),
     }
 );

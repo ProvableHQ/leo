@@ -42,7 +42,7 @@ mod tests {
                 Retriever::new(Symbol::intern("nested"), &build_dir, &home_dir).expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("nested")).expect("failed to prepare local");
-            retriever.process_local(Symbol::intern("nested")).expect("failed to process local");
+            retriever.process_local(Symbol::intern("nested"), true).expect("failed to process local");
         });
     }
 
@@ -60,7 +60,7 @@ mod tests {
                 Retriever::new(Symbol::intern("nested"), &build_dir, &aleo_dir()).expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("nested")).expect("failed to prepare local");
-            retriever.process_local(Symbol::intern("nested")).expect("failed to process local");
+            retriever.process_local(Symbol::intern("nested"), true).expect("failed to process local");
         });
     }
 
@@ -78,7 +78,7 @@ mod tests {
                 Retriever::new(Symbol::intern("simple"), &build_dir, &home_dir).expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("simple")).expect("failed to prepare local");
-            retriever.process_local(Symbol::intern("simple")).expect("failed to process local");
+            retriever.process_local(Symbol::intern("simple"), true).expect("failed to process local");
         });
     }
 
