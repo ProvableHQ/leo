@@ -29,8 +29,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-// TODO: Remove: const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
-
 // Retriever is responsible for retrieving external programs
 pub struct Retriever {
     name: Symbol,
