@@ -215,10 +215,10 @@ create_messages!(
     }
 
     @formatted
-    leo_imports_only {
+    leo_and_aleo_imports_only {
         args: (),
-        msg: "Invalid import call to non-leo file.",
-        help: Some("Only imports of Leo `.leo` files are currently supported.".to_string()),
+        msg: "Invalid import call to non-leo non-aleo file.",
+        help: Some("Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported.".to_string()),
     }
 
     @formatted
@@ -252,7 +252,7 @@ create_messages!(
     @formatted
     invalid_network {
         args: (),
-        msg: "Invalid network identifier. The only supported identifier is `aleo`.",
+        msg: "Invalid network identifier. The only supported identifier is `.aleo`.",
         help: None,
     }
 
@@ -296,6 +296,43 @@ create_messages!(
     array_must_have_at_least_one_element {
         args: (kind: impl Display),
         msg: format!("An array {kind} must have at least one element."),
+        help: None,
+    }
+
+    @formatted
+    invalid_external_type {
+        args: (),
+        msg: format!("Invalid external type."),
+        help: Some("External type should have the form `<program>.aleo/<record>`. For example `bank.aleo/loan`".to_string()),
+    }
+
+    @formatted
+    cannot_declare_external_struct {
+        args: (),
+        msg: format!("Cannot declare external struct."),
+        help: None,
+    }
+
+    /// Enforce that cannot use an external type to do anything except input/output of function
+    @formatted
+    external_type_cannot_be_used_inside_function {
+        args: (program: impl Display, file_type: impl Display),
+        msg: format!("External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."),
+        help: None,
+    }
+
+    /// Enforce that cannot use import in program scope
+    @formatted
+    cannot_import_inside_program_body {
+        args: (),
+        msg: format!("Cannot use import inside program body."),
+        help: None,
+    }
+
+    @formatted
+    only_aleo_external_calls {
+        args: (),
+        msg: format!("Only external calls to `.aleo` programs are supported."),
         help: None,
     }
 );

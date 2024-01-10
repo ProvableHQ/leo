@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{ConstDeclaration, Function, Mapping, ProgramId, Struct};
+use crate::{ConstDeclaration, Function, Mapping, ProgramId, Struct, Stub};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -37,6 +37,23 @@ pub struct ProgramScope {
     pub functions: Vec<(Symbol, Function)>,
     /// The span associated with the program scope.
     pub span: Span,
+}
+
+impl From<Stub> for ProgramScope {
+    fn from(stub: Stub) -> Self {
+        Self {
+            program_id: stub.stub_id,
+            consts: stub.consts,
+            structs: stub.structs,
+            mappings: stub.mappings,
+            functions: stub
+                .functions
+                .into_iter()
+                .map(|(symbol, function)| (symbol, Function::from(function)))
+                .collect(),
+            span: stub.span,
+        }
+    }
 }
 
 impl fmt::Display for ProgramScope {

@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A block `{ [stmt]* }` consisting of a list of statements to execute in order.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Block {
     /// The list of statements to execute.
     pub statements: Vec<Statement>,

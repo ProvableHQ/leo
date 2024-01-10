@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Identifier, Input, Node, NodeID, Output, TupleType, Type};
+use crate::{Block, FinalizeStub, Identifier, Input, Node, NodeID, Output, TupleType, Type};
 
 use leo_span::Span;
 
@@ -69,6 +69,19 @@ impl fmt::Display for Finalize {
             _ => format!("({})", self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")),
         };
         write!(f, " finalize {}({parameters}) -> {returns} {}", self.identifier, self.block)
+    }
+}
+
+impl From<FinalizeStub> for Finalize {
+    fn from(finalize_stub: FinalizeStub) -> Self {
+        Self::new(
+            finalize_stub.identifier,
+            finalize_stub.input,
+            finalize_stub.output,
+            Block::default(),
+            finalize_stub.span,
+            finalize_stub.id,
+        )
     }
 }
 

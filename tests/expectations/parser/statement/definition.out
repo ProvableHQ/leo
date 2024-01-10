@@ -135,6 +135,64 @@ outputs:
       place:
         Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
+        Identifier: "{\"id\":\"1\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":14}\"}"
+      value:
+        Call:
+          function:
+            Identifier: "{\"id\":\"3\",\"name\":\"mint_private\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":42}\"}"
+          arguments:
+            - Literal:
+                Integer:
+                  - U64
+                  - "100"
+                  - span:
+                      lo: 43
+                      hi: 49
+                  - 4
+          external:
+            Identifier: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":24}\"}"
+          span:
+            lo: 17
+            hi: 50
+          id: 5
+      span:
+        lo: 0
+        hi: 50
+      id: 6
+  - Definition:
+      declaration_type: Let
+      place:
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      type_:
+        Identifier: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":27}\"}"
+      value:
+        Call:
+          function:
+            Identifier: "{\"id\":\"4\",\"name\":\"mint_private\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":55}\"}"
+          arguments:
+            - Literal:
+                Integer:
+                  - U64
+                  - "100"
+                  - span:
+                      lo: 56
+                      hi: 62
+                  - 5
+          external:
+            Identifier: "{\"id\":\"3\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":37}\"}"
+          span:
+            lo: 30
+            hi: 63
+          id: 6
+      span:
+        lo: 0
+        hi: 63
+      id: 7
+  - Definition:
+      declaration_type: Let
+      place:
+        Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
+      type_:
         Integer: U32
       value:
         Identifier: "{\"id\":\"1\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":17}\"}"

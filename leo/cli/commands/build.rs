@@ -16,15 +16,9 @@
 
 use super::*;
 
-use leo_ast::{NodeBuilder, Struct};
+use leo_ast::{NodeBuilder, Struct, Stub};
 use leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-use leo_package::{
-    build::BuildDirectory,
-    imports::ImportsDirectory,
-    inputs::InputFile,
-    outputs::OutputsDirectory,
-    source::SourceDirectory,
-};
+use leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
 use leo_span::{symbol::with_session_globals, Symbol};
 
 use snarkvm::{
@@ -33,10 +27,16 @@ use snarkvm::{
 };
 
 use indexmap::IndexMap;
+
+use leo_errors::UtilError;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+
+use retriever::Retriever;
+
+type CurrentNetwork = Testnet3;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -95,16 +95,14 @@ impl Command for Build {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the package path.
         let package_path = context.dir()?;
+        let home_path = context.home()?;
+
+        // Open the build directory.
+        let build_directory = BuildDirectory::create(&package_path)?;
 
         // Get the program id.
         let manifest = context.open_manifest()?;
         let program_id = manifest.program_id();
-
-        // Create the outputs directory.
-        let outputs_directory = OutputsDirectory::create(&package_path)?;
-
-        // Open the build directory.
-        let build_directory = BuildDirectory::open(&package_path)?;
 
         // Initialize error handler
         let handler = Handler::default();
@@ -112,49 +110,52 @@ impl Command for Build {
         // Initialize a node counter.
         let node_builder = NodeBuilder::default();
 
-        // Fetch paths to all .leo files in the source directory.
-        let source_files = SourceDirectory::files(&package_path)?;
-
-        // Check the source files.
-        SourceDirectory::check_files(&source_files)?;
-
         // Store all struct declarations made in the source files.
         let mut structs = IndexMap::new();
 
-        // Compile all .leo files into .aleo files.
-        for file_path in source_files.into_iter() {
-            structs.extend(compile_leo_file(
-                file_path,
-                &package_path,
-                program_id,
-                &outputs_directory,
-                &build_directory,
-                &handler,
-                self.options.clone(),
-                false,
-            )?);
-        }
+        // Retrieve all local dependencies in post order
+        let main_sym = Symbol::intern(&program_id.name().to_string());
+        let mut retriever = Retriever::new(main_sym, &package_path, &home_path)
+            .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        let mut local_dependencies =
+            retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
-        if !ImportsDirectory::is_empty(&package_path)? {
-            // Create Aleo build/imports/ directory.
-            let build_imports_directory = ImportsDirectory::create(&build_directory)?;
+        // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
+        local_dependencies.push(main_sym);
 
-            // Fetch paths to all .leo files in the imports directory.
-            let import_files = ImportsDirectory::files(&package_path)?;
+        // Loop through all local dependencies and compile them in order
+        for dependency in local_dependencies.into_iter() {
+            // Get path to the local project
+            let (local_path, stubs) = retriever.prepare_local(dependency)?;
+
+            // Create the outputs directory.
+            let local_outputs_directory = OutputsDirectory::create(&local_path)?;
+
+            // Open the build directory.
+            let local_build_directory = BuildDirectory::create(&local_path)?;
+
+            // Fetch paths to all .leo files in the source directory.
+            let local_source_files = SourceDirectory::files(&local_path)?;
+
+            // Check the source files.
+            SourceDirectory::check_files(&local_source_files)?;
 
             // Compile all .leo files into .aleo files.
-            for file_path in import_files.into_iter() {
+            for file_path in local_source_files {
                 structs.extend(compile_leo_file(
                     file_path,
-                    &package_path,
-                    program_id,
-                    &outputs_directory,
-                    &build_imports_directory,
+                    &ProgramID::<Testnet3>::try_from(format!("{}.aleo", dependency))
+                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
+                    &local_outputs_directory,
+                    &local_build_directory,
                     &handler,
                     self.options.clone(),
-                    true,
+                    stubs.clone(),
                 )?);
             }
+
+            // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
+            retriever.process_local(dependency)?;
         }
 
         // Load the input file at `package_name.in`
@@ -203,31 +204,23 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    _package_path: &Path,
     program_id: &ProgramID<Testnet3>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
     options: BuildOptions,
-    is_import: bool,
+    stubs: IndexMap<Symbol, Stub>,
 ) -> Result<IndexMap<Symbol, Struct>> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
         file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
 
-    // If the program is an import, construct program name from file_path
-    // Otherwise, use the program_id found in `package.json`.
-    let program_name = match is_import {
-        false => program_id.name().to_string(),
-        true => file_name.strip_suffix(".leo").ok_or_else(PackageError::failed_to_get_file_name)?.to_string(),
-    };
+    // Construct program name from the program_id found in `package.json`.
+    let program_name = program_id.name().to_string();
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
-    aleo_file_path.push(match is_import {
-        true => format!("{program_name}.{}", program_id.network()),
-        false => format!("main.{}", program_id.network()),
-    });
+    aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
@@ -237,6 +230,7 @@ fn compile_leo_file(
         file_path.clone(),
         outputs.to_path_buf(),
         Some(options.into()),
+        stubs,
     );
 
     // Compile the Leo program into Aleo instructions.

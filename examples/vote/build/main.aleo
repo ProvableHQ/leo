@@ -16,31 +16,32 @@ record Ticket:
 
 
 mapping proposals:
-	key left as field.public;
-	value right as ProposalInfo.public;
+	key as field.public;
+	value as ProposalInfo.public;
 
 
 mapping tickets:
-	key left as field.public;
-	value right as u64.public;
+	key as field.public;
+	value as u64.public;
 
 
 mapping agree_votes:
-	key left as field.public;
-	value right as u64.public;
+	key as field.public;
+	value as u64.public;
 
 
 mapping disagree_votes:
-	key left as field.public;
-	value right as u64.public;
+	key as field.public;
+	value as u64.public;
 
 function propose:
     input r0 as ProposalInfo.public;
     assert.eq self.caller r0.proposer;
-    hash.bhp256 r0.title into r1 as field;    cast self.caller r1 r0 into r2 as Proposal.record;
+    hash.bhp256 r0.title into r1 as field;
+    cast self.caller r1 r0 into r2 as Proposal.record;
+    async propose r1 into r3;
     output r2 as Proposal.record;
-
-    finalize r1;
+    output r3 as vote.aleo/propose.future;
 
 finalize propose:
     input r0 as field.public;
@@ -51,9 +52,9 @@ function new_ticket:
     input r0 as field.public;
     input r1 as address.public;
     cast r1 r0 into r2 as Ticket.record;
+    async new_ticket r0 into r3;
     output r2 as Ticket.record;
-
-    finalize r0;
+    output r3 as vote.aleo/new_ticket.future;
 
 finalize new_ticket:
     input r0 as field.public;
@@ -64,8 +65,8 @@ finalize new_ticket:
 
 function agree:
     input r0 as Ticket.record;
-
-    finalize r0.pid;
+    async agree r0.pid into r1;
+    output r1 as vote.aleo/agree.future;
 
 finalize agree:
     input r0 as field.public;
@@ -76,8 +77,8 @@ finalize agree:
 
 function disagree:
     input r0 as Ticket.record;
-
-    finalize r0.pid;
+    async disagree r0.pid into r1;
+    output r1 as vote.aleo/disagree.future;
 
 finalize disagree:
     input r0 as field.public;

@@ -28,19 +28,10 @@ impl<'a> CodeGenerator<'a> {
         // Accumulate instructions into a program string.
         let mut program_string = String::new();
 
-        if !input.imports.is_empty() {
-            // Visit each import statement and produce a Aleo import instruction.
-            program_string.push_str(
-                &input
-                    .imports
-                    .iter()
-                    .map(|(identifier, (imported_program, _))| self.visit_import(identifier, imported_program))
-                    .join("\n"),
-            );
-
-            // Newline separator.
-            program_string.push('\n');
-        }
+        // Print out the dependencies of the program. Already arranged in post order by Retriever module.
+        input.stubs.iter().for_each(|(program_name, _)| {
+            program_string.push_str(&format!("import {}.aleo;\n", program_name));
+        });
 
         // Retrieve the program scope.
         // Note that type checking guarantees that there is exactly one program scope.
@@ -107,15 +98,6 @@ impl<'a> CodeGenerator<'a> {
         );
 
         program_string
-    }
-
-    fn visit_import(&mut self, import_name: &'a Symbol, import_program: &'a Program) -> String {
-        // Load symbols into composite mapping.
-        let _import_program_string = self.visit_program(import_program);
-        // todo: We do not need the import program string because we generate instructions for imports separately during leo build.
-
-        // Generate string for import statement.
-        format!("import {import_name}.aleo;")
     }
 
     fn visit_struct_or_record(&mut self, struct_: &'a Struct) -> String {

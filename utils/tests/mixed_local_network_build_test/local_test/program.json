@@ -1,0 +1,18 @@
+{
+    "program": "local_test.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "license": "MIT",
+    "dependencies" : [
+        {
+            "name": "local_dep_1.aleo",
+            "location": "local",
+            "path": "local_dep_1"
+        },
+        {
+            "name": "nested.aleo",
+            "location": "local",
+            "path": "../nested"
+        }
+    ]
+}

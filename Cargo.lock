@@ -736,6 +736,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "5.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "978747c1d849a7d2ee5e8adc0159961c48fb7e5db2f06af6723b80123bb53856"
+dependencies = [
+ "cfg-if",
+ "hashbrown 0.14.2",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "der"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -821,6 +834,16 @@ dependencies = [
  "option-ext",
  "redox_users",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "disassembler"
+version = "1.10.0"
+dependencies = [
+ "leo-ast",
+ "leo-errors",
+ "leo-span",
+ "snarkvm",
 ]
 
 [[package]]
@@ -991,12 +1014,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1fd087255f739f4f1aeea69f11b72f8080e9c2e7645cd06955dad4a178a49e3"
 
 [[package]]
+name = "futures"
+version = "0.3.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da0290714b38af9b4a7b094b8a37086d1b4e61f2df9122c3cad2577669145335"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "futures-executor",
+ "futures-io",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+]
+
+[[package]]
 name = "futures-channel"
 version = "0.3.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff4dd66668b557604244583e3e1e1eada8c5c2e96a6d0d6653ede395b78bbacb"
 dependencies = [
  "futures-core",
+ "futures-sink",
 ]
 
 [[package]]
@@ -1004,6 +1043,17 @@ name = "futures-core"
 version = "0.3.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb1d22c66e66d9d72e1758f0bd7d4fd0bee04cad842ee34587d68c07e45d088c"
+
+[[package]]
+name = "futures-executor"
+version = "0.3.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f4fb8693db0cf099eadcca0efe2a5a22e4550f98ed16aba6c48700da29597bc"
+dependencies = [
+ "futures-core",
+ "futures-task",
+ "futures-util",
+]
 
 [[package]]
 name = "futures-io"
@@ -1029,8 +1079,10 @@ version = "0.3.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a19526d624e703a3179b3d322efec918b6246ea0fa51d41124525f00f1cc8104"
 dependencies = [
+ "futures-channel",
  "futures-core",
  "futures-io",
+ "futures-sink",
  "futures-task",
  "memchr",
  "pin-project-lite",
@@ -1380,6 +1432,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
+ "snarkvm",
 ]
 
 [[package]]
@@ -1387,6 +1440,7 @@ name = "leo-compiler"
 version = "1.10.0"
 dependencies = [
  "dotenvy",
+ "indexmap 1.9.3",
  "leo-ast",
  "leo-errors",
  "leo-package",
@@ -1413,6 +1467,7 @@ dependencies = [
  "colored",
  "derivative",
  "leo-span",
+ "reqwest",
  "serde",
  "thiserror",
 ]
@@ -1421,6 +1476,7 @@ dependencies = [
 name = "leo-lang"
 version = "1.10.0"
 dependencies = [
+ "aleo-std",
  "ansi_term",
  "assert_cmd",
  "backtrace",
@@ -1442,10 +1498,12 @@ dependencies = [
  "rand_chacha",
  "rand_core",
  "reqwest",
+ "retriever",
  "rusty-hook",
  "self_update 0.39.0",
  "serde",
  "serde_json",
+ "serial_test",
  "snarkvm",
  "sys-info",
  "test_dir",
@@ -1460,11 +1518,14 @@ dependencies = [
 name = "leo-package"
 version = "1.10.0"
 dependencies = [
+ "aleo-std",
  "indexmap 1.9.3",
  "lazy_static",
  "leo-errors",
  "rand",
+ "retriever",
  "serde",
+ "serial_test",
  "snarkvm",
  "toml 0.8.8",
  "tracing",
@@ -1522,6 +1583,7 @@ dependencies = [
  "backtrace",
  "clap",
  "criterion",
+ "indexmap 1.9.3",
  "leo-compiler",
  "leo-errors",
  "leo-span",
@@ -2181,6 +2243,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "retriever"
+version = "1.10.0"
+dependencies = [
+ "aleo-std",
+ "disassembler",
+ "indexmap 1.9.3",
+ "leo-ast",
+ "leo-errors",
+ "leo-passes",
+ "leo-span",
+ "serde",
+ "serde_json",
+ "serial_test",
+ "sha2",
+ "tempfile",
+ "toml 0.8.8",
+ "ureq",
+]
+
+[[package]]
 name = "ring"
 version = "0.17.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2445,6 +2527,31 @@ dependencies = [
  "ryu",
  "serde",
  "yaml-rust",
+]
+
+[[package]]
+name = "serial_test"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e56dd856803e253c8f298af3f4d7eb0ae5e23a737252cd90bb4f3b435033b2d"
+dependencies = [
+ "dashmap",
+ "futures",
+ "lazy_static",
+ "log",
+ "parking_lot",
+ "serial_test_derive",
+]
+
+[[package]]
+name = "serial_test_derive"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91d129178576168c589c9ec973feedf7d3126c01ac2bf08795109aa35b69fb8f"
+dependencies = [
+ "proc-macro2",
+ "quote 1.0.35",
+ "syn 2.0.46",
 ]
 
 [[package]]

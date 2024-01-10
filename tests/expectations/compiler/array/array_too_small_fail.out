@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372084]: An array cannot be empty\n    --> compiler-test:4:20\n     |\n   4 |     transition foo(a: [bool; 0]) -> bool {\n     |                    ^\n"
+  - "Error [ETYC0372086]: An array cannot be empty\n    --> compiler-test:4:20\n     |\n   4 |     transition foo(a: [bool; 0]) -> bool {\n     |                    ^\n"

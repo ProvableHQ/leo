@@ -15,11 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::parse_ast;
-use leo_errors::{CompilerError, ParserError, Result};
-use leo_span::{source_map::FileName, symbol::with_session_globals};
 
-use std::fs;
+use leo_errors::{ParserError, Result};
 
 impl ParserContext<'_> {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
@@ -56,7 +53,7 @@ impl ParserContext<'_> {
             return Err(ParserError::missing_program_scope(self.token.span).into());
         }
 
-        Ok(Program { imports, program_scopes })
+        Ok(Program { imports, stubs: IndexMap::new(), program_scopes })
     }
 
     fn unexpected_item(token: &SpannedToken, expected: &[Token]) -> ParserError {
@@ -76,45 +73,21 @@ impl ParserContext<'_> {
         // Parse `foo`.
         let import_name = self.expect_identifier()?;
 
-        // Parse `.leo`.
+        // Parse `.aleo`.
         self.expect(&Token::Dot)?;
-        if !self.eat(&Token::Leo) {
-            // Throw error for non-leo files.
-            return Err(ParserError::leo_imports_only(self.token.span).into());
+
+        if !self.eat(&Token::Aleo) {
+            // Throw error for non-aleo files.
+            return Err(ParserError::invalid_network(self.token.span).into());
         }
 
         let end = self.expect(&Token::Semicolon)?;
 
-        // Tokenize and parse import file.
-        // Todo: move this to a different module.
-        let mut import_file_path =
-            std::env::current_dir().map_err(|err| CompilerError::cannot_open_cwd(err, self.token.span))?;
-        import_file_path.push("imports");
-        import_file_path.push(format!("{}.leo", import_name.name));
-
-        // Throw an error if the import file doesn't exist.
-        if !import_file_path.exists() {
-            return Err(CompilerError::import_not_found(import_file_path.display(), self.prev_token.span).into());
-        }
-
-        // Read the import file into string.
-        // Todo: protect against cyclic imports.
-        let program_string =
-            fs::read_to_string(&import_file_path).map_err(|e| CompilerError::file_read_error(&import_file_path, e))?;
-
-        // Create import file name.
-        let name: FileName = FileName::Real(import_file_path);
-
-        // Register the source (`program_string`) in the source map.
-        let prg_sf = with_session_globals(|s| s.source_map.new_source(&program_string, name));
-
-        // Use the parser to construct the imported abstract syntax tree (ast).
-        let program_ast = parse_ast(self.handler, self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
-
-        Ok((import_name.name, (program_ast.into_repr(), start + end)))
+        // Return the import name and the span.
+        Ok((import_name.name, (Program::default(), start + end)))
     }
 
-    /// Parsers a program scope `program foo.aleo { ... }`.
+    /// Parses a program scope `program foo.aleo { ... }`.
     fn parse_program_scope(&mut self) -> Result<ProgramScope> {
         // Parse `program` keyword.
         let start = self.expect(&Token::Program)?;
@@ -124,15 +97,13 @@ impl ParserContext<'_> {
 
         // Parse the program network.
         self.expect(&Token::Dot)?;
-        let network = self.expect_identifier()?;
+
+        // Otherwise throw parser error
+        self.expect(&Token::Aleo).map_err(|_| ParserError::invalid_network(self.token.span))?;
 
         // Construct the program id.
-        let program_id = ProgramId { name, network };
-
-        // Check that the program network is valid.
-        if network.name != sym::aleo {
-            return Err(ParserError::invalid_network(network.span).into());
-        }
+        let program_id =
+            ProgramId { name, network: Identifier::new(Symbol::intern("aleo"), self.node_builder.next_id()) };
 
         // Parse `{`.
         self.expect(&Token::LeftCurly)?;
@@ -235,6 +206,13 @@ impl ParserContext<'_> {
     pub(super) fn parse_struct(&mut self) -> Result<(Symbol, Struct)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Struct, Token::Record])?;
+
+        // Check if using external type
+        let file_type = self.look_ahead(1, |t| &t.token);
+        if self.token.token == Token::Dot && (file_type == &Token::Aleo) {
+            return Err(ParserError::cannot_declare_external_struct(self.token.span).into());
+        }
+
         let struct_name = self.expect_identifier()?;
 
         self.expect(&Token::LeftCurly)?;
@@ -302,9 +280,9 @@ impl ParserContext<'_> {
             let external = self.expect_identifier()?;
             let mut span = name.span + external.span;
 
-            // Parse `.leo/`.
+            // Parse `.leo/` or `.aleo/`.
             self.eat(&Token::Dot);
-            self.eat(&Token::Leo);
+            self.eat_any(&[Token::Leo, Token::Aleo]);
             self.eat(&Token::Div);
 
             // Parse record name.
@@ -349,9 +327,9 @@ impl ParserContext<'_> {
             let external = self.expect_identifier()?;
             let mut span = external.span;
 
-            // Parse `.leo/`.
+            // Parse `.leo/` or `.aleo/`.
             self.eat(&Token::Dot);
-            self.eat(&Token::Leo);
+            self.eat_any(&[Token::Leo, Token::Aleo]);
             self.eat(&Token::Div);
 
             // Parse record name.
@@ -374,7 +352,7 @@ impl ParserContext<'_> {
         }
     }
 
-    fn peek_is_external(&self) -> bool {
+    pub fn peek_is_external(&self) -> bool {
         matches!((&self.token.token, self.look_ahead(1, |t| &t.token)), (Token::Identifier(_), Token::Dot))
     }
 
@@ -433,8 +411,15 @@ impl ParserContext<'_> {
             }
         };
 
-        // Parse the function body.
-        let block = self.parse_block()?;
+        // Parse the function body. Allow empty blocks. `fn foo(a:u8);`
+        let (_has_empty_block, block) = match &self.token.token {
+            Token::LeftCurly => (false, self.parse_block()?),
+            Token::Semicolon => {
+                let semicolon = self.expect(&Token::Semicolon)?;
+                (true, Block { statements: Vec::new(), span: semicolon, id: self.node_builder.next_id() })
+            }
+            _ => self.unexpected("block or semicolon")?,
+        };
 
         // Parse the `finalize` block if it exists.
         let finalize = match self.eat(&Token::Finalize) {

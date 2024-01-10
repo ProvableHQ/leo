@@ -30,6 +30,7 @@ use leo_ast::{
     Identifier,
     Literal,
     MemberAccess,
+    ProgramScope,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -518,7 +519,6 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    // TODO: Cleanup
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
         let (mut call_instruction, has_finalize) = match &input.external {
             Some(external) => {
@@ -528,7 +528,9 @@ impl<'a> CodeGenerator<'a> {
                     Expression::Identifier(identifier) => identifier.name,
                     _ => unreachable!("Parsing guarantees that a program name is always an identifier."),
                 };
+                let stub_scope: ProgramScope;
                 // Lookup the imported program scope.
+                // TODO: Needs refactor. All imports are stubs now.
                 let imported_program_scope = match self
                     .program
                     .imports
@@ -536,7 +538,14 @@ impl<'a> CodeGenerator<'a> {
                     .and_then(|(program, _)| program.program_scopes.get(&program_name))
                 {
                     Some(program) => program,
-                    None => unreachable!("Type checking guarantees that imported programs are well defined."),
+                    None => {
+                        if let Some(stub_program) = self.program.stubs.get(&program_name) {
+                            stub_scope = ProgramScope::from(stub_program.clone());
+                            &stub_scope
+                        } else {
+                            unreachable!("Type checking guarantees that imported and stub programs are well defined.")
+                        }
+                    }
                 };
                 // Check if the external function has a finalize block.
                 let function_name = match *input.function {

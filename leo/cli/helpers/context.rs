@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use aleo_std;
 use leo_errors::{CliError, PackageError, Result};
 use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
 
 use snarkvm::file::Manifest;
 
+use aleo_std::aleo_dir;
 use std::{
     env::current_dir,
     fs::File,
@@ -33,11 +35,25 @@ use std::{
 pub struct Context {
     /// Path at which the command is called, None when default
     pub path: Option<PathBuf>,
+    /// Path to use for the Aleo registry, None when default
+    pub home: Option<PathBuf>,
 }
 
 impl Context {
-    pub fn new(path: Option<PathBuf>) -> Result<Context> {
-        Ok(Context { path })
+    pub fn new(path: Option<PathBuf>, home: Option<PathBuf>) -> Result<Context> {
+        Ok(Context { path, home })
+    }
+
+    /// Returns the path of the parent directory to the Leo package.
+    pub fn parent_dir(&self) -> Result<PathBuf> {
+        match &self.path {
+            Some(ref path) => {
+                let mut path = path.clone();
+                path.pop();
+                Ok(path)
+            }
+            None => Ok(current_dir().map_err(CliError::cli_io_error)?),
+        }
     }
 
     /// Returns the path to the Leo package.
@@ -45,6 +61,14 @@ impl Context {
         match &self.path {
             Some(path) => Ok(path.clone()),
             None => Ok(current_dir().map_err(CliError::cli_io_error)?),
+        }
+    }
+
+    /// Returns the path to the Aleo registry directory.
+    pub fn home(&self) -> Result<PathBuf> {
+        match &self.home {
+            Some(path) => Ok(path.clone()),
+            None => Ok(aleo_dir()),
         }
     }
 
@@ -68,16 +92,16 @@ impl Context {
 
         // Read the manifest file to string.
         let manifest_string =
-            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)?;
+            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)?;
 
         // Construct the file path.
         let build_manifest_path = build_path.join(Manifest::<CurrentNetwork>::file_name());
 
         // Write the file.
         File::create(build_manifest_path)
-            .map_err(PackageError::failed_to_open_manifest)?
+            .map_err(PackageError::failed_to_create_manifest)?
             .write_all(manifest_string.as_bytes())
-            .map_err(PackageError::failed_to_open_manifest)?;
+            .map_err(PackageError::failed_to_write_manifest)?;
 
         // Get package name from program id.
         Ok(manifest)

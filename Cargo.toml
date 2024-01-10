@@ -41,7 +41,9 @@ members = [
   "docs/grammar",
   "errors",
   "leo/package",
-  "tests/test-framework"
+  "tests/test-framework",
+  "utils/disassembler",
+  "utils/retriever"
 ]
 
 [workspace.dependencies.snarkvm]
@@ -58,6 +60,10 @@ path = "leo/cli/main.rs"
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
+
+[dependencies.aleo-std]
+version = "0.1.18"
+default-features = false
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
@@ -82,6 +88,10 @@ version = "=1.10.0"
 [dependencies.leo-span]
 path = "./compiler/span"
 version = "=1.10.0"
+
+[dependencies.retriever]
+path = "./utils/retriever"
+version = "1.10.0"
 
 [dependencies.backtrace]
 version = "0.3.68"
@@ -136,6 +146,9 @@ features = [ "derive" ]
 
 [dependencies.serde_json]
 version = "1.0"
+
+[dependencies.serial_test]
+version = "2.0.0"
 
 [dependencies.snarkvm]
 workspace = true

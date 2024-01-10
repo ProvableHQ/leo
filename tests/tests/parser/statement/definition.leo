@@ -20,6 +20,10 @@ let x: i8 = x();
 
 let x: string = expr;
 
+let x: credits = credits.aleo/mint_private(100u64);
+
+let x: credits.aleo/credits = credits.aleo/mint_private(100u64);
+
 
 let x: u32 = expr;
 

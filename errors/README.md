@@ -73,3 +73,7 @@ When SnarkVM implements better error codes and messages, we can bubble them up.
 ### State
 
 The errors for the `leo-state` crate. Its error codes will range from 1_000-1_999 and be prefixed with the characters `STA`.
+
+### Utils
+
+The errors related to dependency retrieval in the `utils` crate. Its error codes will range from 10_000-10_999 and be prefixed with the characters `DEP`.
