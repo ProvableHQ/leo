@@ -89,6 +89,8 @@
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -129,6 +131,13 @@
     }
 
     <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Derive the location of the parent directory to the project.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>package_path = context.parent_dir()<span class="question-mark">?</span>;
+
+        <span class="comment">// Change the cwd to the Leo package directory to initialize all files.
+        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
+            .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))<span class="question-mark">?</span>;
+
         <span class="comment">// Call the `aleo new` command from the Aleo SDK.
         </span><span class="kw">let </span>command =
             SnarkVMNew::try_parse_from([SNARKVM_COMMAND, <span class="kw-2">&amp;</span><span class="self">self</span>.name]).map_err(CliError::failed_to_parse_new)<span class="question-mark">?</span>;
@@ -137,16 +146,11 @@
         <span class="comment">// Log the output of the `aleo new` command.
         </span><span class="macro">tracing::info!</span>(<span class="string">&quot;{}&quot;</span>, result);
 
-        <span class="comment">// Derive the program directory path.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>package_path = context.dir()<span class="question-mark">?</span>;
-        package_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.name);
-
         <span class="comment">// Initialize the Leo package in the directory created by `aleo new`.
-        </span>Package::&lt;CurrentNetwork&gt;::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Change the cwd to the Leo package directory to compile aleo files.
-        </span>std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
+        </span>package_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.name);
+        std::env::set_current_dir(<span class="kw-2">&amp;</span>package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))<span class="question-mark">?</span>;
+        Package::&lt;CurrentNetwork&gt;::initialize(<span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span>package_path)<span class="question-mark">?</span>;
 
         <span class="comment">// Open the program manifest.
         </span><span class="kw">let </span>manifest = context.open_manifest()<span class="question-mark">?</span>;

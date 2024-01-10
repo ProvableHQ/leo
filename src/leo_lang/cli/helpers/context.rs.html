@@ -83,6 +83,30 @@
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
 <a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -100,11 +124,13 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
+<span class="kw">use </span>aleo_std;
 <span class="kw">use </span>leo_errors::{CliError, PackageError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
 
 <span class="kw">use </span>snarkvm::file::Manifest;
 
+<span class="kw">use </span>aleo_std::aleo_dir;
 <span class="kw">use </span>std::{
     env::current_dir,
     fs::File,
@@ -118,11 +144,25 @@
 </span><span class="kw">pub struct </span>Context {
     <span class="doccomment">/// Path at which the command is called, None when default
     </span><span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+    <span class="doccomment">/// Path to use for the Aleo registry, None when default
+    </span><span class="kw">pub </span>home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
 <span class="kw">impl </span>Context {
-    <span class="kw">pub fn </span>new(path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
-        <span class="prelude-val">Ok</span>(Context { path })
+    <span class="kw">pub fn </span>new(path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;, home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Context&gt; {
+        <span class="prelude-val">Ok</span>(Context { path, home })
+    }
+
+    <span class="doccomment">/// Returns the path of the parent directory to the Leo package.
+    </span><span class="kw">pub fn </span>parent_dir(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.path {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>path = path.clone();
+                path.pop();
+                <span class="prelude-val">Ok</span>(path)
+            }
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(current_dir().map_err(CliError::cli_io_error)<span class="question-mark">?</span>),
+        }
     }
 
     <span class="doccomment">/// Returns the path to the Leo package.
@@ -130,6 +170,14 @@
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.path {
             <span class="prelude-val">Some</span>(path) =&gt; <span class="prelude-val">Ok</span>(path.clone()),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(current_dir().map_err(CliError::cli_io_error)<span class="question-mark">?</span>),
+        }
+    }
+
+    <span class="doccomment">/// Returns the path to the Aleo registry directory.
+    </span><span class="kw">pub fn </span>home(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.home {
+            <span class="prelude-val">Some</span>(path) =&gt; <span class="prelude-val">Ok</span>(path.clone()),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(aleo_dir()),
         }
     }
 
@@ -153,16 +201,16 @@
 
         // Read the manifest file to string.
         </span><span class="kw">let </span>manifest_string =
-            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
+            std::fs::read_to_string(manifest.path()).map_err(PackageError::failed_to_read_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Construct the file path.
         </span><span class="kw">let </span>build_manifest_path = build_path.join(Manifest::&lt;CurrentNetwork&gt;::file_name());
 
         <span class="comment">// Write the file.
         </span>File::create(build_manifest_path)
-            .map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?
+            .map_err(PackageError::failed_to_create_manifest)<span class="question-mark">?
             </span>.write_all(manifest_string.as_bytes())
-            .map_err(PackageError::failed_to_open_manifest)<span class="question-mark">?</span>;
+            .map_err(PackageError::failed_to_write_manifest)<span class="question-mark">?</span>;
 
         <span class="comment">// Get package name from program id.
         </span><span class="prelude-val">Ok</span>(manifest)

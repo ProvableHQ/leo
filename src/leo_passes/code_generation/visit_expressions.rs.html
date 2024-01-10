@@ -650,6 +650,15 @@
 <a href="#650" id="650">650</a>
 <a href="#651" id="651">651</a>
 <a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -682,6 +691,7 @@
     Identifier,
     Literal,
     MemberAccess,
+    ProgramScope,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -1170,8 +1180,7 @@
         }
     }
 
-    <span class="comment">// TODO: Cleanup
-    </span><span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
         <span class="kw">let </span>(<span class="kw-2">mut </span>call_instruction, has_finalize) = <span class="kw">match </span><span class="kw-2">&amp;</span>input.external {
             <span class="prelude-val">Some</span>(external) =&gt; {
                 <span class="comment">// If the function is an external call, then check whether or not it has an associated finalize block.
@@ -1180,7 +1189,9 @@
                     Expression::Identifier(identifier) =&gt; identifier.name,
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a program name is always an identifier.&quot;</span>),
                 };
+                <span class="kw">let </span>stub_scope: ProgramScope;
                 <span class="comment">// Lookup the imported program scope.
+                // TODO: Needs refactor. All imports are stubs now.
                 </span><span class="kw">let </span>imported_program_scope = <span class="kw">match </span><span class="self">self
                     </span>.program
                     .imports
@@ -1188,7 +1199,14 @@
                     .and_then(|(program, <span class="kw">_</span>)| program.program_scopes.get(<span class="kw-2">&amp;</span>program_name))
                 {
                     <span class="prelude-val">Some</span>(program) =&gt; program,
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that imported programs are well defined.&quot;</span>),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(stub_program) = <span class="self">self</span>.program.stubs.get(<span class="kw-2">&amp;</span>program_name) {
+                            stub_scope = ProgramScope::from(stub_program.clone());
+                            <span class="kw-2">&amp;</span>stub_scope
+                        } <span class="kw">else </span>{
+                            <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that imported and stub programs are well defined.&quot;</span>)
+                        }
+                    }
                 };
                 <span class="comment">// Check if the external function has a finalize block.
                 </span><span class="kw">let </span>function_name = <span class="kw">match </span><span class="kw-2">*</span>input.function {

@@ -251,6 +251,12 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -475,7 +481,7 @@
 </span><span class="kw">pub trait </span>ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt;: StatementVisitor&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
         input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
-
+        input.stubs.values().for_each(|stub| <span class="self">self</span>.visit_stub(stub));
         input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
@@ -488,6 +494,8 @@
 
         input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
     }
+
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stub) {}
 
     <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
         <span class="self">self</span>.visit_program(input)
@@ -503,5 +511,9 @@
             <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
         }
     }
+
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FunctionStub) {}
+
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {}
 }
 </code></pre></div></section></main></body></html>

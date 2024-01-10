@@ -159,6 +159,7 @@
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -312,6 +313,7 @@
                 .into_iter()
                 .map(|(name, (import, span))| (name, (<span class="self">self</span>.consume_program(import), span)))
                 .collect(),
+            stubs: input.stubs,
             program_scopes: input
                 .program_scopes
                 .into_iter()

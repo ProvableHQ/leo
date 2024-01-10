@@ -106,10 +106,10 @@
 </span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>Run {
     <span class="attr">#[clap(name = <span class="string">&quot;NAME&quot;</span>, help = <span class="string">&quot;The name of the program to run.&quot;</span>, default_value = <span class="string">&quot;main&quot;</span>)]
-    </span>name: String,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
 
     <span class="attr">#[clap(name = <span class="string">&quot;INPUTS&quot;</span>, help = <span class="string">&quot;The inputs to the program. If none are provided, the input file is used.&quot;</span>)]
-    </span>inputs: Vec&lt;String&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) inputs: Vec&lt;String&gt;,
 
     <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,

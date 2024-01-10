@@ -478,6 +478,23 @@
 <a href="#478" id="478">478</a>
 <a href="#479" id="479">479</a>
 <a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -897,11 +914,24 @@
                 .into_iter()
                 .map(|(id, import)| (id, (<span class="self">self</span>.reconstruct_import(import.<span class="number">0</span>), import.<span class="number">1</span>)))
                 .collect(),
+            stubs: input.stubs.into_iter().map(|(id, stub)| (id, <span class="self">self</span>.reconstruct_stub(stub))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()
                 .map(|(id, scope)| (id, <span class="self">self</span>.reconstruct_program_scope(scope)))
                 .collect(),
+        }
+    }
+
+    <span class="kw">fn </span>reconstruct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Stub) -&gt; Stub {
+        Stub {
+            imports: input.imports,
+            stub_id: input.stub_id,
+            consts: input.consts,
+            structs: input.structs,
+            mappings: input.mappings,
+            span: input.span,
+            functions: input.functions.into_iter().map(|(i, f)| (i, <span class="self">self</span>.reconstruct_function_stub(f))).collect(),
         }
     }
 
@@ -944,6 +974,10 @@
             span: input.span,
             id: input.id,
         }
+    }
+
+    <span class="kw">fn </span>reconstruct_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FunctionStub) -&gt; FunctionStub {
+        input
     }
 
     <span class="kw">fn </span>reconstruct_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Struct) -&gt; Struct {

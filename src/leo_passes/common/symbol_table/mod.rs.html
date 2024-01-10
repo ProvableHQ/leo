@@ -238,6 +238,41 @@
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
 <a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -263,7 +298,7 @@
 <span class="kw">use </span>std::cell::RefCell;
 
 <span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
-<span class="kw">use </span>leo_errors::{AstError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{AstError, LeoMessageCode, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -329,11 +364,46 @@
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// Check if the struct is a duplicate of the existing struct.
+    /// This is used to allow redefinitions of external structs.
+    </span><span class="kw">pub fn </span>check_duplicate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>Struct, new: <span class="kw-2">&amp;</span>Struct) -&gt; bool {
+        <span class="kw">if </span>old.members.len() != new.members.len() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+
+        <span class="kw">for </span>(old_member, new_member) <span class="kw">in </span>old.members.iter().zip(new.members.iter()) {
+            <span class="kw">if </span>old_member.identifier.name != new_member.identifier.name {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+            <span class="kw">if </span>old_member.type_ != new_member.type_ {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+        }
+        <span class="bool-val">true
+    </span>}
+
     <span class="doccomment">/// Inserts a struct into the symbol table.
     </span><span class="kw">pub fn </span>insert_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, insert: <span class="kw-2">&amp;</span>Struct) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.check_shadowing(symbol, insert.span)<span class="question-mark">?</span>;
-        <span class="self">self</span>.structs.insert(symbol, insert.clone());
-        <span class="prelude-val">Ok</span>(())
+        <span class="kw">match </span><span class="self">self</span>.check_shadowing(symbol, insert.span) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.structs.insert(symbol, insert.clone());
+                <span class="prelude-val">Ok</span>(())
+            }
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="kw">if </span>e.error_code() == AstError::shadowed_struct(symbol, insert.span).error_code() {
+                    <span class="kw">if </span><span class="self">self</span>.check_duplicate_struct(
+                        <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>symbol).expect(<span class="string">&quot;Must be in symbol table since struct already referenced&quot;</span>),
+                        insert,
+                    ) {
+                        <span class="prelude-val">Ok</span>(())
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Err</span>(AstError::redefining_external_struct(symbol).into())
+                    }
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(e)
+                }
+            }
+        }
     }
 
     <span class="doccomment">/// Inserts a variable into the symbol table.

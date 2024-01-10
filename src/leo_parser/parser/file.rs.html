@@ -475,21 +475,6 @@
 <a href="#475" id="475">475</a>
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-<a href="#485" id="485">485</a>
-<a href="#486" id="486">486</a>
-<a href="#487" id="487">487</a>
-<a href="#488" id="488">488</a>
-<a href="#489" id="489">489</a>
-<a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -507,11 +492,8 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::parse_ast;
-<span class="kw">use </span>leo_errors::{CompilerError, ParserError, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals};
 
-<span class="kw">use </span>std::fs;
+<span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
 <span class="kw">impl </span>ParserContext&lt;<span class="lifetime">&#39;_</span>&gt; {
     <span class="doccomment">/// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
@@ -548,7 +530,7 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::missing_program_scope(<span class="self">self</span>.token.span).into());
         }
 
-        <span class="prelude-val">Ok</span>(Program { imports, program_scopes })
+        <span class="prelude-val">Ok</span>(Program { imports, stubs: IndexMap::new(), program_scopes })
     }
 
     <span class="kw">fn </span>unexpected_item(token: <span class="kw-2">&amp;</span>SpannedToken, expected: <span class="kw-2">&amp;</span>[Token]) -&gt; ParserError {
@@ -568,45 +550,21 @@
         <span class="comment">// Parse `foo`.
         </span><span class="kw">let </span>import_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
-        <span class="comment">// Parse `.leo`.
+        <span class="comment">// Parse `.aleo`.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
-        <span class="kw">if </span>!<span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
-            <span class="comment">// Throw error for non-leo files.
-            </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::leo_imports_only(<span class="self">self</span>.token.span).into());
+
+        <span class="kw">if </span>!<span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Aleo) {
+            <span class="comment">// Throw error for non-aleo files.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_network(<span class="self">self</span>.token.span).into());
         }
 
         <span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
 
-        <span class="comment">// Tokenize and parse import file.
-        // Todo: move this to a different module.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>import_file_path =
-            std::env::current_dir().map_err(|err| CompilerError::cannot_open_cwd(err, <span class="self">self</span>.token.span))<span class="question-mark">?</span>;
-        import_file_path.push(<span class="string">&quot;imports&quot;</span>);
-        import_file_path.push(<span class="macro">format!</span>(<span class="string">&quot;{}.leo&quot;</span>, import_name.name));
-
-        <span class="comment">// Throw an error if the import file doesn&#39;t exist.
-        </span><span class="kw">if </span>!import_file_path.exists() {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(CompilerError::import_not_found(import_file_path.display(), <span class="self">self</span>.prev_token.span).into());
-        }
-
-        <span class="comment">// Read the import file into string.
-        // Todo: protect against cyclic imports.
-        </span><span class="kw">let </span>program_string =
-            fs::read_to_string(<span class="kw-2">&amp;</span>import_file_path).map_err(|e| CompilerError::file_read_error(<span class="kw-2">&amp;</span>import_file_path, e))<span class="question-mark">?</span>;
-
-        <span class="comment">// Create import file name.
-        </span><span class="kw">let </span>name: FileName = FileName::Real(import_file_path);
-
-        <span class="comment">// Register the source (`program_string`) in the source map.
-        </span><span class="kw">let </span>prg_sf = with_session_globals(|s| s.source_map.new_source(<span class="kw-2">&amp;</span>program_string, name));
-
-        <span class="comment">// Use the parser to construct the imported abstract syntax tree (ast).
-        </span><span class="kw">let </span>program_ast = parse_ast(<span class="self">self</span>.handler, <span class="self">self</span>.node_builder, <span class="kw-2">&amp;</span>prg_sf.src, prg_sf.start_pos)<span class="question-mark">?</span>;
-
-        <span class="prelude-val">Ok</span>((import_name.name, (program_ast.into_repr(), start + end)))
+        <span class="comment">// Return the import name and the span.
+        </span><span class="prelude-val">Ok</span>((import_name.name, (Program::default(), start + end)))
     }
 
-    <span class="doccomment">/// Parsers a program scope `program foo.aleo { ... }`.
+    <span class="doccomment">/// Parses a program scope `program foo.aleo { ... }`.
     </span><span class="kw">fn </span>parse_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ProgramScope&gt; {
         <span class="comment">// Parse `program` keyword.
         </span><span class="kw">let </span>start = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Program)<span class="question-mark">?</span>;
@@ -616,15 +574,13 @@
 
         <span class="comment">// Parse the program network.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
-        <span class="kw">let </span>network = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+
+        <span class="comment">// Otherwise throw parser error
+        </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Aleo).map_err(|<span class="kw">_</span>| ParserError::invalid_network(<span class="self">self</span>.token.span))<span class="question-mark">?</span>;
 
         <span class="comment">// Construct the program id.
-        </span><span class="kw">let </span>program_id = ProgramId { name, network };
-
-        <span class="comment">// Check that the program network is valid.
-        </span><span class="kw">if </span>network.name != sym::aleo {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_network(network.span).into());
-        }
+        </span><span class="kw">let </span>program_id =
+            ProgramId { name, network: Identifier::new(Symbol::intern(<span class="string">&quot;aleo&quot;</span>), <span class="self">self</span>.node_builder.next_id()) };
 
         <span class="comment">// Parse `{`.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
@@ -727,6 +683,13 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Struct)&gt; {
         <span class="kw">let </span>is_record = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, Token::Record);
         <span class="kw">let </span>start = <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Struct, Token::Record])<span class="question-mark">?</span>;
+
+        <span class="comment">// Check if using external type
+        </span><span class="kw">let </span>file_type = <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token);
+        <span class="kw">if </span><span class="self">self</span>.token.token == Token::Dot &amp;&amp; (file_type == <span class="kw-2">&amp;</span>Token::Aleo) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::cannot_declare_external_struct(<span class="self">self</span>.token.span).into());
+        }
+
         <span class="kw">let </span>struct_name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
@@ -794,9 +757,9 @@
             <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>span = name.span + external.span;
 
-            <span class="comment">// Parse `.leo/`.
+            <span class="comment">// Parse `.leo/` or `.aleo/`.
             </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo);
+            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
             <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
 
             <span class="comment">// Parse record name.
@@ -841,9 +804,9 @@
             <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>span = external.span;
 
-            <span class="comment">// Parse `.leo/`.
+            <span class="comment">// Parse `.leo/` or `.aleo/`.
             </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo);
+            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
             <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
 
             <span class="comment">// Parse record name.
@@ -866,7 +829,7 @@
         }
     }
 
-    <span class="kw">fn </span>peek_is_external(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="kw">pub fn </span>peek_is_external(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token)), (Token::Identifier(<span class="kw">_</span>), Token::Dot))
     }
 
@@ -925,8 +888,15 @@
             }
         };
 
-        <span class="comment">// Parse the function body.
-        </span><span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
+        <span class="comment">// Parse the function body. Allow empty blocks. `fn foo(a:u8);`
+        </span><span class="kw">let </span>(_has_empty_block, block) = <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.token.token {
+            Token::LeftCurly =&gt; (<span class="bool-val">false</span>, <span class="self">self</span>.parse_block()<span class="question-mark">?</span>),
+            Token::Semicolon =&gt; {
+                <span class="kw">let </span>semicolon = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Semicolon)<span class="question-mark">?</span>;
+                (<span class="bool-val">true</span>, Block { statements: Vec::new(), span: semicolon, id: <span class="self">self</span>.node_builder.next_id() })
+            }
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">&quot;block or semicolon&quot;</span>)<span class="question-mark">?</span>,
+        };
 
         <span class="comment">// Parse the `finalize` block if it exists.
         </span><span class="kw">let </span>finalize = <span class="kw">match </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Finalize) {

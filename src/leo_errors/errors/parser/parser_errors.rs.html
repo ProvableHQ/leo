@@ -299,6 +299,43 @@
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -516,10 +553,10 @@
     }
 
     @formatted
-    leo_imports_only {
+    leo_and_aleo_imports_only {
         args: (),
-        msg: <span class="string">&quot;Invalid import call to non-leo file.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Only imports of Leo `.leo` files are currently supported.&quot;</span>.to_string()),
+        msg: <span class="string">&quot;Invalid import call to non-leo non-aleo file.&quot;</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported.&quot;</span>.to_string()),
     }
 
     @formatted
@@ -553,7 +590,7 @@
     @formatted
     invalid_network {
         args: (),
-        msg: <span class="string">&quot;Invalid network identifier. The only supported identifier is `aleo`.&quot;</span>,
+        msg: <span class="string">&quot;Invalid network identifier. The only supported identifier is `.aleo`.&quot;</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -597,6 +634,43 @@
     array_must_have_at_least_one_element {
         args: (kind: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;An array {kind} must have at least one element.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    invalid_external_type {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Invalid external type.&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;External type should have the form `&lt;program&gt;.aleo/&lt;record&gt;`. For example `bank.aleo/loan`&quot;</span>.to_string()),
+    }
+
+    @formatted
+    cannot_declare_external_struct {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot declare external struct.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// Enforce that cannot use an external type to do anything except input/output of function
+    </span>@formatted
+    external_type_cannot_be_used_inside_function {
+        args: (program: <span class="kw">impl </span>Display, file_type: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;External types cannot be used inside function (only as input/output types) -- found exported type from &#39;{program}.{file_type}&#39;.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// Enforce that cannot use import in program scope
+    </span>@formatted
+    cannot_import_inside_program_body {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot use import inside program body.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    only_aleo_external_calls {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Only external calls to `.aleo` programs are supported.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

@@ -109,6 +109,28 @@
 <a href="#109" id="109">109</a>
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -190,6 +212,28 @@
     /// Also returns the span of the parsed token.
     </span><span class="kw">pub fn </span>parse_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Type, Span)&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(ident) = <span class="self">self</span>.eat_identifier() {
+            <span class="comment">// Check if using external type
+            </span><span class="kw">let </span>file_type = <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token);
+            <span class="kw">if </span><span class="self">self</span>.token.token == Token::Dot &amp;&amp; (file_type == <span class="kw-2">&amp;</span>Token::Aleo) {
+                <span class="comment">// Only allow `.aleo` as the network identifier
+                </span><span class="kw">if </span>file_type == <span class="kw-2">&amp;</span>Token::Leo {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_network(<span class="self">self</span>.token.span).into());
+                }
+
+                <span class="comment">// Parse `.aleo/`
+                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Aleo)<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Div)<span class="question-mark">?</span>;
+
+                <span class="comment">// Parse the record name
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record_name) = <span class="self">self</span>.eat_identifier() {
+                    <span class="comment">// Return the external type
+                    </span><span class="kw">return </span><span class="prelude-val">Ok</span>((Type::Identifier(record_name), ident.span + record_name.span));
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_external_type(<span class="self">self</span>.token.span).into());
+                }
+            }
+
             <span class="prelude-val">Ok</span>((Type::Identifier(ident), ident.span))
         } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
             <span class="comment">// Parse the left bracket.

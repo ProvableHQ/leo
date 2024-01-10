@@ -155,6 +155,14 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -207,8 +215,11 @@
 
 <span class="doccomment">/// Contains the Type Checker error definitions.
 </span><span class="kw">pub mod </span>type_checker;
-
 <span class="kw">pub use </span><span class="self">self</span>::type_checker::<span class="kw-2">*</span>;
+
+<span class="doccomment">/// Contains the Utils error definitions.
+</span><span class="kw">pub mod </span>utils;
+<span class="kw">pub use </span><span class="self">self</span>::utils::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
@@ -245,6 +256,9 @@
     /// not re-displaying an error.
     </span><span class="attr">#[error(<span class="string">&quot;&quot;</span>)]
     </span>LastErrorCode(i32),
+    <span class="doccomment">/// Represents a Utils Error in a Leo Error
+    </span><span class="attr">#[error(transparent)]
+    </span>UtilError(<span class="attr">#[from] </span>UtilError),
     <span class="doccomment">/// Anyhow errors.
     </span><span class="attr">#[error(transparent)]
     </span>Anyhow(<span class="attr">#[from] </span>anyhow::Error),
@@ -265,6 +279,7 @@
             TypeCheckerError(error) =&gt; error.error_code(),
             LoopUnrollerError(error) =&gt; error.error_code(),
             FlattenError(error) =&gt; error.error_code(),
+            UtilError(error) =&gt; error.error_code(),
             LastErrorCode(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
             Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement error codes for snarkvm errors.
         </span>}
@@ -284,6 +299,7 @@
             TypeCheckerError(error) =&gt; error.exit_code(),
             LoopUnrollerError(error) =&gt; error.exit_code(),
             FlattenError(error) =&gt; error.exit_code(),
+            UtilError(error) =&gt; error.exit_code(),
             LastErrorCode(code) =&gt; <span class="kw-2">*</span>code,
             Anyhow(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(), <span class="comment">// todo: implement exit codes for snarkvm errors.
         </span>}

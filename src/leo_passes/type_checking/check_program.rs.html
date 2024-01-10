@@ -341,102 +341,6 @@
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
-<a href="#344" id="344">344</a>
-<a href="#345" id="345">345</a>
-<a href="#346" id="346">346</a>
-<a href="#347" id="347">347</a>
-<a href="#348" id="348">348</a>
-<a href="#349" id="349">349</a>
-<a href="#350" id="350">350</a>
-<a href="#351" id="351">351</a>
-<a href="#352" id="352">352</a>
-<a href="#353" id="353">353</a>
-<a href="#354" id="354">354</a>
-<a href="#355" id="355">355</a>
-<a href="#356" id="356">356</a>
-<a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
-<a href="#359" id="359">359</a>
-<a href="#360" id="360">360</a>
-<a href="#361" id="361">361</a>
-<a href="#362" id="362">362</a>
-<a href="#363" id="363">363</a>
-<a href="#364" id="364">364</a>
-<a href="#365" id="365">365</a>
-<a href="#366" id="366">366</a>
-<a href="#367" id="367">367</a>
-<a href="#368" id="368">368</a>
-<a href="#369" id="369">369</a>
-<a href="#370" id="370">370</a>
-<a href="#371" id="371">371</a>
-<a href="#372" id="372">372</a>
-<a href="#373" id="373">373</a>
-<a href="#374" id="374">374</a>
-<a href="#375" id="375">375</a>
-<a href="#376" id="376">376</a>
-<a href="#377" id="377">377</a>
-<a href="#378" id="378">378</a>
-<a href="#379" id="379">379</a>
-<a href="#380" id="380">380</a>
-<a href="#381" id="381">381</a>
-<a href="#382" id="382">382</a>
-<a href="#383" id="383">383</a>
-<a href="#384" id="384">384</a>
-<a href="#385" id="385">385</a>
-<a href="#386" id="386">386</a>
-<a href="#387" id="387">387</a>
-<a href="#388" id="388">388</a>
-<a href="#389" id="389">389</a>
-<a href="#390" id="390">390</a>
-<a href="#391" id="391">391</a>
-<a href="#392" id="392">392</a>
-<a href="#393" id="393">393</a>
-<a href="#394" id="394">394</a>
-<a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -453,7 +357,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
+</span><span class="kw">use crate</span>::{DiGraphError, TypeChecker};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::TypeCheckerError;
@@ -467,28 +371,78 @@
 
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
-        <span class="kw">match </span><span class="self">self</span>.is_imported {
-            <span class="comment">// If the program is imported, then it is not allowed to import any other programs.
-            </span><span class="bool-val">true </span>=&gt; {
-                input.imports.values().for_each(|(<span class="kw">_</span>, span)| {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::imported_program_cannot_import_program(<span class="kw-2">*</span>span))
-                });
-            }
-            <span class="comment">// Otherwise, typecheck the imported programs.
-            </span><span class="bool-val">false </span>=&gt; {
-                <span class="comment">// Set `self.is_imported`.
-                </span><span class="kw">let </span>previous_is_imported = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.is_imported, <span class="bool-val">true</span>);
+        <span class="comment">// Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
 
-                <span class="comment">// Typecheck the imported programs.
-                </span>input.imports.values().for_each(|import| <span class="self">self</span>.visit_import(<span class="kw-2">&amp;</span>import.<span class="number">0</span>));
-
-                <span class="comment">// Set `self.is_imported` to its previous state.
-                </span><span class="self">self</span>.is_imported = previous_is_imported;
+        // Typecheck the program&#39;s stubs.
+        </span>input.stubs.iter().for_each(|(symbol, stub)| {
+            <span class="kw">if </span>symbol != <span class="kw-2">&amp;</span>stub.stub_id.name.name {
+                <span class="self">self</span>.emit_err(TypeCheckerError::stub_name_mismatch(
+                    symbol,
+                    stub.stub_id.name,
+                    stub.stub_id.network.span,
+                ));
             }
-        }
+            <span class="self">self</span>.visit_stub(stub)
+        });
 
         <span class="comment">// Typecheck the program scopes.
         </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
+    }
+
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stub) {
+        <span class="comment">// Cannot have constant declarations in stubs.
+        </span><span class="kw">if </span>!input.consts.is_empty() {
+            <span class="self">self</span>.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.get(<span class="number">0</span>).unwrap().<span class="number">1</span>.span));
+        }
+
+        <span class="comment">// Typecheck the program&#39;s structs.
+        </span>input.structs.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_struct_stub(function));
+
+        <span class="comment">// Typecheck the program&#39;s functions.
+        </span>input.functions.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_function_stub(function));
+    }
+
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FunctionStub) {
+        <span class="comment">// Must not be an inline function
+        </span><span class="kw">if </span>input.variant == Variant::Inline {
+            <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
+        }
+
+        <span class="comment">// Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+
+        <span class="comment">// Enter the function&#39;s scope.
+        </span><span class="self">self</span>.enter_scope(function_index);
+
+        <span class="comment">// Create a new child scope for the function&#39;s parameters and body.
+        </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
+
+        <span class="comment">// Query helper function to type check function parameters and outputs.
+        </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()));
+
+        <span class="comment">// Exit the scope for the function&#39;s parameters and body.
+        </span><span class="self">self</span>.exit_scope(scope_index);
+
+        <span class="comment">// Check that the finalize scope is valid
+        </span><span class="kw">if </span>input.finalize_stub.is_some() {
+            <span class="comment">// Create a new child scope for the finalize block.
+            </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
+
+            <span class="comment">// Check the finalize signature.
+            </span><span class="kw">let </span>function = <span class="kw-2">&amp;</span>Function::from(input.clone());
+            <span class="self">self</span>.check_finalize_signature(function.finalize.as_ref().unwrap(), function);
+
+            <span class="comment">// Exit the scope for the finalize block.
+            </span><span class="self">self</span>.exit_scope(scope_index);
+        }
+
+        <span class="comment">// Exit the function&#39;s scope.
+        </span><span class="self">self</span>.exit_scope(function_index);
+    }
+
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {
+        <span class="self">self</span>.visit_struct(input);
     }
 
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
@@ -671,77 +625,8 @@
         <span class="comment">// Create a new child scope for the function&#39;s parameters and body.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
-        <span class="comment">// Type check the function&#39;s parameters.
-        </span>function.input.iter().for_each(|input_var| {
-            <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
-            <span class="comment">// Check that the type of the input parameter is not a tuple.
-            </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
-            }
-
-            <span class="comment">// Note that this unwrap is safe since we assign to `self.variant` above.
-            </span><span class="kw">match </span><span class="self">self</span>.variant.unwrap() {
-                <span class="comment">// If the function is a transition function, then check that the parameter mode is not a constant.
-                </span>Variant::Transition <span class="kw">if </span>input_var.mode() == Mode::Constant =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
-                }
-                <span class="comment">// If the function is not a transition function, then check that the parameters do not have an associated mode.
-                </span>Variant::Standard | Variant::Inline <span class="kw">if </span>input_var.mode() != Mode::None =&gt; {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
-                }
-                <span class="kw">_ </span>=&gt; {} <span class="comment">// Do nothing.
-            </span>}
-
-            <span class="comment">// Check for conflicting variable names.
-            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                <span class="self">self</span>.handler.emit_err(err);
-            }
-        });
-
-        <span class="comment">// Type check the function&#39;s return type.
-        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        </span>function.output.iter().for_each(|output| {
-            <span class="kw">match </span>output {
-                Output::External(external) =&gt; {
-                    <span class="comment">// If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
-                    }
-                    <span class="comment">// Otherwise, do not type check external record function outputs.
-                    // TODO: Verify that this is not needed when the import system is updated.
-                </span>}
-                Output::Internal(function_output) =&gt; {
-                    <span class="comment">// Check that the type of output is defined.
-                    </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
-                        <span class="comment">// If the function is not a transition function, then it cannot output a record.
-                        </span><span class="kw">if let </span>Type::Identifier(identifier) = function_output.type_ {
-                            <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
-                                &amp;&amp; <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
-                            {
-                                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
-                            }
-                        }
-                    }
-                    <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>function_output.type_, Type::Tuple(<span class="kw">_</span>)) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    <span class="comment">// Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    </span><span class="kw">if </span>function_output.mode == Mode::Constant {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
-                    }
-                }
-            }
-        });
+        <span class="comment">// Query helper function to type check function parameters and outputs.
+        </span><span class="self">self</span>.check_function_signature(function);
 
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>function.block);
 
@@ -763,90 +648,16 @@
             <span class="self">self</span>.is_finalize = <span class="bool-val">true</span>;
             <span class="comment">// The function&#39;s finalize block does not have a return statement.
             </span><span class="self">self</span>.has_return = <span class="bool-val">false</span>;
-            <span class="comment">// The function;s finalize block does not have a finalize statement.
+            <span class="comment">// The function&#39;s finalize block does not have a finalize statement.
             </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
-
-            <span class="comment">// Check that the function is a transition function.
-            </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
-            }
-
-            <span class="comment">// Check that the name of the finalize block matches the function name.
-            </span><span class="kw">if </span>function.identifier.name != finalize.identifier.name {
-                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_name_mismatch(
-                    function.identifier.name,
-                    finalize.identifier.name,
-                    finalize.span,
-                ));
-            }
 
             <span class="comment">// Create a new child scope for the finalize block.
             </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
-            finalize.input.iter().for_each(|input_var| {
-                <span class="comment">// Check that the type of input parameter is defined.
-                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span()) {
-                    <span class="comment">// Check that the input parameter is not a tuple.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
-                    }
-                    <span class="comment">// Check that the input parameter is not a record.
-                    </span><span class="kw">if let </span>Type::Identifier(identifier) = input_var.type_() {
-                        <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                        </span><span class="kw">if </span><span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
-                        }
-                    }
-                    <span class="comment">// Check that the input parameter is not constant or private.
-                    </span><span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-                    }
-                    <span class="comment">// Check for conflicting variable names.
-                    </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                        <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                            type_: input_var.type_(),
-                            span: input_var.identifier().span(),
-                            declaration: VariableType::Input(input_var.mode()),
-                        })
-                    {
-                        <span class="self">self</span>.handler.emit_err(err);
-                    }
-                }
-            });
+            <span class="comment">// Check the finalize signature.
+            </span><span class="self">self</span>.check_finalize_signature(finalize, function);
 
-            <span class="comment">// Check that the finalize block&#39;s return type is a unit type.
-            // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
-            // Note: This restriction may be lifted in the future.
-            // Note: This check is still compatible with the other checks below.
-            </span><span class="kw">if </span>finalize.output_type != Type::Unit {
-                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
-            }
-
-            <span class="comment">// Type check the finalize block&#39;s return type.
-            // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
-            </span>finalize.output.iter().for_each(|output_type| {
-                <span class="comment">// Check that the type of output is defined.
-                </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>output_type.type_(), output_type.span()) {
-                    <span class="comment">// Check that the output is not a tuple. This is necessary to forbid nested tuples.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_(), Type::Tuple(<span class="kw">_</span>)) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
-                    }
-                    <span class="comment">// Check that the output is not a record.
-                    </span><span class="kw">if let </span>Type::Identifier(identifier) = output_type.type_() {
-                        <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                        </span><span class="kw">if </span><span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
-                        }
-                    }
-                    <span class="comment">// Check that the mode of the output is valid.
-                    // Note that a finalize block can have only public outputs.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(output_type.mode(), Mode::Constant | Mode::Private) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
-                    }
-                }
-            });
-
-            <span class="comment">// TODO: Remove if this restriction is relaxed at Aleo instructions level.
+            <span class="comment">// TODO: Remove if this restriction is relaxed at Aleo instructions level
             // Check that the finalize block is not empty.
             </span><span class="kw">if </span>finalize.block.statements.is_empty() {
                 <span class="self">self</span>.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
@@ -854,9 +665,6 @@
 
             <span class="comment">// Type check the finalize block.
             </span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
-
-            <span class="comment">// Check that the return type is defined. Note that the component types are already checked.
-            </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
 
             <span class="comment">// If the function has a return type, then check that it has a return.
             </span><span class="kw">if </span>finalize.output_type != Type::Unit &amp;&amp; !<span class="self">self</span>.has_return {

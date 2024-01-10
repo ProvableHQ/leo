@@ -394,6 +394,10 @@
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
 <a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -534,7 +538,8 @@
     Transition,
 
     <span class="comment">// Meta Tokens
-    </span>Block,
+    </span>Aleo,
+    Block,
     Eof,
     Leo,
 }
@@ -545,6 +550,7 @@
 /// because true and false are also boolean literals, which are different tokens from keywords.
 </span><span class="kw">pub const </span>KEYWORD_TOKENS: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
     Token::Address,
+    Token::Aleo,
     Token::As,
     Token::Assert,
     Token::AssertEq,
@@ -601,6 +607,7 @@
     </span><span class="kw">pub fn </span>keyword_to_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Symbol&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self </span>{
             Token::Address =&gt; sym::address,
+            Token::Aleo =&gt; sym::aleo,
             Token::As =&gt; sym::As,
             Token::Assert =&gt; sym::assert,
             Token::AssertEq =&gt; sym::assert_eq,
@@ -737,6 +744,7 @@
             U128 =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;u128&quot;</span>),
             Record =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;record&quot;</span>),
 
+            Aleo =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;aleo&quot;</span>),
             As =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;as&quot;</span>),
             Assert =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert&quot;</span>),
             AssertEq =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;assert_eq&quot;</span>),

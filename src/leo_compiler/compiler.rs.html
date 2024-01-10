@@ -362,6 +362,50 @@
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -382,16 +426,17 @@
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 </span><span class="kw">pub use </span>leo_ast::{Ast, InputAst};
-<span class="kw">use </span>leo_ast::{NodeBuilder, Program};
+<span class="kw">use </span>leo_ast::{NodeBuilder, Program, Stub};
 <span class="kw">use </span>leo_errors::{emitter::Handler, CompilerError, <span class="prelude-ty">Result</span>};
 <span class="kw">pub use </span>leo_passes::SymbolTable;
 <span class="kw">use </span>leo_passes::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals};
+<span class="kw">use </span>leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
 
 <span class="kw">use </span>sha2::{Digest, Sha256};
 <span class="kw">use </span>std::{fs, path::PathBuf};
 
 <span class="kw">use </span><span class="kw">crate</span>::CompilerOptions;
+<span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 
 <span class="doccomment">/// The primary entry point of the Leo compiler.
 </span><span class="attr">#[derive(Clone)]
@@ -418,6 +463,8 @@
     </span>assigner: Assigner,
     <span class="doccomment">/// The type table.
     </span>type_table: TypeTable,
+    <span class="doccomment">/// The stubs for imported programs. Produced by `Retriever` module.
+    </span>import_stubs: IndexMap&lt;Symbol, Stub&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Compiler&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -429,6 +476,7 @@
         main_file_path: PathBuf,
         output_directory: PathBuf,
         compiler_options: <span class="prelude-ty">Option</span>&lt;CompilerOptions&gt;,
+        import_stubs: IndexMap&lt;Symbol, Stub&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>node_builder = NodeBuilder::default();
         <span class="kw">let </span>assigner = Assigner::default();
@@ -444,6 +492,7 @@
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
+            import_stubs,
             type_table,
         }
     }
@@ -688,6 +737,8 @@
     </span><span class="kw">pub fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(SymbolTable, String)&gt; {
         <span class="comment">// Parse the program.
         </span><span class="self">self</span>.parse_program()<span class="question-mark">?</span>;
+        <span class="comment">// Copy the dependencies specified in `program.json` into the AST.
+        </span><span class="self">self</span>.add_import_stubs()<span class="question-mark">?</span>;
         <span class="comment">// Run the intermediate compiler stages.
         </span><span class="kw">let </span>(symbol_table, struct_graph, call_graph) = <span class="self">self</span>.compiler_stages()<span class="question-mark">?</span>;
         <span class="comment">// Run code generation.
@@ -723,6 +774,43 @@
                 <span class="kw-2">&amp;</span>[<span class="string">&quot;_span&quot;</span>, <span class="string">&quot;span&quot;</span>],
             )<span class="question-mark">?</span>;
         }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
+    </span><span class="kw">fn </span>add_import_stubs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="comment">// Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
+        </span><span class="kw">let </span>(<span class="kw-2">mut </span>unexplored, <span class="kw-2">mut </span>explored): (IndexSet&lt;Symbol&gt;, IndexSet&lt;Symbol&gt;) =
+            (<span class="self">self</span>.ast.ast.imports.keys().cloned().collect(), IndexSet::new());
+        <span class="kw">while </span>!unexplored.is_empty() {
+            <span class="kw">let </span><span class="kw-2">mut </span>current_dependencies: IndexSet&lt;Symbol&gt; = IndexSet::new();
+            <span class="kw">for </span>program_name <span class="kw">in </span>unexplored.iter() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(stub) = <span class="self">self</span>.import_stubs.get(program_name) {
+                    <span class="comment">// Add the program to the explored set
+                    </span>explored.insert(<span class="kw-2">*</span>program_name);
+                    <span class="kw">for </span>dependency <span class="kw">in </span>stub.imports.iter() {
+                        <span class="comment">// If dependency is already explored then don&#39;t need to re-explore it
+                        </span><span class="kw">if </span>explored.insert(dependency.name.name) {
+                            current_dependencies.insert(dependency.name.name);
+                        }
+                    }
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(CompilerError::imported_program_not_found(
+                        <span class="self">self</span>.program_name.clone(),
+                        <span class="kw-2">*</span>program_name,
+                        <span class="self">self</span>.ast.ast.imports[program_name].<span class="number">1</span>,
+                    )
+                    .into());
+                }
+            }
+
+            <span class="comment">// Create next batch to explore
+            </span>unexplored = current_dependencies;
+        }
+
+        <span class="comment">// Combine the dependencies from `program.json` and `.leo` file while preserving the post-order
+        </span><span class="self">self</span>.ast.ast.stubs =
+            <span class="self">self</span>.import_stubs.clone().into_iter().filter(|(program_name, <span class="kw">_</span>)| explored.contains(program_name)).collect();
         <span class="prelude-val">Ok</span>(())
     }
 }

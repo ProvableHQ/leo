@@ -86,6 +86,21 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 <a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -120,6 +135,21 @@
             consts: Vec::new(),
             span: input.span,
         }
+    }
+
+    <span class="comment">// Don&#39;t need to reconstruct anything, just need to add child scopes for constant propagation table
+    </span><span class="kw">fn </span>reconstruct_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FunctionStub) -&gt; FunctionStub {
+        <span class="comment">// Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+
+        <span class="comment">// Enter the function&#39;s scope.
+        </span><span class="kw">let </span>previous_function_index = <span class="self">self</span>.enter_scope(function_index);
+
+        <span class="comment">// Exit the function&#39;s scope.
+        </span><span class="self">self</span>.exit_scope(previous_function_index);
+
+        input
     }
 
     <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: Function) -&gt; Function {

@@ -713,6 +713,41 @@
 <a href="#713" id="713">713</a>
 <a href="#714" id="714">714</a>
 <a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1169,7 +1204,7 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    <span class="comment">// TODO: Consider chainging this to a warning.
+    <span class="comment">// TODO: Consider changing this to a warning.
 
     </span>@formatted
     assign_unit_expression_to_variable {
@@ -1249,9 +1284,9 @@
     }
 
     @formatted
-    function_cannot_output_record {
+    function_cannot_input_or_output_a_record {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;A `function` cannot output a record.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A `function` cannot have a record as input or output.&quot;</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -1401,6 +1436,20 @@
     }
 
     @formatted
+    stub_functions_must_not_be_inlines {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Function stubs must be transitions or functions not inlines&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    stub_functions_must_be_empty {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Functions stubs must be empty&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
     array_empty {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;An array cannot be empty&quot;</span>),
@@ -1426,6 +1475,27 @@
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">&quot;An array cannot have a record as an element type&quot;</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    stubs_cannot_have_non_record_structs {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    stubs_cannot_have_const_declarations {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;Stubs can only have records, transitions, functions, mappings and imports -- found const declaration&quot;</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    stub_name_mismatch {
+        args: (stub_name: <span class="kw">impl </span>Display, program_name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;`stub` name `{stub_name}` does not match program name `{program_name}`&quot;</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file.&quot;</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

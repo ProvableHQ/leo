@@ -73,6 +73,19 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -89,7 +102,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Block, Identifier, Input, Node, NodeID, Output, TupleType, Type};
+</span><span class="kw">use crate</span>::{Block, FinalizeStub, Identifier, Input, Node, NodeID, Output, TupleType, Type};
 
 <span class="kw">use </span>leo_span::Span;
 
@@ -144,6 +157,19 @@
             <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.output.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot;,&quot;</span>)),
         };
         <span class="macro">write!</span>(f, <span class="string">&quot; finalize {}({parameters}) -&gt; {returns} {}&quot;</span>, <span class="self">self</span>.identifier, <span class="self">self</span>.block)
+    }
+}
+
+<span class="kw">impl </span>From&lt;FinalizeStub&gt; <span class="kw">for </span>Finalize {
+    <span class="kw">fn </span>from(finalize_stub: FinalizeStub) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(
+            finalize_stub.identifier,
+            finalize_stub.input,
+            finalize_stub.output,
+            Block::default(),
+            finalize_stub.span,
+            finalize_stub.id,
+        )
     }
 }
 

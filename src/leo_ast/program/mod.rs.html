@@ -56,6 +56,13 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -82,6 +89,7 @@
 
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
+<span class="kw">use </span><span class="kw">crate</span>::Stub;
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
@@ -91,6 +99,8 @@
 </span><span class="kw">pub struct </span>Program {
     <span class="doccomment">/// A map from import names to import definitions.
     </span><span class="kw">pub </span>imports: IndexMap&lt;Symbol, (Program, Span)&gt;,
+    <span class="doccomment">/// A map from program stub names to program stub scopes.
+    </span><span class="kw">pub </span>stubs: IndexMap&lt;Symbol, Stub&gt;,
     <span class="doccomment">/// A map from program names to program scopes.
     </span><span class="kw">pub </span>program_scopes: IndexMap&lt;Symbol, ProgramScope&gt;,
 }
@@ -99,6 +109,10 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">for </span>(id, _import) <span class="kw">in </span><span class="self">self</span>.imports.iter() {
             <span class="macro">writeln!</span>(f, <span class="string">&quot;import {id}.leo;&quot;</span>)<span class="question-mark">?</span>;
+        }
+        <span class="kw">for </span>(<span class="kw">_</span>, stub) <span class="kw">in </span><span class="self">self</span>.stubs.iter() {
+            stub.fmt(f)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f,)<span class="question-mark">?</span>;
         }
         <span class="kw">for </span>(<span class="kw">_</span>, program_scope) <span class="kw">in </span><span class="self">self</span>.program_scopes.iter() {
             program_scope.fmt(f)<span class="question-mark">?</span>;
@@ -111,7 +125,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>Program {
     <span class="doccomment">/// Constructs an empty program node.
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ imports: IndexMap::new(), program_scopes: IndexMap::new() }
+        <span class="self">Self </span>{ imports: IndexMap::new(), stubs: IndexMap::new(), program_scopes: IndexMap::new() }
     }
 }
 </code></pre></div></section></main></body></html>

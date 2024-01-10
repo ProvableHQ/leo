@@ -752,6 +752,13 @@
 <a href="#752" id="752">752</a>
 <a href="#753" id="753">753</a>
 <a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1183,6 +1190,25 @@
         <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))
     }
 
+    <span class="comment">// Parses an externa function call `credits.aleo/transfer()` or `board.leo/make_move()`
+    </span><span class="kw">fn </span>parse_external_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+        <span class="comment">// Eat an external function call.
+        </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
+
+        // Parse function name.
+        </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the function call.
+        </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Expression::Call(CallExpression {
+            span: expr.span() + span,
+            function: Box::new(Expression::Identifier(name)),
+            external: <span class="prelude-val">Some</span>(Box::new(expr)),
+            arguments,
+            id: <span class="self">self</span>.node_builder.next_id(),
+        }))
+    }
+
     <span class="doccomment">/// Returns an [`Expression`] AST node if the next tokens represent an
     /// array access, struct member access, function call, or static function call expression.
     ///
@@ -1204,21 +1230,9 @@
                         id: <span class="self">self</span>.node_builder.next_id(),
                     }))
                 } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
-                    <span class="comment">// Eat an external function call.
-                    </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
-
-                    // Parse function name.
-                    </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-
-                    <span class="comment">// Parse the function call.
-                    </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-                    expr = Expression::Call(CallExpression {
-                        span: expr.span() + span,
-                        function: Box::new(Expression::Identifier(name)),
-                        external: <span class="prelude-val">Some</span>(Box::new(expr)),
-                        arguments,
-                        id: <span class="self">self</span>.node_builder.next_id(),
-                    });
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::only_aleo_external_calls(expr.span()).into());
+                } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Aleo) {
+                    expr = <span class="self">self</span>.parse_external_call(expr)<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
                     <span class="comment">// Parse identifier name.
                     </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;

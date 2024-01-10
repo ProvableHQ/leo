@@ -152,6 +152,9 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -168,7 +171,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">pub mod </span>account;
+</span><span class="kw">pub mod </span>add;
+<span class="kw">pub use </span>add::Add;
+
+<span class="kw">pub mod </span>account;
 <span class="kw">pub use </span>account::Account;
 
 <span class="kw">pub mod </span>build;

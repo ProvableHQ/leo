@@ -67,7 +67,7 @@
 <span class="kw">use </span>std::fmt;
 
 <span class="doccomment">/// A block `{ [stmt]* }` consisting of a list of statements to execute in order.
-</span><span class="attr">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+</span><span class="attr">#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 </span><span class="kw">pub struct </span>Block {
     <span class="doccomment">/// The list of statements to execute.
     </span><span class="kw">pub </span>statements: Vec&lt;Statement&gt;,

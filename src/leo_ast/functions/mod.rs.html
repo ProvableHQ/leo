@@ -152,6 +152,24 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -192,7 +210,7 @@
 <span class="kw">pub mod </span>mode;
 <span class="kw">pub use </span>mode::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{Block, Identifier, Node, NodeID, TupleType, Type};
+<span class="kw">use crate</span>::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -289,6 +307,24 @@
             <span class="macro">write!</span>(f, <span class="string">&quot; finalize ({parameters}) {}&quot;</span>, finalize.block)
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
+        }
+    }
+}
+
+<span class="kw">impl </span>From&lt;FunctionStub&gt; <span class="kw">for </span>Function {
+    <span class="kw">fn </span>from(function: FunctionStub) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>finalize = function.finalize_stub.map(Finalize::from);
+        <span class="self">Self </span>{
+            annotations: function.annotations,
+            variant: function.variant,
+            identifier: function.identifier,
+            input: function.input,
+            output: function.output,
+            output_type: function.output_type,
+            block: Block::default(),
+            finalize,
+            span: function.span,
+            id: function.id,
         }
     }
 }
