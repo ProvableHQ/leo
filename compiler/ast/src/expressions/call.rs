@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use crate::ProgramId;
 
 /// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -25,7 +26,7 @@ pub struct CallExpression {
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
     /// The name of the external program call, e.g.`bar` in `bar.leo`.
-    pub external: Option<Box<Expression>>,
+    pub external: Option<ProgramId>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
     /// The ID of the node.
@@ -36,7 +37,7 @@ impl fmt::Display for CallExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self.external {
             Some(external) => {
-                write!(f, "{external}.leo/{}(", self.function)?;
+                write!(f, "{external}/{}(", self.function)?;
             }
             None => {
                 write!(f, "{}(", self.function)?;
