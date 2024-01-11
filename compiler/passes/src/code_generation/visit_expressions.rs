@@ -39,7 +39,7 @@ use leo_ast::{
     UnaryOperation,
     UnitExpression,
 };
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 use std::borrow::Borrow;
 
 use std::fmt::Write as _;
@@ -524,10 +524,7 @@ impl<'a> CodeGenerator<'a> {
             Some(external) => {
                 // If the function is an external call, then check whether or not it has an associated finalize block.
                 // Extract the program name from the external call.
-                let program_name = match **external {
-                    Expression::Identifier(identifier) => identifier.name,
-                    _ => unreachable!("Parsing guarantees that a program name is always an identifier."),
-                };
+                let program_name: Symbol = external.name.name;
                 let stub_scope: ProgramScope;
                 // Lookup the imported program scope.
                 // TODO: Needs refactor. All imports are stubs now.
@@ -557,7 +554,7 @@ impl<'a> CodeGenerator<'a> {
                     Some((_, function)) => function.finalize.is_some(),
                     None => unreachable!("Type checking guarantees that imported functions are well defined."),
                 };
-                (format!("    call {external}.aleo/{}", input.function), has_finalize)
+                (format!("    call {external}/{}", input.function), has_finalize)
             }
             None => (format!("    call {}", input.function), false),
         };
@@ -578,7 +575,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
+        let return_type = &self.symbol_table.lookup_fn_symbol(function_name, input.external).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
@@ -607,14 +604,9 @@ impl<'a> CodeGenerator<'a> {
             let future_register = format!("r{}", self.next_register);
             self.next_register += 1;
 
-            // Construct the future type.
-            let program_id = match input.external.as_deref() {
-                Some(Expression::Identifier(identifier)) => identifier,
-                _ => unreachable!("If `has_finalize` is true, then the external call must be an identifier."),
-            };
-
             // Add the futures register to the list of futures.
-            self.futures.push((future_register.clone(), format!("{program_id}.aleo/{function_name}")));
+            self.futures
+                .push((future_register.clone(), format!("{}.aleo/{function_name}", input.external.unwrap().name)));
 
             // Add the future register to the list of destinations.
             destinations.push(future_register);

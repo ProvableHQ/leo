@@ -566,8 +566,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
-
+                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name, input.external).cloned();
                 if let Some(func) = func {
                     // Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
@@ -614,7 +613,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         None => unreachable!("`self.function` is set every time a function is visited."),
                         Some(func) => func,
                     };
-                    self.call_graph.add_edge(caller_name, ident.name);
+
+                    // Don't add external functions to call graph.
+                    // We check that there is no dependency cycle of imports, so we know that external functions can never lead to a call graph cycle
+                    if input.external.is_none() {
+                        self.call_graph.add_edge(caller_name, ident.name);
+                    }
 
                     Some(ret)
                 } else {
