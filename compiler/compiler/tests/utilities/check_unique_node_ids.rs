@@ -106,7 +106,7 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
             self.visit_expression(argument, &Default::default());
         }
         if let Some(external) = external {
-            self.visit_expression(external, &Default::default());
+            self.visit_identifier(&external.name, &Default::default());
         }
         self.check(*id);
     }

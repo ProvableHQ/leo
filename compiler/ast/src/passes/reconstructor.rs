@@ -434,7 +434,11 @@ pub trait ProgramReconstructor: StatementReconstructor {
             structs: input.structs,
             mappings: input.mappings,
             span: input.span,
-            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
+            functions: input
+                .functions
+                .into_iter()
+                .map(|(i, f)| (i, self.reconstruct_function_stub(f, input.stub_id)))
+                .collect(),
         }
     }
 
@@ -479,7 +483,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
         }
     }
 
-    fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {
+    fn reconstruct_function_stub(&mut self, input: FunctionStub, _program: ProgramId) -> FunctionStub {
         input
     }
 

@@ -19,6 +19,7 @@
 //! given the type of node its visiting.
 
 use crate::*;
+use leo_span::Symbol;
 
 /// A Visitor trait for expressions in the AST.
 pub trait ExpressionVisitor<'a> {
@@ -253,7 +254,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         }
     }
 
-    fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}
+    fn visit_function_stub(&mut self, _input: &'a FunctionStub, _program: ProgramId) {}
 
     fn visit_struct_stub(&mut self, _input: &'a Struct) {}
 }

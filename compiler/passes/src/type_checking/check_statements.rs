@@ -372,7 +372,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(parent).map(|f| match self.is_finalize {
+        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(parent, None).map(|f| match self.is_finalize {
             // TODO: Check this.
             // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
             true => f.finalize.as_ref().unwrap().output_type.clone(),
@@ -410,7 +410,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
             // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
             let finalize =
-                self.symbol_table.borrow().lookup_fn_symbol(self.function.unwrap()).unwrap().finalize.clone();
+                self.symbol_table.borrow().lookup_fn_symbol(self.function.unwrap(), None).unwrap().finalize.clone();
             match finalize {
                 None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
                 Some(finalize) => {

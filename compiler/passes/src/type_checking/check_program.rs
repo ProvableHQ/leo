@@ -55,10 +55,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
 
         // Typecheck the program's functions.
-        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
+        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function, input.stub_id));
     }
 
-    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+    fn visit_function_stub(&mut self, input: &'a FunctionStub, program: ProgramId) {
         // Must not be an inline function
         if input.variant == Variant::Inline {
             self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
@@ -66,7 +66,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+        let function_index =
+            self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name, Some(program)).unwrap().id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -269,7 +270,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
+        let function_index = self.symbol_table.borrow().lookup_fn_symbol(function.identifier.name, None).unwrap().id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);

@@ -429,7 +429,7 @@ impl ParserContext<'_> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
-    // Parses an externa function call `credits.aleo/transfer()` or `board.leo/make_move()`
+    // Parses an external function call `credits.aleo/transfer()` or `board.leo/make_move()`
     fn parse_external_call(&mut self, expr: Expression) -> Result<Expression> {
         // Eat an external function call.
         self.eat(&Token::Div); // todo: Make `/` a more general token.
@@ -439,10 +439,17 @@ impl ParserContext<'_> {
 
         // Parse the function call.
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+
+        // Parse the parent program identifier.
+        let program: Option<ProgramId> = match expr {
+            Expression::Identifier(identifier) => Some(ProgramId::from(identifier)),
+            _ => unreachable!("Function called must be preceded by a program identifier."),
+        };
+
         Ok(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            external: Some(Box::new(expr)),
+            external: program,
             arguments,
             id: self.node_builder.next_id(),
         }))
