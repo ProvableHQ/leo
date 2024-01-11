@@ -22,7 +22,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
+use leo_ast::{normalize_json_value, remove_key_from_json, Function, ProgramId, Struct};
 use leo_errors::{AstError, LeoMessageCode, Result};
 use leo_span::{Span, Symbol};
 
@@ -37,9 +37,11 @@ pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
     pub(crate) parent: Option<Box<SymbolTable>>,
-    /// Functions represents the name of each function mapped to the AST's function definition.
+    /// Functions represents the name of each local function mapped to the AST's function definition.
     /// This field is populated at a first pass.
     pub functions: IndexMap<Symbol, FunctionSymbol>,
+    /// Maps parent program name and external function name to the AST's function definition.
+    pub external_functions: IndexMap<(Symbol, Symbol), FunctionSymbol>,
     /// Maps struct names to struct definitions.
     /// This field is populated at a first pass.
     pub structs: IndexMap<Symbol, Struct>,
@@ -81,10 +83,19 @@ impl SymbolTable {
     }
 
     /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, symbol: Symbol, insert: &Function) -> Result<()> {
-        self.check_shadowing(symbol, insert.span)?;
-        let id = self.scope_index();
-        self.functions.insert(symbol, Self::new_function_symbol(id, insert));
+    pub fn insert_fn(&mut self, symbol: Symbol, external: Option<ProgramId>, insert: &Function) -> Result<()> {
+        let id;
+        match external {
+            Some(name) => {
+                id = self.scope_index();
+                self.external_functions.insert((name.name.name, symbol), Self::new_function_symbol(id, insert));
+            }
+            None => {
+                self.check_shadowing(symbol, insert.span)?;
+                id = self.scope_index();
+                self.functions.insert(symbol, Self::new_function_symbol(id, insert));
+            }
+        }
         self.scopes.push(Default::default());
         Ok(())
     }
@@ -150,11 +161,14 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn_symbol(&self, symbol: Symbol) -> Option<&FunctionSymbol> {
-        if let Some(func) = self.functions.get(&symbol) {
+    pub fn lookup_fn_symbol(&self, symbol: Symbol, external: Option<ProgramId>) -> Option<&FunctionSymbol> {
+        if let Some(func) = match external {
+            Some(program) => self.external_functions.get(&(program.name.name, symbol)),
+            None => self.functions.get(&symbol),
+        } {
             Some(func)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_fn_symbol(symbol)
+            parent.lookup_fn_symbol(symbol, external)
         } else {
             None
         }
@@ -205,11 +219,6 @@ impl SymbolTable {
         } else {
             None
         }
-    }
-
-    /// Returns the scope associated with the function symbol, if it exists in the symbol table.
-    pub fn lookup_fn_scope(&self, symbol: Symbol) -> Option<&RefCell<Self>> {
-        self.lookup_fn_symbol(symbol).and_then(|func| self.scopes.get(func.id))
     }
 
     /// Returns the scope associated with `index`, if it exists in the symbol table.
