@@ -200,7 +200,7 @@ create_messages!(
         msg: format!(
             "The type `{type_}` is not found in the current scope."
         ),
-        help: None,
+        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`".to_string()),
     }
 
     /// Attempted to access an invalid struct variable.
