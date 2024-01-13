@@ -35,7 +35,7 @@ use crate::{
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::Type::{Struct};
+use crate::Type::Struct;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -137,14 +137,15 @@ impl FunctionStub {
                     span: Default::default(),
                     id: Default::default(),
                 })],
-                ValueType::ExternalRecord(loc) => vec![Output::External(External {
-                    // TODO
-                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                    program_name: ProgramId::from(loc.program_id()).name,
-                    record: Identifier::from(loc.resource()),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
+                ValueType::ExternalRecord(loc) => {
+                    vec![Output::External(External {
+                        identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                        program_name: ProgramId::from(loc.program_id()).name,
+                        record: Identifier::from(loc.resource()),
+                        span: Default::default(),
+                        id: Default::default(),
+                    })]
+                }
                 ValueType::Future(_) => Vec::new(), // Don't include futures in the output signature
             })
             .collect_vec()
@@ -153,7 +154,9 @@ impl FunctionStub {
             .iter()
             .map(|output| match output {
                 Output::Internal(output) => output.type_.clone(),
-                Output::External(output) => Type::Identifier(output.record),
+                Output::External(output) => {
+                    Type::Struct(StructType { id: output.record, external: Some(output.program_name.name) })
+                }
             })
             .collect_vec();
         let output_type = match output_vec.len() {
