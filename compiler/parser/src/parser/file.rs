@@ -221,6 +221,7 @@ impl ParserContext<'_> {
         Ok((struct_name.name, Struct {
             identifier: struct_name,
             members,
+            external: None,
             is_record,
             span: start + end,
             id: self.node_builder.next_id(),

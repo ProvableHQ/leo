@@ -39,7 +39,7 @@ use leo_ast::{
     UnaryOperation,
     UnitExpression,
 };
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 use std::borrow::Borrow;
 
 use std::fmt::Write as _;
@@ -524,19 +524,18 @@ impl<'a> CodeGenerator<'a> {
             Some(external) => {
                 // If the function is an external call, then check whether or not it has an associated finalize block.
                 // Extract the program name from the external call.
-                let program_name: Symbol = external.name.name;
                 let stub_scope: ProgramScope;
                 // Lookup the imported program scope.
                 // TODO: Needs refactor. All imports are stubs now.
                 let imported_program_scope = match self
                     .program
                     .imports
-                    .get(&program_name)
-                    .and_then(|(program, _)| program.program_scopes.get(&program_name))
+                    .get(external)
+                    .and_then(|(program, _)| program.program_scopes.get(external))
                 {
                     Some(program) => program,
                     None => {
-                        if let Some(stub_program) = self.program.stubs.get(&program_name) {
+                        if let Some(stub_program) = self.program.stubs.get(external) {
                             stub_scope = ProgramScope::from(stub_program.clone());
                             &stub_scope
                         } else {
@@ -554,7 +553,7 @@ impl<'a> CodeGenerator<'a> {
                     Some((_, function)) => function.finalize.is_some(),
                     None => unreachable!("Type checking guarantees that imported functions are well defined."),
                 };
-                (format!("    call {external}/{}", input.function), has_finalize)
+                (format!("    call {external}.aleo/{}", input.function), has_finalize)
             }
             None => (format!("    call {}", input.function), false),
         };
@@ -605,8 +604,7 @@ impl<'a> CodeGenerator<'a> {
             self.next_register += 1;
 
             // Add the futures register to the list of futures.
-            self.futures
-                .push((future_register.clone(), format!("{}.aleo/{function_name}", input.external.unwrap().name)));
+            self.futures.push((future_register.clone(), format!("{}.aleo/{function_name}", input.external.unwrap())));
 
             // Add the future register to the list of destinations.
             destinations.push(future_register);
