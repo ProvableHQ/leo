@@ -20,7 +20,6 @@
 
 use crate::*;
 
-
 /// A Visitor trait for expressions in the AST.
 pub trait ExpressionVisitor<'a> {
     type AdditionalInput: Default;
