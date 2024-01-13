@@ -2,15 +2,15 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: d7a22e09a60843e8c77dada5b2104d56536d079b7bce2c37e752fda2860a382b
-      type_checked_symbol_table: e4542b59540d3ff15b220a11e8d04d59a7ad0dcc8cff6e1ff4557e6ab9f30b21
-      unrolled_symbol_table: e4542b59540d3ff15b220a11e8d04d59a7ad0dcc8cff6e1ff4557e6ab9f30b21
-      initial_ast: cb982115b8d5a82bf891ca9d41389f1d5fcc9cacbb41c76de622ccbb4dfb1fcd
-      unrolled_ast: cb982115b8d5a82bf891ca9d41389f1d5fcc9cacbb41c76de622ccbb4dfb1fcd
-      ssa_ast: de945f6ab907946587c55a54c57a20910176efea20c0b3f0d1cdbfe163e33181
-      flattened_ast: 4e4a56898a7520d0dd1b39b356817ef0bdedfc9de2f63d6c3a1078aa05a47e75
-      destructured_ast: f9000b3436cfa8bbd9261537a967ed64e3fc3d4b0de86e871894daa4b1db0c5a
-      inlined_ast: f9000b3436cfa8bbd9261537a967ed64e3fc3d4b0de86e871894daa4b1db0c5a
-      dce_ast: 070772b780249536e76f000ba182cc4c21764aa4ee9cc7118e4693900eec6d59
+  - - initial_symbol_table: 6357917e90d8c0c5673eb425d0ed0c302120559400005fb54de1e24a1e57916d
+      type_checked_symbol_table: 037adb0b85ba289507f3bfa70cee51511b39875f2ec910b187c1e94bea61f3f9
+      unrolled_symbol_table: 037adb0b85ba289507f3bfa70cee51511b39875f2ec910b187c1e94bea61f3f9
+      initial_ast: 9f54eb4f4806869772856d02391be07a0abc4acd8e4ef8d6810a2453d993cae9
+      unrolled_ast: 9f54eb4f4806869772856d02391be07a0abc4acd8e4ef8d6810a2453d993cae9
+      ssa_ast: dbef122dbadc1fbc4a8abf9f662edb546b6b37cad10083b3c9e38f542a0253cb
+      flattened_ast: 382d69fb00828ad4def14d05267470c7e0e4be92b762f300b81c0ceeee3d2bb0
+      destructured_ast: 4c95d848ab45e50c5804305f1cc3d51c6c73406128a1b08f938e313c38665115
+      inlined_ast: 4c95d848ab45e50c5804305f1cc3d51c6c73406128a1b08f938e313c38665115
+      dce_ast: 02a92048c0d8f0c1782f755c3f13ad08a29e4b357bfae6519425d19b6729ca25
       bytecode: 56496fd935df4646cdd71fb7cee3390df240c99433835d70ef5967a33e6d7de8
       warnings: ""
