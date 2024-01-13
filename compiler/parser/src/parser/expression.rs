@@ -437,12 +437,17 @@ impl ParserContext<'_> {
         // Parse function name.
         let name = self.expect_identifier()?;
 
+        // Parsing a '{' means that user is trying to illegally define an external record.
+        if self.token.token == Token::LeftCurly {
+            return Err(ParserError::cannot_define_external_record(expr.span() + name.span()).into());
+        }
+
         // Parse the function call.
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
 
         // Parse the parent program identifier.
-        let program: Option<ProgramId> = match expr {
-            Expression::Identifier(identifier) => Some(ProgramId::from(identifier)),
+        let program: Option<Symbol> = match expr {
+            Expression::Identifier(identifier) => Some(identifier.name),
             _ => unreachable!("Function called must be preceded by a program identifier."),
         };
 
