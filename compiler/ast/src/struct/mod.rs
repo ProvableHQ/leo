@@ -44,6 +44,8 @@ pub struct Struct {
     pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
     pub members: Vec<Member>,
+    /// The external program the struct is defined in.
+    pub external: Option<Symbol>,
     /// Was this a `record Foo { ... }`?
     /// If so, it wasn't a struct.
     pub is_record: bool,
@@ -65,6 +67,41 @@ impl Struct {
     /// Returns the struct name as a Symbol.
     pub fn name(&self) -> Symbol {
         self.identifier.name
+    }
+
+    pub fn from_external_record<N: Network>(input: &RecordType<N>, external_program: Symbol) -> Self {
+        Self {
+            identifier: Identifier::from(input.name()),
+            members: [
+                vec![Member {
+                    mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
+                    identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
+                    type_: Type::Address,
+                    span: Default::default(),
+                    id: Default::default(),
+                }],
+                input
+                    .entries()
+                    .iter()
+                    .map(|(id, entry)| Member {
+                        mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
+                        identifier: Identifier::from(id),
+                        type_: match entry {
+                            Public(t) => Type::from(t),
+                            Private(t) => Type::from(t),
+                            Constant(t) => Type::from(t),
+                        },
+                        span: Default::default(),
+                        id: Default::default(),
+                    })
+                    .collect_vec(),
+            ]
+            .concat(),
+            external: Some(external_program),
+            is_record: true,
+            span: Default::default(),
+            id: Default::default(),
+        }
     }
 }
 
@@ -102,43 +139,8 @@ impl<N: Network> From<&StructType<N>> for Struct {
                     id: Default::default(),
                 })
                 .collect(),
+            external: None,
             is_record: false,
-            span: Default::default(),
-            id: Default::default(),
-        }
-    }
-}
-
-impl<N: Network> From<&RecordType<N>> for Struct {
-    fn from(input: &RecordType<N>) -> Self {
-        Self {
-            identifier: Identifier::from(input.name()),
-            members: [
-                vec![Member {
-                    mode: if input.owner().is_private() { Mode::Public } else { Mode::Private },
-                    identifier: Identifier::new(Symbol::intern("owner"), Default::default()),
-                    type_: Type::Address,
-                    span: Default::default(),
-                    id: Default::default(),
-                }],
-                input
-                    .entries()
-                    .iter()
-                    .map(|(id, entry)| Member {
-                        mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
-                        identifier: Identifier::from(id),
-                        type_: match entry {
-                            Public(t) => Type::from(t),
-                            Private(t) => Type::from(t),
-                            Constant(t) => Type::from(t),
-                        },
-                        span: Default::default(),
-                        id: Default::default(),
-                    })
-                    .collect_vec(),
-            ]
-            .concat(),
-            is_record: true,
             span: Default::default(),
             id: Default::default(),
         }
