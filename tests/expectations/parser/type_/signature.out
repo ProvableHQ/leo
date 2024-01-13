@@ -36,7 +36,9 @@ outputs:
                     identifier: "{\"id\":\"7\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":67,\\\"hi\\\":68}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
+                      Struct:
+                        id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
+                        external: ~
                     span:
                       lo: 67
                       hi: 68
@@ -206,7 +208,9 @@ outputs:
                     identifier: "{\"id\":\"49\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":348}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
+                      Struct:
+                        id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
+                        external: ~
                     span:
                       lo: 347
                       hi: 348
