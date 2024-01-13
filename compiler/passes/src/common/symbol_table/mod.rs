@@ -22,7 +22,7 @@ pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Function, ProgramId, Struct};
+use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
 use leo_errors::{AstError, LeoMessageCode, Result};
 use leo_span::{Span, Symbol};
 
@@ -37,7 +37,7 @@ pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
     pub(crate) parent: Option<Box<SymbolTable>>,
-    /// Functions represents the name of each local function mapped to the AST's function definition.
+    /// Functions represents the name of each local function and optional parent program name mapped to the AST's function definition.
     /// This field is populated at a first pass.
     pub functions: IndexMap<Symbol, FunctionSymbol>,
     /// Maps parent program name and external function name to the AST's function definition.
@@ -45,6 +45,8 @@ pub struct SymbolTable {
     /// Maps struct names to struct definitions.
     /// This field is populated at a first pass.
     pub structs: IndexMap<Symbol, Struct>,
+    /// Maps external struct names to struct definitions.
+    pub external_structs: IndexMap<(Symbol, Symbol), Struct>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
@@ -83,12 +85,12 @@ impl SymbolTable {
     }
 
     /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, symbol: Symbol, external: Option<ProgramId>, insert: &Function) -> Result<()> {
+    pub fn insert_fn(&mut self, symbol: Symbol, external: Option<Symbol>, insert: &Function) -> Result<()> {
         let id;
         match external {
             Some(name) => {
                 id = self.scope_index();
-                self.external_functions.insert((name.name.name, symbol), Self::new_function_symbol(id, insert));
+                self.external_functions.insert((name, symbol), Self::new_function_symbol(id, insert));
             }
             None => {
                 self.check_shadowing(symbol, insert.span)?;
@@ -119,10 +121,14 @@ impl SymbolTable {
     }
 
     /// Inserts a struct into the symbol table.
-    pub fn insert_struct(&mut self, symbol: Symbol, insert: &Struct) -> Result<()> {
+    pub fn insert_struct(&mut self, symbol: Symbol, external: Option<Symbol>, insert: &Struct) -> Result<()> {
         match self.check_shadowing(symbol, insert.span) {
             Ok(_) => {
-                self.structs.insert(symbol, insert.clone());
+                if let Some(external_program) = external {
+                    self.external_structs.insert((external_program, symbol), insert.clone());
+                } else {
+                    self.structs.insert(symbol, insert.clone());
+                }
                 Ok(())
             }
             Err(e) => {
@@ -161,9 +167,9 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn_symbol(&self, symbol: Symbol, external: Option<ProgramId>) -> Option<&FunctionSymbol> {
+    pub fn lookup_fn_symbol(&self, symbol: Symbol, external: Option<Symbol>) -> Option<&FunctionSymbol> {
         if let Some(func) = match external {
-            Some(program) => self.external_functions.get(&(program.name.name, symbol)),
+            Some(program) => self.external_functions.get(&(program, symbol)),
             None => self.functions.get(&symbol),
         } {
             Some(func)
@@ -175,11 +181,14 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a struct in the symbol table.
-    pub fn lookup_struct(&self, symbol: Symbol) -> Option<&Struct> {
-        if let Some(struct_) = self.structs.get(&symbol) {
+    pub fn lookup_struct(&self, symbol: Symbol, external: Option<Symbol>) -> Option<&Struct> {
+        if let Some(struct_) = match external {
+            Some(program) => self.external_structs.get(&(program, symbol)),
+            None => self.structs.get(&symbol),
+        } {
             Some(struct_)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_struct(symbol)
+            parent.lookup_struct(symbol, external)
         } else {
             None
         }
