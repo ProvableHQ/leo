@@ -52,7 +52,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Typecheck the program's structs.
-        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
+        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function, input.stub_id));
 
         // Typecheck the program's functions.
         input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function, input.stub_id));
@@ -67,7 +67,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         let function_index =
-            self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name, Some(program)).unwrap().id;
+            self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name, Some(program.name.name)).unwrap().id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -98,7 +98,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
     }
 
-    fn visit_struct_stub(&mut self, input: &'a Struct) {
+    fn visit_struct_stub(&mut self, input: &'a Struct, _program: ProgramId) {
         self.visit_struct(input);
     }
 
@@ -204,8 +204,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // If the member is a struct, add it to the struct dependency graph.
             // Note that we have already checked that each member is defined and valid.
-            if let Type::Identifier(member_type) = type_ {
-                self.struct_graph.add_edge(input.identifier.name, member_type.name);
+            if let Type::Struct(struct_member_type) = type_ {
+                // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
+                self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
             } else if let Type::Array(array_type) = type_ {
                 // Get the base element type.
                 let base_element_type = array_type.base_element_type();
@@ -226,10 +227,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that a mapping's key type is valid.
         self.assert_type_is_valid(&input.key_type, input.span);
         // Check that a mapping's key type is not a tuple, record, or mapping.
-        match input.key_type {
+        match input.key_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
-            Type::Identifier(identifier) => {
-                if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+            Type::Struct(struct_type) => {
+                if let Some(struct_) =
+                    self.symbol_table.borrow().lookup_struct(struct_type.id.name, struct_type.external)
+                {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
@@ -243,10 +246,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that a mapping's value type is valid.
         self.assert_type_is_valid(&input.value_type, input.span);
         // Check that a mapping's value type is not a tuple, record or mapping.
-        match input.value_type {
+        match input.value_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
-            Type::Identifier(identifier) => {
-                if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+            Type::Struct(struct_type) => {
+                if let Some(struct_) =
+                    self.symbol_table.borrow().lookup_struct(struct_type.id.name, struct_type.external)
+                {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
