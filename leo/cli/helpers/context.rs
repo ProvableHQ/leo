@@ -27,7 +27,7 @@ use retriever::LockFileEntry;
 use std::{
     env::current_dir,
     fs::File,
-    io::{Read, Write},
+    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -121,7 +121,7 @@ impl Context {
         }
 
         let contents = std::fs::read_to_string(&lock_path)
-            .map_err(|err| PackageError::failed_to_read_file(&lock_path.to_str().unwrap(), err))?;
+            .map_err(|err| PackageError::failed_to_read_file(lock_path.to_str().unwrap(), err))?;
 
         let entry_map: IndexMap<String, Vec<LockFileEntry>> =
             toml::from_str(&contents).map_err(PackageError::failed_to_deserialize_lock_file)?;
@@ -130,9 +130,8 @@ impl Context {
 
         let list: Vec<(String, PathBuf)> = lock_entries
             .iter()
-            .filter_map(|entry| match entry.path() {
-                Some(local_path) => Some((entry.name().to_string(), local_path.clone().join("build"))),
-                None => None,
+            .filter_map(|entry| {
+                entry.path().map(|local_path| (entry.name().to_string(), local_path.clone().join("build")))
             })
             .collect();
 
