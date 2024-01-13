@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, Identifier, IntegerType, MappingType, TupleType};
+use crate::{common, ArrayType, Identifier, IntegerType, MappingType, StructType, TupleType};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -34,6 +34,8 @@ pub enum Type {
     Array(ArrayType),
     /// The `bool` type.
     Boolean,
+    /// The `struct` type.
+    Struct(StructType),
     /// The `field` type.
     Field,
     /// The `group` type.
@@ -88,6 +90,14 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+            (Type::Struct(left), Type::Struct(right)) => {
+                left.id.name == right.id.name
+                    && match (left.external, right.external) {
+                        (Some(left), Some(right)) => left == right,
+                        (None, None) => true,
+                        _ => false,
+                    }
+            }
             _ => false,
         }
     }
@@ -107,6 +117,7 @@ impl fmt::Display for Type {
             Type::Scalar => write!(f, "scalar"),
             Type::Signature => write!(f, "signature"),
             Type::String => write!(f, "string"),
+            Type::Struct(ref struct_type) => write!(f, "{struct_type}"),
             Type::Tuple(ref tuple) => write!(f, "{tuple}"),
             Type::Unit => write!(f, "()"),
             Type::Err => write!(f, "error"),
@@ -136,7 +147,7 @@ impl<N: Network> From<&PlaintextType<N>> for Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => Type::Identifier(common::Identifier::from(s)),
+            Struct(s) => Type::Struct(StructType { id: common::Identifier::from(s), external: None }),
             Array(array) => Type::Array(ArrayType::from(array)),
         }
     }

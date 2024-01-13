@@ -14,23 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array;
-pub use array::*;
+use crate::{Identifier};
 
-pub mod core_constant;
-pub use core_constant::*;
+use leo_span::Symbol;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod integer_type;
-pub use integer_type::*;
+/// A struct type of a identifier and optional external program name.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Copy)]
+pub struct StructType {
+    // The identifier of the struct definition.
+    pub id: Identifier,
+    // The external program that this struct is defined in.
+    pub external: Option<Symbol>,
+}
 
-pub mod mapping;
-pub use mapping::*;
-
-pub mod struct_type;
-pub use struct_type::*;
-
-pub mod tuple;
-pub use tuple::*;
-
-pub mod type_;
-pub use type_::*;
+impl fmt::Display for StructType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.external {
+            Some(external) => write!(f, "{external}/{id}", id = self.id),
+            None => write!(f, "{id}", id = self.id),
+        }
+    }
+}
