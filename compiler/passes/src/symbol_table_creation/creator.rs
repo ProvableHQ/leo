@@ -48,7 +48,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     }
 
     fn visit_struct(&mut self, input: &'a Struct) {
-        if let Err(err) = self.symbol_table.insert_struct(input.name(), input) {
+        if let Err(err) = self.symbol_table.insert_struct(input.name(), None, input) {
             self.handler.emit_err(err);
         }
     }
@@ -76,12 +76,19 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     fn visit_stub(&mut self, input: &'a Stub) {
         input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c, input.stub_id)));
 
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct_stub(c, input.stub_id)));
     }
 
     fn visit_function_stub(&mut self, input: &'a FunctionStub, program_name: ProgramId) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), Some(program_name), &Function::from(input.clone()))
+        if let Err(err) =
+            self.symbol_table.insert_fn(input.name(), Some(program_name.name.name), &Function::from(input.clone()))
         {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_struct_stub(&mut self, input: &'a Struct, program_name: ProgramId) {
+        if let Err(err) = self.symbol_table.insert_struct(input.name(), Some(program_name.name.name), input) {
             self.handler.emit_err(err);
         }
     }

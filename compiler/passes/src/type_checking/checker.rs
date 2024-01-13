@@ -27,6 +27,8 @@ use leo_ast::{
     Mode,
     Node,
     Output,
+    Struct,
+    StructType,
     Type,
     Variant,
 };
@@ -112,7 +114,6 @@ impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
         let struct_names = symbol_table.structs.keys().cloned().collect();
-
         let function_names = symbol_table.functions.keys().cloned().collect();
 
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
@@ -1039,26 +1040,27 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Returns the `struct` type and emits an error if the `expected` type does not match.
-    pub(crate) fn check_expected_struct(&mut self, struct_: Identifier, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn check_expected_struct(&mut self, struct_: &Struct, expected: &Option<Type>, span: Span) -> Type {
+        let current_struct = StructType { id: struct_.identifier, external: struct_.external };
         if let Some(expected) = expected {
-            if !Type::Identifier(struct_).eq_flat(expected) {
-                self.emit_err(TypeCheckerError::type_should_be(struct_.name, expected, span));
+            if !Type::Struct(current_struct).eq_flat(expected) {
+                self.emit_err(TypeCheckerError::type_should_be(struct_.id.to_string(), expected, span));
             }
         }
-        Type::Identifier(struct_)
+        Type::Struct(current_struct)
     }
 
     /// Emits an error if the struct member is a record type.
     pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
-            Type::Identifier(identifier)
+            Type::Struct(struct_)
                 if self
                     .symbol_table
                     .borrow()
-                    .lookup_struct(identifier.name)
+                    .lookup_struct(struct_.id.name, struct_.external)
                     .map_or(false, |struct_| struct_.is_record) =>
             {
-                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, identifier.name, span))
+                self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
             Type::Tuple(tuple_type) => {
                 for type_ in tuple_type.elements().iter() {
@@ -1079,9 +1081,11 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
-            Type::Identifier(identifier) if self.symbol_table.borrow().lookup_struct(identifier.name).is_none() => {
+            Type::Struct(struct_)
+                if self.symbol_table.borrow().lookup_struct(struct_.id.name, struct_.external).is_none() =>
+            {
                 is_valid = false;
-                self.emit_err(TypeCheckerError::undefined_type(identifier.name, span));
+                self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
             // Check that the constituent types of the tuple are valid.
             Type::Tuple(tuple_type) => {
@@ -1109,9 +1113,11 @@ impl<'a> TypeChecker<'a> {
                     // Array elements cannot be tuples.
                     Type::Tuple(_) => self.emit_err(TypeCheckerError::array_element_cannot_be_tuple(span)),
                     // Array elements cannot be records.
-                    Type::Identifier(identifier) => {
+                    Type::Struct(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                        if let Some(struct_) =
+                            self.symbol_table.borrow().lookup_struct(struct_type.id.name, struct_type.external)
+                        {
                             // Check that the type is not a record.
                             if struct_.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -1168,8 +1174,8 @@ impl<'a> TypeChecker<'a> {
             }
 
             // If the function is not a transition function, then it cannot have a record as input
-            if let Type::Identifier(identifier) = input_var.type_() {
-                if let Some(val) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+            if let Type::Struct(struct_) = input_var.type_() {
+                if let Some(val) = self.symbol_table.borrow().lookup_struct(struct_.id.name, struct_.external) {
                     if val.is_record && !matches!(function.variant, Variant::Transition) {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
@@ -1205,9 +1211,14 @@ impl<'a> TypeChecker<'a> {
                     // Check that the type of output is defined.
                     if self.assert_type_is_valid(&function_output.type_, function_output.span) {
                         // If the function is not a transition function, then it cannot output a record.
-                        if let Type::Identifier(identifier) = function_output.type_ {
+                        if let Type::Struct(struct_) = function_output.type_.clone() {
                             if !matches!(function.variant, Variant::Transition)
-                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
+                                && self
+                                    .symbol_table
+                                    .borrow()
+                                    .lookup_struct(struct_.id.name, struct_.external)
+                                    .unwrap()
+                                    .is_record
                             {
                                 self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
                                     function_output.span,
@@ -1252,9 +1263,9 @@ impl<'a> TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
                 }
                 // Check that the input parameter is not a record.
-                if let Type::Identifier(identifier) = input_var.type_() {
+                if let Type::Struct(struct_) = input_var.type_() {
                     // Note that this unwrap is safe, as the type is defined.
-                    if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                    if self.symbol_table.borrow().lookup_struct(struct_.id.name, struct_.external).unwrap().is_record {
                         self.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
                     }
                 }
@@ -1293,9 +1304,9 @@ impl<'a> TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
                 }
                 // Check that the output is not a record.
-                if let Type::Identifier(identifier) = output_type.type_() {
+                if let Type::Struct(struct_) = output_type.type_() {
                     // Note that this unwrap is safe, as the type is defined.
-                    if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                    if self.symbol_table.borrow().lookup_struct(struct_.id.name, struct_.external).unwrap().is_record {
                         self.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
                     }
                 }

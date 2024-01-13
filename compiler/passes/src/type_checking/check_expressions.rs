@@ -203,9 +203,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     _ => {
                         // Check that the type of `inner` in `inner.name` is a struct.
                         match self.visit_expression(&access.inner, &None) {
-                            Some(Type::Identifier(identifier)) => {
+                            Some(Type::Struct(struct_)) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                                let struct_ = self
+                                    .symbol_table
+                                    .borrow()
+                                    .lookup_struct(struct_.id.name, struct_.external)
+                                    .cloned();
                                 if let Some(struct_) = struct_ {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -643,10 +647,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
+        let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name, None).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
-            let ret = self.check_expected_struct(struct_.identifier, additional, input.name.span());
+            let ret = self.check_expected_struct(&struct_, additional, input.name.span());
 
             // Check number of struct members.
             if struct_.members.len() != input.members.len() {
