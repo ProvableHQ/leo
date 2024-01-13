@@ -28,13 +28,14 @@ use crate::{
     NodeID,
     Output,
     ProgramId,
+    StructType,
     TupleType,
     Type,
     Variant,
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::Type::Identifier as IdentifierType;
+use crate::Type::{Struct};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -101,6 +102,122 @@ impl FunctionStub {
         };
 
         FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
+    }
+
+    /// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
+    pub fn from_function_core<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
+        function: &FunctionCore<N, Instruction, Command>,
+        program: Symbol,
+    ) -> Self {
+        let outputs = function
+            .outputs()
+            .iter()
+            .map(|output| match output.value_type() {
+                ValueType::Constant(val) => vec![Output::Internal(FunctionOutput {
+                    mode: Mode::Constant,
+                    type_: Type::from(val),
+                    span: Default::default(),
+                    id: Default::default(),
+                })],
+                ValueType::Public(val) => vec![Output::Internal(FunctionOutput {
+                    mode: Mode::Public,
+                    type_: Type::from(val),
+                    span: Default::default(),
+                    id: Default::default(),
+                })],
+                ValueType::Private(val) => vec![Output::Internal(FunctionOutput {
+                    mode: Mode::Private,
+                    type_: Type::from(val),
+                    span: Default::default(),
+                    id: Default::default(),
+                })],
+                ValueType::Record(id) => vec![Output::Internal(FunctionOutput {
+                    mode: Mode::None,
+                    type_: Struct(StructType { id: Identifier::from(id), external: Some(program) }),
+                    span: Default::default(),
+                    id: Default::default(),
+                })],
+                ValueType::ExternalRecord(loc) => vec![Output::External(External {
+                    // TODO
+                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                    program_name: ProgramId::from(loc.program_id()).name,
+                    record: Identifier::from(loc.resource()),
+                    span: Default::default(),
+                    id: Default::default(),
+                })],
+                ValueType::Future(_) => Vec::new(), // Don't include futures in the output signature
+            })
+            .collect_vec()
+            .concat();
+        let output_vec = outputs
+            .iter()
+            .map(|output| match output {
+                Output::Internal(output) => output.type_.clone(),
+                Output::External(output) => Type::Identifier(output.record),
+            })
+            .collect_vec();
+        let output_type = match output_vec.len() {
+            0 => Type::Unit,
+            1 => output_vec[0].clone(),
+            _ => Type::Tuple(TupleType::new(output_vec)),
+        };
+
+        Self {
+            annotations: Vec::new(),
+            variant: Variant::Transition,
+            identifier: Identifier::from(function.name()),
+            input: function
+                .inputs()
+                .iter()
+                .enumerate()
+                .map(|(index, input)| {
+                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+                    match input.value_type() {
+                        ValueType::Constant(val) => Input::Internal(FunctionInput {
+                            identifier: arg_name,
+                            mode: Mode::Constant,
+                            type_: Type::from(val),
+                            span: Default::default(),
+                            id: Default::default(),
+                        }),
+                        ValueType::Public(val) => Input::Internal(FunctionInput {
+                            identifier: arg_name,
+                            mode: Mode::Public,
+                            type_: Type::from(val),
+                            span: Default::default(),
+                            id: Default::default(),
+                        }),
+                        ValueType::Private(val) => Input::Internal(FunctionInput {
+                            identifier: arg_name,
+                            mode: Mode::Private,
+                            type_: Type::from(val),
+                            span: Default::default(),
+                            id: Default::default(),
+                        }),
+                        ValueType::Record(id) => Input::Internal(FunctionInput {
+                            identifier: arg_name,
+                            mode: Mode::None,
+                            type_: Struct(StructType { id: Identifier::from(id), external: Some(program) }),
+                            span: Default::default(),
+                            id: Default::default(),
+                        }),
+                        ValueType::ExternalRecord(loc) => Input::External(External {
+                            identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                            program_name: ProgramId::from(loc.program_id()).name,
+                            record: Identifier::from(loc.resource()),
+                            span: Default::default(),
+                            id: Default::default(),
+                        }),
+                        ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
+                    }
+                })
+                .collect_vec(),
+            output: outputs,
+            output_type,
+            finalize_stub: function.finalize_logic().map(FinalizeStub::from),
+            span: Default::default(),
+            id: Default::default(),
+        }
     }
 
     /// Returns function name.
@@ -215,121 +332,6 @@ impl<N: Network, Instruction: InstructionTrait<N>> From<&ClosureCore<N, Instruct
             span: Default::default(),
             id: Default::default(),
             finalize_stub: None,
-        }
-    }
-}
-
-impl<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>
-    From<&FunctionCore<N, Instruction, Command>> for FunctionStub
-{
-    fn from(function: &FunctionCore<N, Instruction, Command>) -> Self {
-        let outputs = function
-            .outputs()
-            .iter()
-            .map(|output| match output.value_type() {
-                ValueType::Constant(val) => vec![Output::Internal(FunctionOutput {
-                    mode: Mode::Constant,
-                    type_: Type::from(val),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
-                ValueType::Public(val) => vec![Output::Internal(FunctionOutput {
-                    mode: Mode::Public,
-                    type_: Type::from(val),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
-                ValueType::Private(val) => vec![Output::Internal(FunctionOutput {
-                    mode: Mode::Private,
-                    type_: Type::from(val),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
-                ValueType::Record(id) => vec![Output::Internal(FunctionOutput {
-                    mode: Mode::None,
-                    type_: IdentifierType(Identifier::from(id)),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
-                ValueType::ExternalRecord(loc) => vec![Output::External(External {
-                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                    program_name: ProgramId::from(loc.program_id()).name,
-                    record: Identifier::from(loc.resource()),
-                    span: Default::default(),
-                    id: Default::default(),
-                })],
-                ValueType::Future(_) => Vec::new(), // Don't include futures in the output signature
-            })
-            .collect_vec()
-            .concat();
-        let output_vec = outputs
-            .iter()
-            .map(|output| match output {
-                Output::Internal(output) => output.type_.clone(),
-                Output::External(output) => Type::Identifier(output.record),
-            })
-            .collect_vec();
-        let output_type = match output_vec.len() {
-            0 => Type::Unit,
-            1 => output_vec[0].clone(),
-            _ => Type::Tuple(TupleType::new(output_vec)),
-        };
-
-        Self {
-            annotations: Vec::new(),
-            variant: Variant::Transition,
-            identifier: Identifier::from(function.name()),
-            input: function
-                .inputs()
-                .iter()
-                .enumerate()
-                .map(|(index, input)| {
-                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
-                    match input.value_type() {
-                        ValueType::Constant(val) => Input::Internal(FunctionInput {
-                            identifier: arg_name,
-                            mode: Mode::Constant,
-                            type_: Type::from(val),
-                            span: Default::default(),
-                            id: Default::default(),
-                        }),
-                        ValueType::Public(val) => Input::Internal(FunctionInput {
-                            identifier: arg_name,
-                            mode: Mode::Public,
-                            type_: Type::from(val),
-                            span: Default::default(),
-                            id: Default::default(),
-                        }),
-                        ValueType::Private(val) => Input::Internal(FunctionInput {
-                            identifier: arg_name,
-                            mode: Mode::Private,
-                            type_: Type::from(val),
-                            span: Default::default(),
-                            id: Default::default(),
-                        }),
-                        ValueType::Record(id) => Input::Internal(FunctionInput {
-                            identifier: arg_name,
-                            mode: Mode::None,
-                            type_: IdentifierType(Identifier::from(id)),
-                            span: Default::default(),
-                            id: Default::default(),
-                        }),
-                        ValueType::ExternalRecord(loc) => Input::External(External {
-                            identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                            program_name: ProgramId::from(loc.program_id()).name,
-                            record: Identifier::from(loc.resource()),
-                            span: Default::default(),
-                            id: Default::default(),
-                        }),
-                        ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
-                    }
-                })
-                .collect_vec(),
-            output: outputs,
-            output_type,
-            finalize_stub: function.finalize_logic().map(FinalizeStub::from),
-            span: Default::default(),
-            id: Default::default(),
         }
     }
 }
