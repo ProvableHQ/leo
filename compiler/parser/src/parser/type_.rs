@@ -95,13 +95,16 @@ impl ParserContext<'_> {
                 // Parse the record name
                 if let Some(record_name) = self.eat_identifier() {
                     // Return the external type
-                    return Ok((Type::Identifier(record_name), ident.span + record_name.span));
+                    return Ok((
+                        Type::Struct(StructType { id: record_name, external: Some(ident.name) }),
+                        ident.span + record_name.span,
+                    ));
                 } else {
                     return Err(ParserError::invalid_external_type(self.token.span).into());
                 }
             }
 
-            Ok((Type::Identifier(ident), ident.span))
+            Ok((Type::Struct(StructType { id: ident, external: None }), ident.span))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;

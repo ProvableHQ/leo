@@ -100,13 +100,10 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, _: &Self::AdditionalInput) -> Self::Output {
-        let CallExpression { function, arguments, external, id, .. } = input;
+        let CallExpression { function, arguments, external: _external, id, .. } = input;
         self.visit_expression(function, &Default::default());
         for argument in arguments {
             self.visit_expression(argument, &Default::default());
-        }
-        if let Some(external) = external {
-            self.visit_identifier(&external.name, &Default::default());
         }
         self.check(*id);
     }

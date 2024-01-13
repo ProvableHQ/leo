@@ -38,6 +38,7 @@ use leo_ast::{
     Statement,
     Struct,
     StructExpression,
+    StructType,
     StructVariableInitializer,
     TernaryExpression,
     TupleAccess,
@@ -463,7 +464,8 @@ impl<'a> Flattener<'a> {
                 // Create a new node ID for the struct expression.
                 let id = self.node_builder.next_id();
                 // Set the type of the node ID.
-                self.type_table.insert(id, Type::Identifier(struct_.identifier));
+                self.type_table
+                    .insert(id, Type::Struct(StructType { id: struct_.identifier, external: struct_.external }));
                 id
             },
         });
