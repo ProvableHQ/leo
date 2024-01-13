@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::ProgramId;
+use leo_span::Symbol;
 
 /// A function call expression, e.g.`foo(args)` or `Foo::bar(args)`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -26,7 +26,7 @@ pub struct CallExpression {
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
     /// The name of the external program call, e.g.`bar` in `bar.leo`.
-    pub external: Option<ProgramId>,
+    pub external: Option<Symbol>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
     /// The ID of the node.
