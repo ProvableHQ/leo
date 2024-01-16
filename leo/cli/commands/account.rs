@@ -45,7 +45,7 @@ pub enum Account {
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
-        /// Print sensitive information(such as private key) discreetly to an alternate screen
+        /// Print sensitive information (such as private key) discreetly to an alternate screen
         #[clap(long)]
         discreet: bool,
     },
