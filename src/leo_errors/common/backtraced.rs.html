@@ -180,7 +180,7 @@
 <span class="doccomment">/// The indent for an error message.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>INDENT: <span class="kw-2">&amp;</span>str = <span class="string">&quot;    &quot;</span>;
 
-<span class="doccomment">/// Backtraced compiler ouput type
+<span class="doccomment">/// Backtraced compiler output type
 ///     undefined value `x`
 ///     --&gt; file.leo: 2:8
 ///      = help: Initialize a variable `x` first.
@@ -201,7 +201,7 @@
     </span><span class="kw">pub </span>error: bool,
     <span class="attr">#[derivative(PartialEq = <span class="string">&quot;ignore&quot;</span>)]
     #[derivative(Hash = <span class="string">&quot;ignore&quot;</span>)]
-    </span><span class="doccomment">/// The backtrace representing where the error occured in Leo.
+    </span><span class="doccomment">/// The backtrace representing where the error occurred in Leo.
     </span><span class="kw">pub </span>backtrace: Backtrace,
 }
 
