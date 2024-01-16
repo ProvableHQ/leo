@@ -27,7 +27,7 @@ use serde::{
 use std::fmt;
 
 /// The AST contains a few tuple-like enum variants that contain spans.
-/// #[derive(Serialize, Deserialize)] outputs these fields as anonmyous
+/// #[derive(Serialize, Deserialize)] outputs these fields as anonymous
 /// mappings, which makes them difficult to remove from the JSON AST.
 /// This function provides a custom serialization that maps the keyword
 /// `span` to the span information.

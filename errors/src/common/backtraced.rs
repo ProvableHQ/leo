@@ -25,7 +25,7 @@ use leo_span::source_map::is_not_test_framework;
 /// The indent for an error message.
 pub(crate) const INDENT: &str = "    ";
 
-/// Backtraced compiler ouput type
+/// Backtraced compiler output type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
 ///      = help: Initialize a variable `x` first.
@@ -46,7 +46,7 @@ pub struct Backtraced {
     pub error: bool,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
-    /// The backtrace representing where the error occured in Leo.
+    /// The backtrace representing where the error occurred in Leo.
     pub backtrace: Backtrace,
 }
 
