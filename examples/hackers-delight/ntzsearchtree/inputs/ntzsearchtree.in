@@ -1,3 +1,1 @@
-// The program input for ntzsearchtree/src/main.leo
-[main]
-public z: u32 = 2147483648u32;
+2147483648u32

@@ -37,7 +37,6 @@ Can you find any others?
 ## Running the Program
 
 Leo provides users with a command line interface for compiling and running Leo programs.
-Users may either specify input values via the command line or provide an input file in `inputs/`.
 
 ### Configuring Accounts
 The `.env` file contains a private key.
@@ -50,22 +49,7 @@ The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides an interfac
 To generate a new account, navigate to [aleo.tools](https://aleo.tools).
 
 ### Providing inputs via the command line.
-1. Run
 ```bash
 leo run <function_name> <input_1> <input_2> ...
 ```
 See `./run.sh` for an example.
-
-
-### Using an input file.
-1. Modify `inputs/auction.in` with the desired inputs.
-2. Run
-```bash
-leo run <function_name>
-```
-For example,
-```bash
-leo run issue
-leo run deposit
-leo run withdraw
-```

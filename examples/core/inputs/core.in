@@ -1,4 +1,2 @@
-// The program input for core/src/main.leo
-[main]
-public a: field = 1field;
+1field
 

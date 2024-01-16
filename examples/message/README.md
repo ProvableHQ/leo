@@ -5,12 +5,12 @@ A basic example showing how to declare a struct in the Leo language.
 
 To run this program, run:
 ```bash
-leo run main
+leo run main <inputs>
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute main
+leo execute main <inputs>
 ```

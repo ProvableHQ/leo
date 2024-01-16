@@ -40,9 +40,6 @@ pub use self::functions::*;
 pub mod groups;
 pub use self::groups::*;
 
-pub mod input;
-pub use self::input::*;
-
 pub mod mapping;
 pub use self::mapping::*;
 

@@ -33,10 +33,7 @@ pub use self::compiler::*;
 pub mod flattener;
 pub use self::flattener::*;
 
-/// Contains the Input error definitions.
-pub mod input;
-pub use self::input::*;
-
+/// Contains the Loop Unroller error definitions.
 pub mod loop_unroller;
 pub use self::loop_unroller::*;
 
@@ -69,9 +66,6 @@ pub enum LeoError {
     /// Represents an Compiler Error in a Leo Error.
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
-    /// Represents an Input Error in a Leo Error.
-    #[error(transparent)]
-    InputError(#[from] InputError),
     /// Represents an Package Error in a Leo Error.
     #[error(transparent)]
     PackageError(#[from] PackageError),
@@ -108,7 +102,6 @@ impl LeoError {
             AstError(error) => error.error_code(),
             CompilerError(error) => error.error_code(),
             CliError(error) => error.error_code(),
-            InputError(error) => error.error_code(),
             ParserError(error) => error.error_code(),
             PackageError(error) => error.error_code(),
             TypeCheckerError(error) => error.error_code(),
@@ -128,7 +121,6 @@ impl LeoError {
             AstError(error) => error.exit_code(),
             CompilerError(error) => error.exit_code(),
             CliError(error) => error.exit_code(),
-            InputError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
             PackageError(error) => error.exit_code(),
             TypeCheckerError(error) => error.exit_code(),

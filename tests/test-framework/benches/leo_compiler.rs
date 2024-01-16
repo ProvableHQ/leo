@@ -97,7 +97,6 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
                 unrolled_symbol_table: false,
                 ast_spans_enabled: false,
                 initial_ast: false,
-                initial_input_ast: false,
                 unrolled_ast: false,
                 ssa_ast: false,
                 flattened_ast: false,
