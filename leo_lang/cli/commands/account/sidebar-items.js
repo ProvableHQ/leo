@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Account"],"fn":["print_keys","write_to_env_file"]};
+window.SIDEBAR_ITEMS = {"enum":["Account"],"fn":["display_string_discreetly","print_keys","wait_for_keypress","write_to_env_file"]};

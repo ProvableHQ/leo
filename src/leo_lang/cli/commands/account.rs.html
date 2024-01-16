@@ -115,6 +115,43 @@
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -135,8 +172,10 @@
 <span class="kw">use </span>leo_package::root::Env;
 <span class="kw">use </span>snarkvm::prelude::{Address, PrivateKey, ViewKey};
 
+<span class="kw">use </span>crossterm::ExecutableCommand;
 <span class="kw">use </span>rand::SeedableRng;
 <span class="kw">use </span>rand_chacha::ChaChaRng;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, Read, Write};
 
 <span class="doccomment">/// Commands to manage Aleo accounts.
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -149,6 +188,9 @@
         <span class="doccomment">/// Write the private key to the .env file.
         </span><span class="attr">#[clap(short = <span class="string">&#39;w&#39;</span>, long)]
         </span>write: bool,
+        <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
+        </span><span class="attr">#[clap(long)]
+        </span>discreet: bool,
     },
     <span class="doccomment">/// Derive an Aleo account from a private key.
     </span>Import {
@@ -157,6 +199,9 @@
         <span class="doccomment">/// Write the private key to the .env file.
         </span><span class="attr">#[clap(short = <span class="string">&#39;w&#39;</span>, long)]
         </span>write: bool,
+        <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
+        </span><span class="attr">#[clap(long)]
+        </span>discreet: bool,
     },
 }
 
@@ -176,7 +221,7 @@
         </span><span class="self">Self</span>: Sized,
     {
         <span class="kw">match </span><span class="self">self </span>{
-            Account::New { seed, write } =&gt; {
+            Account::New { seed, write, discreet } =&gt; {
                 <span class="comment">// Sample a new Aleo account.
                 </span><span class="kw">let </span>private_key = <span class="kw">match </span>seed {
                     <span class="comment">// Recover the field element deterministically.
@@ -187,16 +232,16 @@
                 .map_err(CliError::failed_to_parse_seed)<span class="question-mark">?</span>;
 
                 <span class="comment">// Derive the view key and address and print to stdout.
-                </span>print_keys(private_key)<span class="question-mark">?</span>;
+                </span>print_keys(private_key, discreet)<span class="question-mark">?</span>;
 
                 <span class="comment">// Save key data to .env file.
                 </span><span class="kw">if </span>write {
                     write_to_env_file(private_key, <span class="kw-2">&amp;</span>ctx)<span class="question-mark">?</span>;
                 }
             }
-            Account::Import { private_key, write } =&gt; {
+            Account::Import { private_key, write, discreet } =&gt; {
                 <span class="comment">// Derive the view key and address and print to stdout.
-                </span>print_keys(private_key)<span class="question-mark">?</span>;
+                </span>print_keys(private_key, discreet)<span class="question-mark">?</span>;
 
                 <span class="comment">// Save key data to .env file.
                 </span><span class="kw">if </span>write {
@@ -211,16 +256,24 @@
 <span class="comment">// Helper functions
 
 // Print keys as a formatted string without log level.
-</span><span class="kw">fn </span>print_keys(private_key: PrivateKey&lt;CurrentNetwork&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+</span><span class="kw">fn </span>print_keys(private_key: PrivateKey&lt;CurrentNetwork&gt;, discreet: bool) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">let </span>view_key = ViewKey::try_from(<span class="kw-2">&amp;</span>private_key)<span class="question-mark">?</span>;
     <span class="kw">let </span>address = Address::&lt;CurrentNetwork&gt;::try_from(<span class="kw-2">&amp;</span>view_key)<span class="question-mark">?</span>;
 
-    <span class="macro">println!</span>(
-        <span class="string">&quot;\n {:&gt;12}  {private_key}\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n&quot;</span>,
-        <span class="string">&quot;Private Key&quot;</span>.cyan().bold(),
-        <span class="string">&quot;View Key&quot;</span>.cyan().bold(),
-        <span class="string">&quot;Address&quot;</span>.cyan().bold(),
-    );
+    <span class="kw">if </span>!discreet {
+        <span class="macro">println!</span>(
+            <span class="string">&quot;\n {:&gt;12}  {private_key}\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n&quot;</span>,
+            <span class="string">&quot;Private Key&quot;</span>.cyan().bold(),
+            <span class="string">&quot;View Key&quot;</span>.cyan().bold(),
+            <span class="string">&quot;Address&quot;</span>.cyan().bold(),
+        );
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+    }
+    display_string_discreetly(
+        <span class="kw-2">&amp;</span>private_key.to_string(),
+        <span class="string">&quot;### Do not share or lose this private key! Press any key to complete. ###&quot;</span>,
+    )<span class="question-mark">?</span>;
+    <span class="macro">println!</span>(<span class="string">&quot;\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n&quot;</span>, <span class="string">&quot;View Key&quot;</span>.cyan().bold(), <span class="string">&quot;Address&quot;</span>.cyan().bold(),);
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -231,5 +284,26 @@
     Env::&lt;CurrentNetwork&gt;::from(data).write_to(<span class="kw-2">&amp;</span>program_dir)<span class="question-mark">?</span>;
     <span class="macro">tracing::info!</span>(<span class="string">&quot;✅ Private Key written to {}&quot;</span>, program_dir.join(<span class="string">&quot;.env&quot;</span>).display());
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="doccomment">/// Print the string to an alternate screen, so that the string won&#39;t been printed to the terminal.
+</span><span class="kw">fn </span>display_string_discreetly(discreet_string: <span class="kw-2">&amp;</span>str, continue_message: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">use </span>crossterm::{
+        style::Print,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    };
+    <span class="kw">let </span><span class="kw-2">mut </span>stdout = io::stdout();
+    stdout.execute(EnterAlternateScreen).unwrap();
+    <span class="comment">// print msg on the alternate screen
+    </span>stdout.execute(Print(<span class="macro">format!</span>(<span class="string">&quot;{discreet_string}\n{continue_message}&quot;</span>))).unwrap();
+    stdout.flush().unwrap();
+    wait_for_keypress();
+    stdout.execute(LeaveAlternateScreen).unwrap();
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">fn </span>wait_for_keypress() {
+    <span class="kw">let </span><span class="kw-2">mut </span>single_key = [<span class="number">0u8</span>];
+    std::io::stdin().read_exact(<span class="kw-2">&amp;mut </span>single_key).unwrap();
 }
 </code></pre></div></section></main></body></html>
