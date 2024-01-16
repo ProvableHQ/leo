@@ -46,7 +46,7 @@ version = "1.9.4"
 path = "../../compiler/span"
 
 [dependencies.ureq]
-version = "2.7"
+version = "2.9"
 
 [dependencies.leo-passes]
 version = "1.9.4"
