@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crossterm::ExecutableCommand;
 use leo_package::root::Env;
 use snarkvm::prelude::{Address, PrivateKey, ViewKey};
 
+use crossterm::ExecutableCommand;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
 use std::io::{self, Read, Write};
