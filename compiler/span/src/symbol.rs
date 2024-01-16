@@ -268,6 +268,7 @@ symbols! {
     owner,
     _nonce,
     program,
+    stub,
     block,
     height,
 }

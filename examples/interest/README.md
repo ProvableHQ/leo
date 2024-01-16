@@ -6,7 +6,7 @@ This program provides utilities for calculating interest over a fixed or bounded
 
 To run this program, run:
 ```bash
-leo run <function_name>
+leo run <function-name> <inputs>
 ```
 where `<function_name>` is one of the following:
 * `fixed_iteration_interest`
@@ -18,7 +18,7 @@ Be sure to update `inputs/interest.in` with the desired inputs.
 
 To execute this program, run:
 ```bash
-leo execute <function_name>
+leo execute <function_name> <inputs>
 ```
 where `<function_name>` is one of the following:
 * `fixed_iteration_interest`

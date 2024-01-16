@@ -1,0 +1,37 @@
+[package]
+name = "disassembler"
+version = "1.10.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Compiler passes for the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+    "aleo",
+    "cryptography",
+    "leo",
+    "programming-language",
+    "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2021"
+rust-version = "1.69"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies.snarkvm]
+workspace = true
+
+[dependencies.leo-ast]
+path = "../../compiler/ast"
+version = "=1.10.0"
+
+[dependencies.leo-span]
+path = "../../compiler/span"
+version = "1.10.0"
+
+[dependencies.leo-errors]
+path = "../../errors"
+version = "1.10.0"

@@ -13,7 +13,7 @@ In this model, there are two parties: the auctioneer and the bidders.
 - **Bidder**: A participant in the auction.
 - **Auctioneer**: The party responsible for conducting the auction.
 
-We make following assumptions about the auction:
+We make the following assumptions about the auction:
 - The auctioneer is honest. That is, the auctioneer will resolve **all** bids in the order they are received. The auctioneer will not tamper with the bids.
 - There is no limit to the number of bids.
 - The auctioneer knows the identity of all bidders, but bidders do not necessarily know the identity of other bidders.
@@ -36,7 +36,6 @@ The auction is conducted in a series of stages.
 ## Running the Program
 
 Leo provides users with a command line interface for compiling and running Leo programs.
-Users may either specify input values via the command line or provide an input file in `inputs/`.
 
 ### Configuring Accounts
 The `.env` file contains a private key. 
@@ -50,16 +49,9 @@ To generate a new account, navigate to [aleo.tools](https://aleo.tools).
 
 
 ### Providing inputs via the command line.
-1. Run
 ```bash
 leo run <function_name> <input_1> <input_2> ...
 ```
 See `./run.sh` for an example.
 
 
-### Using an input file.
-1. Modify `inputs/auction.in` with the desired inputs.
-2. Run
-```bash
-leo run <function_name>
-```

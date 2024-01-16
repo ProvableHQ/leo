@@ -38,6 +38,13 @@ impl Command for New {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Derive the location of the parent directory to the project.
+        let mut package_path = context.parent_dir()?;
+
+        // Change the cwd to the Leo package directory to initialize all files.
+        std::env::set_current_dir(&package_path)
+            .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
+
         // Call the `aleo new` command from the Aleo SDK.
         let command =
             SnarkVMNew::try_parse_from([SNARKVM_COMMAND, &self.name]).map_err(CliError::failed_to_parse_new)?;
@@ -46,16 +53,11 @@ impl Command for New {
         // Log the output of the `aleo new` command.
         tracing::info!("{}", result);
 
-        // Derive the program directory path.
-        let mut package_path = context.dir()?;
-        package_path.push(&self.name);
-
         // Initialize the Leo package in the directory created by `aleo new`.
-        Package::<CurrentNetwork>::initialize(&self.name, &package_path)?;
-
-        // Change the cwd to the Leo package directory to compile aleo files.
+        package_path.push(&self.name);
         std::env::set_current_dir(&package_path)
             .map_err(|err| PackageError::failed_to_set_cwd(package_path.display(), err))?;
+        Package::<CurrentNetwork>::initialize(&self.name, &package_path)?;
 
         // Open the program manifest.
         let manifest = context.open_manifest()?;

@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected 'import', 'program' -- found 'stub'\n    --> test:3:1\n     |\n   3 | stub credits.aleo {\n     | ^^^^"

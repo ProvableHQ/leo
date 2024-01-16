@@ -1,0 +1,18 @@
+// The `new` function does not take any inputs.
+[new]
+
+// Inputs for the `make_move` function.
+// - `player` : A u8 representing the player making the move. 1 for player 1, 2 for player 2.
+// - `row`    : A u8 representing the row to make the move in.
+// - `column` : A u8 representing the column to make the move in.
+// - `board`  : A representation of the board state.
+[make_move]
+player: u8 = 1u8;
+row: u8 = 1u8;
+col: u8 = 1u8;
+board: Board = Board {
+    r1: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
+    r2: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
+    r3: Row { c1: 0u8, c2: 0u8, c3: 0u8 },
+};
+

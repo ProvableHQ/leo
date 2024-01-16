@@ -18,13 +18,10 @@ include = [
   "leo",
   "README.md",
   "LICENSE.md",
-  "examples/lottery/inputs/lottery.in",
   "examples/lottery/src/main.leo",
   "examples/lottery/run.sh",
-  "examples/tictactoe/inputs/tictactoe.in",
   "examples/tictactoe/src/main.leo",
   "examples/tictactoe/run.sh",
-  "examples/token/inputs/token.in",
   "examples/token/src/main.leo",
   "examples/token/run.sh"
 ]
@@ -41,7 +38,9 @@ members = [
   "docs/grammar",
   "errors",
   "leo/package",
-  "tests/test-framework"
+  "tests/test-framework",
+  "utils/disassembler",
+  "utils/retriever"
 ]
 
 [workspace.dependencies.snarkvm]
@@ -58,6 +57,10 @@ path = "leo/cli/main.rs"
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
+
+[dependencies.aleo-std]
+version = "0.1.18"
+default-features = false
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
@@ -83,6 +86,10 @@ version = "=1.10.0"
 path = "./compiler/span"
 version = "=1.10.0"
 
+[dependencies.retriever]
+path = "./utils/retriever"
+version = "1.10.0"
+
 [dependencies.backtrace]
 version = "0.3.68"
 
@@ -97,7 +104,7 @@ version = "0.6.1"
 version = "2.0"
 
 [dependencies.console]
-version = "0.15.7"
+version = "0.15.8"
 
 [dependencies.dirs]
 version = "5.0.0"
@@ -137,6 +144,9 @@ features = [ "derive" ]
 [dependencies.serde_json]
 version = "1.0"
 
+[dependencies.serial_test]
+version = "3.0.0"
+
 [dependencies.snarkvm]
 workspace = true
 features = [ "circuit", "console" ]
@@ -161,7 +171,7 @@ version = "^0.6"
 version = "0.12.1"
 
 [dev-dependencies.assert_cmd]
-version = "2.0.12"
+version = "2.0.13"
 
 [dev-dependencies.rusty-hook]
 version = "0.11.2"

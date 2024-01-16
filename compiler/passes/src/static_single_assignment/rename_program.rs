@@ -151,6 +151,7 @@ impl ProgramConsumer for StaticSingleAssigner<'_> {
                 .into_iter()
                 .map(|(name, (import, span))| (name, (self.consume_program(import), span)))
                 .collect(),
+            stubs: input.stubs,
             program_scopes: input
                 .program_scopes
                 .into_iter()

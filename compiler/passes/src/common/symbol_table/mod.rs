@@ -23,7 +23,7 @@ pub use variable_symbol::*;
 use std::cell::RefCell;
 
 use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
-use leo_errors::{AstError, Result};
+use leo_errors::{AstError, LeoMessageCode, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -89,11 +89,46 @@ impl SymbolTable {
         Ok(())
     }
 
+    /// Check if the struct is a duplicate of the existing struct.
+    /// This is used to allow redefinitions of external structs.
+    pub fn check_duplicate_struct(&self, old: &Struct, new: &Struct) -> bool {
+        if old.members.len() != new.members.len() {
+            return false;
+        }
+
+        for (old_member, new_member) in old.members.iter().zip(new.members.iter()) {
+            if old_member.identifier.name != new_member.identifier.name {
+                return false;
+            }
+            if old_member.type_ != new_member.type_ {
+                return false;
+            }
+        }
+        true
+    }
+
     /// Inserts a struct into the symbol table.
     pub fn insert_struct(&mut self, symbol: Symbol, insert: &Struct) -> Result<()> {
-        self.check_shadowing(symbol, insert.span)?;
-        self.structs.insert(symbol, insert.clone());
-        Ok(())
+        match self.check_shadowing(symbol, insert.span) {
+            Ok(_) => {
+                self.structs.insert(symbol, insert.clone());
+                Ok(())
+            }
+            Err(e) => {
+                if e.error_code() == AstError::shadowed_struct(symbol, insert.span).error_code() {
+                    if self.check_duplicate_struct(
+                        self.structs.get(&symbol).expect("Must be in symbol table since struct already referenced"),
+                        insert,
+                    ) {
+                        Ok(())
+                    } else {
+                        Err(AstError::redefining_external_struct(symbol).into())
+                    }
+                } else {
+                    Err(e)
+                }
+            }
+        }
     }
 
     /// Inserts a variable into the symbol table.

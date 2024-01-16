@@ -18,6 +18,9 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.69"
 
+[dependencies.snarkvm]
+workspace = true
+
 [dependencies.leo-errors]
 path = "../../errors"
 version = "=1.10.0"
@@ -42,7 +45,7 @@ version = "1.0"
 features = [ "preserve_order" ]
 
 [dependencies.smallvec]
-version = "1.11.2"
+version = "1.12.0"
 features = [ "serde" ]
 
 [dev-dependencies.criterion]

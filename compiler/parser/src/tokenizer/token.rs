@@ -138,6 +138,7 @@ pub enum Token {
     Transition,
 
     // Meta Tokens
+    Aleo,
     Block,
     Eof,
     Leo,
@@ -149,6 +150,7 @@ pub enum Token {
 /// because true and false are also boolean literals, which are different tokens from keywords.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
+    Token::Aleo,
     Token::As,
     Token::Assert,
     Token::AssertEq,
@@ -205,6 +207,7 @@ impl Token {
     pub fn keyword_to_symbol(&self) -> Option<Symbol> {
         Some(match self {
             Token::Address => sym::address,
+            Token::Aleo => sym::aleo,
             Token::As => sym::As,
             Token::Assert => sym::assert,
             Token::AssertEq => sym::assert_eq,
@@ -341,6 +344,7 @@ impl fmt::Display for Token {
             U128 => write!(f, "u128"),
             Record => write!(f, "record"),
 
+            Aleo => write!(f, "aleo"),
             As => write!(f, "as"),
             Assert => write!(f, "assert"),
             AssertEq => write!(f, "assert_eq"),

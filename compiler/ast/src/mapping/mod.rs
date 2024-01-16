@@ -19,6 +19,7 @@ use crate::{Identifier, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
+use snarkvm::prelude::{Mapping as MappingCore, Network};
 use std::fmt;
 
 /// A mapping declaration, e.g `mapping balances: address => u128`.
@@ -36,6 +37,17 @@ pub struct Mapping {
     pub id: NodeID,
 }
 
+impl<N: Network> From<&MappingCore<N>> for Mapping {
+    fn from(mapping: &MappingCore<N>) -> Self {
+        Self {
+            identifier: Identifier::from(mapping.name()),
+            key_type: Type::from(mapping.key().plaintext_type()),
+            value_type: Type::from(mapping.value().plaintext_type()),
+            span: Default::default(),
+            id: Default::default(),
+        }
+    }
+}
 impl fmt::Display for Mapping {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "mapping {}: {} => {}", self.identifier, self.key_type, self.value_type)

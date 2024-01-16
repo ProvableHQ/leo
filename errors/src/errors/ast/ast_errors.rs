@@ -145,4 +145,11 @@ create_messages!(
         msg: format!("failed to convert symbol_table to a json value {error}"),
         help: None,
     }
+
+    @backtraced
+    redefining_external_struct {
+        args: (struct_: impl Display),
+        msg: format!("There are two mismatched definitions of struct `{struct_}`."),
+        help: Some("Duplicate definitions of structs are required to use external structs, but each field's name and type must match exactly.".to_string()),
+    }
 );

@@ -34,6 +34,21 @@ impl ProgramReconstructor for Unroller<'_> {
         }
     }
 
+    // Don't need to reconstruct anything, just need to add child scopes for constant propagation table
+    fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+
+        // Enter the function's scope.
+        let previous_function_index = self.enter_scope(function_index);
+
+        // Exit the function's scope.
+        self.exit_scope(previous_function_index);
+
+        input
+    }
+
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.

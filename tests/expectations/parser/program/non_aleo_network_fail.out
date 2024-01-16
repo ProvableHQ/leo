@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370028]: Invalid network identifier. The only supported identifier is `.aleo`.\n    --> test:3:14\n     |\n   3 | program test.eth {\n     |              ^^^"

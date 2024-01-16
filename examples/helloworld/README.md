@@ -4,7 +4,7 @@
 
 To run this program, run:
 ```bash
-leo run main
+leo run <function-name> <inputs>
 ```
 
 ## Execute Guide

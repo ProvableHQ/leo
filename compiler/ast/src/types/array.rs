@@ -15,8 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{NonNegativeNumber, Type};
+use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
 use serde::{Deserialize, Serialize};
+use snarkvm::prelude::Network;
 use std::fmt;
 
 /// An array type.
@@ -47,6 +49,15 @@ impl ArrayType {
         match self.element_type.as_ref() {
             Type::Array(array_type) => array_type.base_element_type(),
             type_ => type_,
+        }
+    }
+}
+
+impl<N: Network> From<&ConsoleArrayType<N>> for ArrayType {
+    fn from(array_type: &ConsoleArrayType<N>) -> Self {
+        Self {
+            element_type: Box::new(Type::from(array_type.next_element_type())),
+            length: NonNegativeNumber::from(array_type.length().to_string().replace("u32", "")),
         }
     }
 }

@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_files: ../inputs/dummy.in
 */
 
 program test.aleo {    

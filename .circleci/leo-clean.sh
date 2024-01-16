@@ -4,7 +4,7 @@ ls -la
 cd foo && ls -la
 
 # Run `leo run`.
-$LEO run || exit
+$LEO run main 0u32 1u32 || exit
 
 # Assert that the 'build' folder exists.
 if [ "$(ls -A build)" ]; then

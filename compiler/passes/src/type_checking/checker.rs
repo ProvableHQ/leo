@@ -14,9 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
-use leo_ast::{CoreConstant, CoreFunction, Identifier, IntegerType, MappingType, Node, Type, Variant};
+use leo_ast::{
+    CoreConstant,
+    CoreFunction,
+    Finalize,
+    Function,
+    Identifier,
+    IntegerType,
+    MappingType,
+    Mode,
+    Node,
+    Output,
+    Type,
+    Variant,
+};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
@@ -47,8 +60,6 @@ pub struct TypeChecker<'a> {
 
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
-    /// Whether or not we are currently traversing an imported program.
-    pub(crate) is_imported: bool,
     /// Whether or not we are currently traversing a return statement.
     pub(crate) is_return: bool,
 }
@@ -116,7 +127,6 @@ impl<'a> TypeChecker<'a> {
             has_return: false,
             has_finalize: false,
             is_finalize: false,
-            is_imported: false,
             is_return: false,
         }
     }
@@ -1129,6 +1139,176 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the type is not an array.
     pub(crate) fn assert_array_type(&self, type_: &Option<Type>, span: Span) {
         self.check_type(|type_| matches!(type_, Type::Array(_)), "array".to_string(), type_, span);
+    }
+
+    /// Helper function to check that the input and output of function are valid
+    pub(crate) fn check_function_signature(&mut self, function: &Function) {
+        self.variant = Some(function.variant);
+
+        // Type check the function's parameters.
+        function.input.iter().for_each(|input_var| {
+            // Check that the type of input parameter is defined.
+            self.assert_type_is_valid(&input_var.type_(), input_var.span());
+            // Check that the type of the input parameter is not a tuple.
+            if matches!(input_var.type_(), Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
+            }
+
+            // Note that this unwrap is safe since we assign to `self.variant` above.
+            match self.variant.unwrap() {
+                // If the function is a transition function, then check that the parameter mode is not a constant.
+                Variant::Transition if input_var.mode() == Mode::Constant => {
+                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
+                }
+                // If the function is not a transition function, then check that the parameters do not have an associated mode.
+                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
+                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
+                _ => {} // Do nothing.
+            }
+
+            // If the function is not a transition function, then it cannot have a record as input
+            if let Type::Identifier(identifier) = input_var.type_() {
+                if let Some(val) = self.symbol_table.borrow().lookup_struct(identifier.name) {
+                    if val.is_record && !matches!(function.variant, Variant::Transition) {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
+                    }
+                }
+            }
+
+            // Check for conflicting variable names.
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                    type_: input_var.type_(),
+                    span: input_var.identifier().span(),
+                    declaration: VariableType::Input(input_var.mode()),
+                })
+            {
+                self.handler.emit_err(err);
+            }
+        });
+
+        // Type check the function's return type.
+        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
+        function.output.iter().for_each(|output| {
+            match output {
+                Output::External(external) => {
+                    // If the function is not a transition function, then it cannot output a record.
+                    // Note that an external output must always be a record.
+                    if !matches!(function.variant, Variant::Transition) {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
+                    }
+                    // Otherwise, do not type check external record function outputs.
+                    // TODO: Verify that this is not needed when the import system is updated.
+                }
+                Output::Internal(function_output) => {
+                    // Check that the type of output is defined.
+                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
+                        // If the function is not a transition function, then it cannot output a record.
+                        if let Type::Identifier(identifier) = function_output.type_ {
+                            if !matches!(function.variant, Variant::Transition)
+                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
+                            {
+                                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
+                                    function_output.span,
+                                ));
+                            }
+                        }
+                    }
+                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+                    if matches!(&function_output.type_, Type::Tuple(_)) {
+                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+                    }
+                    // Check that the mode of the output is valid.
+                    // For functions, only public and private outputs are allowed
+                    if function_output.mode == Mode::Constant {
+                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+                    }
+                }
+            }
+        });
+    }
+
+    pub(crate) fn check_finalize_signature(&mut self, finalize: &Finalize, function: &Function) {
+        // Check that the function is a transition function.
+        if !matches!(function.variant, Variant::Transition) {
+            self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
+        }
+
+        // Check that the name of the finalize block matches the function name.
+        if function.identifier.name != finalize.identifier.name {
+            self.emit_err(TypeCheckerError::finalize_name_mismatch(
+                function.identifier.name,
+                finalize.identifier.name,
+                finalize.span,
+            ));
+        }
+
+        finalize.input.iter().for_each(|input_var| {
+            // Check that the type of input parameter is defined.
+            if self.assert_type_is_valid(&input_var.type_(), input_var.span()) {
+                // Check that the input parameter is not a tuple.
+                if matches!(input_var.type_(), Type::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
+                }
+                // Check that the input parameter is not a record.
+                if let Type::Identifier(identifier) = input_var.type_() {
+                    // Note that this unwrap is safe, as the type is defined.
+                    if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                        self.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
+                    }
+                }
+                // Check that the input parameter is not constant or private.
+                if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
+                }
+                // Check for conflicting variable names.
+                if let Err(err) =
+                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                        type_: input_var.type_(),
+                        span: input_var.identifier().span(),
+                        declaration: VariableType::Input(input_var.mode()),
+                    })
+                {
+                    self.handler.emit_err(err);
+                }
+            }
+        });
+
+        // Check that the finalize block's return type is a unit type.
+        // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
+        // Note: This restriction may be lifted in the future.
+        // Note: This check is still compatible with the other checks below.
+        if finalize.output_type != Type::Unit {
+            self.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
+        }
+
+        // Type check the finalize block's return type.
+        // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
+        finalize.output.iter().for_each(|output_type| {
+            // Check that the type of output is defined.
+            if self.assert_type_is_valid(&output_type.type_(), output_type.span()) {
+                // Check that the output is not a tuple. This is necessary to forbid nested tuples.
+                if matches!(&output_type.type_(), Type::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
+                }
+                // Check that the output is not a record.
+                if let Type::Identifier(identifier) = output_type.type_() {
+                    // Note that this unwrap is safe, as the type is defined.
+                    if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
+                        self.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
+                    }
+                }
+                // Check that the mode of the output is valid.
+                // Note that a finalize block can have only public outputs.
+                if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
+                    self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
+                }
+            }
+        });
+
+        // Check that the return type is defined. Note that the component types are already checked.
+        self.assert_type_is_valid(&finalize.output_type, finalize.span);
     }
 }
 

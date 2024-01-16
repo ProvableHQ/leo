@@ -41,6 +41,10 @@ version = "=1.10.0"
 [dependencies.sha2]
 version = "0.10"
 
+[dependencies.indexmap]
+version = "1.9"
+features = []
+
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 
@@ -61,7 +65,7 @@ workspace = true
 version = "1.10.2"
 
 [dev-dependencies.serde]
-version = "1.0.194"
+version = "1.0.195"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]

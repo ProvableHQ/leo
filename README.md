@@ -7,8 +7,9 @@
 <p align="center">
     <a href="https://circleci.com/gh/AleoHQ/leo"><img src="https://circleci.com/gh/AleoHQ/leo.svg?style=svg&circle-token=00960191919c40be0774e00ce8f7fa1fcaa20c00"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/testnet3/graph/badge.svg?token=S6MWO60SYL"/></a>
-    <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
+    <a href="https://discord.gg/aleo"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
     <a href="https://github.com/AleoHQ/leo/blob/testnet3/CONTRIBUTORS.md"><img src="https://img.shields.io/badge/contributors-393-ee8449"/></a>
+     <a href="https://twitter.com/AleoHQ"><img src="https://img.shields.io/twitter/follow/AleoHQ?style=social"/></a>
 </p>
 <div id="top"></div>
 Leo is a functional, statically-typed programming language built for writing private applications.
@@ -87,7 +88,7 @@ leo new helloworld
 cd helloworld
 
 # build & setup & prove & verify
-leo run
+leo run main 0u32 1u32
 ```
 
 The `leo new` command creates a new Leo project with a given name.

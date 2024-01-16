@@ -24,6 +24,7 @@ pub use program_scope::*;
 
 use leo_span::{Span, Symbol};
 
+use crate::Stub;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -33,6 +34,8 @@ use std::fmt;
 pub struct Program {
     /// A map from import names to import definitions.
     pub imports: IndexMap<Symbol, (Program, Span)>,
+    /// A map from program stub names to program stub scopes.
+    pub stubs: IndexMap<Symbol, Stub>,
     /// A map from program names to program scopes.
     pub program_scopes: IndexMap<Symbol, ProgramScope>,
 }
@@ -41,6 +44,10 @@ impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (id, _import) in self.imports.iter() {
             writeln!(f, "import {id}.leo;")?;
+        }
+        for (_, stub) in self.stubs.iter() {
+            stub.fmt(f)?;
+            writeln!(f,)?;
         }
         for (_, program_scope) in self.program_scopes.iter() {
             program_scope.fmt(f)?;
@@ -53,6 +60,6 @@ impl fmt::Display for Program {
 impl Default for Program {
     /// Constructs an empty program node.
     fn default() -> Self {
-        Self { imports: IndexMap::new(), program_scopes: IndexMap::new() }
+        Self { imports: IndexMap::new(), stubs: IndexMap::new(), program_scopes: IndexMap::new() }
     }
 }

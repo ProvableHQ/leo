@@ -31,7 +31,7 @@ pub(crate) use tokenizer::*;
 pub mod parser;
 pub use parser::*;
 
-use leo_ast::{input::InputData, Ast, NodeBuilder, ProgramInput};
+use leo_ast::{Ast, NodeBuilder};
 use leo_errors::{emitter::Handler, Result};
 
 #[cfg(test)]
@@ -40,17 +40,4 @@ mod test;
 /// Creates a new AST from a given file path and source code text.
 pub fn parse_ast(handler: &Handler, node_builder: &NodeBuilder, source: &str, start_pos: BytePos) -> Result<Ast> {
     Ok(Ast::new(parser::parse(handler, node_builder, source, start_pos)?))
-}
-
-/// Parses program inputs from the input file path
-pub fn parse_program_inputs(
-    handler: &Handler,
-    node_builder: &NodeBuilder,
-    input_string: &str,
-    start_pos: BytePos,
-) -> Result<InputData> {
-    let program_input: ProgramInput =
-        parser::parse_input(handler, node_builder, input_string, start_pos)?.try_into()?;
-
-    Ok(InputData { program_input })
 }
