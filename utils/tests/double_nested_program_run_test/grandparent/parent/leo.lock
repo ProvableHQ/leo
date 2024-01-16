@@ -1,6 +1,0 @@
-[[package]]
-name = "child"
-location = "local"
-path = "parent/child"
-checksum = "6341f6fcccbfa86b71e0eac445b9d0ee558c74ef896183ee82b456b9e7fb2270"
-dependencies = []

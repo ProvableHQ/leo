@@ -170,6 +170,7 @@ mod tests {
                 command: crate::cli::commands::Run {
                     name: "example".to_string(),
                     inputs: vec!["1u32".to_string(), "2u32".to_string()],
+                    file: None,
                     compiler_options: Default::default(),
                 },
             },
