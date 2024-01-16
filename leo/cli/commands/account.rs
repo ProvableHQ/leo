@@ -18,8 +18,10 @@ use super::*;
 use leo_package::root::Env;
 use snarkvm::prelude::{Address, PrivateKey, ViewKey};
 
+use crossterm::ExecutableCommand;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
+use std::io::{self, Read, Write};
 
 /// Commands to manage Aleo accounts.
 #[derive(Parser, Debug)]
@@ -32,6 +34,9 @@ pub enum Account {
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
+        /// Print sensitive information (such as private key) discreetly to an alternate screen
+        #[clap(long)]
+        discreet: bool,
     },
     /// Derive an Aleo account from a private key.
     Import {
@@ -40,6 +45,9 @@ pub enum Account {
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
+        /// Print sensitive information (such as private key) discreetly to an alternate screen
+        #[clap(long)]
+        discreet: bool,
     },
 }
 
@@ -59,7 +67,7 @@ impl Command for Account {
         Self: Sized,
     {
         match self {
-            Account::New { seed, write } => {
+            Account::New { seed, write, discreet } => {
                 // Sample a new Aleo account.
                 let private_key = match seed {
                     // Recover the field element deterministically.
@@ -70,16 +78,16 @@ impl Command for Account {
                 .map_err(CliError::failed_to_parse_seed)?;
 
                 // Derive the view key and address and print to stdout.
-                print_keys(private_key)?;
+                print_keys(private_key, discreet)?;
 
                 // Save key data to .env file.
                 if write {
                     write_to_env_file(private_key, &ctx)?;
                 }
             }
-            Account::Import { private_key, write } => {
+            Account::Import { private_key, write, discreet } => {
                 // Derive the view key and address and print to stdout.
-                print_keys(private_key)?;
+                print_keys(private_key, discreet)?;
 
                 // Save key data to .env file.
                 if write {
@@ -94,16 +102,24 @@ impl Command for Account {
 // Helper functions
 
 // Print keys as a formatted string without log level.
-fn print_keys(private_key: PrivateKey<CurrentNetwork>) -> Result<()> {
+fn print_keys(private_key: PrivateKey<CurrentNetwork>, discreet: bool) -> Result<()> {
     let view_key = ViewKey::try_from(&private_key)?;
     let address = Address::<CurrentNetwork>::try_from(&view_key)?;
 
-    println!(
-        "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
-        "Private Key".cyan().bold(),
-        "View Key".cyan().bold(),
-        "Address".cyan().bold(),
-    );
+    if !discreet {
+        println!(
+            "\n {:>12}  {private_key}\n {:>12}  {view_key}\n {:>12}  {address}\n",
+            "Private Key".cyan().bold(),
+            "View Key".cyan().bold(),
+            "Address".cyan().bold(),
+        );
+        return Ok(());
+    }
+    display_string_discreetly(
+        &private_key.to_string(),
+        "### Do not share or lose this private key! Press any key to complete. ###",
+    )?;
+    println!("\n {:>12}  {view_key}\n {:>12}  {address}\n", "View Key".cyan().bold(), "Address".cyan().bold(),);
     Ok(())
 }
 
@@ -114,4 +130,25 @@ fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> 
     Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());
     Ok(())
+}
+
+/// Print the string to an alternate screen, so that the string won't been printed to the terminal.
+fn display_string_discreetly(discreet_string: &str, continue_message: &str) -> Result<()> {
+    use crossterm::{
+        style::Print,
+        terminal::{EnterAlternateScreen, LeaveAlternateScreen},
+    };
+    let mut stdout = io::stdout();
+    stdout.execute(EnterAlternateScreen).unwrap();
+    // print msg on the alternate screen
+    stdout.execute(Print(format!("{discreet_string}\n{continue_message}"))).unwrap();
+    stdout.flush().unwrap();
+    wait_for_keypress();
+    stdout.execute(LeaveAlternateScreen).unwrap();
+    Ok(())
+}
+
+fn wait_for_keypress() {
+    let mut single_key = [0u8];
+    std::io::stdin().read_exact(&mut single_key).unwrap();
 }
