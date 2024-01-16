@@ -153,8 +153,6 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -206,7 +204,7 @@
 
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::cli::helpers::context::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::{emitter::Handler, CliError, CompilerError, PackageError, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_errors::{emitter::Handler, CliError, PackageError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_package::{build::<span class="kw-2">*</span>, outputs::OutputsDirectory, package::<span class="kw-2">*</span>};
 
 <span class="kw">use </span>clap::Parser;
@@ -295,8 +293,6 @@
     </span><span class="kw">pub </span>enable_dce: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]
     </span><span class="kw">pub </span>enable_all_ast_snapshots: bool,
-    <span class="attr">#[clap(long, help = <span class="string">&quot;Writes Input AST snapshot of the initial parse.&quot;</span>)]
-    </span><span class="kw">pub </span>enable_initial_input_ast_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]
     </span><span class="kw">pub </span>enable_initial_ast_snapshot: bool,
     <span class="attr">#[clap(long, help = <span class="string">&quot;Writes AST snapshot of the unrolled AST.&quot;</span>)]

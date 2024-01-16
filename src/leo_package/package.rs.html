@@ -195,22 +195,6 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -229,7 +213,7 @@
 
 </span><span class="kw">use crate</span>::{
     build::BuildDirectory,
-    inputs::{InputFile, InputsDirectory},
+    inputs::InputsDirectory,
     root::{Env, Gitignore},
     source::{MainFile, SourceDirectory},
 };
@@ -310,13 +294,6 @@
         <span class="kw">let </span><span class="kw-2">mut </span>result = <span class="bool-val">true</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>existing_files = <span class="macro">vec!</span>[];
 
-        <span class="comment">// Check if the input file already exists.
-        </span><span class="kw">let </span>input_file = InputFile::new(package_name);
-        <span class="kw">if </span>input_file.exists_at(path) {
-            existing_files.push(input_file.filename());
-            result = <span class="bool-val">false</span>;
-        }
-
         <span class="comment">// Check if the main file already exists.
         </span><span class="kw">if </span>MainFile::exists_at(path) {
             existing_files.push(MainFile::filename());
@@ -334,12 +311,6 @@
     </span><span class="kw">pub fn </span>is_initialized(package_name: <span class="kw-2">&amp;</span>str, path: <span class="kw-2">&amp;</span>Path) -&gt; bool {
         <span class="comment">// Check that the package name is valid.
         </span><span class="kw">if </span>!<span class="self">Self</span>::is_package_name_valid(package_name) {
-            <span class="kw">return </span><span class="bool-val">false</span>;
-        }
-
-        <span class="comment">// Check if the input file exists.
-        </span><span class="kw">let </span>input_file = InputFile::new(package_name);
-        <span class="kw">if </span>!input_file.exists_at(path) {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
@@ -373,9 +344,6 @@
 
         <span class="comment">// Create the Leo build/ directory
         </span>BuildDirectory::create(path)<span class="question-mark">?</span>;
-
-        <span class="comment">// Create the input file in the inputs directory.
-        </span>InputFile::new(package_name).write_to(path)<span class="question-mark">?</span>;
 
         <span class="comment">// Create the main file in the source directory.
         </span>MainFile::new(package_name).write_to(path)<span class="question-mark">?</span>;

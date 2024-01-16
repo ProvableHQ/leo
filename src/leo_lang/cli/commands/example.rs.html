@@ -112,24 +112,6 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -180,10 +162,6 @@
         </span><span class="kw">let </span>main_file_path = package_dir.join(<span class="string">&quot;src&quot;</span>).join(<span class="string">&quot;main.leo&quot;</span>);
         fs::write(main_file_path, <span class="self">self</span>.main_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
 
-        <span class="comment">// Write the input file.
-        </span><span class="kw">let </span>input_file_path = package_dir.join(<span class="string">&quot;inputs&quot;</span>).join(<span class="macro">format!</span>(<span class="string">&quot;{}.in&quot;</span>, <span class="self">self</span>.name()));
-        fs::write(input_file_path, <span class="self">self</span>.input_file_string()).map_err(CliError::failed_to_write_file)<span class="question-mark">?</span>;
-
         <span class="comment">// Write the README file.
         </span><span class="kw">let </span>readme_file_path = package_dir.join(<span class="string">&quot;README.md&quot;</span>);
         <span class="kw">let </span>readme_file_path_string = readme_file_path.display().to_string();
@@ -222,20 +200,6 @@
             }
             <span class="self">Self</span>::Token =&gt; {
                 <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/token/src/main.leo&quot;</span>)).to_string()
-            }
-        }
-    }
-
-    <span class="kw">fn </span>input_file_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Lottery =&gt; {
-                <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/lottery/inputs/lottery.in&quot;</span>)).to_string()
-            }
-            <span class="self">Self</span>::TicTacToe =&gt; {
-                <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/tictactoe/inputs/tictactoe.in&quot;</span>)).to_string()
-            }
-            <span class="self">Self</span>::Token =&gt; {
-                <span class="macro">include_str!</span>(<span class="macro">concat!</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;/examples/token/inputs/token.in&quot;</span>)).to_string()
             }
         }
     }

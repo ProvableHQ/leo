@@ -250,9 +250,6 @@
 <a href="#250" id="250">250</a>
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -294,8 +291,6 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) prev_token: SpannedToken,
     <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) disallow_struct_construction: bool,
-    <span class="doccomment">/// true if parsing an identifier inside an input file.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) allow_identifier_underscores: bool,
 }
 
 <span class="doccomment">/// Dummy span used to appease borrow checker.
@@ -314,7 +309,6 @@
             handler,
             node_builder,
             disallow_struct_construction: <span class="bool-val">false</span>,
-            allow_identifier_underscores: <span class="bool-val">false</span>,
             prev_token: token.clone(),
             token,
             tokens,

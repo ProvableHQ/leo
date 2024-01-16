@@ -218,33 +218,6 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -263,10 +236,12 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>leo_ast::{NodeBuilder, Struct, Stub};
-<span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, InputAst, OutputOptions};
-<span class="kw">use </span>leo_package::{build::BuildDirectory, inputs::InputFile, outputs::OutputsDirectory, source::SourceDirectory};
-<span class="kw">use </span>leo_span::{symbol::with_session_globals, Symbol};
+<span class="kw">use </span>leo_ast::Stub;
+<span class="kw">use </span>leo_compiler::{Compiler, CompilerOptions, OutputOptions};
+<span class="kw">use </span>leo_errors::UtilError;
+<span class="kw">use </span>leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
+<span class="kw">use </span>leo_span::Symbol;
+<span class="kw">use </span>retriever::Retriever;
 
 <span class="kw">use </span>snarkvm::{
     package::Package,
@@ -274,14 +249,10 @@
 };
 
 <span class="kw">use </span>indexmap::IndexMap;
-
-<span class="kw">use </span>leo_errors::UtilError;
 <span class="kw">use </span>std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-<span class="kw">use </span>retriever::Retriever;
 
 <span class="kw">type </span>CurrentNetwork = Testnet3;
 
@@ -295,7 +266,6 @@
                 type_checked_symbol_table: options.enable_type_checked_symbol_table_snapshot,
                 unrolled_symbol_table: options.enable_unrolled_symbol_table_snapshot,
                 ast_spans_enabled: options.enable_ast_spans,
-                initial_input_ast: options.enable_initial_input_ast_snapshot,
                 initial_ast: options.enable_initial_ast_snapshot,
                 unrolled_ast: options.enable_unrolled_ast_snapshot,
                 ssa_ast: options.enable_ssa_ast_snapshot,
@@ -306,7 +276,6 @@
             },
         };
         <span class="kw">if </span>options.enable_all_ast_snapshots {
-            out_options.output.initial_input_ast = <span class="bool-val">true</span>;
             out_options.output.initial_ast = <span class="bool-val">true</span>;
             out_options.output.unrolled_ast = <span class="bool-val">true</span>;
             out_options.output.ssa_ast = <span class="bool-val">true</span>;
@@ -329,7 +298,7 @@
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Build {
     <span class="kw">type </span>Input = ();
-    <span class="kw">type </span>Output = (<span class="prelude-ty">Option</span>&lt;InputAst&gt;, IndexMap&lt;Symbol, Struct&gt;);
+    <span class="kw">type </span>Output = ();
 
     <span class="kw">fn </span>log_span(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Span {
         <span class="macro">tracing::span!</span>(tracing::Level::INFO, <span class="string">&quot;Leo&quot;</span>)
@@ -353,12 +322,6 @@
 
         <span class="comment">// Initialize error handler
         </span><span class="kw">let </span>handler = Handler::default();
-
-        <span class="comment">// Initialize a node counter.
-        </span><span class="kw">let </span>node_builder = NodeBuilder::default();
-
-        <span class="comment">// Store all struct declarations made in the source files.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>structs = IndexMap::new();
 
         <span class="comment">// Retrieve all local dependencies in post order
         </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
@@ -389,7 +352,7 @@
 
             <span class="comment">// Compile all .leo files into .aleo files.
             </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
-                structs.extend(compile_leo_file(
+                compile_leo_file(
                     file_path,
                     <span class="kw-2">&amp;</span>ProgramID::&lt;Testnet3&gt;::try_from(<span class="macro">format!</span>(<span class="string">&quot;{}.aleo&quot;</span>, dependency))
                         .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
@@ -398,29 +361,12 @@
                     <span class="kw-2">&amp;</span>handler,
                     <span class="self">self</span>.options.clone(),
                     stubs.clone(),
-                )<span class="question-mark">?</span>);
+                )<span class="question-mark">?</span>;
             }
 
             <span class="comment">// Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
             </span>retriever.process_local(dependency)<span class="question-mark">?</span>;
         }
-
-        <span class="comment">// Load the input file at `package_name.in`
-        </span><span class="kw">let </span>input_file_path = InputFile::new(<span class="kw-2">&amp;</span>manifest.program_id().name().to_string()).setup_file_path(<span class="kw-2">&amp;</span>package_path);
-
-        <span class="comment">// Parse the input file.
-        </span><span class="kw">let </span>input_ast = <span class="kw">if </span>input_file_path.exists() {
-            <span class="comment">// Load the input file into the source map.
-            </span><span class="kw">let </span>input_sf = with_session_globals(|s| s.source_map.load_file(<span class="kw-2">&amp;</span>input_file_path))
-                .map_err(|e| CompilerError::file_read_error(<span class="kw-2">&amp;</span>input_file_path, e))<span class="question-mark">?</span>;
-
-            <span class="comment">// TODO: This is a hack to notify the user that something is wrong with the input file. Redesign.
-            </span>leo_parser::parse_input(<span class="kw-2">&amp;</span>handler, <span class="kw-2">&amp;</span>node_builder, <span class="kw-2">&amp;</span>input_sf.src, input_sf.start_pos)
-                .map_err(|_e| <span class="macro">println!</span>(<span class="string">&quot;Warning: Failed to parse input file&quot;</span>))
-                .ok()
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>};
 
         <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.
         </span>Package::&lt;CurrentNetwork&gt;::open(<span class="kw-2">&amp;</span>build_directory).map_err(CliError::failed_to_execute_build)<span class="question-mark">?</span>;
@@ -443,7 +389,7 @@
         // // Log the result of the build
         // tracing::info!(&quot;{}&quot;, result);
 
-        </span><span class="prelude-val">Ok</span>((input_ast, structs))
+        </span><span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -457,7 +403,7 @@
     handler: <span class="kw-2">&amp;</span>Handler,
     options: BuildOptions,
     stubs: IndexMap&lt;Symbol, Stub&gt;,
-) -&gt; <span class="prelude-ty">Result</span>&lt;IndexMap&lt;Symbol, Struct&gt;&gt; {
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="comment">// Construct the Leo file name with extension `foo.leo`.
     </span><span class="kw">let </span>file_name =
         file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)<span class="question-mark">?</span>;
@@ -481,7 +427,7 @@
     );
 
     <span class="comment">// Compile the Leo program into Aleo instructions.
-    </span><span class="kw">let </span>(symbol_table, instructions) = compiler.compile()<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>instructions = compiler.compile()<span class="question-mark">?</span>;
 
     <span class="comment">// Write the instructions.
     </span>std::fs::File::create(<span class="kw-2">&amp;</span>aleo_file_path)
@@ -490,6 +436,6 @@
         .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
     <span class="macro">tracing::info!</span>(<span class="string">&quot;✅ Compiled &#39;{}&#39; into Aleo instructions&quot;</span>, file_name);
-    <span class="prelude-val">Ok</span>(symbol_table.structs)
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

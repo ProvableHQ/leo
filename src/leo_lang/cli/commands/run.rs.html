@@ -82,6 +82,24 @@
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
 <a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -100,7 +118,7 @@
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use </span>snarkvm::cli::Run <span class="kw">as </span>SnarkVMRun;
+<span class="kw">use </span>snarkvm::{cli::Run <span class="kw">as </span>SnarkVMRun, prelude::Parser <span class="kw">as </span>SnarkVMParser};
 
 <span class="doccomment">/// Build, Prove and Run Leo program with inputs
 </span><span class="attr">#[derive(Parser, Debug)]
@@ -108,8 +126,11 @@
     <span class="attr">#[clap(name = <span class="string">&quot;NAME&quot;</span>, help = <span class="string">&quot;The name of the program to run.&quot;</span>, default_value = <span class="string">&quot;main&quot;</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) name: String,
 
-    <span class="attr">#[clap(name = <span class="string">&quot;INPUTS&quot;</span>, help = <span class="string">&quot;The inputs to the program. If none are provided, the input file is used.&quot;</span>)]
+    <span class="attr">#[clap(name = <span class="string">&quot;INPUTS&quot;</span>, help = <span class="string">&quot;The inputs to the program.&quot;</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) inputs: Vec&lt;String&gt;,
+
+    <span class="attr">#[arg(short, long, help = <span class="string">&quot;The inputs to the program, from a file. Overrides the INPUTS argument.&quot;</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) file: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
     <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,
@@ -127,22 +148,37 @@
         (Build { options: <span class="self">self</span>.compiler_options.clone() }).execute(context)
     }
 
-    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, input: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="comment">// If input values are provided, then run the program with those inputs.
-        // Otherwise, use the input file.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>inputs = <span class="kw">match </span><span class="self">self</span>.inputs.is_empty() {
-            <span class="bool-val">true </span>=&gt; <span class="kw">match </span>input {
-                (<span class="prelude-val">Some</span>(input_ast), circuits) =&gt; input_ast.program_inputs(<span class="kw-2">&amp;</span><span class="self">self</span>.name, circuits),
-                <span class="kw">_ </span>=&gt; Vec::new(),
-            },
-            <span class="bool-val">false </span>=&gt; <span class="self">self</span>.inputs,
-        };
+    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>inputs = <span class="self">self</span>.inputs;
 
         <span class="comment">// Compose the `run` command.
         </span><span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[SNARKVM_COMMAND.to_string(), <span class="self">self</span>.name];
 
-        <span class="comment">// Add the program inputs to the arguments.
-        </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs);
+        <span class="comment">// Add the inputs to the arguments.
+        </span><span class="kw">match </span><span class="self">self</span>.file {
+            <span class="prelude-val">Some</span>(file) =&gt; {
+                <span class="comment">// Get the contents from the file.
+                </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>.join(file);
+                <span class="kw">let </span>raw_content = std::fs::read_to_string(<span class="kw-2">&amp;</span>path)
+                    .map_err(|err| PackageError::failed_to_read_file(path.display(), err))<span class="question-mark">?</span>;
+                <span class="comment">// Parse the values from the file.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>content = raw_content.as_str();
+                <span class="kw">let </span><span class="kw-2">mut </span>values = <span class="macro">vec!</span>[];
+                <span class="kw">while let </span><span class="prelude-val">Ok</span>((remaining, value)) = snarkvm::prelude::Value::&lt;CurrentNetwork&gt;::parse(content) {
+                    content = remaining;
+                    values.push(value);
+                }
+                <span class="comment">// Check that the remaining content is empty.
+                </span><span class="kw">if </span>!content.trim().is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(PackageError::failed_to_read_input_file(path.display()).into());
+                }
+                <span class="comment">// Convert the values to strings.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>inputs_from_file = values.into_iter().map(|value| value.to_string()).collect::&lt;Vec&lt;String&gt;&gt;();
+                <span class="comment">// Add the inputs from the file to the arguments.
+                </span>arguments.append(<span class="kw-2">&amp;mut </span>inputs_from_file);
+            }
+            <span class="prelude-val">None </span>=&gt; arguments.append(<span class="kw-2">&amp;mut </span>inputs),
+        }
 
         <span class="comment">// Open the Leo build/ directory
         </span><span class="kw">let </span>path = context.dir()<span class="question-mark">?</span>;

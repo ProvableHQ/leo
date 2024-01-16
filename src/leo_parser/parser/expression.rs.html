@@ -750,15 +750,6 @@
 <a href="#750" id="750">750</a>
 <a href="#751" id="751">751</a>
 <a href="#752" id="752">752</a>
-<a href="#753" id="753">753</a>
-<a href="#754" id="754">754</a>
-<a href="#755" id="755">755</a>
-<a href="#756" id="756">756</a>
-<a href="#757" id="757">757</a>
-<a href="#758" id="758">758</a>
-<a href="#759" id="759">759</a>
-<a href="#760" id="760">760</a>
-<a href="#761" id="761">761</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -778,7 +769,7 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use </span>leo_span::{sym, Symbol};
+<span class="kw">use </span>leo_span::sym;
 <span class="kw">use </span>snarkvm::console::{account::Address, network::Testnet3};
 
 <span class="kw">const </span>INT_TYPES: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
@@ -1384,16 +1375,7 @@
     }
 
     <span class="kw">fn </span>parse_struct_member(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;StructVariableInitializer&gt; {
-        <span class="kw">let </span>identifier = <span class="kw">if </span><span class="self">self</span>.allow_identifier_underscores &amp;&amp; <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Underscore) {
-            <span class="comment">// Allow `_nonce` for struct records.
-            </span><span class="kw">let </span>identifier_without_underscore = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-            Identifier::new(
-                Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;_{}&quot;</span>, identifier_without_underscore.name)),
-                <span class="self">self</span>.node_builder.next_id(),
-            )
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.expect_identifier()<span class="question-mark">?
-        </span>};
+        <span class="kw">let </span>identifier = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(expression, span) = <span class="kw">if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Colon) {
             <span class="comment">// Parse individual struct variable declarations.

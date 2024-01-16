@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["parse","parse_input"],"mod":["context","expression","file","input","statement","type_"]};
+window.SIDEBAR_ITEMS = {"fn":["parse"],"mod":["context","expression","file","statement","type_"]};

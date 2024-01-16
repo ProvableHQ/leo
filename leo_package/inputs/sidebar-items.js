@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["directory","input"]};
+window.SIDEBAR_ITEMS = {"mod":["directory"]};
