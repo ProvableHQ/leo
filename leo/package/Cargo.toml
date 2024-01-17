@@ -27,7 +27,7 @@ workspace = true
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "=1.10.0"
+version = "=1.10.1"
 
 [dependencies.indexmap]
 version = "1.9"

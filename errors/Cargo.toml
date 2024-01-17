@@ -1,6 +1,6 @@
 [package]
 name = "leo-errors"
-version = "1.10.0"
+version = "1.10.1"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Errors for the Leo programming language"
 homepage = "https://aleo.org"
