@@ -97,7 +97,7 @@ impl Command for Account {
                             return Err(CliError::failed_to_execute_account(
                                 "PRIVATE_KEY shouldn't be empty when --discreet is false",
                             )
-                            .into())
+                            .into());
                         }
                     },
                 };
