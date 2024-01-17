@@ -38,8 +38,8 @@ pub use output::*;
 pub mod mode;
 pub use mode::*;
 
-use crate::{Block, Identifier, Node, NodeID, TupleType, Type};
-use leo_span::{sym, Span, Symbol};
+use crate::{Block, FunctionStub, Identifier, Node, NodeID, TupleType, Type};
+use leo_span::{Span, Symbol};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -111,11 +111,6 @@ impl Function {
         self.identifier.name
     }
 
-    /// Returns `true` if the function name is `main`.
-    pub fn is_main(&self) -> bool {
-        self.name() == sym::main
-    }
-
     ///
     /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
     ///
@@ -140,6 +135,24 @@ impl Function {
             write!(f, " finalize ({parameters}) {}", finalize.block)
         } else {
             Ok(())
+        }
+    }
+}
+
+impl From<FunctionStub> for Function {
+    fn from(function: FunctionStub) -> Self {
+        let finalize = function.finalize_stub.map(Finalize::from);
+        Self {
+            annotations: function.annotations,
+            variant: function.variant,
+            identifier: function.identifier,
+            input: function.input,
+            output: function.output,
+            output_type: function.output_type,
+            block: Block::default(),
+            finalize,
+            span: function.span,
+            id: function.id,
         }
     }
 }

@@ -417,11 +417,24 @@ pub trait ProgramReconstructor: StatementReconstructor {
                 .into_iter()
                 .map(|(id, import)| (id, (self.reconstruct_import(import.0), import.1)))
                 .collect(),
+            stubs: input.stubs.into_iter().map(|(id, stub)| (id, self.reconstruct_stub(stub))).collect(),
             program_scopes: input
                 .program_scopes
                 .into_iter()
                 .map(|(id, scope)| (id, self.reconstruct_program_scope(scope)))
                 .collect(),
+        }
+    }
+
+    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
+        Stub {
+            imports: input.imports,
+            stub_id: input.stub_id,
+            consts: input.consts,
+            structs: input.structs,
+            mappings: input.mappings,
+            span: input.span,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
         }
     }
 
@@ -464,6 +477,10 @@ pub trait ProgramReconstructor: StatementReconstructor {
             span: input.span,
             id: input.id,
         }
+    }
+
+    fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {
+        input
     }
 
     fn reconstruct_struct(&mut self, input: Struct) -> Struct {

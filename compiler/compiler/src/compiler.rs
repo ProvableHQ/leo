@@ -17,17 +17,18 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
-pub use leo_ast::{Ast, InputAst};
-use leo_ast::{NodeBuilder, Program};
+pub use leo_ast::Ast;
+use leo_ast::{NodeBuilder, Program, Stub};
 use leo_errors::{emitter::Handler, CompilerError, Result};
 pub use leo_passes::SymbolTable;
 use leo_passes::*;
-use leo_span::{source_map::FileName, symbol::with_session_globals};
+use leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
 
 use sha2::{Digest, Sha256};
 use std::{fs, path::PathBuf};
 
 use crate::CompilerOptions;
+use indexmap::{IndexMap, IndexSet};
 
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
@@ -44,8 +45,6 @@ pub struct Compiler<'a> {
     pub network: String,
     /// The AST for the program.
     pub ast: Ast,
-    /// The input ast for the program if it exists.
-    pub input_ast: Option<InputAst>,
     /// Options configuring compilation.
     compiler_options: CompilerOptions,
     /// The `NodeCounter` used to generate sequentially increasing `NodeID`s.
@@ -54,6 +53,8 @@ pub struct Compiler<'a> {
     assigner: Assigner,
     /// The type table.
     type_table: TypeTable,
+    /// The stubs for imported programs. Produced by `Retriever` module.
+    import_stubs: IndexMap<Symbol, Stub>,
 }
 
 impl<'a> Compiler<'a> {
@@ -65,6 +66,7 @@ impl<'a> Compiler<'a> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         compiler_options: Option<CompilerOptions>,
+        import_stubs: IndexMap<Symbol, Stub>,
     ) -> Self {
         let node_builder = NodeBuilder::default();
         let assigner = Assigner::default();
@@ -76,10 +78,10 @@ impl<'a> Compiler<'a> {
             program_name,
             network,
             ast: Ast::new(Program::default()),
-            input_ast: None,
             compiler_options: compiler_options.unwrap_or_default(),
             node_builder,
             assigner,
+            import_stubs,
             type_table,
         }
     }
@@ -134,37 +136,6 @@ impl<'a> Compiler<'a> {
             .map_err(|e| CompilerError::file_read_error(&self.main_file_path, e))?;
 
         self.parse_program_from_string(&program_string, FileName::Real(self.main_file_path.clone()))
-    }
-
-    /// Parses and stores the input file, constructs a syntax tree, and generates a program input.
-    pub fn parse_input(&mut self, input_file_path: PathBuf) -> Result<()> {
-        if input_file_path.exists() {
-            // Load the input file into the source map.
-            let input_sf = with_session_globals(|s| s.source_map.load_file(&input_file_path))
-                .map_err(|e| CompilerError::file_read_error(&input_file_path, e))?;
-
-            // Parse and serialize it.
-            let input_ast =
-                leo_parser::parse_input(self.handler, &self.node_builder, &input_sf.src, input_sf.start_pos)?;
-            if self.compiler_options.output.initial_ast {
-                // Write the input AST snapshot post parsing.
-                if self.compiler_options.output.ast_spans_enabled {
-                    input_ast.to_json_file(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                    )?;
-                } else {
-                    input_ast.to_json_file_without_keys(
-                        self.output_directory.clone(),
-                        &format!("{}.initial_input_ast.json", self.program_name),
-                        &["span"],
-                    )?;
-                }
-            }
-
-            self.input_ast = Some(input_ast);
-        }
-        Ok(())
     }
 
     /// Runs the symbol table pass.
@@ -321,14 +292,16 @@ impl<'a> Compiler<'a> {
     }
 
     /// Returns a compiled Leo program.
-    pub fn compile(&mut self) -> Result<(SymbolTable, String)> {
+    pub fn compile(&mut self) -> Result<String> {
         // Parse the program.
         self.parse_program()?;
+        // Copy the dependencies specified in `program.json` into the AST.
+        self.add_import_stubs()?;
         // Run the intermediate compiler stages.
         let (symbol_table, struct_graph, call_graph) = self.compiler_stages()?;
         // Run code generation.
         let bytecode = self.code_generation_pass(&symbol_table, &struct_graph, &call_graph)?;
-        Ok((symbol_table, bytecode))
+        Ok(bytecode)
     }
 
     /// Writes the AST to a JSON file.
@@ -359,6 +332,43 @@ impl<'a> Compiler<'a> {
                 &["_span", "span"],
             )?;
         }
+        Ok(())
+    }
+
+    /// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
+    fn add_import_stubs(&mut self) -> Result<()> {
+        // Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
+        let (mut unexplored, mut explored): (IndexSet<Symbol>, IndexSet<Symbol>) =
+            (self.ast.ast.imports.keys().cloned().collect(), IndexSet::new());
+        while !unexplored.is_empty() {
+            let mut current_dependencies: IndexSet<Symbol> = IndexSet::new();
+            for program_name in unexplored.iter() {
+                if let Some(stub) = self.import_stubs.get(program_name) {
+                    // Add the program to the explored set
+                    explored.insert(*program_name);
+                    for dependency in stub.imports.iter() {
+                        // If dependency is already explored then don't need to re-explore it
+                        if explored.insert(dependency.name.name) {
+                            current_dependencies.insert(dependency.name.name);
+                        }
+                    }
+                } else {
+                    return Err(CompilerError::imported_program_not_found(
+                        self.program_name.clone(),
+                        *program_name,
+                        self.ast.ast.imports[program_name].1,
+                    )
+                    .into());
+                }
+            }
+
+            // Create next batch to explore
+            unexplored = current_dependencies;
+        }
+
+        // Combine the dependencies from `program.json` and `.leo` file while preserving the post-order
+        self.ast.ast.stubs =
+            self.import_stubs.clone().into_iter().filter(|(program_name, _)| explored.contains(program_name)).collect();
         Ok(())
     }
 }

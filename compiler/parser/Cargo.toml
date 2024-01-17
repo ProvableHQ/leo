@@ -48,7 +48,7 @@ version = "1.0"
 features = [ "derive" ]
 
 [dependencies.smallvec]
-version = "1.11"
+version = "1.12"
 
 [dependencies.tracing]
 version = "0.1"

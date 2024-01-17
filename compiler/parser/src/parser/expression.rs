@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 use snarkvm::console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -429,6 +429,25 @@ impl ParserContext<'_> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
+    // Parses an externa function call `credits.aleo/transfer()` or `board.leo/make_move()`
+    fn parse_external_call(&mut self, expr: Expression) -> Result<Expression> {
+        // Eat an external function call.
+        self.eat(&Token::Div); // todo: Make `/` a more general token.
+
+        // Parse function name.
+        let name = self.expect_identifier()?;
+
+        // Parse the function call.
+        let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+        Ok(Expression::Call(CallExpression {
+            span: expr.span() + span,
+            function: Box::new(Expression::Identifier(name)),
+            external: Some(Box::new(expr)),
+            arguments,
+            id: self.node_builder.next_id(),
+        }))
+    }
+
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// array access, struct member access, function call, or static function call expression.
     ///
@@ -450,21 +469,9 @@ impl ParserContext<'_> {
                         id: self.node_builder.next_id(),
                     }))
                 } else if self.eat(&Token::Leo) {
-                    // Eat an external function call.
-                    self.eat(&Token::Div); // todo: Make `/` a more general token.
-
-                    // Parse function name.
-                    let name = self.expect_identifier()?;
-
-                    // Parse the function call.
-                    let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-                    expr = Expression::Call(CallExpression {
-                        span: expr.span() + span,
-                        function: Box::new(Expression::Identifier(name)),
-                        external: Some(Box::new(expr)),
-                        arguments,
-                        id: self.node_builder.next_id(),
-                    });
+                    return Err(ParserError::only_aleo_external_calls(expr.span()).into());
+                } else if self.eat(&Token::Aleo) {
+                    expr = self.parse_external_call(expr)?;
                 } else {
                     // Parse identifier name.
                     let name = self.expect_identifier()?;
@@ -616,16 +623,7 @@ impl ParserContext<'_> {
     }
 
     fn parse_struct_member(&mut self) -> Result<StructVariableInitializer> {
-        let identifier = if self.allow_identifier_underscores && self.eat(&Token::Underscore) {
-            // Allow `_nonce` for struct records.
-            let identifier_without_underscore = self.expect_identifier()?;
-            Identifier::new(
-                Symbol::intern(&format!("_{}", identifier_without_underscore.name)),
-                self.node_builder.next_id(),
-            )
-        } else {
-            self.expect_identifier()?
-        };
+        let identifier = self.expect_identifier()?;
 
         let (expression, span) = if self.eat(&Token::Colon) {
             // Parse individual struct variable declarations.

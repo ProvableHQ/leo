@@ -1,4 +1,1 @@
-// The program input for groups/src/main.leo
-// Leo will use provided string as the x coordinate and attempt to recover the y coordinate to form a group.
-[main]
-a: group = 1817767092074430972953743941103352519057913259183777531581123188265134806220group;
+1817767092074430972953743941103352519057913259183777531581123188265134806220group

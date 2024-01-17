@@ -6,8 +6,8 @@ record Token:
 
 
 mapping balances:
-	key left as field.public;
-	value right as u64.public;
+	key as field.public;
+	value as u64.public;
 
 function issue:
     input r0 as address.private;
@@ -22,9 +22,10 @@ function deposit:
     input r1 as u64.private;
     sub r0.amount r1 into r2;
     cast r0.owner r2 into r3 as Token.record;
-    hash.bhp256 r0.owner into r4 as field;    output r3 as Token.record;
-
-    finalize r4 r1;
+    hash.bhp256 r0.owner into r4 as field;
+    async deposit r4 r1 into r5;
+    output r3 as Token.record;
+    output r5 as basic_bank.aleo/deposit.future;
 
 finalize deposit:
     input r0 as field.public;
@@ -547,11 +548,12 @@ function withdraw:
     input r2 as u64.private;
     input r3 as u64.private;
     assert.eq self.caller aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a;
-    hash.bhp256 r0 into r4 as field;    call calculate_interest r1 r2 r3 into r5;
+    hash.bhp256 r0 into r4 as field;
+    call calculate_interest r1 r2 r3 into r5;
     cast r0 r5 into r6 as Token.record;
+    async withdraw r4 r1 into r7;
     output r6 as Token.record;
-
-    finalize r4 r1;
+    output r7 as basic_bank.aleo/withdraw.future;
 
 finalize withdraw:
     input r0 as field.public;

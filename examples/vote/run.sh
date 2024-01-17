@@ -20,9 +20,11 @@ echo "
 ###############################################################################
 "
 # Run the `propose` program function
-(
- leo run propose || exit
-)
+leo run propose "{
+  title: 2077160157502449938194577302446444field,
+  content: 1452374294790018907888397545906607852827800436field,
+  proposer: aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau
+}" || exit
 
 echo "
 ###############################################################################
@@ -38,9 +40,7 @@ echo "
 ###############################################################################
 "
 # Run the `new_ticket` program function
-(
-  leo run new_ticket || exit
-)
+leo run new_ticket 2264670486490520844857553240576860973319410481267184439818180411609250173817field aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau || exit
 
 echo "
 ###############################################################################
@@ -56,7 +56,9 @@ echo "
 ###############################################################################
 "
 # Run the `agree` or `disagree` program function
-(
-  leo run agree || exit
-  # leo run disagree || exit
-)
+leo run agree "{
+  owner: aleo1mgfq6g40l6zkhsm063n3uhr43qk5e0zsua5aszeq5080dsvlcvxsn0rrau.private,
+  pid: 2264670486490520844857553240576860973319410481267184439818180411609250173817field.private,
+  _nonce: 1637267040221574073903539416642641433705357302885235345311606754421919550724group.public
+}" || exit
+#cat ./inputs/disagree.in | xargs leo run disagree || exit

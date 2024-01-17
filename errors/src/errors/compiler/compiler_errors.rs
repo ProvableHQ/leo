@@ -70,4 +70,11 @@ create_messages!(
         msg: format!("The program scope name `{program_scope_name}` must match `{file_name}`."),
         help: None,
     }
+
+    @formatted
+    imported_program_not_found {
+        args: (main_program_name: impl Display, dependency_name: impl Display),
+        msg: format!("`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in `program.json`."),
+        help: None,
+    }
 );

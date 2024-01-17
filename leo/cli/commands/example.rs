@@ -48,10 +48,6 @@ impl Command for Example {
         let main_file_path = package_dir.join("src").join("main.leo");
         fs::write(main_file_path, self.main_file_string()).map_err(CliError::failed_to_write_file)?;
 
-        // Write the input file.
-        let input_file_path = package_dir.join("inputs").join(format!("{}.in", self.name()));
-        fs::write(input_file_path, self.input_file_string()).map_err(CliError::failed_to_write_file)?;
-
         // Write the README file.
         let readme_file_path = package_dir.join("README.md");
         let readme_file_path_string = readme_file_path.display().to_string();
@@ -90,20 +86,6 @@ impl Example {
             }
             Self::Token => {
                 include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/src/main.leo")).to_string()
-            }
-        }
-    }
-
-    fn input_file_string(&self) -> String {
-        match self {
-            Self::Lottery => {
-                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/lottery/inputs/lottery.in")).to_string()
-            }
-            Self::TicTacToe => {
-                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/tictactoe/inputs/tictactoe.in")).to_string()
-            }
-            Self::Token => {
-                include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/token/inputs/token.in")).to_string()
             }
         }
     }

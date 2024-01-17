@@ -1,3 +1,1 @@
-// The program input for ntzreisers/src/main.leo
-[main]
-public x: u32 = 2147483648u32;
+2147483648u32

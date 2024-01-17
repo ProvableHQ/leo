@@ -454,7 +454,7 @@ create_messages!(
         help: None,
     }
 
-    // TODO: Consider chainging this to a warning.
+    // TODO: Consider changing this to a warning.
 
     @formatted
     assign_unit_expression_to_variable {
@@ -534,9 +534,9 @@ create_messages!(
     }
 
     @formatted
-    function_cannot_output_record {
+    function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("A `function` cannot output a record."),
+        msg: format!("A `function` cannot have a record as input or output."),
         help: None,
     }
 
@@ -686,6 +686,20 @@ create_messages!(
     }
 
     @formatted
+    stub_functions_must_not_be_inlines {
+        args: (),
+        msg: format!("Function stubs must be transitions or functions not inlines"),
+        help: None,
+    }
+
+    @formatted
+    stub_functions_must_be_empty {
+        args: (),
+        msg: format!("Functions stubs must be empty"),
+        help: None,
+    }
+
+    @formatted
     array_empty {
         args: (),
         msg: format!("An array cannot be empty"),
@@ -711,5 +725,26 @@ create_messages!(
         args: (),
         msg: format!("An array cannot have a record as an element type"),
         help: None,
+    }
+
+    @formatted
+    stubs_cannot_have_non_record_structs {
+        args: (),
+        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found non-record struct"),
+        help: None,
+    }
+
+    @formatted
+    stubs_cannot_have_const_declarations {
+        args: (),
+        msg: format!("Stubs can only have records, transitions, functions, mappings and imports -- found const declaration"),
+        help: None,
+    }
+
+    @formatted
+    stub_name_mismatch {
+        args: (stub_name: impl Display, program_name: impl Display),
+        msg: format!("`stub` name `{stub_name}` does not match program name `{program_name}`"),
+        help: Some("Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file.".to_string()),
     }
 );

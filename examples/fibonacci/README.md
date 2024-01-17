@@ -4,14 +4,14 @@
 
 To run this program, run:
 ```bash
-leo run fibonacci
+leo run fibonacci <inputs>
 ```
 
 ## Execute Guide
 
 To execute this program, run:
 ```bash
-leo execute fibonacci
+leo execute fibonacci <inputs>
 ```
 
 ## Overview

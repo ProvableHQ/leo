@@ -37,9 +37,12 @@ version = "0.6.1"
 [dependencies.derivative]
 version = "2.2.0"
 
+[dependencies.reqwest]
+version = "0.11.22"
+
 [dependencies.serde]
-version = "1.0.193"
+version = "1.0.195"
 features = [ "derive", "rc" ]
 
 [dependencies.thiserror]
-version = "1.0.49"
+version = "1.0.56"

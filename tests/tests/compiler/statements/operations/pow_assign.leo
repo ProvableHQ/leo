@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_files: ../inputs/shift_and_pow.in
 */
 
 program test.aleo {    

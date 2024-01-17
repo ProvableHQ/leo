@@ -1,7 +1,6 @@
 /*
 namespace: Compile
 expectation: Pass
-input_files: ../inputs/u8.in
 */
 
 program test.aleo {    

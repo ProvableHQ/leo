@@ -4,7 +4,7 @@
 
 To compile and run this Leo program, run:
 ```bash
-leo run
+leo run <function-name> <inputs>
 ```
 ## The Algorithm
 

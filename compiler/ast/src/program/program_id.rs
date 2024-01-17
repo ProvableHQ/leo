@@ -18,6 +18,7 @@ use crate::Identifier;
 
 use core::fmt;
 use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+use snarkvm::{console::program::ProgramID, prelude::Network};
 use std::collections::BTreeMap;
 
 /// An identifier for a program that is eventually deployed to the network.
@@ -90,5 +91,11 @@ impl<'de> Deserialize<'de> for ProgramId {
         }
 
         deserializer.deserialize_str(ProgramIdVisitor)
+    }
+}
+
+impl<N: Network> From<&ProgramID<N>> for ProgramId {
+    fn from(program: &ProgramID<N>) -> Self {
+        Self { name: Identifier::from(program.name()), network: Identifier::from(program.network()) }
     }
 }

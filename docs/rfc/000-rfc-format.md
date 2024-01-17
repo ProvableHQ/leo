@@ -1,6 +1,6 @@
 # Summary
 
-This is an RFC to propose RFC format for Leo language.
+This is a RFC to propose RFC format for Leo language.
 
 # Motivation
 
@@ -12,11 +12,11 @@ This section describes proposed solution.
 
 ## Store RFCs inside Leo repository.
 
-At early stages it is for better to see changes with the code eliminating the need to keep track of a different repository. 
+At early stages it is better to see changes with the code eliminating the need to keep track of a different repository. 
 
 ## Use standard PR mechanics for submitting new RFCs
 
-New RFCs should be submitted as a PRs into Leo repository. PRs should be correctly labeled for easier search. Yet they should not have number unless PR is accepted by leo maintainers.
+New RFCs should be submitted as PRs into the Leo repository. PRs should be correctly labeled for easier search. Yet they should not have a number unless the PR is accepted by leo maintainers.
 
 ## Increase approvals count for RFCs
 
@@ -24,7 +24,7 @@ RFCs may propose changes affecting multiple systems or projects. They also intro
 
 ## Format
 
-For bootstrapping new requests template is made and placed into RFC folder.
+For bootstrapping new requests, a template is made and placed into the RFC folder.
 
 ## Number
 

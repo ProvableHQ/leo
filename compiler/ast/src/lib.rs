@@ -40,9 +40,6 @@ pub use self::functions::*;
 pub mod groups;
 pub use self::groups::*;
 
-pub mod input;
-pub use self::input::*;
-
 pub mod mapping;
 pub use self::mapping::*;
 
@@ -59,6 +56,10 @@ pub mod types;
 pub use self::types::*;
 
 pub mod value;
+
+pub mod stub;
+pub use self::stub::*;
+
 pub use self::value::*;
 
 pub use common::node::*;

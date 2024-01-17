@@ -105,7 +105,6 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                 type_checked_symbol_table: true,
                 unrolled_symbol_table: true,
                 ast_spans_enabled: false,
-                initial_input_ast: true,
                 initial_ast: true,
                 unrolled_ast: true,
                 ssa_ast: true,

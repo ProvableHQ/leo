@@ -29,6 +29,7 @@ use leo_test_framework::{test::TestConfig, Test};
 
 use snarkvm::prelude::*;
 
+use indexmap::IndexMap;
 use leo_ast::ProgramVisitor;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
@@ -142,7 +143,15 @@ pub fn new_compiler(
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    Compiler::new(String::from("test"), String::from("aleo"), handler, main_file_path, output_dir, compiler_options)
+    Compiler::new(
+        String::from("test"),
+        String::from("aleo"),
+        handler,
+        main_file_path,
+        output_dir,
+        compiler_options,
+        IndexMap::new(),
+    )
 }
 
 pub fn parse_program<'a>(

@@ -44,8 +44,6 @@ pub struct OutputOptions {
     pub ast_spans_enabled: bool,
     /// If enabled writes the AST after parsing.
     pub initial_ast: bool,
-    /// If enabled writes the input AST after parsing.
-    pub initial_input_ast: bool,
     /// If enabled writes the AST after loop unrolling.
     pub unrolled_ast: bool,
     /// If enabled writes the AST after static single assignment.

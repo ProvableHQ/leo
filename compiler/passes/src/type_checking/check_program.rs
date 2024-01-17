@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, TypeChecker, VariableSymbol, VariableType};
+use crate::{DiGraphError, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -28,28 +28,78 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
-        match self.is_imported {
-            // If the program is imported, then it is not allowed to import any other programs.
-            true => {
-                input.imports.values().for_each(|(_, span)| {
-                    self.emit_err(TypeCheckerError::imported_program_cannot_import_program(*span))
-                });
-            }
-            // Otherwise, typecheck the imported programs.
-            false => {
-                // Set `self.is_imported`.
-                let previous_is_imported = core::mem::replace(&mut self.is_imported, true);
+        // Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
 
-                // Typecheck the imported programs.
-                input.imports.values().for_each(|import| self.visit_import(&import.0));
-
-                // Set `self.is_imported` to its previous state.
-                self.is_imported = previous_is_imported;
+        // Typecheck the program's stubs.
+        input.stubs.iter().for_each(|(symbol, stub)| {
+            if symbol != &stub.stub_id.name.name {
+                self.emit_err(TypeCheckerError::stub_name_mismatch(
+                    symbol,
+                    stub.stub_id.name,
+                    stub.stub_id.network.span,
+                ));
             }
-        }
+            self.visit_stub(stub)
+        });
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
+    }
+
+    fn visit_stub(&mut self, input: &'a Stub) {
+        // Cannot have constant declarations in stubs.
+        if !input.consts.is_empty() {
+            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.get(0).unwrap().1.span));
+        }
+
+        // Typecheck the program's structs.
+        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
+
+        // Typecheck the program's functions.
+        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
+    }
+
+    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+        // Must not be an inline function
+        if input.variant == Variant::Inline {
+            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
+        }
+
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+
+        // Enter the function's scope.
+        self.enter_scope(function_index);
+
+        // Create a new child scope for the function's parameters and body.
+        let scope_index = self.create_child_scope();
+
+        // Query helper function to type check function parameters and outputs.
+        self.check_function_signature(&Function::from(input.clone()));
+
+        // Exit the scope for the function's parameters and body.
+        self.exit_scope(scope_index);
+
+        // Check that the finalize scope is valid
+        if input.finalize_stub.is_some() {
+            // Create a new child scope for the finalize block.
+            let scope_index = self.create_child_scope();
+
+            // Check the finalize signature.
+            let function = &Function::from(input.clone());
+            self.check_finalize_signature(function.finalize.as_ref().unwrap(), function);
+
+            // Exit the scope for the finalize block.
+            self.exit_scope(scope_index);
+        }
+
+        // Exit the function's scope.
+        self.exit_scope(function_index);
+    }
+
+    fn visit_struct_stub(&mut self, input: &'a Struct) {
+        self.visit_struct(input);
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -232,77 +282,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Create a new child scope for the function's parameters and body.
         let scope_index = self.create_child_scope();
 
-        // Type check the function's parameters.
-        function.input.iter().for_each(|input_var| {
-            // Check that the type of input parameter is defined.
-            self.assert_type_is_valid(&input_var.type_(), input_var.span());
-            // Check that the type of the input parameter is not a tuple.
-            if matches!(input_var.type_(), Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
-            }
-
-            // Note that this unwrap is safe since we assign to `self.variant` above.
-            match self.variant.unwrap() {
-                // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition if input_var.mode() == Mode::Constant => {
-                    self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
-                }
-                // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
-                    self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
-                }
-                _ => {} // Do nothing.
-            }
-
-            // Check for conflicting variable names.
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                self.handler.emit_err(err);
-            }
-        });
-
-        // Type check the function's return type.
-        // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().for_each(|output| {
-            match output {
-                Output::External(external) => {
-                    // If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    if !matches!(function.variant, Variant::Transition) {
-                        self.emit_err(TypeCheckerError::function_cannot_output_record(external.span()));
-                    }
-                    // Otherwise, do not type check external record function outputs.
-                    // TODO: Verify that this is not needed when the import system is updated.
-                }
-                Output::Internal(function_output) => {
-                    // Check that the type of output is defined.
-                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
-                        // If the function is not a transition function, then it cannot output a record.
-                        if let Type::Identifier(identifier) = function_output.type_ {
-                            if !matches!(function.variant, Variant::Transition)
-                                && self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record
-                            {
-                                self.emit_err(TypeCheckerError::function_cannot_output_record(function_output.span));
-                            }
-                        }
-                    }
-                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&function_output.type_, Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    // Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    if function_output.mode == Mode::Constant {
-                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
-                    }
-                }
-            }
-        });
+        // Query helper function to type check function parameters and outputs.
+        self.check_function_signature(function);
 
         self.visit_block(&function.block);
 
@@ -324,90 +305,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.is_finalize = true;
             // The function's finalize block does not have a return statement.
             self.has_return = false;
-            // The function;s finalize block does not have a finalize statement.
+            // The function's finalize block does not have a finalize statement.
             self.has_finalize = false;
-
-            // Check that the function is a transition function.
-            if !matches!(function.variant, Variant::Transition) {
-                self.emit_err(TypeCheckerError::only_transition_functions_can_have_finalize(finalize.span));
-            }
-
-            // Check that the name of the finalize block matches the function name.
-            if function.identifier.name != finalize.identifier.name {
-                self.emit_err(TypeCheckerError::finalize_name_mismatch(
-                    function.identifier.name,
-                    finalize.identifier.name,
-                    finalize.span,
-                ));
-            }
 
             // Create a new child scope for the finalize block.
             let scope_index = self.create_child_scope();
 
-            finalize.input.iter().for_each(|input_var| {
-                // Check that the type of input parameter is defined.
-                if self.assert_type_is_valid(&input_var.type_(), input_var.span()) {
-                    // Check that the input parameter is not a tuple.
-                    if matches!(input_var.type_(), Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
-                    }
-                    // Check that the input parameter is not a record.
-                    if let Type::Identifier(identifier) = input_var.type_() {
-                        // Note that this unwrap is safe, as the type is defined.
-                        if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
-                            self.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
-                        }
-                    }
-                    // Check that the input parameter is not constant or private.
-                    if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
-                        self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-                    }
-                    // Check for conflicting variable names.
-                    if let Err(err) =
-                        self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                            type_: input_var.type_(),
-                            span: input_var.identifier().span(),
-                            declaration: VariableType::Input(input_var.mode()),
-                        })
-                    {
-                        self.handler.emit_err(err);
-                    }
-                }
-            });
+            // Check the finalize signature.
+            self.check_finalize_signature(finalize, function);
 
-            // Check that the finalize block's return type is a unit type.
-            // Note: This is a temporary restriction to be compatible with the current version of snarkVM.
-            // Note: This restriction may be lifted in the future.
-            // Note: This check is still compatible with the other checks below.
-            if finalize.output_type != Type::Unit {
-                self.emit_err(TypeCheckerError::finalize_cannot_return_value(finalize.span));
-            }
-
-            // Type check the finalize block's return type.
-            // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
-            finalize.output.iter().for_each(|output_type| {
-                // Check that the type of output is defined.
-                if self.assert_type_is_valid(&output_type.type_(), output_type.span()) {
-                    // Check that the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&output_type.type_(), Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
-                    }
-                    // Check that the output is not a record.
-                    if let Type::Identifier(identifier) = output_type.type_() {
-                        // Note that this unwrap is safe, as the type is defined.
-                        if self.symbol_table.borrow().lookup_struct(identifier.name).unwrap().is_record {
-                            self.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
-                        }
-                    }
-                    // Check that the mode of the output is valid.
-                    // Note that a finalize block can have only public outputs.
-                    if matches!(output_type.mode(), Mode::Constant | Mode::Private) {
-                        self.emit_err(TypeCheckerError::finalize_output_mode_must_be_public(output_type.span()));
-                    }
-                }
-            });
-
-            // TODO: Remove if this restriction is relaxed at Aleo instructions level.
+            // TODO: Remove if this restriction is relaxed at Aleo instructions level
             // Check that the finalize block is not empty.
             if finalize.block.statements.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
@@ -415,9 +322,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // Type check the finalize block.
             self.visit_block(&finalize.block);
-
-            // Check that the return type is defined. Note that the component types are already checked.
-            self.assert_type_is_valid(&finalize.output_type, finalize.span);
 
             // If the function has a return type, then check that it has a return.
             if finalize.output_type != Type::Unit && !self.has_return {
