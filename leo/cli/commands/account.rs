@@ -89,9 +89,17 @@ impl Command for Account {
                 let priv_key = match discreet {
                     true => {
                         let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
-                        FromStr::from_str(&private_key_input).map_err(CliError::failed_to_execute_account)?
+                        FromStr::from_str(&private_key_input).map_err(CliError::failed_to_parse_private_key)?
                     }
-                    false => private_key.expect("PRIVATE_KEY shouldn't be empty when --discreet is false"),
+                    false => match private_key {
+                        Some(private_key) => private_key,
+                        None => {
+                            return Err(CliError::failed_to_execute_account(
+                                "PRIVATE_KEY shouldn't be empty when --discreet is false",
+                            )
+                            .into())
+                        }
+                    },
                 };
                 // Derive the view key and address and print to stdout.
                 print_keys(priv_key, discreet)?;
