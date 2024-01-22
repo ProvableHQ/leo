@@ -521,7 +521,7 @@
         <span class="prelude-val">Some</span>(LineCol { source_file, line, col })
     }
 
-    <span class="doccomment">/// Retrives the location (source file, line, col) on the given span.
+    <span class="doccomment">/// Retrieves the location (source file, line, col) on the given span.
     </span><span class="kw">pub fn </span>span_to_location(<span class="kw-2">&amp;</span><span class="self">self</span>, sp: Span) -&gt; <span class="prelude-ty">Option</span>&lt;SpanLocation&gt; {
         <span class="kw">let </span>lo = <span class="self">self</span>.find_line_col(sp.lo)<span class="question-mark">?</span>;
         <span class="kw">let </span>hi = <span class="self">self</span>.find_line_col(sp.hi)<span class="question-mark">?</span>;
