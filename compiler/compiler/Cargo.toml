@@ -62,7 +62,7 @@ default-features = false
 workspace = true
 
 [dev-dependencies.regex]
-version = "1.10.2"
+version = "1.10.3"
 
 [dev-dependencies.serde]
 version = "1.0.195"
