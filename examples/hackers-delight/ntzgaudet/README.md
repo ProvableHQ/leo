@@ -28,5 +28,5 @@ the low 16 bits are zero and counts zero otherwise.  Then `b3` uses a mask `y &
 otherwise.  The masks for `b2`, `b1`, and `b0` can count four, two, and
 one 0-bits similarly.
 
-The varables `bz, b4, .., b0` are all independent, and their values are added up
+The variables `bz, b4, .., b0` are all independent, and their values are added up
 for the result.
