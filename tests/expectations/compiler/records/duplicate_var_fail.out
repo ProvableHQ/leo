@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372016]: Record Token defined with more than one variable with the same name.\n    --> compiler-test:4:5\n     |\n   4 |     record Token {\n   5 |         // The token owner.\n   6 |         owner: address,\n   7 |         // The token owner.\n   8 |         owner: address, // Cannot define two record variables with the same name.\n   9 |         // The token amount.\n  10 |         amount: u64,\n  11 |     }\n     |     ^\n"
+  - "Error [ETYC0372016]: Record Token defined with more than one variable with the same name.\n    --> compiler-test:4:5\n     |\n   4 |     record Token {\n   5 |         // The token owner.\n   6 |         owner: address,\n   7 |         // The token owner.\n   8 |         owner: address, // Cannot define two record variables with the same name.\n   9 |         // The token amount.\n  10 |         amount: u64,\n  11 |     }\n     |     ^\nError [ETYC0372093]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"
