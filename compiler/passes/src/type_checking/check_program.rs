@@ -153,9 +153,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that each program has at least one transition function.
         // This is a snarkvm requirement.
         else if transition_count == 0 {
-            self.emit_err(TypeCheckerError::no_transitions(
-                input.program_id.name.span + input.program_id.network.span,
-            ));
+            self.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
         }
     }
 
