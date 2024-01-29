@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.\n    --> compiler-test:5:5\n     |\n   5 |     record Token {\n   6 |         owner: bool,\n   7 |     }\n     |     ^\n"
+  - "Error [ETYC0372020]: The field `owner` in a `record` must have type `address`.\n    --> compiler-test:5:5\n     |\n   5 |     record Token {\n   6 |         owner: bool,\n   7 |     }\n     |     ^\nError [ETYC0372093]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"

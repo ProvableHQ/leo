@@ -747,4 +747,11 @@ create_messages!(
         msg: format!("`stub` name `{stub_name}` does not match program name `{program_name}`"),
         help: Some("Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file.".to_string()),
     }
+
+    @formatted
+    no_transitions {
+        args: (),
+        msg: format!("A program must have at least one transition function."),
+        help: None,
+    }
 );
