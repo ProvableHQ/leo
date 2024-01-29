@@ -748,6 +748,13 @@
 <a href="#748" id="748">748</a>
 <a href="#749" id="749">749</a>
 <a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1496,6 +1503,13 @@
         args: (stub_name: <span class="kw">impl </span>Display, program_name: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">&quot;`stub` name `{stub_name}` does not match program name `{program_name}`&quot;</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">&quot;Check that the name you used as a dependency in program.json matches the name you used to import the program in the main leo file.&quot;</span>.to_string()),
+    }
+
+    @formatted
+    no_transitions {
+        args: (),
+        msg: <span class="macro">format!</span>(<span class="string">&quot;A program must have at least one transition function.&quot;</span>),
+        help: <span class="prelude-val">None</span>,
     }
 );
 </code></pre></div></section></main></body></html>

@@ -664,7 +664,7 @@
                             id: Default::default(),
                         }),
                         ValueType::ExternalRecord(loc) =&gt; Input::External(External {
-                            identifier: Identifier::new(Symbol::intern(<span class="string">&quot;dummy&quot;</span>), Default::default()),
+                            identifier: arg_name,
                             program_name: ProgramId::from(loc.program_id()).name,
                             record: Identifier::from(loc.resource()),
                             span: Default::default(),

@@ -341,6 +341,10 @@
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -371,9 +375,7 @@
 
 </span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
     <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
-        <span class="comment">// Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
-
-        // Typecheck the program&#39;s stubs.
+        <span class="comment">// Typecheck the program&#39;s stubs.
         </span>input.stubs.iter().for_each(|(symbol, stub)| {
             <span class="kw">if </span>symbol != <span class="kw-2">&amp;</span>stub.stub_id.name.name {
                 <span class="self">self</span>.emit_err(TypeCheckerError::stub_name_mismatch(
@@ -384,6 +386,7 @@
             }
             <span class="self">self</span>.visit_stub(stub)
         });
+        <span class="self">self</span>.is_stub = <span class="bool-val">false</span>;
 
         <span class="comment">// Typecheck the program scopes.
         </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
@@ -493,6 +496,11 @@
                 Testnet3::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
+        }
+        <span class="comment">// Check that each program has at least one transition function.
+        // This is a snarkvm requirement.
+        </span><span class="kw">else if </span>transition_count == <span class="number">0 </span>{
+            <span class="self">self</span>.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
         }
     }
 

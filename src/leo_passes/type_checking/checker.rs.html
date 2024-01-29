@@ -1315,6 +1315,12 @@
 <a href="#1315" id="1315">1315</a>
 <a href="#1316" id="1316">1316</a>
 <a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1374,11 +1380,12 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_return: bool,
     <span class="doccomment">/// Whether or not the function that we are currently traversing invokes the finalize block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) has_finalize: bool,
-
     <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
     <span class="doccomment">/// Whether or not we are currently traversing a return statement.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_return: bool,
+    <span class="doccomment">/// Whether or not we are currently traversing a stub.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_stub: bool,
 }
 
 <span class="kw">const </span>ADDRESS_TYPE: Type = Type::Address;
@@ -1445,6 +1452,7 @@
             has_finalize: <span class="bool-val">false</span>,
             is_finalize: <span class="bool-val">false</span>,
             is_return: <span class="bool-val">false</span>,
+            is_stub: <span class="bool-val">true</span>,
         }
     }
 
@@ -2493,15 +2501,17 @@
                 }
             }
 
-            <span class="comment">// Check for conflicting variable names.
-            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                <span class="self">self</span>.handler.emit_err(err);
+            <span class="comment">// Add non-stub inputs to the symbol table.
+            </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                    <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                        type_: input_var.type_(),
+                        span: input_var.identifier().span(),
+                        declaration: VariableType::Input(input_var.mode()),
+                    })
+                {
+                    <span class="self">self</span>.handler.emit_err(err);
+                }
             }
         });
 
@@ -2579,15 +2589,17 @@
                 </span><span class="kw">if </span>input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
-                <span class="comment">// Check for conflicting variable names.
-                </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                    <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                        type_: input_var.type_(),
-                        span: input_var.identifier().span(),
-                        declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
-                    <span class="self">self</span>.handler.emit_err(err);
+                <span class="comment">// Add non-stub inputs to the symbol table.
+                </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
+                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                        <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                            type_: input_var.type_(),
+                            span: input_var.identifier().span(),
+                            declaration: VariableType::Input(input_var.mode()),
+                        })
+                    {
+                        <span class="self">self</span>.handler.emit_err(err);
+                    }
                 }
             }
         });
