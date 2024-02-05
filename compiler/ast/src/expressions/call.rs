@@ -25,7 +25,7 @@ pub struct CallExpression {
     pub function: Box<Expression>, // todo: make this identifier?
     /// Expressions for the arguments passed to the functions parameters.
     pub arguments: Vec<Expression>,
-    /// The name of the external program call, e.g.`bar` in `bar.leo`.
+    /// The name of the external program call, e.g.`bar` in `bar.aleo`.
     pub external: Option<Symbol>,
     /// Span of the entire call `function(arguments)`.
     pub span: Span,
