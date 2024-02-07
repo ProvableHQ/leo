@@ -48,7 +48,7 @@ enum Commands {
         #[clap(flatten)]
         command: Add,
     },
-    #[clap(about = "Create a new Aleo account")]
+    #[clap(about = "Create a new Aleo account, sign and verify messages")]
     Account {
         #[clap(subcommand)]
         command: Account,
