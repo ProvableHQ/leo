@@ -43,10 +43,15 @@ pub struct CLI {
 ///Leo compiler and package manager
 #[derive(Parser, Debug)]
 enum Commands {
-    #[clap(about = "Create a new Aleo account")]
+    #[clap(about = "Create a new Aleo account, sign and verify messages")]
     Account {
         #[clap(subcommand)]
         command: Account,
+    },
+    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
     },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
@@ -73,11 +78,7 @@ enum Commands {
         #[clap(flatten)]
         command: Deploy,
     },
-    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
-    Add {
-        #[clap(flatten)]
-        command: Add,
-    },
+
     #[clap(about = "Compile the current package as a program")]
     Build {
         #[clap(flatten)]
