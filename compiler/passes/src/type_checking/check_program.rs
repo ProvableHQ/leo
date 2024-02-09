@@ -46,19 +46,22 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_stub(&mut self, input: &'a Stub) {
+        // Set the current program name.
+        self.program_name = Some(input.stub_id.name.name);
+
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
             self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
         }
 
         // Typecheck the program's structs.
-        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function, input.stub_id));
+        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
 
         // Typecheck the program's functions.
-        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function, input.stub_id));
+        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }
 
-    fn visit_function_stub(&mut self, input: &'a FunctionStub, program: ProgramId) {
+    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
         // Must not be an inline function
         if input.variant == Variant::Inline {
             self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
@@ -67,7 +70,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         let function_index =
-            self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name, Some(program.name.name)).unwrap().id;
+            self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), input.identifier.name).unwrap().id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -98,11 +101,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
     }
 
-    fn visit_struct_stub(&mut self, input: &'a Struct, _program: ProgramId) {
+    fn visit_struct_stub(&mut self, input: &'a Composite) {
         self.visit_struct(input);
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        // Set the current program name.
+        self.program_name = Some(input.program_id.name.name);
+
         // Typecheck each const definition, and append to symbol table.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
 
@@ -158,7 +164,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
     }
 
-    fn visit_struct(&mut self, input: &'a Struct) {
+    fn visit_struct(&mut self, input: &'a Composite) {
         // Check for conflicting struct/record member names.
         let mut used = HashSet::new();
         // TODO: Better span to target duplicate member.
@@ -204,7 +210,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
             // If the member is a struct, add it to the struct dependency graph.
             // Note that we have already checked that each member is defined and valid.
-            if let Type::Struct(struct_member_type) = type_ {
+            if let Type::Composite(struct_member_type) = type_ {
                 // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
                 self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
             } else if let Type::Array(array_type) = type_ {
@@ -229,9 +235,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that a mapping's key type is not a tuple, record, or mapping.
         match input.key_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
-            Type::Struct(struct_type) => {
+            Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.id.name, struct_type.external)
+                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -248,9 +254,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Check that a mapping's value type is not a tuple, record or mapping.
         match input.value_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
-            Type::Struct(struct_type) => {
+            Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.id.name, struct_type.external)
+                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
@@ -275,7 +281,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self.symbol_table.borrow().lookup_fn_symbol(function.identifier.name, None).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(self.program_name.unwrap(), function.identifier.name)
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
