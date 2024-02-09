@@ -188,6 +188,7 @@ fn compile_leo_file(
     handler: &Handler,
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
+) -> Result<IndexMap<Symbol, Composite>> {
 ) -> Result<()> {
     // Construct the Leo file name with extension `foo.leo`.
     let file_name =
@@ -195,6 +196,7 @@ fn compile_leo_file(
 
     // Construct program name from the program_id found in `package.json`.
     let program_name = program_id.name().to_string();
+    let program_symbol = Symbol::intern(&program_name);
 
     // Create the path to the Aleo file.
     let mut aleo_file_path = build.to_path_buf();
