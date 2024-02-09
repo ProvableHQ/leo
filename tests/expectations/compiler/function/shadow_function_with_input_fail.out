@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Failed to parse string. Parsing Error: VerboseError { errors: [(\"closure hi:\\n    output 0u8 as u8;\\n\\n\\nclosure tester:\\n    input r0 as u8;\\n    output 0u8 as u8;\\n\\n\\nclosure main:\\n    input r0 as boolean;\\n    output r0 as boolean;\\n\", Nom(Tag)), (\"\\n\\n\\n\\nclosure hi:\\n    output 0u8 as u8;\\n\\n\\nclosure tester:\\n    input r0 as u8;\\n    output 0u8 as u8;\\n\\n\\nclosure main:\\n    input r0 as boolean;\\n    output r0 as boolean;\\n\", Nom(Alt)), (\"\\n\\n\\n\\nclosure hi:\\n    output 0u8 as u8;\\n\\n\\nclosure tester:\\n    input r0 as u8;\\n    output 0u8 as u8;\\n\\n\\nclosure main:\\n    input r0 as boolean;\\n    output r0 as boolean;\\n\", Nom(Many1))] }"
