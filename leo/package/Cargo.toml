@@ -25,8 +25,8 @@ default-features = false
 [dependencies.snarkvm]
 workspace = true
 
-[dependencies.snarkos-cli]
-version = "2.2.4"
+#[dependencies.snarkos-cli]
+#version = "2.2.4"
 
 [dependencies.leo-errors]
 path = "../../errors"

@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
-use snarkvm::cli::{dotenv_private_key, Execute as SnarkVMExecute};
+//use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
+use snarkvm::cli::Execute as SnarkVMExecute;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -52,44 +52,44 @@ impl Command for Execute {
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         // If the `broadcast` flag is set, then broadcast the transaction.
         if self.broadcast {
-            // Get the program name
-            let project_name = context.open_manifest()?.program_id().to_string();
+            // // Get the program name
+            // let project_name = context.open_manifest()?.program_id().to_string();
+            //
+            // // Get the private key
+            // let mut private_key = self.private_key;
+            // if private_key.is_none() {
+            //     private_key =
+            //         Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
+            // }
+            //
+            // // Execute program
+            // Developer::Execute(
+            //     SnarkOSExecute::try_parse_from(
+            //         [
+            //             vec![
+            //                 "snarkos",
+            //                 "--private-key",
+            //                 private_key.as_ref().unwrap(),
+            //                 "--query",
+            //                 self.compiler_options.endpoint.as_str(),
+            //                 "--priority-fee",
+            //                 self.priority_fee.as_str(),
+            //                 "--broadcast",
+            //                 format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.network)
+            //                     .as_str(),
+            //                 project_name.as_str(),
+            //                 &self.name,
+            //             ],
+            //             self.inputs.iter().map(|input| input.as_str()).collect(),
+            //         ]
+            //         .concat(),
+            //     )
+            //     .unwrap(),
+            // )
+            // .parse()
+            // .map_err(CliError::failed_to_execute_deploy)?;
 
-            // Get the private key
-            let mut private_key = self.private_key;
-            if private_key.is_none() {
-                private_key =
-                    Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
-            }
-
-            // Execute program
-            Developer::Execute(
-                SnarkOSExecute::try_parse_from(
-                    [
-                        vec![
-                            "snarkos",
-                            "--private-key",
-                            private_key.as_ref().unwrap(),
-                            "--query",
-                            self.compiler_options.endpoint.as_str(),
-                            "--priority-fee",
-                            self.priority_fee.as_str(),
-                            "--broadcast",
-                            format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.network)
-                                .as_str(),
-                            project_name.as_str(),
-                            &self.name,
-                        ],
-                        self.inputs.iter().map(|input| input.as_str()).collect(),
-                    ]
-                    .concat(),
-                )
-                .unwrap(),
-            )
-            .parse()
-            .map_err(CliError::failed_to_execute_deploy)?;
-
-            return Ok(());
+            return Err(PackageError::unimplemented_command("leo execute --broadcast").into());
         }
 
         // If input values are provided, then run the program with those inputs.
