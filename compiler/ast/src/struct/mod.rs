@@ -32,14 +32,14 @@ use snarkvm::{
     },
 };
 
-/// A struct type definition, e.g., `struct Foo { my_field: Bar }`.
+/// A composite type definition, e.g., `struct Foo { my_field: Bar }` and `record Token { owner: address, amount: u64}`.
 /// In some languages these are called `struct`s.
 ///
 /// Type identity is decided by the full path including `struct_name`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Struct {
+pub struct Composite {
     /// The name of the type in the type system in this module.
     pub identifier: Identifier,
     /// The fields, constant variables, and functions of this structure.
@@ -47,24 +47,24 @@ pub struct Struct {
     /// The external program the struct is defined in.
     pub external: Option<Symbol>,
     /// Was this a `record Foo { ... }`?
-    /// If so, it wasn't a struct.
+    /// If so, it wasn't a composite.
     pub is_record: bool,
-    /// The entire span of the struct definition.
+    /// The entire span of the composite definition.
     pub span: Span,
     /// The ID of the node.
     pub id: NodeID,
 }
 
-impl PartialEq for Struct {
+impl PartialEq for Composite {
     fn eq(&self, other: &Self) -> bool {
         self.identifier == other.identifier
     }
 }
 
-impl Eq for Struct {}
+impl Eq for Composite {}
 
-impl Struct {
-    /// Returns the struct name as a Symbol.
+impl Composite {
+    /// Returns the composite name as a Symbol.
     pub fn name(&self) -> Symbol {
         self.identifier.name
     }
@@ -87,9 +87,9 @@ impl Struct {
                         mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
                         identifier: Identifier::from(id),
                         type_: match entry {
-                            Public(t) => Type::from(t),
-                            Private(t) => Type::from(t),
-                            Constant(t) => Type::from(t),
+                            Public(t) => Type::from_snarkvm(t, external_program),
+                            Private(t) => Type::from_snarkvm(t, external_program),
+                            Constant(t) => Type::from_snarkvm(t, external_program),
                         },
                         span: Default::default(),
                         id: Default::default(),
@@ -103,15 +103,36 @@ impl Struct {
             id: Default::default(),
         }
     }
+
+    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: Symbol) -> Self {
+        Self {
+            identifier: Identifier::from(input.name()),
+            members: input
+                .members()
+                .iter()
+                .map(|(id, type_)| Member {
+                    mode: Mode::None,
+                    identifier: Identifier::from(id),
+                    type_: Type::from_snarkvm(type_, program),
+                    span: Default::default(),
+                    id: Default::default(),
+                })
+                .collect(),
+            external: Some(program),
+            is_record: false,
+            span: Default::default(),
+            id: Default::default(),
+        }
+    }
 }
 
-impl fmt::Debug for Struct {
+impl fmt::Debug for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         <Self as fmt::Display>::fmt(self, f)
     }
 }
 
-impl fmt::Display for Struct {
+impl fmt::Display for Composite {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(if self.is_record { "record" } else { "struct" })?;
         writeln!(f, " {} {{ ", self.identifier)?;
@@ -122,27 +143,4 @@ impl fmt::Display for Struct {
     }
 }
 
-crate::simple_node_impl!(Struct);
-
-impl<N: Network> From<&StructType<N>> for Struct {
-    fn from(input: &StructType<N>) -> Self {
-        Self {
-            identifier: Identifier::from(input.name()),
-            members: input
-                .members()
-                .iter()
-                .map(|(id, type_)| Member {
-                    mode: Mode::None,
-                    identifier: Identifier::from(id),
-                    type_: Type::from(type_),
-                    span: Default::default(),
-                    id: Default::default(),
-                })
-                .collect(),
-            external: None,
-            is_record: false,
-            span: Default::default(),
-            id: Default::default(),
-        }
-    }
-}
+crate::simple_node_impl!(Composite);

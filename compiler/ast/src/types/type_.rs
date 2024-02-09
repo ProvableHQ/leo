@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, Identifier, IntegerType, MappingType, StructType, TupleType};
+use crate::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType};
 
 use itertools::Itertools;
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::{
     Network,
@@ -35,7 +36,7 @@ pub enum Type {
     /// The `bool` type.
     Boolean,
     /// The `struct` type.
-    Struct(StructType),
+    Composite(CompositeType),
     /// The `field` type.
     Field,
     /// The `group` type.
@@ -90,43 +91,14 @@ impl Type {
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
-            (Type::Struct(left), Type::Struct(right)) => {
-                left.id.name == right.id.name
-                    && match (left.external, right.external) {
-                        (Some(left), Some(right)) => left == right,
-                        (None, None) => true,
-                        _ => false,
-                    }
+            (Type::Composite(left), Type::Composite(right)) => {
+                left.id.name == right.id.name && left.program == right.program
             }
             _ => false,
         }
     }
-}
 
-impl fmt::Display for Type {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Type::Address => write!(f, "address"),
-            Type::Array(ref array_type) => write!(f, "{array_type}"),
-            Type::Boolean => write!(f, "boolean"),
-            Type::Field => write!(f, "field"),
-            Type::Group => write!(f, "group"),
-            Type::Identifier(ref variable) => write!(f, "{variable}"),
-            Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
-            Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
-            Type::Scalar => write!(f, "scalar"),
-            Type::Signature => write!(f, "signature"),
-            Type::String => write!(f, "string"),
-            Type::Struct(ref struct_type) => write!(f, "{struct_type}"),
-            Type::Tuple(ref tuple) => write!(f, "{tuple}"),
-            Type::Unit => write!(f, "()"),
-            Type::Err => write!(f, "error"),
-        }
-    }
-}
-
-impl<N: Network> From<&PlaintextType<N>> for Type {
-    fn from(t: &PlaintextType<N>) -> Self {
+    pub fn from_snarkvm<N: Network>(t: &PlaintextType<N>, program: Symbol) -> Self {
         match t {
             Literal(lit) => match lit {
                 snarkvm::prelude::LiteralType::Address => Type::Address,
@@ -147,8 +119,30 @@ impl<N: Network> From<&PlaintextType<N>> for Type {
                 snarkvm::prelude::LiteralType::Signature => Type::Signature,
                 snarkvm::prelude::LiteralType::String => Type::String,
             },
-            Struct(s) => Type::Struct(StructType { id: common::Identifier::from(s), external: None }),
-            Array(array) => Type::Array(ArrayType::from(array)),
+            Struct(s) => Type::Composite(CompositeType { id: common::Identifier::from(s), program: Some(program) }),
+            Array(array) => Type::Array(ArrayType::from_snarkvm(array, program)),
+        }
+    }
+}
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Type::Address => write!(f, "address"),
+            Type::Array(ref array_type) => write!(f, "{array_type}"),
+            Type::Boolean => write!(f, "boolean"),
+            Type::Field => write!(f, "field"),
+            Type::Group => write!(f, "group"),
+            Type::Identifier(ref variable) => write!(f, "{variable}"),
+            Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
+            Type::Mapping(ref mapping_type) => write!(f, "{mapping_type}"),
+            Type::Scalar => write!(f, "scalar"),
+            Type::Signature => write!(f, "signature"),
+            Type::String => write!(f, "string"),
+            Type::Composite(ref struct_type) => write!(f, "{}", struct_type.id.name),
+            Type::Tuple(ref tuple) => write!(f, "{tuple}"),
+            Type::Unit => write!(f, "()"),
+            Type::Err => write!(f, "error"),
         }
     }
 }

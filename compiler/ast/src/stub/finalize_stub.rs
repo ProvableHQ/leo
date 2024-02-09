@@ -56,10 +56,11 @@ impl FinalizeStub {
 
         Self { identifier, input, output, output_type, span, id }
     }
-}
 
-impl<N: Network, Command: CommandTrait<N>> From<&FinalizeCore<N, Command>> for FinalizeStub {
-    fn from(finalize: &FinalizeCore<N, Command>) -> Self {
+    pub fn from_snarkvm<N: Network, Command: CommandTrait<N>>(
+        finalize: &FinalizeCore<N, Command>,
+        program: Symbol,
+    ) -> Self {
         let mut inputs = Vec::new();
 
         finalize.inputs().iter().enumerate().for_each(|(index, input)| {
@@ -68,7 +69,7 @@ impl<N: Network, Command: CommandTrait<N>> From<&FinalizeCore<N, Command>> for F
                 Plaintext(val) => inputs.push(Input::Internal(FunctionInput {
                     identifier: arg_name,
                     mode: Mode::None,
-                    type_: Type::from(val),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 })),

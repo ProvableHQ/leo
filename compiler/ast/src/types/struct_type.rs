@@ -20,20 +20,17 @@ use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A struct type of a identifier and optional external program name.
+/// A composite type of a identifier and external program name.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Copy)]
-pub struct StructType {
-    // The identifier of the struct definition.
+pub struct CompositeType {
+    // The identifier of the composite definition.
     pub id: Identifier,
-    // The external program that this struct is defined in.
-    pub external: Option<Symbol>,
+    // The external program that this composite is defined in.
+    pub program: Option<Symbol>,
 }
 
-impl fmt::Display for StructType {
+impl fmt::Display for CompositeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.external {
-            Some(external) => write!(f, "{external}/{id}", id = self.id),
-            None => write!(f, "{id}", id = self.id),
-        }
+        write!(f, "{id}", id = self.id)
     }
 }
