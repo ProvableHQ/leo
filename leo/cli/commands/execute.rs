@@ -15,8 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-//use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
-use snarkvm::cli::Execute as SnarkVMExecute;
+use clap::Parser;
+// use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
+use snarkvm::{cli::Execute as SnarkVMExecute, prelude::Parser as SnarkVMParser};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -33,6 +34,8 @@ pub struct Execute {
     network: String,
     #[clap(long, help = "Custom private key")]
     private_key: Option<String>,
+    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
+    file: Option<String>,
     #[clap(flatten)]
     compiler_options: BuildOptions,
 }
@@ -49,7 +52,7 @@ impl Command for Execute {
         (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // If the `broadcast` flag is set, then broadcast the transaction.
         if self.broadcast {
             // // Get the program name
@@ -94,13 +97,7 @@ impl Command for Execute {
 
         // If input values are provided, then run the program with those inputs.
         // Otherwise, use the input file.
-        let mut inputs = match self.inputs.is_empty() {
-            true => match input {
-                (Some(input_ast), circuits) => input_ast.program_inputs(&self.name, circuits),
-                _ => Vec::new(),
-            },
-            false => self.inputs,
-        };
+        let mut inputs = self.inputs;
 
         // Compose the `execute` command.
         let mut arguments = vec![SNARKVM_COMMAND.to_string(), self.name];
