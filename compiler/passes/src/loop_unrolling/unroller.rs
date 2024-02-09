@@ -29,6 +29,7 @@ use leo_ast::{
 use std::cell::RefCell;
 
 use leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
+use leo_span::Symbol;
 
 use crate::{
     constant_propagation_table::ConstantPropagationTable,
@@ -54,6 +55,8 @@ pub struct Unroller<'a> {
     pub(crate) node_builder: &'a NodeBuilder,
     /// Are we in the midst of unrolling a loop?
     pub(crate) is_unrolling: bool,
+    /// The current program name.
+    pub(crate) current_program: Option<Symbol>,
 }
 
 impl<'a> Unroller<'a> {
@@ -71,6 +74,7 @@ impl<'a> Unroller<'a> {
             handler,
             node_builder,
             is_unrolling: false,
+            current_program: None,
         }
     }
 

@@ -24,6 +24,8 @@ use leo_ast::{
     BinaryExpression,
     BinaryOperation,
     Block,
+    Composite,
+    CompositeType,
     Expression,
     ExpressionReconstructor,
     Identifier,
@@ -36,9 +38,7 @@ use leo_ast::{
     NonNegativeNumber,
     ReturnStatement,
     Statement,
-    Struct,
     StructExpression,
-    StructType,
     StructVariableInitializer,
     TernaryExpression,
     TupleAccess,
@@ -385,7 +385,7 @@ impl<'a> Flattener<'a> {
 
     pub(crate) fn ternary_struct(
         &mut self,
-        struct_: &Struct,
+        struct_: &Composite,
         condition: &Expression,
         first: &Identifier,
         second: &Identifier,
@@ -465,7 +465,7 @@ impl<'a> Flattener<'a> {
                 let id = self.node_builder.next_id();
                 // Set the type of the node ID.
                 self.type_table
-                    .insert(id, Type::Struct(StructType { id: struct_.identifier, external: struct_.external }));
+                    .insert(id, Type::Composite(CompositeType { id: struct_.identifier, program: struct_.external }));
                 id
             },
         });

@@ -28,7 +28,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::Signature
             | Type::String
-            | Type::Struct(..)
+            | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
             Type::Array(array_type) => {
@@ -50,7 +50,7 @@ impl<'a> CodeGenerator<'a> {
         match type_ {
             // When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
-            Type::Struct(struct_) if self.composite_mapping.get(&struct_.id.name).unwrap().0 => {
+            Type::Composite(struct_) if self.composite_mapping.get(&struct_.id.name).unwrap().0 => {
                 format!("{}.record", struct_.id.name)
             }
             _ => match visibility {

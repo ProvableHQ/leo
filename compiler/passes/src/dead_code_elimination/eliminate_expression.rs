@@ -24,7 +24,6 @@ use leo_ast::{
     Identifier,
     StructExpression,
     StructVariableInitializer,
-    Type,
 };
 use leo_span::sym;
 
@@ -34,9 +33,8 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
     /// Reconstructs the associated function access expression.
     fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
         // If the associated function manipulates a mapping, mark the statement as necessary.
-        match (&input.ty, input.name.name) {
-            (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::remove)
-            | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) => {
+        match (&input.variant.name, input.name.name) {
+            (&sym::Mapping, sym::remove) | (&sym::Mapping, sym::set) => {
                 self.is_necessary = true;
             }
             _ => {}
@@ -44,7 +42,7 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
         // Reconstruct the access expression.
         let result = (
             Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: input.ty,
+                variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 span: input.span,

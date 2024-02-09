@@ -17,13 +17,17 @@
 pub mod function_symbol;
 pub use function_symbol::*;
 
+pub mod location;
+pub use location::*;
+
 pub mod variable_symbol;
+
 pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
-use leo_errors::{AstError, LeoMessageCode, Result};
+use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
+use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
@@ -37,16 +41,12 @@ pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
     pub(crate) parent: Option<Box<SymbolTable>>,
-    /// Functions represents the name of each local function and optional parent program name mapped to the AST's function definition.
+    /// Maps parent program name and  function name to the AST's function definition.
     /// This field is populated at a first pass.
-    pub functions: IndexMap<Symbol, FunctionSymbol>,
-    /// Maps parent program name and external function name to the AST's function definition.
-    pub external_functions: IndexMap<(Symbol, Symbol), FunctionSymbol>,
-    /// Maps struct names to struct definitions.
+    pub functions: IndexMap<Location, FunctionSymbol>,
+    /// Maps parent program name and composite name to composite definitions.
     /// This field is populated at a first pass.
-    pub structs: IndexMap<Symbol, Struct>,
-    /// Maps external struct names to struct definitions.
-    pub external_structs: IndexMap<(Symbol, Symbol), Struct>,
+    pub structs: IndexMap<Location, Composite>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
     pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
@@ -59,18 +59,21 @@ pub struct SymbolTable {
 impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    pub fn check_shadowing(&self, symbol: Symbol, span: Span) -> Result<()> {
+    pub fn check_shadowing(&self, program: Option<Symbol>, symbol: Symbol, span: Span) -> Result<()> {
+        if let Some(program) = program {
+            if self.functions.contains_key(&Location::new(program, symbol)) {
+                return Err(AstError::shadowed_function(symbol, span).into());
+            } else if let Some(existing) = self.structs.get(&Location::new(program, symbol)) {
+                return match existing.is_record {
+                    true => Err(AstError::shadowed_record(symbol, span).into()),
+                    false => Err(AstError::shadowed_struct(symbol, span).into()),
+                };
+            }
+        }
         if self.variables.contains_key(&symbol) {
             Err(AstError::shadowed_variable(symbol, span).into())
-        } else if self.functions.contains_key(&symbol) {
-            Err(AstError::shadowed_function(symbol, span).into())
-        } else if let Some(existing) = self.structs.get(&symbol) {
-            match existing.is_record {
-                true => Err(AstError::shadowed_record(symbol, span).into()),
-                false => Err(AstError::shadowed_struct(symbol, span).into()),
-            }
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.check_shadowing(symbol, span)
+            parent.check_shadowing(program, symbol, span)
         } else {
             Ok(())
         }
@@ -85,72 +88,28 @@ impl SymbolTable {
     }
 
     /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, symbol: Symbol, external: Option<Symbol>, insert: &Function) -> Result<()> {
-        let id;
-        match external {
-            Some(name) => {
-                id = self.scope_index();
-                self.external_functions.insert((name, symbol), Self::new_function_symbol(id, insert));
-            }
-            None => {
-                self.check_shadowing(symbol, insert.span)?;
-                id = self.scope_index();
-                self.functions.insert(symbol, Self::new_function_symbol(id, insert));
-            }
-        }
+    pub fn insert_fn(&mut self, program: Symbol, symbol: Symbol, insert: &Function) -> Result<()> {
+        let id = self.scope_index();
+        self.check_shadowing(Some(program), symbol, insert.span)?;
+        self.functions.insert(Location::new(program, symbol), Self::new_function_symbol(id, insert));
         self.scopes.push(Default::default());
         Ok(())
     }
 
-    /// Check if the struct is a duplicate of the existing struct.
-    /// This is used to allow redefinitions of external structs.
-    pub fn check_duplicate_struct(&self, old: &Struct, new: &Struct) -> bool {
-        if old.members.len() != new.members.len() {
-            return false;
-        }
-
-        for (old_member, new_member) in old.members.iter().zip(new.members.iter()) {
-            if old_member.identifier.name != new_member.identifier.name {
-                return false;
-            }
-            if old_member.type_ != new_member.type_ {
-                return false;
-            }
-        }
-        true
-    }
-
     /// Inserts a struct into the symbol table.
-    pub fn insert_struct(&mut self, symbol: Symbol, external: Option<Symbol>, insert: &Struct) -> Result<()> {
-        match self.check_shadowing(symbol, insert.span) {
+    pub fn insert_struct(&mut self, program: Symbol, symbol: Symbol, insert: &Composite) -> Result<()> {
+        match self.check_shadowing(Some(program), symbol, insert.span) {
             Ok(_) => {
-                if let Some(external_program) = external {
-                    self.external_structs.insert((external_program, symbol), insert.clone());
-                } else {
-                    self.structs.insert(symbol, insert.clone());
-                }
+                self.structs.insert(Location::new(program, symbol), insert.clone());
                 Ok(())
             }
-            Err(e) => {
-                if e.error_code() == AstError::shadowed_struct(symbol, insert.span).error_code() {
-                    if self.check_duplicate_struct(
-                        self.structs.get(&symbol).expect("Must be in symbol table since struct already referenced"),
-                        insert,
-                    ) {
-                        Ok(())
-                    } else {
-                        Err(AstError::redefining_external_struct(symbol).into())
-                    }
-                } else {
-                    Err(e)
-                }
-            }
+            Err(e) => Err(e),
         }
     }
 
     /// Inserts a variable into the symbol table.
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol) -> Result<()> {
-        self.check_shadowing(symbol, insert.span)?;
+        self.check_shadowing(None, symbol, insert.span)?;
         self.variables.insert(symbol, insert);
         Ok(())
     }
@@ -167,28 +126,22 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn_symbol(&self, symbol: Symbol, external: Option<Symbol>) -> Option<&FunctionSymbol> {
-        if let Some(func) = match external {
-            Some(program) => self.external_functions.get(&(program, symbol)),
-            None => self.functions.get(&symbol),
-        } {
+    pub fn lookup_fn_symbol(&self, program: Symbol, symbol: Symbol) -> Option<&FunctionSymbol> {
+        if let Some(func) = self.functions.get(&Location::new(program, symbol)) {
             Some(func)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_fn_symbol(symbol, external)
+            parent.lookup_fn_symbol(program, symbol)
         } else {
             None
         }
     }
 
     /// Attempts to lookup a struct in the symbol table.
-    pub fn lookup_struct(&self, symbol: Symbol, external: Option<Symbol>) -> Option<&Struct> {
-        if let Some(struct_) = match external {
-            Some(program) => self.external_structs.get(&(program, symbol)),
-            None => self.structs.get(&symbol),
-        } {
+    pub fn lookup_struct(&self, program: Symbol, symbol: Symbol) -> Option<&Composite> {
+        if let Some(struct_) = self.structs.get(&Location::new(program, symbol)) {
             Some(struct_)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_struct(symbol, external)
+            parent.lookup_struct(program, symbol)
         } else {
             None
         }
@@ -289,5 +242,38 @@ impl SymbolTable {
     pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
         let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
         Self::from_json_string(&data)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use leo_ast::{Identifier, Type, Variant};
+    use leo_span::symbol::create_session_if_not_set_then;
+    #[test]
+    #[ignore]
+    fn serialization_test() {
+        create_session_if_not_set_then(|_| {
+            let mut symbol_table = SymbolTable::default();
+            let program = Symbol::intern("credits");
+            let function = Symbol::intern("transfer_public");
+            let insert = Function {
+                annotations: Vec::new(),
+                id: 0,
+                output_type: Type::Address,
+                variant: Variant::Inline,
+                span: Default::default(),
+                input: Vec::new(),
+                finalize: None,
+                identifier: Identifier::new(Symbol::intern("transfer_public"), Default::default()),
+                output: vec![],
+                block: Default::default(),
+            };
+            symbol_table.insert_fn(program, function, &insert).unwrap();
+            let json = symbol_table.to_json_string().unwrap();
+            dbg!(json.clone());
+            let deserialized = SymbolTable::from_json_string(&json).unwrap();
+            dbg!(deserialized);
+        });
     }
 }

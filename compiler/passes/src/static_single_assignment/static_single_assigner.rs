@@ -17,6 +17,7 @@
 use crate::{Assigner, RenameTable, SymbolTable, TypeTable};
 
 use leo_ast::{Expression, Identifier, Node, NodeBuilder, Statement};
+use leo_span::Symbol;
 
 pub struct StaticSingleAssigner<'a> {
     /// A counter used to generate unique node IDs.
@@ -31,6 +32,8 @@ pub struct StaticSingleAssigner<'a> {
     pub(crate) is_lhs: bool,
     /// A struct used to construct (unique) assignment statements.
     pub(crate) assigner: &'a Assigner,
+    /// The main program name.
+    pub(crate) program: Option<Symbol>,
 }
 
 impl<'a> StaticSingleAssigner<'a> {
@@ -41,7 +44,15 @@ impl<'a> StaticSingleAssigner<'a> {
         type_table: &'a TypeTable,
         assigner: &'a Assigner,
     ) -> Self {
-        Self { node_builder, symbol_table, type_table, rename_table: RenameTable::new(None), is_lhs: false, assigner }
+        Self {
+            node_builder,
+            symbol_table,
+            type_table,
+            rename_table: RenameTable::new(None),
+            is_lhs: false,
+            assigner,
+            program: None,
+        }
     }
 
     /// Pushes a new scope, setting the current scope as the new scope's parent.
