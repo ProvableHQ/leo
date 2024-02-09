@@ -363,4 +363,11 @@ create_messages!(
         help: Some("Delete the lock file and rebuild the project".to_string()),
     }
 
+    @backtraced
+    unimplemented_command {
+        args: (command: impl Display),
+        msg: format!("The `{command}` command is not implemented."),
+        help: None,
+    }
+
 );
