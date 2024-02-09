@@ -77,9 +77,9 @@ outputs:
                       identifier: "{\"id\":\"13\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
                       mode: None
                       type_:
-                        Struct:
+                        Composite:
                           id: "{\"id\":\"14\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
-                          external: ~
+                          program: test
                       span:
                         lo: 165
                         hi: 166
@@ -88,9 +88,9 @@ outputs:
                       identifier: "{\"id\":\"16\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
                       mode: None
                       type_:
-                        Struct:
+                        Composite:
                           id: "{\"id\":\"17\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
-                          external: ~
+                          program: test
                       span:
                         lo: 173
                         hi: 174
@@ -99,17 +99,17 @@ outputs:
                   - Internal:
                       mode: None
                       type_:
-                        Struct:
+                        Composite:
                           id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
-                          external: ~
+                          program: test
                       span:
                         lo: 184
                         hi: 187
                       id: 20
                 output_type:
-                  Struct:
+                  Composite:
                     id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
-                    external: ~
+                    program: test
                 block:
                   statements: []
                   span:

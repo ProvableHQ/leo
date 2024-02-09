@@ -31,7 +31,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 0
             hi: 3

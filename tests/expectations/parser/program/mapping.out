@@ -22,13 +22,13 @@ outputs:
           - - foo
             - identifier: "{\"id\":\"4\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":82,\\\"hi\\\":85}\"}"
               key_type:
-                Struct:
+                Composite:
                   id: "{\"id\":\"5\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
-                  external: ~
+                  program: test
               value_type:
-                Struct:
+                Composite:
                   id: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
-                  external: ~
+                  program: test
               span:
                 lo: 74
                 hi: 98
