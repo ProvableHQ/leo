@@ -16,13 +16,9 @@
 
 pub mod check_expressions;
 
-pub use check_expressions::*;
-
 pub mod check_program;
-pub use check_program::*;
 
 pub mod check_statements;
-pub use check_statements::*;
 
 pub mod checker;
 pub use checker::*;

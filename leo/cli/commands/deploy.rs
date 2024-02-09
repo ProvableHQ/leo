@@ -18,7 +18,6 @@ use super::*;
 use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
 use snarkvm::cli::helpers::dotenv_private_key;
 use std::path::PathBuf;
-use tracing_subscriber::fmt::time;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
