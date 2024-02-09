@@ -25,7 +25,6 @@ pub use self::formatted::*;
 /// This module contains the macros for making errors easily.
 #[macro_use]
 pub mod macros;
-pub use self::macros::*;
 
 /// This module contains traits for making errors easily.
 pub mod traits;

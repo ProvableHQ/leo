@@ -49,7 +49,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_stub(&mut self, input: &'a Stub) {
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
-            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.get(0).unwrap().1.span));
+            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
         }
 
         // Typecheck the program's structs.
