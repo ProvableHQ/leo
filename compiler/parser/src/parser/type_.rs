@@ -96,7 +96,7 @@ impl ParserContext<'_> {
                 if let Some(record_name) = self.eat_identifier() {
                     // Return the external type
                     return Ok((
-                        Type::Struct(StructType { id: record_name, external: Some(ident.name) }),
+                        Type::Composite(CompositeType { id: record_name, program: Some(ident.name) }),
                         ident.span + record_name.span,
                     ));
                 } else {
@@ -104,7 +104,7 @@ impl ParserContext<'_> {
                 }
             }
 
-            Ok((Type::Struct(StructType { id: ident, external: None }), ident.span))
+            Ok((Type::Composite(CompositeType { id: ident, program: self.program_name }), ident.span))
         } else if self.token.token == Token::LeftSquare {
             // Parse the left bracket.
             self.expect(&Token::LeftSquare)?;
