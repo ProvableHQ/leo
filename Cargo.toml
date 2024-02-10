@@ -94,7 +94,7 @@ version = "1.10.0"
 version = "0.3.68"
 
 [dependencies.clap]
-version = "4.4"
+version = "4.5"
 features = [ "derive", "env", "color", "unstable-styles" ]
 
 [dependencies.color-backtrace]
