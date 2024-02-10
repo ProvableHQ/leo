@@ -121,7 +121,7 @@ pub trait FunctionConsumer {
 pub trait StructConsumer {
     type Output;
 
-    fn consume_struct(&mut self, input: Struct) -> Self::Output;
+    fn consume_struct(&mut self, input: Composite) -> Self::Output;
 }
 
 /// A Consumer trait for imported programs in the AST.

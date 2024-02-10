@@ -19,6 +19,7 @@ outputs:
                     lo: 57
                     hi: 71
                   id: 4
+              external: test
               is_record: true
               span:
                 lo: 26

@@ -16,7 +16,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":1,\\\"hi\\\":2}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 1
             hi: 4

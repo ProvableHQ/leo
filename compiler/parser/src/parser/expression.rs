@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::sym;
+use leo_span::{sym, Symbol};
 use snarkvm::console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -347,7 +347,7 @@ impl ParserContext<'_> {
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
             Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: Type::Identifier(Identifier::new(sym::signature, self.node_builder.next_id())),
+                variant: Identifier::new(sym::signature, self.node_builder.next_id()),
                 name: method,
                 arguments: {
                     let mut arguments = vec![receiver];
@@ -367,7 +367,7 @@ impl ParserContext<'_> {
                 | (1, Some(CoreFunction::MappingContains)) => {
                     // Found an instance of `<mapping>.get`, `<mapping>.get_or_use`, `<mapping>.set`, `<mapping>.remove`, or `<mapping>.contains`.
                     Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: Type::Identifier(Identifier::new(sym::Mapping, self.node_builder.next_id())),
+                        variant: Identifier::new(sym::Mapping, self.node_builder.next_id()),
                         name: method,
                         arguments: {
                             let mut arguments = vec![receiver];
@@ -391,8 +391,8 @@ impl ParserContext<'_> {
     /// static access expression.
     fn parse_associated_access_expression(&mut self, module_name: Expression) -> Result<Expression> {
         // Parse struct name expression into struct type.
-        let type_ = if let Expression::Identifier(ident) = module_name {
-            Type::Identifier(ident)
+        let variant = if let Expression::Identifier(ident) = module_name {
+            ident
         } else {
             return Err(ParserError::invalid_associated_access(&module_name, module_name.span()).into());
         };
@@ -408,7 +408,7 @@ impl ParserContext<'_> {
             // Return the struct function.
             AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: module_name.span() + end,
-                ty: type_,
+                variant,
                 name: member_name,
                 arguments: args,
                 id: self.node_builder.next_id(),
@@ -417,7 +417,7 @@ impl ParserContext<'_> {
             // Return the struct constant.
             AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: module_name.span() + member_name.span(),
-                ty: type_,
+                ty: Type::Identifier(variant),
                 name: member_name,
                 id: self.node_builder.next_id(),
             })
@@ -429,7 +429,7 @@ impl ParserContext<'_> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
-    // Parses an externa function call `credits.aleo/transfer()` or `board.leo/make_move()`
+    // Parses an external function call `credits.aleo/transfer()` or `board.leo/make_move()`
     fn parse_external_call(&mut self, expr: Expression) -> Result<Expression> {
         // Eat an external function call.
         self.eat(&Token::Div); // todo: Make `/` a more general token.
@@ -437,12 +437,24 @@ impl ParserContext<'_> {
         // Parse function name.
         let name = self.expect_identifier()?;
 
+        // Parsing a '{' means that user is trying to illegally define an external record.
+        if self.token.token == Token::LeftCurly {
+            return Err(ParserError::cannot_define_external_record(expr.span() + name.span()).into());
+        }
+
         // Parse the function call.
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
+
+        // Parse the parent program identifier.
+        let program: Symbol = match expr {
+            Expression::Identifier(identifier) => identifier.name,
+            _ => unreachable!("Function called must be preceded by a program identifier."),
+        };
+
         Ok(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            external: Some(Box::new(expr)),
+            program: Some(program),
             arguments,
             id: self.node_builder.next_id(),
         }))
@@ -513,7 +525,7 @@ impl ParserContext<'_> {
                 expr = Expression::Call(CallExpression {
                     span: expr.span() + span,
                     function: Box::new(expr),
-                    external: None,
+                    program: self.program_name,
                     arguments,
                     id: self.node_builder.next_id(),
                 });

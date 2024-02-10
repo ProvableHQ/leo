@@ -21,7 +21,7 @@ pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
-use crate::{ConstDeclaration, Identifier, Mapping, NodeID, ProgramId, Struct};
+use crate::{Composite, ConstDeclaration, Identifier, Mapping, NodeID, ProgramId};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -36,7 +36,7 @@ pub struct Stub {
     /// A vector of const definitions.
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of struct definitions.
-    pub structs: Vec<(Symbol, Struct)>,
+    pub structs: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
     /// A vector of function stub definitions.

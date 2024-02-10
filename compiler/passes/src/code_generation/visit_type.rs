@@ -28,6 +28,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),
             Type::Array(array_type) => {
@@ -36,6 +37,7 @@ impl<'a> CodeGenerator<'a> {
             Type::Mapping(_) => {
                 unreachable!("Mapping types are not supported at this phase of compilation")
             }
+            //Type::Struct(_) =>  unreachable!("Struct types should not be visited at this phase of compilation"),
             Type::Tuple(_) => {
                 unreachable!("Tuple types should not be visited at this phase of compilation")
             }
@@ -48,8 +50,8 @@ impl<'a> CodeGenerator<'a> {
         match type_ {
             // When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
-            Type::Identifier(identifier) if self.composite_mapping.get(&identifier.name).unwrap().0 => {
-                format!("{identifier}.record")
+            Type::Composite(struct_) if self.composite_mapping.get(&struct_.id.name).unwrap().0 => {
+                format!("{}.record", struct_.id.name)
             }
             _ => match visibility {
                 Mode::None => Self::visit_type(type_),

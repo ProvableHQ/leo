@@ -46,7 +46,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 12
             hi: 15
@@ -110,7 +110,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":12,\\\"hi\\\":13}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 12
             hi: 15
@@ -135,7 +135,9 @@ outputs:
       place:
         Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
-        Identifier: "{\"id\":\"1\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":14}\"}"
+        Composite:
+          id: "{\"id\":\"1\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":14}\"}"
+          program: ~
       value:
         Call:
           function:
@@ -149,8 +151,7 @@ outputs:
                       lo: 43
                       hi: 49
                   - 4
-          external:
-            Identifier: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":17,\\\"hi\\\":24}\"}"
+          program: credits
           span:
             lo: 17
             hi: 50
@@ -164,7 +165,9 @@ outputs:
       place:
         Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":4,\\\"hi\\\":5}\"}"
       type_:
-        Identifier: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":27}\"}"
+        Composite:
+          id: "{\"id\":\"2\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":27}\"}"
+          program: credits
       value:
         Call:
           function:
@@ -178,8 +181,7 @@ outputs:
                       lo: 56
                       hi: 62
                   - 5
-          external:
-            Identifier: "{\"id\":\"3\",\"name\":\"credits\",\"span\":\"{\\\"lo\\\":30,\\\"hi\\\":37}\"}"
+          program: credits
           span:
             lo: 30
             hi: 63
@@ -232,7 +234,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 13
             hi: 16
@@ -285,7 +287,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":13,\\\"hi\\\":14}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 13
             hi: 16

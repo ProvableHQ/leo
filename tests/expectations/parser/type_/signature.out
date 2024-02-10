@@ -36,7 +36,9 @@ outputs:
                     identifier: "{\"id\":\"7\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":67,\\\"hi\\\":68}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
+                      Composite:
+                        id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
+                        program: test
                     span:
                       lo: 67
                       hi: 68
@@ -53,8 +55,7 @@ outputs:
                       value:
                         Access:
                           AssociatedFunction:
-                            ty:
-                              Identifier: "{\"id\":\"11\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":110}\"}"
+                            variant: "{\"id\":\"11\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":110}\"}"
                             name: "{\"id\":\"12\",\"name\":\"verify\",\"span\":\"{\\\"lo\\\":112,\\\"hi\\\":118}\"}"
                             arguments:
                               - Identifier: "{\"id\":\"13\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":119,\\\"hi\\\":120}\"}"
@@ -76,8 +77,7 @@ outputs:
                       value:
                         Access:
                           AssociatedFunction:
-                            ty:
-                              Identifier: "{\"id\":\"23\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
+                            variant: "{\"id\":\"23\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
                             name: "{\"id\":\"20\",\"name\":\"verify\",\"span\":\"{\\\"lo\\\":153,\\\"hi\\\":159}\"}"
                             arguments:
                               - Identifier: "{\"id\":\"19\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":151,\\\"hi\\\":152}\"}"
@@ -206,7 +206,9 @@ outputs:
                     identifier: "{\"id\":\"49\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":348}\"}"
                     mode: None
                     type_:
-                      Identifier: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
+                      Composite:
+                        id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
+                        program: test
                     span:
                       lo: 347
                       hi: 348
@@ -223,8 +225,7 @@ outputs:
                       value:
                         Access:
                           AssociatedFunction:
-                            ty:
-                              Identifier: "{\"id\":\"53\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":380,\\\"hi\\\":389}\"}"
+                            variant: "{\"id\":\"53\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":380,\\\"hi\\\":389}\"}"
                             name: "{\"id\":\"54\",\"name\":\"sign\",\"span\":\"{\\\"lo\\\":391,\\\"hi\\\":395}\"}"
                             arguments:
                               - Identifier: "{\"id\":\"55\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":396,\\\"hi\\\":397}\"}"

@@ -242,7 +242,7 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, _input: &'a Struct) {}
+    fn visit_struct(&mut self, _input: &'a Composite) {}
 
     fn visit_mapping(&mut self, _input: &'a Mapping) {}
 
@@ -255,5 +255,5 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
 
     fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}
 
-    fn visit_struct_stub(&mut self, _input: &'a Struct) {}
+    fn visit_struct_stub(&mut self, _input: &'a Composite) {}
 }
