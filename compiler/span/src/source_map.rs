@@ -84,7 +84,7 @@ impl SourceMap {
         Some(LineCol { source_file, line, col })
     }
 
-    /// Retrives the location (source file, line, col) on the given span.
+    /// Retrieves the location (source file, line, col) on the given span.
     pub fn span_to_location(&self, sp: Span) -> Option<SpanLocation> {
         let lo = self.find_line_col(sp.lo)?;
         let hi = self.find_line_col(sp.hi)?;

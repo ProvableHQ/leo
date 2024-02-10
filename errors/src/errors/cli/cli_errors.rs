@@ -34,6 +34,22 @@ create_messages!(
         help: None,
     }
 
+    /// For when the CLI is given invalid user input.
+    @backtraced
+    cli_invalid_input {
+        args: (error: impl Display),
+        msg: format!("cli input error: {error}"),
+        help: None,
+    }
+
+    /// For when the CLI fails to run something
+    @backtraced
+    cli_runtime_error {
+        args: (error: impl Display),
+        msg: format!("cli error: {error}"),
+        help: None,
+    }
+
     /// For when the CLI could not fetch the versions.
     @backtraced
     could_not_fetch_versions {

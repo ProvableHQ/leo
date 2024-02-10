@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:6:12\n     |\n   6 |       \tlet x: bool = true;\n     |            ^\n"
+  - "Error [EAST0372009]: variable `x` shadowed by\n    --> compiler-test:6:12\n     |\n   6 |       \tlet x: bool = true;\n     |            ^\nError [ETYC0372093]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"

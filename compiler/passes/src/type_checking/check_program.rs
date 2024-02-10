@@ -28,8 +28,6 @@ use std::collections::HashSet;
 
 impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
-        // Calculate the intersection of the imports specified in the `.leo` file and the dependencies derived from the `program.json` file.
-
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
             if symbol != &stub.stub_id.name.name {
@@ -41,6 +39,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
             self.visit_stub(stub)
         });
+        self.is_stub = false;
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
@@ -150,6 +149,11 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 Testnet3::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
+        }
+        // Check that each program has at least one transition function.
+        // This is a snarkvm requirement.
+        else if transition_count == 0 {
+            self.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
         }
     }
 

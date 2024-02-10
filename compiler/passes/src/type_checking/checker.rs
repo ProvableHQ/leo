@@ -57,11 +57,12 @@ pub struct TypeChecker<'a> {
     pub(crate) has_return: bool,
     /// Whether or not the function that we are currently traversing invokes the finalize block.
     pub(crate) has_finalize: bool,
-
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing a return statement.
     pub(crate) is_return: bool,
+    /// Whether or not we are currently traversing a stub.
+    pub(crate) is_stub: bool,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -128,6 +129,7 @@ impl<'a> TypeChecker<'a> {
             has_finalize: false,
             is_finalize: false,
             is_return: false,
+            is_stub: true,
         }
     }
 
@@ -1176,15 +1178,17 @@ impl<'a> TypeChecker<'a> {
                 }
             }
 
-            // Check for conflicting variable names.
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                self.handler.emit_err(err);
+            // Add non-stub inputs to the symbol table.
+            if !self.is_stub {
+                if let Err(err) =
+                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                        type_: input_var.type_(),
+                        span: input_var.identifier().span(),
+                        declaration: VariableType::Input(input_var.mode()),
+                    })
+                {
+                    self.handler.emit_err(err);
+                }
             }
         });
 
@@ -1262,15 +1266,17 @@ impl<'a> TypeChecker<'a> {
                 if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
-                // Check for conflicting variable names.
-                if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                        type_: input_var.type_(),
-                        span: input_var.identifier().span(),
-                        declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
-                    self.handler.emit_err(err);
+                // Add non-stub inputs to the symbol table.
+                if !self.is_stub {
+                    if let Err(err) =
+                        self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                            type_: input_var.type_(),
+                            span: input_var.identifier().span(),
+                            declaration: VariableType::Input(input_var.mode()),
+                        })
+                    {
+                        self.handler.emit_err(err);
+                    }
                 }
             }
         });

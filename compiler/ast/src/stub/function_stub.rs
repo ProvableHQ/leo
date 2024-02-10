@@ -315,7 +315,7 @@ impl<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>
                             id: Default::default(),
                         }),
                         ValueType::ExternalRecord(loc) => Input::External(External {
-                            identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                            identifier: arg_name,
                             program_name: ProgramId::from(loc.program_id()).name,
                             record: Identifier::from(loc.resource()),
                             span: Default::default(),

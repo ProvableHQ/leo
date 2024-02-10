@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 program test.aleo {    
-    // TODO: This test passes, but constant propogation should detect an overflow.
+    // TODO: This test passes, but constant propagation should detect an overflow.
     
     transition main(y: bool) -> i128 {
         let a: i128 = -170141183460469231731687303715884105727i128;
