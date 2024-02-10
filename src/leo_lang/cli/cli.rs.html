@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/cli.rs`."><title>cli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/cli.rs`."><title>cli.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -490,68 +491,68 @@
 
 <span class="doccomment">/// CLI Arguments entry point - includes global parameters and subcommands
 </span><span class="attr">#[derive(Parser, Debug)]
-#[clap(name = <span class="string">&quot;leo&quot;</span>, author = <span class="string">&quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;</span>, version)]
+#[clap(name = <span class="string">"leo"</span>, author = <span class="string">"The Aleo Team &lt;hello@aleo.org&gt;"</span>, version)]
 </span><span class="kw">pub struct </span>CLI {
-    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Print additional information for debugging&quot;</span>)]
+    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">"Print additional information for debugging"</span>)]
     </span>debug: bool,
 
-    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Suppress CLI output&quot;</span>)]
+    <span class="attr">#[clap(short, global = <span class="bool-val">true</span>, help = <span class="string">"Suppress CLI output"</span>)]
     </span>quiet: bool,
 
     <span class="attr">#[clap(subcommand)]
     </span>command: Commands,
 
-    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to Leo program root folder&quot;</span>)]
+    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Optional path to Leo program root folder"</span>)]
     </span>path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 
-    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">&quot;Optional path to aleo program registry.&quot;</span>)]
+    <span class="attr">#[clap(long, global = <span class="bool-val">true</span>, help = <span class="string">"Optional path to aleo program registry."</span>)]
     </span><span class="kw">pub </span>home: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
 <span class="doccomment">///Leo compiler and package manager
 </span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">enum </span>Commands {
-    <span class="attr">#[clap(about = <span class="string">&quot;Add a new dependency to the current package. Defaults to testnet3 network&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Add a new dependency to the current package. Defaults to testnet3 network"</span>)]
     </span>Add {
         <span class="attr">#[clap(flatten)]
         </span>command: Add,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Create a new Aleo account, sign and verify messages&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Create a new Aleo account, sign and verify messages"</span>)]
     </span>Account {
         <span class="attr">#[clap(subcommand)]
         </span>command: Account,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Create a new Leo package in a new directory&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Create a new Leo package in a new directory"</span>)]
     </span>New {
         <span class="attr">#[clap(flatten)]
         </span>command: New,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Create a new Leo example package in a new directory&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Create a new Leo example package in a new directory"</span>)]
     </span>Example {
         <span class="attr">#[clap(subcommand)]
         </span>command: Example,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Compile the current package as a program&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Compile the current package as a program"</span>)]
     </span>Build {
         <span class="attr">#[clap(flatten)]
         </span>command: Build,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Clean the output directory&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Clean the output directory"</span>)]
     </span>Clean {
         <span class="attr">#[clap(flatten)]
         </span>command: Clean,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Run a program with input variables&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Run a program with input variables"</span>)]
     </span>Run {
         <span class="attr">#[clap(flatten)]
         </span>command: Run,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Execute a program with input variables&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Execute a program with input variables"</span>)]
     </span>Execute {
         <span class="attr">#[clap(flatten)]
         </span>command: Execute,
     },
-    <span class="attr">#[clap(about = <span class="string">&quot;Update the Leo CLI&quot;</span>)]
+    <span class="attr">#[clap(about = <span class="string">"Update the Leo CLI"</span>)]
     </span>Update {
         <span class="attr">#[clap(flatten)]
         </span>command: Update,
@@ -562,7 +563,7 @@
     <span class="kw">match </span>res {
         <span class="prelude-val">Ok</span>(t) =&gt; t,
         <span class="prelude-val">Err</span>(err) =&gt; {
-            <span class="macro">eprintln!</span>(<span class="string">&quot;{err}&quot;</span>);
+            <span class="macro">eprintln!</span>(<span class="string">"{err}"</span>);
             exit(err.exit_code());
         }
     }
@@ -572,7 +573,7 @@
 </span><span class="kw">pub fn </span>run_with_args(cli: CLI) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">if </span>!cli.quiet {
         <span class="comment">// Init logger with optional debug flag.
-        </span>logger::init_logger(<span class="string">&quot;leo&quot;</span>, <span class="kw">match </span>cli.debug {
+        </span>logger::init_logger(<span class="string">"leo"</span>, <span class="kw">match </span>cli.debug {
             <span class="bool-val">false </span>=&gt; <span class="number">1</span>,
             <span class="bool-val">true </span>=&gt; <span class="number">2</span>,
         })<span class="question-mark">?</span>;
@@ -593,8 +594,8 @@
 
             <span class="comment">// Leo build is deprecated in version 1.9.0
             </span><span class="macro">tracing::info!</span>(
-                <span class="string">&quot;⚠️  Attention - This command is deprecated. Use the {} command.\n&quot;</span>,
-                <span class="string">&quot;&#39;run&#39;&quot;</span>.to_string().bold()
+                <span class="string">"⚠️  Attention - This command is deprecated. Use the {} command.\n"</span>,
+                <span class="string">"'run'"</span>.to_string().bold()
             );
 
             <span class="comment">// Drop tracing span
@@ -625,7 +626,7 @@
     </span><span class="kw">fn </span>nested_network_dependency_run_test() {
         <span class="comment">// Set current directory to temporary directory
         </span><span class="kw">let </span>temp_dir = temp_dir();
-        <span class="kw">let </span>project_directory = temp_dir.join(<span class="string">&quot;nested&quot;</span>);
+        <span class="kw">let </span>project_directory = temp_dir.join(<span class="string">"nested"</span>);
 
         <span class="comment">// Create file structure
         </span>test_helpers::sample_nested_package(<span class="kw-2">&amp;</span>temp_dir);
@@ -636,22 +637,22 @@
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
                 command: <span class="kw">crate</span>::cli::commands::Run {
-                    name: <span class="string">&quot;example&quot;</span>.to_string(),
-                    inputs: <span class="macro">vec!</span>[<span class="string">&quot;1u32&quot;</span>.to_string(), <span class="string">&quot;2u32&quot;</span>.to_string()],
+                    name: <span class="string">"example"</span>.to_string(),
+                    inputs: <span class="macro">vec!</span>[<span class="string">"1u32"</span>.to_string(), <span class="string">"2u32"</span>.to_string()],
                     file: <span class="prelude-val">None</span>,
                     compiler_options: Default::default(),
                 },
             },
             path: <span class="prelude-val">Some</span>(project_directory.clone()),
-            home: <span class="prelude-val">Some</span>(temp_dir.join(<span class="string">&quot;.aleo&quot;</span>)),
+            home: <span class="prelude-val">Some</span>(temp_dir.join(<span class="string">".aleo"</span>)),
         };
 
         create_session_if_not_set_then(|<span class="kw">_</span>| {
-            run_with_args(run).expect(<span class="string">&quot;Failed to execute `leo run`&quot;</span>);
+            run_with_args(run).expect(<span class="string">"Failed to execute `leo run`"</span>);
         });
 
         <span class="comment">// TODO: Clear tmp directory
-        // let registry = temp_dir.join(&quot;.aleo&quot;).join(&quot;registry&quot;).join(&quot;testnet3&quot;);
+        // let registry = temp_dir.join(".aleo").join("registry").join("testnet3");
         // std::fs::remove_dir_all(registry).unwrap();
         // std::fs::remove_dir_all(project_directory).unwrap();
     </span>}
@@ -661,7 +662,7 @@
     </span><span class="kw">fn </span>nested_local_dependency_run_test() {
         <span class="comment">// Set current directory to temporary directory
         </span><span class="kw">let </span>temp_dir = temp_dir();
-        <span class="kw">let </span>project_name = <span class="string">&quot;grandparent&quot;</span>;
+        <span class="kw">let </span>project_name = <span class="string">"grandparent"</span>;
         <span class="kw">let </span>project_directory = temp_dir.join(project_name);
 
         <span class="comment">// Remove it if it already exists
@@ -678,10 +679,10 @@
             quiet: <span class="bool-val">false</span>,
             command: Commands::Run {
                 command: <span class="kw">crate</span>::cli::commands::Run {
-                    name: <span class="string">&quot;double_wrapper_mint&quot;</span>.to_string(),
+                    name: <span class="string">"double_wrapper_mint"</span>.to_string(),
                     inputs: <span class="macro">vec!</span>[
-                        <span class="string">&quot;aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs&quot;</span>.to_string(),
-                        <span class="string">&quot;2u32&quot;</span>.to_string(),
+                        <span class="string">"aleo13tngrq7506zwdxj0cxjtvp28pk937jejhne0rt4zp0z370uezuysjz2prs"</span>.to_string(),
+                        <span class="string">"2u32"</span>.to_string(),
                     ],
                     file: <span class="prelude-val">None</span>,
                     compiler_options: Default::default(),
@@ -692,7 +693,7 @@
         };
 
         create_session_if_not_set_then(|<span class="kw">_</span>| {
-            run_with_args(run).expect(<span class="string">&quot;Failed to execute `leo run`&quot;</span>);
+            run_with_args(run).expect(<span class="string">"Failed to execute `leo run`"</span>);
         });
 
         <span class="comment">// TODO: Clear tmp directory
@@ -707,7 +708,7 @@
     <span class="kw">use </span>std::path::Path;
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sample_nested_package(temp_dir: <span class="kw-2">&amp;</span>Path) {
-        <span class="kw">let </span>name = <span class="string">&quot;nested&quot;</span>;
+        <span class="kw">let </span>name = <span class="string">"nested"</span>;
 
         <span class="comment">// Remove it if it already exists
         </span><span class="kw">let </span>project_directory = temp_dir.join(name);
@@ -725,11 +726,11 @@
         };
 
         create_session_if_not_set_then(|<span class="kw">_</span>| {
-            run_with_args(new).expect(<span class="string">&quot;Failed to execute `leo run`&quot;</span>);
+            run_with_args(new).expect(<span class="string">"Failed to execute `leo run`"</span>);
         });
 
         <span class="comment">// `nested.aleo` program
-        </span><span class="kw">let </span>program_str = <span class="string">&quot;
+        </span><span class="kw">let </span>program_str = <span class="string">"
 import nested_example_layer_0.aleo;
 program nested.aleo {
     transition example(public a: u32, b: u32) -&gt; u32 {
@@ -737,9 +738,9 @@ program nested.aleo {
         return c;
     }
 }
-&quot;</span>;
+"</span>;
         <span class="comment">// `nested_example_layer_0.aleo` program
-        </span><span class="kw">let </span>nested_example_layer_0 = <span class="string">&quot;
+        </span><span class="kw">let </span>nested_example_layer_0 = <span class="string">"
 import nested_example_layer_2.aleo;
 import nested_example_layer_1.aleo;
 
@@ -750,10 +751,10 @@ function main:
     input r1 as u32.private;
     call nested_example_layer_1.aleo/external_function r0 r1 into r2;
     output r2 as u32.private;
-&quot;</span>;
+"</span>;
 
         <span class="comment">// `nested_example_layer_1.aleo` program
-        </span><span class="kw">let </span>nested_example_layer_1 = <span class="string">&quot;
+        </span><span class="kw">let </span>nested_example_layer_1 = <span class="string">"
 import nested_example_layer_2.aleo;
 
 program nested_example_layer_1.aleo;
@@ -763,10 +764,10 @@ function external_function:
     input r1 as u32.private;
     call nested_example_layer_2.aleo/external_nested_function r0 r1 into r2;
     output r2 as u32.private;
-&quot;</span>;
+"</span>;
 
         <span class="comment">// `nested_example_layer_2.aleo` program
-        </span><span class="kw">let </span>nested_example_layer_2 = <span class="string">&quot;
+        </span><span class="kw">let </span>nested_example_layer_2 = <span class="string">"
 program nested_example_layer_2.aleo;
 
 function external_nested_function:
@@ -774,10 +775,10 @@ function external_nested_function:
     input r1 as u32.private;
     add r0 r1 into r2;
     output r2 as u32.private;
-&quot;</span>;
+"</span>;
 
         <span class="comment">// Overwrite `src/main.leo` file
-        </span>std::fs::write(project_directory.join(<span class="string">&quot;src&quot;</span>).join(<span class="string">&quot;main.leo&quot;</span>), program_str).unwrap();
+        </span>std::fs::write(project_directory.join(<span class="string">"src"</span>).join(<span class="string">"main.leo"</span>), program_str).unwrap();
 
         <span class="comment">// Add dependencies
         </span><span class="kw">let </span>add = CLI {
@@ -785,9 +786,9 @@ function external_nested_function:
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
                 command: Add {
-                    name: <span class="string">&quot;nested_example_layer_0&quot;</span>.to_string(),
+                    name: <span class="string">"nested_example_layer_0"</span>.to_string(),
                     local: <span class="prelude-val">None</span>,
-                    network: <span class="string">&quot;testnet3&quot;</span>.to_string(),
+                    network: <span class="string">"testnet3"</span>.to_string(),
                 },
             },
             path: <span class="prelude-val">Some</span>(project_directory.clone()),
@@ -795,21 +796,21 @@ function external_nested_function:
         };
 
         create_session_if_not_set_then(|<span class="kw">_</span>| {
-            run_with_args(add).expect(<span class="string">&quot;Failed to execute `leo add`&quot;</span>);
+            run_with_args(add).expect(<span class="string">"Failed to execute `leo add`"</span>);
         });
 
         <span class="comment">// Add custom `.aleo` directory
-        </span><span class="kw">let </span>registry = temp_dir.join(<span class="string">&quot;.aleo&quot;</span>).join(<span class="string">&quot;registry&quot;</span>).join(<span class="string">&quot;testnet3&quot;</span>);
+        </span><span class="kw">let </span>registry = temp_dir.join(<span class="string">".aleo"</span>).join(<span class="string">"registry"</span>).join(<span class="string">"testnet3"</span>);
         std::fs::create_dir_all(<span class="kw-2">&amp;</span>registry).unwrap();
-        std::fs::write(registry.join(<span class="string">&quot;nested_example_layer_0.aleo&quot;</span>), nested_example_layer_0).unwrap();
-        std::fs::write(registry.join(<span class="string">&quot;nested_example_layer_1.aleo&quot;</span>), nested_example_layer_1).unwrap();
-        std::fs::write(registry.join(<span class="string">&quot;nested_example_layer_2.aleo&quot;</span>), nested_example_layer_2).unwrap();
+        std::fs::write(registry.join(<span class="string">"nested_example_layer_0.aleo"</span>), nested_example_layer_0).unwrap();
+        std::fs::write(registry.join(<span class="string">"nested_example_layer_1.aleo"</span>), nested_example_layer_1).unwrap();
+        std::fs::write(registry.join(<span class="string">"nested_example_layer_2.aleo"</span>), nested_example_layer_2).unwrap();
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sample_grandparent_package(temp_dir: <span class="kw-2">&amp;</span>Path) {
-        <span class="kw">let </span>grandparent_directory = temp_dir.join(<span class="string">&quot;grandparent&quot;</span>);
-        <span class="kw">let </span>parent_directory = grandparent_directory.join(<span class="string">&quot;parent&quot;</span>);
-        <span class="kw">let </span>child_directory = parent_directory.join(<span class="string">&quot;child&quot;</span>);
+        <span class="kw">let </span>grandparent_directory = temp_dir.join(<span class="string">"grandparent"</span>);
+        <span class="kw">let </span>parent_directory = grandparent_directory.join(<span class="string">"parent"</span>);
+        <span class="kw">let </span>child_directory = parent_directory.join(<span class="string">"child"</span>);
 
         <span class="kw">if </span>grandparent_directory.exists() {
             std::fs::remove_dir_all(grandparent_directory.clone()).unwrap();
@@ -819,7 +820,7 @@ function external_nested_function:
         </span><span class="kw">let </span>create_grandparent_project = CLI {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
-            command: Commands::New { command: New { name: <span class="string">&quot;grandparent&quot;</span>.to_string() } },
+            command: Commands::New { command: New { name: <span class="string">"grandparent"</span>.to_string() } },
             path: <span class="prelude-val">Some</span>(grandparent_directory.clone()),
             home: <span class="prelude-val">None</span>,
         };
@@ -827,7 +828,7 @@ function external_nested_function:
         <span class="kw">let </span>create_parent_project = CLI {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
-            command: Commands::New { command: New { name: <span class="string">&quot;parent&quot;</span>.to_string() } },
+            command: Commands::New { command: New { name: <span class="string">"parent"</span>.to_string() } },
             path: <span class="prelude-val">Some</span>(parent_directory.clone()),
             home: <span class="prelude-val">None</span>,
         };
@@ -835,13 +836,13 @@ function external_nested_function:
         <span class="kw">let </span>create_child_project = CLI {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
-            command: Commands::New { command: New { name: <span class="string">&quot;child&quot;</span>.to_string() } },
+            command: Commands::New { command: New { name: <span class="string">"child"</span>.to_string() } },
             path: <span class="prelude-val">Some</span>(child_directory.clone()),
             home: <span class="prelude-val">None</span>,
         };
 
         <span class="comment">// Add source files `grandparent/src/main.leo`, `grandparent/parent/src/main.leo`, and `grandparent/parent/child/src/main.leo`
-        </span><span class="kw">let </span>grandparent_program = <span class="string">&quot;
+        </span><span class="kw">let </span>grandparent_program = <span class="string">"
 import child.aleo;
 import parent.aleo;
 program grandparent.aleo {
@@ -849,18 +850,18 @@ program grandparent.aleo {
         return parent.aleo/wrapper_mint(owner, val);
     }
 }
-&quot;</span>;
-        <span class="kw">let </span>parent_program = <span class="string">&quot;
+"</span>;
+        <span class="kw">let </span>parent_program = <span class="string">"
 import child.aleo;
 program parent.aleo {
     transition wrapper_mint(owner: address, val: u32) -&gt;  child.aleo/A {
         return child.aleo/mint(owner, val);
     }
 }
-&quot;</span>;
+"</span>;
 
-        <span class="kw">let </span>child_program = <span class="string">&quot;
-// The &#39;a&#39; program.
+        <span class="kw">let </span>child_program = <span class="string">"
+// The 'a' program.
 program child.aleo {
     record A {
         owner: address,
@@ -870,7 +871,7 @@ program child.aleo {
         return A {owner: owner, val: val};
     }
 }
-&quot;</span>;
+"</span>;
 
         <span class="comment">// Add dependencies `grandparent/program.json` and `grandparent/parent/program.json`
         </span><span class="kw">let </span>add_grandparent_dependency_1 = CLI {
@@ -878,9 +879,9 @@ program child.aleo {
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
                 command: Add {
-                    name: <span class="string">&quot;parent&quot;</span>.to_string(),
+                    name: <span class="string">"parent"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(parent_directory.clone()),
-                    network: <span class="string">&quot;testnet3&quot;</span>.to_string(),
+                    network: <span class="string">"testnet3"</span>.to_string(),
                 },
             },
             path: <span class="prelude-val">Some</span>(grandparent_directory.clone()),
@@ -892,9 +893,9 @@ program child.aleo {
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
                 command: Add {
-                    name: <span class="string">&quot;child&quot;</span>.to_string(),
+                    name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
-                    network: <span class="string">&quot;testnet3&quot;</span>.to_string(),
+                    network: <span class="string">"testnet3"</span>.to_string(),
                 },
             },
             path: <span class="prelude-val">Some</span>(grandparent_directory.clone()),
@@ -906,9 +907,9 @@ program child.aleo {
             quiet: <span class="bool-val">false</span>,
             command: Commands::Add {
                 command: Add {
-                    name: <span class="string">&quot;child&quot;</span>.to_string(),
+                    name: <span class="string">"child"</span>.to_string(),
                     local: <span class="prelude-val">Some</span>(child_directory.clone()),
-                    network: <span class="string">&quot;testnet3&quot;</span>.to_string(),
+                    network: <span class="string">"testnet3"</span>.to_string(),
                 },
             },
             path: <span class="prelude-val">Some</span>(parent_directory.clone()),
@@ -923,9 +924,9 @@ program child.aleo {
             run_with_args(create_child_project).unwrap();
 
             <span class="comment">// Write files
-            </span>std::fs::write(grandparent_directory.join(<span class="string">&quot;src&quot;</span>).join(<span class="string">&quot;main.leo&quot;</span>), grandparent_program).unwrap();
-            std::fs::write(parent_directory.join(<span class="string">&quot;src&quot;</span>).join(<span class="string">&quot;main.leo&quot;</span>), parent_program).unwrap();
-            std::fs::write(child_directory.join(<span class="string">&quot;src&quot;</span>).join(<span class="string">&quot;main.leo&quot;</span>), child_program).unwrap();
+            </span>std::fs::write(grandparent_directory.join(<span class="string">"src"</span>).join(<span class="string">"main.leo"</span>), grandparent_program).unwrap();
+            std::fs::write(parent_directory.join(<span class="string">"src"</span>).join(<span class="string">"main.leo"</span>), parent_program).unwrap();
+            std::fs::write(child_directory.join(<span class="string">"src"</span>).join(<span class="string">"main.leo"</span>), child_program).unwrap();
 
             <span class="comment">// Add dependencies
             </span>run_with_args(add_grandparent_dependency_1).unwrap();

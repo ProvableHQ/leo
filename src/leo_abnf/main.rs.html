@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `docs/grammar/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_abnf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `docs/grammar/src/main.rs`."><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_abnf" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -251,7 +252,7 @@
 //
 // Rule:
 // ```abnf
-// address = &quot;address&quot;
+// address = "address"
 // ```
 //
 // Line:
@@ -266,7 +267,7 @@
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-<span class="doccomment">/// Processor&#39;s scope. Used when code block or definition starts or ends.
+<span class="doccomment">/// Processor's scope. Used when code block or definition starts or ends.
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">enum </span>Scope {
     Free,
@@ -276,16 +277,16 @@
 
 <span class="doccomment">/// Transforms abnf file into Markdown.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">struct </span>Processor&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">struct </span>Processor&lt;<span class="lifetime">'a</span>&gt; {
     rules: HashMap&lt;String, Rule&gt;,
-    grammar: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+    grammar: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
     scope: Scope,
     line: u32,
     out: String,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Processor&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>new(grammar: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, abnf: Vec&lt;Rule&gt;) -&gt; Processor&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Processor&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>new(grammar: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, abnf: Vec&lt;Rule&gt;) -&gt; Processor&lt;<span class="lifetime">'a</span>&gt; {
         <span class="comment">// we need a hashmap to pull rules easily
         </span><span class="kw">let </span>rules: HashMap&lt;String, Rule&gt; = abnf.into_iter().map(|rule| (rule.name().to_string(), rule)).collect();
 
@@ -296,41 +297,41 @@
     /// Goes through each line and transforms it into proper markdown.
     </span><span class="kw">fn </span>process(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>lines = <span class="self">self</span>.grammar.lines();
-        <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="string">&quot;&quot;</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="string">""</span>;
 
         <span class="kw">for </span>line <span class="kw">in </span>lines {
             <span class="self">self</span>.line += <span class="number">1</span>;
 
             <span class="comment">// code block in comment (not highlighted as abnf)
-            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(code) = line.strip_prefix(<span class="string">&quot;;  &quot;</span>) {
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(code) = line.strip_prefix(<span class="string">";  "</span>) {
                 <span class="self">self</span>.enter_scope(Scope::Code);
                 <span class="self">self</span>.append_str(code);
 
             <span class="comment">// just comment. end of code block
-            </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(code) = line.strip_prefix(<span class="string">&quot;; &quot;</span>) {
+            </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(code) = line.strip_prefix(<span class="string">"; "</span>) {
                 <span class="self">self</span>.enter_scope(Scope::Free);
                 <span class="self">self</span>.append_str(code);
 
             <span class="comment">// horizontal rule - section separator
-            </span>} <span class="kw">else if </span>line.starts_with(<span class="string">&quot;;;;;;;;;;;&quot;</span>) {
+            </span>} <span class="kw">else if </span>line.starts_with(<span class="string">";;;;;;;;;;"</span>) {
                 <span class="self">self</span>.enter_scope(Scope::Free);
-                <span class="self">self</span>.append_str(<span class="string">&quot;\n--------\n&quot;</span>);
+                <span class="self">self</span>.append_str(<span class="string">"\n--------\n"</span>);
 
             <span class="comment">// empty line in comment. end of code block
-            </span>} <span class="kw">else if </span>line.starts_with(<span class="string">&#39;;&#39;</span>) {
+            </span>} <span class="kw">else if </span>line.starts_with(<span class="string">';'</span>) {
                 <span class="self">self</span>.enter_scope(Scope::Free);
-                <span class="self">self</span>.append_str(<span class="string">&quot;\n\n&quot;</span>);
+                <span class="self">self</span>.append_str(<span class="string">"\n\n"</span>);
 
             <span class="comment">// just empty line. end of doc, start of definition
             </span>} <span class="kw">else if </span>line.is_empty() {
                 <span class="self">self</span>.enter_scope(Scope::Free);
-                <span class="self">self</span>.append_str(<span class="string">&quot;&quot;</span>);
+                <span class="self">self</span>.append_str(<span class="string">""</span>);
 
             <span class="comment">// definition (may be multiline)
             </span>} <span class="kw">else </span>{
-                <span class="comment">// if there&#39;s an equality sign and previous line was empty
-                </span><span class="kw">if </span>line.contains(<span class="string">&#39;=&#39;</span>) &amp;&amp; prev.is_empty() {
-                    <span class="kw">let </span>(def, <span class="kw">_</span>) = line.split_at(line.find(<span class="string">&#39;=&#39;</span>).unwrap());
+                <span class="comment">// if there's an equality sign and previous line was empty
+                </span><span class="kw">if </span>line.contains(<span class="string">'='</span>) &amp;&amp; prev.is_empty() {
+                    <span class="kw">let </span>(def, <span class="kw">_</span>) = line.split_at(line.find(<span class="string">'='</span>).unwrap());
                     <span class="kw">let </span>def = def.trim();
 
                     <span class="comment">// try to find rule matching definition or fail
@@ -349,7 +350,7 @@
     <span class="doccomment">/// Append new line into output, add newline character.
     </span><span class="kw">fn </span>append_str(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) {
         <span class="self">self</span>.out.push_str(line);
-        <span class="self">self</span>.out.push(<span class="string">&#39;\n&#39;</span>);
+        <span class="self">self</span>.out.push(<span class="string">'\n'</span>);
     }
 
     <span class="doccomment">/// Enter new scope (definition or code block). Allows customizing
@@ -357,12 +358,12 @@
     </span><span class="kw">fn </span>enter_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_scope: Scope) {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span><span class="self">self</span>.scope, <span class="kw-2">&amp;</span>new_scope) {
             <span class="comment">// exchange scopes between Free and Code
-            </span>(Scope::Free, Scope::Code) =&gt; <span class="self">self</span>.append_str(<span class="string">&quot;```&quot;</span>),
-            (Scope::Code, Scope::Free) =&gt; <span class="self">self</span>.append_str(<span class="string">&quot;```&quot;</span>),
+            </span>(Scope::Free, Scope::Code) =&gt; <span class="self">self</span>.append_str(<span class="string">"```"</span>),
+            (Scope::Code, Scope::Free) =&gt; <span class="self">self</span>.append_str(<span class="string">"```"</span>),
             <span class="comment">// exchange scopes between Free and Definition
             </span>(Scope::Free, Scope::Definition(rule)) =&gt; {
-                <span class="self">self</span>.append_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;&lt;a name=\&quot;{}\&quot;&gt;&lt;/a&gt;&quot;</span>, rule.name()));
-                <span class="self">self</span>.append_str(<span class="string">&quot;```abnf&quot;</span>);
+                <span class="self">self</span>.append_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"&lt;a name=\"{}\"&gt;&lt;/a&gt;"</span>, rule.name()));
+                <span class="self">self</span>.append_str(<span class="string">"```abnf"</span>);
             }
             (Scope::Definition(rule), Scope::Free) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>rules: Vec&lt;String&gt; = Vec::new();
@@ -370,21 +371,21 @@
 
                 <span class="comment">// 1. leave only unique keys
                 // 2. map each rule into a link
-                // 3. sort the links so they don&#39;t keep changing order
+                // 3. sort the links so they don't keep changing order
                 // 4. join results as a list
-                // Note: GitHub only allows custom tags with &#39;user-content-&#39; prefix
+                // Note: GitHub only allows custom tags with 'user-content-' prefix
                 </span><span class="kw">let </span><span class="kw-2">mut </span>keyvec = rules
                     .into_iter()
                     .collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;()
                     .into_iter()
-                    .map(|tag| <span class="macro">format!</span>(<span class="string">&quot;[{}](#user-content-{tag})&quot;</span>, <span class="kw-2">&amp;</span>tag))
+                    .map(|tag| <span class="macro">format!</span>(<span class="string">"[{}](#user-content-{tag})"</span>, <span class="kw-2">&amp;</span>tag))
                     .collect::&lt;Vec&lt;String&gt;&gt;();
                 keyvec.sort();
-                <span class="kw">let </span>keys = keyvec.join(<span class="string">&quot;, &quot;</span>);
+                <span class="kw">let </span>keys = keyvec.join(<span class="string">", "</span>);
 
-                <span class="self">self</span>.append_str(<span class="string">&quot;```&quot;</span>);
+                <span class="self">self</span>.append_str(<span class="string">"```"</span>);
                 <span class="kw">if </span>!keys.is_empty() {
-                    <span class="self">self</span>.append_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nGo to: _{keys}_;\n&quot;</span>));
+                    <span class="self">self</span>.append_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\nGo to: _{keys}_;\n"</span>));
                 }
             }
             (<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (),
@@ -419,24 +420,24 @@
     <span class="kw">let </span>abnf_path = <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = args.get(<span class="number">1</span>) {
         std::path::Path::new(path)
     } <span class="kw">else </span>{
-        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Usage Error: expects one argument to abnf file to convert.&quot;</span>));
+        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">"Usage Error: expects one argument to abnf file to convert."</span>));
     };
     <span class="kw">let </span>grammar = std::fs::read_to_string(abnf_path)<span class="question-mark">?</span>;
 
     <span class="comment">// Parse ABNF to get list of all definitions.
     // Rust ABNF does not provide support for `%s` (case sensitive strings, part of
     // the standard); so we need to remove all occurrences before parsing.
-    </span><span class="kw">let </span>parsed = abnf::rulelist(<span class="kw-2">&amp;</span>str::replace(<span class="kw-2">&amp;</span>grammar, <span class="string">&quot;%s&quot;</span>, <span class="string">&quot;&quot;</span>)).map_err(|e| {
-        <span class="macro">eprintln!</span>(<span class="string">&quot;{}&quot;</span>, <span class="kw-2">&amp;</span>e);
+    </span><span class="kw">let </span>parsed = abnf::rulelist(<span class="kw-2">&amp;</span>str::replace(<span class="kw-2">&amp;</span>grammar, <span class="string">"%s"</span>, <span class="string">""</span>)).map_err(|e| {
+        <span class="macro">eprintln!</span>(<span class="string">"{}"</span>, <span class="kw-2">&amp;</span>e);
         <span class="macro">anyhow::anyhow!</span>(e)
     })<span class="question-mark">?</span>;
 
-    <span class="comment">// Init parser and run it. That&#39;s it.
+    <span class="comment">// Init parser and run it. That's it.
     </span><span class="kw">let </span><span class="kw-2">mut </span>parser = Processor::new(<span class="kw-2">&amp;</span>grammar, parsed);
     parser.process();
 
     <span class="comment">// Print result of conversion to STDOUT.
-    </span><span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, parser.out);
+    </span><span class="macro">println!</span>(<span class="string">"{}"</span>, parser.out);
 
     <span class="prelude-val">Ok</span>(())
 }

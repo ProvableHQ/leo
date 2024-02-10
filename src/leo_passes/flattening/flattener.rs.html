@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flattener.rs`."><title>flattener.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/flattening/flattener.rs`."><title>flattener.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -623,15 +624,15 @@
     UnitExpression,
 };
 
-<span class="kw">pub struct </span>Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">pub struct </span>Flattener&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The symbol table associated with the program.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>SymbolTable,
     <span class="doccomment">/// A mapping between node IDs and their types.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// A counter used to generate unique node IDs.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     <span class="doccomment">/// A struct used to construct (unique) assignment statements.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
     <span class="doccomment">/// A stack of condition `Expression`s visited up to the current point in the AST.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) condition_stack: Vec&lt;Expression&gt;,
     <span class="doccomment">/// A list containing tuples of guards and expressions associated `ReturnStatement`s.
@@ -641,12 +642,12 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;,
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Flattener&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Flattener&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
-        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>SymbolTable,
-        type_table: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TypeTable,
-        node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
-        assigner: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Assigner,
+        symbol_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>SymbolTable,
+        type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
+        node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
+        assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ symbol_table, type_table, node_builder, assigner, condition_stack: Vec::new(), returns: Vec::new() }
     }
@@ -704,7 +705,7 @@
                 </span><span class="kw">let </span><span class="kw-2">mut </span>construct_ternary_assignment =
                     |guard: Expression, if_true: Expression, if_false: Expression| {
                         <span class="kw">let </span>place = Identifier {
-                            name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">&quot;$&quot;</span>),
+                            name: <span class="self">self</span>.assigner.unique_symbol(prefix, <span class="string">"$"</span>),
                             span: Default::default(),
                             id: <span class="self">self</span>.node_builder.next_id(),
                         };
@@ -715,7 +716,7 @@
                                 <span class="comment">// Get the type of the node ID.
                                 </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>if_true.id()) {
                                     <span class="prelude-val">Some</span>(type_) =&gt; type_,
-                                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that all expressions have a type.&quot;</span>),
+                                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that all expressions have a type."</span>),
                                 };
                                 <span class="comment">// Set the type of the node ID.
                                 </span><span class="self">self</span>.type_table.insert(id, type_);
@@ -741,7 +742,7 @@
                     };
 
                 <span class="kw">let </span>expression = guards.into_iter().rev().fold(last_expression, |acc, (guard, expr)| <span class="kw">match </span>guard {
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All expressions except for the last one must have a guard.&quot;</span>),
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"All expressions except for the last one must have a guard."</span>),
                     <span class="comment">// Note that type checking guarantees that all expressions have the same type.
                     </span><span class="prelude-val">Some</span>(guard) =&gt; construct_ternary_assignment(guard, expr, acc),
                 });
@@ -754,7 +755,7 @@
     <span class="doccomment">/// A wrapper around `assigner.unique_simple_assign_statement` that updates `self.structs`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unique_simple_assign_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; (Identifier, Statement) {
         <span class="comment">// Create a new variable for the expression.
-        </span><span class="kw">let </span>name = <span class="self">self</span>.assigner.unique_symbol(<span class="string">&quot;$var&quot;</span>, <span class="string">&quot;$&quot;</span>);
+        </span><span class="kw">let </span>name = <span class="self">self</span>.assigner.unique_symbol(<span class="string">"$var"</span>, <span class="string">"$"</span>);
         <span class="comment">// Construct the lhs of the assignment.
         </span><span class="kw">let </span>place = Identifier { name, span: Default::default(), id: <span class="self">self</span>.node_builder.next_id() };
         <span class="comment">// Construct the assignment statement.
@@ -768,7 +769,7 @@
         <span class="comment">// Update the type table.
         </span><span class="kw">let </span>type_ = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>rhs.id()) {
             <span class="prelude-val">Some</span>(type_) =&gt; type_,
-            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that all expressions have a type.&quot;</span>),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that all expressions have a type."</span>),
         };
         <span class="self">self</span>.type_table.insert(lhs.id(), type_);
         <span class="comment">// Construct the statement.
@@ -802,7 +803,7 @@
             }
 
             <span class="comment">// Fold the return expressions into a single expression.
-            </span><span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">&quot;$ret&quot;</span>, return_expressions);
+            </span><span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="string">"$ret"</span>, return_expressions);
 
             <span class="comment">// Add all of the accumulated statements to the end of the block.
             </span>block.statements.extend(stmts);
@@ -815,7 +816,7 @@
                         .into_iter()
                         .enumerate()
                         .map(|(i, arguments)| {
-                            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;finalize${i}$&quot;</span>), arguments);
+                            <span class="kw">let </span>(expression, stmts) = <span class="self">self</span>.fold_guards(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize${i}$"</span>), arguments);
                             block.statements.extend(stmts);
                             expression
                         })

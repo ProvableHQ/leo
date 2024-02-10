@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_statements.rs`."><title>visit_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_statements.rs`."><title>visit_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -287,8 +288,8 @@
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statement) -&gt; String {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) -&gt; String {
         <span class="kw">match </span>input {
             Statement::Assert(stmt) =&gt; <span class="self">self</span>.visit_assert(stmt),
             Statement::Assign(stmt) =&gt; <span class="self">self</span>.visit_assign(stmt),
@@ -296,7 +297,7 @@
             Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
             Statement::Console(stmt) =&gt; <span class="self">self</span>.visit_console(stmt),
             Statement::Const(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;`ConstStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">"`ConstStatement`s should not be in the AST at this phase of compilation."</span>)
             }
             Statement::Definition(stmt) =&gt; <span class="self">self</span>.visit_definition(stmt),
             Statement::Expression(stmt) =&gt; <span class="self">self</span>.visit_expression_statement(stmt),
@@ -305,11 +306,11 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssertStatement) -&gt; String {
-        <span class="kw">let </span><span class="kw-2">mut </span>generate_assert_instruction = |name: <span class="kw-2">&amp;</span>str, left: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression, right: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression| {
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssertStatement) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>generate_assert_instruction = |name: <span class="kw-2">&amp;</span>str, left: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression, right: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression| {
             <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(left);
             <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(right);
-            <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {name} {left_operand} {right_operand};\n&quot;</span>);
+            <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">"    {name} {left_operand} {right_operand};\n"</span>);
 
             <span class="comment">// Concatenate the instructions.
             </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = left_instructions;
@@ -321,17 +322,17 @@
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
             AssertVariant::Assert(expr) =&gt; {
                 <span class="kw">let </span>(operand, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(expr);
-                <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">&quot;    assert.eq {operand} true;\n&quot;</span>);
+                <span class="kw">let </span>assert_instruction = <span class="macro">format!</span>(<span class="string">"    assert.eq {operand} true;\n"</span>);
 
                 instructions.push_str(<span class="kw-2">&amp;</span>assert_instruction);
                 instructions
             }
-            AssertVariant::AssertEq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.eq&quot;</span>, left, right),
-            AssertVariant::AssertNeq(left, right) =&gt; generate_assert_instruction(<span class="string">&quot;assert.neq&quot;</span>, left, right),
+            AssertVariant::AssertEq(left, right) =&gt; generate_assert_instruction(<span class="string">"assert.eq"</span>, left, right),
+            AssertVariant::AssertNeq(left, right) =&gt; generate_assert_instruction(<span class="string">"assert.neq"</span>, left, right),
         }
     }
 
-    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) -&gt; String {
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>outputs = <span class="kw">match </span>input.expression {
             <span class="comment">// Skip empty return statements.
             </span>Expression::Unit(<span class="kw">_</span>) =&gt; String::new(),
@@ -348,7 +349,7 @@
                 <span class="comment">// If the operand string is empty, initialize an empty vector.
                 </span><span class="kw">let </span>operand_strings = <span class="kw">match </span>operand.is_empty() {
                     <span class="bool-val">true </span>=&gt; <span class="macro">vec!</span>[],
-                    <span class="bool-val">false </span>=&gt; operand.split(<span class="string">&#39; &#39;</span>).collect_vec(),
+                    <span class="bool-val">false </span>=&gt; operand.split(<span class="string">' '</span>).collect_vec(),
                 };
                 <span class="kw">let </span>instructions = operand_strings
                     .iter()
@@ -374,20 +375,20 @@
                                     </span>Mode::None
                                 };
                                 <span class="macro">format!</span>(
-                                    <span class="string">&quot;    output {} as {};\n&quot;</span>,
+                                    <span class="string">"    output {} as {};\n"</span>,
                                     operand,
                                     <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>output.type_, visibility)
                                 )
                             }
                             Output::External(output) =&gt; {
                                 <span class="macro">format!</span>(
-                                    <span class="string">&quot;    output {} as {}.aleo/{}.record;\n&quot;</span>,
+                                    <span class="string">"    output {} as {}.aleo/{}.record;\n"</span>,
                                     operand, output.program_name, output.record,
                                 )
                             }
                         }
                     })
-                    .join(<span class="string">&quot;&quot;</span>);
+                    .join(<span class="string">""</span>);
 
                 expression_instructions.push_str(<span class="kw-2">&amp;</span>instructions);
 
@@ -403,22 +404,22 @@
         </span><span class="kw">if </span>!<span class="self">self</span>.futures.is_empty() || input.finalize_arguments.is_some() {
             <span class="comment">// Note that this unwrap is safe, since `current_function` is set in `visit_function`.
             </span><span class="kw">let </span>function_id = <span class="self">self</span>.current_function.unwrap().name();
-            <span class="kw">let </span><span class="kw-2">mut </span>async_instruction = <span class="macro">format!</span>(<span class="string">&quot;    async {function_id}&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>async_instruction = <span class="macro">format!</span>(<span class="string">"    async {function_id}"</span>);
             <span class="comment">// Add the futures to the async instruction.
             </span><span class="kw">for </span>(future_register, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.futures.iter() {
-                <span class="macro">write!</span>(async_instruction, <span class="string">&quot; {}&quot;</span>, future_register).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">write!</span>(async_instruction, <span class="string">" {}"</span>, future_register).expect(<span class="string">"failed to write to string"</span>);
             }
             <span class="comment">// Add the finalize arguments to the async instruction.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
                 <span class="kw">for </span>argument <span class="kw">in </span>arguments.iter() {
                     <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-                    <span class="macro">write!</span>(async_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    <span class="macro">write!</span>(async_instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
                     instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
                 }
             }
             <span class="comment">// Write the destination register.
-            </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-            <span class="macro">writeln!</span>(async_instruction, <span class="string">&quot; into {};&quot;</span>, destination_register).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+            <span class="macro">writeln!</span>(async_instruction, <span class="string">" into {};"</span>, destination_register).expect(<span class="string">"failed to write to string"</span>);
             <span class="comment">// Increment the register counter.
             </span><span class="self">self</span>.next_register += <span class="number">1</span>;
             <span class="comment">// Add the async instruction to the instructions.
@@ -427,10 +428,10 @@
             <span class="comment">// Add the destination register to the outputs.
             </span><span class="kw">let </span>program_id = <span class="kw">match </span><span class="self">self</span>.program_id {
                 <span class="prelude-val">Some</span>(program_id) =&gt; program_id,
-                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`program_id` should be set in `visit_function`&quot;</span>),
+                <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`program_id` should be set in `visit_function`"</span>),
             };
             outputs
-                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;    output {} as {}/{}.future;\n&quot;</span>, destination_register, program_id, function_id));
+                .push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    output {} as {}/{}.future;\n"</span>, destination_register, program_id, function_id));
         }
 
         <span class="comment">// Extend the instructions with the outputs.
@@ -439,19 +440,19 @@
         instructions
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) -&gt; String {
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) -&gt; String {
         <span class="comment">// TODO: If SSA is made optional, then conditionally enable codegen for DefinitionStatement
         // let (operand, expression_instructions) = self.visit_expression(&amp;input.value);
         // self.variable_mapping.insert(&amp;input.variable_name.name, operand);
         // expression_instructions
-        </span><span class="macro">unreachable!</span>(<span class="string">&quot;DefinitionStatement&#39;s should not exist in SSA form.&quot;</span>)
+        </span><span class="macro">unreachable!</span>(<span class="string">"DefinitionStatement's should not exist in SSA form."</span>)
     }
 
-    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) -&gt; String {
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExpressionStatement) -&gt; String {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression).<span class="number">1
     </span>}
 
-    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) -&gt; String {
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) -&gt; String {
         <span class="kw">match </span>(<span class="kw-2">&amp;</span>input.place, <span class="kw-2">&amp;</span>input.value) {
             (Expression::Identifier(identifier), <span class="kw">_</span>) =&gt; {
                 <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
@@ -461,7 +462,7 @@
             (Expression::Tuple(tuple), Expression::Call(<span class="kw">_</span>)) =&gt; {
                 <span class="kw">let </span>(operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value);
                 <span class="comment">// Split out the destinations from the tuple.
-                </span><span class="kw">let </span>operands = operand.split(<span class="string">&#39; &#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                </span><span class="kw">let </span>operands = operand.split(<span class="string">' '</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
                 <span class="comment">// Add the destinations to the variable mapping.
                 </span>tuple.elements.iter().zip_eq(operands).for_each(|(element, operand)| {
                     <span class="kw">match </span>element {
@@ -469,35 +470,35 @@
                             <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>identifier.name, operand.to_string())
                         }
                         <span class="kw">_ </span>=&gt; {
-                            <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking ensures that tuple elements on the lhs are always identifiers.&quot;</span>)
+                            <span class="macro">unreachable!</span>(<span class="string">"Type checking ensures that tuple elements on the lhs are always identifiers."</span>)
                         }
                     };
                 });
                 expression_instructions
             }
             <span class="kw">_ </span>=&gt; <span class="macro">unimplemented!</span>(
-                <span class="string">&quot;Code generation for the left-hand side of an assignment is only implemented for `Identifier`s.&quot;
+                <span class="string">"Code generation for the left-hand side of an assignment is only implemented for `Identifier`s."
             </span>),
         }
     }
 
-    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConditionalStatement) -&gt; String {
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) -&gt; String {
         <span class="comment">// TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
-        </span><span class="macro">unreachable!</span>(<span class="string">&quot;`ConditionalStatement`s should not be in the AST at this phase of compilation.&quot;</span>)
+        </span><span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IterationStatement) -&gt; String {
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) -&gt; String {
         <span class="comment">// TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
-        </span><span class="macro">unreachable!</span>(<span class="string">&quot;`IterationStatement`s should not be in the AST at this phase of compilation.&quot;</span>);
+        </span><span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) -&gt; String {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that `ConsoleStatement`s are not present in the AST.&quot;</span>)
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) -&gt; String {
+        <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that `ConsoleStatement`s are not present in the AST."</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Block) -&gt; String {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Block) -&gt; String {
         <span class="comment">// For each statement in the block, visit it and add its instructions to the list.
-        </span>input.statements.iter().map(|stmt| <span class="self">self</span>.visit_statement(stmt)).join(<span class="string">&quot;&quot;</span>)
+        </span>input.statements.iter().map(|stmt| <span class="self">self</span>.visit_statement(stmt)).join(<span class="string">""</span>)
     }
 }
 </code></pre></div></section></main></body></html>

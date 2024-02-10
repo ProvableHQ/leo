@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/parser/parser_errors.rs`."><title>parser_errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `errors/src/errors/parser/parser_errors.rs`."><title>parser_errors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_errors" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -360,7 +361,7 @@
     <span class="doccomment">/// ParserError enum that represents all the errors for the `leo-parser` crate.
     </span>ParserError,
     code_mask: <span class="number">0000i32</span>,
-    code_prefix: <span class="string">&quot;PAR&quot;</span>,
+    code_prefix: <span class="string">"PAR"</span>,
 
     <span class="doccomment">/// For when the parser encountered an unexpected token.
     </span>@formatted
@@ -374,7 +375,7 @@
     </span>@formatted
     invalid_address_lit {
         args: (token: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;invalid address literal: &#39;{token}&#39;&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"invalid address literal: '{token}'"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -382,7 +383,7 @@
     </span>@formatted
     invalid_import_list {
         args: (),
-        msg: <span class="string">&quot;Cannot import empty list&quot;</span>,
+        msg: <span class="string">"Cannot import empty list"</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -390,7 +391,7 @@
     </span>@formatted
     unexpected_eof {
         args: (),
-        msg: <span class="string">&quot;unexpected EOF&quot;</span>,
+        msg: <span class="string">"unexpected EOF"</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -398,7 +399,7 @@
     </span>@formatted
     unexpected_whitespace {
         args: (left: <span class="kw">impl </span>Display, right: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Unexpected white space between terms {left} and {right}&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Unexpected white space between terms {left} and {right}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -406,7 +407,7 @@
     </span>@formatted
     unexpected {
         args: (found: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;expected {expected} -- found &#39;{found}&#39;&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"expected {expected} -- found '{found}'"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -414,7 +415,7 @@
     </span>@formatted
     mixed_commas_and_semicolons {
         args: (),
-        msg: <span class="string">&quot;Cannot mix use of commas and semi-colons for struct member variable declarations.&quot;</span>,
+        msg: <span class="string">"Cannot mix use of commas and semi-colons for struct member variable declarations."</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -423,12 +424,12 @@
     unexpected_ident {
         args: (found: <span class="kw">impl </span>Display, expected: <span class="kw-2">&amp;</span>[<span class="kw">impl </span>Display]),
         msg: <span class="macro">format!</span>(
-            <span class="string">&quot;unexpected identifier: expected {} -- found &#39;{found}&#39;&quot;</span>,
+            <span class="string">"unexpected identifier: expected {} -- found '{found}'"</span>,
             expected
                 .iter()
-                .map(|x| <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>))
+                .map(|x| <span class="macro">format!</span>(<span class="string">"'{x}'"</span>))
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-                .join(<span class="string">&quot;, &quot;</span>),
+                .join(<span class="string">", "</span>),
         ),
         help: <span class="prelude-val">None</span>,
     }
@@ -437,7 +438,7 @@
     </span>@formatted
     unexpected_statement {
         args: (found: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;unexpected statement: expected &#39;{expected}&#39;, found &#39;{found}&#39;&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"unexpected statement: expected '{expected}', found '{found}'"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -445,7 +446,7 @@
     </span>@formatted
     unexpected_str {
         args: (found: <span class="kw">impl </span>Display, expected: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;unexpected string: expected &#39;{expected}&#39;, found &#39;{found}&#39;&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"unexpected string: expected '{expected}', found '{found}'"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -453,7 +454,7 @@
     </span>@formatted
     spread_in_array_init {
         args: (),
-        msg: <span class="string">&quot;illegal spread in array initializer&quot;</span>,
+        msg: <span class="string">"illegal spread in array initializer"</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -461,7 +462,7 @@
     </span>@backtraced
     lexer_empty_input {
         args: (),
-        msg: <span class="string">&quot;Expected more characters to lex but found none.&quot;</span>,
+        msg: <span class="string">"Expected more characters to lex but found none."</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -469,7 +470,7 @@
     </span>@backtraced
     lexer_expected_valid_escaped_char {
     args: (input: <span class="kw">impl </span>Display),
-    msg: <span class="macro">format!</span>(<span class="string">&quot;Expected a valid escape character but found `{input}`.&quot;</span>),
+    msg: <span class="macro">format!</span>(<span class="string">"Expected a valid escape character but found `{input}`."</span>),
     help: <span class="prelude-val">None</span>,
     }
 
@@ -477,7 +478,7 @@
     </span>@backtraced
     lexer_string_not_closed {
     args: (input: <span class="kw">impl </span>Display),
-    msg: <span class="macro">format!</span>(<span class="string">&quot;Expected a closed string but found `{input}`.&quot;</span>),
+    msg: <span class="macro">format!</span>(<span class="string">"Expected a closed string but found `{input}`."</span>),
     help: <span class="prelude-val">None</span>,
     }
 
@@ -485,7 +486,7 @@
     </span>@backtraced
     lexer_empty_block_comment {
     args: (),
-    msg: <span class="string">&quot;Empty block comment.&quot;</span>,
+    msg: <span class="string">"Empty block comment."</span>,
     help: <span class="prelude-val">None</span>,
     }
 
@@ -493,7 +494,7 @@
     </span>@backtraced
     lexer_block_comment_does_not_close_before_eof {
     args: (input: <span class="kw">impl </span>Display),
-    msg: <span class="macro">format!</span>(<span class="string">&quot;Block comment does not close with content: `{input}`.&quot;</span>),
+    msg: <span class="macro">format!</span>(<span class="string">"Block comment does not close with content: `{input}`."</span>),
     help: <span class="prelude-val">None</span>,
     }
 
@@ -501,7 +502,7 @@
     </span>@backtraced
     could_not_lex {
     args: (input: <span class="kw">impl </span>Display),
-    msg: <span class="macro">format!</span>(<span class="string">&quot;Could not lex the following content: `{input}`.\n&quot;</span>),
+    msg: <span class="macro">format!</span>(<span class="string">"Could not lex the following content: `{input}`.\n"</span>),
     help: <span class="prelude-val">None</span>,
     }
 
@@ -509,7 +510,7 @@
     </span>@formatted
     implicit_values_not_allowed {
         args: (input: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Could not parse the implicit value: {input}.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Could not parse the implicit value: {input}."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -517,7 +518,7 @@
     </span>@backtraced
     lexer_hex_number_provided {
         args: (input: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;A hex number `{input}..` was provided but hex is not allowed.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"A hex number `{input}..` was provided but hex is not allowed."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -525,15 +526,15 @@
     </span>@formatted
     inputs_multiple_variable_modes_specified {
         args: (),
-        msg: <span class="string">&quot;A parameter cannot have multiple modes.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider using either `constant`, `public`, `private`, or none at all.&quot;</span>.to_string()),
+        msg: <span class="string">"A parameter cannot have multiple modes."</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Consider using either `constant`, `public`, `private`, or none at all."</span>.to_string()),
     }
 
     <span class="doccomment">/// For when the lexer encountered a bidi override character
     </span>@backtraced
     lexer_bidi_override {
         args: (),
-        msg: <span class="string">&quot;Unicode bidi override code point encountered.&quot;</span>,
+        msg: <span class="string">"Unicode bidi override code point encountered."</span>,
         help: <span class="prelude-val">None</span>,
     }
 
@@ -541,113 +542,113 @@
     </span>@formatted
     invalid_method_call {
         args: (expr: <span class="kw">impl </span>Display, func: <span class="kw">impl </span>Display, num_args: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;The type of `{expr}` has no associated function `{func}` that takes {num_args} argument(s).&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"The type of `{expr}` has no associated function `{func}` that takes {num_args} argument(s)."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     invalid_associated_access {
         args: (name: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Invalid associated access call to struct {name}.&quot;</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Double colon `::` syntax is only supported for core functions in Leo for testnet3.&quot;</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid associated access call to struct {name}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Double colon `::` syntax is only supported for core functions in Leo for testnet3."</span>.to_string()),
     }
 
     @formatted
     leo_and_aleo_imports_only {
         args: (),
-        msg: <span class="string">&quot;Invalid import call to non-leo non-aleo file.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported.&quot;</span>.to_string()),
+        msg: <span class="string">"Invalid import call to non-leo non-aleo file."</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Only imports of Leo `.leo` and Aleo `.aleo` files are currently supported."</span>.to_string()),
     }
 
     @formatted
     space_in_annotation {
         args: (),
-        msg: <span class="string">&quot;Illegal spacing in the annotation declaration.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Remove whitespace between the `@` symbol and the identifier.&quot;</span>.to_string()),
+        msg: <span class="string">"Illegal spacing in the annotation declaration."</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Remove whitespace between the `@` symbol and the identifier."</span>.to_string()),
     }
 
     @formatted
     circuit_is_deprecated {
         args: (),
-        msg: <span class="string">&quot;The keyword `circuit` is deprecated.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `struct` instead.&quot;</span>.to_string()),
+        msg: <span class="string">"The keyword `circuit` is deprecated."</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use `struct` instead."</span>.to_string()),
     }
 
     @formatted
     only_one_program_scope_is_allowed {
         args: (),
-        msg: <span class="string">&quot;Only one program scope is allowed in a Leo file.&quot;</span>,
+        msg: <span class="string">"Only one program scope is allowed in a Leo file."</span>,
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     missing_program_scope {
         args: (),
-        msg: <span class="string">&quot;Missing a program scope in a Leo file.&quot;</span>,
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Add a program scope of the form: `program &lt;name&gt;.aleo { ... }` to the Leo file.&quot;</span>.to_string()),
+        msg: <span class="string">"Missing a program scope in a Leo file."</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"Add a program scope of the form: `program &lt;name&gt;.aleo { ... }` to the Leo file."</span>.to_string()),
     }
 
     @formatted
     invalid_network {
         args: (),
-        msg: <span class="string">&quot;Invalid network identifier. The only supported identifier is `.aleo`.&quot;</span>,
+        msg: <span class="string">"Invalid network identifier. The only supported identifier is `.aleo`."</span>,
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     tuple_must_have_at_least_two_elements {
         args: (kind: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;A tuple {kind} must have at least two elements.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"A tuple {kind} must have at least two elements."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     async_finalize_is_deprecated {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;`async finalize` is deprecated.&quot;</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead.&quot;</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"`async finalize` is deprecated."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead."</span>.to_string()),
     }
 
     @formatted
     finalize_statements_are_deprecated {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;`finalize` statements are deprecated.&quot;</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead.&quot;</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"`finalize` statements are deprecated."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use `return &lt;expr&gt; then finalize(&lt;args&gt;)` instead."</span>.to_string()),
     }
 
     @formatted
     console_statements_are_not_yet_supported {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;`console` statements are not yet supported.&quot;</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;Consider using `assert`, `assert_eq`, or `assert_neq` instead.&quot;</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"`console` statements are not yet supported."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Consider using `assert`, `assert_eq`, or `assert_neq` instead."</span>.to_string()),
     }
 
     <span class="doccomment">/// Enforce that tuple index must not have leading 0, or underscore in between digits
     </span>@formatted
     tuple_index_must_be_whole_number {
         args: (found: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;expected no underscores or leading zeros -- found &#39;{found}&#39;&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"expected no underscores or leading zeros -- found '{found}'"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     array_must_have_at_least_one_element {
         args: (kind: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;An array {kind} must have at least one element.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"An array {kind} must have at least one element."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     invalid_external_type {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Invalid external type.&quot;</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">&quot;External type should have the form `&lt;program&gt;.aleo/&lt;record&gt;`. For example `bank.aleo/loan`&quot;</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid external type."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"External type should have the form `&lt;program&gt;.aleo/&lt;record&gt;`. For example `bank.aleo/loan`"</span>.to_string()),
     }
 
     @formatted
     cannot_declare_external_struct {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot declare external struct.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot declare external struct."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -655,7 +656,7 @@
     </span>@formatted
     external_type_cannot_be_used_inside_function {
         args: (program: <span class="kw">impl </span>Display, file_type: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;External types cannot be used inside function (only as input/output types) -- found exported type from &#39;{program}.{file_type}&#39;.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -663,14 +664,14 @@
     </span>@formatted
     cannot_import_inside_program_body {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Cannot use import inside program body.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot use import inside program body."</span>),
         help: <span class="prelude-val">None</span>,
     }
 
     @formatted
     only_aleo_external_calls {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">&quot;Only external calls to `.aleo` programs are supported.&quot;</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"Only external calls to `.aleo` programs are supported."</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

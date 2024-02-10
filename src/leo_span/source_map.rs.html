@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/source_map.rs`."><title>source_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/span/src/source_map.rs`."><title>source_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_span" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -537,14 +538,14 @@
     <span class="doccomment">/// Returns a displayable representation of the `span` as a string.
     </span><span class="kw">pub fn </span>span_to_string(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span) -&gt; String {
         <span class="kw">let </span>loc = <span class="kw">match </span><span class="self">self</span>.span_to_location(span) {
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="string">&quot;no-location&quot;</span>.to_string(),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="string">"no-location"</span>.to_string(),
             <span class="prelude-val">Some</span>(l) =&gt; l,
         };
 
         <span class="kw">if </span>loc.line_start == loc.line_stop {
-            <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}&quot;</span>, loc.line_start, loc.col_start, loc.col_stop)
+            <span class="macro">format!</span>(<span class="string">"{}:{}-{}"</span>, loc.line_start, loc.col_start, loc.col_stop)
         } <span class="kw">else </span>{
-            <span class="macro">format!</span>(<span class="string">&quot;{}:{}-{}:{}&quot;</span>, loc.line_start, loc.col_start, loc.line_stop, loc.col_stop)
+            <span class="macro">format!</span>(<span class="string">"{}:{}-{}:{}"</span>, loc.line_start, loc.col_start, loc.line_stop, loc.col_stop)
         }
     }
 
@@ -593,7 +594,7 @@
 
 <span class="doccomment">/// A file name.
 ///
-/// For now it&#39;s simply a wrapper around `PathBuf`,
+/// For now it's simply a wrapper around `PathBuf`,
 /// but may become more complicated in the future.
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub enum </span>FileName {
@@ -604,7 +605,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>FileName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Real(x) <span class="kw">if </span>is_not_test_framework() =&gt; x.display().fmt(f),
             <span class="self">Self</span>::Real(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
@@ -615,7 +616,7 @@
 
 <span class="doccomment">/// Is the env var `LEO_TESTFRAMEWORK` not enabled?
 </span><span class="kw">pub fn </span>is_not_test_framework() -&gt; bool {
-    std::env::var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>).unwrap_or_default().trim().to_owned().is_empty()
+    std::env::var(<span class="string">"LEO_TESTFRAMEWORK"</span>).unwrap_or_default().trim().to_owned().is_empty()
 }
 
 <span class="doccomment">/// A single source in the [`SourceMap`].
@@ -680,7 +681,7 @@
         }
     }
 
-    <span class="doccomment">/// Looks up the file&#39;s (1-based) line number and (0-based `CharPos`) column offset, for a
+    <span class="doccomment">/// Looks up the file's (1-based) line number and (0-based `CharPos`) column offset, for a
     /// given `BytePos`.
     </span><span class="kw">fn </span>lookup_file_pos(<span class="kw-2">&amp;</span><span class="self">self</span>, pos: BytePos) -&gt; (usize, CharPos) {
         <span class="kw">let </span>chpos = <span class="self">self</span>.bytepos_to_file_charpos(pos);
@@ -717,7 +718,7 @@
 <span class="kw">impl </span>SpanLocation {
     <span class="doccomment">/// Returns a dummy location.
     </span><span class="kw">pub fn </span>dummy() -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>dummy = <span class="string">&quot;&lt;dummy&gt;&quot;</span>.to_owned();
+        <span class="kw">let </span>dummy = <span class="string">"&lt;dummy&gt;"</span>.to_owned();
         <span class="kw">let </span>span = Span::dummy();
         <span class="self">Self </span>{
             source_file: Rc::new(SourceFile {
@@ -754,22 +755,22 @@
 
 <span class="doccomment">/// Removes UTF-8 BOM, if any.
 </span><span class="kw">fn </span>remove_bom(src: <span class="kw-2">&amp;mut </span>String) {
-    <span class="kw">if </span>src.starts_with(<span class="string">&#39;\u{feff}&#39;</span>) {
+    <span class="kw">if </span>src.starts_with(<span class="string">'\u{feff}'</span>) {
         src.drain(..<span class="number">3</span>);
     }
 }
 
 <span class="doccomment">/// Replaces `\r\n` with `\n` in-place in `src`.
 ///
-/// Returns error if there&#39;s a lone `\r` in the string.
+/// Returns error if there's a lone `\r` in the string.
 </span><span class="kw">fn </span>normalize_newlines(src: <span class="kw-2">&amp;mut </span>String) {
-    <span class="kw">if </span>!src.as_bytes().contains(<span class="kw-2">&amp;</span><span class="string">b&#39;\r&#39;</span>) {
+    <span class="kw">if </span>!src.as_bytes().contains(<span class="kw-2">&amp;</span><span class="string">b'\r'</span>) {
         <span class="kw">return</span>;
     }
 
-    <span class="comment">// We replace `\r\n` with `\n` in-place, which doesn&#39;t break utf-8 encoding.
+    <span class="comment">// We replace `\r\n` with `\n` in-place, which doesn't break utf-8 encoding.
     // While we *can* call `as_mut_vec` and do surgery on the live string
-    // directly, let&#39;s rather steal the contents of `src`. This makes the code
+    // directly, let's rather steal the contents of `src`. This makes the code
     // safe even if a panic occurs.
 
     </span><span class="kw">let </span><span class="kw-2">mut </span>buf = std::mem::take(src).into_bytes();
@@ -797,7 +798,7 @@
     <span class="kw">fn </span>find_crlf(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>search_idx = <span class="number">0</span>;
         <span class="kw">while let </span><span class="prelude-val">Some</span>(idx) = find_cr(<span class="kw-2">&amp;</span>src[search_idx..]) {
-            <span class="kw">if </span>src[search_idx..].get(idx + <span class="number">1</span>) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b&#39;\n&#39;</span>) {
+            <span class="kw">if </span>src[search_idx..].get(idx + <span class="number">1</span>) != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b'\n'</span>) {
                 search_idx += idx + <span class="number">1</span>;
                 <span class="kw">continue</span>;
             }
@@ -807,7 +808,7 @@
     </span>}
 
     <span class="kw">fn </span>find_cr(src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        src.iter().position(|<span class="kw-2">&amp;</span>b| b == <span class="string">b&#39;\r&#39;</span>)
+        src.iter().position(|<span class="kw-2">&amp;</span>b| b == <span class="string">b'\r'</span>)
     }
 }
 
@@ -840,11 +841,11 @@
 
         <span class="kw">let </span>pos = BytePos::from_usize(i) + source_file_start_pos;
 
-        <span class="kw">if let </span><span class="string">b&#39;\n&#39; </span>= byte {
+        <span class="kw">if let </span><span class="string">b'\n' </span>= byte {
             lines.push(pos + BytePos(<span class="number">1</span>));
         } <span class="kw">else if </span>byte &gt;= <span class="number">127 </span>{
             <span class="comment">// The slow path:
-            // This is either ASCII control character &quot;DEL&quot; or the beginning of
+            // This is either ASCII control character "DEL" or the beginning of
             // a multibyte char. Just decode to `char`.
             </span><span class="kw">let </span>c = (src[i..]).chars().next().unwrap();
             char_len = c.len_utf8();

@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/runner.rs`."><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_test_framework" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/runner.rs`."><title>runner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="leo_test_framework" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -350,7 +351,7 @@
 }
 
 <span class="kw">fn </span>is_env_var_set(var: <span class="kw-2">&amp;</span>str) -&gt; bool {
-    std::env::var(var).unwrap_or_else(|<span class="kw">_</span>| <span class="string">&quot;&quot;</span>.to_string()).trim().is_empty()
+    std::env::var(var).unwrap_or_else(|<span class="kw">_</span>| <span class="string">""</span>.to_string()).trim().is_empty()
 }
 
 <span class="kw">fn </span>set_hook() -&gt; Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;&gt; {
@@ -360,13 +361,13 @@
         <span class="kw">let </span>panic_buf = panic_buf.clone();
         Box::new(<span class="kw">move </span>|e| {
             <span class="kw">if </span>thread::current().id() == thread_id {
-                <span class="kw">if </span>!is_env_var_set(<span class="string">&quot;RUST_BACKTRACE&quot;</span>) {
-                    <span class="kw-2">*</span>panic_buf.lock().unwrap() = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, backtrace::Backtrace::new()));
+                <span class="kw">if </span>!is_env_var_set(<span class="string">"RUST_BACKTRACE"</span>) {
+                    <span class="kw-2">*</span>panic_buf.lock().unwrap() = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, backtrace::Backtrace::new()));
                 } <span class="kw">else </span>{
                     <span class="kw-2">*</span>panic_buf.lock().unwrap() = <span class="prelude-val">Some</span>(e.to_string());
                 }
             } <span class="kw">else </span>{
-                <span class="macro">println!</span>(<span class="string">&quot;{e}&quot;</span>)
+                <span class="macro">println!</span>(<span class="string">"{e}"</span>)
             }
         })
     });
@@ -378,7 +379,7 @@
     panic_buf: Arc&lt;Mutex&lt;<span class="prelude-ty">Option</span>&lt;String&gt;&gt;&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;Value, String&gt;, String&gt; {
     <span class="kw">let _ </span>= panic::take_hook();
-    output.map_err(|<span class="kw">_</span>| panic_buf.lock().unwrap().take().expect(<span class="string">&quot;failed to get panic message&quot;</span>))
+    output.map_err(|<span class="kw">_</span>| panic_buf.lock().unwrap().take().expect(<span class="string">"failed to get panic message"</span>))
 }
 
 <span class="kw">pub struct </span>TestCases {
@@ -390,8 +391,8 @@
 
 <span class="kw">impl </span>TestCases {
     <span class="kw">fn </span>new(expectation_category: <span class="kw-2">&amp;</span>str, additional_check: <span class="kw">impl </span>Fn(<span class="kw-2">&amp;</span>TestConfig) -&gt; bool) -&gt; (<span class="self">Self</span>, Vec&lt;TestConfig&gt;) {
-        <span class="kw">let </span><span class="kw-2">mut </span>path_prefix = PathBuf::from(<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>));
-        path_prefix.push(<span class="string">&quot;../../tests&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>path_prefix = PathBuf::from(<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>));
+        path_prefix.push(<span class="string">"../../tests"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>new = <span class="self">Self </span>{
             tests: Vec::new(),
@@ -407,9 +408,9 @@
         <span class="kw">let </span><span class="kw-2">mut </span>configs = Vec::new();
 
         <span class="kw">let </span><span class="kw-2">mut </span>test_path = <span class="self">self</span>.path_prefix.clone();
-        test_path.push(<span class="string">&quot;tests&quot;</span>);
+        test_path.push(<span class="string">"tests"</span>);
         test_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.expectation_category);
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">&quot;TEST_FILTER&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">"TEST_FILTER"</span>) {
             test_path.push(p);
         }
 
@@ -417,7 +418,7 @@
             .filter(|(path, content)| <span class="kw">match </span>extract_test_config(content) {
                 <span class="prelude-val">None </span>=&gt; {
                     <span class="self">self</span>.fail_categories.push(TestFailure {
-                        path: path.to_str().unwrap_or(<span class="string">&quot;&quot;</span>).to_string(),
+                        path: path.to_str().unwrap_or(<span class="string">""</span>).to_string(),
                         errors: <span class="macro">vec!</span>[TestError::MissingTestConfig],
                     });
                     <span class="bool-val">true
@@ -437,14 +438,14 @@
     <span class="kw">where
         </span>P: FnMut(<span class="kw-2">&amp;mut </span><span class="self">Self</span>, (<span class="kw-2">&amp;</span>Path, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str, TestConfig)) -&gt; O,
     {
-        std::env::remove_var(<span class="string">&quot;LEO_BACKTRACE&quot;</span>); <span class="comment">// always remove backtrace so it doesn&#39;t clog output files
-        </span>std::env::set_var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        std::env::remove_var(<span class="string">"LEO_BACKTRACE"</span>); <span class="comment">// always remove backtrace so it doesn't clog output files
+        </span>std::env::set_var(<span class="string">"LEO_TESTFRAMEWORK"</span>, <span class="string">"true"</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
         <span class="kw">for </span>((path, content), config) <span class="kw">in </span><span class="self">self</span>.tests.clone().iter().zip(configs.into_iter()) {
-            <span class="kw">let </span>test_name = path.file_stem().expect(<span class="string">&quot;no file name for test&quot;</span>).to_str().unwrap().to_string();
+            <span class="kw">let </span>test_name = path.file_stem().expect(<span class="string">"no file name for test"</span>).to_str().unwrap().to_string();
 
-            <span class="kw">let </span>end_of_header = content.find(<span class="string">&quot;*/&quot;</span>).expect(<span class="string">&quot;failed to find header block in test&quot;</span>);
+            <span class="kw">let </span>end_of_header = content.find(<span class="string">"*/"</span>).expect(<span class="string">"failed to find header block in test"</span>);
             <span class="kw">let </span>content = <span class="kw-2">&amp;</span>content[end_of_header + <span class="number">2</span>..];
 
             output.push(process(<span class="self">self</span>, (path, content, <span class="kw-2">&amp;</span>test_name, config)));
@@ -453,25 +454,25 @@
     }
 
     <span class="kw">fn </span>load_expectations(<span class="kw-2">&amp;</span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path) -&gt; (PathBuf, <span class="prelude-ty">Option</span>&lt;TestExpectation&gt;) {
-        <span class="kw">let </span>test_dir = [<span class="macro">env!</span>(<span class="string">&quot;CARGO_MANIFEST_DIR&quot;</span>), <span class="string">&quot;../../tests&quot;</span>].iter().collect::&lt;PathBuf&gt;();
+        <span class="kw">let </span>test_dir = [<span class="macro">env!</span>(<span class="string">"CARGO_MANIFEST_DIR"</span>), <span class="string">"../../tests"</span>].iter().collect::&lt;PathBuf&gt;();
         <span class="kw">let </span>relative_path = path
             .strip_prefix(<span class="kw-2">&amp;</span>test_dir)
-            .expect(<span class="string">&quot;path error for test&quot;</span>)
-            .strip_prefix(<span class="string">&quot;tests&quot;</span>)
-            .expect(<span class="string">&quot;path error for test&quot;</span>);
+            .expect(<span class="string">"path error for test"</span>)
+            .strip_prefix(<span class="string">"tests"</span>)
+            .expect(<span class="string">"path error for test"</span>);
 
         <span class="kw">let </span>expectation_path = test_dir
-            .join(<span class="string">&quot;expectations&quot;</span>)
-            .join(relative_path.parent().expect(<span class="string">&quot;no parent for test&quot;</span>))
-            .join(relative_path.file_name().expect(<span class="string">&quot;no file name for test&quot;</span>))
-            .with_extension(<span class="string">&quot;out&quot;</span>);
+            .join(<span class="string">"expectations"</span>)
+            .join(relative_path.parent().expect(<span class="string">"no parent for test"</span>))
+            .join(relative_path.file_name().expect(<span class="string">"no file name for test"</span>))
+            .with_extension(<span class="string">"out"</span>);
 
         <span class="kw">if </span>expectation_path.exists() {
-            <span class="kw">if </span>!is_env_var_set(<span class="string">&quot;CLEAR_LEO_TEST_EXPECTATIONS&quot;</span>) {
+            <span class="kw">if </span>!is_env_var_set(<span class="string">"CLEAR_LEO_TEST_EXPECTATIONS"</span>) {
                 (expectation_path, <span class="prelude-val">None</span>)
             } <span class="kw">else </span>{
-                <span class="kw">let </span>raw = std::fs::read_to_string(<span class="kw-2">&amp;</span>expectation_path).expect(<span class="string">&quot;failed to read expectations file&quot;</span>);
-                (expectation_path, <span class="prelude-val">Some</span>(serde_yaml::from_str(<span class="kw-2">&amp;</span>raw).expect(<span class="string">&quot;invalid yaml in expectations file&quot;</span>)))
+                <span class="kw">let </span>raw = std::fs::read_to_string(<span class="kw-2">&amp;</span>expectation_path).expect(<span class="string">"failed to read expectations file"</span>);
+                (expectation_path, <span class="prelude-val">Some</span>(serde_yaml::from_str(<span class="kw-2">&amp;</span>raw).expect(<span class="string">"invalid yaml in expectations file"</span>)))
             }
         } <span class="kw">else </span>{
             (expectation_path, <span class="prelude-val">None</span>)
@@ -512,7 +513,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>expected_output = expectations.as_ref().map(|x| x.outputs.iter());
         <span class="kw">for </span>(i, test) <span class="kw">in </span>tests.into_iter().enumerate() {
             <span class="kw">let </span>expected_output = expected_output.as_mut().and_then(|x| x.next()).cloned();
-            <span class="macro">println!</span>(<span class="string">&quot;running test {test_name} @ &#39;{}&#39;&quot;</span>, path.to_str().unwrap());
+            <span class="macro">println!</span>(<span class="string">"running test {test_name} @ '{}'"</span>, path.to_str().unwrap());
             <span class="kw">let </span>panic_buf = set_hook();
             <span class="kw">let </span>leo_output = panic::catch_unwind(|| {
                 namespace.run_test(Test {
@@ -532,7 +533,7 @@
                     output
                         .unwrap()
                         .as_ref()
-                        .map(|x| serde_yaml::to_value(x).expect(<span class="string">&quot;serialization failed&quot;</span>))
+                        .map(|x| serde_yaml::to_value(x).expect(<span class="string">"serialization failed"</span>))
                         .unwrap_or_else(|e| Value::String(e.clone())),
                 );
             }
@@ -554,14 +555,14 @@
 
     <span class="kw">if </span>!cases.fail_categories.is_empty() {
         <span class="kw">for </span>(i, fail) <span class="kw">in </span>cases.fail_categories.iter().enumerate() {
-            <span class="macro">println!</span>(<span class="string">&quot;\n\n-----------------TEST #{} FAILED (and shouldn&#39;t have)-----------------&quot;</span>, i + <span class="number">1</span>);
-            <span class="macro">println!</span>(<span class="string">&quot;File: {}&quot;</span>, fail.path);
+            <span class="macro">println!</span>(<span class="string">"\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------"</span>, i + <span class="number">1</span>);
+            <span class="macro">println!</span>(<span class="string">"File: {}"</span>, fail.path);
             <span class="kw">for </span>error <span class="kw">in </span><span class="kw-2">&amp;</span>fail.errors {
-                <span class="macro">println!</span>(<span class="string">&quot;{error}&quot;</span>);
+                <span class="macro">println!</span>(<span class="string">"{error}"</span>);
             }
         }
         <span class="macro">panic!</span>(
-            <span class="string">&quot;failed {}/{} tests in {}/{} categories&quot;</span>,
+            <span class="string">"failed {}/{} tests in {}/{} categories"</span>,
             pass_tests,
             fail_tests + pass_tests,
             cases.fail_categories.len(),
@@ -569,15 +570,15 @@
         );
     } <span class="kw">else </span>{
         <span class="kw">for </span>(path, new_expectation) <span class="kw">in </span>outputs {
-            std::fs::create_dir_all(path.parent().unwrap()).expect(<span class="string">&quot;failed to make test expectation parent directory&quot;</span>);
+            std::fs::create_dir_all(path.parent().unwrap()).expect(<span class="string">"failed to make test expectation parent directory"</span>);
             std::fs::write(
                 <span class="kw-2">&amp;</span>path,
-                serde_yaml::to_string(<span class="kw-2">&amp;</span>new_expectation).expect(<span class="string">&quot;failed to serialize expectation yaml&quot;</span>),
+                serde_yaml::to_string(<span class="kw-2">&amp;</span>new_expectation).expect(<span class="string">"failed to serialize expectation yaml"</span>),
             )
-            .expect(<span class="string">&quot;failed to write expectation file&quot;</span>);
+            .expect(<span class="string">"failed to write expectation file"</span>);
         }
         <span class="macro">println!</span>(
-            <span class="string">&quot;passed {}/{} tests in {}/{} categories&quot;</span>,
+            <span class="string">"passed {}/{} tests in {}/{} categories"</span>,
             pass_tests,
             fail_tests + pass_tests,
             pass_categories,
@@ -585,14 +586,14 @@
         );
     }
 
-    std::env::remove_var(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>);
+    std::env::remove_var(<span class="string">"LEO_TESTFRAMEWORK"</span>);
 }
 
 <span class="doccomment">/// returns (name, content) for all benchmark samples
 </span><span class="kw">pub fn </span>get_benches() -&gt; Vec&lt;(String, String)&gt; {
-    <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(<span class="string">&quot;compiler&quot;</span>, |config| {
-        (<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Bench&quot; </span>&amp;&amp; config.expectation == TestExpectationMode::Pass)
-            || ((<span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Compile&quot; </span>|| <span class="kw-2">&amp;</span>config.namespace == <span class="string">&quot;Execute&quot;</span>)
+    <span class="kw">let </span>(<span class="kw-2">mut </span>cases, configs) = TestCases::new(<span class="string">"compiler"</span>, |config| {
+        (<span class="kw-2">&amp;</span>config.namespace == <span class="string">"Bench" </span>&amp;&amp; config.expectation == TestExpectationMode::Pass)
+            || ((<span class="kw-2">&amp;</span>config.namespace == <span class="string">"Compile" </span>|| <span class="kw-2">&amp;</span>config.namespace == <span class="string">"Execute"</span>)
                 &amp;&amp; !<span class="macro">matches!</span>(config.expectation, TestExpectationMode::Fail | TestExpectationMode::Skip))
     });
 

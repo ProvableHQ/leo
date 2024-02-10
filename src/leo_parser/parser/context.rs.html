@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/context.rs`."><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/parser/context.rs`."><title>context.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -276,18 +277,18 @@
 
 <span class="doccomment">/// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ParserContext&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Handler used to side-channel emit errors from the parser.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// Counter used to generate unique node ids.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     <span class="doccomment">/// All un-bumped tokens.
     </span>tokens: Vec&lt;SpannedToken&gt;,
-    <span class="doccomment">/// The current token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,
-    /// then after a `p.bump()`, we&#39;ll have `p.token = &#39;3&#39;`.
+    <span class="doccomment">/// The current token, i.e., if `p.tokens = ['3', *, '4']`,
+    /// then after a `p.bump()`, we'll have `p.token = '3'`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) token: SpannedToken,
-    <span class="doccomment">/// The previous token, i.e., if `p.tokens = [&#39;3&#39;, *, &#39;4&#39;]`,
-    /// then after two `p.bump()`s, we&#39;ll have `p.token = &#39;*&#39;` and `p.prev_token = &#39;3&#39;`.
+    <span class="doccomment">/// The previous token, i.e., if `p.tokens = ['3', *, '4']`,
+    /// then after two `p.bump()`s, we'll have `p.token = '*'` and `p.prev_token = '3'`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) prev_token: SpannedToken,
     <span class="doccomment">/// true if parsing an expression for if and loop statements -- means struct inits are not legal
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) disallow_struct_construction: bool,
@@ -296,9 +297,9 @@
 <span class="doccomment">/// Dummy span used to appease borrow checker.
 </span><span class="kw">const </span>DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ParserContext&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ParserContext&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new [`ParserContext`] type given a vector of tokens.
-    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler, node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder, <span class="kw-2">mut </span>tokens: Vec&lt;SpannedToken&gt;) -&gt; <span class="self">Self </span>{
         <span class="comment">// Strip out comments.
         </span>tokens.retain(|x| !<span class="macro">matches!</span>(x.token, Token::CommentLine(<span class="kw">_</span>) | Token::CommentBlock(<span class="kw">_</span>)));
         <span class="comment">// For performance we reverse so that we get cheap `.pop()`s.
@@ -324,7 +325,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>bump(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="comment">// Probably a bug (infinite loop), as the previous token was already EOF.
         </span><span class="kw">if let </span>Token::Eof = <span class="self">self</span>.prev_token.token {
-            <span class="macro">panic!</span>(<span class="string">&quot;attempted to bump the parser past EOF (may be stuck in a loop)&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">"attempted to bump the parser past EOF (may be stuck in a loop)"</span>);
         }
 
         <span class="comment">// Extract next token, or `Eof` if there was none.
@@ -352,7 +353,7 @@
 
     <span class="doccomment">/// Look-ahead `dist` tokens of `self.token` and get access to that token there.
     /// When `dist == 0` then the current token is looked at.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>look_ahead&lt;<span class="lifetime">&#39;s</span>, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span><span class="self">self</span>, dist: usize, looker: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">&#39;s </span>SpannedToken) -&gt; R) -&gt; R {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>look_ahead&lt;<span class="lifetime">'s</span>, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'s </span><span class="self">self</span>, dist: usize, looker: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span><span class="lifetime">'s </span>SpannedToken) -&gt; R) -&gt; R {
         <span class="kw">if </span>dist == <span class="number">0 </span>{
             <span class="kw">return </span>looker(<span class="kw-2">&amp;</span><span class="self">self</span>.token);
         }
@@ -398,7 +399,7 @@
     <span class="doccomment">/// Expects an [`Identifier`], or errors.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>expect_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Identifier&gt; {
         <span class="self">self</span>.eat_identifier()
-            .ok_or_else(|| ParserError::unexpected_str(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;identifier&quot;</span>, <span class="self">self</span>.token.span).into())
+            .ok_or_else(|| ParserError::unexpected_str(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">"identifier"</span>, <span class="self">self</span>.token.span).into())
     }
 
     <span class="doccomment">///
@@ -410,13 +411,13 @@
             <span class="kw">let </span>value = value.clone();
             <span class="self">self</span>.bump();
             <span class="comment">// Reject value if the length is over 2 and the first character is 0
-            </span><span class="kw">if </span>(value.len() &gt; <span class="number">1 </span>&amp;&amp; value.starts_with(<span class="string">&#39;0&#39;</span>)) || value.contains(<span class="string">&#39;_&#39;</span>) {
+            </span><span class="kw">if </span>(value.len() &gt; <span class="number">1 </span>&amp;&amp; value.starts_with(<span class="string">'0'</span>)) || value.contains(<span class="string">'_'</span>) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::tuple_index_must_be_whole_number(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.token.span).into());
             }
 
             <span class="prelude-val">Ok</span>((NonNegativeNumber::from(value), <span class="self">self</span>.prev_token.span))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">&quot;integer literal&quot;</span>, <span class="self">self</span>.token.span).into())
+            <span class="prelude-val">Err</span>(ParserError::unexpected(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="string">"integer literal"</span>, <span class="self">self</span>.token.span).into())
         }
     }
 
@@ -440,7 +441,7 @@
         <span class="kw">if </span><span class="self">self</span>.eat_any(tokens) {
             <span class="prelude-val">Ok</span>(<span class="self">self</span>.prev_token.span)
         } <span class="kw">else </span>{
-            <span class="self">self</span>.unexpected(tokens.iter().map(|x| <span class="macro">format!</span>(<span class="string">&quot;&#39;{x}&#39;&quot;</span>)).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">&quot;, &quot;</span>))
+            <span class="self">self</span>.unexpected(tokens.iter().map(|x| <span class="macro">format!</span>(<span class="string">"'{x}'"</span>)).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">", "</span>))
         }
     }
 

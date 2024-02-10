@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/value/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/ast/src/value/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_ast" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1010,7 +1011,7 @@
                     },
                 )+
                 <span class="comment">// Unreachable because type checking should have already caught this and errored out.
-                </span>s =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}()&quot;</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
+                </span>s =&gt; <span class="macro">unreachable!</span>(<span class="string">"Const operation not supported {}.{}()"</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
             }
         }
     };
@@ -1101,7 +1102,7 @@
                     )+
                 )+
                 <span class="comment">// Unreachable because type checking should have already caught this and errored out.
-                </span>(s, o) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Const operation not supported {}.{}({})&quot;</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), type_name(<span class="kw-2">&amp;</span>o))
+                </span>(s, o) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Const operation not supported {}.{}({})"</span>, type_name(<span class="kw-2">&amp;</span>s), <span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>), type_name(<span class="kw-2">&amp;</span>o))
             }
         }
     };
@@ -1134,7 +1135,7 @@
         @overflowing
         name: abs,
         method: checked_abs,
-        string: <span class="string">&quot;abs&quot;</span>,
+        string: <span class="string">"abs"</span>,
         patterns: [
             [I8, i8],
             [I16, i16],
@@ -1161,7 +1162,7 @@
         @overflowing
         name: neg,
         method: checked_neg,
-        string: <span class="string">&quot;neg&quot;</span>,
+        string: <span class="string">"neg"</span>,
         patterns: [
             <span class="comment">// [Field, Field],
             // [Group, Group],
@@ -1196,7 +1197,7 @@
         @overflowing
         name: add,
         method: checked_add,
-        string: <span class="string">&quot;+&quot;</span>,
+        string: <span class="string">"+"</span>,
         patterns: [
             <span class="comment">// [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -1260,7 +1261,7 @@
         @overflowing
         name: div,
         method: checked_div,
-        string: <span class="string">&quot;/&quot;</span>,
+        string: <span class="string">"/"</span>,
         patterns: [
             <span class="comment">// [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -1303,7 +1304,7 @@
         @cmp
         name: eq,
         method: eq,
-        string: <span class="string">&quot;==&quot;</span>,
+        string: <span class="string">"=="</span>,
         patterns: [
             [Boolean, [Boolean], Boolean, bool, bool],
             [I8, [I8], Boolean, i8, i8],
@@ -1323,7 +1324,7 @@
         @cmp
         name: ge,
         method: ge,
-        string: <span class="string">&quot;&gt;=&quot;</span>,
+        string: <span class="string">"&gt;="</span>,
         patterns: [
             [I8, [I8], Boolean, i8, i8],
             [I16, [I16], Boolean, i16, i16],
@@ -1342,7 +1343,7 @@
         @cmp
         name: gt,
         method: gt,
-        string: <span class="string">&quot;&gt;&quot;</span>,
+        string: <span class="string">"&gt;"</span>,
         patterns: [
             [I8, [I8], Boolean, i8, i8],
             [I16, [I16], Boolean, i16, i16],
@@ -1361,7 +1362,7 @@
         @cmp
         name: le,
         method: le,
-        string: <span class="string">&quot;&lt;=&quot;</span>,
+        string: <span class="string">"&lt;="</span>,
         patterns: [
             [I8, [I8], Boolean, i8, i8],
             [I16, [I16], Boolean, i16, i16],
@@ -1380,7 +1381,7 @@
         @cmp
         name: lt,
         method: lt,
-        string: <span class="string">&quot;&lt;&quot;</span>,
+        string: <span class="string">"&lt;"</span>,
         patterns: [
             [I8, [I8], Boolean, i8, i8],
             [I16, [I16], Boolean, i16, i16],
@@ -1399,7 +1400,7 @@
         @overflowing
         name: mul,
         method: checked_mul,
-        string: <span class="string">&quot;*&quot;</span>,
+        string: <span class="string">"*"</span>,
         patterns: [
             <span class="comment">// [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -1461,7 +1462,7 @@
         @overflowing
         name: pow,
         method: checked_pow,
-        string: <span class="string">&quot;**&quot;</span>,
+        string: <span class="string">"**"</span>,
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -1498,7 +1499,7 @@
         @overflowing
         name: shl,
         method: checked_shl,
-        string: <span class="string">&quot;&lt;&lt;&quot;</span>,
+        string: <span class="string">"&lt;&lt;"</span>,
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -1535,7 +1536,7 @@
         @overflowing
         name: shr,
         method: checked_shr,
-        string: <span class="string">&quot;&gt;&gt;&quot;</span>,
+        string: <span class="string">"&gt;&gt;"</span>,
         patterns: [
             [I8, [U8, U16, U32], I8, i8, u32],
             [I16, [U8, U16, U32], I16, i16, u32],
@@ -1572,7 +1573,7 @@
         @overflowing
         name: sub,
         method: checked_sub,
-        string: <span class="string">&quot;-&quot;</span>,
+        string: <span class="string">"-"</span>,
         patterns: [
             <span class="comment">// [Field, [Field], Field, _, _],
             // [Group, [Group], Group, _, _],
@@ -1652,27 +1653,27 @@
 }
 
 <span class="kw">impl </span>Display <span class="kw">for </span>Value {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">use </span>Value::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{
-            Input(type_, ident) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;input var {}: {type_}&quot;</span>, ident.name),
-            Address(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            Struct(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, val.name),
-            Boolean(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            Field(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            Group(val) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            I8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            I16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            I32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            I64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            I128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            U8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            U16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            U32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            U64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            U128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            Scalar(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
-            String(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{val}&quot;</span>),
+            Input(type_, ident) =&gt; <span class="macro">write!</span>(f, <span class="string">"input var {}: {type_}"</span>, ident.name),
+            Address(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            Struct(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, val.name),
+            Boolean(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            Field(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            Group(val) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            I8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            I16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            I32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            I64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            I128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            U8(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            U16(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            U32(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            U64(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            U128(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            Scalar(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
+            String(val, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{val}"</span>),
         }
     }
 }
@@ -1806,7 +1807,7 @@
             Literal::Scalar(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::Scalar(string.clone(), <span class="kw-2">*</span>span),
             Literal::String(string, span, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::String(string.clone(), <span class="kw-2">*</span>span),
             Literal::Integer(integer_type, raw_string, span, <span class="kw">_</span>) =&gt; {
-                <span class="kw">let </span>string = raw_string.replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;&quot;</span>);
+                <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
                 <span class="kw">match </span>integer_type {
                     IntegerType::U8 =&gt; <span class="self">Self</span>::U8(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
                     IntegerType::U16 =&gt; <span class="self">Self</span>::U16(string.parse()<span class="question-mark">?</span>, <span class="kw-2">*</span>span),
@@ -1829,10 +1830,10 @@
     </span><span class="kw">fn </span>from_value(v: Value, id: NodeID) -&gt; <span class="self">Self </span>{
         <span class="kw">use </span>Value::<span class="kw-2">*</span>;
         <span class="kw">match </span>v {
-            Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
+            Input(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(<span class="string">"We need to test if this is hittable"</span>),
             Address(v, span) =&gt; Literal::Address(v, span, id),
             Boolean(v, span) =&gt; Literal::Boolean(v, span, id),
-            Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">&quot;We need to test if this is hittable&quot;</span>),
+            Struct(_ident, _values) =&gt; <span class="macro">todo!</span>(<span class="string">"We need to test if this is hittable"</span>),
             Field(v, span) =&gt; Literal::Field(v, span, id),
             Group(v) =&gt; Literal::Group(v),
             I8(v, span) =&gt; Literal::Integer(IntegerType::I8, v.to_string(), span, id),

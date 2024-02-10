@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/lexer.rs`."><title>lexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/parser/src/tokenizer/lexer.rs`."><title>lexer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -487,10 +488,10 @@
     iter::{from_fn, Peekable},
 };
 
-<span class="doccomment">/// Eat an identifier, that is, a string matching &#39;[a-zA-Z][a-zA-Z\d_]*&#39;, if any.
+<span class="doccomment">/// Eat an identifier, that is, a string matching '[a-zA-Z][a-zA-Z\d_]*', if any.
 </span><span class="kw">fn </span>eat_identifier(input: <span class="kw-2">&amp;mut </span>Peekable&lt;<span class="kw">impl </span>Iterator&lt;Item = char&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
     input.peek().filter(|c| c.is_ascii_alphabetic())<span class="question-mark">?</span>;
-    <span class="prelude-val">Some</span>(from_fn(|| input.next_if(|c| c.is_ascii_alphanumeric() || c == <span class="kw-2">&amp;</span><span class="string">&#39;_&#39;</span>)).collect())
+    <span class="prelude-val">Some</span>(from_fn(|| input.next_if(|c| c.is_ascii_alphanumeric() || c == <span class="kw-2">&amp;</span><span class="string">'_'</span>)).collect())
 }
 
 <span class="doccomment">/// Checks if a char is a Unicode Bidirectional Override code point
@@ -512,10 +513,10 @@
     // // Eats the parts of the unicode character after \u.
     // fn eat_unicode_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {
     //     let mut unicode = String::new();
-    //     // Account for the chars &#39;\&#39; and &#39;u&#39;.
+    //     // Account for the chars '\' and 'u'.
     //     let mut len = 2;
     //
-    //     if input.next_if_eq(&amp;&#39;{&#39;).is_some() {
+    //     if input.next_if_eq(&amp;'{').is_some() {
     //         len += 1;
     //     } else if let Some(c) = input.next() {
     //         return Err(ParserError::lexer_unopened_escaped_unicode_char(c).into());
@@ -523,12 +524,12 @@
     //         return Err(ParserError::lexer_empty_input_tendril().into());
     //     }
     //
-    //     while let Some(c) = input.next_if(|c| c != &amp;&#39;}&#39;) {
+    //     while let Some(c) = input.next_if(|c| c != &amp;'}') {
     //         len += 1;
     //         unicode.push(c);
     //     }
     //
-    //     if input.next_if_eq(&amp;&#39;}&#39;).is_some() {
+    //     if input.next_if_eq(&amp;'}').is_some() {
     //         len += 1;
     //     } else {
     //         return Err(ParserError::lexer_unclosed_escaped_unicode_char(unicode).into());
@@ -556,11 +557,11 @@
     // // Eats the parts of the hex character after \x.
     // fn eat_hex_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {
     //     let mut hex = String::new();
-    //     // Account for the chars &#39;\&#39; and &#39;x&#39;.
+    //     // Account for the chars '\' and 'x'.
     //     let mut len = 2;
     //
     //     // First hex character.
-    //     if let Some(c) = input.next_if(|c| c != &amp;&#39;\&#39;&#39;) {
+    //     if let Some(c) = input.next_if(|c| c != &amp;'\'') {
     //         len += 1;
     //         hex.push(c);
     //     } else if let Some(c) = input.next() {
@@ -570,7 +571,7 @@
     //     }
     //
     //     // Second hex character.
-    //     if let Some(c) = input.next_if(|c| c != &amp;&#39;\&#39;&#39;) {
+    //     if let Some(c) = input.next_if(|c| c != &amp;'\'') {
     //         len += 1;
     //         hex.push(c);
     //     } else if let Some(c) = input.next() {
@@ -594,16 +595,16 @@
     // fn eat_escaped_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {
     //     match input.next() {
     //         None =&gt; Err(ParserError::lexer_empty_input_tendril().into()),
-    //         // Length of 2 to account the &#39;\&#39;.
-    //         Some(&#39;0&#39;) =&gt; Ok((2, Char::Scalar(0 as char))),
-    //         Some(&#39;t&#39;) =&gt; Ok((2, Char::Scalar(9 as char))),
-    //         Some(&#39;n&#39;) =&gt; Ok((2, Char::Scalar(10 as char))),
-    //         Some(&#39;r&#39;) =&gt; Ok((2, Char::Scalar(13 as char))),
-    //         Some(&#39;\&quot;&#39;) =&gt; Ok((2, Char::Scalar(34 as char))),
-    //         Some(&#39;\&#39;&#39;) =&gt; Ok((2, Char::Scalar(39 as char))),
-    //         Some(&#39;\\&#39;) =&gt; Ok((2, Char::Scalar(92 as char))),
-    //         Some(&#39;u&#39;) =&gt; Self::eat_unicode_char(input),
-    //         Some(&#39;x&#39;) =&gt; Self::eat_hex_char(input),
+    //         // Length of 2 to account the '\'.
+    //         Some('0') =&gt; Ok((2, Char::Scalar(0 as char))),
+    //         Some('t') =&gt; Ok((2, Char::Scalar(9 as char))),
+    //         Some('n') =&gt; Ok((2, Char::Scalar(10 as char))),
+    //         Some('r') =&gt; Ok((2, Char::Scalar(13 as char))),
+    //         Some('\"') =&gt; Ok((2, Char::Scalar(34 as char))),
+    //         Some('\'') =&gt; Ok((2, Char::Scalar(39 as char))),
+    //         Some('\\') =&gt; Ok((2, Char::Scalar(92 as char))),
+    //         Some('u') =&gt; Self::eat_unicode_char(input),
+    //         Some('x') =&gt; Self::eat_hex_char(input),
     //         Some(c) =&gt; Err(ParserError::lexer_expected_valid_escaped_char(c).into()),
     //     }
     // }
@@ -612,7 +613,7 @@
     // fn eat_char(input: &amp;mut Peekable&lt;impl Iterator&lt;Item = char&gt;&gt;) -&gt; Result&lt;(usize, Char)&gt; {
     //     match input.next() {
     //         None =&gt; Err(ParserError::lexer_empty_input_tendril().into()),
-    //         Some(&#39;\\&#39;) =&gt; Self::eat_escaped_char(input),
+    //         Some('\\') =&gt; Self::eat_escaped_char(input),
     //         Some(c) =&gt; Ok((c.len_utf8(), Char::Scalar(c))),
     //     }
     // }
@@ -627,8 +628,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>int = String::new();
 
         <span class="comment">// Note that it is still impossible to have a number that starts with an `_` because eat_integer is only called when the first character is a digit.
-        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(c) = input.next_if(|c| c.is_ascii_digit() || <span class="kw-2">*</span>c == <span class="string">&#39;_&#39;</span>) {
-            <span class="kw">if </span>c == <span class="string">&#39;0&#39; </span>&amp;&amp; <span class="macro">matches!</span>(input.peek(), <span class="prelude-val">Some</span>(<span class="string">&#39;x&#39;</span>)) {
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(c) = input.next_if(|c| c.is_ascii_digit() || <span class="kw-2">*</span>c == <span class="string">'_'</span>) {
+            <span class="kw">if </span>c == <span class="string">'0' </span>&amp;&amp; <span class="macro">matches!</span>(input.peek(), <span class="prelude-val">Some</span>(<span class="string">'x'</span>)) {
                 int.push(c);
                 int.push(input.next().unwrap());
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_hex_number_provided(int).into());
@@ -684,34 +685,34 @@
         // See the example with the different combinations for Mul, MulAssign, Pow, PowAssign below.
         </span><span class="kw">let </span>match_four = |
             input: <span class="kw-2">&amp;mut </span>Peekable&lt;<span class="kw">_</span>&gt;,
-            first_token, <span class="comment">// Mul &#39;*&#39;
-            </span>second_char, <span class="comment">// &#39;=&#39;
-            </span>second_token, <span class="comment">// MulAssign &#39;*=&#39;
-            </span>third_char, <span class="comment">// &#39;*&#39;
-            </span>third_token, <span class="comment">// Pow &#39;**&#39;
-            </span>fourth_char, <span class="comment">// &#39;=&#39;
-            </span>fourth_token <span class="comment">// PowAssign &#39;**=&#39;
+            first_token, <span class="comment">// Mul '*'
+            </span>second_char, <span class="comment">// '='
+            </span>second_token, <span class="comment">// MulAssign '*='
+            </span>third_char, <span class="comment">// '*'
+            </span>third_token, <span class="comment">// Pow '**'
+            </span>fourth_char, <span class="comment">// '='
+            </span>fourth_token <span class="comment">// PowAssign '**='
         </span>| {
             input.next();
             <span class="prelude-val">Ok</span>(<span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span>second_char).is_some() {
-                <span class="comment">// &#39;*=&#39;
+                <span class="comment">// '*='
                 </span>(<span class="number">2</span>, second_token)
             } <span class="kw">else if </span>input.next_if_eq(<span class="kw-2">&amp;</span>third_char).is_some() {
                 <span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span>fourth_char).is_some() {
-                    <span class="comment">// &#39;**=&#39;
+                    <span class="comment">// '**='
                     </span><span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">3</span>, fourth_token))
                 }
-                <span class="comment">// &#39;**&#39;
+                <span class="comment">// '**'
                 </span>(<span class="number">2</span>, third_token)
             } <span class="kw">else </span>{
-                <span class="comment">// &#39;*&#39;
+                <span class="comment">// '*'
                 </span>(<span class="number">1</span>, first_token)
             })
         };
 
         <span class="kw">match </span><span class="kw-2">*</span>input.peek().ok_or_else(ParserError::lexer_empty_input)<span class="question-mark">? </span>{
             x <span class="kw">if </span>x.is_ascii_whitespace() =&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::WhiteSpace),
-            <span class="string">&#39;&quot;&#39; </span>=&gt; {
+            <span class="string">'"' </span>=&gt; {
                 <span class="comment">// Find end string quotation mark.
                 // Instead of checking each `char` and pushing, we can avoid reallocations.
                 // This works because the code 34 of double quote cannot appear as a byte
@@ -719,7 +720,7 @@
                 // because those bytes all have the high bit set to 1;
                 // in UTF-8, the byte 34 can only appear as the single-byte encoding of double quote.
                 </span><span class="kw">let </span>rest = <span class="kw-2">&amp;</span>input_str[<span class="number">1</span>..];
-                <span class="kw">let </span>string = <span class="kw">match </span>rest.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;&quot;&#39;</span>) {
+                <span class="kw">let </span>string = <span class="kw">match </span>rest.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b'"'</span>) {
                     <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_string_not_closed(rest).into()),
                     <span class="prelude-val">Some</span>(idx) =&gt; rest[..idx].to_owned(),
                 };
@@ -731,56 +732,56 @@
             }
 
             x <span class="kw">if </span>x.is_ascii_digit() =&gt; <span class="kw">return </span><span class="self">Self</span>::eat_integer(<span class="kw-2">&amp;mut </span>input),
-            <span class="string">&#39;!&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Not, <span class="string">&#39;=&#39;</span>, Token::NotEq),
-            <span class="string">&#39;?&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Question),
-            <span class="string">&#39;&amp;&#39; </span>=&gt; {
+            <span class="string">'!' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Not, <span class="string">'='</span>, Token::NotEq),
+            <span class="string">'?' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Question),
+            <span class="string">'&amp;' </span>=&gt; {
                 <span class="kw">return </span>match_four(
                     <span class="kw-2">&amp;mut </span>input,
                     Token::BitAnd,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::BitAndAssign,
-                    <span class="string">&#39;&amp;&#39;</span>,
+                    <span class="string">'&amp;'</span>,
                     Token::And,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::AndAssign,
                 );
             }
-            <span class="string">&#39;(&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftParen),
-            <span class="string">&#39;)&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightParen),
-            <span class="string">&#39;_&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Underscore),
-            <span class="string">&#39;*&#39; </span>=&gt; {
+            <span class="string">'(' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftParen),
+            <span class="string">')' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightParen),
+            <span class="string">'_' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Underscore),
+            <span class="string">'*' </span>=&gt; {
                 <span class="kw">return </span>match_four(
                     <span class="kw-2">&amp;mut </span>input,
                     Token::Mul,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::MulAssign,
-                    <span class="string">&#39;*&#39;</span>,
+                    <span class="string">'*'</span>,
                     Token::Pow,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::PowAssign,
                 );
             }
-            <span class="string">&#39;+&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Add, <span class="string">&#39;=&#39;</span>, Token::AddAssign),
-            <span class="string">&#39;,&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Comma),
-            <span class="string">&#39;-&#39; </span>=&gt; <span class="kw">return </span>match_three(<span class="kw-2">&amp;mut </span>input, Token::Sub, <span class="string">&#39;=&#39;</span>, Token::SubAssign, <span class="string">&#39;&gt;&#39;</span>, Token::Arrow),
-            <span class="string">&#39;.&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Dot, <span class="string">&#39;.&#39;</span>, Token::DotDot),
-            <span class="string">&#39;/&#39; </span>=&gt; {
+            <span class="string">'+' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Add, <span class="string">'='</span>, Token::AddAssign),
+            <span class="string">',' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Comma),
+            <span class="string">'-' </span>=&gt; <span class="kw">return </span>match_three(<span class="kw-2">&amp;mut </span>input, Token::Sub, <span class="string">'='</span>, Token::SubAssign, <span class="string">'&gt;'</span>, Token::Arrow),
+            <span class="string">'.' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Dot, <span class="string">'.'</span>, Token::DotDot),
+            <span class="string">'/' </span>=&gt; {
                 input.next();
-                <span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">&#39;/&#39;</span>).is_some() {
+                <span class="kw">if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">'/'</span>).is_some() {
                     <span class="comment">// Find the end of the comment line.
                     // This works because the code 10 of line feed cannot appear as a byte
                     // in middle of a multi-byte UTF-8 encoding of a character,
                     // because those bytes all have the high bit set to 1;
                     // in UTF-8, the byte 10 can only appear as the single-byte encoding of line feed.
-                    </span><span class="kw">let </span>comment = <span class="kw">match </span>input_str.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b&#39;\n&#39;</span>) {
+                    </span><span class="kw">let </span>comment = <span class="kw">match </span>input_str.as_bytes().iter().position(|c| <span class="kw-2">*</span>c == <span class="string">b'\n'</span>) {
                         <span class="prelude-val">None </span>=&gt; input_str,
                         <span class="prelude-val">Some</span>(idx) =&gt; <span class="kw-2">&amp;</span>input_str[..idx + <span class="number">1</span>],
                     };
 
                     ensure_no_bidi_override(comment)<span class="question-mark">?</span>;
                     <span class="kw">return </span><span class="prelude-val">Ok</span>((comment.len(), Token::CommentLine(comment.to_owned())));
-                } <span class="kw">else if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">&#39;*&#39;</span>).is_some() {
-                    <span class="kw">let </span><span class="kw-2">mut </span>comment = String::from(<span class="string">&quot;/*&quot;</span>);
+                } <span class="kw">else if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">'*'</span>).is_some() {
+                    <span class="kw">let </span><span class="kw-2">mut </span>comment = String::from(<span class="string">"/*"</span>);
 
                     <span class="kw">if </span>input.peek().is_none() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_empty_block_comment().into());
@@ -789,8 +790,8 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>ended = <span class="bool-val">false</span>;
                     <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = input.next() {
                         comment.push(c);
-                        <span class="kw">if </span>c == <span class="string">&#39;*&#39; </span>&amp;&amp; input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">&#39;/&#39;</span>).is_some() {
-                            comment.push(<span class="string">&#39;/&#39;</span>);
+                        <span class="kw">if </span>c == <span class="string">'*' </span>&amp;&amp; input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">'/'</span>).is_some() {
+                            comment.push(<span class="string">'/'</span>);
                             ended = <span class="bool-val">true</span>;
                             <span class="kw">break</span>;
                         }
@@ -802,99 +803,99 @@
                         <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::lexer_block_comment_does_not_close_before_eof(comment).into());
                     }
                     <span class="kw">return </span><span class="prelude-val">Ok</span>((comment.len(), Token::CommentBlock(comment)));
-                } <span class="kw">else if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">&#39;=&#39;</span>).is_some() {
-                    <span class="comment">// &#39;/=&#39;
+                } <span class="kw">else if </span>input.next_if_eq(<span class="kw-2">&amp;</span><span class="string">'='</span>).is_some() {
+                    <span class="comment">// '/='
                     </span><span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">2</span>, Token::DivAssign));
                 }
-                <span class="comment">// &#39;/&#39;
+                <span class="comment">// '/'
                 </span><span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">1</span>, Token::Div));
             }
-            <span class="string">&#39;%&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Rem, <span class="string">&#39;=&#39;</span>, Token::RemAssign),
-            <span class="string">&#39;:&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Colon, <span class="string">&#39;:&#39;</span>, Token::DoubleColon),
-            <span class="string">&#39;;&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Semicolon),
-            <span class="string">&#39;&lt;&#39; </span>=&gt; <span class="kw">return </span>match_four(<span class="kw-2">&amp;mut </span>input, Token::Lt, <span class="string">&#39;=&#39;</span>, Token::LtEq, <span class="string">&#39;&lt;&#39;</span>, Token::Shl, <span class="string">&#39;=&#39;</span>, Token::ShlAssign),
-            <span class="string">&#39;&gt;&#39; </span>=&gt; <span class="kw">return </span>match_four(<span class="kw-2">&amp;mut </span>input, Token::Gt, <span class="string">&#39;=&#39;</span>, Token::GtEq, <span class="string">&#39;&gt;&#39;</span>, Token::Shr, <span class="string">&#39;=&#39;</span>, Token::ShrAssign),
-            <span class="string">&#39;=&#39; </span>=&gt; <span class="kw">return </span>match_three(<span class="kw-2">&amp;mut </span>input, Token::Assign, <span class="string">&#39;=&#39;</span>, Token::Eq, <span class="string">&#39;&gt;&#39;</span>, Token::BigArrow),
-            <span class="string">&#39;[&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftSquare),
-            <span class="string">&#39;]&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightSquare),
-            <span class="string">&#39;{&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftCurly),
-            <span class="string">&#39;}&#39; </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightCurly),
-            <span class="string">&#39;|&#39; </span>=&gt; {
+            <span class="string">'%' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Rem, <span class="string">'='</span>, Token::RemAssign),
+            <span class="string">':' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::Colon, <span class="string">':'</span>, Token::DoubleColon),
+            <span class="string">';' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::Semicolon),
+            <span class="string">'&lt;' </span>=&gt; <span class="kw">return </span>match_four(<span class="kw-2">&amp;mut </span>input, Token::Lt, <span class="string">'='</span>, Token::LtEq, <span class="string">'&lt;'</span>, Token::Shl, <span class="string">'='</span>, Token::ShlAssign),
+            <span class="string">'&gt;' </span>=&gt; <span class="kw">return </span>match_four(<span class="kw-2">&amp;mut </span>input, Token::Gt, <span class="string">'='</span>, Token::GtEq, <span class="string">'&gt;'</span>, Token::Shr, <span class="string">'='</span>, Token::ShrAssign),
+            <span class="string">'=' </span>=&gt; <span class="kw">return </span>match_three(<span class="kw-2">&amp;mut </span>input, Token::Assign, <span class="string">'='</span>, Token::Eq, <span class="string">'&gt;'</span>, Token::BigArrow),
+            <span class="string">'[' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftSquare),
+            <span class="string">']' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightSquare),
+            <span class="string">'{' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::LeftCurly),
+            <span class="string">'}' </span>=&gt; <span class="kw">return </span>match_one(<span class="kw-2">&amp;mut </span>input, Token::RightCurly),
+            <span class="string">'|' </span>=&gt; {
                 <span class="kw">return </span>match_four(
                     <span class="kw-2">&amp;mut </span>input,
                     Token::BitOr,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::BitOrAssign,
-                    <span class="string">&#39;|&#39;</span>,
+                    <span class="string">'|'</span>,
                     Token::Or,
-                    <span class="string">&#39;=&#39;</span>,
+                    <span class="string">'='</span>,
                     Token::OrAssign,
                 );
             }
-            <span class="string">&#39;^&#39; </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::BitXor, <span class="string">&#39;=&#39;</span>, Token::BitXorAssign),
-            <span class="string">&#39;@&#39; </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">1</span>, Token::At)),
+            <span class="string">'^' </span>=&gt; <span class="kw">return </span>match_two(<span class="kw-2">&amp;mut </span>input, Token::BitXor, <span class="string">'='</span>, Token::BitXorAssign),
+            <span class="string">'@' </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="number">1</span>, Token::At)),
             <span class="kw">_ </span>=&gt; (),
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(identifier) = eat_identifier(<span class="kw-2">&amp;mut </span>input) {
             <span class="kw">return </span><span class="prelude-val">Ok</span>((
                 identifier.len(),
-                <span class="comment">// todo: match on symbols instead of hard-coded &amp;str&#39;s
+                <span class="comment">// todo: match on symbols instead of hard-coded &amp;str's
                 </span><span class="kw">match </span><span class="kw-2">&amp;*</span>identifier {
-                    x <span class="kw">if </span>x.starts_with(<span class="string">&quot;aleo1&quot;</span>) =&gt; Token::AddressLit(identifier),
-                    <span class="string">&quot;address&quot; </span>=&gt; Token::Address,
-                    <span class="string">&quot;aleo&quot; </span>=&gt; Token::Aleo,
-                    <span class="string">&quot;as&quot; </span>=&gt; Token::As,
-                    <span class="string">&quot;assert&quot; </span>=&gt; Token::Assert,
-                    <span class="string">&quot;assert_eq&quot; </span>=&gt; Token::AssertEq,
-                    <span class="string">&quot;assert_neq&quot; </span>=&gt; Token::AssertNeq,
-                    <span class="string">&quot;block&quot; </span>=&gt; Token::Block,
-                    <span class="string">&quot;bool&quot; </span>=&gt; Token::Bool,
-                    <span class="string">&quot;console&quot; </span>=&gt; Token::Console,
-                    <span class="string">&quot;const&quot; </span>=&gt; Token::Const,
-                    <span class="string">&quot;constant&quot; </span>=&gt; Token::Constant,
-                    <span class="string">&quot;else&quot; </span>=&gt; Token::Else,
-                    <span class="string">&quot;false&quot; </span>=&gt; Token::False,
-                    <span class="string">&quot;field&quot; </span>=&gt; Token::Field,
-                    <span class="string">&quot;finalize&quot; </span>=&gt; Token::Finalize,
-                    <span class="string">&quot;for&quot; </span>=&gt; Token::For,
-                    <span class="string">&quot;function&quot; </span>=&gt; Token::Function,
-                    <span class="string">&quot;group&quot; </span>=&gt; Token::Group,
-                    <span class="string">&quot;i8&quot; </span>=&gt; Token::I8,
-                    <span class="string">&quot;i16&quot; </span>=&gt; Token::I16,
-                    <span class="string">&quot;i32&quot; </span>=&gt; Token::I32,
-                    <span class="string">&quot;i64&quot; </span>=&gt; Token::I64,
-                    <span class="string">&quot;i128&quot; </span>=&gt; Token::I128,
-                    <span class="string">&quot;if&quot; </span>=&gt; Token::If,
-                    <span class="string">&quot;import&quot; </span>=&gt; Token::Import,
-                    <span class="string">&quot;in&quot; </span>=&gt; Token::In,
-                    <span class="string">&quot;inline&quot; </span>=&gt; Token::Inline,
-                    <span class="string">&quot;let&quot; </span>=&gt; Token::Let,
-                    <span class="string">&quot;leo&quot; </span>=&gt; Token::Leo,
-                    <span class="string">&quot;mapping&quot; </span>=&gt; Token::Mapping,
-                    <span class="string">&quot;private&quot; </span>=&gt; Token::Private,
-                    <span class="string">&quot;program&quot; </span>=&gt; Token::Program,
-                    <span class="string">&quot;public&quot; </span>=&gt; Token::Public,
-                    <span class="string">&quot;record&quot; </span>=&gt; Token::Record,
-                    <span class="string">&quot;return&quot; </span>=&gt; Token::Return,
-                    <span class="string">&quot;scalar&quot; </span>=&gt; Token::Scalar,
-                    <span class="string">&quot;signature&quot; </span>=&gt; Token::Signature,
-                    <span class="string">&quot;self&quot; </span>=&gt; Token::SelfLower,
-                    <span class="string">&quot;string&quot; </span>=&gt; Token::String,
-                    <span class="string">&quot;struct&quot; </span>=&gt; Token::Struct,
-                    <span class="string">&quot;then&quot; </span>=&gt; Token::Then,
-                    <span class="string">&quot;transition&quot; </span>=&gt; Token::Transition,
-                    <span class="string">&quot;true&quot; </span>=&gt; Token::True,
-                    <span class="string">&quot;u8&quot; </span>=&gt; Token::U8,
-                    <span class="string">&quot;u16&quot; </span>=&gt; Token::U16,
-                    <span class="string">&quot;u32&quot; </span>=&gt; Token::U32,
-                    <span class="string">&quot;u64&quot; </span>=&gt; Token::U64,
-                    <span class="string">&quot;u128&quot; </span>=&gt; Token::U128,
+                    x <span class="kw">if </span>x.starts_with(<span class="string">"aleo1"</span>) =&gt; Token::AddressLit(identifier),
+                    <span class="string">"address" </span>=&gt; Token::Address,
+                    <span class="string">"aleo" </span>=&gt; Token::Aleo,
+                    <span class="string">"as" </span>=&gt; Token::As,
+                    <span class="string">"assert" </span>=&gt; Token::Assert,
+                    <span class="string">"assert_eq" </span>=&gt; Token::AssertEq,
+                    <span class="string">"assert_neq" </span>=&gt; Token::AssertNeq,
+                    <span class="string">"block" </span>=&gt; Token::Block,
+                    <span class="string">"bool" </span>=&gt; Token::Bool,
+                    <span class="string">"console" </span>=&gt; Token::Console,
+                    <span class="string">"const" </span>=&gt; Token::Const,
+                    <span class="string">"constant" </span>=&gt; Token::Constant,
+                    <span class="string">"else" </span>=&gt; Token::Else,
+                    <span class="string">"false" </span>=&gt; Token::False,
+                    <span class="string">"field" </span>=&gt; Token::Field,
+                    <span class="string">"finalize" </span>=&gt; Token::Finalize,
+                    <span class="string">"for" </span>=&gt; Token::For,
+                    <span class="string">"function" </span>=&gt; Token::Function,
+                    <span class="string">"group" </span>=&gt; Token::Group,
+                    <span class="string">"i8" </span>=&gt; Token::I8,
+                    <span class="string">"i16" </span>=&gt; Token::I16,
+                    <span class="string">"i32" </span>=&gt; Token::I32,
+                    <span class="string">"i64" </span>=&gt; Token::I64,
+                    <span class="string">"i128" </span>=&gt; Token::I128,
+                    <span class="string">"if" </span>=&gt; Token::If,
+                    <span class="string">"import" </span>=&gt; Token::Import,
+                    <span class="string">"in" </span>=&gt; Token::In,
+                    <span class="string">"inline" </span>=&gt; Token::Inline,
+                    <span class="string">"let" </span>=&gt; Token::Let,
+                    <span class="string">"leo" </span>=&gt; Token::Leo,
+                    <span class="string">"mapping" </span>=&gt; Token::Mapping,
+                    <span class="string">"private" </span>=&gt; Token::Private,
+                    <span class="string">"program" </span>=&gt; Token::Program,
+                    <span class="string">"public" </span>=&gt; Token::Public,
+                    <span class="string">"record" </span>=&gt; Token::Record,
+                    <span class="string">"return" </span>=&gt; Token::Return,
+                    <span class="string">"scalar" </span>=&gt; Token::Scalar,
+                    <span class="string">"signature" </span>=&gt; Token::Signature,
+                    <span class="string">"self" </span>=&gt; Token::SelfLower,
+                    <span class="string">"string" </span>=&gt; Token::String,
+                    <span class="string">"struct" </span>=&gt; Token::Struct,
+                    <span class="string">"then" </span>=&gt; Token::Then,
+                    <span class="string">"transition" </span>=&gt; Token::Transition,
+                    <span class="string">"true" </span>=&gt; Token::True,
+                    <span class="string">"u8" </span>=&gt; Token::U8,
+                    <span class="string">"u16" </span>=&gt; Token::U16,
+                    <span class="string">"u32" </span>=&gt; Token::U32,
+                    <span class="string">"u64" </span>=&gt; Token::U64,
+                    <span class="string">"u128" </span>=&gt; Token::U128,
                     <span class="kw">_ </span>=&gt; Token::Identifier(Symbol::intern(<span class="kw-2">&amp;</span>identifier)),
                 },
             ));
         }
 
-        <span class="prelude-val">Err</span>(ParserError::could_not_lex(input.take_while(|c| <span class="kw-2">*</span>c != <span class="string">&#39;;&#39; </span>&amp;&amp; !c.is_whitespace()).collect::&lt;String&gt;())
+        <span class="prelude-val">Err</span>(ParserError::could_not_lex(input.take_while(|c| <span class="kw-2">*</span>c != <span class="string">';' </span>&amp;&amp; !c.is_whitespace()).collect::&lt;String&gt;())
             .into())
     }
 }
@@ -913,14 +914,14 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>SpannedToken {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{}&#39; @ &quot;</span>, <span class="self">self</span>.token.to_string().trim())<span class="question-mark">?</span>;
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">"'{}' @ "</span>, <span class="self">self</span>.token.to_string().trim())<span class="question-mark">?</span>;
         <span class="self">self</span>.span.fmt(f)
     }
 }
 
 <span class="kw">impl </span>fmt::Debug <span class="kw">for </span>SpannedToken {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         &lt;SpannedToken <span class="kw">as </span>fmt::Display&gt;::fmt(<span class="self">self</span>, f)
     }
 }

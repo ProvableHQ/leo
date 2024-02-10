@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/bin/errcov.rs`."><title>errcov.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="errcov" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `tests/test-framework/src/bin/errcov.rs`."><title>errcov.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="errcov" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -269,12 +270,12 @@
 // use clap::{clap::AppSettings, Parser};
 
 // #[derive(Parser)]
-// #[clap(name = &quot;error-coverage&quot;, author = &quot;The Aleo Team &lt;hello@aleo.org&gt;&quot;, setting = AppSettings::ColoredHelp)]
+// #[clap(name = "error-coverage", author = "The Aleo Team &lt;hello@aleo.org&gt;", setting = AppSettings::ColoredHelp)]
 // struct Opt {
 //     #[clap(
 //         short,
 //         long,
-//         help = &quot;Path to the output file, defaults to stdout.&quot;,
+//         help = "Path to the output file, defaults to stdout.",
 //         parse(from_os_str)
 //     )]
 //     output: Option&lt;PathBuf&gt;,
@@ -287,17 +288,17 @@
 // fn run_with_args(opt: Opt) -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {
 //     // Variable that stores all the tests.
 //     let mut tests = Vec::new();
-//     let mut test_dir = PathBuf::from(env!(&quot;CARGO_MANIFEST_DIR&quot;));
-//     test_dir.push(&quot;../&quot;);
+//     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+//     test_dir.push("../");
 
 //     let mut expectation_dir = test_dir.clone();
-//     expectation_dir.push(&quot;expectations&quot;);
+//     expectation_dir.push("expectations");
 
 //     find_tests(&amp;test_dir, &amp;mut tests);
 
 //     // Store all covered error codes
 //     let mut found_codes = BTreeMap::new();
-//     let re = Regex::new(r&quot;Error \[(?P&lt;code&gt;.*)\]:.*&quot;).unwrap();
+//     let re = Regex::new(r"Error \[(?P&lt;code&gt;.*)\]:.*").unwrap();
 
 //     for (path, content) in tests.into_iter() {
 //         if let Some(config) = extract_test_config(&amp;content) {
@@ -309,34 +310,34 @@
 //             let mut expectation_path = expectation_dir.clone();
 
 //             let path = PathBuf::from(path);
-//             let relative_path = path.strip_prefix(&amp;test_dir).expect(&quot;path error for test&quot;);
+//             let relative_path = path.strip_prefix(&amp;test_dir).expect("path error for test");
 
 //             let mut relative_expectation_path = relative_path.to_str().unwrap().to_string();
-//             relative_expectation_path += &quot;.out&quot;;
+//             relative_expectation_path += ".out";
 
 //             // Add expectation category
-//             if relative_expectation_path.starts_with(&quot;compiler&quot;) {
-//                 expectation_path.push(&quot;compiler&quot;);
+//             if relative_expectation_path.starts_with("compiler") {
+//                 expectation_path.push("compiler");
 //             } else {
-//                 expectation_path.push(&quot;parser&quot;);
+//                 expectation_path.push("parser");
 //             }
 //             expectation_path.push(&amp;relative_expectation_path);
 
 //             if expectation_path.exists() {
-//                 let raw = std::fs::read_to_string(&amp;expectation_path).expect(&quot;failed to read expectations file&quot;);
+//                 let raw = std::fs::read_to_string(&amp;expectation_path).expect("failed to read expectations file");
 //                 let expectation: TestExpectation =
-//                     serde_yaml::from_str(&amp;raw).expect(&quot;invalid yaml in expectations file&quot;);
+//                     serde_yaml::from_str(&amp;raw).expect("invalid yaml in expectations file");
 
 //                 for value in expectation.outputs {
 //                     if let serde_yaml::Value::String(message) = value {
 //                         if let Some(caps) = re.captures(&amp;message) {
-//                             if let Some(code) = caps.name(&quot;code&quot;) {
+//                             if let Some(code) = caps.name("code") {
 //                                 let files = found_codes
 //                                     .entry(code.as_str().to_string())
 //                                     .or_insert_with(HashSet::new);
 //                                 let path = expectation_path
 //                                     .strip_prefix(test_dir.clone())
-//                                     .expect(&quot;invalid prefix for expectation path&quot;);
+//                                     .expect("invalid prefix for expectation path");
 //                                 files.insert(PathBuf::from(path));
 //                             }
 //                         }
@@ -407,46 +408,46 @@
 
 //     let mut uncovered_information = serde_yaml::Mapping::new();
 //     uncovered_information.insert(
-//         Value::String(String::from(&quot;count&quot;)),
+//         Value::String(String::from("count")),
 //         Value::Number(serde_yaml::Number::from(uncovered_errors.len())),
 //     );
-//     uncovered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Sequence(uncovered_errors));
+//     uncovered_information.insert(Value::String(String::from("codes")), Value::Sequence(uncovered_errors));
 
 //     let mut covered_information = serde_yaml::Mapping::new();
 //     covered_information.insert(
-//         Value::String(String::from(&quot;count&quot;)),
+//         Value::String(String::from("count")),
 //         Value::Number(serde_yaml::Number::from(covered_errors.len())),
 //     );
-//     covered_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(covered_errors));
+//     covered_information.insert(Value::String(String::from("codes")), Value::Mapping(covered_errors));
 
 //     let mut unknown_information = serde_yaml::Mapping::new();
 //     unknown_information.insert(
-//         Value::String(String::from(&quot;count&quot;)),
+//         Value::String(String::from("count")),
 //         Value::Number(serde_yaml::Number::from(unknown_errors.len())),
 //     );
-//     unknown_information.insert(Value::String(String::from(&quot;codes&quot;)), Value::Mapping(unknown_errors));
+//     unknown_information.insert(Value::String(String::from("codes")), Value::Mapping(unknown_errors));
 
 //     let mut results = serde_yaml::Mapping::new();
 //     results.insert(
-//         Value::String(String::from(&quot;uncovered&quot;)),
+//         Value::String(String::from("uncovered")),
 //         Value::Mapping(uncovered_information),
 //     );
 
 //     results.insert(
-//         Value::String(String::from(&quot;covered&quot;)),
+//         Value::String(String::from("covered")),
 //         Value::Mapping(covered_information),
 //     );
 //     results.insert(
-//         Value::String(String::from(&quot;unknown&quot;)),
+//         Value::String(String::from("unknown")),
 //         Value::Mapping(unknown_information),
 //     );
 
 //     // Output error coverage results
 //     if let Some(pathbuf) = opt.output {
-//         let file = fs::File::create(pathbuf).expect(&quot;error creating output file&quot;);
-//         serde_yaml::to_writer(file, &amp;results).expect(&quot;serialization failed for error coverage report&quot;);
+//         let file = fs::File::create(pathbuf).expect("error creating output file");
+//         serde_yaml::to_writer(file, &amp;results).expect("serialization failed for error coverage report");
 //     } else {
-//         serde_yaml::to_writer(io::stdout(), &amp;results).expect(&quot;serialization failed for error coverage report&quot;);
+//         serde_yaml::to_writer(io::stdout(), &amp;results).expect("serialization failed for error coverage report");
 //     }
 
 //     Ok(())
@@ -461,7 +462,7 @@
 // ) {
 //     for exit_code in 0..num_exit_codes {
 //         codes.insert(format!(
-//             &quot;E{}{:0&gt;3}{:0&gt;4}&quot;,
+//             "E{}{:0&gt;3}{:0&gt;4}",
 //             error_type,
 //             code_identifier,
 //             exit_code_mask + exit_code,
@@ -473,7 +474,7 @@
 //     match res {
 //         Ok(_) =&gt; (),
 //         Err(err) =&gt; {
-//             eprintln!(&quot;Error: {}&quot;, err);
+//             eprintln!("Error: {}", err);
 //             std::process::exit(1);
 //         }
 //     }

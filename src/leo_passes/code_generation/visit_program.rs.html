@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><title>visit_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_program.rs`."><title>visit_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -320,14 +321,14 @@
 <span class="kw">use </span>leo_span::{sym, Symbol};
 <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) -&gt; String {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) -&gt; String {
         <span class="comment">// Accumulate instructions into a program string.
         </span><span class="kw">let </span><span class="kw-2">mut </span>program_string = String::new();
 
         <span class="comment">// Print out the dependencies of the program. Already arranged in post order by Retriever module.
         </span>input.stubs.iter().for_each(|(program_name, <span class="kw">_</span>)| {
-            program_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;import {}.aleo;\n&quot;</span>, program_name));
+            program_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"import {}.aleo;\n"</span>, program_name));
         });
 
         <span class="comment">// Retrieve the program scope.
@@ -337,11 +338,11 @@
         <span class="self">self</span>.program_id = <span class="prelude-val">Some</span>(program_scope.program_id);
 
         <span class="comment">// Print the program id.
-        </span><span class="macro">writeln!</span>(program_string, <span class="string">&quot;program {};&quot;</span>, program_scope.program_id)
-            .expect(<span class="string">&quot;Failed to write program id to string.&quot;</span>);
+        </span><span class="macro">writeln!</span>(program_string, <span class="string">"program {};"</span>, program_scope.program_id)
+            .expect(<span class="string">"Failed to write program id to string."</span>);
 
         <span class="comment">// Newline separator.
-        </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
+        </span>program_string.push(<span class="string">'\n'</span>);
 
         <span class="comment">// Get the post-order ordering of the composite data types.
         // Note that the unwrap is safe since type checking guarantees that the struct dependency graph is acyclic.
@@ -363,15 +364,15 @@
                         </span><span class="prelude-val">None </span>=&gt; String::new(),
                     }
                 })
-                .join(<span class="string">&quot;\n&quot;</span>),
+                .join(<span class="string">"\n"</span>),
         );
 
         <span class="comment">// Newline separator.
-        </span>program_string.push(<span class="string">&#39;\n&#39;</span>);
+        </span>program_string.push(<span class="string">'\n'</span>);
 
         <span class="comment">// Visit each mapping in the Leo AST and produce an Aleo mapping declaration.
         </span>program_string
-            .push_str(<span class="kw-2">&amp;</span>program_scope.mappings.iter().map(|(<span class="kw">_</span>, mapping)| <span class="self">self</span>.visit_mapping(mapping)).join(<span class="string">&quot;\n&quot;</span>));
+            .push_str(<span class="kw-2">&amp;</span>program_scope.mappings.iter().map(|(<span class="kw">_</span>, mapping)| <span class="self">self</span>.visit_mapping(mapping)).join(<span class="string">"\n"</span>));
 
         <span class="comment">// Visit each function in the program scope and produce an Aleo function.
         // Note that in the function inlining pass, we reorder the functions such that they are in post-order.
@@ -391,64 +392,64 @@
 
                     function_string
                 })
-                .join(<span class="string">&quot;\n&quot;</span>),
+                .join(<span class="string">"\n"</span>),
         );
 
         program_string
     }
 
-    <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
         <span class="kw">if </span>struct_.is_record { <span class="self">self</span>.visit_record(struct_) } <span class="kw">else </span>{ <span class="self">self</span>.visit_struct(struct_) }
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
         <span class="comment">// Add private symbol to composite types.
-        </span><span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">&quot;private&quot;</span>))); <span class="comment">// todo: private by default here.
+        </span><span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">"private"</span>))); <span class="comment">// todo: private by default here.
 
-        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">&quot;struct {}:\n&quot;</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = <span class="macro">format!</span>(<span class="string">"struct {}:\n"</span>, struct_.identifier); <span class="comment">// todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         </span><span class="kw">for </span>var <span class="kw">in </span>struct_.members.iter() {
-            <span class="macro">writeln!</span>(output_string, <span class="string">&quot;    {} as {};&quot;</span>, var.identifier, <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>var.type_),)
-                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(output_string, <span class="string">"    {} as {};"</span>, var.identifier, <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>var.type_),)
+                .expect(<span class="string">"failed to write to string"</span>);
         }
 
         output_string
     }
 
-    <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
         <span class="comment">// Add record symbol to composite types.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = String::from(<span class="string">&quot;record&quot;</span>);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = String::from(<span class="string">"record"</span>);
         <span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));
-        <span class="macro">writeln!</span>(output_string, <span class="string">&quot; {}:&quot;</span>, record.identifier).expect(<span class="string">&quot;failed to write to string&quot;</span>); <span class="comment">// todo: check if this is safe from name conflicts.
+        <span class="macro">writeln!</span>(output_string, <span class="string">" {}:"</span>, record.identifier).expect(<span class="string">"failed to write to string"</span>); <span class="comment">// todo: check if this is safe from name conflicts.
 
         // Construct and append the record variables.
         </span><span class="kw">for </span>var <span class="kw">in </span>record.members.iter() {
             <span class="kw">let </span>mode = <span class="kw">match </span>var.mode {
-                Mode::Constant =&gt; <span class="string">&quot;constant&quot;</span>,
-                Mode::Public =&gt; <span class="string">&quot;public&quot;</span>,
-                Mode::None | Mode::Private =&gt; <span class="string">&quot;private&quot;</span>,
+                Mode::Constant =&gt; <span class="string">"constant"</span>,
+                Mode::Public =&gt; <span class="string">"public"</span>,
+                Mode::None | Mode::Private =&gt; <span class="string">"private"</span>,
             };
             <span class="macro">writeln!</span>(
                 output_string,
-                <span class="string">&quot;    {} as {}.{mode};&quot;</span>, <span class="comment">// todo: CAUTION private record variables only.
+                <span class="string">"    {} as {}.{mode};"</span>, <span class="comment">// todo: CAUTION private record variables only.
                 </span>var.identifier,
                 <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>var.type_)
             )
-            .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            .expect(<span class="string">"failed to write to string"</span>);
         }
 
         output_string
     }
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Function) -&gt; String {
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) -&gt; String {
         <span class="comment">// Initialize the state of `self` with the appropriate values before visiting `function`.
         </span><span class="self">self</span>.next_register = <span class="number">0</span>;
         <span class="self">self</span>.variable_mapping = IndexMap::new();
         <span class="self">self</span>.futures.clear();
         <span class="comment">// TODO: Figure out a better way to initialize.
-        </span><span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">&quot;self&quot;</span>.to_string());
-        <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">&quot;block&quot;</span>.to_string());
+        </span><span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">"self"</span>.to_string());
+        <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">"block"</span>.to_string());
         <span class="self">self</span>.current_function = <span class="prelude-val">Some</span>(function);
 
         <span class="comment">// Construct the header of the function.
@@ -456,14 +457,14 @@
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
         </span><span class="kw">let </span><span class="kw-2">mut </span>function_string = <span class="kw">match </span>function.variant {
-            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">&quot;\nfunction {}:\n&quot;</span>, function.identifier),
-            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">&quot;\nclosure {}:\n&quot;</span>, function.identifier),
-            Variant::Inline =&gt; <span class="kw">return </span>String::from(<span class="string">&quot;\n&quot;</span>),
+            Variant::Transition =&gt; <span class="macro">format!</span>(<span class="string">"\nfunction {}:\n"</span>, function.identifier),
+            Variant::Standard =&gt; <span class="macro">format!</span>(<span class="string">"\nclosure {}:\n"</span>, function.identifier),
+            Variant::Inline =&gt; <span class="kw">return </span>String::from(<span class="string">"\n"</span>),
         };
 
         <span class="comment">// Construct and append the input declarations of the function.
         </span><span class="kw">for </span>input <span class="kw">in </span>function.input.iter() {
-            <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
 
             <span class="kw">let </span>type_string = <span class="kw">match </span>input {
@@ -477,12 +478,12 @@
                 }
                 functions::Input::External(input) =&gt; {
                     <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
-                    <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
+                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, input.program_name, input.record)
                 }
             };
 
-            <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
-                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
+                .expect(<span class="string">"failed to write to string"</span>);
         }
 
         <span class="comment">//  Construct and append the function body.
@@ -498,18 +499,18 @@
             <span class="comment">// Clear the variable mapping.
             // TODO: Figure out a better way to initialize.
             </span><span class="self">self</span>.variable_mapping = IndexMap::new();
-            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">&quot;self&quot;</span>.to_string());
-            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">&quot;block&quot;</span>.to_string());
+            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::SelfLower, <span class="string">"self"</span>.to_string());
+            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>sym::block, <span class="string">"block"</span>.to_string());
 
-            function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\nfinalize {}:\n&quot;</span>, function.identifier));
+            function_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\nfinalize {}:\n"</span>, function.identifier));
 
             <span class="comment">// If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
             // Store the new future registers.
             </span><span class="kw">let </span><span class="kw-2">mut </span>future_registers = Vec::new();
             <span class="kw">for </span>(<span class="kw">_</span>, future_type) <span class="kw">in </span><span class="self">self</span>.futures.drain(..) {
-                <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-                <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {future_type}.future;&quot;</span>)
-                    .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+                <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {future_type}.future;"</span>)
+                    .expect(<span class="string">"failed to write to string"</span>);
                 future_registers.push(register_string);
                 <span class="self">self</span>.next_register += <span class="number">1</span>;
             }
@@ -517,7 +518,7 @@
             <span class="comment">// Construct and append the input declarations of the finalize block, if it exists.
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
                 <span class="kw">for </span>input <span class="kw">in </span>finalize.input.iter() {
-                    <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                    <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
                     <span class="self">self</span>.next_register += <span class="number">1</span>;
 
                     <span class="comment">// TODO: Dedup code.
@@ -533,18 +534,18 @@
                         }
                         functions::Input::External(input) =&gt; {
                             <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.program_name.name, register_string.clone());
-                            <span class="macro">format!</span>(<span class="string">&quot;{}.aleo/{}.record&quot;</span>, input.program_name, input.record)
+                            <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, input.program_name, input.record)
                         }
                     };
 
-                    <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    input {register_string} as {type_string};&quot;</span>,)
-                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
+                        .expect(<span class="string">"failed to write to string"</span>);
                 }
             }
 
             <span class="comment">// Invoke `await` on each future.
             </span><span class="kw">for </span>register <span class="kw">in </span>future_registers {
-                <span class="macro">writeln!</span>(function_string, <span class="string">&quot;    await {register};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">writeln!</span>(function_string, <span class="string">"    await {register};"</span>).expect(<span class="string">"failed to write to string"</span>);
             }
 
             <span class="comment">// Construct and append the finalize block body, if it exists.
@@ -558,14 +559,14 @@
         function_string
     }
 
-    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) -&gt; String {
+    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mapping: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) -&gt; String {
         <span class="comment">// Create the prefix of the mapping string, e.g. `mapping foo:`.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">&quot;\nmapping {}:\n&quot;</span>, mapping.identifier);
+        </span><span class="kw">let </span><span class="kw-2">mut </span>mapping_string = <span class="macro">format!</span>(<span class="string">"\nmapping {}:\n"</span>, mapping.identifier);
 
         <span class="comment">// Helper to construct the string associated with the type.
         </span><span class="kw">let </span>create_type = |type_: <span class="kw-2">&amp;</span>Type| {
             <span class="kw">match </span>type_ {
-                Type::Mapping(<span class="kw">_</span>) | Type::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Mappings cannot contain mappings or tuples.&quot;</span>),
+                Type::Mapping(<span class="kw">_</span>) | Type::Tuple(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"Mappings cannot contain mappings or tuples."</span>),
                 Type::Identifier(identifier) =&gt; {
                     <span class="comment">// Lookup the type in the composite mapping.
                     // Note that this unwrap is safe since all struct and records have been added to the composite mapping.
@@ -573,7 +574,7 @@
                     <span class="kw">match </span>is_record {
                         <span class="comment">// If the type is a struct, then add the public modifier.
                         </span><span class="bool-val">false </span>=&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
-                        <span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that mappings cannot contain records.&quot;</span>),
+                        <span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that mappings cannot contain records."</span>),
                     }
                 }
                 type_ =&gt; <span class="self">self</span>.visit_type_with_visibility(type_, Mode::Public),
@@ -581,10 +582,10 @@
         };
 
         <span class="comment">// Create the key string, e.g. `    key as address.public`.
-        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tkey as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)));
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\tkey as {};\n"</span>, create_type(<span class="kw-2">&amp;</span>mapping.key_type)));
 
         <span class="comment">// Create the value string, e.g. `    value as address.public`.
-        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;\tvalue as {};\n&quot;</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
+        </span>mapping_string.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"\tvalue as {};\n"</span>, create_type(<span class="kw-2">&amp;</span>mapping.value_type)));
 
         <span class="comment">// Add the mapping to the variable mapping.
         </span><span class="self">self</span>.global_mapping.insert(<span class="kw-2">&amp;</span>mapping.identifier.name, mapping.identifier.to_string());

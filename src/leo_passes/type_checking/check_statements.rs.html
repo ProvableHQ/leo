@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_statements.rs`."><title>check_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_statements.rs`."><title>check_statements.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -455,8 +456,8 @@
 <span class="kw">use </span>leo_errors::TypeCheckerError;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; StatementVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Statement) {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>visit_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Statement) {
         <span class="comment">// No statements can follow a return statement.
         </span><span class="kw">if </span><span class="self">self</span>.has_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
@@ -477,7 +478,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssertStatement) {
+    <span class="kw">fn </span>visit_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssertStatement) {
         <span class="kw">match </span><span class="kw-2">&amp;</span>input.variant {
             AssertVariant::Assert(expr) =&gt; {
                 <span class="kw">let </span>type_ = <span class="self">self</span>.visit_expression(expr, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
@@ -493,7 +494,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssignStatement) {
+    <span class="kw">fn </span>visit_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssignStatement) {
         <span class="kw">let </span>var_name = <span class="kw">match </span>input.place {
             Expression::Identifier(id) =&gt; id,
             <span class="kw">_ </span>=&gt; {
@@ -513,7 +514,7 @@
 
             <span class="prelude-val">Some</span>(var.type_.clone())
         } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, var_name.name, var_name.span));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, var_name.name, var_name.span));
 
             <span class="prelude-val">None
         </span>};
@@ -523,7 +524,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Block) {
+    <span class="kw">fn </span>visit_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Block) {
         <span class="comment">// Create a new scope for the then-block.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
@@ -533,7 +534,7 @@
         </span><span class="self">self</span>.exit_scope(scope_index);
     }
 
-    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConditionalStatement) {
+    <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
         <span class="kw">let </span><span class="kw-2">mut </span>then_block_has_return = <span class="bool-val">false</span>;
@@ -566,7 +567,7 @@
                     </span><span class="self">self</span>.visit_block(stmt);
                 }
                 Statement::Conditional(stmt) =&gt; <span class="self">self</span>.visit_conditional(stmt),
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Else-case can only be a block or conditional statement.&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Else-case can only be a block or conditional statement."</span>),
             }
 
             <span class="comment">// Store the `has_return` flag for the otherwise-block.
@@ -581,18 +582,18 @@
         </span><span class="self">self</span>.has_finalize = previous_has_finalize || (then_block_has_finalize &amp;&amp; otherwise_block_has_finalize);
     }
 
-    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConsoleStatement) {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that console statements are not present in the AST.&quot;</span>);
+    <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) {
+        <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that console statements are not present in the AST."</span>);
     }
 
-    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ConstDeclaration) {
+    <span class="kw">fn </span>visit_const(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConstDeclaration) {
         <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
             <span class="comment">// If the type is an empty tuple, return an error.
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             <span class="comment">// If the type is a singleton tuple, return an error.
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
-                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple types have at least two elements."</span>),
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">if </span>tuple.elements().iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
@@ -600,7 +601,7 @@
                 }
             },
             Type::Mapping(<span class="kw">_</span>) | Type::Err =&gt; <span class="macro">unreachable!</span>(
-                <span class="string">&quot;Parsing guarantees that `mapping` and `err` types are not present at this location in the AST.&quot;
+                <span class="string">"Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             </span>),
             <span class="comment">// Otherwise, the type is valid.
             </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
@@ -610,7 +611,7 @@
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.value {
             Expression::Literal(<span class="kw">_</span>) =&gt; (),
             Expression::Tuple(tuple_expression) =&gt; <span class="kw">match </span>tuple_expression.elements.len() {
-                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple types have at least two elements."</span>),
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">if </span>tuple_expression.elements.iter().any(|expr| !<span class="macro">matches!</span>(expr, Expression::Literal(<span class="kw">_</span>))) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::const_declaration_must_be_literal_or_tuple_of_literals(
@@ -635,7 +636,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>DefinitionStatement) {
+    <span class="kw">fn </span>visit_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DefinitionStatement) {
         <span class="comment">// Check that the type of the definition is defined.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.type_, input.span);
 
@@ -645,7 +646,7 @@
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
             <span class="comment">// If the type is a singleton tuple, return an error.
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
-                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple types have at least two elements.&quot;</span>),
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple types have at least two elements."</span>),
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">if </span>tuple.elements().iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
@@ -653,7 +654,7 @@
                 }
             },
             Type::Mapping(<span class="kw">_</span>) | Type::Err =&gt; <span class="macro">unreachable!</span>(
-                <span class="string">&quot;Parsing guarantees that `mapping` and `err` types are not present at this location in the AST.&quot;
+                <span class="string">"Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             </span>),
             <span class="comment">// Otherwise, the type is valid.
             </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
@@ -683,7 +684,7 @@
                 <span class="kw">let </span>tuple_type = <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
                     Type::Tuple(tuple_type) =&gt; tuple_type,
                     <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(
-                        <span class="string">&quot;Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple.&quot;
+                        <span class="string">"Type checking guarantees that if the lhs is a tuple, its associated type is also a tuple."
                     </span>),
                 };
                 <span class="kw">if </span>tuple_expression.elements.len() != tuple_type.length() {
@@ -712,7 +713,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ExpressionStatement) {
+    <span class="kw">fn </span>visit_expression_statement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ExpressionStatement) {
         <span class="comment">// Expression statements can only be function calls.
         </span><span class="kw">if </span>!<span class="macro">matches!</span>(
             input.expression,
@@ -725,7 +726,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>IterationStatement) {
+    <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) {
         <span class="kw">let </span>iter_type = <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone());
         <span class="self">self</span>.assert_int_type(iter_type, input.variable.span);
 
@@ -802,7 +803,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ReturnStatement) {
+    <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) {
         <span class="comment">// We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();

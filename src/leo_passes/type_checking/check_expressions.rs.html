@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><title>check_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_expressions.rs`."><title>check_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -899,11 +900,11 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ExpressionVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">type </span>AdditionalInput = <span class="prelude-ty">Option</span>&lt;Type&gt;;
     <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;Type&gt;;
 
-    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>output = <span class="kw">match </span>input {
             Expression::Access(access) =&gt; <span class="self">self</span>.visit_access(access, additional),
             Expression::Array(array) =&gt; <span class="self">self</span>.visit_array(array, additional),
@@ -927,7 +928,7 @@
         </span>output
     }
 
-    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input {
             AccessExpression::Array(access) =&gt; {
                 <span class="comment">// Check that the expression is an array.
@@ -994,7 +995,7 @@
                                 ));
                             } <span class="kw">else </span>{
                                 <span class="comment">// Lookup type of tuple index.
-                                </span><span class="kw">let </span>actual = tuple.elements().get(index).expect(<span class="string">&quot;failed to get tuple index&quot;</span>).clone();
+                                </span><span class="kw">let </span>actual = tuple.elements().get(index).expect(<span class="string">"failed to get tuple index"</span>).clone();
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(expected) = expected {
                                     <span class="comment">// Emit error for mismatched types.
                                     </span><span class="kw">if </span>!actual.eq_flat(expected) {
@@ -1011,7 +1012,7 @@
                             }
                         }
                         type_ =&gt; {
-                            <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">&quot;tuple&quot;</span>, access.span()));
+                            <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">"tuple"</span>, access.span()));
                         }
                     }
                     <span class="self">self</span>.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
@@ -1025,7 +1026,7 @@
                             <span class="comment">// Check that the operation is not invoked in a `finalize` block.
                             </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
                                 <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
-                                    <span class="string">&quot;self.caller&quot;</span>,
+                                    <span class="string">"self.caller"</span>,
                                     access.name.span(),
                                 ))
                             }
@@ -1035,7 +1036,7 @@
                             <span class="comment">// Check that operation is not invoked in a `finalize` block.
                             </span><span class="kw">if </span><span class="self">self</span>.is_finalize {
                                 <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
-                                    <span class="string">&quot;self.signer&quot;</span>,
+                                    <span class="string">"self.signer"</span>,
                                     access.name.span(),
                                 ))
                             }
@@ -1051,7 +1052,7 @@
                             <span class="comment">// Check that the operation is invoked in a `finalize` block.
                             </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
                                 <span class="self">self</span>.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                                    <span class="string">&quot;block.height&quot;</span>,
+                                    <span class="string">"block.height"</span>,
                                     access.name.span(),
                                 ))
                             }
@@ -1093,7 +1094,7 @@
                                 }
                             }
                             <span class="prelude-val">Some</span>(type_) =&gt; {
-                                <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">&quot;struct&quot;</span>, access.inner.span()));
+                                <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(type_, <span class="string">"struct"</span>, access.inner.span()));
                             }
                             <span class="prelude-val">None </span>=&gt; {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::could_not_determine_type(
@@ -1122,7 +1123,7 @@
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ArrayExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Get the types of each element expression.
         </span><span class="kw">let </span>element_types =
             input.elements.iter().map(|element| <span class="self">self</span>.visit_expression(element, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>)).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
@@ -1167,7 +1168,7 @@
         </span>return_type
     }
 
-    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BinaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input.op {
             BinaryOperation::And | BinaryOperation::Or | BinaryOperation::Nand | BinaryOperation::Nor =&gt; {
                 <span class="comment">// Only boolean types.
@@ -1258,7 +1259,7 @@
                             <span class="prelude-val">Some</span>(type_) =&gt; {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(
                                     type_,
-                                    <span class="string">&quot;field, group, integer, or scalar&quot;</span>,
+                                    <span class="string">"field, group, integer, or scalar"</span>,
                                     span,
                                 ));
                             }
@@ -1421,7 +1422,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span><span class="kw-2">&amp;*</span>input.function {
             <span class="comment">// Note that the parser guarantees that `input.function` is always an identifier.
             </span>Expression::Identifier(ident) =&gt; {
@@ -1433,7 +1434,7 @@
                     <span class="comment">// Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
                     </span><span class="kw">match </span><span class="self">self</span>.variant.unwrap() {
-                        <span class="comment">// If the function is not a transition function, it can only call &quot;inline&quot; functions.
+                        <span class="comment">// If the function is not a transition function, it can only call "inline" functions.
                         </span>Variant::Inline | Variant::Standard =&gt; {
                             <span class="kw">if </span>!<span class="macro">matches!</span>(func.variant, Variant::Inline) {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::can_only_call_inline_function(input.span));
@@ -1472,22 +1473,22 @@
 
                     <span class="comment">// Add the call to the call graph.
                     </span><span class="kw">let </span>caller_name = <span class="kw">match </span><span class="self">self</span>.function {
-                        <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;`self.function` is set every time a function is visited.&quot;</span>),
+                        <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`self.function` is set every time a function is visited."</span>),
                         <span class="prelude-val">Some</span>(func) =&gt; func,
                     };
                     <span class="self">self</span>.call_graph.add_edge(caller_name, ident.name);
 
                     <span class="prelude-val">Some</span>(ret)
                 } <span class="kw">else </span>{
-                    <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;function&quot;</span>, ident.name, ident.span()));
+                    <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"function"</span>, ident.name, ident.span()));
                     <span class="prelude-val">None
                 </span>}
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a function name is always an identifier.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
         }
     }
 
-    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CastExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CastExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Check that the target type of the cast expression is a castable type.
         </span><span class="self">self</span>.assert_castable_type(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()), input.span());
 
@@ -1499,7 +1500,7 @@
         </span><span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(input.type_.clone(), expected, input.span()))
     }
 
-    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(input.name.name).cloned();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
             <span class="comment">// Check struct type name.
@@ -1535,28 +1536,28 @@
 
             <span class="prelude-val">Some</span>(ret)
         } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;struct&quot;</span>, input.name.name, input.name.span()));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"struct"</span>, input.name.name, input.name.span()));
             <span class="prelude-val">None
         </span>}
     }
 
     <span class="comment">// We do not want to panic on `ErrExpression`s in order to propagate as many errors as possible.
-    </span><span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 
-    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(input.name) {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } <span class="kw">else </span>{
-            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">&quot;variable&quot;</span>, input.name, input.span()));
+            <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
             <span class="prelude-val">None
         </span>}
     }
 
-    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">fn </span>parse_integer_literal&lt;I: FromStr&gt;(handler: <span class="kw-2">&amp;</span>Handler, raw_string: <span class="kw-2">&amp;</span>str, span: Span, type_string: <span class="kw-2">&amp;</span>str) {
-            <span class="kw">let </span>string = raw_string.replace(<span class="string">&#39;_&#39;</span>, <span class="string">&quot;&quot;</span>);
+            <span class="kw">let </span>string = raw_string.replace(<span class="string">'_'</span>, <span class="string">""</span>);
             <span class="kw">if </span>string.parse::&lt;I&gt;().is_err() {
                 handler.emit_err(TypeCheckerError::invalid_int_value(string, type_string, span));
             }
@@ -1568,43 +1569,43 @@
             Literal::Field(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.assert_and_return_type(Type::Field, expected, input.span()),
             Literal::Integer(integer_type, string, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="kw">match </span>integer_type {
                 IntegerType::U8 =&gt; {
-                    parse_integer_literal::&lt;u8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u8&quot;</span>);
+                    parse_integer_literal::&lt;u8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"u8"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U8), expected, input.span())
                 }
                 IntegerType::U16 =&gt; {
-                    parse_integer_literal::&lt;u16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u16&quot;</span>);
+                    parse_integer_literal::&lt;u16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"u16"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U16), expected, input.span())
                 }
                 IntegerType::U32 =&gt; {
-                    parse_integer_literal::&lt;u32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u32&quot;</span>);
+                    parse_integer_literal::&lt;u32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"u32"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U32), expected, input.span())
                 }
                 IntegerType::U64 =&gt; {
-                    parse_integer_literal::&lt;u64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u64&quot;</span>);
+                    parse_integer_literal::&lt;u64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"u64"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U64), expected, input.span())
                 }
                 IntegerType::U128 =&gt; {
-                    parse_integer_literal::&lt;u128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;u128&quot;</span>);
+                    parse_integer_literal::&lt;u128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"u128"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::U128), expected, input.span())
                 }
                 IntegerType::I8 =&gt; {
-                    parse_integer_literal::&lt;i8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i8&quot;</span>);
+                    parse_integer_literal::&lt;i8&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i8"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I8), expected, input.span())
                 }
                 IntegerType::I16 =&gt; {
-                    parse_integer_literal::&lt;i16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i16&quot;</span>);
+                    parse_integer_literal::&lt;i16&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i16"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I16), expected, input.span())
                 }
                 IntegerType::I32 =&gt; {
-                    parse_integer_literal::&lt;i32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i32&quot;</span>);
+                    parse_integer_literal::&lt;i32&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i32"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I32), expected, input.span())
                 }
                 IntegerType::I64 =&gt; {
-                    parse_integer_literal::&lt;i64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i64&quot;</span>);
+                    parse_integer_literal::&lt;i64&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i64"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I64), expected, input.span())
                 }
                 IntegerType::I128 =&gt; {
-                    parse_integer_literal::&lt;i128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">&quot;i128&quot;</span>);
+                    parse_integer_literal::&lt;i128&gt;(<span class="self">self</span>.handler, string, input.span(), <span class="string">"i128"</span>);
                     <span class="self">self</span>.assert_and_return_type(Type::Integer(IntegerType::I128), expected, input.span())
                 }
             },
@@ -1617,7 +1618,7 @@
         })
     }
 
-    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Type::Boolean));
 
         <span class="kw">let </span>t1 = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true, expected);
@@ -1626,9 +1627,9 @@
         return_incorrect_type(t1, t2, expected)
     }
 
-    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TupleExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input.elements.len() {
-            <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that tuple expressions have at least two elements.&quot;</span>),
+            <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple expressions have at least two elements."</span>),
             <span class="kw">_ </span>=&gt; {
                 <span class="comment">// Check the expected tuple types if they are known.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Tuple(expected_types)) = expected {
@@ -1660,7 +1661,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnaryExpression, destination: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>input.op {
             UnaryOperation::Abs =&gt; {
                 <span class="comment">// Only signed integer types.
@@ -1712,7 +1713,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Unit expression are only allowed inside a return statement.
         </span><span class="kw">if </span>!<span class="self">self</span>.is_return {
             <span class="self">self</span>.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));

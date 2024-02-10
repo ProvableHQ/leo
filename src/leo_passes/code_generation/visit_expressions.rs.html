@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_expressions.rs`."><title>visit_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/code_generation/visit_expressions.rs`."><title>visit_expressions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -709,8 +710,8 @@
 </span><span class="comment">// Note: We opt for this option instead of using `Visitor` and `Director` because this pass requires
 // a post-order traversal of the AST. This is sufficient since this implementation is intended to be
 // a prototype. The production implementation will require a redesign of `Director`.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CodeGenerator&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Expression) -&gt; (String, String) {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; CodeGenerator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Expression) -&gt; (String, String) {
         <span class="kw">match </span>input {
             Expression::Access(expr) =&gt; <span class="self">self</span>.visit_access(expr),
             Expression::Array(expr) =&gt; <span class="self">self</span>.visit_array(expr),
@@ -728,60 +729,60 @@
         }
     }
 
-    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Identifier) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier) -&gt; (String, String) {
         (
             <span class="self">self</span>.variable_mapping.get(<span class="kw-2">&amp;</span>input.name).or_else(|| <span class="self">self</span>.global_mapping.get(<span class="kw-2">&amp;</span>input.name)).unwrap().clone(),
             String::new(),
         )
     }
 
-    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ErrExpression) -&gt; (String, String) {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;`ErrExpression`s should not be in the AST at this phase of compilation.&quot;</span>)
+    <span class="kw">fn </span>visit_err(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ErrExpression) -&gt; (String, String) {
+        <span class="macro">unreachable!</span>(<span class="string">"`ErrExpression`s should not be in the AST at this phase of compilation."</span>)
     }
 
-    <span class="kw">fn </span>visit_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Literal) -&gt; (String, String) {
-        (<span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>), String::new())
+    <span class="kw">fn </span>visit_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal) -&gt; (String, String) {
+        (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
     }
 
-    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>BinaryExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_binary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BinaryExpression) -&gt; (String, String) {
         <span class="kw">let </span>(left_operand, left_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.left);
         <span class="kw">let </span>(right_operand, right_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.right);
 
         <span class="kw">let </span>opcode = <span class="kw">match </span>input.op {
-            BinaryOperation::Add =&gt; String::from(<span class="string">&quot;add&quot;</span>),
-            BinaryOperation::AddWrapped =&gt; String::from(<span class="string">&quot;add.w&quot;</span>),
-            BinaryOperation::And =&gt; String::from(<span class="string">&quot;and&quot;</span>),
-            BinaryOperation::BitwiseAnd =&gt; String::from(<span class="string">&quot;and&quot;</span>),
-            BinaryOperation::Div =&gt; String::from(<span class="string">&quot;div&quot;</span>),
-            BinaryOperation::DivWrapped =&gt; String::from(<span class="string">&quot;div.w&quot;</span>),
-            BinaryOperation::Eq =&gt; String::from(<span class="string">&quot;is.eq&quot;</span>),
-            BinaryOperation::Gte =&gt; String::from(<span class="string">&quot;gte&quot;</span>),
-            BinaryOperation::Gt =&gt; String::from(<span class="string">&quot;gt&quot;</span>),
-            BinaryOperation::Lte =&gt; String::from(<span class="string">&quot;lte&quot;</span>),
-            BinaryOperation::Lt =&gt; String::from(<span class="string">&quot;lt&quot;</span>),
-            BinaryOperation::Mod =&gt; String::from(<span class="string">&quot;mod&quot;</span>),
-            BinaryOperation::Mul =&gt; String::from(<span class="string">&quot;mul&quot;</span>),
-            BinaryOperation::MulWrapped =&gt; String::from(<span class="string">&quot;mul.w&quot;</span>),
-            BinaryOperation::Nand =&gt; String::from(<span class="string">&quot;nand&quot;</span>),
-            BinaryOperation::Neq =&gt; String::from(<span class="string">&quot;is.neq&quot;</span>),
-            BinaryOperation::Nor =&gt; String::from(<span class="string">&quot;nor&quot;</span>),
-            BinaryOperation::Or =&gt; String::from(<span class="string">&quot;or&quot;</span>),
-            BinaryOperation::BitwiseOr =&gt; String::from(<span class="string">&quot;or&quot;</span>),
-            BinaryOperation::Pow =&gt; String::from(<span class="string">&quot;pow&quot;</span>),
-            BinaryOperation::PowWrapped =&gt; String::from(<span class="string">&quot;pow.w&quot;</span>),
-            BinaryOperation::Rem =&gt; String::from(<span class="string">&quot;rem&quot;</span>),
-            BinaryOperation::RemWrapped =&gt; String::from(<span class="string">&quot;rem.w&quot;</span>),
-            BinaryOperation::Shl =&gt; String::from(<span class="string">&quot;shl&quot;</span>),
-            BinaryOperation::ShlWrapped =&gt; String::from(<span class="string">&quot;shl.w&quot;</span>),
-            BinaryOperation::Shr =&gt; String::from(<span class="string">&quot;shr&quot;</span>),
-            BinaryOperation::ShrWrapped =&gt; String::from(<span class="string">&quot;shr.w&quot;</span>),
-            BinaryOperation::Sub =&gt; String::from(<span class="string">&quot;sub&quot;</span>),
-            BinaryOperation::SubWrapped =&gt; String::from(<span class="string">&quot;sub.w&quot;</span>),
-            BinaryOperation::Xor =&gt; String::from(<span class="string">&quot;xor&quot;</span>),
+            BinaryOperation::Add =&gt; String::from(<span class="string">"add"</span>),
+            BinaryOperation::AddWrapped =&gt; String::from(<span class="string">"add.w"</span>),
+            BinaryOperation::And =&gt; String::from(<span class="string">"and"</span>),
+            BinaryOperation::BitwiseAnd =&gt; String::from(<span class="string">"and"</span>),
+            BinaryOperation::Div =&gt; String::from(<span class="string">"div"</span>),
+            BinaryOperation::DivWrapped =&gt; String::from(<span class="string">"div.w"</span>),
+            BinaryOperation::Eq =&gt; String::from(<span class="string">"is.eq"</span>),
+            BinaryOperation::Gte =&gt; String::from(<span class="string">"gte"</span>),
+            BinaryOperation::Gt =&gt; String::from(<span class="string">"gt"</span>),
+            BinaryOperation::Lte =&gt; String::from(<span class="string">"lte"</span>),
+            BinaryOperation::Lt =&gt; String::from(<span class="string">"lt"</span>),
+            BinaryOperation::Mod =&gt; String::from(<span class="string">"mod"</span>),
+            BinaryOperation::Mul =&gt; String::from(<span class="string">"mul"</span>),
+            BinaryOperation::MulWrapped =&gt; String::from(<span class="string">"mul.w"</span>),
+            BinaryOperation::Nand =&gt; String::from(<span class="string">"nand"</span>),
+            BinaryOperation::Neq =&gt; String::from(<span class="string">"is.neq"</span>),
+            BinaryOperation::Nor =&gt; String::from(<span class="string">"nor"</span>),
+            BinaryOperation::Or =&gt; String::from(<span class="string">"or"</span>),
+            BinaryOperation::BitwiseOr =&gt; String::from(<span class="string">"or"</span>),
+            BinaryOperation::Pow =&gt; String::from(<span class="string">"pow"</span>),
+            BinaryOperation::PowWrapped =&gt; String::from(<span class="string">"pow.w"</span>),
+            BinaryOperation::Rem =&gt; String::from(<span class="string">"rem"</span>),
+            BinaryOperation::RemWrapped =&gt; String::from(<span class="string">"rem.w"</span>),
+            BinaryOperation::Shl =&gt; String::from(<span class="string">"shl"</span>),
+            BinaryOperation::ShlWrapped =&gt; String::from(<span class="string">"shl.w"</span>),
+            BinaryOperation::Shr =&gt; String::from(<span class="string">"shr"</span>),
+            BinaryOperation::ShrWrapped =&gt; String::from(<span class="string">"shr.w"</span>),
+            BinaryOperation::Sub =&gt; String::from(<span class="string">"sub"</span>),
+            BinaryOperation::SubWrapped =&gt; String::from(<span class="string">"sub.w"</span>),
+            BinaryOperation::Xor =&gt; String::from(<span class="string">"xor"</span>),
         };
 
-        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-        <span class="kw">let </span>binary_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode} {left_operand} {right_operand} into {destination_register};\n&quot;</span>,);
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>binary_instruction = <span class="macro">format!</span>(<span class="string">"    {opcode} {left_operand} {right_operand} into {destination_register};\n"</span>,);
 
         <span class="comment">// Increment the register counter.
         </span><span class="self">self</span>.next_register += <span class="number">1</span>;
@@ -794,16 +795,16 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CastExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_cast(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CastExpression) -&gt; (String, String) {
         <span class="kw">let </span>(expression_operand, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression);
 
         <span class="comment">// Construct the destination register.
-        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
         <span class="comment">// Increment the register counter.
         </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
         <span class="kw">let </span>cast_instruction =
-            <span class="macro">format!</span>(<span class="string">&quot;    cast {expression_operand} into {destination_register} as {};\n&quot;</span>, input.type_);
+            <span class="macro">format!</span>(<span class="string">"    cast {expression_operand} into {destination_register} as {};\n"</span>, input.type_);
 
         <span class="comment">// Concatenate the instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>cast_instruction);
@@ -811,31 +812,31 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrayExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_array(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ArrayExpression) -&gt; (String, String) {
         <span class="kw">let </span>(expression_operands, <span class="kw-2">mut </span>instructions) =
             input.elements.iter().map(|expr| <span class="self">self</span>.visit_expression(expr)).fold(
                 (String::new(), String::new()),
                 |(<span class="kw-2">mut </span>operands, <span class="kw-2">mut </span>instructions), (operand, operand_instructions)| {
-                    operands.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {operand}&quot;</span>));
+                    operands.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">" {operand}"</span>));
                     instructions.push_str(<span class="kw-2">&amp;</span>operand_instructions);
                     (operands, instructions)
                 },
             );
 
         <span class="comment">// Construct the destination register.
-        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
         <span class="comment">// Increment the register counter.
         </span><span class="self">self</span>.next_register += <span class="number">1</span>;
 
         <span class="comment">// Get the array type.
         </span><span class="kw">let </span>array_type = <span class="kw">match </span><span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>input.id) {
             <span class="prelude-val">Some</span>(Type::Array(array_type)) =&gt; Type::Array(array_type),
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All types should be known at this phase of compilation&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"All types should be known at this phase of compilation"</span>),
         };
         <span class="kw">let </span>array_type: String = <span class="self">Self</span>::visit_type(<span class="kw-2">&amp;</span>array_type);
 
         <span class="kw">let </span>array_instruction =
-            <span class="macro">format!</span>(<span class="string">&quot;    cast {expression_operands} into {destination_register} as {};\n&quot;</span>, array_type);
+            <span class="macro">format!</span>(<span class="string">"    cast {expression_operands} into {destination_register} as {};\n"</span>, array_type);
 
         <span class="comment">// Concatenate the instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>array_instruction);
@@ -843,25 +844,25 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnaryExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_unary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnaryExpression) -&gt; (String, String) {
         <span class="kw">let </span>(expression_operand, expression_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.receiver);
 
         <span class="comment">// Note that non-empty suffixes must be preceded by a space.
         </span><span class="kw">let </span>(opcode, suffix) = <span class="kw">match </span>input.op {
-            UnaryOperation::Abs =&gt; (<span class="string">&quot;abs&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::AbsWrapped =&gt; (<span class="string">&quot;abs.w&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::Double =&gt; (<span class="string">&quot;double&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::Inverse =&gt; (<span class="string">&quot;inv&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::Not =&gt; (<span class="string">&quot;not&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::Negate =&gt; (<span class="string">&quot;neg&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::Square =&gt; (<span class="string">&quot;square&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::SquareRoot =&gt; (<span class="string">&quot;sqrt&quot;</span>, <span class="string">&quot;&quot;</span>),
-            UnaryOperation::ToXCoordinate =&gt; (<span class="string">&quot;cast&quot;</span>, <span class="string">&quot; as group.x&quot;</span>),
-            UnaryOperation::ToYCoordinate =&gt; (<span class="string">&quot;cast&quot;</span>, <span class="string">&quot; as group.y&quot;</span>),
+            UnaryOperation::Abs =&gt; (<span class="string">"abs"</span>, <span class="string">""</span>),
+            UnaryOperation::AbsWrapped =&gt; (<span class="string">"abs.w"</span>, <span class="string">""</span>),
+            UnaryOperation::Double =&gt; (<span class="string">"double"</span>, <span class="string">""</span>),
+            UnaryOperation::Inverse =&gt; (<span class="string">"inv"</span>, <span class="string">""</span>),
+            UnaryOperation::Not =&gt; (<span class="string">"not"</span>, <span class="string">""</span>),
+            UnaryOperation::Negate =&gt; (<span class="string">"neg"</span>, <span class="string">""</span>),
+            UnaryOperation::Square =&gt; (<span class="string">"square"</span>, <span class="string">""</span>),
+            UnaryOperation::SquareRoot =&gt; (<span class="string">"sqrt"</span>, <span class="string">""</span>),
+            UnaryOperation::ToXCoordinate =&gt; (<span class="string">"cast"</span>, <span class="string">" as group.x"</span>),
+            UnaryOperation::ToYCoordinate =&gt; (<span class="string">"cast"</span>, <span class="string">" as group.y"</span>),
         };
 
-        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-        <span class="kw">let </span>unary_instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode} {expression_operand} into {destination_register}{suffix};\n&quot;</span>);
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>unary_instruction = <span class="macro">format!</span>(<span class="string">"    {opcode} {expression_operand} into {destination_register}{suffix};\n"</span>);
 
         <span class="comment">// Increment the register counter.
         </span><span class="self">self</span>.next_register += <span class="number">1</span>;
@@ -873,14 +874,14 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TernaryExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression) -&gt; (String, String) {
         <span class="kw">let </span>(condition_operand, condition_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.condition);
         <span class="kw">let </span>(if_true_operand, if_true_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_true);
         <span class="kw">let </span>(if_false_operand, if_false_instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.if_false);
 
-        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
         <span class="kw">let </span>ternary_instruction = <span class="macro">format!</span>(
-            <span class="string">&quot;    ternary {condition_operand} {if_true_operand} {if_false_operand} into {destination_register};\n&quot;</span>,
+            <span class="string">"    ternary {condition_operand} {if_true_operand} {if_false_operand} into {destination_register};\n"</span>,
         );
 
         <span class="comment">// Increment the register counter.
@@ -895,23 +896,23 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>StructExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression) -&gt; (String, String) {
         <span class="comment">// Lookup struct or record.
         </span><span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>((is_record, type_)) = <span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>input.name.name) {
             <span class="kw">if </span><span class="kw-2">*</span>is_record {
                 <span class="comment">// record.private;
-                </span><span class="macro">format!</span>(<span class="string">&quot;{}.{type_}&quot;</span>, input.name)
+                </span><span class="macro">format!</span>(<span class="string">"{}.{type_}"</span>, input.name)
             } <span class="kw">else </span>{
                 <span class="comment">// foo; // no visibility for structs
                 </span>input.name.to_string()
             }
         } <span class="kw">else </span>{
-            <span class="macro">unreachable!</span>(<span class="string">&quot;All composite types should be known at this phase of compilation&quot;</span>)
+            <span class="macro">unreachable!</span>(<span class="string">"All composite types should be known at this phase of compilation"</span>)
         };
 
         <span class="comment">// Initialize instruction builder strings.
         </span><span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>struct_init_instruction = String::from(<span class="string">&quot;    cast &quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>struct_init_instruction = String::from(<span class="string">"    cast "</span>);
 
         <span class="comment">// Visit each struct member and accumulate instructions from expressions.
         </span><span class="kw">for </span>member <span class="kw">in </span>input.members.iter() {
@@ -930,13 +931,13 @@
             };
 
             <span class="comment">// Push operand name to struct init instruction.
-            </span><span class="macro">write!</span>(struct_init_instruction, <span class="string">&quot;{operand} &quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            </span><span class="macro">write!</span>(struct_init_instruction, <span class="string">"{operand} "</span>).expect(<span class="string">"failed to write to string"</span>);
         }
 
         <span class="comment">// Push destination register to struct init instruction.
-        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
-        <span class="macro">writeln!</span>(struct_init_instruction, <span class="string">&quot;into {destination_register} as {name};&quot;</span>,)
-            .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+        </span><span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
+        <span class="macro">writeln!</span>(struct_init_instruction, <span class="string">"into {destination_register} as {name};"</span>,)
+            .expect(<span class="string">"failed to write to string"</span>);
 
         instructions.push_str(<span class="kw-2">&amp;</span>struct_init_instruction);
 
@@ -946,31 +947,31 @@
         (destination_register, instructions)
     }
 
-    <span class="kw">fn </span>visit_array_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ArrayAccess) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_array_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ArrayAccess) -&gt; (String, String) {
         <span class="kw">let </span>(array_operand, <span class="kw">_</span>) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.array);
         <span class="kw">let </span>index_operand = <span class="kw">match </span>input.index.as_ref() {
-            Expression::Literal(Literal::Integer(<span class="kw">_</span>, string, <span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}u32&quot;</span>, string),
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Array indices must be integer literals&quot;</span>),
+            Expression::Literal(Literal::Integer(<span class="kw">_</span>, string, <span class="kw">_</span>, <span class="kw">_</span>)) =&gt; <span class="macro">format!</span>(<span class="string">"{}u32"</span>, string),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Array indices must be integer literals"</span>),
         };
-        <span class="kw">let </span>array_access = <span class="macro">format!</span>(<span class="string">&quot;{}[{}]&quot;</span>, array_operand, index_operand);
+        <span class="kw">let </span>array_access = <span class="macro">format!</span>(<span class="string">"{}[{}]"</span>, array_operand, index_operand);
 
         (array_access, String::new())
     }
 
-    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>MemberAccess) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_member_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>MemberAccess) -&gt; (String, String) {
         <span class="kw">let </span>(inner_struct, <span class="kw">_</span>) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.inner);
-        <span class="kw">let </span>member_access = <span class="macro">format!</span>(<span class="string">&quot;{inner_struct}.{}&quot;</span>, input.name);
+        <span class="kw">let </span>member_access = <span class="macro">format!</span>(<span class="string">"{inner_struct}.{}"</span>, input.name);
 
         (member_access, String::new())
     }
 
     <span class="comment">// group::GEN -&gt; group::GEN
-    </span><span class="kw">fn </span>visit_associated_constant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssociatedConstant) -&gt; (String, String) {
-        (<span class="macro">format!</span>(<span class="string">&quot;{input}&quot;</span>), String::new())
+    </span><span class="kw">fn </span>visit_associated_constant(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssociatedConstant) -&gt; (String, String) {
+        (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
     }
 
     <span class="comment">// Pedersen64::hash() -&gt; hash.ped64
-    </span><span class="kw">fn </span>visit_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AssociatedFunction) -&gt; (String, String) {
+    </span><span class="kw">fn </span>visit_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AssociatedFunction) -&gt; (String, String) {
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="comment">// Visit each function argument and accumulate instructions from expressions.
@@ -986,7 +987,7 @@
 
         <span class="comment">// Helper function to get a destination register for a function call.
         </span><span class="kw">let </span><span class="kw-2">mut </span>get_destination_register = || {
-            <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
             destination_register
         };
@@ -996,171 +997,171 @@
         </span><span class="kw">let </span><span class="kw-2">mut </span>construct_simple_function_call = |function: <span class="kw-2">&amp;</span>Identifier, variant: <span class="kw-2">&amp;</span>str, arguments: Vec&lt;String&gt;| {
             <span class="comment">// Split function into [opcode, return type] e.g. hash_to_field -&gt; [hash, field]
             </span><span class="kw">let </span>function_name = function.name.to_string();
-            <span class="kw">let </span><span class="kw-2">mut </span>names = function_name.split(<span class="string">&quot;_to_&quot;</span>);
-            <span class="kw">let </span>opcode = names.next().expect(<span class="string">&quot;failed to get opcode&quot;</span>);
-            <span class="kw">let </span>return_type = names.next().expect(<span class="string">&quot;failed to get type&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>names = function_name.split(<span class="string">"_to_"</span>);
+            <span class="kw">let </span>opcode = names.next().expect(<span class="string">"failed to get opcode"</span>);
+            <span class="kw">let </span>return_type = names.next().expect(<span class="string">"failed to get type"</span>);
 
-            <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">&quot;    {opcode}.{variant}&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">"    {opcode}.{variant}"</span>);
             <span class="kw">for </span>argument <span class="kw">in </span>arguments {
-                <span class="macro">write!</span>(instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">write!</span>(instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
             }
             <span class="kw">let </span>destination_register = get_destination_register();
-            <span class="macro">writeln!</span>(instruction, <span class="string">&quot; into {destination_register} as {return_type};&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">writeln!</span>(instruction, <span class="string">" into {destination_register} as {return_type};"</span>).expect(<span class="string">"failed to write to string"</span>);
             (destination_register, instruction)
         };
 
         <span class="comment">// Construct the instruction.
         </span><span class="kw">let </span>(destination, instruction) = <span class="kw">match </span><span class="kw-2">&amp;</span>input.ty {
             Type::Identifier(Identifier { name: sym::BHP256, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp256&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"bhp256"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::BHP512, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp512&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"bhp512"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::BHP768, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp768&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"bhp768"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::BHP1024, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;bhp1024&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"bhp1024"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Keccak256, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;keccak256&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"keccak256"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Keccak384, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;keccak384&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"keccak384"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Keccak512, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;keccak512&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"keccak512"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Pedersen64, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;ped64&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"ped64"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Pedersen128, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;ped128&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"ped128"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Poseidon2, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd2&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"psd2"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Poseidon4, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd4&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"psd4"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Poseidon8, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;psd8&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"psd8"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::SHA3_256, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_256&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"sha3_256"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::SHA3_384, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_384&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"sha3_384"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::SHA3_512, .. }) =&gt; {
-                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">&quot;sha3_512&quot;</span>, arguments)
+                construct_simple_function_call(<span class="kw-2">&amp;</span>input.name, <span class="string">"sha3_512"</span>, arguments)
             }
             Type::Identifier(Identifier { name: sym::Mapping, .. }) =&gt; <span class="kw">match </span>input.name.name {
                 sym::get =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get&quot;</span>.to_string();
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    get"</span>.to_string();
                     <span class="kw">let </span>destination_register = get_destination_register();
                     <span class="comment">// Write the mapping name and the key.
-                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {}[{}] into {destination_register};&quot;</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
-                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">" {}[{}] into {destination_register};"</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
+                        .expect(<span class="string">"failed to write to string"</span>);
                     (destination_register, instruction)
                 }
                 sym::get_or_use =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    get.or_use&quot;</span>.to_string();
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    get.or_use"</span>.to_string();
                     <span class="kw">let </span>destination_register = get_destination_register();
                     <span class="comment">// Write the mapping name, the key, and the default value.
                     </span><span class="macro">writeln!</span>(
                         instruction,
-                        <span class="string">&quot; {}[{}] {} into {destination_register};&quot;</span>,
+                        <span class="string">" {}[{}] {} into {destination_register};"</span>,
                         arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
                     )
-                    .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    .expect(<span class="string">"failed to write to string"</span>);
                     (destination_register, instruction)
                 }
                 sym::set =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    set&quot;</span>.to_string();
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    set"</span>.to_string();
                     <span class="comment">// Write the value, mapping name, and the key.
-                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {} into {}[{}];&quot;</span>, arguments[<span class="number">2</span>], arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
-                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {}[{}];"</span>, arguments[<span class="number">2</span>], arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
+                        .expect(<span class="string">"failed to write to string"</span>);
                     (String::new(), instruction)
                 }
                 sym::remove =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    remove&quot;</span>.to_string();
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    remove"</span>.to_string();
                     <span class="comment">// Write the mapping name and the key.
-                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {}[{}];&quot;</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>]).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">" {}[{}];"</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>]).expect(<span class="string">"failed to write to string"</span>);
                     (String::new(), instruction)
                 }
                 sym::contains =&gt; {
-                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    contains&quot;</span>.to_string();
+                    <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    contains"</span>.to_string();
                     <span class="kw">let </span>destination_register = get_destination_register();
                     <span class="comment">// Write the mapping name and the key.
-                    </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {}[{}] into {destination_register};&quot;</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
-                        .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                    </span><span class="macro">writeln!</span>(instruction, <span class="string">" {}[{}] into {destination_register};"</span>, arguments[<span class="number">0</span>], arguments[<span class="number">1</span>])
+                        .expect(<span class="string">"failed to write to string"</span>);
                     (destination_register, instruction)
                 }
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The only variants of Mapping are get, get_or, and set&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"The only variants of Mapping are get, get_or, and set"</span>),
             },
             Type::Identifier(Identifier { name: sym::group, .. }) =&gt; {
                 <span class="kw">match </span>input.name {
                     Identifier { name: sym::to_x_coordinate, .. } =&gt; {
-                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    cast&quot;</span>.to_string();
+                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
                         <span class="kw">let </span>destination_register = get_destination_register();
                         <span class="comment">// Write the argument and the destination register.
-                        </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {} into {destination_register} as group.x;&quot;</span>, arguments[<span class="number">0</span>],)
-                            .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.x;"</span>, arguments[<span class="number">0</span>],)
+                            .expect(<span class="string">"failed to write to string"</span>);
                         (destination_register, instruction)
                     }
                     Identifier { name: sym::to_y_coordinate, .. } =&gt; {
-                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    cast&quot;</span>.to_string();
+                        <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    cast"</span>.to_string();
                         <span class="kw">let </span>destination_register = get_destination_register();
                         <span class="comment">// Write the argument and the destination register.
-                        </span><span class="macro">writeln!</span>(instruction, <span class="string">&quot; {} into {destination_register} as group.y;&quot;</span>, arguments[<span class="number">0</span>],)
-                            .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                        </span><span class="macro">writeln!</span>(instruction, <span class="string">" {} into {destination_register} as group.y;"</span>, arguments[<span class="number">0</span>],)
+                            .expect(<span class="string">"failed to write to string"</span>);
                         (destination_register, instruction)
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The only associated methods of group are to_x_coordinate and to_y_coordinate&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"The only associated methods of group are to_x_coordinate and to_y_coordinate"</span>),
                 }
             }
             Type::Identifier(Identifier { name: sym::ChaCha, .. }) =&gt; {
                 <span class="comment">// Get the destination register.
                 </span><span class="kw">let </span>destination_register = get_destination_register();
                 <span class="comment">// Construct the instruction template.
-                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">&quot;    rand.chacha into {destination_register} as &quot;</span>);
+                </span><span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="macro">format!</span>(<span class="string">"    rand.chacha into {destination_register} as "</span>);
                 <span class="comment">// Write the return type.
                 </span><span class="kw">match </span>input.name {
-                    Identifier { name: sym::rand_address, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;address;&quot;</span>),
-                    Identifier { name: sym::rand_bool, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;boolean;&quot;</span>),
-                    Identifier { name: sym::rand_field, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;field;&quot;</span>),
-                    Identifier { name: sym::rand_group, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;group;&quot;</span>),
-                    Identifier { name: sym::rand_i8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;i8;&quot;</span>),
-                    Identifier { name: sym::rand_i16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;i16;&quot;</span>),
-                    Identifier { name: sym::rand_i32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;i32;&quot;</span>),
-                    Identifier { name: sym::rand_i64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;i64;&quot;</span>),
-                    Identifier { name: sym::rand_i128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;i128;&quot;</span>),
-                    Identifier { name: sym::rand_scalar, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;scalar;&quot;</span>),
-                    Identifier { name: sym::rand_u8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u8;&quot;</span>),
-                    Identifier { name: sym::rand_u16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u16;&quot;</span>),
-                    Identifier { name: sym::rand_u32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u32;&quot;</span>),
-                    Identifier { name: sym::rand_u64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u64;&quot;</span>),
-                    Identifier { name: sym::rand_u128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">&quot;u128;&quot;</span>),
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;The only associated methods of ChaCha are `rand_*`&quot;</span>),
+                    Identifier { name: sym::rand_address, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"address;"</span>),
+                    Identifier { name: sym::rand_bool, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"boolean;"</span>),
+                    Identifier { name: sym::rand_field, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"field;"</span>),
+                    Identifier { name: sym::rand_group, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"group;"</span>),
+                    Identifier { name: sym::rand_i8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i8;"</span>),
+                    Identifier { name: sym::rand_i16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i16;"</span>),
+                    Identifier { name: sym::rand_i32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i32;"</span>),
+                    Identifier { name: sym::rand_i64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i64;"</span>),
+                    Identifier { name: sym::rand_i128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"i128;"</span>),
+                    Identifier { name: sym::rand_scalar, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"scalar;"</span>),
+                    Identifier { name: sym::rand_u8, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u8;"</span>),
+                    Identifier { name: sym::rand_u16, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u16;"</span>),
+                    Identifier { name: sym::rand_u32, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u32;"</span>),
+                    Identifier { name: sym::rand_u64, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u64;"</span>),
+                    Identifier { name: sym::rand_u128, .. } =&gt; <span class="macro">writeln!</span>(instruction, <span class="string">"u128;"</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"The only associated methods of ChaCha are `rand_*`"</span>),
                 }
-                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                .expect(<span class="string">"failed to write to string"</span>);
                 (destination_register, instruction)
             }
             Type::Identifier(Identifier { name: sym::signature, .. }) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">&quot;    sign.verify&quot;</span>.to_string();
+                <span class="kw">let </span><span class="kw-2">mut </span>instruction = <span class="string">"    sign.verify"</span>.to_string();
                 <span class="kw">let </span>destination_register = get_destination_register();
                 <span class="comment">// Write the arguments and the destination register.
                 </span><span class="macro">writeln!</span>(
                     instruction,
-                    <span class="string">&quot; {} {} {} into {destination_register};&quot;</span>,
+                    <span class="string">" {} {} {} into {destination_register};"</span>,
                     arguments[<span class="number">0</span>], arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]
                 )
-                .expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                .expect(<span class="string">"failed to write to string"</span>);
                 (destination_register, instruction)
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;All core functions should be known at this phase of compilation&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"All core functions should be known at this phase of compilation"</span>),
         };
         <span class="comment">// Add the instruction to the list of instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>instruction);
@@ -1168,26 +1169,26 @@
         (destination, instructions)
     }
 
-    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>AccessExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_access(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>AccessExpression) -&gt; (String, String) {
         <span class="kw">match </span>input {
             AccessExpression::Array(array) =&gt; <span class="self">self</span>.visit_array_access(array),
             AccessExpression::Member(access) =&gt; <span class="self">self</span>.visit_member_access(access),
             AccessExpression::AssociatedConstant(constant) =&gt; <span class="self">self</span>.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) =&gt; <span class="self">self</span>.visit_associated_function(function),
             AccessExpression::Tuple(<span class="kw">_</span>) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">&quot;Tuple access should not be in the AST at this phase of compilation.&quot;</span>)
+                <span class="macro">unreachable!</span>(<span class="string">"Tuple access should not be in the AST at this phase of compilation."</span>)
             }
         }
     }
 
-    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>CallExpression) -&gt; (String, String) {
+    <span class="kw">fn </span>visit_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>CallExpression) -&gt; (String, String) {
         <span class="kw">let </span>(<span class="kw-2">mut </span>call_instruction, has_finalize) = <span class="kw">match </span><span class="kw-2">&amp;</span>input.external {
             <span class="prelude-val">Some</span>(external) =&gt; {
                 <span class="comment">// If the function is an external call, then check whether or not it has an associated finalize block.
                 // Extract the program name from the external call.
                 </span><span class="kw">let </span>program_name = <span class="kw">match </span><span class="kw-2">**</span>external {
                     Expression::Identifier(identifier) =&gt; identifier.name,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a program name is always an identifier.&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a program name is always an identifier."</span>),
                 };
                 <span class="kw">let </span>stub_scope: ProgramScope;
                 <span class="comment">// Lookup the imported program scope.
@@ -1204,36 +1205,36 @@
                             stub_scope = ProgramScope::from(stub_program.clone());
                             <span class="kw-2">&amp;</span>stub_scope
                         } <span class="kw">else </span>{
-                            <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that imported and stub programs are well defined.&quot;</span>)
+                            <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that imported and stub programs are well defined."</span>)
                         }
                     }
                 };
                 <span class="comment">// Check if the external function has a finalize block.
                 </span><span class="kw">let </span>function_name = <span class="kw">match </span><span class="kw-2">*</span>input.function {
                     Expression::Identifier(identifier) =&gt; identifier.name,
-                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a function name is always an identifier.&quot;</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
                 };
                 <span class="kw">let </span>has_finalize = <span class="kw">match </span>imported_program_scope.functions.iter().find(|(sym, <span class="kw">_</span>)| <span class="kw-2">*</span>sym == function_name)
                 {
                     <span class="prelude-val">Some</span>((<span class="kw">_</span>, function)) =&gt; function.finalize.is_some(),
-                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Type checking guarantees that imported functions are well defined.&quot;</span>),
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Type checking guarantees that imported functions are well defined."</span>),
                 };
-                (<span class="macro">format!</span>(<span class="string">&quot;    call {external}.aleo/{}&quot;</span>, input.function), has_finalize)
+                (<span class="macro">format!</span>(<span class="string">"    call {external}.aleo/{}"</span>, input.function), has_finalize)
             }
-            <span class="prelude-val">None </span>=&gt; (<span class="macro">format!</span>(<span class="string">&quot;    call {}&quot;</span>, input.function), <span class="bool-val">false</span>),
+            <span class="prelude-val">None </span>=&gt; (<span class="macro">format!</span>(<span class="string">"    call {}"</span>, input.function), <span class="bool-val">false</span>),
         };
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
 
         <span class="kw">for </span>argument <span class="kw">in </span>input.arguments.iter() {
             <span class="kw">let </span>(argument, argument_instructions) = <span class="self">self</span>.visit_expression(argument);
-            <span class="macro">write!</span>(call_instruction, <span class="string">&quot; {argument}&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(call_instruction, <span class="string">" {argument}"</span>).expect(<span class="string">"failed to write to string"</span>);
             instructions.push_str(<span class="kw-2">&amp;</span>argument_instructions);
         }
 
         <span class="comment">// Lookup the function return type.
         </span><span class="kw">let </span>function_name = <span class="kw">match </span>input.function.borrow() {
             Expression::Identifier(identifier) =&gt; identifier.name,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a function name is always an identifier.&quot;</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a function name is always an identifier."</span>),
         };
 
         <span class="comment">// Initialize storage for the destination registers.
@@ -1243,39 +1244,39 @@
         <span class="kw">match </span>return_type {
             Type::Unit =&gt; {} <span class="comment">// Do nothing
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
-                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;Parsing guarantees that a tuple type has at least two elements&quot;</span>),
+                <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that a tuple type has at least two elements"</span>),
                 len =&gt; {
                     <span class="kw">for _ in </span><span class="number">0</span>..len {
-                        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                        <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
                         destinations.push(destination_register);
                         <span class="self">self</span>.next_register += <span class="number">1</span>;
                     }
                 }
             },
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+                <span class="kw">let </span>destination_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
                 destinations.push(destination_register);
                 <span class="self">self</span>.next_register += <span class="number">1</span>;
             }
         }
 
         <span class="comment">// Construct the output operands. These are the destination registers **without** the future.
-        </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">&quot; &quot;</span>);
+        </span><span class="kw">let </span>output_operands = destinations.join(<span class="string">" "</span>);
 
         <span class="comment">// If `has_finalize`, create another destination register for the future.
         </span><span class="kw">if </span>has_finalize {
             <span class="comment">// Construct the future register.
-            </span><span class="kw">let </span>future_register = <span class="macro">format!</span>(<span class="string">&quot;r{}&quot;</span>, <span class="self">self</span>.next_register);
+            </span><span class="kw">let </span>future_register = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
 
             <span class="comment">// Construct the future type.
             </span><span class="kw">let </span>program_id = <span class="kw">match </span>input.external.as_deref() {
                 <span class="prelude-val">Some</span>(Expression::Identifier(identifier)) =&gt; identifier,
-                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">&quot;If `has_finalize` is true, then the external call must be an identifier.&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"If `has_finalize` is true, then the external call must be an identifier."</span>),
             };
 
             <span class="comment">// Add the futures register to the list of futures.
-            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">&quot;{program_id}.aleo/{function_name}&quot;</span>)));
+            </span><span class="self">self</span>.futures.push((future_register.clone(), <span class="macro">format!</span>(<span class="string">"{program_id}.aleo/{function_name}"</span>)));
 
             <span class="comment">// Add the future register to the list of destinations.
             </span>destinations.push(future_register);
@@ -1283,14 +1284,14 @@
 
         <span class="comment">// If destination registers were created, write them to the call instruction.
         </span><span class="kw">if </span>!destinations.is_empty() {
-            <span class="macro">write!</span>(call_instruction, <span class="string">&quot; into&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+            <span class="macro">write!</span>(call_instruction, <span class="string">" into"</span>).expect(<span class="string">"failed to write to string"</span>);
             <span class="kw">for </span>destination <span class="kw">in </span><span class="kw-2">&amp;</span>destinations {
-                <span class="macro">write!</span>(call_instruction, <span class="string">&quot; {}&quot;</span>, destination).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+                <span class="macro">write!</span>(call_instruction, <span class="string">" {}"</span>, destination).expect(<span class="string">"failed to write to string"</span>);
             }
         }
 
         <span class="comment">// Write the closing semicolon.
-        </span><span class="macro">writeln!</span>(call_instruction, <span class="string">&quot;;&quot;</span>).expect(<span class="string">&quot;failed to write to string&quot;</span>);
+        </span><span class="macro">writeln!</span>(call_instruction, <span class="string">";"</span>).expect(<span class="string">"failed to write to string"</span>);
 
         <span class="comment">// Push the call instruction to the list of instructions.
         </span>instructions.push_str(<span class="kw-2">&amp;</span>call_instruction);
@@ -1299,8 +1300,8 @@
         </span>(output_operands, instructions)
     }
 
-    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>TupleExpression) -&gt; (String, String) {
-        <span class="comment">// Need to return a single string here so we will join the tuple elements with &#39; &#39;
+    <span class="kw">fn </span>visit_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TupleExpression) -&gt; (String, String) {
+        <span class="comment">// Need to return a single string here so we will join the tuple elements with ' '
         // and split them after this method is called.
         </span><span class="kw">let </span><span class="kw-2">mut </span>tuple_elements = Vec::with_capacity(input.elements.len());
         <span class="kw">let </span><span class="kw-2">mut </span>instructions = String::new();
@@ -1313,11 +1314,11 @@
         }
 
         <span class="comment">// CAUTION: does not return the destination_register.
-        </span>(tuple_elements.join(<span class="string">&quot; &quot;</span>), instructions)
+        </span>(tuple_elements.join(<span class="string">" "</span>), instructions)
     }
 
-    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>UnitExpression) -&gt; (String, String) {
-        <span class="macro">unreachable!</span>(<span class="string">&quot;`UnitExpression`s should not be visited during code generation.&quot;</span>)
+    <span class="kw">fn </span>visit_unit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>UnitExpression) -&gt; (String, String) {
+        <span class="macro">unreachable!</span>(<span class="string">"`UnitExpression`s should not be visited during code generation."</span>)
     }
 }
 </code></pre></div></section></main></body></html>

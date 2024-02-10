@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_program.rs`."><title>check_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler/passes/src/type_checking/check_program.rs`."><title>check_program.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="leo_passes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -373,9 +374,9 @@
 
 <span class="comment">// TODO: Cleanup logic for tuples.
 
-</span><span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ProgramVisitor&lt;<span class="lifetime">&#39;a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">&#39;a</span>&gt; {
-    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Program) {
-        <span class="comment">// Typecheck the program&#39;s stubs.
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>visit_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
+        <span class="comment">// Typecheck the program's stubs.
         </span>input.stubs.iter().for_each(|(symbol, stub)| {
             <span class="kw">if </span>symbol != <span class="kw-2">&amp;</span>stub.stub_id.name.name {
                 <span class="self">self</span>.emit_err(TypeCheckerError::stub_name_mismatch(
@@ -392,20 +393,20 @@
         </span>input.program_scopes.values().for_each(|scope| <span class="self">self</span>.visit_program_scope(scope));
     }
 
-    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stub) {
+    <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
         <span class="comment">// Cannot have constant declarations in stubs.
         </span><span class="kw">if </span>!input.consts.is_empty() {
             <span class="self">self</span>.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.get(<span class="number">0</span>).unwrap().<span class="number">1</span>.span));
         }
 
-        <span class="comment">// Typecheck the program&#39;s structs.
+        <span class="comment">// Typecheck the program's structs.
         </span>input.structs.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_struct_stub(function));
 
-        <span class="comment">// Typecheck the program&#39;s functions.
+        <span class="comment">// Typecheck the program's functions.
         </span>input.functions.iter().for_each(|(<span class="kw">_</span>, function)| <span class="self">self</span>.visit_function_stub(function));
     }
 
-    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FunctionStub) {
+    <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
         <span class="comment">// Must not be an inline function
         </span><span class="kw">if </span>input.variant == Variant::Inline {
             <span class="self">self</span>.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
@@ -415,16 +416,16 @@
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
 
-        <span class="comment">// Enter the function&#39;s scope.
+        <span class="comment">// Enter the function's scope.
         </span><span class="self">self</span>.enter_scope(function_index);
 
-        <span class="comment">// Create a new child scope for the function&#39;s parameters and body.
+        <span class="comment">// Create a new child scope for the function's parameters and body.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
         <span class="comment">// Query helper function to type check function parameters and outputs.
         </span><span class="self">self</span>.check_function_signature(<span class="kw-2">&amp;</span>Function::from(input.clone()));
 
-        <span class="comment">// Exit the scope for the function&#39;s parameters and body.
+        <span class="comment">// Exit the scope for the function's parameters and body.
         </span><span class="self">self</span>.exit_scope(scope_index);
 
         <span class="comment">// Check that the finalize scope is valid
@@ -440,15 +441,15 @@
             </span><span class="self">self</span>.exit_scope(scope_index);
         }
 
-        <span class="comment">// Exit the function&#39;s scope.
+        <span class="comment">// Exit the function's scope.
         </span><span class="self">self</span>.exit_scope(function_index);
     }
 
-    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) {
         <span class="self">self</span>.visit_struct(input);
     }
 
-    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>ProgramScope) {
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
         <span class="comment">// Typecheck each const definition, and append to symbol table.
         </span>input.consts.iter().for_each(|(<span class="kw">_</span>, c)| <span class="self">self</span>.visit_const(c));
 
@@ -504,7 +505,7 @@
         }
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Struct) {
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) {
         <span class="comment">// Check for conflicting struct/record member names.
         </span><span class="kw">let </span><span class="kw-2">mut </span>used = HashSet::new();
         <span class="comment">// TODO: Better span to target duplicate member.
@@ -541,7 +542,7 @@
             <span class="comment">// Check that the member type is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
-                    <span class="kw">if </span>input.is_record { <span class="string">&quot;record&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;struct&quot; </span>},
+                    <span class="kw">if </span>input.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>},
                     identifier.span,
                 ));
             }
@@ -568,44 +569,44 @@
         }
     }
 
-    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Mapping) {
-        <span class="comment">// Check that a mapping&#39;s key type is valid.
+    <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) {
+        <span class="comment">// Check that a mapping's key type is valid.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.key_type, input.span);
-        <span class="comment">// Check that a mapping&#39;s key type is not a tuple, record, or mapping.
+        <span class="comment">// Check that a mapping's key type is not a tuple, record, or mapping.
         </span><span class="kw">match </span>input.key_type {
-            Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
+            Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Identifier(identifier) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name) {
                     <span class="kw">if </span>struct_.is_record {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;record&quot;</span>, input.span));
+                        <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"record"</span>, input.span));
                     }
                 }
             }
             <span class="comment">// Note that this is not possible since the parser does not currently accept mapping types.
-            </span>Type::Mapping(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;mapping&quot;</span>, input.span)),
+            </span>Type::Mapping(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"mapping"</span>, input.span)),
             <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="comment">// Check that a mapping&#39;s value type is valid.
+        <span class="comment">// Check that a mapping's value type is valid.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.value_type, input.span);
-        <span class="comment">// Check that a mapping&#39;s value type is not a tuple, record or mapping.
+        <span class="comment">// Check that a mapping's value type is not a tuple, record or mapping.
         </span><span class="kw">match </span>input.value_type {
-            Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;tuple&quot;</span>, input.span)),
+            Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Identifier(identifier) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name) {
                     <span class="kw">if </span>struct_.is_record {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;record&quot;</span>, input.span));
+                        <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"record"</span>, input.span));
                     }
                 }
             }
             <span class="comment">// Note that this is not possible since the parser does not currently accept mapping types.
-            </span>Type::Mapping(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">&quot;value&quot;</span>, <span class="string">&quot;mapping&quot;</span>, input.span)),
+            </span>Type::Mapping(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"mapping"</span>, input.span)),
             <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Function) {
-        <span class="comment">// Check that the function&#39;s annotations are valid.
+    <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
+        <span class="comment">// Check that the function's annotations are valid.
         // Note that Leo does not natively support any specific annotations.
         </span><span class="kw">for </span>annotation <span class="kw">in </span>function.annotations.iter() {
             <span class="comment">// TODO: Change to compiler warning.
@@ -618,19 +619,19 @@
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
 
-        <span class="comment">// Enter the function&#39;s scope.
+        <span class="comment">// Enter the function's scope.
         </span><span class="self">self</span>.enter_scope(function_index);
 
-        <span class="comment">// The function&#39;s body does not have a return statement.
+        <span class="comment">// The function's body does not have a return statement.
         </span><span class="self">self</span>.has_return = <span class="bool-val">false</span>;
 
-        <span class="comment">// The function&#39;s body does not have a finalize statement.
+        <span class="comment">// The function's body does not have a finalize statement.
         </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
 
         <span class="comment">// Store the name of the function.
         </span><span class="self">self</span>.function = <span class="prelude-val">Some</span>(function.name());
 
-        <span class="comment">// Create a new child scope for the function&#39;s parameters and body.
+        <span class="comment">// Create a new child scope for the function's parameters and body.
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
         <span class="comment">// Query helper function to type check function parameters and outputs.
@@ -648,15 +649,15 @@
             <span class="self">self</span>.emit_err(TypeCheckerError::missing_finalize(function.span));
         }
 
-        <span class="comment">// Exit the scope for the function&#39;s parameters and body.
+        <span class="comment">// Exit the scope for the function's parameters and body.
         </span><span class="self">self</span>.exit_scope(scope_index);
 
         <span class="comment">// Traverse and check the finalize block if it exists.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>function.finalize {
             <span class="self">self</span>.is_finalize = <span class="bool-val">true</span>;
-            <span class="comment">// The function&#39;s finalize block does not have a return statement.
+            <span class="comment">// The function's finalize block does not have a return statement.
             </span><span class="self">self</span>.has_return = <span class="bool-val">false</span>;
-            <span class="comment">// The function&#39;s finalize block does not have a finalize statement.
+            <span class="comment">// The function's finalize block does not have a finalize statement.
             </span><span class="self">self</span>.has_finalize = <span class="bool-val">false</span>;
 
             <span class="comment">// Create a new child scope for the finalize block.
@@ -685,7 +686,7 @@
             <span class="self">self</span>.is_finalize = <span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Exit the function&#39;s scope.
+        <span class="comment">// Exit the function's scope.
         </span><span class="self">self</span>.exit_scope(function_index);
 
         <span class="comment">// Unset the `variant`.

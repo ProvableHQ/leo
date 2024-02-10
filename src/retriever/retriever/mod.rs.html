@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/retriever/src/retriever/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="retriever" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `utils/retriever/src/retriever/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="retriever" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -530,7 +531,7 @@
     path::{Path, PathBuf},
 };
 
-<span class="kw">const </span>ALEO_EXPLORER_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://api.explorer.aleo.org/v1&quot;</span>;
+<span class="kw">const </span>ALEO_EXPLORER_URL: <span class="kw-2">&amp;</span>str = <span class="string">"https://api.explorer.aleo.org/v1"</span>;
 
 <span class="comment">// Retriever is responsible for retrieving external programs
 </span><span class="kw">pub struct </span>Retriever {
@@ -544,17 +545,17 @@
     <span class="comment">// Initialize a new Retriever.
     </span><span class="kw">pub fn </span>new(name: Symbol, path: <span class="kw-2">&amp;</span>PathBuf, home: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, UtilError&gt; {
         <span class="comment">// Starting point is all of the dependencies specified in the main `program.json` file
-        </span><span class="kw">let </span>dependencies = retrieve_local(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{name}.aleo&quot;</span>), path)<span class="question-mark">?</span>;
+        </span><span class="kw">let </span>dependencies = retrieve_local(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>), path)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>contexts = IndexMap::from([(name, ProgramContext::new_main(name, path.clone(), dependencies.clone()))]);
         <span class="kw">for </span>dep <span class="kw">in </span>dependencies {
             contexts.insert(Symbol::from(<span class="kw-2">&amp;</span>dep), ProgramContext::from(dep));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name, contexts, project_path: path.clone(), registry_path: home.join(<span class="string">&quot;registry&quot;</span>) })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name, contexts, project_path: path.clone(), registry_path: home.join(<span class="string">"registry"</span>) })
     }
 
     <span class="kw">pub fn </span>get_context(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>Symbol) -&gt; <span class="kw-2">&amp;</span>ProgramContext {
-        <span class="self">self</span>.contexts.get(name).expect(<span class="string">&quot;Could not find program context&quot;</span>)
+        <span class="self">self</span>.contexts.get(name).expect(<span class="string">"Could not find program context"</span>)
     }
 
     <span class="comment">// Retrieve all dependencies for a program.
@@ -575,7 +576,7 @@
             <span class="comment">// Visit all programs
             </span><span class="kw">for </span>program <span class="kw">in </span>unexplored {
                 <span class="kw">let </span>cur_context =
-                    contexts.get_mut(<span class="kw-2">&amp;</span>program.clone()).expect(<span class="string">&quot;Program must have been processed before its dependency&quot;</span>);
+                    contexts.get_mut(<span class="kw-2">&amp;</span>program.clone()).expect(<span class="string">"Program must have been processed before its dependency"</span>);
                 <span class="comment">// Split into cases based on network dependency or local dependency
                 </span><span class="kw">let </span>nested_dependencies = <span class="kw">match </span>cur_context.location() {
                     Location::Network =&gt; {
@@ -603,17 +604,17 @@
                         </span><span class="kw">let </span>cur_full_path = cur_context.full_path();
                         retrieve_local(cur_context.full_name(), cur_full_path)<span class="question-mark">?
                     </span>}
-                    Location::Git =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Location::Git is not supported yet&quot;</span>),
+                    Location::Git =&gt; <span class="macro">panic!</span>(<span class="string">"Location::Git is not supported yet"</span>),
                 };
 
                 <span class="comment">// Mark as visited
                 </span><span class="kw">if </span>!explored.insert(program) {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Should never visit same dependency twice&quot;</span>);
+                    <span class="macro">panic!</span>(<span class="string">"Should never visit same dependency twice"</span>);
                 }
 
                 <span class="kw">for </span>dep <span class="kw">in </span><span class="kw-2">&amp;</span>nested_dependencies {
                     <span class="kw">let </span>dep_sym = Symbol::from(dep);
-                    <span class="comment">// Dependency&#39;s can be processed before their parent, so we need to make sure not to process twice
+                    <span class="comment">// Dependency's can be processed before their parent, so we need to make sure not to process twice
                     </span><span class="kw">if </span>!explored.contains(<span class="kw-2">&amp;</span>dep_sym) {
                         <span class="comment">// Create new ProgramContext for each dependency
                         </span><span class="kw">let </span><span class="kw-2">mut </span>dep_context = ProgramContext::from(dep.clone());
@@ -624,19 +625,19 @@
                                 <span class="comment">// Impossible for a network dependency to import a local dependency
                                 </span>dep_context.add_full_path(<span class="kw-2">&amp;</span>cur_context.full_path().join(dep_context.path()));
                                 dep_context
-                                    .add_compiled_file_path(<span class="kw-2">&amp;</span>dep_context.full_path().join(<span class="string">&quot;build&quot;</span>).join(<span class="string">&quot;main.aleo&quot;</span>));
+                                    .add_compiled_file_path(<span class="kw-2">&amp;</span>dep_context.full_path().join(<span class="string">"build"</span>).join(<span class="string">"main.aleo"</span>));
                             }
                             Location::Network =&gt; {
                                 dep_context.add_compiled_file_path(<span class="kw-2">&amp;</span><span class="self">self</span>.registry_path.join(<span class="macro">format!</span>(
-                                    <span class="string">&quot;{}/{}&quot;</span>,
+                                    <span class="string">"{}/{}"</span>,
                                     dep_context.network(),
                                     dep_context.full_name()
                                 )));
                             }
-                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Location::Git is not supported yet&quot;</span>),
+                            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Location::Git is not supported yet"</span>),
                         }
 
-                        <span class="comment">// Don&#39;t add a new dependency to check if it has already been processed, or will be processed in the future
+                        <span class="comment">// Don't add a new dependency to check if it has already been processed, or will be processed in the future
                         </span><span class="kw">if </span>!explored.contains(<span class="kw-2">&amp;</span>dep_sym)
                             &amp;&amp; !new_unexplored.contains(<span class="kw-2">&amp;</span>dep_sym)
                             &amp;&amp; !cur_exploring.contains(<span class="kw-2">&amp;</span>dep_sym)
@@ -674,7 +675,7 @@
                 <span class="comment">// Cache order
                 </span>contexts
                     .get_mut(<span class="kw-2">&amp;</span><span class="self">self</span>.name)
-                    .expect(<span class="string">&quot;Retriever must be initialized with main program&quot;</span>)
+                    .expect(<span class="string">"Retriever must be initialized with main program"</span>)
                     .add_post_order(order.clone());
 
                 <span class="comment">// Filter out all network dependencies
@@ -690,7 +691,7 @@
         }
     }
 
-    <span class="comment">// Prepares all the stubs of the program&#39;s dependencies in post order, so that the program can be compiled
+    <span class="comment">// Prepares all the stubs of the program's dependencies in post order, so that the program can be compiled
     </span><span class="kw">pub fn </span>prepare_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: Symbol) -&gt; <span class="prelude-ty">Result</span>&lt;(PathBuf, IndexMap&lt;Symbol, Stub&gt;), UtilError&gt; {
         <span class="comment">// Get the post order of the program
         </span><span class="kw">let </span>post_order = <span class="kw">if </span>name == <span class="self">self</span>.name {
@@ -706,7 +707,7 @@
                 <span class="comment">// Visit all programs
                 </span><span class="kw">for </span>program <span class="kw">in </span>unexplored {
                     <span class="kw">for </span>dep <span class="kw">in </span><span class="self">self</span>.get_context(<span class="kw-2">&amp;</span>program).dependencies() {
-                        <span class="comment">// Don&#39;t add a new dependency to check if it has already been processed, or will be processed in the future
+                        <span class="comment">// Don't add a new dependency to check if it has already been processed, or will be processed in the future
                         </span><span class="kw">if </span>!new_unexplored.contains(<span class="kw-2">&amp;</span>dep) &amp;&amp; !local_digraph.contains_node(dep) {
                             new_unexplored.push(dep);
                         }
@@ -744,11 +745,11 @@
             <span class="comment">// Fetch stubs. They must exist in cache.
             </span>stubs.insert(dep, dep_context.stub().clone());
 
-            <span class="kw">let </span>imports_path = project_path.join(<span class="string">&quot;build&quot;</span>).join(<span class="string">&quot;imports&quot;</span>);
+            <span class="kw">let </span>imports_path = project_path.join(<span class="string">"build"</span>).join(<span class="string">"imports"</span>);
 
             <span class="kw">if </span>!imports_path.exists() {
                 std::fs::create_dir_all(<span class="kw-2">&amp;</span>imports_path)
-                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">&quot;Failed to create build/imports directory for `{name}`&quot;</span>));
+                    .unwrap_or_else(|<span class="kw">_</span>| <span class="macro">panic!</span>(<span class="string">"Failed to create build/imports directory for `{name}`"</span>));
             }
 
             <span class="kw">let </span>destination_path = imports_path.join(dep_context.full_name());
@@ -756,20 +757,20 @@
             <span class="comment">// Move all dependencies to local build directory
             </span><span class="kw">let </span>source_string = fs::read_to_string(dep_context.compiled_file_path()).unwrap_or_else(|<span class="kw">_</span>| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Failed to read `{name}` from `{path}`&quot;</span>,
+                    <span class="string">"Failed to read `{name}` from `{path}`"</span>,
                     name = dep_context.full_name(),
                     path = dep_context.compiled_file_path().to_str().unwrap()
                 )
             });
             fs::write(destination_path.clone(), source_string).unwrap_or_else(|<span class="kw">_</span>| {
                 <span class="macro">panic!</span>(
-                    <span class="string">&quot;Failed to write `{name}` to `{path}`&quot;</span>,
+                    <span class="string">"Failed to write `{name}` to `{path}`"</span>,
                     name = dep_context.full_name(),
                     path = destination_path.to_str().unwrap()
                 )
             });
             <span class="comment">// fs::copy(dep_context.compiled_file_path(), destination_path).unwrap_or_else(|_| {
-            //     panic!(&quot;Failed to copy `{name}` to build directory&quot;, name = dep_context.full_name())
+            //     panic!("Failed to copy `{name}` to build directory", name = dep_context.full_name())
             // });
         </span>}
 
@@ -779,16 +780,16 @@
     <span class="comment">// Creates the stub of the program, caches it, and writes the local `leo.lock` file
     </span><span class="kw">pub fn </span>process_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: Symbol) -&gt; <span class="prelude-ty">Result</span>&lt;(), UtilError&gt; {
         <span class="kw">let </span>cur_context = <span class="self">self</span>.contexts.get_mut(<span class="kw-2">&amp;</span>name).unwrap();
-        <span class="comment">// Don&#39;t need to disassemble the main file
+        <span class="comment">// Don't need to disassemble the main file
         </span><span class="kw">if </span>name != <span class="self">self</span>.name {
             <span class="comment">// Disassemble the program
             </span><span class="kw">let </span><span class="kw-2">mut </span>file = File::open(cur_context.compiled_file_path()).unwrap_or_else(|<span class="kw">_</span>| {
-                <span class="macro">panic!</span>(<span class="string">&quot;Failed to open file {}&quot;</span>, cur_context.compiled_file_path().to_str().unwrap())
+                <span class="macro">panic!</span>(<span class="string">"Failed to open file {}"</span>, cur_context.compiled_file_path().to_str().unwrap())
             });
             <span class="kw">let </span><span class="kw-2">mut </span>content = String::new();
             file.read_to_string(<span class="kw-2">&amp;mut </span>content).map_err(|err| {
                 UtilError::util_file_io_error(
-                    <span class="macro">format!</span>(<span class="string">&quot;Could not read {}&quot;</span>, cur_context.compiled_file_path().to_str().unwrap()),
+                    <span class="macro">format!</span>(<span class="string">"Could not read {}"</span>, cur_context.compiled_file_path().to_str().unwrap()),
                     err,
                     Default::default(),
                 )
@@ -823,16 +824,16 @@
                 LockFileEntry::from(context)
             })
             .collect();
-        lock_file.insert(<span class="string">&quot;package&quot;</span>.to_string(), packages);
+        lock_file.insert(<span class="string">"package"</span>.to_string(), packages);
 
         <span class="comment">// Serialize the data to a TOML string
         </span><span class="kw">let </span>toml_str =
             toml::to_string(<span class="kw-2">&amp;</span>lock_file).map_err(|err| UtilError::toml_serizalization_error(err, Default::default()))<span class="question-mark">?</span>;
 
         <span class="comment">// Write the TOML string to a file
-        </span>std::fs::write(<span class="self">self</span>.get_context(name).full_path().join(<span class="string">&quot;leo.lock&quot;</span>), toml_str).map_err(|err| {
+        </span>std::fs::write(<span class="self">self</span>.get_context(name).full_path().join(<span class="string">"leo.lock"</span>), toml_str).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Could not read {}&quot;</span>, <span class="self">self</span>.get_context(name).full_path().join(<span class="string">&quot;leo.lock&quot;</span>).to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Could not read {}"</span>, <span class="self">self</span>.get_context(name).full_path().join(<span class="string">"leo.lock"</span>).to_str().unwrap()),
                 err,
                 Default::default(),
             )
@@ -843,19 +844,19 @@
 
 <span class="comment">// Retrieve local
 </span><span class="kw">fn </span>retrieve_local(name: <span class="kw-2">&amp;</span>String, path: <span class="kw-2">&amp;</span>PathBuf) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Dependency&gt;, UtilError&gt; {
-    <span class="comment">// Create the lock file if it doesn&#39;t exist
-    </span><span class="kw">let </span>lock_path = path.join(<span class="string">&quot;leo.lock&quot;</span>);
+    <span class="comment">// Create the lock file if it doesn't exist
+    </span><span class="kw">let </span>lock_path = path.join(<span class="string">"leo.lock"</span>);
     <span class="kw">if </span>!lock_path.exists() {
         std::fs::create_dir_all(path).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t create directory {}&quot;</span>, lock_path.to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Couldn't create directory {}"</span>, lock_path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
         })<span class="question-mark">?</span>;
         File::create(lock_path.clone()).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t create file {}&quot;</span>, lock_path.to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Couldn't create file {}"</span>, lock_path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
@@ -863,9 +864,9 @@
     }
 
     <span class="comment">// Open `program.json` which is located at `package_path/program.json`.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>file = File::open(path.join(<span class="string">&quot;program.json&quot;</span>)).map_err(|err| {
+    </span><span class="kw">let </span><span class="kw-2">mut </span>file = File::open(path.join(<span class="string">"program.json"</span>)).map_err(|err| {
         UtilError::util_file_io_error(
-            <span class="macro">format!</span>(<span class="string">&quot;Could not open path {}&quot;</span>, path.join(<span class="string">&quot;program.json&quot;</span>).to_str().unwrap()),
+            <span class="macro">format!</span>(<span class="string">"Could not open path {}"</span>, path.join(<span class="string">"program.json"</span>).to_str().unwrap()),
             err,
             Default::default(),
         )
@@ -875,7 +876,7 @@
     </span><span class="kw">let </span><span class="kw-2">mut </span>content = String::new();
     file.read_to_string(<span class="kw-2">&amp;mut </span>content).map_err(|err| {
         UtilError::util_file_io_error(
-            <span class="macro">format!</span>(<span class="string">&quot;Could not read path {}&quot;</span>, path.join(<span class="string">&quot;program.json&quot;</span>).to_str().unwrap()),
+            <span class="macro">format!</span>(<span class="string">"Could not read path {}"</span>, path.join(<span class="string">"program.json"</span>).to_str().unwrap()),
             err,
             Default::default(),
         )
@@ -911,29 +912,29 @@
     network: <span class="kw-2">&amp;</span>Network,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Stub, Vec&lt;Dependency&gt;), UtilError&gt; {
     <span class="comment">// Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
-    </span><span class="kw">let </span>move_to_path = home_path.join(<span class="macro">format!</span>(<span class="string">&quot;{network}&quot;</span>));
+    </span><span class="kw">let </span>move_to_path = home_path.join(<span class="macro">format!</span>(<span class="string">"{network}"</span>));
     <span class="kw">let </span>path = move_to_path.join(name.clone());
     <span class="kw">let </span><span class="kw-2">mut </span>file_str: String;
     <span class="kw">if </span>!path.exists() {
-        <span class="comment">// Create directories along the way if they don&#39;t exist
+        <span class="comment">// Create directories along the way if they don't exist
         </span>std::fs::create_dir_all(<span class="kw-2">&amp;</span>move_to_path).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Could not write path {}&quot;</span>, move_to_path.to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Could not write path {}"</span>, move_to_path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
         })<span class="question-mark">?</span>;
 
         <span class="comment">// Fetch from network
-        </span><span class="macro">println!</span>(<span class="string">&quot;Retrieving {} from {:?}.&quot;</span>, name, network.clone());
+        </span><span class="macro">println!</span>(<span class="string">"Retrieving {} from {:?}."</span>, name, network.clone());
         file_str = fetch_from_network(name, network.clone())<span class="question-mark">?</span>;
-        file_str = file_str.replace(<span class="string">&quot;\\n&quot;</span>, <span class="string">&quot;\n&quot;</span>).replace(<span class="string">&#39;\&quot;&#39;</span>, <span class="string">&quot;&quot;</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;Successfully retrieved {} from {:?}!&quot;</span>, name, network);
+        file_str = file_str.replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>);
+        <span class="macro">println!</span>(<span class="string">"Successfully retrieved {} from {:?}!"</span>, name, network);
 
         <span class="comment">// Write file to cache
-        </span>std::fs::write(path.clone(), file_str.clone().replace(<span class="string">&quot;\\n&quot;</span>, <span class="string">&quot;\n&quot;</span>)).map_err(|err| {
+        </span>std::fs::write(path.clone(), file_str.clone().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>)).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Could not open path {}&quot;</span>, path.to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Could not open path {}"</span>, path.to_str().unwrap()),
                 err,
                 Default::default(),
             )
@@ -942,7 +943,7 @@
         <span class="comment">// Read file from cache
         </span>file_str = fs::read_to_string(path.clone()).map_err(|err| {
             UtilError::util_file_io_error(
-                <span class="macro">format!</span>(<span class="string">&quot;Could not read path {}&quot;</span>, path.clone().to_str().unwrap()),
+                <span class="macro">format!</span>(<span class="string">"Could not read path {}"</span>, path.clone().to_str().unwrap()),
                 err,
                 Default::default(),
             )
@@ -950,11 +951,11 @@
     }
 
     <span class="comment">// Copy the file into build directory. We can assume build directory exists because of its initialization in `leo/cli/commands/build.rs`.
-    </span><span class="kw">let </span>import_dir = project_path.join(<span class="string">&quot;build&quot;</span>).join(<span class="string">&quot;imports&quot;</span>);
+    </span><span class="kw">let </span>import_dir = project_path.join(<span class="string">"build"</span>).join(<span class="string">"imports"</span>);
     <span class="kw">let </span>import_dir_path = import_dir.as_path();
     std::fs::create_dir_all(import_dir_path).map_err(|err| {
         UtilError::util_file_io_error(
-            <span class="macro">format!</span>(<span class="string">&quot;Could not create path {}&quot;</span>, import_dir_path.to_str().unwrap()),
+            <span class="macro">format!</span>(<span class="string">"Could not create path {}"</span>, import_dir_path.to_str().unwrap()),
             err,
             Default::default(),
         )
@@ -962,7 +963,7 @@
     <span class="kw">let </span>build_location = PathBuf::from(import_dir_path).join(name.clone());
     std::fs::write(build_location.clone(), file_str.clone()).map_err(|err| {
         UtilError::util_file_io_error(
-            <span class="macro">format!</span>(<span class="string">&quot;Could not write to path {}&quot;</span>, build_location.to_str().unwrap()),
+            <span class="macro">format!</span>(<span class="string">"Could not write to path {}"</span>, build_location.to_str().unwrap()),
             err,
             Default::default(),
         )
@@ -979,7 +980,7 @@
             .iter()
             .map(|id| {
                 Dependency::new(
-                    id.name.name.to_string() + <span class="string">&quot;.&quot; </span>+ id.network.name.to_string().as_str(),
+                    id.name.name.to_string() + <span class="string">"." </span>+ id.network.name.to_string().as_str(),
                     Location::Network,
                     <span class="prelude-val">Some</span>(network.clone()),
                     <span class="prelude-val">None</span>,
@@ -990,7 +991,7 @@
 }
 
 <span class="kw">fn </span>fetch_from_network(program: <span class="kw-2">&amp;</span>String, network: Network) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/{}/program/{}&quot;</span>, ALEO_EXPLORER_URL, network.clone(), program);
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/program/{}"</span>, ALEO_EXPLORER_URL, network.clone(), program);
     <span class="kw">let </span>response = ureq::get(<span class="kw-2">&amp;</span>url.clone())
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))<span class="question-mark">?</span>;

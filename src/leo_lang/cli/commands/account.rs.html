@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/account.rs`."><title>account.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-9ee3a5e31a2afa3e.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.75.0 (82e1608df 2023-12-21)" data-channel="1.75.0" data-search-js="search-8fbf244ebcf71464.js" data-settings-js="settings-74424d7eec62a23e.js" ><script src="../../../../static.files/storage-fec3eaa3851e447d.js"></script><script defer src="../../../../static.files/src-script-3280b574d94e47b4.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-9dd44ab47b99a0fb.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-5d8b3c7633ad77ba.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo/cli/commands/account.rs`."><title>account.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="leo_lang" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -418,10 +419,10 @@
     <span class="doccomment">/// Generates a new Aleo account
     </span>New {
         <span class="doccomment">/// Seed the RNG with a numeric value.
-        </span><span class="attr">#[clap(short = <span class="string">&#39;s&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'s'</span>, long)]
         </span>seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
         <span class="doccomment">/// Write the private key to the .env file.
-        </span><span class="attr">#[clap(short = <span class="string">&#39;w&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'w'</span>, long)]
         </span>write: bool,
         <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
         </span><span class="attr">#[clap(long)]
@@ -432,7 +433,7 @@
         <span class="doccomment">/// Private key plaintext
         </span>private_key: PrivateKey&lt;CurrentNetwork&gt;,
         <span class="doccomment">/// Write the private key to the .env file.
-        </span><span class="attr">#[clap(short = <span class="string">&#39;w&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'w'</span>, long)]
         </span>write: bool,
         <span class="doccomment">/// Print sensitive information (such as private key) discreetly to an alternate screen
         </span><span class="attr">#[clap(long)]
@@ -441,34 +442,34 @@
     <span class="doccomment">/// Sign a message using your Aleo private key.
     </span>Sign {
         <span class="doccomment">/// Specify the account private key of the node
-        </span><span class="attr">#[clap(long = <span class="string">&quot;private-key&quot;</span>)]
+        </span><span class="attr">#[clap(long = <span class="string">"private-key"</span>)]
         </span>private_key: <span class="prelude-ty">Option</span>&lt;PrivateKey&lt;CurrentNetwork&gt;&gt;,
         <span class="doccomment">/// Specify the path to a file containing the account private key of the node
-        </span><span class="attr">#[clap(long = <span class="string">&quot;private-key-file&quot;</span>)]
+        </span><span class="attr">#[clap(long = <span class="string">"private-key-file"</span>)]
         </span>private_key_file: <span class="prelude-ty">Option</span>&lt;String&gt;,
         <span class="doccomment">/// Message (Aleo value) to sign
-        </span><span class="attr">#[clap(short = <span class="string">&#39;m&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'m'</span>, long)]
         </span>message: String,
         <span class="doccomment">/// Seed the RNG with a numeric value
-        </span><span class="attr">#[clap(short = <span class="string">&#39;s&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'s'</span>, long)]
         </span>seed: <span class="prelude-ty">Option</span>&lt;u64&gt;,
         <span class="doccomment">/// When enabled, parses the message as bytes instead of Aleo literals
-        </span><span class="attr">#[clap(short = <span class="string">&#39;r&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'r'</span>, long)]
         </span>raw: bool,
     },
     <span class="doccomment">/// Verify a message from an Aleo address.
     </span>Verify {
         <span class="doccomment">/// Address to use for verification
-        </span><span class="attr">#[clap(short = <span class="string">&#39;a&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'a'</span>, long)]
         </span>address: Address&lt;CurrentNetwork&gt;,
         <span class="doccomment">/// Signature to verify
-        </span><span class="attr">#[clap(short = <span class="string">&#39;s&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'s'</span>, long)]
         </span>signature: String,
         <span class="doccomment">/// Message (Aleo value) to verify the signature against
-        </span><span class="attr">#[clap(short = <span class="string">&#39;m&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'m'</span>, long)]
         </span>message: String,
         <span class="doccomment">/// When enabled, parses the message as bytes instead of Aleo literals
-        </span><span class="attr">#[clap(short = <span class="string">&#39;r&#39;</span>, long)]
+        </span><span class="attr">#[clap(short = <span class="string">'r'</span>, long)]
         </span>raw: bool,
     },
 }
@@ -522,30 +523,30 @@
                     (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(private_key_file)) =&gt; {
                         <span class="kw">let </span>path = private_key_file
                             .parse::&lt;PathBuf&gt;()
-                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">&quot;invalid path - {e}&quot;</span>)))<span class="question-mark">?</span>;
+                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"invalid path - {e}"</span>)))<span class="question-mark">?</span>;
                         <span class="kw">let </span>key_str = std::fs::read_to_string(path).map_err(UtilError::failed_to_read_file)<span class="question-mark">?</span>;
                         PrivateKey::&lt;CurrentNetwork&gt;::from_str(key_str.trim())
-                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">&quot;could not parse private key: {e}&quot;</span>)))<span class="question-mark">?
+                            .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"could not parse private key: {e}"</span>)))<span class="question-mark">?
                     </span>}
                     (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
                         <span class="comment">// Attempt to pull private key from env, then .env file
-                        </span><span class="kw">match </span>dotenvy::var(<span class="string">&quot;PRIVATE_KEY&quot;</span>)
+                        </span><span class="kw">match </span>dotenvy::var(<span class="string">"PRIVATE_KEY"</span>)
                             .map_or_else(|<span class="kw">_</span>| dotenv_private_key(), |key| PrivateKey::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>key))
                         {
                             <span class="prelude-val">Ok</span>(key) =&gt; key,
                             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(CliError::cli_invalid_input(
-                                <span class="string">&quot;missing the &#39;--private-key&#39;, &#39;--private-key-file&#39;, PRIVATE_KEY env, or .env&quot;</span>,
+                                <span class="string">"missing the '--private-key', '--private-key-file', PRIVATE_KEY env, or .env"</span>,
                             ))<span class="question-mark">?</span>,
                         }
                     }
                     (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Err</span>(CliError::cli_invalid_input(
-                        <span class="string">&quot;cannot specify both the &#39;--private-key&#39; and &#39;--private-key-file&#39; flags&quot;</span>,
+                        <span class="string">"cannot specify both the '--private-key' and '--private-key-file' flags"</span>,
                     ))<span class="question-mark">?</span>,
                 };
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, sign_message(key, message, seed, raw)<span class="question-mark">?</span>);
+                <span class="macro">println!</span>(<span class="string">"{}"</span>, sign_message(key, message, seed, raw)<span class="question-mark">?</span>);
             }
             <span class="self">Self</span>::Verify { address, signature, message, raw } =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, verify_message(address, signature, message, raw)<span class="question-mark">?</span>)
+                <span class="macro">println!</span>(<span class="string">"{}"</span>, verify_message(address, signature, message, raw)<span class="question-mark">?</span>)
             }
         }
         <span class="prelude-val">Ok</span>(())
@@ -561,31 +562,31 @@
 
     <span class="kw">if </span>!discreet {
         <span class="macro">println!</span>(
-            <span class="string">&quot;\n {:&gt;12}  {private_key}\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n&quot;</span>,
-            <span class="string">&quot;Private Key&quot;</span>.cyan().bold(),
-            <span class="string">&quot;View Key&quot;</span>.cyan().bold(),
-            <span class="string">&quot;Address&quot;</span>.cyan().bold(),
+            <span class="string">"\n {:&gt;12}  {private_key}\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n"</span>,
+            <span class="string">"Private Key"</span>.cyan().bold(),
+            <span class="string">"View Key"</span>.cyan().bold(),
+            <span class="string">"Address"</span>.cyan().bold(),
         );
         <span class="kw">return </span><span class="prelude-val">Ok</span>(());
     }
     display_string_discreetly(
         <span class="kw-2">&amp;</span>private_key.to_string(),
-        <span class="string">&quot;### Do not share or lose this private key! Press any key to complete. ###&quot;</span>,
+        <span class="string">"### Do not share or lose this private key! Press any key to complete. ###"</span>,
     )<span class="question-mark">?</span>;
-    <span class="macro">println!</span>(<span class="string">&quot;\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n&quot;</span>, <span class="string">&quot;View Key&quot;</span>.cyan().bold(), <span class="string">&quot;Address&quot;</span>.cyan().bold(),);
+    <span class="macro">println!</span>(<span class="string">"\n {:&gt;12}  {view_key}\n {:&gt;12}  {address}\n"</span>, <span class="string">"View Key"</span>.cyan().bold(), <span class="string">"Address"</span>.cyan().bold(),);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="comment">// Write the network and private key to the .env file in project directory.
 </span><span class="kw">fn </span>write_to_env_file(private_key: PrivateKey&lt;CurrentNetwork&gt;, ctx: <span class="kw-2">&amp;</span>Context) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>data = <span class="macro">format!</span>(<span class="string">&quot;NETWORK=testnet3\nPRIVATE_KEY={private_key}\n&quot;</span>);
+    <span class="kw">let </span>data = <span class="macro">format!</span>(<span class="string">"NETWORK=testnet3\nPRIVATE_KEY={private_key}\n"</span>);
     <span class="kw">let </span>program_dir = ctx.dir()<span class="question-mark">?</span>;
     Env::&lt;CurrentNetwork&gt;::from(data).write_to(<span class="kw-2">&amp;</span>program_dir)<span class="question-mark">?</span>;
-    <span class="macro">tracing::info!</span>(<span class="string">&quot;✅ Private Key written to {}&quot;</span>, program_dir.join(<span class="string">&quot;.env&quot;</span>).display());
+    <span class="macro">tracing::info!</span>(<span class="string">"✅ Private Key written to {}"</span>, program_dir.join(<span class="string">".env"</span>).display());
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Print the string to an alternate screen, so that the string won&#39;t been printed to the terminal.
+<span class="doccomment">/// Print the string to an alternate screen, so that the string won't been printed to the terminal.
 </span><span class="kw">fn </span>display_string_discreetly(discreet_string: <span class="kw-2">&amp;</span>str, continue_message: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">use </span>crossterm::{
         style::Print,
@@ -594,7 +595,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>stdout = io::stdout();
     stdout.execute(EnterAlternateScreen).unwrap();
     <span class="comment">// print msg on the alternate screen
-    </span>stdout.execute(Print(<span class="macro">format!</span>(<span class="string">&quot;{discreet_string}\n{continue_message}&quot;</span>))).unwrap();
+    </span>stdout.execute(Print(<span class="macro">format!</span>(<span class="string">"{discreet_string}\n{continue_message}"</span>))).unwrap();
     stdout.flush().unwrap();
     wait_for_keypress();
     stdout.execute(LeaveAlternateScreen).unwrap();
@@ -627,10 +628,10 @@
     } <span class="kw">else </span>{
         <span class="kw">let </span>fields = Value::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
             </span>.to_fields()
-            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">&quot;Failed to parse a valid Aleo value&quot;</span>))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
         private_key.sign(<span class="kw-2">&amp;</span>fields, <span class="kw-2">&amp;mut </span>rng)
     }
-    .map_err(|<span class="kw">_</span>| CliError::cli_runtime_error(<span class="string">&quot;Failed to sign the message&quot;</span>))<span class="question-mark">?
+    .map_err(|<span class="kw">_</span>| CliError::cli_runtime_error(<span class="string">"Failed to sign the message"</span>))<span class="question-mark">?
     </span>.to_string();
     <span class="comment">// Return the signature as a string
     </span><span class="prelude-val">Ok</span>(signature)
@@ -644,7 +645,7 @@
     raw: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
     <span class="kw">let </span>signature = Signature::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>signature)
-        .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">&quot;Failed to parse a valid signature: {e}&quot;</span>)))<span class="question-mark">?</span>;
+        .map_err(|e| CliError::cli_invalid_input(<span class="macro">format!</span>(<span class="string">"Failed to parse a valid signature: {e}"</span>)))<span class="question-mark">?</span>;
 
     <span class="comment">// Verify the signature
     </span><span class="kw">let </span>verified = <span class="kw">if </span>raw {
@@ -652,14 +653,14 @@
     } <span class="kw">else </span>{
         <span class="kw">let </span>fields = Value::&lt;CurrentNetwork&gt;::from_str(<span class="kw-2">&amp;</span>message)<span class="question-mark">?
             </span>.to_fields()
-            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">&quot;Failed to parse a valid Aleo value&quot;</span>))<span class="question-mark">?</span>;
+            .map_err(|<span class="kw">_</span>| CliError::cli_invalid_input(<span class="string">"Failed to parse a valid Aleo value"</span>))<span class="question-mark">?</span>;
         signature.verify(<span class="kw-2">&amp;</span>address, <span class="kw-2">&amp;</span>fields)
     };
 
     <span class="comment">// Return the verification result
     </span><span class="kw">match </span>verified {
-        <span class="bool-val">true </span>=&gt; <span class="prelude-val">Ok</span>(<span class="string">&quot;✅ The signature is valid&quot;</span>.to_string()),
-        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(CliError::cli_runtime_error(<span class="string">&quot;❌ The signature is invalid&quot;</span>))<span class="question-mark">?</span>,
+        <span class="bool-val">true </span>=&gt; <span class="prelude-val">Ok</span>(<span class="string">"✅ The signature is valid"</span>.to_string()),
+        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(CliError::cli_runtime_error(<span class="string">"❌ The signature is invalid"</span>))<span class="question-mark">?</span>,
     }
 }
 
@@ -669,31 +670,31 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature_raw() {
-        <span class="kw">let </span>key = <span class="string">&quot;APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;Hello, world!&quot;</span>.to_string();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
         <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">true</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature() {
-        <span class="kw">let </span>key = <span class="string">&quot;APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;5field&quot;</span>.to_string();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
         <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_signature_fail() {
-        <span class="kw">let </span>key = <span class="string">&quot;APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;not a literal value&quot;</span>.to_string();
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>message = <span class="string">"not a literal value"</span>.to_string();
         <span class="macro">assert!</span>(sign_message(key, message, <span class="prelude-val">None</span>, <span class="bool-val">false</span>).is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_seeded_signature_raw() {
         <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">&quot;APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;Hello, world!&quot;</span>.to_string();
-        <span class="kw">let </span>expected = <span class="string">&quot;sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
+        <span class="kw">let </span>expected = <span class="string">"sign175pmqldmkqw2nwp7wz7tfmpyqdnvzaq06mh8t2g22frsmrdtuvpf843p0wzazg27rwrjft8863vwn5a5cqgr97ldw69cyq53l0zlwqhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkevd26g"</span>;
         <span class="kw">let </span>actual = sign_message(key, message, seed, <span class="bool-val">true</span>).unwrap();
         <span class="macro">assert_eq!</span>(expected, actual);
     }
@@ -701,60 +702,60 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_seeded_signature() {
         <span class="kw">let </span>seed = <span class="prelude-val">Some</span>(<span class="number">38868010450269069</span>);
-        <span class="kw">let </span>key = <span class="string">&quot;APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>message = <span class="string">&quot;5field&quot;</span>.to_string();
-        <span class="kw">let </span>expected = <span class="string">&quot;sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re&quot;</span>;
+        <span class="kw">let </span>key = <span class="string">"APrivateKey1zkp61PAYmrYEKLtRWeWhUoDpFnGLNuHrCciSqN49T86dw3p"</span>.parse().unwrap();
+        <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
+        <span class="kw">let </span>expected = <span class="string">"sign1ad29myqy8gv6xve2r6tuly39m63l2mpfpyvqkwdl2umxqek6q5qxmy63zmhjx75x90sqxq69u5ntzp25kp59e0hp4hj8l8085sg7vqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk7v46re"</span>;
         <span class="kw">let </span>actual = sign_message(key, message, seed, <span class="bool-val">false</span>).unwrap();
         <span class="macro">assert_eq!</span>(expected, actual);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_verify_raw() {
-        <span class="comment">// test signature of &quot;Hello, world!&quot;
-        </span><span class="kw">let </span>address = <span class="string">&quot;aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>signature = <span class="string">&quot;sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;Hello, world!&quot;</span>.to_string();
+        <span class="comment">// test signature of "Hello, world!"
+        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.parse().unwrap();
+        <span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_ok());
 
-        <span class="comment">// test signature of &quot;Hello, world!&quot; against the message &quot;Different Message&quot;
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;Different Message&quot;</span>.to_string();
+        <span class="comment">// test signature of "Hello, world!" against the message "Different Message"
+        </span><span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"Different Message"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_err());
 
-        <span class="comment">// test signature of &quot;Hello, world!&quot; against the wrong address
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;Hello, world!&quot;</span>.to_string();
-        <span class="kw">let </span>wrong_address = <span class="string">&quot;aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5&quot;</span>.parse().unwrap();
+        <span class="comment">// test signature of "Hello, world!" against the wrong address
+        </span><span class="kw">let </span>signature = <span class="string">"sign1nnvrjlksrkxdpwsrw8kztjukzhmuhe5zf3srk38h7g32u4kqtqpxn3j5a6k8zrqcfx580a96956nsjvluzt64cqf54pdka9mgksfqp8esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkwsnaqq"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"Hello, world!"</span>.to_string();
+        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.parse().unwrap();
         <span class="macro">assert!</span>(verify_message(wrong_address, signature, message, <span class="bool-val">true</span>).is_err());
 
-        <span class="comment">// test a valid signature of &quot;Different Message&quot;
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1424ztyt9hcm77nq450gvdszrvtg9kvhc4qadg4nzy9y0ah7wdqq7t36cxal42p9jj8e8pjpmc06lfev9nvffcpqv0cxwyr0a2j2tjqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk3yrr50&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;Different Message&quot;</span>.to_string();
+        <span class="comment">// test a valid signature of "Different Message"
+        </span><span class="kw">let </span>signature = <span class="string">"sign1424ztyt9hcm77nq450gvdszrvtg9kvhc4qadg4nzy9y0ah7wdqq7t36cxal42p9jj8e8pjpmc06lfev9nvffcpqv0cxwyr0a2j2tjqlesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk3yrr50"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"Different Message"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">true</span>).is_ok());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_verify() {
         <span class="comment">// test signature of 5u8
-        </span><span class="kw">let </span>address = <span class="string">&quot;aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j&quot;</span>.parse().unwrap();
-        <span class="kw">let </span>signature = <span class="string">&quot;sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;5field&quot;</span>.to_string();
+        </span><span class="kw">let </span>address = <span class="string">"aleo1zecnqchckrzw7dlsyf65g6z5le2rmys403ecwmcafrag0e030yxqrnlg8j"</span>.parse().unwrap();
+        <span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_ok());
 
         <span class="comment">// test signature of 5u8 against the message 10u8
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;10field&quot;</span>.to_string();
+        </span><span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"10field"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_err());
 
         <span class="comment">// test signature of 5u8 against the wrong address
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;5field&quot;</span>.to_string();
-        <span class="kw">let </span>wrong_address = <span class="string">&quot;aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5&quot;</span>.parse().unwrap();
+        </span><span class="kw">let </span>signature = <span class="string">"sign1j7swjfnyujt2vme3ulu88wdyh2ddj85arh64qh6c6khvrx8wvsp8z9wtzde0sahqj2qwz8rgzt803c0ceega53l4hks2mf5sfsv36qhesm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qkdetews"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"5field"</span>.to_string();
+        <span class="kw">let </span>wrong_address = <span class="string">"aleo1uxl69laseuv3876ksh8k0nd7tvpgjt6ccrgccedpjk9qwyfensxst9ftg5"</span>.parse().unwrap();
         <span class="macro">assert!</span>(verify_message(wrong_address, signature, message, <span class="bool-val">false</span>).is_err());
 
         <span class="comment">// test a valid signature of 10u8
-        </span><span class="kw">let </span>signature = <span class="string">&quot;sign1t9v2t5tljk8pr5t6vkcqgkus0a3v69vryxmfrtwrwg0xtj7yv5qj2nz59e5zcyl50w23lhntxvt6vzeqfyu6dt56698zvfj2l6lz6q0esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk8rh9kt&quot;</span>.to_string();
-        <span class="kw">let </span>message = <span class="string">&quot;10field&quot;</span>.to_string();
+        </span><span class="kw">let </span>signature = <span class="string">"sign1t9v2t5tljk8pr5t6vkcqgkus0a3v69vryxmfrtwrwg0xtj7yv5qj2nz59e5zcyl50w23lhntxvt6vzeqfyu6dt56698zvfj2l6lz6q0esm5elrqqunzqzmac7kzutl6zk7mqht3c0m9kg4hklv7h2js0qmxavwnpuwyl4lzldl6prs4qeqy9wxyp8y44nnydg3h8sg6ue99qk8rh9kt"</span>.to_string();
+        <span class="kw">let </span>message = <span class="string">"10field"</span>.to_string();
         <span class="macro">assert!</span>(verify_message(address, signature, message, <span class="bool-val">false</span>).is_ok());
     }
 }
