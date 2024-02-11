@@ -193,10 +193,10 @@ ppp            test
             let sm = &s.source_map;
             let sf = sm.new_source(raw, FileName::Custom("test".into()));
             let tokens = tokenize(&sf.src, sf.start_pos).unwrap();
-            let mut line_indicies = vec![0];
+            let mut line_indices = vec![0];
             for (i, c) in raw.chars().enumerate() {
                 if c == '\n' {
-                    line_indicies.push(i + 1);
+                    line_indices.push(i + 1);
                 }
             }
             for token in tokens.iter() {
