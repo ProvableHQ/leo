@@ -25,7 +25,7 @@ version = "1.9.4"
 path = "../../compiler/ast"
 
 [dependencies.toml]
-version = "0.8.6"
+version = "0.8.10"
 
 [dependencies.aleo-std]
 version = "0.1.24"
@@ -52,4 +52,4 @@ version = "2.9"
 version = "1.9.4"
 path = "../../compiler/passes"
 [dependencies]
-tempfile = "3.8.1"
+tempfile = "3.10.0"
