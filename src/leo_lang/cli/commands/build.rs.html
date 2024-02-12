@@ -219,6 +219,11 @@
 <a href="#218" id="218">218</a>
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -326,7 +331,7 @@
 
         <span class="comment">// Retrieve all local dependencies in post order
         </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
-        <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path)
+        <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, <span class="self">self</span>.options.endpoint.clone())
             .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
@@ -334,39 +339,44 @@
         <span class="comment">// Push the main program at the end of the list to be compiled after all of its dependencies have been processed
         </span>local_dependencies.push(main_sym);
 
+        <span class="comment">// Recursive build will recursively compile all local dependencies. Can disable to save compile time.
+        </span><span class="kw">let </span>recursive_build = !<span class="self">self</span>.options.non_recursive;
+
         <span class="comment">// Loop through all local dependencies and compile them in order
         </span><span class="kw">for </span>dependency <span class="kw">in </span>local_dependencies.into_iter() {
-            <span class="comment">// Get path to the local project
-            </span><span class="kw">let </span>(local_path, stubs) = retriever.prepare_local(dependency)<span class="question-mark">?</span>;
+            <span class="kw">if </span>recursive_build || dependency == main_sym {
+                <span class="comment">// Get path to the local project
+                </span><span class="kw">let </span>(local_path, stubs) = retriever.prepare_local(dependency)<span class="question-mark">?</span>;
 
-            <span class="comment">// Create the outputs directory.
-            </span><span class="kw">let </span>local_outputs_directory = OutputsDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+                <span class="comment">// Create the outputs directory.
+                </span><span class="kw">let </span>local_outputs_directory = OutputsDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-            <span class="comment">// Open the build directory.
-            </span><span class="kw">let </span>local_build_directory = BuildDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+                <span class="comment">// Open the build directory.
+                </span><span class="kw">let </span>local_build_directory = BuildDirectory::create(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-            <span class="comment">// Fetch paths to all .leo files in the source directory.
-            </span><span class="kw">let </span>local_source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
+                <span class="comment">// Fetch paths to all .leo files in the source directory.
+                </span><span class="kw">let </span>local_source_files = SourceDirectory::files(<span class="kw-2">&amp;</span>local_path)<span class="question-mark">?</span>;
 
-            <span class="comment">// Check the source files.
-            </span>SourceDirectory::check_files(<span class="kw-2">&amp;</span>local_source_files)<span class="question-mark">?</span>;
+                <span class="comment">// Check the source files.
+                </span>SourceDirectory::check_files(<span class="kw-2">&amp;</span>local_source_files)<span class="question-mark">?</span>;
 
-            <span class="comment">// Compile all .leo files into .aleo files.
-            </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
-                compile_leo_file(
-                    file_path,
-                    <span class="kw-2">&amp;</span>ProgramID::&lt;Testnet3&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
-                        .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
-                    <span class="kw-2">&amp;</span>local_outputs_directory,
-                    <span class="kw-2">&amp;</span>local_build_directory,
-                    <span class="kw-2">&amp;</span>handler,
-                    <span class="self">self</span>.options.clone(),
-                    stubs.clone(),
-                )<span class="question-mark">?</span>;
+                <span class="comment">// Compile all .leo files into .aleo files.
+                </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
+                    compile_leo_file(
+                        file_path,
+                        <span class="kw-2">&amp;</span>ProgramID::&lt;Testnet3&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
+                            .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
+                        <span class="kw-2">&amp;</span>local_outputs_directory,
+                        <span class="kw-2">&amp;</span>local_build_directory,
+                        <span class="kw-2">&amp;</span>handler,
+                        <span class="self">self</span>.options.clone(),
+                        stubs.clone(),
+                    )<span class="question-mark">?</span>;
+                }
             }
 
             <span class="comment">// Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
-            </span>retriever.process_local(dependency)<span class="question-mark">?</span>;
+            </span>retriever.process_local(dependency, recursive_build)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.

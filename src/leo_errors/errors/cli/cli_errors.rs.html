@@ -196,6 +196,13 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -391,6 +398,13 @@
         args: (error: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Failed to write file.\nIO Error: {error}"</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_read_environment_private_key {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to read private key from environment.\nIO Error: {error}"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Pass in private key using `--private-key &lt;PRIVATE-KEY&gt;` or create a .env file with your private key information. See examples for formatting information."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

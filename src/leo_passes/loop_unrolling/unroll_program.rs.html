@@ -102,6 +102,33 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -123,12 +150,29 @@
 <span class="kw">use </span><span class="kw">crate</span>::Unroller;
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>reconstruct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Stub) -&gt; Stub {
+        <span class="comment">// Set the current program
+        </span><span class="self">self</span>.current_program = <span class="prelude-val">Some</span>(input.stub_id.name.name);
+        Stub {
+            imports: input.imports,
+            stub_id: input.stub_id,
+            consts: input.consts,
+            structs: input.structs,
+            mappings: input.mappings,
+            span: input.span,
+            functions: input.functions.into_iter().map(|(i, f)| (i, <span class="self">self</span>.reconstruct_function_stub(f))).collect(),
+        }
+    }
+
     <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; ProgramScope {
         <span class="comment">// Don't need to reconstructed consts, just need to add them to constant propagation table
         </span>input.consts.into_iter().for_each(|(<span class="kw">_</span>, c)| {
             <span class="self">self</span>.reconstruct_const(c);
         });
-        ProgramScope {
+        <span class="comment">// Set the current program
+        </span><span class="self">self</span>.current_program = <span class="prelude-val">Some</span>(input.program_id.name.name);
+        <span class="comment">// Reconstruct the program scope
+        </span>ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
             mappings: input.mappings,
@@ -142,7 +186,12 @@
     </span><span class="kw">fn </span>reconstruct_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: FunctionStub) -&gt; FunctionStub {
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+        </span><span class="kw">let </span>function_index = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(<span class="self">self</span>.current_program.unwrap(), input.identifier.name)
+            .unwrap()
+            .id;
 
         <span class="comment">// Enter the function's scope.
         </span><span class="kw">let </span>previous_function_index = <span class="self">self</span>.enter_scope(function_index);
@@ -156,7 +205,12 @@
     <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, function: Function) -&gt; Function {
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
+        </span><span class="kw">let </span>function_index = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(<span class="self">self</span>.current_program.unwrap(), function.identifier.name)
+            .unwrap()
+            .id;
 
         <span class="comment">// Enter the function's scope.
         </span><span class="kw">let </span>previous_function_index = <span class="self">self</span>.enter_scope(function_index);

@@ -756,6 +756,20 @@
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
 <a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -958,7 +972,7 @@
         msg: <span class="macro">format!</span>(
             <span class="string">"The type `{type_}` is not found in the current scope."
         </span>),
-        help: <span class="prelude-val">None</span>,
+        help: <span class="prelude-val">Some</span>(<span class="string">"If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`"</span>.to_string()),
     }
 
     <span class="doccomment">/// Attempted to access an invalid struct variable.
@@ -1511,6 +1525,20 @@
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"A program must have at least one transition function."</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    cannot_define_external_struct {
+        args: (struct_: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot define external struct `{struct_}`"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Copy the external definition of the struct into the current program, and then define without the `.aleo` extension."</span>.to_string()),
+    }
+
+    @formatted
+    struct_definitions_dont_match {
+        args: (struct_: <span class="kw">impl </span>Display, program_1: <span class="kw">impl </span>Display, program_2: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Check that the struct definition in the current program matches the definition in the imported program."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

@@ -146,7 +146,7 @@
 
     <span class="kw">fn </span>reconstruct_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CallExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Type checking guarantees that only functions local to the program scope can be inlined.
-        </span><span class="kw">if </span>input.external.is_some() {
+        </span><span class="kw">if </span>input.program.unwrap() != <span class="self">self</span>.program.unwrap() {
             <span class="kw">return </span>(Expression::Call(input), Default::default());
         }
 

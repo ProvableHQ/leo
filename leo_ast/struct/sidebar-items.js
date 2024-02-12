@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["member"],"struct":["Struct"]};
+window.SIDEBAR_ITEMS = {"mod":["member"],"struct":["Composite"]};

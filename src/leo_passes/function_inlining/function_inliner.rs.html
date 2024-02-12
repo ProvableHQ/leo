@@ -50,6 +50,9 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
+<a href="#52" id="52">52</a>
+<a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -82,6 +85,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable,
     <span class="doccomment">/// A map of reconstructed functions in the current program scope.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) reconstructed_functions: Vec&lt;(Symbol, Function)&gt;,
+    <span class="doccomment">/// The main program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; FunctionInliner&lt;<span class="lifetime">'a</span>&gt; {
@@ -98,6 +103,7 @@
             assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),
             type_table,
+            program: <span class="prelude-val">None</span>,
         }
     }
 }

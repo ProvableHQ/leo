@@ -161,6 +161,7 @@
 <a href="#160" id="160">160</a>
 <a href="#161" id="161">161</a>
 <a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -181,6 +182,7 @@
 
 <span class="kw">use </span>leo_ast::{
     Block,
+    Composite,
     Finalize,
     Function,
     FunctionConsumer,
@@ -190,7 +192,6 @@
     ProgramScope,
     ProgramScopeConsumer,
     StatementConsumer,
-    Struct,
     StructConsumer,
 };
 <span class="kw">use </span>leo_span::{sym, Symbol};
@@ -198,10 +199,10 @@
 <span class="kw">use </span>indexmap::IndexMap;
 
 <span class="kw">impl </span>StructConsumer <span class="kw">for </span>StaticSingleAssigner&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="kw">type </span>Output = Struct;
+    <span class="kw">type </span>Output = Composite;
 
     <span class="doccomment">/// Reconstructs records in the program, ordering its fields such that `owner` and is the first field.
-    </span><span class="kw">fn </span>consume_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: Struct) -&gt; <span class="self">Self</span>::Output {
+    </span><span class="kw">fn </span>consume_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: Composite) -&gt; <span class="self">Self</span>::Output {
         <span class="kw">match </span>struct_.is_record {
             <span class="bool-val">false </span>=&gt; struct_,
             <span class="bool-val">true </span>=&gt; {
@@ -216,7 +217,7 @@
                 <span class="comment">// Add the remaining fields to the members list.
                 </span>members.extend(member_map.into_iter().map(|(<span class="kw">_</span>, member)| member));
 
-                Struct { members, ..struct_ }
+                Composite { members, ..struct_ }
             }
         }
     }
@@ -293,6 +294,7 @@
     <span class="kw">type </span>Output = ProgramScope;
 
     <span class="kw">fn </span>consume_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; <span class="self">Self</span>::Output {
+        <span class="self">self</span>.program = <span class="prelude-val">Some</span>(input.program_id.name.name);
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs.into_iter().map(|(i, s)| (i, <span class="self">self</span>.consume_struct(s))).collect(),

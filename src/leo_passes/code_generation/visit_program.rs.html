@@ -314,7 +314,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{functions, Function, Mapping, Mode, Program, ProgramScope, Struct, Type, Variant};
+<span class="kw">use </span>leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>itertools::Itertools;
@@ -349,7 +349,7 @@
         </span><span class="kw">let </span>order = <span class="self">self</span>.struct_graph.post_order().unwrap();
 
         <span class="comment">// Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Struct&gt; =
+        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Composite&gt; =
             program_scope.structs.iter().map(|(name, struct_)| (<span class="kw-2">*</span>name, struct_)).collect();
 
         <span class="comment">// Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
@@ -398,11 +398,11 @@
         program_string
     }
 
-    <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_struct_or_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) -&gt; String {
         <span class="kw">if </span>struct_.is_record { <span class="self">self</span>.visit_record(struct_) } <span class="kw">else </span>{ <span class="self">self</span>.visit_struct(struct_) }
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, struct_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) -&gt; String {
         <span class="comment">// Add private symbol to composite types.
         </span><span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>struct_.identifier.name, (<span class="bool-val">false</span>, String::from(<span class="string">"private"</span>))); <span class="comment">// todo: private by default here.
 
@@ -417,7 +417,7 @@
         output_string
     }
 
-    <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) -&gt; String {
+    <span class="kw">fn </span>visit_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, record: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) -&gt; String {
         <span class="comment">// Add record symbol to composite types.
         </span><span class="kw">let </span><span class="kw-2">mut </span>output_string = String::from(<span class="string">"record"</span>);
         <span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));

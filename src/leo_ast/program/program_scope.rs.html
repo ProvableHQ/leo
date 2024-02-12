@@ -90,7 +90,7 @@
 
 </span><span class="doccomment">//! A Leo program scope consists of struct, function, and mapping definitions.
 
-</span><span class="kw">use crate</span>::{ConstDeclaration, Function, Mapping, ProgramId, Struct, Stub};
+</span><span class="kw">use crate</span>::{Composite, ConstDeclaration, Function, Mapping, ProgramId, Stub};
 
 <span class="kw">use </span>leo_span::{Span, Symbol};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -104,7 +104,7 @@
     <span class="doccomment">/// A vector of const definitions
     </span><span class="kw">pub </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt;,
     <span class="doccomment">/// A vector of struct definitions.
-    </span><span class="kw">pub </span>structs: Vec&lt;(Symbol, Struct)&gt;,
+    </span><span class="kw">pub </span>structs: Vec&lt;(Symbol, Composite)&gt;,
     <span class="doccomment">/// A vector of mapping definitions.
     </span><span class="kw">pub </span>mappings: Vec&lt;(Symbol, Mapping)&gt;,
     <span class="doccomment">/// A vector of function definitions.

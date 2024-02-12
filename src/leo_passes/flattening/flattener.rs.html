@@ -575,6 +575,8 @@
 <a href="#574" id="574">574</a>
 <a href="#575" id="575">575</a>
 <a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -601,6 +603,8 @@
     BinaryExpression,
     BinaryOperation,
     Block,
+    Composite,
+    CompositeType,
     Expression,
     ExpressionReconstructor,
     Identifier,
@@ -613,7 +617,6 @@
     NonNegativeNumber,
     ReturnStatement,
     Statement,
-    Struct,
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
@@ -961,7 +964,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ternary_struct(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        struct_: <span class="kw-2">&amp;</span>Struct,
+        struct_: <span class="kw-2">&amp;</span>Composite,
         condition: <span class="kw-2">&amp;</span>Expression,
         first: <span class="kw-2">&amp;</span>Identifier,
         second: <span class="kw-2">&amp;</span>Identifier,
@@ -1040,7 +1043,8 @@
                 <span class="comment">// Create a new node ID for the struct expression.
                 </span><span class="kw">let </span>id = <span class="self">self</span>.node_builder.next_id();
                 <span class="comment">// Set the type of the node ID.
-                </span><span class="self">self</span>.type_table.insert(id, Type::Identifier(struct_.identifier));
+                </span><span class="self">self</span>.type_table
+                    .insert(id, Type::Composite(CompositeType { id: struct_.identifier, program: struct_.external }));
                 id
             },
         });

@@ -751,6 +751,18 @@
 <a href="#750" id="750">750</a>
 <a href="#751" id="751">751</a>
 <a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -770,7 +782,7 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use </span>leo_span::sym;
+<span class="kw">use </span>leo_span::{sym, Symbol};
 <span class="kw">use </span>snarkvm::console::{account::Address, network::Testnet3};
 
 <span class="kw">const </span>INT_TYPES: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
@@ -1100,7 +1112,7 @@
             (args.len(), CoreFunction::from_symbols(sym::signature, method.name))
         {
             <span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: Type::Identifier(Identifier::new(sym::signature, <span class="self">self</span>.node_builder.next_id())),
+                variant: Identifier::new(sym::signature, <span class="self">self</span>.node_builder.next_id()),
                 name: method,
                 arguments: {
                     <span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[receiver];
@@ -1120,7 +1132,7 @@
                 | (<span class="number">1</span>, <span class="prelude-val">Some</span>(CoreFunction::MappingContains)) =&gt; {
                     <span class="comment">// Found an instance of `&lt;mapping&gt;.get`, `&lt;mapping&gt;.get_or_use`, `&lt;mapping&gt;.set`, `&lt;mapping&gt;.remove`, or `&lt;mapping&gt;.contains`.
                     </span><span class="prelude-val">Ok</span>(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: Type::Identifier(Identifier::new(sym::Mapping, <span class="self">self</span>.node_builder.next_id())),
+                        variant: Identifier::new(sym::Mapping, <span class="self">self</span>.node_builder.next_id()),
                         name: method,
                         arguments: {
                             <span class="kw">let </span><span class="kw-2">mut </span>arguments = <span class="macro">vec!</span>[receiver];
@@ -1144,8 +1156,8 @@
     /// static access expression.
     </span><span class="kw">fn </span>parse_associated_access_expression(<span class="kw-2">&amp;mut </span><span class="self">self</span>, module_name: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="comment">// Parse struct name expression into struct type.
-        </span><span class="kw">let </span>type_ = <span class="kw">if let </span>Expression::Identifier(ident) = module_name {
-            Type::Identifier(ident)
+        </span><span class="kw">let </span>variant = <span class="kw">if let </span>Expression::Identifier(ident) = module_name {
+            ident
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_associated_access(<span class="kw-2">&amp;</span>module_name, module_name.span()).into());
         };
@@ -1161,7 +1173,7 @@
             <span class="comment">// Return the struct function.
             </span>AccessExpression::AssociatedFunction(AssociatedFunction {
                 span: module_name.span() + end,
-                ty: type_,
+                variant,
                 name: member_name,
                 arguments: args,
                 id: <span class="self">self</span>.node_builder.next_id(),
@@ -1170,7 +1182,7 @@
             <span class="comment">// Return the struct constant.
             </span>AccessExpression::AssociatedConstant(AssociatedConstant {
                 span: module_name.span() + member_name.span(),
-                ty: type_,
+                ty: Type::Identifier(variant),
                 name: member_name,
                 id: <span class="self">self</span>.node_builder.next_id(),
             })
@@ -1182,7 +1194,7 @@
         <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))
     }
 
-    <span class="comment">// Parses an externa function call `credits.aleo/transfer()` or `board.leo/make_move()`
+    <span class="comment">// Parses an external function call `credits.aleo/transfer()` or `board.leo/make_move()`
     </span><span class="kw">fn </span>parse_external_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="comment">// Eat an external function call.
         </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
@@ -1190,12 +1202,24 @@
         // Parse function name.
         </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
+        <span class="comment">// Parsing a '{' means that user is trying to illegally define an external record.
+        </span><span class="kw">if </span><span class="self">self</span>.token.token == Token::LeftCurly {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::cannot_define_external_record(expr.span() + name.span()).into());
+        }
+
         <span class="comment">// Parse the function call.
         </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the parent program identifier.
+        </span><span class="kw">let </span>program: Symbol = <span class="kw">match </span>expr {
+            Expression::Identifier(identifier) =&gt; identifier.name,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Function called must be preceded by a program identifier."</span>),
+        };
+
         <span class="prelude-val">Ok</span>(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            external: <span class="prelude-val">Some</span>(Box::new(expr)),
+            program: <span class="prelude-val">Some</span>(program),
             arguments,
             id: <span class="self">self</span>.node_builder.next_id(),
         }))
@@ -1266,7 +1290,7 @@
                 expr = Expression::Call(CallExpression {
                     span: expr.span() + span,
                     function: Box::new(expr),
-                    external: <span class="prelude-val">None</span>,
+                    program: <span class="self">self</span>.program_name,
                     arguments,
                     id: <span class="self">self</span>.node_builder.next_id(),
                 });

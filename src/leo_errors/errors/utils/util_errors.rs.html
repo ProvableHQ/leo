@@ -146,6 +146,13 @@
 <a href="#145" id="145">145</a>
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -282,7 +289,7 @@
     @formatted
     snarkvm_error_building_program_id {
         args: (),
-        msg: <span class="macro">format!</span>(<span class="string">"Snarkvm error building program id"</span>),
+        msg: <span class="string">"Snarkvm error building program id"</span>.to_string(),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -291,6 +298,13 @@
         args: (endpoint: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
         msg: <span class="macro">format!</span>(<span class="string">"Failed to retrieve from endpoint `{endpoint}`. Error: {error}"</span>),
         help: <span class="prelude-val">None</span>,
+    }
+
+    @formatted
+    build_file_does_not_exist {
+        args: (path: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Compiled file at `{path}` does not exist, cannot compile parent."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"If you were using the `--non-recursive` flag, remove it and try again."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

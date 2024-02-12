@@ -106,7 +106,7 @@
 <span class="kw">pub mod </span>function_stub;
 <span class="kw">pub use </span>function_stub::<span class="kw-2">*</span>;
 
-<span class="kw">use crate</span>::{ConstDeclaration, Identifier, Mapping, NodeID, ProgramId, Struct};
+<span class="kw">use crate</span>::{Composite, ConstDeclaration, Identifier, Mapping, NodeID, ProgramId};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::fmt;
@@ -121,7 +121,7 @@
     <span class="doccomment">/// A vector of const definitions.
     </span><span class="kw">pub </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt;,
     <span class="doccomment">/// A vector of struct definitions.
-    </span><span class="kw">pub </span>structs: Vec&lt;(Symbol, Struct)&gt;,
+    </span><span class="kw">pub </span>structs: Vec&lt;(Symbol, Composite)&gt;,
     <span class="doccomment">/// A vector of mapping definitions.
     </span><span class="kw">pub </span>mappings: Vec&lt;(Symbol, Mapping)&gt;,
     <span class="doccomment">/// A vector of function stub definitions.

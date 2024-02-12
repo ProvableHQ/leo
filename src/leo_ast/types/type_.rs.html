@@ -142,6 +142,11 @@
 <a href="#141" id="141">141</a>
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -158,9 +163,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{common, ArrayType, Identifier, IntegerType, MappingType, TupleType};
+</span><span class="kw">use crate</span>::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType};
 
 <span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>leo_span::Symbol;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>snarkvm::prelude::{
     Network,
@@ -178,6 +184,8 @@
     </span>Array(ArrayType),
     <span class="doccomment">/// The `bool` type.
     </span>Boolean,
+    <span class="doccomment">/// The `struct` type.
+    </span>Composite(CompositeType),
     <span class="doccomment">/// The `field` type.
     </span>Field,
     <span class="doccomment">/// The `group` type.
@@ -232,34 +240,14 @@
                 .iter()
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+            (Type::Composite(left), Type::Composite(right)) =&gt; {
+                left.id.name == right.id.name &amp;&amp; left.program == right.program
+            }
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
-}
 
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
-            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
-            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"boolean"</span>),
-            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
-            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
-            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
-            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
-            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
-            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
-            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
-            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
-            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
-            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
-            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;N: Network&gt; From&lt;<span class="kw-2">&amp;</span>PlaintextType&lt;N&gt;&gt; <span class="kw">for </span>Type {
-    <span class="kw">fn </span>from(t: <span class="kw-2">&amp;</span>PlaintextType&lt;N&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(t: <span class="kw-2">&amp;</span>PlaintextType&lt;N&gt;, program: Symbol) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>t {
             Literal(lit) =&gt; <span class="kw">match </span>lit {
                 snarkvm::prelude::LiteralType::Address =&gt; Type::Address,
@@ -280,8 +268,30 @@
                 snarkvm::prelude::LiteralType::Signature =&gt; Type::Signature,
                 snarkvm::prelude::LiteralType::String =&gt; Type::String,
             },
-            Struct(s) =&gt; Type::Identifier(common::Identifier::from(s)),
-            Array(array) =&gt; Type::Array(ArrayType::from(array)),
+            Struct(s) =&gt; Type::Composite(CompositeType { id: common::Identifier::from(s), program: <span class="prelude-val">Some</span>(program) }),
+            Array(array) =&gt; Type::Array(ArrayType::from_snarkvm(array, program)),
+        }
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Type {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
+            Type::Address =&gt; <span class="macro">write!</span>(f, <span class="string">"address"</span>),
+            Type::Array(<span class="kw-2">ref </span>array_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{array_type}"</span>),
+            Type::Boolean =&gt; <span class="macro">write!</span>(f, <span class="string">"boolean"</span>),
+            Type::Field =&gt; <span class="macro">write!</span>(f, <span class="string">"field"</span>),
+            Type::Group =&gt; <span class="macro">write!</span>(f, <span class="string">"group"</span>),
+            Type::Identifier(<span class="kw-2">ref </span>variable) =&gt; <span class="macro">write!</span>(f, <span class="string">"{variable}"</span>),
+            Type::Integer(<span class="kw-2">ref </span>integer_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{integer_type}"</span>),
+            Type::Mapping(<span class="kw-2">ref </span>mapping_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{mapping_type}"</span>),
+            Type::Scalar =&gt; <span class="macro">write!</span>(f, <span class="string">"scalar"</span>),
+            Type::Signature =&gt; <span class="macro">write!</span>(f, <span class="string">"signature"</span>),
+            Type::String =&gt; <span class="macro">write!</span>(f, <span class="string">"string"</span>),
+            Type::Composite(<span class="kw-2">ref </span>struct_type) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, struct_type.id.name),
+            Type::Tuple(<span class="kw-2">ref </span>tuple) =&gt; <span class="macro">write!</span>(f, <span class="string">"{tuple}"</span>),
+            Type::Unit =&gt; <span class="macro">write!</span>(f, <span class="string">"()"</span>),
+            Type::Err =&gt; <span class="macro">write!</span>(f, <span class="string">"error"</span>),
         }
     }
 }

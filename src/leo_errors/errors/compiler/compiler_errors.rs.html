@@ -155,7 +155,7 @@
     @formatted
     imported_program_not_found {
         args: (main_program_name: <span class="kw">impl </span>Display, dependency_name: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in `program.json`."</span>),
+        msg: <span class="macro">format!</span>(<span class="string">"`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."</span>),
         help: <span class="prelude-val">None</span>,
     }
 );

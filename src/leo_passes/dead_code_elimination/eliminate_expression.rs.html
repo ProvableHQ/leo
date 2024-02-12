@@ -94,8 +94,6 @@
 <a href="#93" id="93">93</a>
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -122,7 +120,6 @@
     Identifier,
     StructExpression,
     StructVariableInitializer,
-    Type,
 };
 <span class="kw">use </span>leo_span::sym;
 
@@ -132,9 +129,8 @@
     <span class="doccomment">/// Reconstructs the associated function access expression.
     </span><span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// If the associated function manipulates a mapping, mark the statement as necessary.
-        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.ty, input.name.name) {
-            (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::remove)
-            | (Type::Identifier(Identifier { name: sym::Mapping, .. }), sym::set) =&gt; {
+        </span><span class="kw">match </span>(<span class="kw-2">&amp;</span>input.variant.name, input.name.name) {
+            (<span class="kw-2">&amp;</span>sym::Mapping, sym::remove) | (<span class="kw-2">&amp;</span>sym::Mapping, sym::set) =&gt; {
                 <span class="self">self</span>.is_necessary = <span class="bool-val">true</span>;
             }
             <span class="kw">_ </span>=&gt; {}
@@ -142,7 +138,7 @@
         <span class="comment">// Reconstruct the access expression.
         </span><span class="kw">let </span>result = (
             Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: input.ty,
+                variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                 span: input.span,

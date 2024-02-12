@@ -860,6 +860,16 @@
 <a href="#859" id="859">859</a>
 <a href="#860" id="860">860</a>
 <a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -955,7 +965,7 @@
             }
             AccessExpression::AssociatedFunction(access) =&gt; {
                 <span class="comment">// Check core struct name and function.
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>access.ty, <span class="kw-2">&amp;</span>access.name) {
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(core_instruction) = <span class="self">self</span>.get_core_function_call(<span class="kw-2">&amp;</span>access.variant, <span class="kw-2">&amp;</span>access.name) {
                     <span class="comment">// Check that operation is not restricted to finalize blocks.
                     </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize &amp;&amp; core_instruction.is_finalize_command() {
                         <span class="self">self</span>.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
@@ -1065,9 +1075,13 @@
                     <span class="kw">_ </span>=&gt; {
                         <span class="comment">// Check that the type of `inner` in `inner.name` is a struct.
                         </span><span class="kw">match </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
-                            <span class="prelude-val">Some</span>(Type::Identifier(identifier)) =&gt; {
+                            <span class="prelude-val">Some</span>(Type::Composite(struct_)) =&gt; {
                                 <span class="comment">// Retrieve the struct definition associated with `identifier`.
-                                </span><span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                                </span><span class="kw">let </span>struct_ = <span class="self">self
+                                    </span>.symbol_table
+                                    .borrow()
+                                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                                    .cloned();
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
                                     <span class="comment">// Check that `access.name` is a member of the struct.
                                     </span><span class="kw">match </span>struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -1428,8 +1442,7 @@
             </span>Expression::Identifier(ident) =&gt; {
                 <span class="comment">// Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-                </span><span class="kw">let </span>func = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
-
+                </span><span class="kw">let </span>func = <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(input.program.unwrap(), ident.name).cloned();
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = func {
                     <span class="comment">// Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
@@ -1442,7 +1455,9 @@
                         }
                         <span class="comment">// If the function is a transition function, then check that the call is not to another local transition function.
                         </span>Variant::Transition =&gt; {
-                            <span class="kw">if </span><span class="macro">matches!</span>(func.variant, Variant::Transition) &amp;&amp; input.external.is_none() {
+                            <span class="kw">if </span><span class="macro">matches!</span>(func.variant, Variant::Transition)
+                                &amp;&amp; input.program.unwrap() == <span class="self">self</span>.program_name.unwrap()
+                            {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
                                     input.span,
                                 ));
@@ -1451,7 +1466,7 @@
                     }
 
                     <span class="comment">// Check that the call is not to an external `inline` function.
-                    </span><span class="kw">if </span>func.variant == Variant::Inline &amp;&amp; input.external.is_some() {
+                    </span><span class="kw">if </span>func.variant == Variant::Inline &amp;&amp; input.program.unwrap() != <span class="self">self</span>.program_name.unwrap() {
                         <span class="self">self</span>.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
 
@@ -1476,7 +1491,12 @@
                         <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"`self.function` is set every time a function is visited."</span>),
                         <span class="prelude-val">Some</span>(func) =&gt; func,
                     };
-                    <span class="self">self</span>.call_graph.add_edge(caller_name, ident.name);
+
+                    <span class="comment">// Don't add external functions to call graph.
+                    // We check that there is no dependency cycle of imports, so we know that external functions can never lead to a call graph cycle
+                    </span><span class="kw">if </span>input.program.unwrap() == <span class="self">self</span>.program_name.unwrap() {
+                        <span class="self">self</span>.call_graph.add_edge(caller_name, ident.name);
+                    }
 
                     <span class="prelude-val">Some</span>(ret)
                 } <span class="kw">else </span>{
@@ -1501,10 +1521,10 @@
     }
 
     <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(input.name.name).cloned();
+        <span class="kw">let </span>struct_ = <span class="self">self</span>.symbol_table.borrow().lookup_struct(<span class="self">self</span>.program_name.unwrap(), input.name.name).cloned();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
             <span class="comment">// Check struct type name.
-            </span><span class="kw">let </span>ret = <span class="self">self</span>.check_expected_struct(struct_.identifier, additional, input.name.span());
+            </span><span class="kw">let </span>ret = <span class="self">self</span>.check_expected_struct(<span class="kw-2">&amp;</span>struct_, additional, input.name.span());
 
             <span class="comment">// Check number of struct members.
             </span><span class="kw">if </span>struct_.members.len() != input.members.len() {

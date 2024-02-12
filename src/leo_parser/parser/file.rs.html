@@ -476,6 +476,10 @@
 <a href="#475" id="475">475</a>
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -573,6 +577,9 @@
         <span class="comment">// Parse the program name.
         </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
 
+        <span class="comment">// Set the program name in the context.
+        </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(name.name);
+
         <span class="comment">// Parse the program network.
         </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Dot)<span class="question-mark">?</span>;
 
@@ -589,7 +596,7 @@
         <span class="comment">// Parse the body of the program scope.
         </span><span class="kw">let </span><span class="kw-2">mut </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>functions: Vec&lt;(Symbol, Function)&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>structs: Vec&lt;(Symbol, Struct)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>structs: Vec&lt;(Symbol, Composite)&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>mappings: Vec&lt;(Symbol, Mapping)&gt; = Vec::new();
 
         <span class="kw">while </span><span class="self">self</span>.has_next() {
@@ -681,7 +688,7 @@
     }
 
     <span class="doccomment">/// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Struct)&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(Symbol, Composite)&gt; {
         <span class="kw">let </span>is_record = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, Token::Record);
         <span class="kw">let </span>start = <span class="self">self</span>.expect_any(<span class="kw-2">&amp;</span>[Token::Struct, Token::Record])<span class="question-mark">?</span>;
 
@@ -696,9 +703,10 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span>(members, end) = <span class="self">self</span>.parse_struct_members()<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>((struct_name.name, Struct {
+        <span class="prelude-val">Ok</span>((struct_name.name, Composite {
             identifier: struct_name,
             members,
+            external: <span class="self">self</span>.program_name,
             is_record,
             span: start + end,
             id: <span class="self">self</span>.node_builder.next_id(),

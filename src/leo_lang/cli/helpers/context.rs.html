@@ -108,6 +108,37 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -132,6 +163,8 @@
 <span class="kw">use </span>snarkvm::file::Manifest;
 
 <span class="kw">use </span>aleo_std::aleo_dir;
+<span class="kw">use </span>indexmap::IndexMap;
+<span class="kw">use </span>retriever::LockFileEntry;
 <span class="kw">use </span>std::{
     env::current_dir,
     fs::File,
@@ -215,6 +248,35 @@
 
         <span class="comment">// Get package name from program id.
         </span><span class="prelude-val">Ok</span>(manifest)
+    }
+
+    <span class="doccomment">/// Returns a post ordering of the local dependencies.
+    /// Found by reading the lock file `leo.lock`.
+    </span><span class="kw">pub fn </span>local_dependency_paths(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(String, PathBuf)&gt;&gt; {
+        <span class="kw">let </span>path = <span class="self">self</span>.dir()<span class="question-mark">?</span>;
+        <span class="kw">let </span>lock_path = path.join(<span class="string">"leo.lock"</span>);
+
+        <span class="comment">// If there is no lock file can assume no local dependencies
+        </span><span class="kw">if </span>!lock_path.exists() {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(Vec::new());
+        }
+
+        <span class="kw">let </span>contents = std::fs::read_to_string(<span class="kw-2">&amp;</span>lock_path)
+            .map_err(|err| PackageError::failed_to_read_file(lock_path.to_str().unwrap(), err))<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>entry_map: IndexMap&lt;String, Vec&lt;LockFileEntry&gt;&gt; =
+            toml::from_str(<span class="kw-2">&amp;</span>contents).map_err(PackageError::failed_to_deserialize_lock_file)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>lock_entries = entry_map.get(<span class="string">"package"</span>).ok_or_else(PackageError::invalid_lock_file_formatting)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>list: Vec&lt;(String, PathBuf)&gt; = lock_entries
+            .iter()
+            .filter_map(|entry| {
+                entry.path().map(|local_path| (entry.name().to_string(), local_path.clone().join(<span class="string">"build"</span>)))
+            })
+            .collect();
+
+        <span class="prelude-val">Ok</span>(list)
     }
 }
 </code></pre></div></section></main></body></html>

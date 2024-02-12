@@ -274,6 +274,10 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -293,13 +297,17 @@
 </span><span class="kw">pub mod </span>function_symbol;
 <span class="kw">pub use </span>function_symbol::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>location;
+<span class="kw">pub use </span>location::<span class="kw-2">*</span>;
+
 <span class="kw">pub mod </span>variable_symbol;
+
 <span class="kw">pub use </span>variable_symbol::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Function, Struct};
-<span class="kw">use </span>leo_errors::{AstError, LeoMessageCode, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
+<span class="kw">use </span>leo_errors::{AstError, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -313,12 +321,12 @@
     <span class="doccomment">/// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) parent: <span class="prelude-ty">Option</span>&lt;Box&lt;SymbolTable&gt;&gt;,
-    <span class="doccomment">/// Functions represents the name of each function mapped to the AST's function definition.
+    <span class="doccomment">/// Maps parent program name and  function name to the AST's function definition.
     /// This field is populated at a first pass.
-    </span><span class="kw">pub </span>functions: IndexMap&lt;Symbol, FunctionSymbol&gt;,
-    <span class="doccomment">/// Maps struct names to struct definitions.
+    </span><span class="kw">pub </span>functions: IndexMap&lt;Location, FunctionSymbol&gt;,
+    <span class="doccomment">/// Maps parent program name and composite name to composite definitions.
     /// This field is populated at a first pass.
-    </span><span class="kw">pub </span>structs: IndexMap&lt;Symbol, Struct&gt;,
+    </span><span class="kw">pub </span>structs: IndexMap&lt;Location, Composite&gt;,
     <span class="doccomment">/// The variables defined in a scope.
     /// This field is populated as necessary.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) variables: IndexMap&lt;Symbol, VariableSymbol&gt;,
@@ -331,18 +339,21 @@
 <span class="kw">impl </span>SymbolTable {
     <span class="doccomment">/// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    </span><span class="kw">pub fn </span>check_shadowing(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>check_shadowing(<span class="kw-2">&amp;</span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, symbol: Symbol, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(program) = program {
+            <span class="kw">if </span><span class="self">self</span>.functions.contains_key(<span class="kw-2">&amp;</span>Location::new(program, symbol)) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_function(symbol, span).into());
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(existing) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(program, symbol)) {
+                <span class="kw">return match </span>existing.is_record {
+                    <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_record(symbol, span).into()),
+                    <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_struct(symbol, span).into()),
+                };
+            }
+        }
         <span class="kw">if </span><span class="self">self</span>.variables.contains_key(<span class="kw-2">&amp;</span>symbol) {
             <span class="prelude-val">Err</span>(AstError::shadowed_variable(symbol, span).into())
-        } <span class="kw">else if </span><span class="self">self</span>.functions.contains_key(<span class="kw-2">&amp;</span>symbol) {
-            <span class="prelude-val">Err</span>(AstError::shadowed_function(symbol, span).into())
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(existing) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>symbol) {
-            <span class="kw">match </span>existing.is_record {
-                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_record(symbol, span).into()),
-                <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_struct(symbol, span).into()),
-            }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() {
-            parent.check_shadowing(symbol, span)
+            parent.check_shadowing(program, symbol, span)
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
@@ -357,59 +368,28 @@
     }
 
     <span class="doccomment">/// Inserts a function into the symbol table.
-    </span><span class="kw">pub fn </span>insert_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, insert: <span class="kw-2">&amp;</span>Function) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.check_shadowing(symbol, insert.span)<span class="question-mark">?</span>;
+    </span><span class="kw">pub fn </span>insert_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: Symbol, symbol: Symbol, insert: <span class="kw-2">&amp;</span>Function) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>id = <span class="self">self</span>.scope_index();
-        <span class="self">self</span>.functions.insert(symbol, <span class="self">Self</span>::new_function_symbol(id, insert));
+        <span class="self">self</span>.check_shadowing(<span class="prelude-val">Some</span>(program), symbol, insert.span)<span class="question-mark">?</span>;
+        <span class="self">self</span>.functions.insert(Location::new(program, symbol), <span class="self">Self</span>::new_function_symbol(id, insert));
         <span class="self">self</span>.scopes.push(Default::default());
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Check if the struct is a duplicate of the existing struct.
-    /// This is used to allow redefinitions of external structs.
-    </span><span class="kw">pub fn </span>check_duplicate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, old: <span class="kw-2">&amp;</span>Struct, new: <span class="kw-2">&amp;</span>Struct) -&gt; bool {
-        <span class="kw">if </span>old.members.len() != new.members.len() {
-            <span class="kw">return </span><span class="bool-val">false</span>;
-        }
-
-        <span class="kw">for </span>(old_member, new_member) <span class="kw">in </span>old.members.iter().zip(new.members.iter()) {
-            <span class="kw">if </span>old_member.identifier.name != new_member.identifier.name {
-                <span class="kw">return </span><span class="bool-val">false</span>;
-            }
-            <span class="kw">if </span>old_member.type_ != new_member.type_ {
-                <span class="kw">return </span><span class="bool-val">false</span>;
-            }
-        }
-        <span class="bool-val">true
-    </span>}
-
     <span class="doccomment">/// Inserts a struct into the symbol table.
-    </span><span class="kw">pub fn </span>insert_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, insert: <span class="kw-2">&amp;</span>Struct) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">match </span><span class="self">self</span>.check_shadowing(symbol, insert.span) {
+    </span><span class="kw">pub fn </span>insert_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: Symbol, symbol: Symbol, insert: <span class="kw-2">&amp;</span>Composite) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">match </span><span class="self">self</span>.check_shadowing(<span class="prelude-val">Some</span>(program), symbol, insert.span) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.structs.insert(symbol, insert.clone());
+                <span class="self">self</span>.structs.insert(Location::new(program, symbol), insert.clone());
                 <span class="prelude-val">Ok</span>(())
             }
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="kw">if </span>e.error_code() == AstError::shadowed_struct(symbol, insert.span).error_code() {
-                    <span class="kw">if </span><span class="self">self</span>.check_duplicate_struct(
-                        <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>symbol).expect(<span class="string">"Must be in symbol table since struct already referenced"</span>),
-                        insert,
-                    ) {
-                        <span class="prelude-val">Ok</span>(())
-                    } <span class="kw">else </span>{
-                        <span class="prelude-val">Err</span>(AstError::redefining_external_struct(symbol).into())
-                    }
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(e)
-                }
-            }
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
         }
     }
 
     <span class="doccomment">/// Inserts a variable into the symbol table.
     </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, symbol: Symbol, insert: VariableSymbol) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.check_shadowing(symbol, insert.span)<span class="question-mark">?</span>;
+        <span class="self">self</span>.check_shadowing(<span class="prelude-val">None</span>, symbol, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(symbol, insert);
         <span class="prelude-val">Ok</span>(())
     }
@@ -426,22 +406,22 @@
     }
 
     <span class="doccomment">/// Attempts to lookup a function in the symbol table.
-    </span><span class="kw">pub fn </span>lookup_fn_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FunctionSymbol&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get(<span class="kw-2">&amp;</span>symbol) {
+    </span><span class="kw">pub fn </span>lookup_fn_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, program: Symbol, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FunctionSymbol&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.functions.get(<span class="kw-2">&amp;</span>Location::new(program, symbol)) {
             <span class="prelude-val">Some</span>(func)
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() {
-            parent.lookup_fn_symbol(symbol)
+            parent.lookup_fn_symbol(program, symbol)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
     }
 
     <span class="doccomment">/// Attempts to lookup a struct in the symbol table.
-    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Struct&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>symbol) {
+    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, program: Symbol, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Composite&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(program, symbol)) {
             <span class="prelude-val">Some</span>(struct_)
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() {
-            parent.lookup_struct(symbol)
+            parent.lookup_struct(program, symbol)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
@@ -481,11 +461,6 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
-    }
-
-    <span class="doccomment">/// Returns the scope associated with the function symbol, if it exists in the symbol table.
-    </span><span class="kw">pub fn </span>lookup_fn_scope(<span class="kw-2">&amp;</span><span class="self">self</span>, symbol: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>RefCell&lt;<span class="self">Self</span>&gt;&gt; {
-        <span class="self">self</span>.lookup_fn_symbol(symbol).and_then(|func| <span class="self">self</span>.scopes.get(func.id))
     }
 
     <span class="doccomment">/// Returns the scope associated with `index`, if it exists in the symbol table.
@@ -547,6 +522,39 @@
     </span><span class="kw">pub fn </span>from_json_file(path: std::path::PathBuf) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>data = std::fs::read_to_string(<span class="kw-2">&amp;</span>path).map_err(|e| AstError::failed_to_read_json_file(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;</span>e))<span class="question-mark">?</span>;
         <span class="self">Self</span>::from_json_string(<span class="kw-2">&amp;</span>data)
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>leo_ast::{Identifier, Type, Variant};
+    <span class="kw">use </span>leo_span::symbol::create_session_if_not_set_then;
+    <span class="attr">#[test]
+    #[ignore]
+    </span><span class="kw">fn </span>serialization_test() {
+        create_session_if_not_set_then(|<span class="kw">_</span>| {
+            <span class="kw">let </span><span class="kw-2">mut </span>symbol_table = SymbolTable::default();
+            <span class="kw">let </span>program = Symbol::intern(<span class="string">"credits"</span>);
+            <span class="kw">let </span>function = Symbol::intern(<span class="string">"transfer_public"</span>);
+            <span class="kw">let </span>insert = Function {
+                annotations: Vec::new(),
+                id: <span class="number">0</span>,
+                output_type: Type::Address,
+                variant: Variant::Inline,
+                span: Default::default(),
+                input: Vec::new(),
+                finalize: <span class="prelude-val">None</span>,
+                identifier: Identifier::new(Symbol::intern(<span class="string">"transfer_public"</span>), Default::default()),
+                output: <span class="macro">vec!</span>[],
+                block: Default::default(),
+            };
+            symbol_table.insert_fn(program, function, <span class="kw-2">&amp;</span>insert).unwrap();
+            <span class="kw">let </span>json = symbol_table.to_json_string().unwrap();
+            <span class="macro">dbg!</span>(json.clone());
+            <span class="kw">let </span>deserialized = SymbolTable::from_json_string(<span class="kw-2">&amp;</span>json).unwrap();
+            <span class="macro">dbg!</span>(deserialized);
+        });
     }
 }
 </code></pre></div></section></main></body></html>

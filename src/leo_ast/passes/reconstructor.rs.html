@@ -577,7 +577,7 @@
     <span class="kw">fn </span>reconstruct_associated_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssociatedFunction) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
             Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: input.ty,
+                variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                 span: input.span,
@@ -640,7 +640,7 @@
             Expression::Call(CallExpression {
                 function: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.function).<span class="number">0</span>),
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
-                external: input.external,
+                program: input.program,
                 span: input.span,
                 id: input.id,
             }),
@@ -981,7 +981,7 @@
         input
     }
 
-    <span class="kw">fn </span>reconstruct_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Struct) -&gt; Struct {
+    <span class="kw">fn </span>reconstruct_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Composite) -&gt; Composite {
         input
     }
 

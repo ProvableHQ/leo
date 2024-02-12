@@ -59,6 +59,9 @@
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -84,6 +87,9 @@
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>FunctionInliner&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>reconstruct_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ProgramScope) -&gt; ProgramScope {
+        <span class="comment">// Set the program name.
+        </span><span class="self">self</span>.program = <span class="prelude-val">Some</span>(input.program_id.name.name);
+
         <span class="comment">// Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.

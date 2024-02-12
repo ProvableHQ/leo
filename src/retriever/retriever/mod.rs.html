@@ -500,6 +500,22 @@
 <a href="#499" id="499">499</a>
 <a href="#500" id="500">500</a>
 <a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -531,19 +547,18 @@
     path::{Path, PathBuf},
 };
 
-<span class="kw">const </span>ALEO_EXPLORER_URL: <span class="kw-2">&amp;</span>str = <span class="string">"https://api.explorer.aleo.org/v1"</span>;
-
 <span class="comment">// Retriever is responsible for retrieving external programs
 </span><span class="kw">pub struct </span>Retriever {
     name: Symbol,
     contexts: IndexMap&lt;Symbol, ProgramContext&gt;,
     project_path: PathBuf,
     registry_path: PathBuf,
+    endpoint: String,
 }
 
 <span class="kw">impl </span>Retriever {
     <span class="comment">// Initialize a new Retriever.
-    </span><span class="kw">pub fn </span>new(name: Symbol, path: <span class="kw-2">&amp;</span>PathBuf, home: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, UtilError&gt; {
+    </span><span class="kw">pub fn </span>new(name: Symbol, path: <span class="kw-2">&amp;</span>PathBuf, home: <span class="kw-2">&amp;</span>Path, endpoint: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, UtilError&gt; {
         <span class="comment">// Starting point is all of the dependencies specified in the main `program.json` file
         </span><span class="kw">let </span>dependencies = retrieve_local(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{name}.aleo"</span>), path)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>contexts = IndexMap::from([(name, ProgramContext::new_main(name, path.clone(), dependencies.clone()))]);
@@ -551,7 +566,13 @@
             contexts.insert(Symbol::from(<span class="kw-2">&amp;</span>dep), ProgramContext::from(dep));
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ name, contexts, project_path: path.clone(), registry_path: home.join(<span class="string">"registry"</span>) })
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            name,
+            contexts,
+            project_path: path.clone(),
+            registry_path: home.join(<span class="string">"registry"</span>),
+            endpoint: endpoint.clone(),
+        })
     }
 
     <span class="kw">pub fn </span>get_context(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>Symbol) -&gt; <span class="kw-2">&amp;</span>ProgramContext {
@@ -585,6 +606,7 @@
                             <span class="kw-2">&amp;</span><span class="self">self</span>.registry_path,
                             cur_context.full_name(),
                             cur_context.network(),
+                            <span class="kw-2">&amp;</span><span class="self">self</span>.endpoint,
                         )<span class="question-mark">?</span>;
 
                         <span class="comment">// Cache the stubs
@@ -778,12 +800,16 @@
     }
 
     <span class="comment">// Creates the stub of the program, caches it, and writes the local `leo.lock` file
-    </span><span class="kw">pub fn </span>process_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: Symbol) -&gt; <span class="prelude-ty">Result</span>&lt;(), UtilError&gt; {
+    </span><span class="kw">pub fn </span>process_local(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: Symbol, recursive: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), UtilError&gt; {
         <span class="kw">let </span>cur_context = <span class="self">self</span>.contexts.get_mut(<span class="kw-2">&amp;</span>name).unwrap();
         <span class="comment">// Don't need to disassemble the main file
         </span><span class="kw">if </span>name != <span class="self">self</span>.name {
             <span class="comment">// Disassemble the program
-            </span><span class="kw">let </span><span class="kw-2">mut </span>file = File::open(cur_context.compiled_file_path()).unwrap_or_else(|<span class="kw">_</span>| {
+            </span><span class="kw">let </span>compiled_path = cur_context.compiled_file_path();
+            <span class="kw">if </span>!compiled_path.exists() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(UtilError::build_file_does_not_exist(compiled_path.to_str().unwrap(), Default::default()));
+            }
+            <span class="kw">let </span><span class="kw-2">mut </span>file = File::open(compiled_path).unwrap_or_else(|<span class="kw">_</span>| {
                 <span class="macro">panic!</span>(<span class="string">"Failed to open file {}"</span>, cur_context.compiled_file_path().to_str().unwrap())
             });
             <span class="kw">let </span><span class="kw-2">mut </span>content = String::new();
@@ -794,19 +820,24 @@
                     Default::default(),
                 )
             })<span class="question-mark">?</span>;
-            <span class="kw">let </span>stub: Stub = disassemble_from_str(content)<span class="question-mark">?</span>;
 
-            <span class="comment">// Cache the stub
-            </span><span class="kw">if </span>cur_context.add_stub(stub.clone()) {
+            <span class="comment">// Cache the disassembled stub
+            </span><span class="kw">let </span>stub: Stub = disassemble_from_str(content)<span class="question-mark">?</span>;
+            <span class="kw">if </span>cur_context.add_stub(stub.clone()) {
                 <span class="prelude-val">Err</span>(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))<span class="question-mark">?</span>;
             }
 
             <span class="comment">// Cache the hash
             </span>cur_context.add_checksum();
-        }
 
-        <span class="comment">// Write lock file
-        </span><span class="self">self</span>.write_lock_file(<span class="kw-2">&amp;</span>name)<span class="question-mark">?</span>;
+            <span class="comment">// Only write lock file when recursive building
+            </span><span class="kw">if </span>recursive {
+                <span class="self">self</span>.write_lock_file(<span class="kw-2">&amp;</span>name)<span class="question-mark">?</span>;
+            }
+        } <span class="kw">else </span>{
+            <span class="comment">// Write lock file
+            </span><span class="self">self</span>.write_lock_file(<span class="kw-2">&amp;</span>name)<span class="question-mark">?</span>;
+        }
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -910,6 +941,7 @@
     home_path: <span class="kw-2">&amp;</span>Path,
     name: <span class="kw-2">&amp;</span>String,
     network: <span class="kw-2">&amp;</span>Network,
+    endpoint: <span class="kw-2">&amp;</span>String,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Stub, Vec&lt;Dependency&gt;), UtilError&gt; {
     <span class="comment">// Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
     </span><span class="kw">let </span>move_to_path = home_path.join(<span class="macro">format!</span>(<span class="string">"{network}"</span>));
@@ -927,7 +959,7 @@
 
         <span class="comment">// Fetch from network
         </span><span class="macro">println!</span>(<span class="string">"Retrieving {} from {:?}."</span>, name, network.clone());
-        file_str = fetch_from_network(name, network.clone())<span class="question-mark">?</span>;
+        file_str = fetch_from_network(endpoint, name, network.clone())<span class="question-mark">?</span>;
         file_str = file_str.replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>);
         <span class="macro">println!</span>(<span class="string">"Successfully retrieved {} from {:?}!"</span>, name, network);
 
@@ -990,8 +1022,8 @@
     ))
 }
 
-<span class="kw">fn </span>fetch_from_network(program: <span class="kw-2">&amp;</span>String, network: Network) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/program/{}"</span>, ALEO_EXPLORER_URL, network.clone(), program);
+<span class="kw">fn </span>fetch_from_network(endpoint: <span class="kw-2">&amp;</span>String, program: <span class="kw-2">&amp;</span>String, network: Network) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/program/{}"</span>, endpoint, network.clone(), program);
     <span class="kw">let </span>response = ureq::get(<span class="kw-2">&amp;</span>url.clone())
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))<span class="question-mark">?</span>;

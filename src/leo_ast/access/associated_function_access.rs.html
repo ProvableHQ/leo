@@ -59,7 +59,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Expression, Identifier, Node, NodeID, Type};
+</span><span class="kw">use crate</span>::{Expression, Identifier, Node, NodeID};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -68,8 +68,8 @@
 <span class="doccomment">/// An access expression to an associated function in a struct, e.g.`Pedersen64::hash()`.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>AssociatedFunction {
-    <span class="doccomment">/// The inner struct type.
-    </span><span class="kw">pub </span>ty: Type,
+    <span class="doccomment">/// The inner struct variant.
+    </span><span class="kw">pub </span>variant: Identifier,
     <span class="doccomment">/// The static struct member function that is being accessed.
     </span><span class="kw">pub </span>name: Identifier,
     <span class="doccomment">/// The arguments passed to the function `name`.
@@ -82,7 +82,7 @@
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>AssociatedFunction {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">write!</span>(f, <span class="string">"{}::{}"</span>, <span class="self">self</span>.ty, <span class="self">self</span>.name)
+        <span class="macro">write!</span>(f, <span class="string">"{}::{}"</span>, <span class="self">self</span>.variant, <span class="self">self</span>.name)
     }
 }
 

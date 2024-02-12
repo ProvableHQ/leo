@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["ALEO_EXPLORER_URL"],"fn":["fetch_from_network","retrieve_from_network","retrieve_local"],"struct":["Retriever"]};
+window.SIDEBAR_ITEMS = {"fn":["fetch_from_network","retrieve_from_network","retrieve_local"],"struct":["Retriever"]};

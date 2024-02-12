@@ -433,6 +433,22 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -640,7 +656,7 @@
         <span class="comment">// Check that the type of the definition is defined.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.type_, input.span);
 
-        <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, nested tuple type, or external struct type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
             <span class="comment">// If the type is an empty tuple, return an error.
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
@@ -648,14 +664,23 @@
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {
                 <span class="number">0 </span>| <span class="number">1 </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Parsing guarantees that tuple types have at least two elements."</span>),
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">if </span>tuple.elements().iter().any(|type_| <span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>))) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    <span class="kw">for </span>type_ <span class="kw">in </span>tuple.elements() {
+                        <span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
+                            <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                        }
+                        <span class="kw">if let </span>Type::Composite(composite) = type_ {
+                            <span class="self">self</span>.assert_internal_struct(composite, input.span);
+                        }
                     }
                 }
             },
             Type::Mapping(<span class="kw">_</span>) | Type::Err =&gt; <span class="macro">unreachable!</span>(
                 <span class="string">"Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             </span>),
+            <span class="comment">// Make sure there are no instances of external structs created.
+            </span>Type::Composite(composite) =&gt; {
+                <span class="self">self</span>.assert_internal_struct(composite, input.span);
+            }
             <span class="comment">// Otherwise, the type is valid.
             </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
         </span>}
@@ -807,11 +832,13 @@
         <span class="comment">// We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();
-        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(parent).map(|f| <span class="kw">match </span><span class="self">self</span>.is_finalize {
-            <span class="comment">// TODO: Check this.
-            // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-            </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
-            <span class="bool-val">false </span>=&gt; f.output_type.clone(),
+        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), parent).map(|f| {
+            <span class="kw">match </span><span class="self">self</span>.is_finalize {
+                <span class="comment">// TODO: Check this.
+                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
+                <span class="bool-val">false </span>=&gt; f.output_type.clone(),
+            }
         });
 
         <span class="comment">// Set the `has_return` flag.
@@ -844,8 +871,13 @@
             <span class="comment">// Check that the function has a finalize block.
             // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
             // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-            </span><span class="kw">let </span>finalize =
-                <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(<span class="self">self</span>.function.unwrap()).unwrap().finalize.clone();
+            </span><span class="kw">let </span>finalize = <span class="self">self
+                </span>.symbol_table
+                .borrow()
+                .lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), <span class="self">self</span>.function.unwrap())
+                .unwrap()
+                .finalize
+                .clone();
             <span class="kw">match </span>finalize {
                 <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
                 <span class="prelude-val">Some</span>(finalize) =&gt; {

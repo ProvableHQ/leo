@@ -100,6 +100,7 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -158,10 +159,11 @@
 
         <span class="self">Self </span>{ identifier, input, output, output_type, span, id }
     }
-}
 
-<span class="kw">impl</span>&lt;N: Network, Command: CommandTrait&lt;N&gt;&gt; From&lt;<span class="kw-2">&amp;</span>FinalizeCore&lt;N, Command&gt;&gt; <span class="kw">for </span>FinalizeStub {
-    <span class="kw">fn </span>from(finalize: <span class="kw-2">&amp;</span>FinalizeCore&lt;N, Command&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network, Command: CommandTrait&lt;N&gt;&gt;(
+        finalize: <span class="kw-2">&amp;</span>FinalizeCore&lt;N, Command&gt;,
+        program: Symbol,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>inputs = Vec::new();
 
         finalize.inputs().iter().enumerate().for_each(|(index, input)| {
@@ -170,7 +172,7 @@
                 Plaintext(val) =&gt; inputs.push(Input::Internal(FunctionInput {
                     identifier: arg_name,
                     mode: Mode::None,
-                    type_: Type::from(val),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
                 })),

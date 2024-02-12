@@ -59,6 +59,8 @@
 <a href="#58" id="58">58</a>
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -89,6 +91,7 @@
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) =&gt; <span class="macro">format!</span>(<span class="string">"{input}"</span>),
             Type::Array(array_type) =&gt; {
@@ -97,7 +100,8 @@
             Type::Mapping(<span class="kw">_</span>) =&gt; {
                 <span class="macro">unreachable!</span>(<span class="string">"Mapping types are not supported at this phase of compilation"</span>)
             }
-            Type::Tuple(<span class="kw">_</span>) =&gt; {
+            <span class="comment">//Type::Struct(_) =&gt;  unreachable!("Struct types should not be visited at this phase of compilation"),
+            </span>Type::Tuple(<span class="kw">_</span>) =&gt; {
                 <span class="macro">unreachable!</span>(<span class="string">"Tuple types should not be visited at this phase of compilation"</span>)
             }
             Type::Err =&gt; <span class="macro">unreachable!</span>(<span class="string">"Error types should not exist at this phase of compilation"</span>),
@@ -109,8 +113,8 @@
         <span class="kw">match </span>type_ {
             <span class="comment">// When the type is a record.
             // Note that this unwrap is safe because all composite types have been added to the mapping.
-            </span>Type::Identifier(identifier) <span class="kw">if </span><span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>identifier.name).unwrap().<span class="number">0 </span>=&gt; {
-                <span class="macro">format!</span>(<span class="string">"{identifier}.record"</span>)
+            </span>Type::Composite(struct_) <span class="kw">if </span><span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>struct_.id.name).unwrap().<span class="number">0 </span>=&gt; {
+                <span class="macro">format!</span>(<span class="string">"{}.record"</span>, struct_.id.name)
             }
             <span class="kw">_ </span>=&gt; <span class="kw">match </span>visibility {
                 Mode::None =&gt; <span class="self">Self</span>::visit_type(type_),

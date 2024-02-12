@@ -86,6 +86,28 @@
 <a href="#85" id="85">85</a>
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -104,6 +126,7 @@
 
 </span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::emitter::Handler;
+<span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use crate</span>::{SymbolTable, VariableSymbol, VariableType};
 
@@ -115,11 +138,13 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) symbol_table: SymbolTable,
     <span class="doccomment">/// The error handler.
     </span>handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
+    <span class="doccomment">/// The current program name.
+    </span>program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SymbolTableCreator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ symbol_table: Default::default(), handler }
+        <span class="self">Self </span>{ symbol_table: Default::default(), handler, program_name: <span class="prelude-val">None </span>}
     }
 }
 
@@ -131,12 +156,23 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; StatementVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>SymbolTableCreator&lt;<span class="lifetime">'a</span>&gt; {}
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ProgramVisitor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>SymbolTableCreator&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
+        <span class="comment">// Set current program name
+        </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.program_id.name.name);
+
+        <span class="comment">// Visit the program scope
+        </span>input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
+        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
+        input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function(c)));
+        input.consts.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_const(c)));
+    }
+
     <span class="kw">fn </span>visit_import(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Program) {
         <span class="self">self</span>.visit_program(input)
     }
 
-    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Struct) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(input.name(), input) {
+    <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
@@ -156,19 +192,27 @@
     }
 
     <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(input.name(), input) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
     <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
+        <span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.stub_id.name.name);
         input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function_stub(c)));
-
-        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
+        input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct_stub(c)));
     }
 
     <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(input.name(), <span class="kw-2">&amp;</span>Function::from(input.clone())) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.insert_fn(<span class="self">self</span>.program_name.unwrap(), input.name(), <span class="kw-2">&amp;</span>Function::from(input.clone()))
+        {
+            <span class="self">self</span>.handler.emit_err(err);
+        }
+    }
+
+    <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

@@ -125,6 +125,7 @@
 <a href="#124" id="124">124</a>
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -214,9 +215,10 @@
 
                 <span class="kw">match </span><span class="kw-2">&amp;</span>first_type {
                     Type::Array(first_type) =&gt; <span class="self">self</span>.ternary_array(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),
-                    Type::Identifier(first_type) =&gt; {
+                    Type::Composite(first_type) =&gt; {
                         <span class="comment">// Get the struct definitions.
-                        </span><span class="kw">let </span>first_type = <span class="self">self</span>.symbol_table.lookup_struct(first_type.name).unwrap();
+                        </span><span class="kw">let </span>first_type =
+                            <span class="self">self</span>.symbol_table.lookup_struct(first_type.program.unwrap(), first_type.id.name).unwrap();
                         <span class="self">self</span>.ternary_struct(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second)
                     }
                     Type::Tuple(first_type) =&gt; <span class="self">self</span>.ternary_tuple(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),

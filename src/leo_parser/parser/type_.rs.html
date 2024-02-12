@@ -132,6 +132,9 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -229,13 +232,16 @@
                 <span class="comment">// Parse the record name
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record_name) = <span class="self">self</span>.eat_identifier() {
                     <span class="comment">// Return the external type
-                    </span><span class="kw">return </span><span class="prelude-val">Ok</span>((Type::Identifier(record_name), ident.span + record_name.span));
+                    </span><span class="kw">return </span><span class="prelude-val">Ok</span>((
+                        Type::Composite(CompositeType { id: record_name, program: <span class="prelude-val">Some</span>(ident.name) }),
+                        ident.span + record_name.span,
+                    ));
                 } <span class="kw">else </span>{
                     <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::invalid_external_type(<span class="self">self</span>.token.span).into());
                 }
             }
 
-            <span class="prelude-val">Ok</span>((Type::Identifier(ident), ident.span))
+            <span class="prelude-val">Ok</span>((Type::Composite(CompositeType { id: ident, program: <span class="self">self</span>.program_name }), ident.span))
         } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::LeftSquare {
             <span class="comment">// Parse the left bracket.
             </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftSquare)<span class="question-mark">?</span>;

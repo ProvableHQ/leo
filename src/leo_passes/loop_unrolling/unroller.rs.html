@@ -261,6 +261,10 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -292,6 +296,7 @@
 <span class="kw">use </span>std::cell::RefCell;
 
 <span class="kw">use </span>leo_errors::{emitter::Handler, loop_unroller::LoopUnrollerError};
+<span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use crate</span>::{
     constant_propagation_table::ConstantPropagationTable,
@@ -317,6 +322,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
     <span class="doccomment">/// Are we in the midst of unrolling a loop?
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_unrolling: bool,
+    <span class="doccomment">/// The current program name.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) current_program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Unroller&lt;<span class="lifetime">'a</span>&gt; {
@@ -334,6 +341,7 @@
             handler,
             node_builder,
             is_unrolling: <span class="bool-val">false</span>,
+            current_program: <span class="prelude-val">None</span>,
         }
     }
 

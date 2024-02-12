@@ -179,85 +179,44 @@
     },
 };
 
-<span class="doccomment">/// A struct type definition, e.g., `struct Foo { my_field: Bar }`.
+<span class="doccomment">/// A composite type definition, e.g., `struct Foo { my_field: Bar }` and `record Token { owner: address, amount: u64}`.
 /// In some languages these are called `struct`s.
 ///
 /// Type identity is decided by the full path including `struct_name`,
 /// as the record is nominal, not structural.
 /// The fields are named so `struct Foo(u8, u16)` is not allowed.
 </span><span class="attr">#[derive(Clone, Serialize, Deserialize)]
-</span><span class="kw">pub struct </span>Struct {
+</span><span class="kw">pub struct </span>Composite {
     <span class="doccomment">/// The name of the type in the type system in this module.
     </span><span class="kw">pub </span>identifier: Identifier,
     <span class="doccomment">/// The fields, constant variables, and functions of this structure.
     </span><span class="kw">pub </span>members: Vec&lt;Member&gt;,
+    <span class="doccomment">/// The external program the struct is defined in.
+    </span><span class="kw">pub </span>external: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="doccomment">/// Was this a `record Foo { ... }`?
-    /// If so, it wasn't a struct.
+    /// If so, it wasn't a composite.
     </span><span class="kw">pub </span>is_record: bool,
-    <span class="doccomment">/// The entire span of the struct definition.
+    <span class="doccomment">/// The entire span of the composite definition.
     </span><span class="kw">pub </span>span: Span,
     <span class="doccomment">/// The ID of the node.
     </span><span class="kw">pub </span>id: NodeID,
 }
 
-<span class="kw">impl </span>PartialEq <span class="kw">for </span>Struct {
+<span class="kw">impl </span>PartialEq <span class="kw">for </span>Composite {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="self">self</span>.identifier == other.identifier
     }
 }
 
-<span class="kw">impl </span>Eq <span class="kw">for </span>Struct {}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Composite {}
 
-<span class="kw">impl </span>Struct {
-    <span class="doccomment">/// Returns the struct name as a Symbol.
+<span class="kw">impl </span>Composite {
+    <span class="doccomment">/// Returns the composite name as a Symbol.
     </span><span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Symbol {
         <span class="self">self</span>.identifier.name
     }
-}
 
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Struct {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        &lt;<span class="self">Self </span><span class="kw">as </span>fmt::Display&gt;::fmt(<span class="self">self</span>, f)
-    }
-}
-
-<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Struct {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.write_str(<span class="kw">if </span><span class="self">self</span>.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>})<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">" {} {{ "</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
-        <span class="kw">for </span>field <span class="kw">in </span><span class="self">self</span>.members.iter() {
-            <span class="macro">writeln!</span>(f, <span class="string">"        {field}"</span>)<span class="question-mark">?</span>;
-        }
-        <span class="macro">write!</span>(f, <span class="string">"    }}"</span>)
-    }
-}
-
-<span class="macro">crate::simple_node_impl!</span>(Struct);
-
-<span class="kw">impl</span>&lt;N: Network&gt; From&lt;<span class="kw-2">&amp;</span>StructType&lt;N&gt;&gt; <span class="kw">for </span>Struct {
-    <span class="kw">fn </span>from(input: <span class="kw-2">&amp;</span>StructType&lt;N&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            identifier: Identifier::from(input.name()),
-            members: input
-                .members()
-                .iter()
-                .map(|(id, type_)| Member {
-                    mode: Mode::None,
-                    identifier: Identifier::from(id),
-                    type_: Type::from(type_),
-                    span: Default::default(),
-                    id: Default::default(),
-                })
-                .collect(),
-            is_record: <span class="bool-val">false</span>,
-            span: Default::default(),
-            id: Default::default(),
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;N: Network&gt; From&lt;<span class="kw-2">&amp;</span>RecordType&lt;N&gt;&gt; <span class="kw">for </span>Struct {
-    <span class="kw">fn </span>from(input: <span class="kw-2">&amp;</span>RecordType&lt;N&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_external_record&lt;N: Network&gt;(input: <span class="kw-2">&amp;</span>RecordType&lt;N&gt;, external_program: Symbol) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             identifier: Identifier::from(input.name()),
             members: [
@@ -275,9 +234,9 @@
                         mode: <span class="kw">if </span>input.owner().is_public() { Mode::Public } <span class="kw">else </span>{ Mode::Private },
                         identifier: Identifier::from(id),
                         type_: <span class="kw">match </span>entry {
-                            Public(t) =&gt; Type::from(t),
-                            Private(t) =&gt; Type::from(t),
-                            Constant(t) =&gt; Type::from(t),
+                            Public(t) =&gt; Type::from_snarkvm(t, external_program),
+                            Private(t) =&gt; Type::from_snarkvm(t, external_program),
+                            Constant(t) =&gt; Type::from_snarkvm(t, external_program),
                         },
                         span: Default::default(),
                         id: Default::default(),
@@ -285,10 +244,51 @@
                     .collect_vec(),
             ]
             .concat(),
+            external: <span class="prelude-val">Some</span>(external_program),
             is_record: <span class="bool-val">true</span>,
             span: Default::default(),
             id: Default::default(),
         }
     }
+
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(input: <span class="kw-2">&amp;</span>StructType&lt;N&gt;, program: Symbol) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            identifier: Identifier::from(input.name()),
+            members: input
+                .members()
+                .iter()
+                .map(|(id, type_)| Member {
+                    mode: Mode::None,
+                    identifier: Identifier::from(id),
+                    type_: Type::from_snarkvm(type_, program),
+                    span: Default::default(),
+                    id: Default::default(),
+                })
+                .collect(),
+            external: <span class="prelude-val">Some</span>(program),
+            is_record: <span class="bool-val">false</span>,
+            span: Default::default(),
+            id: Default::default(),
+        }
+    }
 }
+
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Composite {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        &lt;<span class="self">Self </span><span class="kw">as </span>fmt::Display&gt;::fmt(<span class="self">self</span>, f)
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Composite {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        f.write_str(<span class="kw">if </span><span class="self">self</span>.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>})<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f, <span class="string">" {} {{ "</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
+        <span class="kw">for </span>field <span class="kw">in </span><span class="self">self</span>.members.iter() {
+            <span class="macro">writeln!</span>(f, <span class="string">"        {field}"</span>)<span class="question-mark">?</span>;
+        }
+        <span class="macro">write!</span>(f, <span class="string">"    }}"</span>)
+    }
+}
+
+<span class="macro">crate::simple_node_impl!</span>(Composite);
 </code></pre></div></section></main></body></html>

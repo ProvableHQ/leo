@@ -65,7 +65,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Identifier, Node, NodeID, Type};
+</span><span class="kw">use crate</span>::{CompositeType, Identifier, Node, NodeID, Type};
 <span class="kw">use </span>leo_span::Span;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -88,7 +88,7 @@
 
 <span class="kw">impl </span>External {
     <span class="kw">pub fn </span>type_(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Type {
-        Type::Identifier(<span class="self">self</span>.record)
+        Type::Composite(CompositeType { id: <span class="self">self</span>.record, program: <span class="prelude-val">Some</span>(<span class="self">self</span>.program_name.name) })
     }
 }
 

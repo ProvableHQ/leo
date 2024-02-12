@@ -102,6 +102,10 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -143,10 +147,11 @@
             <span class="kw">let </span>build_dir = PathBuf::from(BUILD_DIRECTORY);
             <span class="kw">let </span>home_dir = PathBuf::from(HOME_DIRECTORY);
             <span class="kw">let </span><span class="kw-2">mut </span>retriever =
-                Retriever::new(Symbol::intern(<span class="string">"nested"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir).expect(<span class="string">"Failed to build retriever"</span>);
+                Retriever::new(Symbol::intern(<span class="string">"nested"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir, <span class="string">"http://0.0.0.0:3030"</span>.to_string())
+                    .expect(<span class="string">"Failed to build retriever"</span>);
             retriever.retrieve().expect(<span class="string">"failed to retrieve"</span>);
             retriever.prepare_local(Symbol::intern(<span class="string">"nested"</span>)).expect(<span class="string">"failed to prepare local"</span>);
-            retriever.process_local(Symbol::intern(<span class="string">"nested"</span>)).expect(<span class="string">"failed to process local"</span>);
+            retriever.process_local(Symbol::intern(<span class="string">"nested"</span>), <span class="bool-val">true</span>).expect(<span class="string">"failed to process local"</span>);
         });
     }
 
@@ -161,10 +166,11 @@
 
             <span class="macro">println!</span>(<span class="string">"aleo_dir: {:?}"</span>, aleo_dir());
             <span class="kw">let </span><span class="kw-2">mut </span>retriever =
-                Retriever::new(Symbol::intern(<span class="string">"nested"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>aleo_dir()).expect(<span class="string">"Failed to build retriever"</span>);
+                Retriever::new(Symbol::intern(<span class="string">"nested"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>aleo_dir(), <span class="string">"http://0.0.0.0:3030"</span>.to_string())
+                    .expect(<span class="string">"Failed to build retriever"</span>);
             retriever.retrieve().expect(<span class="string">"failed to retrieve"</span>);
             retriever.prepare_local(Symbol::intern(<span class="string">"nested"</span>)).expect(<span class="string">"failed to prepare local"</span>);
-            retriever.process_local(Symbol::intern(<span class="string">"nested"</span>)).expect(<span class="string">"failed to process local"</span>);
+            retriever.process_local(Symbol::intern(<span class="string">"nested"</span>), <span class="bool-val">true</span>).expect(<span class="string">"failed to process local"</span>);
         });
     }
 
@@ -179,10 +185,11 @@
             <span class="kw">let </span>build_dir = PathBuf::from(BUILD_DIRECTORY);
             <span class="kw">let </span>home_dir = PathBuf::from(HOME_DIRECTORY);
             <span class="kw">let </span><span class="kw-2">mut </span>retriever =
-                Retriever::new(Symbol::intern(<span class="string">"simple"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir).expect(<span class="string">"Failed to build retriever"</span>);
+                Retriever::new(Symbol::intern(<span class="string">"simple"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir, <span class="string">"http://0.0.0.0:3030"</span>.to_string())
+                    .expect(<span class="string">"Failed to build retriever"</span>);
             retriever.retrieve().expect(<span class="string">"failed to retrieve"</span>);
             retriever.prepare_local(Symbol::intern(<span class="string">"simple"</span>)).expect(<span class="string">"failed to prepare local"</span>);
-            retriever.process_local(Symbol::intern(<span class="string">"simple"</span>)).expect(<span class="string">"failed to process local"</span>);
+            retriever.process_local(Symbol::intern(<span class="string">"simple"</span>), <span class="bool-val">true</span>).expect(<span class="string">"failed to process local"</span>);
         });
     }
 
@@ -197,7 +204,8 @@
             <span class="kw">let </span>build_dir = PathBuf::from(BUILD_DIRECTORY);
             <span class="kw">let </span>home_dir = PathBuf::from(HOME_DIRECTORY);
             <span class="kw">let </span><span class="kw-2">mut </span>retriever =
-                Retriever::new(Symbol::intern(<span class="string">"local_test"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir).expect(<span class="string">"Failed to build retriever"</span>);
+                Retriever::new(Symbol::intern(<span class="string">"local_test"</span>), <span class="kw-2">&amp;</span>build_dir, <span class="kw-2">&amp;</span>home_dir, <span class="string">"http://0.0.0.0:3030"</span>.to_string())
+                    .expect(<span class="string">"Failed to build retriever"</span>);
             <span class="kw">let </span>_deps = retriever.retrieve().expect(<span class="string">"failed to retrieve"</span>);
             retriever.prepare_local(Symbol::intern(<span class="string">"nested"</span>)).expect(<span class="string">"failed to prepare local"</span>);
             <span class="comment">// retriever.process_local(Symbol::intern("nested")).expect("failed to process local");
