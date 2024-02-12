@@ -72,8 +72,9 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
                 self.visit_identifier(name, &Default::default());
                 self.check(*id);
             }
-            AccessExpression::AssociatedFunction(AssociatedFunction { ty, name, arguments, id, .. }) => {
-                self.check_ty(ty);
+            AccessExpression::AssociatedFunction(AssociatedFunction {
+                variant: _variant, name, arguments, id, ..
+            }) => {
                 self.visit_identifier(name, &Default::default());
                 for argument in arguments {
                     self.visit_expression(argument, &Default::default());
@@ -100,13 +101,10 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression, _: &Self::AdditionalInput) -> Self::Output {
-        let CallExpression { function, arguments, external, id, .. } = input;
+        let CallExpression { function, arguments, program: _external, id, .. } = input;
         self.visit_expression(function, &Default::default());
         for argument in arguments {
             self.visit_expression(argument, &Default::default());
-        }
-        if let Some(external) = external {
-            self.visit_expression(external, &Default::default());
         }
         self.check(*id);
     }
@@ -252,8 +250,8 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
 }
 
 impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
-    fn visit_struct(&mut self, input: &'a Struct) {
-        let Struct { identifier, members, id, .. } = input;
+    fn visit_struct(&mut self, input: &'a Composite) {
+        let Composite { identifier, members, id, .. } = input;
         self.visit_identifier(identifier, &Default::default());
         for Member { identifier, type_, id, .. } in members {
             self.visit_identifier(identifier, &Default::default());

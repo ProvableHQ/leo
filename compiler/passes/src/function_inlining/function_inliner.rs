@@ -30,6 +30,8 @@ pub struct FunctionInliner<'a> {
     pub(crate) type_table: &'a TypeTable,
     /// A map of reconstructed functions in the current program scope.
     pub(crate) reconstructed_functions: Vec<(Symbol, Function)>,
+    /// The main program.
+    pub(crate) program: Option<Symbol>,
 }
 
 impl<'a> FunctionInliner<'a> {
@@ -46,6 +48,7 @@ impl<'a> FunctionInliner<'a> {
             assignment_renamer: AssignmentRenamer::new(assigner),
             reconstructed_functions: Default::default(),
             type_table,
+            program: None,
         }
     }
 }

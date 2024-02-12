@@ -23,6 +23,9 @@ use indexmap::IndexMap;
 
 impl ProgramReconstructor for FunctionInliner<'_> {
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
+        // Set the program name.
+        self.program = Some(input.program_id.name.name);
+
         // Get the post-order ordering of the call graph.
         // Note that the post-order always contains all nodes in the call graph.
         // Note that the unwrap is safe since type checking guarantees that the call graph is acyclic.

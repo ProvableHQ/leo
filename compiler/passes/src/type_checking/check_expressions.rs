@@ -93,7 +93,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             }
             AccessExpression::AssociatedFunction(access) => {
                 // Check core struct name and function.
-                if let Some(core_instruction) = self.get_core_function_call(&access.ty, &access.name) {
+                if let Some(core_instruction) = self.get_core_function_call(&access.variant, &access.name) {
                     // Check that operation is not restricted to finalize blocks.
                     if !self.is_finalize && core_instruction.is_finalize_command() {
                         self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
@@ -203,9 +203,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     _ => {
                         // Check that the type of `inner` in `inner.name` is a struct.
                         match self.visit_expression(&access.inner, &None) {
-                            Some(Type::Identifier(identifier)) => {
+                            Some(Type::Composite(struct_)) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self.symbol_table.borrow().lookup_struct(identifier.name).cloned();
+                                let struct_ = self
+                                    .symbol_table
+                                    .borrow()
+                                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                                    .cloned();
                                 if let Some(struct_) = struct_ {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -566,8 +570,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn_symbol(ident.name).cloned();
-
+                let func = self.symbol_table.borrow().lookup_fn_symbol(input.program.unwrap(), ident.name).cloned();
                 if let Some(func) = func {
                     // Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
@@ -580,7 +583,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                         // If the function is a transition function, then check that the call is not to another local transition function.
                         Variant::Transition => {
-                            if matches!(func.variant, Variant::Transition) && input.external.is_none() {
+                            if matches!(func.variant, Variant::Transition)
+                                && input.program.unwrap() == self.program_name.unwrap()
+                            {
                                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
                                     input.span,
                                 ));
@@ -589,7 +594,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Check that the call is not to an external `inline` function.
-                    if func.variant == Variant::Inline && input.external.is_some() {
+                    if func.variant == Variant::Inline && input.program.unwrap() != self.program_name.unwrap() {
                         self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
 
@@ -614,7 +619,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         None => unreachable!("`self.function` is set every time a function is visited."),
                         Some(func) => func,
                     };
-                    self.call_graph.add_edge(caller_name, ident.name);
+
+                    // Don't add external functions to call graph.
+                    // We check that there is no dependency cycle of imports, so we know that external functions can never lead to a call graph cycle
+                    if input.program.unwrap() == self.program_name.unwrap() {
+                        self.call_graph.add_edge(caller_name, ident.name);
+                    }
 
                     Some(ret)
                 } else {
@@ -639,10 +649,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.symbol_table.borrow().lookup_struct(input.name.name).cloned();
+        let struct_ = self.symbol_table.borrow().lookup_struct(self.program_name.unwrap(), input.name.name).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
-            let ret = self.check_expected_struct(struct_.identifier, additional, input.name.span());
+            let ret = self.check_expected_struct(&struct_, additional, input.name.span());
 
             // Check number of struct members.
             if struct_.members.len() != input.members.len() {

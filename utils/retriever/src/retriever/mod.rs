@@ -29,19 +29,18 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const ALEO_EXPLORER_URL: &str = "https://api.explorer.aleo.org/v1";
-
 // Retriever is responsible for retrieving external programs
 pub struct Retriever {
     name: Symbol,
     contexts: IndexMap<Symbol, ProgramContext>,
     project_path: PathBuf,
     registry_path: PathBuf,
+    endpoint: String,
 }
 
 impl Retriever {
     // Initialize a new Retriever.
-    pub fn new(name: Symbol, path: &PathBuf, home: &Path) -> Result<Self, UtilError> {
+    pub fn new(name: Symbol, path: &PathBuf, home: &Path, endpoint: String) -> Result<Self, UtilError> {
         // Starting point is all of the dependencies specified in the main `program.json` file
         let dependencies = retrieve_local(&format!("{name}.aleo"), path)?;
         let mut contexts = IndexMap::from([(name, ProgramContext::new_main(name, path.clone(), dependencies.clone()))]);
@@ -49,7 +48,13 @@ impl Retriever {
             contexts.insert(Symbol::from(&dep), ProgramContext::from(dep));
         }
 
-        Ok(Self { name, contexts, project_path: path.clone(), registry_path: home.join("registry") })
+        Ok(Self {
+            name,
+            contexts,
+            project_path: path.clone(),
+            registry_path: home.join("registry"),
+            endpoint: endpoint.clone(),
+        })
     }
 
     pub fn get_context(&self, name: &Symbol) -> &ProgramContext {
@@ -83,6 +88,7 @@ impl Retriever {
                             &self.registry_path,
                             cur_context.full_name(),
                             cur_context.network(),
+                            &self.endpoint,
                         )?;
 
                         // Cache the stubs
@@ -276,12 +282,16 @@ impl Retriever {
     }
 
     // Creates the stub of the program, caches it, and writes the local `leo.lock` file
-    pub fn process_local(&mut self, name: Symbol) -> Result<(), UtilError> {
+    pub fn process_local(&mut self, name: Symbol, recursive: bool) -> Result<(), UtilError> {
         let cur_context = self.contexts.get_mut(&name).unwrap();
         // Don't need to disassemble the main file
         if name != self.name {
             // Disassemble the program
-            let mut file = File::open(cur_context.compiled_file_path()).unwrap_or_else(|_| {
+            let compiled_path = cur_context.compiled_file_path();
+            if !compiled_path.exists() {
+                return Err(UtilError::build_file_does_not_exist(compiled_path.to_str().unwrap(), Default::default()));
+            }
+            let mut file = File::open(compiled_path).unwrap_or_else(|_| {
                 panic!("Failed to open file {}", cur_context.compiled_file_path().to_str().unwrap())
             });
             let mut content = String::new();
@@ -292,19 +302,24 @@ impl Retriever {
                     Default::default(),
                 )
             })?;
-            let stub: Stub = disassemble_from_str(content)?;
 
-            // Cache the stub
+            // Cache the disassembled stub
+            let stub: Stub = disassemble_from_str(content)?;
             if cur_context.add_stub(stub.clone()) {
                 Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
             }
 
             // Cache the hash
             cur_context.add_checksum();
-        }
 
-        // Write lock file
-        self.write_lock_file(&name)?;
+            // Only write lock file when recursive building
+            if recursive {
+                self.write_lock_file(&name)?;
+            }
+        } else {
+            // Write lock file
+            self.write_lock_file(&name)?;
+        }
 
         Ok(())
     }
@@ -408,6 +423,7 @@ fn retrieve_from_network(
     home_path: &Path,
     name: &String,
     network: &Network,
+    endpoint: &String,
 ) -> Result<(Stub, Vec<Dependency>), UtilError> {
     // Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
     let move_to_path = home_path.join(format!("{network}"));
@@ -425,7 +441,7 @@ fn retrieve_from_network(
 
         // Fetch from network
         println!("Retrieving {} from {:?}.", name, network.clone());
-        file_str = fetch_from_network(name, network.clone())?;
+        file_str = fetch_from_network(endpoint, name, network.clone())?;
         file_str = file_str.replace("\\n", "\n").replace('\"', "");
         println!("Successfully retrieved {} from {:?}!", name, network);
 
@@ -488,8 +504,8 @@ fn retrieve_from_network(
     ))
 }
 
-fn fetch_from_network(program: &String, network: Network) -> Result<String, UtilError> {
-    let url = format!("{}/{}/program/{}", ALEO_EXPLORER_URL, network.clone(), program);
+fn fetch_from_network(endpoint: &String, program: &String, network: Network) -> Result<String, UtilError> {
+    let url = format!("{}/{}/program/{}", endpoint, network.clone(), program);
     let response = ureq::get(&url.clone())
         .call()
         .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;

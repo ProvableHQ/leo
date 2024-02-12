@@ -82,7 +82,7 @@ outputs:
                                           lo: 102
                                           hi: 108
                                         id: 12
-                                  external: ~
+                                  program: test
                                   span:
                                     lo: 100
                                     hi: 109
@@ -147,7 +147,7 @@ outputs:
                                       lo: 179
                                       hi: 183
                                   - 24
-                          external: ~
+                          program: test
                           span:
                             lo: 177
                             hi: 184

@@ -26,6 +26,9 @@ pub use integer_type::*;
 pub mod mapping;
 pub use mapping::*;
 
+pub mod struct_type;
+pub use struct_type::*;
+
 pub mod tuple;
 pub use tuple::*;
 

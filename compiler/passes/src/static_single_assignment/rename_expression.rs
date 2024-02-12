@@ -24,13 +24,13 @@ use leo_ast::{
     BinaryExpression,
     CallExpression,
     CastExpression,
+    Composite,
     Expression,
     ExpressionConsumer,
     Identifier,
     Literal,
     MemberAccess,
     Statement,
-    Struct,
     StructExpression,
     StructVariableInitializer,
     TernaryExpression,
@@ -53,7 +53,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
                 let mut statements = Vec::new();
                 (
                     AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: function.ty,
+                        variant: function.variant,
                         name: function.name,
                         arguments: function
                             .arguments
@@ -192,7 +192,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
             function: input.function,
             // Consume the arguments.
             arguments,
-            external: input.external,
+            program: input.program,
             span: input.span,
             id: input.id,
         }));
@@ -252,7 +252,8 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
-        let struct_definition: &Struct = self.symbol_table.lookup_struct(input.name.name).unwrap();
+        let struct_definition: &Composite =
+            self.symbol_table.lookup_struct(self.program.unwrap(), input.name.name).unwrap();
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());

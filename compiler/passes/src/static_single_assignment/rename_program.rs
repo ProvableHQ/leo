@@ -18,6 +18,7 @@ use crate::StaticSingleAssigner;
 
 use leo_ast::{
     Block,
+    Composite,
     Finalize,
     Function,
     FunctionConsumer,
@@ -27,7 +28,6 @@ use leo_ast::{
     ProgramScope,
     ProgramScopeConsumer,
     StatementConsumer,
-    Struct,
     StructConsumer,
 };
 use leo_span::{sym, Symbol};
@@ -35,10 +35,10 @@ use leo_span::{sym, Symbol};
 use indexmap::IndexMap;
 
 impl StructConsumer for StaticSingleAssigner<'_> {
-    type Output = Struct;
+    type Output = Composite;
 
     /// Reconstructs records in the program, ordering its fields such that `owner` and is the first field.
-    fn consume_struct(&mut self, struct_: Struct) -> Self::Output {
+    fn consume_struct(&mut self, struct_: Composite) -> Self::Output {
         match struct_.is_record {
             false => struct_,
             true => {
@@ -53,7 +53,7 @@ impl StructConsumer for StaticSingleAssigner<'_> {
                 // Add the remaining fields to the members list.
                 members.extend(member_map.into_iter().map(|(_, member)| member));
 
-                Struct { members, ..struct_ }
+                Composite { members, ..struct_ }
             }
         }
     }
@@ -130,6 +130,7 @@ impl ProgramScopeConsumer for StaticSingleAssigner<'_> {
     type Output = ProgramScope;
 
     fn consume_program_scope(&mut self, input: ProgramScope) -> Self::Output {
+        self.program = Some(input.program_id.name.name);
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs.into_iter().map(|(i, s)| (i, self.consume_struct(s))).collect(),

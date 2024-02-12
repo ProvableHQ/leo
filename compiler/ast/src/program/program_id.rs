@@ -17,6 +17,7 @@
 use crate::Identifier;
 
 use core::fmt;
+use leo_span::Symbol;
 use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use snarkvm::{console::program::ProgramID, prelude::Network};
 use std::collections::BTreeMap;
@@ -97,5 +98,14 @@ impl<'de> Deserialize<'de> for ProgramId {
 impl<N: Network> From<&ProgramID<N>> for ProgramId {
     fn from(program: &ProgramID<N>) -> Self {
         Self { name: Identifier::from(program.name()), network: Identifier::from(program.network()) }
+    }
+}
+
+impl From<Identifier> for ProgramId {
+    fn from(name: Identifier) -> Self {
+        Self {
+            name,
+            network: Identifier { name: Symbol::intern("aleo"), span: Default::default(), id: Default::default() },
+        }
     }
 }

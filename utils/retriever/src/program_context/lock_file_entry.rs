@@ -28,13 +28,23 @@ pub struct LockFileEntry {
     dependencies: Vec<String>,
 }
 
+impl LockFileEntry {
+    pub fn path(&self) -> Option<&PathBuf> {
+        self.path.as_ref()
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 impl From<&ProgramContext> for LockFileEntry {
     fn from(context: &ProgramContext) -> Self {
         LockFileEntry {
-            name: context.name().to_string(),
+            name: context.full_name().to_string(),
             network: context.network.clone(), // Direct access as per instruction
             location: context.location().clone(),
-            path: context.path.clone(), // Direct access as per instruction
+            path: context.full_path.clone(), // Direct access as per instruction
             checksum: context.checksum().to_string(),
             dependencies: context.dependencies().iter().map(|dep| format!("{}.aleo", dep)).collect(),
         }

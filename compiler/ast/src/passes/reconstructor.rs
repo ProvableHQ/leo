@@ -79,7 +79,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                ty: input.ty,
+                variant: input.variant,
                 name: input.name,
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 span: input.span,
@@ -142,7 +142,7 @@ pub trait ExpressionReconstructor {
             Expression::Call(CallExpression {
                 function: Box::new(self.reconstruct_expression(*input.function).0),
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
-                external: input.external,
+                program: input.program,
                 span: input.span,
                 id: input.id,
             }),
@@ -483,7 +483,7 @@ pub trait ProgramReconstructor: StatementReconstructor {
         input
     }
 
-    fn reconstruct_struct(&mut self, input: Struct) -> Struct {
+    fn reconstruct_struct(&mut self, input: Composite) -> Composite {
         input
     }
 

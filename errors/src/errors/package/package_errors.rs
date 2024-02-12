@@ -348,4 +348,26 @@ create_messages!(
         msg: format!("Failed to update `program.json` from the provided file path {path} - {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_deserialize_lock_file {
+        args: (error: impl ErrorArg),
+        msg: format!("Failed to deserialize `leo.lock` - {error}"),
+        help: None,
+    }
+
+    @backtraced
+    invalid_lock_file_formatting {
+        args: (),
+        msg: "Invalid `leo.lock` formatting.".to_string(),
+        help: Some("Delete the lock file and rebuild the project".to_string()),
+    }
+
+    @backtraced
+    unimplemented_command {
+        args: (command: impl Display),
+        msg: format!("The `{command}` command is not implemented."),
+        help: None,
+    }
+
 );

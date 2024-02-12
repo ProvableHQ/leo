@@ -21,13 +21,10 @@ pub mod unroller;
 pub use unroller::*;
 
 pub mod unroll_expression;
-pub use unroll_expression::*;
 
 pub mod unroll_program;
-pub use unroll_program::*;
 
 pub mod unroll_statement;
-pub use unroll_statement::*;
 
 use crate::{Pass, SymbolTable, TypeTable};
 

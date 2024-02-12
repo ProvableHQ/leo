@@ -6,7 +6,7 @@ outputs:
       function:
         Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
-      external: ~
+      program: ~
       span:
         lo: 0
         hi: 3
@@ -15,7 +15,7 @@ outputs:
       function:
         Identifier: "{\"id\":\"0\",\"name\":\"X\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments: []
-      external: ~
+      program: ~
       span:
         lo: 0
         hi: 3
@@ -25,7 +25,7 @@ outputs:
         Identifier: "{\"id\":\"0\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":1}\"}"
       arguments:
         - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
-      external: ~
+      program: ~
       span:
         lo: 0
         hi: 4
@@ -36,7 +36,7 @@ outputs:
       arguments:
         - Identifier: "{\"id\":\"1\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
         - Identifier: "{\"id\":\"2\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
-      external: ~
+      program: ~
       span:
         lo: 0
         hi: 7
@@ -48,7 +48,7 @@ outputs:
         - Identifier: "{\"id\":\"1\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":2,\\\"hi\\\":3}\"}"
         - Identifier: "{\"id\":\"2\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":5,\\\"hi\\\":6}\"}"
         - Identifier: "{\"id\":\"3\",\"name\":\"z\",\"span\":\"{\\\"lo\\\":8,\\\"hi\\\":9}\"}"
-      external: ~
+      program: ~
       span:
         lo: 0
         hi: 10

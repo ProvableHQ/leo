@@ -4,8 +4,7 @@ expectation: Pass
 outputs:
   - Access:
       AssociatedFunction:
-        ty:
-          Identifier: "{\"id\":\"0\",\"name\":\"group\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        variant: "{\"id\":\"0\",\"name\":\"group\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
         name: "{\"id\":\"1\",\"name\":\"to_x_coordinate\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":22}\"}"
         arguments:
           - Identifier: "{\"id\":\"2\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
@@ -15,8 +14,7 @@ outputs:
         id: 3
   - Access:
       AssociatedFunction:
-        ty:
-          Identifier: "{\"id\":\"0\",\"name\":\"group\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
+        variant: "{\"id\":\"0\",\"name\":\"group\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":5}\"}"
         name: "{\"id\":\"1\",\"name\":\"to_y_coordinate\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":22}\"}"
         arguments:
           - Identifier: "{\"id\":\"2\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":23,\\\"hi\\\":24}\"}"
