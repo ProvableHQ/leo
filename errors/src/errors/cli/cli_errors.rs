@@ -207,6 +207,7 @@ create_messages!(
         args: (error: impl Display),
         msg: format!("Failed to execute the `account` command.\nSnarkVM Error: {error}"),
         help: None,
+    }
 
     @backtraced
     failed_to_read_environment_private_key {

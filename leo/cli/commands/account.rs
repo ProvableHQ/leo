@@ -20,7 +20,7 @@ use leo_package::root::Env;
 use snarkvm::{
     cli::dotenv_private_key,
     console::program::{Signature, ToFields, Value},
-    prelude::{Address, FromStr, PrivateKey, ViewKey},
+    prelude::{Address, PrivateKey, ViewKey},
 };
 
 use crossterm::ExecutableCommand;
@@ -131,7 +131,8 @@ impl Command for Account {
                 let priv_key = match discreet {
                     true => {
                         let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
-                        FromStr::from_str(&private_key_input).map_err(CliError::failed_to_parse_private_key)?
+                        snarkvm::prelude::FromStr::from_str(&private_key_input)
+                            .map_err(CliError::failed_to_parse_private_key)?
                     }
                     false => match private_key {
                         Some(private_key) => private_key,
