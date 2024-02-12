@@ -21,32 +21,49 @@ use snarkvm::{
 use std::str::FromStr;
 type CurrentNetwork = Testnet3;
 
-use leo_ast::{FunctionStub, Identifier, Mapping, ProgramId, Struct, Stub};
+use leo_ast::{Composite, FunctionStub, Identifier, Mapping, ProgramId, Stub};
 use leo_errors::UtilError;
 
 pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
     program: ProgramCore<N, Instruction, Command>,
 ) -> Stub {
+    let program_id = ProgramId::from(program.id());
     Stub {
         imports: program.imports().into_iter().map(|(id, _)| ProgramId::from(id)).collect(),
-        stub_id: ProgramId::from(program.id()),
+        stub_id: program_id,
         consts: Vec::new(),
         structs: [
-            program.structs().iter().map(|(id, s)| (Identifier::from(id).name, Struct::from(s))).collect_vec(),
-            program.records().iter().map(|(id, s)| (Identifier::from(id).name, Struct::from(s))).collect_vec(),
+            program
+                .structs()
+                .iter()
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id.name.name)))
+                .collect_vec(),
+            program
+                .records()
+                .iter()
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_external_record(s, program_id.name.name)))
+                .collect_vec(),
         ]
         .concat(),
-        mappings: program.mappings().into_iter().map(|(id, m)| (Identifier::from(id).name, Mapping::from(m))).collect(),
+        mappings: program
+            .mappings()
+            .into_iter()
+            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id.name.name)))
+            .collect(),
         functions: [
             program
                 .closures()
                 .iter()
-                .map(|(id, closure)| (Identifier::from(id).name, FunctionStub::from(closure)))
+                .map(|(id, closure)| {
+                    (Identifier::from(id).name, FunctionStub::from_closure(closure, program_id.name.name))
+                })
                 .collect_vec(),
             program
                 .functions()
                 .iter()
-                .map(|(id, function)| (Identifier::from(id).name, FunctionStub::from(function)))
+                .map(|(id, function)| {
+                    (Identifier::from(id).name, FunctionStub::from_function_core(function, program_id.name.name))
+                })
                 .collect_vec(),
         ]
         .concat(),

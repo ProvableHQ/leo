@@ -349,53 +349,23 @@ impl<'a> CodeGenerator<'a> {
         };
 
         // Construct the instruction.
-        let (destination, instruction) = match &input.ty {
-            Type::Identifier(Identifier { name: sym::BHP256, .. }) => {
-                construct_simple_function_call(&input.name, "bhp256", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::BHP512, .. }) => {
-                construct_simple_function_call(&input.name, "bhp512", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::BHP768, .. }) => {
-                construct_simple_function_call(&input.name, "bhp768", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::BHP1024, .. }) => {
-                construct_simple_function_call(&input.name, "bhp1024", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Keccak256, .. }) => {
-                construct_simple_function_call(&input.name, "keccak256", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Keccak384, .. }) => {
-                construct_simple_function_call(&input.name, "keccak384", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Keccak512, .. }) => {
-                construct_simple_function_call(&input.name, "keccak512", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Pedersen64, .. }) => {
-                construct_simple_function_call(&input.name, "ped64", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Pedersen128, .. }) => {
-                construct_simple_function_call(&input.name, "ped128", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Poseidon2, .. }) => {
-                construct_simple_function_call(&input.name, "psd2", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Poseidon4, .. }) => {
-                construct_simple_function_call(&input.name, "psd4", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Poseidon8, .. }) => {
-                construct_simple_function_call(&input.name, "psd8", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::SHA3_256, .. }) => {
-                construct_simple_function_call(&input.name, "sha3_256", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::SHA3_384, .. }) => {
-                construct_simple_function_call(&input.name, "sha3_384", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::SHA3_512, .. }) => {
-                construct_simple_function_call(&input.name, "sha3_512", arguments)
-            }
-            Type::Identifier(Identifier { name: sym::Mapping, .. }) => match input.name.name {
+        let (destination, instruction) = match input.variant.name {
+            sym::BHP256 => construct_simple_function_call(&input.name, "bhp256", arguments),
+            sym::BHP512 => construct_simple_function_call(&input.name, "bhp512", arguments),
+            sym::BHP768 => construct_simple_function_call(&input.name, "bhp768", arguments),
+            sym::BHP1024 => construct_simple_function_call(&input.name, "bhp1024", arguments),
+            sym::Keccak256 => construct_simple_function_call(&input.name, "keccak256", arguments),
+            sym::Keccak384 => construct_simple_function_call(&input.name, "keccak384", arguments),
+            sym::Keccak512 => construct_simple_function_call(&input.name, "keccak512", arguments),
+            sym::Pedersen64 => construct_simple_function_call(&input.name, "ped64", arguments),
+            sym::Pedersen128 => construct_simple_function_call(&input.name, "ped128", arguments),
+            sym::Poseidon2 => construct_simple_function_call(&input.name, "psd2", arguments),
+            sym::Poseidon4 => construct_simple_function_call(&input.name, "psd4", arguments),
+            sym::Poseidon8 => construct_simple_function_call(&input.name, "psd8", arguments),
+            sym::SHA3_256 => construct_simple_function_call(&input.name, "sha3_256", arguments),
+            sym::SHA3_384 => construct_simple_function_call(&input.name, "sha3_384", arguments),
+            sym::SHA3_512 => construct_simple_function_call(&input.name, "sha3_512", arguments),
+            sym::Mapping => match input.name.name {
                 sym::get => {
                     let mut instruction = "    get".to_string();
                     let destination_register = get_destination_register();
@@ -439,7 +409,7 @@ impl<'a> CodeGenerator<'a> {
                 }
                 _ => unreachable!("The only variants of Mapping are get, get_or, and set"),
             },
-            Type::Identifier(Identifier { name: sym::group, .. }) => {
+            sym::group => {
                 match input.name {
                     Identifier { name: sym::to_x_coordinate, .. } => {
                         let mut instruction = "    cast".to_string();
@@ -460,7 +430,7 @@ impl<'a> CodeGenerator<'a> {
                     _ => unreachable!("The only associated methods of group are to_x_coordinate and to_y_coordinate"),
                 }
             }
-            Type::Identifier(Identifier { name: sym::ChaCha, .. }) => {
+            sym::ChaCha => {
                 // Get the destination register.
                 let destination_register = get_destination_register();
                 // Construct the instruction template.
@@ -487,7 +457,7 @@ impl<'a> CodeGenerator<'a> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            Type::Identifier(Identifier { name: sym::signature, .. }) => {
+            sym::signature => {
                 let mut instruction = "    sign.verify".to_string();
                 let destination_register = get_destination_register();
                 // Write the arguments and the destination register.
@@ -520,47 +490,32 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
-        let (mut call_instruction, has_finalize) = match &input.external {
-            Some(external) => {
-                // If the function is an external call, then check whether or not it has an associated finalize block.
-                // Extract the program name from the external call.
-                let program_name = match **external {
-                    Expression::Identifier(identifier) => identifier.name,
-                    _ => unreachable!("Parsing guarantees that a program name is always an identifier."),
-                };
-                let stub_scope: ProgramScope;
-                // Lookup the imported program scope.
-                // TODO: Needs refactor. All imports are stubs now.
-                let imported_program_scope = match self
-                    .program
-                    .imports
-                    .get(&program_name)
-                    .and_then(|(program, _)| program.program_scopes.get(&program_name))
-                {
-                    Some(program) => program,
-                    None => {
-                        if let Some(stub_program) = self.program.stubs.get(&program_name) {
-                            stub_scope = ProgramScope::from(stub_program.clone());
-                            &stub_scope
-                        } else {
-                            unreachable!("Type checking guarantees that imported and stub programs are well defined.")
-                        }
-                    }
-                };
-                // Check if the external function has a finalize block.
+        // Need to determine the program the function originated from as well as if the function has a finalize block.
+        let (mut call_instruction, has_finalize);
+
+        // Check if function is external.
+        let main_program = input.program.unwrap();
+        if main_program != self.program_id.unwrap().name.name {
+            // All external functions must be defined as stubs.
+            if let Some(stub_program) = self.program.stubs.get(&main_program) {
+                let stub_scope = ProgramScope::from(stub_program.clone());
                 let function_name = match *input.function {
                     Expression::Identifier(identifier) => identifier.name,
                     _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
                 };
-                let has_finalize = match imported_program_scope.functions.iter().find(|(sym, _)| *sym == function_name)
-                {
+
+                // Check if the external function has a finalize block.
+                has_finalize = match stub_scope.functions.iter().find(|(sym, _)| *sym == function_name) {
                     Some((_, function)) => function.finalize.is_some(),
                     None => unreachable!("Type checking guarantees that imported functions are well defined."),
                 };
-                (format!("    call {external}.aleo/{}", input.function), has_finalize)
+                call_instruction = format!("    call {}.aleo/{}", main_program, input.function);
+            } else {
+                unreachable!("Type checking guarantees that imported and stub programs are well defined.")
             }
-            None => (format!("    call {}", input.function), false),
-        };
+        } else {
+            (call_instruction, has_finalize) = (format!("    call {}", input.function), false);
+        }
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
@@ -578,7 +533,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type = &self.symbol_table.lookup_fn_symbol(function_name).unwrap().output_type;
+        let return_type = &self.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
@@ -607,14 +562,8 @@ impl<'a> CodeGenerator<'a> {
             let future_register = format!("r{}", self.next_register);
             self.next_register += 1;
 
-            // Construct the future type.
-            let program_id = match input.external.as_deref() {
-                Some(Expression::Identifier(identifier)) => identifier,
-                _ => unreachable!("If `has_finalize` is true, then the external call must be an identifier."),
-            };
-
             // Add the futures register to the list of futures.
-            self.futures.push((future_register.clone(), format!("{program_id}.aleo/{function_name}")));
+            self.futures.push((future_register.clone(), format!("{}.aleo/{function_name}", main_program)));
 
             // Add the future register to the list of destinations.
             destinations.push(future_register);

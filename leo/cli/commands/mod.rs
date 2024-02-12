@@ -26,14 +26,14 @@ pub use build::Build;
 pub mod clean;
 pub use clean::Clean;
 
+pub mod deploy;
+pub use deploy::Deploy;
+
 pub mod example;
 pub use example::Example;
 
 pub mod execute;
 pub use execute::Execute;
-
-// pub mod deploy;
-// pub use deploy::Deploy;
 
 pub mod new;
 pub use new::New;
@@ -122,6 +122,14 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
+    #[clap(
+        long,
+        help = "Endpoint to retrieve on-chain dependencies from.",
+        default_value = "http://api.explorer.aleo.org/v1"
+    )]
+    pub endpoint: String,
+    #[clap(long, help = "Does not recursively compile dependencies.")]
+    pub non_recursive: bool,
     #[clap(long, help = "Enables offline mode.")]
     pub offline: bool,
     #[clap(long, help = "Enable spans in AST snapshots.")]

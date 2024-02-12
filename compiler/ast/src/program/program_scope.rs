@@ -16,7 +16,7 @@
 
 //! A Leo program scope consists of struct, function, and mapping definitions.
 
-use crate::{ConstDeclaration, Function, Mapping, ProgramId, Struct, Stub};
+use crate::{Composite, ConstDeclaration, Function, Mapping, ProgramId, Stub};
 
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};
@@ -30,7 +30,7 @@ pub struct ProgramScope {
     /// A vector of const definitions
     pub consts: Vec<(Symbol, ConstDeclaration)>,
     /// A vector of struct definitions.
-    pub structs: Vec<(Symbol, Struct)>,
+    pub structs: Vec<(Symbol, Composite)>,
     /// A vector of mapping definitions.
     pub mappings: Vec<(Symbol, Mapping)>,
     /// A vector of function definitions.

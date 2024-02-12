@@ -43,15 +43,15 @@ pub struct CLI {
 ///Leo compiler and package manager
 #[derive(Parser, Debug)]
 enum Commands {
-    #[clap(about = "Add a new dependency to the current package. Defaults to testnet3 network")]
-    Add {
-        #[clap(flatten)]
-        command: Add,
-    },
     #[clap(about = "Create a new Aleo account, sign and verify messages")]
     Account {
         #[clap(subcommand)]
         command: Account,
+    },
+    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
     },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
@@ -63,16 +63,6 @@ enum Commands {
         #[clap(subcommand)]
         command: Example,
     },
-    #[clap(about = "Compile the current package as a program")]
-    Build {
-        #[clap(flatten)]
-        command: Build,
-    },
-    #[clap(about = "Clean the output directory")]
-    Clean {
-        #[clap(flatten)]
-        command: Clean,
-    },
     #[clap(about = "Run a program with input variables")]
     Run {
         #[clap(flatten)]
@@ -82,6 +72,22 @@ enum Commands {
     Execute {
         #[clap(flatten)]
         command: Execute,
+    },
+    #[clap(about = "Deploy a program")]
+    Deploy {
+        #[clap(flatten)]
+        command: Deploy,
+    },
+
+    #[clap(about = "Compile the current package as a program")]
+    Build {
+        #[clap(flatten)]
+        command: Build,
+    },
+    #[clap(about = "Clean the output directory")]
+    Clean {
+        #[clap(flatten)]
+        command: Clean,
     },
     #[clap(about = "Update the Leo CLI")]
     Update {
@@ -135,6 +141,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
             command.try_execute(context)
         }
         Commands::Clean { command } => command.try_execute(context),
+        Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
@@ -229,6 +236,80 @@ mod tests {
 
         // TODO: Clear tmp directory
         // std::fs::remove_dir_all(project_directory).unwrap();
+    }
+
+    #[test]
+    #[serial]
+    fn relaxed_shadowing_run_test() {
+        // Set current directory to temporary directory
+        let temp_dir = temp_dir();
+        let project_name = "outer";
+        let project_directory = temp_dir.join(project_name);
+
+        // Remove it if it already exists
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create file structure
+        test_helpers::sample_shadowing_package(&temp_dir);
+
+        // Run program
+        let run = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Run {
+                command: crate::cli::commands::Run {
+                    name: "inner_1_main".to_string(),
+                    inputs: vec!["1u32".to_string(), "2u32".to_string()],
+                    compiler_options: Default::default(),
+                    file: None,
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(run).expect("Failed to execute `leo run`");
+        });
+    }
+
+    #[test]
+    #[serial]
+    fn relaxed_struct_shadowing_run_test() {
+        // Set current directory to temporary directory
+        let temp_dir = temp_dir();
+        let project_name = "outer";
+        let project_directory = temp_dir.join(project_name);
+
+        // Remove it if it already exists
+        if project_directory.exists() {
+            std::fs::remove_dir_all(project_directory.clone()).unwrap();
+        }
+
+        // Create file structure
+        test_helpers::sample_struct_shadowing_package(&temp_dir);
+
+        // Run program
+        let run = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Run {
+                command: crate::cli::commands::Run {
+                    name: "main".to_string(),
+                    inputs: vec!["1u32".to_string(), "2u32".to_string()],
+                    compiler_options: Default::default(),
+                    file: None,
+                },
+            },
+            path: Some(project_directory.clone()),
+            home: None,
+        };
+
+        create_session_if_not_set_then(|_| {
+            run_with_args(run).expect("Failed to execute `leo run`");
+        });
     }
 }
 
@@ -463,6 +544,309 @@ program child.aleo {
             run_with_args(add_grandparent_dependency_1).unwrap();
             run_with_args(add_grandparent_dependency_2).unwrap();
             run_with_args(add_parent_dependency).unwrap();
+        });
+    }
+
+    pub(crate) fn sample_shadowing_package(temp_dir: &Path) {
+        let outer_directory = temp_dir.join("outer");
+        let inner_1_directory = outer_directory.join("inner_1");
+        let inner_2_directory = outer_directory.join("inner_2");
+
+        if outer_directory.exists() {
+            std::fs::remove_dir_all(outer_directory.clone()).unwrap();
+        }
+
+        // Create project file structure `outer/inner_1` and `outer/inner_2`
+        let create_outer_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "outer".to_string() } },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        let create_inner_1_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "inner_1".to_string() } },
+            path: Some(inner_1_directory.clone()),
+            home: None,
+        };
+
+        let create_inner_2_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "inner_2".to_string() } },
+            path: Some(inner_2_directory.clone()),
+            home: None,
+        };
+
+        // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
+        let outer_program = "import inner_1.aleo;
+import inner_2.aleo;
+program outer.aleo {
+
+    struct ex_struct {
+        arg1: u32,
+        arg2: u32,
+    }
+
+    record inner_1_record {
+        owner: address,
+        arg1: u32,
+        arg2: u32,
+        arg3: u32,
+    }
+
+    transition inner_1_main(public a: u32, b: u32) -> (inner_1.aleo/inner_1_record, inner_2.aleo/inner_1_record, inner_1_record) {
+        let c: ex_struct = ex_struct {arg1: 1u32, arg2: 1u32};
+        let rec_1:inner_1.aleo/inner_1_record = inner_1.aleo/inner_1_main(1u32,1u32, c);
+        let rec_2:inner_2.aleo/inner_1_record = inner_2.aleo/inner_1_main(1u32,1u32);
+        return (rec_1, rec_2, inner_1_record {owner: aleo14tnetva3xfvemqyg5ujzvr0qfcaxdanmgjx2wsuh2xrpvc03uc9s623ps7, arg1: 1u32, arg2: 1u32, arg3: 1u32});
+    }
+}";
+        let inner_1_program = "program inner_1.aleo {
+    mapping inner_1_mapping: u32 => u32;
+    record inner_1_record {
+        owner: address,
+        val: u32,
+    }
+    struct ex_struct {
+        arg1: u32,
+        arg2: u32,
+    }
+    transition inner_1_main(public a: u32, b: u32, c: ex_struct) -> inner_1_record {
+        return inner_1_record {
+            owner: self.caller,
+            val: c.arg1,
+        };
+    }
+}";
+        let inner_2_program = "program inner_2.aleo {
+    mapping inner_2_mapping: u32 => u32;
+    record inner_1_record {
+        owner: address,
+        val: u32,
+    }
+    transition inner_1_main(public a: u32, b: u32) -> inner_1_record {
+        let c: u32 = a + b;
+        return inner_1_record {
+            owner: self.caller,
+            val: a,
+        };
+    }
+}";
+        // Add dependencies `outer/program.json`
+        let add_outer_dependency_1 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "inner_1".to_string(),
+                    local: Some(inner_1_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        let add_outer_dependency_2 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "inner_2".to_string(),
+                    local: Some(inner_2_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        // Execute all commands
+        create_session_if_not_set_then(|_| {
+            // Create projects
+            run_with_args(create_outer_project).unwrap();
+            run_with_args(create_inner_1_project).unwrap();
+            run_with_args(create_inner_2_project).unwrap();
+
+            // Write files
+            std::fs::write(outer_directory.join("src").join("main.leo"), outer_program).unwrap();
+            std::fs::write(inner_1_directory.join("src").join("main.leo"), inner_1_program).unwrap();
+            std::fs::write(inner_2_directory.join("src").join("main.leo"), inner_2_program).unwrap();
+
+            // Add dependencies
+            run_with_args(add_outer_dependency_1).unwrap();
+            run_with_args(add_outer_dependency_2).unwrap();
+        });
+    }
+
+    pub(crate) fn sample_struct_shadowing_package(temp_dir: &Path) {
+        let outer_directory = temp_dir.join("outer");
+        let inner_1_directory = outer_directory.join("inner_1");
+        let inner_2_directory = outer_directory.join("inner_2");
+
+        if outer_directory.exists() {
+            std::fs::remove_dir_all(outer_directory.clone()).unwrap();
+        }
+
+        // Create project file structure `outer/inner_1` and `outer/inner_2`
+        let create_outer_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "outer".to_string() } },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        let create_inner_1_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "inner_1".to_string() } },
+            path: Some(inner_1_directory.clone()),
+            home: None,
+        };
+
+        let create_inner_2_project = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::New { command: New { name: "inner_2".to_string() } },
+            path: Some(inner_2_directory.clone()),
+            home: None,
+        };
+
+        // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
+        let outer_program = "
+import inner_1.aleo;
+import inner_2.aleo;
+program outer.aleo {
+    struct Foo {
+        a: u32,
+        b: u32,
+        c: Boo,
+    }
+    struct Boo {
+        a: u32,
+        b: u32,
+    }
+    struct Goo {
+        a: u32,
+        b: u32,
+        c: u32,
+    }
+    record Hello {
+        owner: address,
+        a: u32,
+    }
+    transition main(public a: u32, b: u32) -> (inner_2.aleo/Yoo, Hello) {
+        let d: Foo = inner_1.aleo/main(1u32,1u32);
+        let e: u32 = inner_1.aleo/main_2(Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}});
+        let f: Boo = Boo {a:1u32, b:1u32};
+        let g: Foo = inner_2.aleo/main(1u32, 1u32);
+        inner_2.aleo/Yo_Consumer(inner_2.aleo/Yo());
+        let h: inner_2.aleo/Yoo = inner_2.aleo/Yo();
+        let i: Goo = inner_2.aleo/Goo_creator();
+        let j: Hello = Hello {owner: self.signer, a:1u32};
+
+        return (h, j);
+    }
+}
+";
+        let inner_1_program = "program inner_1.aleo {
+    struct Foo {
+        a: u32,
+        b: u32,
+        c: Boo,
+    }
+    struct Boo {
+        a: u32,
+        b: u32,
+    }
+    transition main(public a: u32, b: u32) -> Foo {
+        return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
+    }
+    transition main_2(a:Foo)->u32{
+        return a.a;
+    }
+}";
+        let inner_2_program = "program inner_2.aleo {
+    struct Foo {
+        a: u32,
+        b: u32,
+        c: Boo,
+    }
+    struct Boo {
+        a: u32,
+        b: u32,
+    }
+    record Yoo {
+        owner: address,
+        a: u32,
+    }
+    struct Goo {
+        a: u32,
+        b: u32,
+        c: u32,
+    }
+    transition main(public a: u32, b: u32) -> Foo {
+        return Foo {a: a, b: b, c: Boo {a:1u32, b:1u32}};
+    }
+    transition Yo()-> Yoo {
+        return Yoo {owner: self.signer, a:1u32};
+    }
+    transition Yo_Consumer(a: Yoo)->u32 {
+        return a.a;
+    }
+    transition Goo_creator() -> Goo {
+        return Goo {a:100u32, b:1u32, c:1u32};
+    }
+}";
+        // Add dependencies `outer/program.json`
+        let add_outer_dependency_1 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "inner_1".to_string(),
+                    local: Some(inner_1_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        let add_outer_dependency_2 = CLI {
+            debug: false,
+            quiet: false,
+            command: Commands::Add {
+                command: Add {
+                    name: "inner_2".to_string(),
+                    local: Some(inner_2_directory.clone()),
+                    network: "testnet3".to_string(),
+                },
+            },
+            path: Some(outer_directory.clone()),
+            home: None,
+        };
+
+        // Execute all commands
+        create_session_if_not_set_then(|_| {
+            // Create projects
+            run_with_args(create_outer_project).unwrap();
+            run_with_args(create_inner_1_project).unwrap();
+            run_with_args(create_inner_2_project).unwrap();
+
+            // Write files
+            std::fs::write(outer_directory.join("src").join("main.leo"), outer_program).unwrap();
+            std::fs::write(inner_1_directory.join("src").join("main.leo"), inner_1_program).unwrap();
+            std::fs::write(inner_2_directory.join("src").join("main.leo"), inner_2_program).unwrap();
+
+            // Add dependencies
+            run_with_args(add_outer_dependency_1).unwrap();
+            run_with_args(add_outer_dependency_2).unwrap();
         });
     }
 }

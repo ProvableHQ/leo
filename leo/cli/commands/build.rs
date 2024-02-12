@@ -105,7 +105,7 @@ impl Command for Build {
 
         // Retrieve all local dependencies in post order
         let main_sym = Symbol::intern(&program_id.name().to_string());
-        let mut retriever = Retriever::new(main_sym, &package_path, &home_path)
+        let mut retriever = Retriever::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
             .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
         let mut local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
@@ -113,39 +113,44 @@ impl Command for Build {
         // Push the main program at the end of the list to be compiled after all of its dependencies have been processed
         local_dependencies.push(main_sym);
 
+        // Recursive build will recursively compile all local dependencies. Can disable to save compile time.
+        let recursive_build = !self.options.non_recursive;
+
         // Loop through all local dependencies and compile them in order
         for dependency in local_dependencies.into_iter() {
-            // Get path to the local project
-            let (local_path, stubs) = retriever.prepare_local(dependency)?;
+            if recursive_build || dependency == main_sym {
+                // Get path to the local project
+                let (local_path, stubs) = retriever.prepare_local(dependency)?;
 
-            // Create the outputs directory.
-            let local_outputs_directory = OutputsDirectory::create(&local_path)?;
+                // Create the outputs directory.
+                let local_outputs_directory = OutputsDirectory::create(&local_path)?;
 
-            // Open the build directory.
-            let local_build_directory = BuildDirectory::create(&local_path)?;
+                // Open the build directory.
+                let local_build_directory = BuildDirectory::create(&local_path)?;
 
-            // Fetch paths to all .leo files in the source directory.
-            let local_source_files = SourceDirectory::files(&local_path)?;
+                // Fetch paths to all .leo files in the source directory.
+                let local_source_files = SourceDirectory::files(&local_path)?;
 
-            // Check the source files.
-            SourceDirectory::check_files(&local_source_files)?;
+                // Check the source files.
+                SourceDirectory::check_files(&local_source_files)?;
 
-            // Compile all .leo files into .aleo files.
-            for file_path in local_source_files {
-                compile_leo_file(
-                    file_path,
-                    &ProgramID::<Testnet3>::try_from(format!("{}.aleo", dependency))
-                        .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
-                    &local_outputs_directory,
-                    &local_build_directory,
-                    &handler,
-                    self.options.clone(),
-                    stubs.clone(),
-                )?;
+                // Compile all .leo files into .aleo files.
+                for file_path in local_source_files {
+                    compile_leo_file(
+                        file_path,
+                        &ProgramID::<Testnet3>::try_from(format!("{}.aleo", dependency))
+                            .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
+                        &local_outputs_directory,
+                        &local_build_directory,
+                        &handler,
+                        self.options.clone(),
+                        stubs.clone(),
+                    )?;
+                }
             }
 
             // Writes `leo.lock` as well as caches objects (when target is an intermediate dependency)
-            retriever.process_local(dependency)?;
+            retriever.process_local(dependency, recursive_build)?;
         }
 
         // `Package::open` checks that the build directory and that `main.aleo` and all imported files are well-formed.

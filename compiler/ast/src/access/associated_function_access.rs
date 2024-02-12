@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node, NodeID, Type};
+use crate::{Expression, Identifier, Node, NodeID};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -23,8 +23,8 @@ use std::fmt;
 /// An access expression to an associated function in a struct, e.g.`Pedersen64::hash()`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AssociatedFunction {
-    /// The inner struct type.
-    pub ty: Type,
+    /// The inner struct variant.
+    pub variant: Identifier,
     /// The static struct member function that is being accessed.
     pub name: Identifier,
     /// The arguments passed to the function `name`.
@@ -37,7 +37,7 @@ pub struct AssociatedFunction {
 
 impl fmt::Display for AssociatedFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}::{}", self.ty, self.name)
+        write!(f, "{}::{}", self.variant, self.name)
     }
 }
 

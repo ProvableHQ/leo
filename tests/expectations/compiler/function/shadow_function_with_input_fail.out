@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EAST0372006]: function `hi` shadowed by\n    --> compiler-test:8:21\n     |\n   8 |     function tester(hi: u8) -> u8 {\n     |                     ^^\nError [ETYC0372093]: A program must have at least one transition function.\n    --> compiler-test:1:1\n     |\n   1 | \n   2 | \n   3 | program test.aleo {    \n     | ^^^^^^^^^^^^\n"

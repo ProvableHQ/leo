@@ -74,7 +74,7 @@ create_messages!(
     @formatted
     imported_program_not_found {
         args: (main_program_name: impl Display, dependency_name: impl Display),
-        msg: format!("`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in `program.json`."),
+        msg: format!("`{main_program_name}` imports `{dependency_name}.aleo`, but `{dependency_name}.aleo` is not found in program manifest. Use `leo add --help` for more information on how to add a dependency."),
         help: None,
     }
 );

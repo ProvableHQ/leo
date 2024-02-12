@@ -200,7 +200,7 @@ create_messages!(
         msg: format!(
             "The type `{type_}` is not found in the current scope."
         ),
-        help: None,
+        help: Some("If you are using an external type, make sure to preface with the program name. Ex: `credits.aleo/credits` instead of `credits`".to_string()),
     }
 
     /// Attempted to access an invalid struct variable.
@@ -753,5 +753,19 @@ create_messages!(
         args: (),
         msg: format!("A program must have at least one transition function."),
         help: None,
+    }
+
+    @formatted
+    cannot_define_external_struct {
+        args: (struct_: impl Display),
+        msg: format!("Cannot define external struct `{struct_}`"),
+        help: Some("Copy the external definition of the struct into the current program, and then define without the `.aleo` extension.".to_string()),
+    }
+
+    @formatted
+    struct_definitions_dont_match {
+        args: (struct_: impl Display, program_1: impl Display, program_2: impl Display),
+        msg: format!("The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"),
+        help: Some("Check that the struct definition in the current program matches the definition in the imported program.".to_string()),
     }
 );

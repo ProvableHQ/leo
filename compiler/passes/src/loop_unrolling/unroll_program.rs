@@ -19,11 +19,28 @@ use leo_ast::*;
 use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
+    fn reconstruct_stub(&mut self, input: Stub) -> Stub {
+        // Set the current program
+        self.current_program = Some(input.stub_id.name.name);
+        Stub {
+            imports: input.imports,
+            stub_id: input.stub_id,
+            consts: input.consts,
+            structs: input.structs,
+            mappings: input.mappings,
+            span: input.span,
+            functions: input.functions.into_iter().map(|(i, f)| (i, self.reconstruct_function_stub(f))).collect(),
+        }
+    }
+
     fn reconstruct_program_scope(&mut self, input: ProgramScope) -> ProgramScope {
         // Don't need to reconstructed consts, just need to add them to constant propagation table
         input.consts.into_iter().for_each(|(_, c)| {
             self.reconstruct_const(c);
         });
+        // Set the current program
+        self.current_program = Some(input.program_id.name.name);
+        // Reconstruct the program scope
         ProgramScope {
             program_id: input.program_id,
             structs: input.structs,
@@ -38,7 +55,12 @@ impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_function_stub(&mut self, input: FunctionStub) -> FunctionStub {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self.symbol_table.borrow().lookup_fn_symbol(input.identifier.name).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(self.current_program.unwrap(), input.identifier.name)
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         let previous_function_index = self.enter_scope(function_index);
@@ -52,7 +74,12 @@ impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self.symbol_table.borrow().lookup_fn_symbol(function.identifier.name).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(self.current_program.unwrap(), function.identifier.name)
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         let previous_function_index = self.enter_scope(function_index);

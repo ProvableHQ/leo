@@ -58,13 +58,6 @@ impl ConstantPropagationTable {
         self.scope_index()
     }
 
-    /// Inserts a function into the symbol table.
-    pub fn insert_fn_scope(&mut self) -> Result<()> {
-        self.scope_index();
-        self.scopes.push(Default::default());
-        Ok(())
-    }
-
     /// Attempts to lookup a constant in the constant propagation table.
     pub fn lookup_constant(&self, symbol: Symbol) -> Option<&Expression> {
         if let Some(constant) = self.constants.get(&symbol) {

@@ -11,7 +11,7 @@ outputs:
             - Identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
             - Identifier: "{\"id\":\"2\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
             - Identifier: "{\"id\":\"3\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":20,\\\"hi\\\":23}\"}"
-          external: ~
+          program: ~
           span:
             lo: 0
             hi: 24
@@ -43,7 +43,7 @@ outputs:
                       lo: 20
                       hi: 23
                   - 3
-          external: ~
+          program: ~
           span:
             lo: 0
             hi: 24
@@ -60,7 +60,7 @@ outputs:
           arguments:
             - Identifier: "{\"id\":\"1\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":10,\\\"hi\\\":13}\"}"
             - Identifier: "{\"id\":\"2\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":15,\\\"hi\\\":18}\"}"
-          external: ~
+          program: ~
           span:
             lo: 0
             hi: 19
@@ -75,7 +75,7 @@ outputs:
           function:
             Identifier: "{\"id\":\"0\",\"name\":\"increment\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":9}\"}"
           arguments: []
-          external: ~
+          program: ~
           span:
             lo: 0
             hi: 11

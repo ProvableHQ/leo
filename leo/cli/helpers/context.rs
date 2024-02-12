@@ -22,6 +22,8 @@ use leo_package::build::{BuildDirectory, BUILD_DIRECTORY_NAME};
 use snarkvm::file::Manifest;
 
 use aleo_std::aleo_dir;
+use indexmap::IndexMap;
+use retriever::LockFileEntry;
 use std::{
     env::current_dir,
     fs::File,
@@ -105,5 +107,34 @@ impl Context {
 
         // Get package name from program id.
         Ok(manifest)
+    }
+
+    /// Returns a post ordering of the local dependencies.
+    /// Found by reading the lock file `leo.lock`.
+    pub fn local_dependency_paths(&self) -> Result<Vec<(String, PathBuf)>> {
+        let path = self.dir()?;
+        let lock_path = path.join("leo.lock");
+
+        // If there is no lock file can assume no local dependencies
+        if !lock_path.exists() {
+            return Ok(Vec::new());
+        }
+
+        let contents = std::fs::read_to_string(&lock_path)
+            .map_err(|err| PackageError::failed_to_read_file(lock_path.to_str().unwrap(), err))?;
+
+        let entry_map: IndexMap<String, Vec<LockFileEntry>> =
+            toml::from_str(&contents).map_err(PackageError::failed_to_deserialize_lock_file)?;
+
+        let lock_entries = entry_map.get("package").ok_or_else(PackageError::invalid_lock_file_formatting)?;
+
+        let list: Vec<(String, PathBuf)> = lock_entries
+            .iter()
+            .filter_map(|entry| {
+                entry.path().map(|local_path| (entry.name().to_string(), local_path.clone().join("build")))
+            })
+            .collect();
+
+        Ok(list)
     }
 }

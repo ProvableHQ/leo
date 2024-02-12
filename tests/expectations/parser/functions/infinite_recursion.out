@@ -35,7 +35,7 @@ outputs:
                           function:
                             Identifier: "{\"id\":\"4\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":61,\\\"hi\\\":64}\"}"
                           arguments: []
-                          external: ~
+                          program: test
                           span:
                             lo: 61
                             hi: 66
@@ -83,7 +83,7 @@ outputs:
                           function:
                             Identifier: "{\"id\":\"13\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":124,\\\"hi\\\":127}\"}"
                           arguments: []
-                          external: ~
+                          program: test
                           span:
                             lo: 124
                             hi: 129

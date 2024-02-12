@@ -16,6 +16,7 @@
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
+use leo_span::Symbol;
 
 use crate::{SymbolTable, VariableSymbol, VariableType};
 
@@ -27,11 +28,13 @@ pub struct SymbolTableCreator<'a> {
     pub(crate) symbol_table: SymbolTable,
     /// The error handler.
     handler: &'a Handler,
+    /// The current program name.
+    program_name: Option<Symbol>,
 }
 
 impl<'a> SymbolTableCreator<'a> {
     pub fn new(handler: &'a Handler) -> Self {
-        Self { symbol_table: Default::default(), handler }
+        Self { symbol_table: Default::default(), handler, program_name: None }
     }
 }
 
@@ -43,12 +46,23 @@ impl<'a> ExpressionVisitor<'a> for SymbolTableCreator<'a> {
 impl<'a> StatementVisitor<'a> for SymbolTableCreator<'a> {}
 
 impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
+    fn visit_program_scope(&mut self, input: &'a ProgramScope) {
+        // Set current program name
+        self.program_name = Some(input.program_id.name.name);
+
+        // Visit the program scope
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
+        input.functions.iter().for_each(|(_, c)| (self.visit_function(c)));
+        input.consts.iter().for_each(|(_, c)| (self.visit_const(c)));
+    }
+
     fn visit_import(&mut self, input: &'a Program) {
         self.visit_program(input)
     }
 
-    fn visit_struct(&mut self, input: &'a Struct) {
-        if let Err(err) = self.symbol_table.insert_struct(input.name(), input) {
+    fn visit_struct(&mut self, input: &'a Composite) {
+        if let Err(err) = self.symbol_table.insert_struct(self.program_name.unwrap(), input.name(), input) {
             self.handler.emit_err(err);
         }
     }
@@ -68,19 +82,27 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     }
 
     fn visit_function(&mut self, input: &'a Function) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), input) {
+        if let Err(err) = self.symbol_table.insert_fn(self.program_name.unwrap(), input.name(), input) {
             self.handler.emit_err(err);
         }
     }
 
     fn visit_stub(&mut self, input: &'a Stub) {
+        self.program_name = Some(input.stub_id.name.name);
         input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
-
-        input.structs.iter().for_each(|(_, c)| (self.visit_struct(c)));
+        input.structs.iter().for_each(|(_, c)| (self.visit_struct_stub(c)));
     }
 
     fn visit_function_stub(&mut self, input: &'a FunctionStub) {
-        if let Err(err) = self.symbol_table.insert_fn(input.name(), &Function::from(input.clone())) {
+        if let Err(err) =
+            self.symbol_table.insert_fn(self.program_name.unwrap(), input.name(), &Function::from(input.clone()))
+        {
+            self.handler.emit_err(err);
+        }
+    }
+
+    fn visit_struct_stub(&mut self, input: &'a Composite) {
+        if let Err(err) = self.symbol_table.insert_struct(self.program_name.unwrap(), input.name(), input) {
             self.handler.emit_err(err);
         }
     }

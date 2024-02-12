@@ -15,31 +15,29 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-
+use clap::Parser;
+// use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
 use snarkvm::{cli::Execute as SnarkVMExecute, prelude::Parser as SnarkVMParser};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
 pub struct Execute {
-    #[clap(name = "NAME", help = "The name of the program to execute.", default_value = "main")]
+    #[clap(name = "NAME", help = "The name of the function to execute.", default_value = "main")]
     name: String,
-
-    #[clap(name = "INPUTS", help = "The inputs to the program.")]
+    #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
     inputs: Vec<String>,
-
-    #[clap(
-        name = "ENDPOINT",
-        help = "The specified network endpoint.",
-        default_value = "https://api.explorer.aleo.org/v1",
-        long
-    )]
-    endpoint: String,
-
+    #[clap(long, help = "Execute the transition on chain", default_value = "false")]
+    broadcast: bool,
+    #[clap(long, help = "Custom priority fee in microcredits", default_value = "1000000")]
+    priority_fee: String,
+    #[clap(long, help = "Custom network", default_value = "testnet3")]
+    network: String,
+    #[clap(long, help = "Custom private key")]
+    private_key: Option<String>,
     #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
     file: Option<String>,
-
     #[clap(flatten)]
-    pub(crate) compiler_options: BuildOptions,
+    compiler_options: BuildOptions,
 }
 
 impl Command for Execute {
@@ -54,7 +52,51 @@ impl Command for Execute {
         (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
+        // If the `broadcast` flag is set, then broadcast the transaction.
+        if self.broadcast {
+            // // Get the program name
+            // let project_name = context.open_manifest()?.program_id().to_string();
+            //
+            // // Get the private key
+            // let mut private_key = self.private_key;
+            // if private_key.is_none() {
+            //     private_key =
+            //         Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
+            // }
+            //
+            // // Execute program
+            // Developer::Execute(
+            //     SnarkOSExecute::try_parse_from(
+            //         [
+            //             vec![
+            //                 "snarkos",
+            //                 "--private-key",
+            //                 private_key.as_ref().unwrap(),
+            //                 "--query",
+            //                 self.compiler_options.endpoint.as_str(),
+            //                 "--priority-fee",
+            //                 self.priority_fee.as_str(),
+            //                 "--broadcast",
+            //                 format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.network)
+            //                     .as_str(),
+            //                 project_name.as_str(),
+            //                 &self.name,
+            //             ],
+            //             self.inputs.iter().map(|input| input.as_str()).collect(),
+            //         ]
+            //         .concat(),
+            //     )
+            //     .unwrap(),
+            // )
+            // .parse()
+            // .map_err(CliError::failed_to_execute_deploy)?;
+
+            return Err(PackageError::unimplemented_command("leo execute --broadcast").into());
+        }
+
+        // If input values are provided, then run the program with those inputs.
+        // Otherwise, use the input file.
         let mut inputs = self.inputs;
 
         // Compose the `execute` command.
@@ -93,7 +135,7 @@ impl Command for Execute {
 
         // Add the endpoint to the arguments.
         arguments.push(String::from("--endpoint"));
-        arguments.push(self.endpoint);
+        arguments.push(self.compiler_options.endpoint.clone());
 
         // Open the Leo build/ directory
         let path = context.dir()?;

@@ -344,7 +344,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                     expression: Expression::Call(CallExpression {
                         function: call.function,
                         arguments,
-                        external: call.external,
+                        program: call.program,
                         span: call.span,
                         id: call.id,
                     }),
@@ -359,7 +359,7 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                 // Note that we do not create a new assignment for the associated function; this is necessary for correct code generation.
                 statements.push(Statement::Expression(ExpressionStatement {
                     expression: Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
-                        ty: associated_function.ty,
+                        variant: associated_function.variant,
                         name: associated_function.name,
                         arguments,
                         span: associated_function.span,

@@ -34,7 +34,7 @@ program battleship.aleo {
         let board: u64 = verify.aleo/create_board(carrier, battleship, cruiser, destroyer);
 
         // Initialize the board state record.
-        let state: board_state = board.aleo/new_board_state(board, player);
+        let state: board.aleo/board_state = board.aleo/new_board_state(board, player);
 
         return state;
     }
@@ -46,8 +46,8 @@ program battleship.aleo {
         // The board record to start a game with.
         board: board.aleo/board_state.record,
     ) -> (board.aleo/board_state.record, move.aleo/move.record) {
-        let state: board_state = board.aleo/start_board(board);
-        let dummy: move = move.aleo/start_game(board.player_2);
+        let state: board.aleo/board_state = board.aleo/start_board(board);
+        let dummy: move.aleo/move = move.aleo/start_game(board.player_2);
 
         return (state, dummy);
     }
@@ -64,8 +64,8 @@ program battleship.aleo {
         assert_eq(board.player_1, move_start.player_2);
         assert_eq(board.player_2, move_start.player_1);
 
-        let state: board_state = board.aleo/start_board(board);
-        let dummy: move = move.aleo/start_game(board.player_2);
+        let state: board.aleo/board_state = board.aleo/start_board(board);
+        let dummy: move.aleo/move = move.aleo/start_game(board.player_2);
 
         return (state, dummy);
     }
@@ -89,15 +89,15 @@ program battleship.aleo {
         assert_eq(board.player_2, move_incoming.player_1);
 
         // Play coordinate on own board. Will fail if not a valid move.
-        let hit_or_miss: board_state = board.aleo/update_played_tiles(board, shoot);
+        let hit_or_miss: board.aleo/board_state = board.aleo/update_played_tiles(board, shoot);
 
         // Update own board with result of last shot.
-        let next_board: board_state = board.aleo/update_hits_and_misses(hit_or_miss, move_incoming.prev_hit_or_miss);
+        let next_board: board.aleo/board_state = board.aleo/update_hits_and_misses(hit_or_miss, move_incoming.prev_hit_or_miss);
 
         // Assess whether incoming fire coordinate is a hit.
         let is_hit: u64 = move_incoming.incoming_fire_coordinate & board.ships;
 
-        let next_move: move = move.aleo/create_move(move_incoming, shoot, is_hit);
+        let next_move: move.aleo/move = move.aleo/create_move(move_incoming, shoot, is_hit);
 
         return (next_board, next_move);
     }

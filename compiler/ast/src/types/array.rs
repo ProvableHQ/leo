@@ -17,6 +17,7 @@
 use crate::{NonNegativeNumber, Type};
 use snarkvm::console::program::ArrayType as ConsoleArrayType;
 
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use snarkvm::prelude::Network;
 use std::fmt;
@@ -51,12 +52,10 @@ impl ArrayType {
             type_ => type_,
         }
     }
-}
 
-impl<N: Network> From<&ConsoleArrayType<N>> for ArrayType {
-    fn from(array_type: &ConsoleArrayType<N>) -> Self {
+    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Symbol) -> Self {
         Self {
-            element_type: Box::new(Type::from(array_type.next_element_type())),
+            element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
             length: NonNegativeNumber::from(array_type.length().to_string().replace("u32", "")),
         }
     }

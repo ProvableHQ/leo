@@ -13,9 +13,13 @@ outputs:
           - - foo
             - identifier: "{\"id\":\"2\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":38,\\\"hi\\\":41}\"}"
               key_type:
-                Identifier: "{\"id\":\"3\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":46}\"}"
+                Composite:
+                  id: "{\"id\":\"3\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":46}\"}"
+                  program: test
               value_type:
-                Identifier: "{\"id\":\"4\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":53}\"}"
+                Composite:
+                  id: "{\"id\":\"4\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":53}\"}"
+                  program: test
               span:
                 lo: 30
                 hi: 54

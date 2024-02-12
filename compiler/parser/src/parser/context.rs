@@ -39,6 +39,8 @@ pub(crate) struct ParserContext<'a> {
     pub(crate) prev_token: SpannedToken,
     /// true if parsing an expression for if and loop statements -- means struct inits are not legal
     pub(crate) disallow_struct_construction: bool,
+    /// The name of the program being parsed.
+    pub(crate) program_name: Option<Symbol>,
 }
 
 /// Dummy span used to appease borrow checker.
@@ -60,6 +62,7 @@ impl<'a> ParserContext<'a> {
             prev_token: token.clone(),
             token,
             tokens,
+            program_name: None,
         };
         p.bump();
         p

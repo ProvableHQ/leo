@@ -335,4 +335,11 @@ create_messages!(
         msg: format!("Only external calls to `.aleo` programs are supported."),
         help: None,
     }
+
+    @formatted
+    cannot_define_external_record {
+        args: (),
+        msg: format!("Cannot create an external record. Records can only be created in the program that they are defined in."),
+        help: None,
+    }
 );

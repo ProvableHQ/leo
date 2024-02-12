@@ -37,7 +37,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         // Type checking guarantees that only functions local to the program scope can be inlined.
-        if input.external.is_some() {
+        if input.program.unwrap() != self.program.unwrap() {
             return (Expression::Call(input), Default::default());
         }
 

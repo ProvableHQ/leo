@@ -194,4 +194,11 @@ create_messages!(
         msg: format!("Failed to write file.\nIO Error: {error}"),
         help: None,
     }
+
+    @backtraced
+    failed_to_read_environment_private_key {
+        args: (error: impl Display),
+        msg: format!("Failed to read private key from environment.\nIO Error: {error}"),
+        help: Some("Pass in private key using `--private-key <PRIVATE-KEY>` or create a .env file with your private key information. See examples for formatting information.".to_string()),
+    }
 );

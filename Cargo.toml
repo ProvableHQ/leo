@@ -147,6 +147,12 @@ version = "1.0"
 [dependencies.serial_test]
 version = "3.0.0"
 
+#[dependencies.snarkos-cli]
+#version = "2.2.4"
+
+#[dependencies.snarkos-cli]
+#version = "2.2.4"
+
 [dependencies.snarkvm]
 workspace = true
 features = [ "circuit", "console" ]

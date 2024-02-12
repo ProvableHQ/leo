@@ -205,7 +205,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check that the type of the definition is defined.
         self.assert_type_is_valid(&input.type_, input.span);
 
-        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
+        // Check that the type of the definition is not a unit type, singleton tuple type, nested tuple type, or external struct type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
             Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
@@ -213,14 +213,23 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that tuple types have at least two elements."),
                 _ => {
-                    if tuple.elements().iter().any(|type_| matches!(type_, Type::Tuple(_))) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                    for type_ in tuple.elements() {
+                        if matches!(type_, Type::Tuple(_)) {
+                            self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
+                        }
+                        if let Type::Composite(composite) = type_ {
+                            self.assert_internal_struct(composite, input.span);
+                        }
                     }
                 }
             },
             Type::Mapping(_) | Type::Err => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
+            // Make sure there are no instances of external structs created.
+            Type::Composite(composite) => {
+                self.assert_internal_struct(composite, input.span);
+            }
             // Otherwise, the type is valid.
             _ => (), // Do nothing
         }
@@ -372,11 +381,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(parent).map(|f| match self.is_finalize {
-            // TODO: Check this.
-            // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-            true => f.finalize.as_ref().unwrap().output_type.clone(),
-            false => f.output_type.clone(),
+        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), parent).map(|f| {
+            match self.is_finalize {
+                // TODO: Check this.
+                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                true => f.finalize.as_ref().unwrap().output_type.clone(),
+                false => f.output_type.clone(),
+            }
         });
 
         // Set the `has_return` flag.
@@ -409,8 +420,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Check that the function has a finalize block.
             // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
             // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-            let finalize =
-                self.symbol_table.borrow().lookup_fn_symbol(self.function.unwrap()).unwrap().finalize.clone();
+            let finalize = self
+                .symbol_table
+                .borrow()
+                .lookup_fn_symbol(self.program_name.unwrap(), self.function.unwrap())
+                .unwrap()
+                .finalize
+                .clone();
             match finalize {
                 None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
                 Some(finalize) => {

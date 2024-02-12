@@ -95,6 +95,9 @@ impl ParserContext<'_> {
         // Parse the program name.
         let name = self.expect_identifier()?;
 
+        // Set the program name in the context.
+        self.program_name = Some(name.name);
+
         // Parse the program network.
         self.expect(&Token::Dot)?;
 
@@ -111,7 +114,7 @@ impl ParserContext<'_> {
         // Parse the body of the program scope.
         let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
         let mut functions: Vec<(Symbol, Function)> = Vec::new();
-        let mut structs: Vec<(Symbol, Struct)> = Vec::new();
+        let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
 
         while self.has_next() {
@@ -203,7 +206,7 @@ impl ParserContext<'_> {
     }
 
     /// Parses a struct or record definition, e.g., `struct Foo { ... }` or `record Foo { ... }`.
-    pub(super) fn parse_struct(&mut self) -> Result<(Symbol, Struct)> {
+    pub(super) fn parse_struct(&mut self) -> Result<(Symbol, Composite)> {
         let is_record = matches!(&self.token.token, Token::Record);
         let start = self.expect_any(&[Token::Struct, Token::Record])?;
 
@@ -218,9 +221,10 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_struct_members()?;
 
-        Ok((struct_name.name, Struct {
+        Ok((struct_name.name, Composite {
             identifier: struct_name,
             members,
+            external: self.program_name,
             is_record,
             span: start + end,
             id: self.node_builder.next_id(),

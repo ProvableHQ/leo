@@ -87,9 +87,10 @@ impl ExpressionReconstructor for Flattener<'_> {
 
                 match &first_type {
                     Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),
-                    Type::Identifier(first_type) => {
+                    Type::Composite(first_type) => {
                         // Get the struct definitions.
-                        let first_type = self.symbol_table.lookup_struct(first_type.name).unwrap();
+                        let first_type =
+                            self.symbol_table.lookup_struct(first_type.program.unwrap(), first_type.id.name).unwrap();
                         self.ternary_struct(first_type, &input.condition, &first, &second)
                     }
                     Type::Tuple(first_type) => self.ternary_tuple(first_type, &input.condition, &first, &second),

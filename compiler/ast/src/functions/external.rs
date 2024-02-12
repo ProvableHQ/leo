@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, NodeID, Type};
+use crate::{CompositeType, Identifier, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
@@ -37,7 +37,7 @@ pub struct External {
 
 impl External {
     pub fn type_(&self) -> Type {
-        Type::Identifier(self.record)
+        Type::Composite(CompositeType { id: self.record, program: Some(self.program_name.name) })
     }
 }
 
