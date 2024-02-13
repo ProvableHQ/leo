@@ -131,7 +131,7 @@ impl ParserContext<'_> {
                     let (id, mapping) = self.parse_mapping()?;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Function | Token::Transition | Token::Inline => {
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
                     functions.push((id, function));
                 }
@@ -389,8 +389,11 @@ impl ParserContext<'_> {
         while self.look_ahead(0, |t| &t.token) == &Token::At {
             annotations.push(self.parse_annotation()?)
         }
+        // Parse a potential async signifier.
+        let (is_async, start_async) =
+            if self.token.token == Token::Async { (true, self.expect(&Token::Async)?) } else { (false, Span::dummy()) };
         // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
-        let (variant, start) = match self.token.token {
+        let (variant, mut start) = match self.token.token {
             Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
             Token::Function => (Variant::Standard, self.expect(&Token::Function)?),
             Token::Transition => (Variant::Transition, self.expect(&Token::Transition)?),
@@ -425,52 +428,18 @@ impl ParserContext<'_> {
             _ => self.unexpected("block or semicolon")?,
         };
 
-        // Parse the `finalize` block if it exists.
-        let finalize = match self.eat(&Token::Finalize) {
-            false => None,
-            true => {
-                // Get starting span.
-                let start = self.prev_token.span;
+        let span = if start_async == Span::dummy() { start + block.span } else { start_async + block.span };
 
-                // Parse the identifier.
-                let identifier = self.expect_identifier()?;
-
-                // Parse parameters.
-                let (input, ..) = self.parse_paren_comma_list(|p| p.parse_input().map(Some))?;
-
-                // Parse return type.
-                let output = match self.eat(&Token::Arrow) {
-                    false => vec![],
-                    true => {
-                        self.disallow_struct_construction = true;
-                        let output = match self.peek_is_left_par() {
-                            true => self.parse_paren_comma_list(|p| p.parse_output().map(Some))?.0,
-                            false => vec![self.parse_output()?],
-                        };
-                        self.disallow_struct_construction = false;
-                        output
-                    }
-                };
-
-                // Parse the finalize body.
-                let block = self.parse_block()?;
-                let span = start + block.span;
-
-                Some(Finalize::new(identifier, input, output, block, span, self.node_builder.next_id()))
-            }
-        };
-
-        let span = start + block.span;
         Ok((
             name.name,
             Function::new(
                 annotations,
+                is_async,
                 variant,
                 name,
                 inputs,
                 output,
                 block,
-                finalize,
                 span,
                 self.node_builder.next_id(),
             ),

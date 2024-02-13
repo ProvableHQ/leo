@@ -14,27 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, NodeID};
-use leo_span::Span;
+use crate::TupleType;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// A return statement `return expression;`.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct ReturnStatement {
-    /// The expression to return to the function caller.
-    pub expression: Expression,
-    /// The span of `return expression` excluding the semicolon.
-    pub span: Span,
-    /// The ID of the node.
-    pub id: NodeID,
+/// A future type consisting of the type of the inputs.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct FutureType {
+    // Optional type specification of inputs.
+    pub inputs: Option<TupleType>
 }
 
-impl fmt::Display for ReturnStatement {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "return {}", self.expression)
+impl Default for FutureType {
+    fn default() -> Self {
+        Self { inputs: None }
     }
 }
-
-crate::simple_node_impl!(ReturnStatement);
+impl fmt::Display for crate::FutureType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.inputs {
+            Some(inputs) => write!(f, "future<{inputs}>", inputs = inputs),
+            None => write!(f, "future")
+        }
+    }
+}

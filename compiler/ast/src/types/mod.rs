@@ -20,6 +20,9 @@ pub use array::*;
 pub mod core_constant;
 pub use core_constant::*;
 
+pub mod future;
+pub use future::*;
+
 pub mod integer_type;
 pub use integer_type::*;
 

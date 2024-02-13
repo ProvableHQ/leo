@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType};
+use crate::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType, FutureType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -39,6 +39,8 @@ pub enum Type {
     Composite(CompositeType),
     /// The `field` type.
     Field,
+    /// The `future` type.
+    Future(FutureType),
     /// The `group` type.
     Group,
     /// A reference to a built in type.
@@ -132,6 +134,7 @@ impl fmt::Display for Type {
             Type::Array(ref array_type) => write!(f, "{array_type}"),
             Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
+            Type::Future(ref future_type) => write!(f, "{future_type}"),
             Type::Group => write!(f, "group"),
             Type::Identifier(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),
