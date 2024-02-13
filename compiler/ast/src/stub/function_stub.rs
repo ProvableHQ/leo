@@ -14,32 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    finalize_stub::*,
-    Annotation,
-    CompositeType,
-    External,
-    Function,
-    FunctionInput,
-    FunctionOutput,
-    Identifier,
-    Input,
-    Mode,
-    Node,
-    NodeID,
-    Output,
-    ProgramId,
-    TupleType,
-    Type,
-    Variant,
-};
+use crate::{Annotation, CompositeType, External, Function, FunctionInput, FunctionOutput, Identifier, Input, Mode, Node, NodeID, Output, ProgramId, TupleType, Type, Variant, FutureType};
 use leo_span::{sym, Span, Symbol};
 
 use crate::Type::Composite;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
-    console::program::RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    console::program::{RegisterType::{ExternalRecord, Future, Plaintext, Record}, FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType}},
     prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
@@ -50,6 +32,8 @@ use std::fmt;
 pub struct FunctionStub {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
+    /// Is this function asynchronous or synchronous?
+    pub is_async: bool,
     /// Is this function a transition, inlined, or a regular function?.
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
@@ -60,8 +44,6 @@ pub struct FunctionStub {
     pub output: Vec<Output>,
     /// The function's output type.
     pub output_type: Type,
-    /// An optional finalize stub
-    pub finalize_stub: Option<FinalizeStub>,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -81,11 +63,11 @@ impl FunctionStub {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
+        is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
-        finalize_stub: Option<FinalizeStub>,
         span: Span,
         id: NodeID,
     ) -> Self {
@@ -101,7 +83,7 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
+        FunctionStub { annotations, is_async, variant, identifier, input, output, output_type, span, id }
     }
 
     /// Returns function name.
@@ -133,12 +115,7 @@ impl FunctionStub {
         };
         write!(f, "({parameters}) -> {returns}")?;
 
-        if let Some(finalize) = &self.finalize_stub {
-            let parameters = finalize.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-            write!(f, " finalize ({parameters})")
-        } else {
-            Ok(())
-        }
+        Ok(())
     }
 
     /// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
@@ -204,6 +181,7 @@ impl FunctionStub {
 
         Self {
             annotations: Vec::new(),
+            is_async: function.finalize_logic().is_some(),
             variant: Variant::Transition,
             identifier: Identifier::from(function.name()),
             input: function
@@ -254,9 +232,42 @@ impl FunctionStub {
                 .collect_vec(),
             output: outputs,
             output_type,
-            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f, program)),
             span: Default::default(),
             id: Default::default(),
+        }
+    }
+
+    pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
+        function: &FunctionCore<N, Instruction, Command>,
+        name: Symbol,
+    ) -> Self {
+        Self {
+            annotations: Vec::new(),
+            is_async: true,
+            variant: Variant::Transition,
+            identifier: Identifier::new(name, Default::default()),
+            input: function.finalize_logic().unwrap().inputs().iter().enumerate().map(|(index, input)| {
+                Input::Internal(FunctionInput {
+                    identifier: Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default()),
+                    mode: Mode::Public,
+                    type_: match input.finalize_type() {
+                        PlaintextFinalizeType(val) => Type::from_snarkvm(&val, name),
+                        FutureFinalizeType(_) => Type::Future(Default::default()),
+                    },
+                    span: Default::default(),
+                    id: Default::default(),
+                })
+            }).collect_vec(),
+            output: vec![Output::Internal(FunctionOutput {
+                mode: Mode::Public,
+                type_: Type::Future(FutureType { inputs: None} ),
+                span: Default::default(),
+                id: 0,
+            })
+            ],
+            output_type: Type::Future(FutureType { inputs: None}),
+            span: Default::default(),
+            id: 0,
         }
     }
 
@@ -293,6 +304,7 @@ impl FunctionStub {
         };
         Self {
             annotations: Vec::new(),
+            is_async: false,
             variant: Variant::Standard,
             identifier: Identifier::from(closure.name()),
             input: closure
@@ -319,7 +331,6 @@ impl FunctionStub {
             output_type,
             span: Default::default(),
             id: Default::default(),
-            finalize_stub: None,
         }
     }
 }
@@ -328,12 +339,12 @@ impl From<Function> for FunctionStub {
     fn from(function: Function) -> Self {
         Self {
             annotations: function.annotations,
+            is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            finalize_stub: function.finalize.map(FinalizeStub::from),
             span: function.span,
             id: function.id,
         }

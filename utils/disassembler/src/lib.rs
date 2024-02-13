@@ -23,6 +23,7 @@ type CurrentNetwork = Testnet3;
 
 use leo_ast::{Composite, FunctionStub, Identifier, Mapping, ProgramId, Stub};
 use leo_errors::UtilError;
+use leo_span::Symbol;
 
 pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
     program: ProgramCore<N, Instruction, Command>,
@@ -63,6 +64,20 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
                 .iter()
                 .map(|(id, function)| {
                     (Identifier::from(id).name, FunctionStub::from_function_core(function, program_id.name.name))
+                })
+                .collect_vec(),
+            program
+                .functions()
+                .iter()
+                .filter_map(|(id, function)| match function.finalize_logic() {
+                    Some(f) => {
+                        let name = Symbol::intern(&format!(
+                            "finalize/{}",
+                            Symbol::intern(&Identifier::from(id).name.to_string())
+                        ));
+                        Some((name, FunctionStub::from_finalize(f, name)))
+                    }
+                    None => None,
                 })
                 .collect_vec(),
         ]

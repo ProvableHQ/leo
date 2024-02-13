@@ -26,9 +26,6 @@ pub use variant::*;
 pub mod external;
 pub use external::*;
 
-pub mod finalize;
-pub use finalize::*;
-
 pub mod input;
 pub use input::*;
 
@@ -49,6 +46,8 @@ use std::fmt;
 pub struct Function {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
+    /// Is this function asynchronous or synchronous?
+    pub is_async: bool,
     /// Is this function a transition, inlined, or a regular function?.
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
@@ -61,8 +60,6 @@ pub struct Function {
     pub output_type: Type,
     /// The body of the function.
     pub block: Block,
-    /// An optional finalize block
-    pub finalize: Option<Finalize>,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -82,12 +79,12 @@ impl Function {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
+        is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
         block: Block,
-        finalize: Option<Finalize>,
         span: Span,
         id: NodeID,
     ) -> Self {
@@ -103,7 +100,7 @@ impl Function {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
+        Function { annotations, is_async, variant, identifier, input, output, output_type, block, span, id }
     }
 
     /// Returns function name.
@@ -129,28 +126,22 @@ impl Function {
             _ => self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","),
         };
         write!(f, "({parameters}) -> {returns} {}", self.block)?;
-
-        if let Some(finalize) = &self.finalize {
-            let parameters = finalize.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-            write!(f, " finalize ({parameters}) {}", finalize.block)
-        } else {
-            Ok(())
-        }
+        
+        Ok(())
     }
 }
 
 impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
-        let finalize = function.finalize_stub.map(Finalize::from);
         Self {
             annotations: function.annotations,
+            is_async: false,
             variant: function.variant,
             identifier: function.identifier,
             input: function.input,
             output: function.output,
             output_type: function.output_type,
             block: Block::default(),
-            finalize,
             span: function.span,
             id: function.id,
         }
