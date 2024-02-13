@@ -202,6 +202,7 @@ symbols! {
     to_x_coordinate,
     to_y_coordinate,
     verify,
+    Await: "await",
 
     // types
     address,
@@ -213,6 +214,7 @@ symbols! {
     i32,
     i64,
     i128,
+    Future: "future",
     record,
     scalar,
     signature,
