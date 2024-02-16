@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexSet;
 use crate::{TypeChecker, VariableSymbol, VariableType};
 use itertools::Itertools;
 
@@ -90,6 +91,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
+        // Reset environment flag.
+        if self.is_finalize_caller { self.has_called_finalize = false; self.futures = IndexSet::new() };
+
         // Create a new scope for the then-block.
         let scope_index = self.create_child_scope();
 
@@ -97,6 +101,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Exit the scope for the then-block.
         self.exit_scope(scope_index);
+
+        // Must have awaited all futures.
+        if self.is_finalize && !self.to_await.is_empty() {
+            self.emit_err(TypeCheckerError::must_await_all_futures(&self.to_await, input.span()));
+        }
+        // Check that an async function call was made to propagate futures to a finalize block.
+        else if self.is_finalize_caller  && !self.has_called_finalize {
+            self.emit_err(TypeCheckerError::async_transition_must_call_async_function(input.span()));
+        }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {

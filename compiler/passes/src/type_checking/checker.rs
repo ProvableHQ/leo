@@ -21,7 +21,6 @@ use leo_ast::{
     CompositeType,
     CoreConstant,
     CoreFunction,
-    Finalize,
     Function,
     Identifier,
     IntegerType,
@@ -39,6 +38,7 @@ use snarkvm::console::network::{Network, Testnet3};
 
 use itertools::Itertools;
 use std::cell::RefCell;
+use indexmap::{IndexMap, IndexSet};
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -57,8 +57,6 @@ pub struct TypeChecker<'a> {
     pub(crate) variant: Option<Variant>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
-    /// Whether or not the function that we are currently traversing invokes the finalize block.
-    pub(crate) has_finalize: bool,
     /// Whether or not we are currently traversing a finalize block.
     pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing a return statement.
@@ -67,6 +65,16 @@ pub struct TypeChecker<'a> {
     pub(crate) program_name: Option<Symbol>,
     /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
+    /// Whether or not we are in an async transition function.
+    pub(crate) is_finalize_caller: bool,
+    /// The futures that must be awaited.
+    pub(crate) to_await: IndexSet<Symbol>,
+    /// The futures that must be propagated to an async function.
+    pub(crate) futures: IndexSet<Symbol>,
+    /// Whether the finalize caller has called the finalize function.
+    pub(crate) has_called_finalize: bool,
+    /// Mapping from async function name to the inferred input types.
+    pub(crate) future_map: IndexMap<Symbol, Vec<Type>>
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
