@@ -536,7 +536,7 @@ create_messages!(
     @formatted
     function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("A `function` cannot have a record as input or output."),
+        msg: format!("Only `transition` functions can have a record as input or output."),
         help: None,
     }
 
@@ -751,7 +751,7 @@ create_messages!(
     @formatted
     no_transitions {
         args: (),
-        msg: format!("A program must have at least one transition function."),
+        msg: "A program must have at least one transition function.".to_string(),
         help: None,
     }
 
@@ -767,5 +767,40 @@ create_messages!(
         args: (struct_: impl Display, program_1: impl Display, program_2: impl Display),
         msg: format!("The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"),
         help: Some("Check that the struct definition in the current program matches the definition in the imported program.".to_string()),
+    }
+
+    @formatted
+    async_function_must_return_single_future {
+        args: (),
+        msg: "An async function must return a single future.".to_string(),
+        help: Some("Example: `async function foo() -> Future {...}`".to_string()),
+    }
+
+    @formatted
+    async_transition_must_return_future_as_first_output {
+        args: (),
+        msg: "An async transition must return a future as its first output.".to_string(),
+        help: Some("Each async transition must make a call to an async function that returns a future. Return that future at the end of the transition function.".to_string()),
+    }
+
+    @formatted
+    must_await_all_futures {
+        args: (never_awaited: impl Display),
+        msg: format!("All futures must be awaited before the function returns. The following were never awaited: {never_awaited}"),
+        help: Some("Example: `async function foo(f: Future) -> Future { f.await(); }`".to_string()),
+    }
+
+    @formatted
+    must_propagate_all_futures {
+        args: (never_propagated: impl Display),
+        msg: format!("All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"),
+        help: Some("Example: `async transition foo() -> Future { let a: Future = b.aleo/bar(); return await_futures(a); }`".to_string()),
+    }
+
+    @formatted
+    async_transition_must_call_async_function {
+        args: (),
+        msg: "An async transition must call an async function.".to_string(),
+        help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
     }
 );

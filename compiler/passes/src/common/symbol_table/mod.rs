@@ -259,12 +259,12 @@ mod tests {
             let function = Symbol::intern("transfer_public");
             let insert = Function {
                 annotations: Vec::new(),
+                is_async: false,
                 id: 0,
                 output_type: Type::Address,
                 variant: Variant::Inline,
                 span: Default::default(),
                 input: Vec::new(),
-                finalize: None,
                 identifier: Identifier::new(Symbol::intern("transfer_public"), Default::default()),
                 output: vec![],
                 block: Default::default(),
