@@ -23,6 +23,7 @@ use leo_span::sym;
 use snarkvm::console::network::{Network, Testnet3};
 
 use std::collections::HashSet;
+use leo_ast::Input::{External, Internal};
 
 // TODO: Cleanup logic for tuples.
 
@@ -83,19 +84,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Exit the scope for the function's parameters and body.
         self.exit_scope(scope_index);
-
-        // Check that the finalize scope is valid
-        if input.finalize_stub.is_some() {
-            // Create a new child scope for the finalize block.
-            let scope_index = self.create_child_scope();
-
-            // Check the finalize signature.
-            let function = &Function::from(input.clone());
-            self.check_finalize_signature(function.finalize.as_ref().unwrap(), function);
-
-            // Exit the scope for the finalize block.
-            self.exit_scope(scope_index);
-        }
 
         // Exit the function's scope.
         self.exit_scope(function_index);
@@ -277,7 +265,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::unknown_annotation(annotation, annotation.span))
         }
 
+        // Set type checker variables for function variant details.
         self.variant = Some(function.variant);
+        self.is_finalize = function.variant == Variant::Standard && function.is_async;
+        self.is_finalize_caller = function.variant == Variant::Transition && function.is_async;
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -294,9 +285,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // The function's body does not have a return statement.
         self.has_return = false;
 
-        // The function's body does not have a finalize statement.
-        self.has_finalize = false;
-
         // Store the name of the function.
         self.function = Some(function.name());
 
@@ -306,6 +294,25 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(function);
 
+        if self.is_finalize {
+            // Async functions cannot have empty blocks
+            if function.block.statements.is_empty() {
+                self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(function.block.span));
+            }
+
+            // Initialize the list of input futures. Each one must be awaited before the end of the function.
+            self.to_await = function.input.iter().filter_map(|input| match input {
+                Internal(parameter) => {
+                    if matches!(parameter.type_, Type::Future(ty)) {
+                        Some(parameter.identifier.name)
+                    } else {
+                        None
+                    }
+                }
+                External(_) => None,
+            }).collect();
+        }
+
         self.visit_block(&function.block);
 
         // If the function has a return type, then check that it has a return.
@@ -313,52 +320,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::missing_return(function.span));
         }
 
-        // If the function has a finalize block, then check that it has at least one finalize statement.
-        if function.finalize.is_some() && !self.has_finalize {
-            self.emit_err(TypeCheckerError::missing_finalize(function.span));
-        }
-
         // Exit the scope for the function's parameters and body.
         self.exit_scope(scope_index);
-
-        // Traverse and check the finalize block if it exists.
-        if let Some(finalize) = &function.finalize {
-            self.is_finalize = true;
-            // The function's finalize block does not have a return statement.
-            self.has_return = false;
-            // The function's finalize block does not have a finalize statement.
-            self.has_finalize = false;
-
-            // Create a new child scope for the finalize block.
-            let scope_index = self.create_child_scope();
-
-            // Check the finalize signature.
-            self.check_finalize_signature(finalize, function);
-
-            // TODO: Remove if this restriction is relaxed at Aleo instructions level
-            // Check that the finalize block is not empty.
-            if finalize.block.statements.is_empty() {
-                self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(finalize.span));
-            }
-
-            // Type check the finalize block.
-            self.visit_block(&finalize.block);
-
-            // If the function has a return type, then check that it has a return.
-            if finalize.output_type != Type::Unit && !self.has_return {
-                self.emit_err(TypeCheckerError::missing_return(finalize.span));
-            }
-
-            // Exit the scope for the finalize block.
-            self.exit_scope(scope_index);
-
-            self.is_finalize = false;
-        }
 
         // Exit the function's scope.
         self.exit_scope(function_index);
 
-        // Unset the `variant`.
-        self.variant = None;
+        // Unset the function variant variables.
+        (self.variant, self.is_finalize_caller, self.is_finalize) = (None, false, false);
     }
 }
