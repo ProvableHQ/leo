@@ -113,7 +113,7 @@ impl ParserContext<'_> {
 
         // Parse the body of the program scope.
         let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
-        let mut functions: Vec<(Symbol, Function)> = Vec::new();
+        let (mut transitions, mut functions): (Vec<(Symbol, Function)>, Vec<(Symbol, Function)>) = (Vec::new(), Vec::new());
         let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
 
@@ -133,7 +133,13 @@ impl ParserContext<'_> {
                 }
                 Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline => {
                     let (id, function) = self.parse_function()?;
-                    functions.push((id, function));
+
+                    // Partition into transitions and functions so that don't have to sort later.
+                    if function.variant == Variant::Transition {
+                        transitions.push((id, function));
+                    } else {
+                        functions.push((id, function));
+                    }
                 }
                 Token::RightCurly => break,
                 _ => {
@@ -154,7 +160,7 @@ impl ParserContext<'_> {
         // Parse `}`.
         let end = self.expect(&Token::RightCurly)?;
 
-        Ok(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
+        Ok(ProgramScope { program_id, consts, functions: [transitions, functions].concat(), structs, mappings, span: start + end })
     }
 
     /// Returns a [`Vec<Member>`] AST node if the next tokens represent a struct member.
