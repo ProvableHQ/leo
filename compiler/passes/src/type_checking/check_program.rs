@@ -22,8 +22,9 @@ use leo_span::sym;
 
 use snarkvm::console::network::{Network, Testnet3};
 
-use std::collections::HashSet;
+use indexmap::IndexSet;
 use leo_ast::Input::{External, Internal};
+use std::collections::HashSet;
 
 // TODO: Cleanup logic for tuples.
 
@@ -269,6 +270,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.variant = Some(function.variant);
         self.is_finalize = function.variant == Variant::Standard && function.is_async;
         self.is_finalize_caller = function.variant == Variant::Transition && function.is_async;
+        self.has_finalize = false;
+        self.futures = IndexSet::new();
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -301,16 +304,20 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
 
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
-            self.to_await = function.input.iter().filter_map(|input| match input {
-                Internal(parameter) => {
-                    if matches!(parameter.type_, Type::Future(ty)) {
-                        Some(parameter.identifier.name)
-                    } else {
-                        None
+            self.to_await = function
+                .input
+                .iter()
+                .filter_map(|input| match input {
+                    Internal(parameter) => {
+                        if let Some(Type::Future(ty)) = parameter.type_.clone() {
+                            Some(parameter.identifier.name)
+                        } else {
+                            None
+                        }
                     }
-                }
-                External(_) => None,
-            }).collect();
+                    External(_) => None,
+                })
+                .collect();
         }
 
         self.visit_block(&function.block);
@@ -326,7 +333,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Exit the function's scope.
         self.exit_scope(function_index);
 
-        // Unset the function variant variables.
-        (self.variant, self.is_finalize_caller, self.is_finalize) = (None, false, false);
+        // Make sure that async transitions call finalize.
+        if self.is_finalize_caller && !self.has_finalize {
+            self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
+        }
+
+        // Must have awaited all futures.
+        if self.is_finalize && !self.to_await.is_empty() {
+            self.emit_err(TypeCheckerError::must_await_all_futures(&self.to_await, function.span()));
+        }
     }
 }

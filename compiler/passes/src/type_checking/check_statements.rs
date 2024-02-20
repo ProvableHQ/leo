@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::IndexSet;
 use crate::{TypeChecker, VariableSymbol, VariableType};
+use indexmap::IndexSet;
 use itertools::Itertools;
 
 use leo_ast::*;
@@ -91,9 +91,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_block(&mut self, input: &'a Block) {
-        // Reset environment flag.
-        if self.is_finalize_caller { self.has_called_finalize = false; self.futures = IndexSet::new() };
-
         // Create a new scope for the then-block.
         let scope_index = self.create_child_scope();
 
@@ -101,15 +98,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Exit the scope for the then-block.
         self.exit_scope(scope_index);
-
-        // Must have awaited all futures.
-        if self.is_finalize && !self.to_await.is_empty() {
-            self.emit_err(TypeCheckerError::must_await_all_futures(&self.to_await, input.span()));
-        }
-        // Check that an async function call was made to propagate futures to a finalize block.
-        else if self.is_finalize_caller  && !self.has_called_finalize {
-            self.emit_err(TypeCheckerError::async_transition_must_call_async_function(input.span()));
-        }
     }
 
     fn visit_conditional(&mut self, input: &'a ConditionalStatement) {
@@ -157,6 +145,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Restore the previous `has_return` flag.
         self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
         // Restore the previous `has_finalize` flag.
+        // TODO: doesn't this mean that we allow multiple finalizes?
         self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
     }
 
@@ -394,14 +383,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), parent).map(|f| {
-            match self.is_finalize {
-                // TODO: Check this.
-                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                true => f.finalize.as_ref().unwrap().output_type.clone(),
-                false => f.output_type.clone(),
-            }
-        });
+        let return_type = &self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(self.program_name.unwrap(), parent)
+            .map(|f| f.output_type.clone());
 
         // Set the `has_return` flag.
         self.has_return = true;
@@ -421,43 +407,5 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.expression, return_type);
         // Unset the `is_return` flag.
         self.is_return = false;
-
-        if let Some(arguments) = &input.finalize_arguments {
-            if self.is_finalize {
-                self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-            }
-
-            // Set the `has_finalize` flag.
-            self.has_finalize = true;
-
-            // Check that the function has a finalize block.
-            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-            let finalize = self
-                .symbol_table
-                .borrow()
-                .lookup_fn_symbol(self.program_name.unwrap(), self.function.unwrap())
-                .unwrap()
-                .finalize
-                .clone();
-            match finalize {
-                None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-                Some(finalize) => {
-                    // Check number of function arguments.
-                    if finalize.input.len() != arguments.len() {
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                            finalize.input.len(),
-                            arguments.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    // Check function argument types.
-                    finalize.input.iter().zip(arguments.iter()).for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_()));
-                    });
-                }
-            }
-        }
     }
 }

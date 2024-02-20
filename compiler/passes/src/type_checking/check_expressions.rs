@@ -254,15 +254,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                         expected,
                                         access.span(),
                                     ));
-                                }
-                                else {
+                                } else {
                                     // Future arguments must be addressed by their index. Ex: `f.1.3`.
                                     self.emit_err(TypeCheckerError::future_access_must_be_number(
                                         access.name.name,
                                         access.name.span(),
                                     ));
                                 }
-
                             }
                             Some(type_) => {
                                 self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));

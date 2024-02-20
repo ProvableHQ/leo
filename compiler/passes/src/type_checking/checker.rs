@@ -36,9 +36,9 @@ use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::{Network, Testnet3};
 
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
 use std::cell::RefCell;
-use indexmap::{IndexMap, IndexSet};
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -72,9 +72,9 @@ pub struct TypeChecker<'a> {
     /// The futures that must be propagated to an async function.
     pub(crate) futures: IndexSet<Symbol>,
     /// Whether the finalize caller has called the finalize function.
-    pub(crate) has_called_finalize: bool,
+    pub(crate) has_finalize: bool,
     /// Mapping from async function name to the inferred input types.
-    pub(crate) future_map: IndexMap<Symbol, Vec<Type>>
+    pub(crate) inferred_future_types: IndexMap<Symbol, Vec<Type>>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -144,8 +144,8 @@ impl<'a> TypeChecker<'a> {
             is_finalize_caller: false,
             to_await: IndexSet::new(),
             futures: IndexSet::new(),
-            has_called_finalize: false,
-            future_map: IndexMap::new(),
+            has_finalize: false,
+            inferred_future_types: IndexMap::new(),
         }
     }
 
@@ -201,7 +201,8 @@ impl<'a> TypeChecker<'a> {
             }
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
-                self.check_eq_type_structure(&left.key, &right.key, span) && self.check_eq_type_structure(&left.value, &right.value, span)
+                self.check_eq_type_structure(&left.key, &right.key, span)
+                    && self.check_eq_type_structure(&left.value, &right.value, span)
             }
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
@@ -221,8 +222,7 @@ impl<'a> TypeChecker<'a> {
                         span,
                     ));
                     false
-                }
-                else {
+                } else {
                     true
                 }
             }
@@ -243,7 +243,9 @@ impl<'a> TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::expected_one_type_of(t1.to_string(), t2, span));
                 }
             }
-            (Some(type_), None) | (None, Some(type_)) => self.emit_err(TypeCheckerError::type_should_be("no type", type_, span)),
+            (Some(type_), None) | (None, Some(type_)) => {
+                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
+            }
             _ => {}
         }
     }
@@ -1097,6 +1099,10 @@ impl<'a> TypeChecker<'a> {
                 // Return a boolean.
                 Some(Type::Boolean)
             }
+            CoreFunction::FutureAwait => {
+                // TODO: check that were in finalize here?
+                None
+            }
         }
     }
 
@@ -1252,8 +1258,34 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn check_function_signature(&mut self, function: &Function) {
         self.variant = Some(function.variant);
 
+        // Special type checking for finalize blocks.
+        if self.is_finalize {
+            if let Some(inferred_future_types) = self.inferred_future_types.borrow().get(&self.function.unwrap()) {
+                // Check same number of inputs as expected.
+                if inferred_future_types.len() != function.input.len() {
+                    self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
+                        inferred_future_types.len(),
+                        function.input.len(),
+                        function.span(),
+                    ));
+                }
+                // Check that the input parameters match the inferred types from when the async function is invoked.
+                function
+                    .input
+                    .iter()
+                    .zip_eq(inferred_future_types.iter())
+                    .for_each(|(t1, t2)| self.check_eq_type(&t1.type_(), t2, t1.span()));
+            } else if function.input.len() > 0 {
+                self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
+                    0,
+                    function.input.len(),
+                    function.span(),
+                ));
+            }
+        }
+
         // Type check the function's parameters.
-        function.input.iter().for_each(|input_var| {
+        function.input.iter().enumerate().for_each(|(index, input_var)| {
             // Check that the type of input parameter is defined.
             self.assert_type_is_valid(&input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
@@ -1263,12 +1295,13 @@ impl<'a> TypeChecker<'a> {
             // Check that the input parameter is not a record.
             else if let Type::Composite(struct_) = input_var.type_() {
                 // Note that this unwrap is safe, as the type is defined.
-                if !matches!(function.variant, Variant::Transition) && self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
-                    .unwrap()
-                    .is_record
+                if !matches!(function.variant, Variant::Transition)
+                    && self
+                        .symbol_table
+                        .borrow()
+                        .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                        .unwrap()
+                        .is_record
                 {
                     self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
                 }
@@ -1276,7 +1309,9 @@ impl<'a> TypeChecker<'a> {
 
             // Check that the finalize input parameter is not constant or private.
             if self.is_finalize && (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
-                self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
+                if (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
+                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
+                }
             }
 
             // Note that this unwrap is safe since we assign to `self.variant` above.
@@ -1306,7 +1341,7 @@ impl<'a> TypeChecker<'a> {
 
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().enumerate().for_each(|(index,output)| {
+        function.output.iter().enumerate().for_each(|(index, output)| {
             match output {
                 Output::External(external) => {
                     // If the function is not a transition function, then it cannot output a record.
@@ -1348,8 +1383,13 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::async_function_must_return_single_future(function_output.span));
                     }
                     // Async transitions must return one future in the first position.
-                    if self.is_finalize_caller && ((index > 0 && matches!(function_output.type_, Type::Future(_))) || (index == 0 && !matches!(function_output.type_, Type::Future(_)))) {
-                        self.emit_err(TypeCheckerError::async_transition_must_return_future_as_first_output(function_output.span));
+                    if self.is_finalize_caller
+                        && ((index > 0 && matches!(function_output.type_, Type::Future(_)))
+                            || (index == 0 && !matches!(function_output.type_, Type::Future(_))))
+                    {
+                        self.emit_err(TypeCheckerError::async_transition_must_return_future_as_first_output(
+                            function_output.span,
+                        ));
                     }
                 }
             }

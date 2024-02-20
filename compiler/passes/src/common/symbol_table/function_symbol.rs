@@ -55,7 +55,7 @@ impl SymbolTable {
             output_type: func.output_type.clone(),
             variant: func.variant,
             _span: func.span,
-            input: func.input.clone()
+            input: func.input.clone(),
         }
     }
 }
