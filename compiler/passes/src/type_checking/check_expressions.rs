@@ -235,6 +235,35 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     self.emit_err(TypeCheckerError::undefined_type(&access.inner, access.inner.span()));
                                 }
                             }
+                            Some(Type::Future(f)) => {
+                                // Retrieve the inferred input types for the future argument access.
+
+                                // Make sure that the input parameter accessed is valid.
+                                if let Some(arg_num) = access.name.name.to_string().parse::<usize>() {
+                                    // Make sure in range.
+                                    if arg_num >= f.inputs().len() {
+                                        self.emit_err(TypeCheckerError::invalid_future_access(
+                                            arg_num,
+                                            f.inputs().len(),
+                                            access.name.span(),
+                                        ));
+                                    }
+                                    // Return the type of the input parameter.
+                                    return Some(self.assert_and_return_type(
+                                        f.get(arg_num).unwrap().clone(),
+                                        expected,
+                                        access.span(),
+                                    ));
+                                }
+                                else {
+                                    // Future arguments must be addressed by their index. Ex: `f.1.3`.
+                                    self.emit_err(TypeCheckerError::future_access_must_be_number(
+                                        access.name.name,
+                                        access.name.span(),
+                                    ));
+                                }
+
+                            }
                             Some(type_) => {
                                 self.emit_err(TypeCheckerError::type_should_be(type_, "struct", access.inner.span()));
                             }
