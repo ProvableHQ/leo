@@ -187,26 +187,63 @@ impl<'a> TypeChecker<'a> {
         }
     }
 
+    /// Determines if the two types have the same structure.
+    /// Needs access to the symbol table in order to compare nested future and struct types.
+    pub(crate) fn check_eq_type_structure(&self, t1: &Type, t2: &Type, span: Span) -> bool {
+        if t1.eq_flat(t2) {
+            return true;
+        }
+        // All of these types could return false for `eq_flat` if they have an external struct.
+        match (t1, t2) {
+            (Type::Array(left), Type::Array(right)) => {
+                self.check_eq_type_structure(&left.element_type(), right.element_type(), span)
+                    && left.length() == right.length()
+            }
+            (Type::Integer(left), Type::Integer(right)) => left.eq(right),
+            (Type::Mapping(left), Type::Mapping(right)) => {
+                self.check_eq_type_structure(&left.key, &right.key, span) && self.check_eq_type_structure(&left.value, &right.value, span)
+            }
+            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| self.check_eq_type_structure(&left_type, &right_type, span)),
+            (Type::Composite(left), Type::Composite(right)) => {
+                if left.id.name == right.id.name && left.program == right.program {
+                    true
+                }
+                // TODO: Can optimize by caching the successful matches.
+                else if !self.check_duplicate_struct(left.id.name, left.program.unwrap(), right.program.unwrap()) {
+                    self.emit_err(TypeCheckerError::struct_definitions_dont_match(
+                        left.id.name.to_string(),
+                        left.program.unwrap().to_string(),
+                        right.program.unwrap().to_string(),
+                        span,
+                    ));
+                    false
+                }
+                else {
+                    true
+                }
+            }
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+                .inputs()
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| self.check_eq_type_structure(&left_type, &right_type, span)),
+            _ => false,
+        }
+    }
+
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat(t1, t2) => {
-                if let (Type::Composite(left), Type::Composite(right)) = (t1, t2) {
-                    if !self.check_duplicate_struct(left.id.name, left.program.unwrap(), right.program.unwrap()) {
-                        self.emit_err(TypeCheckerError::struct_definitions_dont_match(
-                            left.id.name.to_string(),
-                            left.program.unwrap().to_string(),
-                            right.program.unwrap().to_string(),
-                            span,
-                        ));
-                    }
-                    return;
+            (Some(t1), Some(t2)) => {
+                if !self.check_eq_type_structure(t1, t2, span) {
+                    self.emit_err(TypeCheckerError::expected_one_type_of(t1.to_string(), t2, span));
                 }
-                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
-            (Some(type_), None) | (None, Some(type_)) => {
-                self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
-            }
+            (Some(type_), None) | (None, Some(type_)) => self.emit_err(TypeCheckerError::type_should_be("no type", type_, span)),
             _ => {}
         }
     }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TupleType;
+use crate::{TupleType, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,19 +23,23 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FutureType {
     // Optional type specification of inputs.
-    pub inputs: Option<TupleType>
+    pub inputs: Vec<Type>,
+}
+
+impl FutureType {
+    /// Returns the inputs of the future type.
+    pub fn inputs(&self) -> &[Type] {
+        &self.inputs
+    }
 }
 
 impl Default for FutureType {
     fn default() -> Self {
-        Self { inputs: None }
+        Self { inputs: Vec::new() }
     }
 }
 impl fmt::Display for crate::FutureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self.inputs {
-            Some(inputs) => write!(f, "future<{inputs}>", inputs = inputs),
-            None => write!(f, "future")
-        }
+        write!(f, "Future<{}>", self.inputs.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
 }

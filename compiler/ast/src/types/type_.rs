@@ -83,7 +83,7 @@ impl Type {
             (Type::Array(left), Type::Array(right)) => {
                 left.element_type().eq_flat(right.element_type()) && left.length() == right.length()
             }
-            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
@@ -96,6 +96,11 @@ impl Type {
             (Type::Composite(left), Type::Composite(right)) => {
                 left.id.name == right.id.name && left.program == right.program
             }
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+                .inputs()
+                    .iter()
+                    .zip_eq(right.inputs().iter())
+                    .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
         }
     }

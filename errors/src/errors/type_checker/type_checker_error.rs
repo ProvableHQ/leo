@@ -394,7 +394,7 @@ create_messages!(
     @formatted
     missing_finalize {
         args: (),
-        msg: format!("Function must contain a `finalize` statement on all execution paths."),
+        msg: format!("Async transitions must contain an async function call on all execution paths."),
         help: None,
     }
 
@@ -802,5 +802,27 @@ create_messages!(
         args: (),
         msg: "An async transition must call an async function.".to_string(),
         help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
+    }
+    @formatted
+    async_function_input_length_mismatch {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!("Expected `{expected}` inputs, but got `{received}`"),
+        help: Some("Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments.".to_string()),
+    }
+
+    @formatted
+    invalid_future_access {
+        args: (num: impl Display, len: impl Display),
+        msg: format!(
+            "Cannot access argument `{num}` from future. The future only has `{len}` arguments."
+        ),
+        help: None,
+    }
+
+    @formatted
+    future_access_must_be_number {
+        args: (name: impl Display),
+        msg: format!("Future access must be a number not `{name}`."),
+        help: Some(" Future arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
     }
 );
