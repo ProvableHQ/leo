@@ -17,6 +17,9 @@
 pub mod assigner;
 pub use assigner::*;
 
+pub mod binary_search_tree;
+pub use binary_search_tree::*;
+
 pub mod graph;
 pub use graph::*;
 
