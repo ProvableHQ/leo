@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ConditionalTreeNode;
-use indexmap::IndexMap;
+use crate::{ConditionalTreeNode, TreeNode};
+use indexmap::{IndexMap, IndexSet};
 use leo_ast::{Identifier, Type};
 use leo_errors::TypeCheckerError;
 use leo_span::{Span, Symbol};
@@ -26,7 +26,7 @@ pub struct AwaitChecker {
     /// Updated set of futures to await.
     pub(crate) updated_to_await: Vec<ConditionalTreeNode>,
     /// Statically updated set of futures to await.
-    pub(crate) static_to_await: Vec<Identifier>,
+    pub(crate) static_to_await: IndexSet<Identifier>,
     /// Whether or not to do full tree search for await checking.
     pub(crate) enabled: bool,
     /// Maximum nesting depth to search for await checking.
@@ -43,12 +43,19 @@ impl AwaitChecker {
         Self {
             to_await: Vec::new(),
             updated_to_await: Vec::new(),
-            static_to_await: Vec::new(),
+            static_to_await: IndexSet::new(),
             enabled,
             max_depth,
             has_root: false,
             outer_is_parent: false,
         }
+    }
+    
+    /// Initialize futures.
+    pub fn set_futures(&mut self, futures: IndexSet<Identifier>) {
+        (self.to_await, self.static_to_await) = (vec![TreeNode::new(
+            futures.clone(),
+        )], futures);
     }
 
     /// Enter scope for `then` branch of conditional.

@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, TypeChecker};
+use crate::{DiGraphError, TreeNode, TypeChecker};
 
 use leo_ast::*;
-use leo_errors::TypeCheckerError;
+use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
 use snarkvm::console::network::{Network, Testnet3};
@@ -41,7 +41,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             }
             self.visit_stub(stub)
         });
-        self.is_stub = false;
+        self.scope_state.is_stub = false;
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
@@ -49,7 +49,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_stub(&mut self, input: &'a Stub) {
         // Set the current program name.
-        self.program_name = Some(input.stub_id.name.name);
+        self.scope_state.program_name = Some(input.stub_id.name.name);
 
         // Cannot have constant declarations in stubs.
         if !input.consts.is_empty() {
@@ -71,8 +71,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index =
-            self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), input.identifier.name).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), input.identifier.name)
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -96,7 +100,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
         // Set the current program name.
-        self.program_name = Some(input.program_id.name.name);
+        self.scope_state.program_name = Some(input.program_id.name.name);
 
         // Typecheck each const definition, and append to symbol table.
         input.consts.iter().for_each(|(_, c)| self.visit_const(c));
@@ -267,18 +271,14 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Set type checker variables for function variant details.
-        self.variant = Some(function.variant);
-        self.is_finalize = function.variant == Variant::Standard && function.is_async;
-        self.is_finalize_caller = function.variant == Variant::Transition && function.is_async;
-        self.has_finalize = false;
-        self.futures = IndexSet::new();
+        self.scope_state.initialize_function_state(function.variant, function.is_async);
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.program_name.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), function.identifier.name)
             .unwrap()
             .id;
 
@@ -286,10 +286,10 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.enter_scope(function_index);
 
         // The function's body does not have a return statement.
-        self.has_return = false;
+        self.scope_state.has_return = false;
 
         // Store the name of the function.
-        self.function = Some(function.name());
+        self.scope_state.function = Some(function.name());
 
         // Create a new child scope for the function's parameters and body.
         let scope_index = self.create_child_scope();
@@ -297,33 +297,34 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(function);
 
-        if self.is_finalize {
+        if self.scope_state.is_finalize {
             // Async functions cannot have empty blocks
             if function.block.statements.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(function.block.span));
             }
 
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
-            self.to_await = function
+            self.await_checker.set_futures(
+                function
                 .input
                 .iter()
                 .filter_map(|input| match input {
                     Internal(parameter) => {
                         if let Some(Type::Future(ty)) = parameter.type_.clone() {
-                            Some(parameter.identifier.name)
+                            Some(parameter.identifier)
                         } else {
                             None
                         }
                     }
                     External(_) => None,
                 })
-                .collect();
+                .collect());
         }
 
         self.visit_block(&function.block);
 
         // If the function has a return type, then check that it has a return.
-        if function.output_type != Type::Unit && !self.has_return {
+        if function.output_type != Type::Unit && !self.scope_state.has_return {
             self.emit_err(TypeCheckerError::missing_return(function.span));
         }
 
@@ -334,13 +335,55 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
 
         // Make sure that async transitions call finalize.
-        if self.is_finalize_caller && !self.has_finalize {
+        if self.scope_state.is_finalize_caller && !self.scope_state.has_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
-        // Must have awaited all futures.
-        if self.is_finalize && !self.to_await.is_empty() {
-            self.emit_err(TypeCheckerError::must_await_all_futures(&self.to_await, function.span()));
+        // Check that all futures were awaited exactly once. 
+        if self.scope_state.is_finalize {
+            // Throw error if not all futures awaits even appear once.
+            if !self.await_checker.static_to_await.is_empty() {
+                self.emit_err(TypeCheckerError::future_awaits_missing(
+                    self.await_checker.static_to_await.clone().iter().map(|f| f.to_string().collect::<Vec<String>>()),
+                    function.span(),
+                ));
+            } else {
+                // Tally up number of paths that are unawaited and number of paths that are awaited more than once.
+                let (num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
+                    self.await_checker.to_await.iter().fold((0, 0, 0), |(unawaited, duplicate, perfect), path| {
+                        (
+                            unawaited + if !path.elements.is_empty() { 0 } else { 1 },
+                            duplicate + if path.counter > 0 { 1 } else { 0 },
+                            perfect + if path.counter > 0 || !path.elements.is_empty() { 0 } else { 1 },
+                        )
+                    });
+
+                // Throw error if there does not exist a path in which all futures are awaited exactly once.
+                if num_perfect == 0 {
+                    self.emit_err(TypeCheckerError::no_path_awaits_all_futures_exactly_once(
+                        self.await_checker.to_await.len(),
+                        function.span(),
+                    ));
+                }
+
+                // Throw warning if some futures are awaited more than once in some paths.
+                if num_paths_unawaited > 0 {
+                    self.emit_warning(TypeCheckerWarning::some_paths_do_not_await_all_futures(
+                        self.await_checker.to_await.len(),
+                        num_paths_unawaited,
+                        function.span(),
+                    ));
+                }
+
+                // Throw warning if not all futures are awaited in some paths.
+                if num_paths_duplicate_awaited > 0 {
+                    self.emit_warning(TypeCheckerWarning::some_paths_contain_duplicate_future_awaits(
+                        self.await_checker.to_await.len(),
+                        num_paths_duplicate_awaited,
+                        function.span(),
+                    ));
+                }
+            }
         }
     }
 }

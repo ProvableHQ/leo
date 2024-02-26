@@ -783,12 +783,6 @@ create_messages!(
         help: Some("Each async transition must make a call to an async function that returns a future. Return that future at the end of the transition function.".to_string()),
     }
 
-    @formatted
-    must_await_all_futures {
-        args: (never_awaited: impl Display),
-        msg: format!("All futures must be awaited before the function returns. The following were never awaited: {never_awaited}"),
-        help: Some("Example: `async function foo(f: Future) -> Future { f.await(); }`".to_string()),
-    }
 
     @formatted
     must_propagate_all_futures {
@@ -824,5 +818,26 @@ create_messages!(
         args: (name: impl Display),
         msg: format!("Future access must be a number not `{name}`."),
         help: Some(" Future arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
+    }
+
+    @formatted
+    max_conditional_block_depth_exceeded {
+        args: (max: impl Display),
+        msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
+        help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
+    }
+
+    @formatted
+    no_path_awaits_all_futures_exactly_once {
+        args: (num_total_paths: impl Display),
+        msg: format!("Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."),
+        help: Some("Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures.".to_string()),
+    }
+
+    @formatted
+    future_awaits_missing {
+        args: (unawaited: impl Display),
+        msg: format!("The following futures were never awaited: {unawaited}"),
+        help: Some("Ex: for `f: Future` call `f.await()` to await a future.".to_string()),
     }
 );
