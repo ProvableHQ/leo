@@ -39,7 +39,11 @@ type CurrentNetwork = Testnet3;
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         let mut out_options = Self {
-            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
+            build: leo_compiler::BuildOptions {
+                dce_enabled: options.enable_dce,
+                conditional_block_max_depth: options.conditional_block_max_depth,
+                disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
+            },
             output: OutputOptions {
                 symbol_table_spans_enabled: options.enable_symbol_table_spans,
                 initial_symbol_table: options.enable_initial_symbol_table_snapshot,

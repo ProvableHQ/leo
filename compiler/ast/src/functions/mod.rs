@@ -126,7 +126,7 @@ impl Function {
             _ => self.output.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","),
         };
         write!(f, "({parameters}) -> {returns} {}", self.block)?;
-        
+
         Ok(())
     }
 }

@@ -14,14 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Annotation, CompositeType, External, Function, FunctionInput, FunctionOutput, Identifier, Input, Mode, Node, NodeID, Output, ProgramId, TupleType, Type, Variant, FutureType};
+use crate::{
+    Annotation,
+    CompositeType,
+    External,
+    Function,
+    FunctionInput,
+    FunctionOutput,
+    FutureType,
+    Identifier,
+    Input,
+    Mode,
+    Node,
+    NodeID,
+    Output,
+    ProgramId,
+    TupleType,
+    Type,
+    Variant,
+};
 use leo_span::{sym, Span, Symbol};
 
 use crate::Type::Composite;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
-    console::program::{RegisterType::{ExternalRecord, Future, Plaintext, Record}, FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType}},
+    console::program::{
+        FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
+        RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    },
     prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
@@ -246,26 +267,32 @@ impl FunctionStub {
             is_async: true,
             variant: Variant::Transition,
             identifier: Identifier::new(name, Default::default()),
-            input: function.finalize_logic().unwrap().inputs().iter().enumerate().map(|(index, input)| {
-                Input::Internal(FunctionInput {
-                    identifier: Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default()),
-                    mode: Mode::Public,
-                    type_: match input.finalize_type() {
-                        PlaintextFinalizeType(val) => Type::from_snarkvm(&val, name),
-                        FutureFinalizeType(_) => Type::Future(Default::default()),
-                    },
-                    span: Default::default(),
-                    id: Default::default(),
+            input: function
+                .finalize_logic()
+                .unwrap()
+                .inputs()
+                .iter()
+                .enumerate()
+                .map(|(index, input)| {
+                    Input::Internal(FunctionInput {
+                        identifier: Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default()),
+                        mode: Mode::Public,
+                        type_: match input.finalize_type() {
+                            PlaintextFinalizeType(val) => Type::from_snarkvm(&val, name),
+                            FutureFinalizeType(_) => Type::Future(Default::default()),
+                        },
+                        span: Default::default(),
+                        id: Default::default(),
+                    })
                 })
-            }).collect_vec(),
+                .collect_vec(),
             output: vec![Output::Internal(FunctionOutput {
                 mode: Mode::Public,
-                type_: Type::Future(FutureType { inputs: None} ),
+                type_: Type::Future(FutureType { inputs: None }),
                 span: Default::default(),
                 id: 0,
-            })
-            ],
-            output_type: Type::Future(FutureType { inputs: None}),
+            })],
+            output_type: Type::Future(FutureType { inputs: None }),
             span: Default::default(),
             id: 0,
         }

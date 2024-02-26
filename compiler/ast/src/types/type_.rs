@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType, FutureType};
+use crate::{common, ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -98,9 +98,9 @@ impl Type {
             }
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
-                    .iter()
-                    .zip_eq(right.inputs().iter())
-                    .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
         }
     }

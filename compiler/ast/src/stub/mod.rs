@@ -16,8 +16,6 @@
 
 //! A stub contains function templates as well as definitions for mappings, structs, records, and constants.
 
-pub mod finalize_stub;
-pub use finalize_stub::*;
 pub mod function_stub;
 pub use function_stub::*;
 
