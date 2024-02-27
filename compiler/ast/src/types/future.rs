@@ -27,6 +27,10 @@ pub struct FutureType {
 }
 
 impl FutureType {
+    /// Initialize a new future type.
+    pub fn new(inputs: Vec<Type>) -> Self {
+        Self { inputs }
+    }
     /// Returns the inputs of the future type.
     pub fn inputs(&self) -> &[Type] {
         &self.inputs

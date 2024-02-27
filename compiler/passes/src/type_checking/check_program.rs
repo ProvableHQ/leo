@@ -25,6 +25,7 @@ use snarkvm::console::network::{Network, Testnet3};
 use indexmap::IndexSet;
 use leo_ast::Input::{External, Internal};
 use std::collections::HashSet;
+use leo_ast::Type::Future;
 
 // TODO: Cleanup logic for tuples.
 
@@ -32,6 +33,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
     fn visit_program(&mut self, input: &'a Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
+            // Check that naming and ordering is consistent.
             if symbol != &stub.stub_id.name.name {
                 self.emit_err(TypeCheckerError::stub_name_mismatch(
                     symbol,
@@ -83,6 +85,25 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Create a new child scope for the function's parameters and body.
         let scope_index = self.create_child_scope();
+
+        // Create future stubs.
+        let finalize_input_map = &mut self.finalize_input_types;
+        let mut future_stubs = input.future_stubs.clone();
+        let resolved_inputs = input.input.iter().map(|input_mode| {
+                match input_mode {
+                    Internal(function_input) => match &function_input.type_ {
+                        Future(_) => {
+                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            Future(FutureType::new(finalize_input_map.get(&future_stubs.pop().unwrap().to_key()).unwrap().clone()))
+                        }
+                        _ => function_input.clone().type_,
+                    },
+                    External(_) => {}
+                }
+            }).collect();
+        assert!(future_stubs.is_empty(), "Disassembler produced malformed stub.");
+
+        finalize_input_map.insert((self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
 
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(&Function::from(input.clone()));
@@ -339,7 +360,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
-        // Check that all futures were awaited exactly once. 
+        // Check that all futures were awaited exactly once.
         if self.scope_state.is_finalize {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {

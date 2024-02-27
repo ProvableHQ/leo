@@ -75,7 +75,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
                             "finalize/{}",
                             Symbol::intern(&Identifier::from(id).name.to_string())
                         ));
-                        Some((name, FunctionStub::from_finalize(f, name)))
+                        Some((name, FunctionStub::from_finalize(function, name)))
                     }
                     None => None,
                 })

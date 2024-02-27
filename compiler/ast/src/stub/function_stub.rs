@@ -35,7 +35,7 @@ use crate::{
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::Type::Composite;
+use crate::Type::{Composite};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -47,6 +47,7 @@ use snarkvm::{
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
 use std::fmt;
+use crate::stub::future_stub::FutureStub;
 
 /// A function stub definition.
 #[derive(Clone, Serialize, Deserialize)]
@@ -59,6 +60,8 @@ pub struct FunctionStub {
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
+    /// Ordered list of futures inputted to finalize.
+    pub future_stubs: Vec<FutureStub>,
     /// The function's input parameters.
     pub input: Vec<Input>,
     /// The function's output declarations.
@@ -104,7 +107,7 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub { annotations, is_async, variant, identifier, input, output, output_type, span, id }
+        FunctionStub { annotations, is_async, variant, identifier, future_stubs: Vec::new(), input, output, output_type, span, id }
     }
 
     /// Returns function name.
@@ -205,6 +208,7 @@ impl FunctionStub {
             is_async: function.finalize_logic().is_some(),
             variant: Variant::Transition,
             identifier: Identifier::from(function.name()),
+            future_stubs: Vec::new(),
             input: function
                 .inputs()
                 .iter()
@@ -267,6 +271,10 @@ impl FunctionStub {
             is_async: true,
             variant: Variant::Transition,
             identifier: Identifier::new(name, Default::default()),
+            future_stubs: function.inputs().iter().filter_map(|input| match input.value_type() {
+                ValueType::Future(val) => Some(FutureStub::new(Identifier::from(val.program_id().name()).name, Identifier::from(val.resource()).name)),
+                _ => None,
+            }).collect(),
             input: function
                 .finalize_logic()
                 .unwrap()
@@ -288,11 +296,11 @@ impl FunctionStub {
                 .collect_vec(),
             output: vec![Output::Internal(FunctionOutput {
                 mode: Mode::Public,
-                type_: Type::Future(FutureType { inputs: None }),
+                type_: Type::Future(FutureType { inputs: Vec::new() }),
                 span: Default::default(),
                 id: 0,
             })],
-            output_type: Type::Future(FutureType { inputs: None }),
+            output_type: Type::Future(FutureType { inputs: Vec::new() }),
             span: Default::default(),
             id: 0,
         }
@@ -334,6 +342,7 @@ impl FunctionStub {
             is_async: false,
             variant: Variant::Standard,
             identifier: Identifier::from(closure.name()),
+            future_stubs: Vec::new(),
             input: closure
                 .inputs()
                 .iter()
@@ -369,6 +378,7 @@ impl From<Function> for FunctionStub {
             is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
+            future_stubs: Vec::new(),
             input: function.input,
             output: function.output,
             output_type: function.output_type,

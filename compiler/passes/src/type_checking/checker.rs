@@ -16,21 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TreeNode, TypeTable, VariableSymbol, VariableType};
 
-use leo_ast::{
-    Composite,
-    CompositeType,
-    CoreConstant,
-    CoreFunction,
-    Function,
-    Identifier,
-    IntegerType,
-    MappingType,
-    Mode,
-    Node,
-    Output,
-    Type,
-    Variant,
-};
+use leo_ast::{Composite, CompositeType, CoreConstant, CoreFunction, Function, Identifier, Input, IntegerType, MappingType, Mode, Node, Output, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
@@ -57,7 +43,7 @@ pub struct TypeChecker<'a> {
     /// Struct to store the state relevant to checking all futures are awaited.
     pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
-    pub(crate) finalize_input_types: IndexMap<Symbol, Vec<Type>>,
+    pub(crate) finalize_input_types: IndexMap<(Symbol, Symbol), Vec<Type>>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -1243,8 +1229,8 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn check_function_signature(&mut self, function: &Function) {
         self.scope_state.variant = Some(function.variant);
 
-        // Special type checking for finalize blocks.
-        if self.scope_state.is_finalize {
+        // Special type checking for finalize blocks. Can skip for stubs.
+        if self.scope_state.is_finalize & !self.scope_state.is_stub {
             if let Some(inferred_future_types) =
                 self.finalize_input_types.borrow().get(&self.scope_state.function.unwrap())
             {
