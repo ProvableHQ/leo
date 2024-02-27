@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
+use crate::{CallGraph, StructGraph, SymbolTable, TreeNode, TypeTable, VariableSymbol, VariableType};
 
 use leo_ast::{
     Composite,
@@ -31,14 +31,15 @@ use leo_ast::{
     Type,
     Variant,
 };
-use leo_errors::{emitter::Handler, TypeCheckerError};
+use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::{Network, Testnet3};
 
+use crate::type_checking::{await_checker::AwaitChecker, scope_state::ScopeState};
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use std::cell::RefCell;
+use std::{cell::RefCell, mem::discriminant};
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -51,30 +52,12 @@ pub struct TypeChecker<'a> {
     pub(crate) call_graph: CallGraph,
     /// The error handler.
     pub(crate) handler: &'a Handler,
-    /// The name of the function that we are currently traversing.
-    pub(crate) function: Option<Symbol>,
-    /// The variant of the function that we are currently traversing.
-    pub(crate) variant: Option<Variant>,
-    /// Whether or not the function that we are currently traversing has a return statement.
-    pub(crate) has_return: bool,
-    /// Whether or not we are currently traversing a finalize block.
-    pub(crate) is_finalize: bool,
-    /// Whether or not we are currently traversing a return statement.
-    pub(crate) is_return: bool,
-    /// Current program name.
-    pub(crate) program_name: Option<Symbol>,
-    /// Whether or not we are currently traversing a stub.
-    pub(crate) is_stub: bool,
-    /// Whether or not we are in an async transition function.
-    pub(crate) is_finalize_caller: bool,
-    /// The futures that must be awaited.
-    pub(crate) to_await: IndexSet<Symbol>,
-    /// The futures that must be propagated to an async function.
-    pub(crate) futures: IndexSet<Symbol>,
-    /// Whether the finalize caller has called the finalize function.
-    pub(crate) has_finalize: bool,
+    /// The state of the current scope being traversed.
+    pub(crate) scope_state: ScopeState,
+    /// Struct to store the state relevant to checking all futures are awaited.
+    pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
-    pub(crate) inferred_future_types: IndexMap<Symbol, Vec<Type>>,
+    pub(crate) finalize_input_types: IndexMap<Symbol, Vec<Type>>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -123,7 +106,13 @@ const MAGNITUDE_TYPES: [Type; 3] =
 
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
-    pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
+    pub fn new(
+        symbol_table: SymbolTable,
+        type_table: &'a TypeTable,
+        handler: &'a Handler,
+        max_depth: usize,
+        disabled: bool,
+    ) -> Self {
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
@@ -134,18 +123,9 @@ impl<'a> TypeChecker<'a> {
             struct_graph: StructGraph::new(struct_names),
             call_graph: CallGraph::new(function_names),
             handler,
-            function: None,
-            variant: None,
-            has_return: false,
-            is_finalize: false,
-            is_return: false,
-            program_name: None,
-            is_stub: true,
-            is_finalize_caller: false,
-            to_await: IndexSet::new(),
-            futures: IndexSet::new(),
-            has_finalize: false,
-            inferred_future_types: IndexMap::new(),
+            scope_state: ScopeState::new(),
+            await_checker: AwaitChecker::new(max_depth, !disabled),
+            finalize_input_types: IndexMap::new(),
         }
     }
 
@@ -176,6 +156,11 @@ impl<'a> TypeChecker<'a> {
     /// Emits a type checker error.
     pub(crate) fn emit_err(&self, err: TypeCheckerError) {
         self.handler.emit_err(err);
+    }
+
+    /// Emits a type checker warning
+    pub(crate) fn emit_warning(&self, warning: TypeCheckerWarning) {
+        self.handler.emit_warning(warning.into());
     }
 
     /// Emits an error to the handler if the given type is invalid.
@@ -983,7 +968,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.is_finalize {
+                if !self.scope_state.is_finalize {
                     self.handler
                         .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::get", function_span))
                 }
@@ -999,7 +984,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.is_finalize {
+                if !self.scope_state.is_finalize {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::get_or",
                         function_span,
@@ -1019,7 +1004,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingSet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.is_finalize {
+                if !self.scope_state.is_finalize {
                     self.handler
                         .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::set", function_span))
                 }
@@ -1037,7 +1022,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.is_finalize {
+                if !self.scope_state.is_finalize {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::remove",
                         function_span,
@@ -1055,7 +1040,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.is_finalize {
+                if !self.scope_state.is_finalize {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::contains",
                         function_span,
@@ -1256,11 +1241,13 @@ impl<'a> TypeChecker<'a> {
 
     /// Helper function to check that the input and output of function are valid
     pub(crate) fn check_function_signature(&mut self, function: &Function) {
-        self.variant = Some(function.variant);
+        self.scope_state.variant = Some(function.variant);
 
         // Special type checking for finalize blocks.
-        if self.is_finalize {
-            if let Some(inferred_future_types) = self.inferred_future_types.borrow().get(&self.function.unwrap()) {
+        if self.scope_state.is_finalize {
+            if let Some(inferred_future_types) =
+                self.finalize_input_types.borrow().get(&self.scope_state.function.unwrap())
+            {
                 // Check same number of inputs as expected.
                 if inferred_future_types.len() != function.input.len() {
                     self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
@@ -1308,14 +1295,14 @@ impl<'a> TypeChecker<'a> {
             }
 
             // Check that the finalize input parameter is not constant or private.
-            if self.is_finalize && (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
+            if self.scope_state.is_finalize && (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
                 if (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
                     self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
                 }
             }
 
             // Note that this unwrap is safe since we assign to `self.variant` above.
-            match self.variant.unwrap() {
+            match self.scope_state.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
                 Variant::Transition if input_var.mode() == Mode::Constant => {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
@@ -1379,11 +1366,12 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                     // An async function must return a single future.
-                    if self.is_finalize && (index > 0 || !matches!(function_output.type_, Type::Future(_))) {
+                    if self.scope_state.is_finalize && (index > 0 || !matches!(function_output.type_, Type::Future(_)))
+                    {
                         self.emit_err(TypeCheckerError::async_function_must_return_single_future(function_output.span));
                     }
                     // Async transitions must return one future in the first position.
-                    if self.is_finalize_caller
+                    if self.scope_state.is_finalize_caller
                         && ((index > 0 && matches!(function_output.type_, Type::Future(_)))
                             || (index == 0 && !matches!(function_output.type_, Type::Future(_))))
                     {
@@ -1402,7 +1390,8 @@ impl<'a> TypeChecker<'a> {
         match st.lookup_struct(composite.program.unwrap(), composite.id.name) {
             None => self.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
             Some(composite_def) => {
-                if !composite_def.is_record && composite_def.external.unwrap() != self.program_name.unwrap() {
+                if !composite_def.is_record && composite_def.external.unwrap() != self.scope_state.program_name.unwrap()
+                {
                     self.emit_err(TypeCheckerError::cannot_define_external_struct(composite.id, span))
                 }
             }

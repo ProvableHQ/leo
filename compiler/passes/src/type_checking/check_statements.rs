@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{TypeChecker, VariableSymbol, VariableType};
+use crate::{ConditionalTreeNode, TreeNode, TypeChecker, VariableSymbol, VariableType};
 use indexmap::IndexSet;
 use itertools::Itertools;
 
@@ -25,7 +25,7 @@ use leo_span::{Span, Symbol};
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
-        if self.has_return {
+        if self.scope_state.has_return {
             self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
             return;
         }
@@ -106,26 +106,30 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let mut then_block_has_return = false;
         let mut otherwise_block_has_return = false;
 
-        let mut then_block_has_finalize = false;
-        let mut otherwise_block_has_finalize = false;
-
         // Set the `has_return` flag for the then-block.
-        let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
-        // Set the `has_finalize` flag for the then-block.
-        let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
+        let previous_has_return = core::mem::replace(&mut self.scope_state.has_return, then_block_has_return);
+        // Set the `is_conditional` flag for the conditional block.
+        let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
+        // Create scope for checking awaits in `then` branch of conditional.
+        let mut current_bst_nodes: &mut Vec<ConditionalTreeNode> =
+            match self.await_checker.create_then_scope(self.scope_state.is_finalize, input.span) {
+                Ok(nodes) => nodes,
+                Err(err) => return self.emit_err(err),
+            };
+
+        // Visit block.
         self.visit_block(&input.then);
 
         // Store the `has_return` flag for the then-block.
-        then_block_has_return = self.has_return;
-        // Store the `has_finalize` flag for the then-block.
-        then_block_has_finalize = self.has_finalize;
+        then_block_has_return = self.scope_state.has_return;
+
+        // Exit scope for checking awaits in `then` branch of conditional.
+        let saved_paths = self.await_checker.exit_then_scope(self.scope_state.is_finalize, &mut current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
-            self.has_return = otherwise_block_has_return;
-            // Set the `has_finalize` flag for the otherwise-block.
-            self.has_finalize = otherwise_block_has_finalize;
+            self.scope_state.has_return = otherwise_block_has_return;
 
             match &**otherwise {
                 Statement::Block(stmt) => {
@@ -137,16 +141,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
 
             // Store the `has_return` flag for the otherwise-block.
-            otherwise_block_has_return = self.has_return;
-            // Store the `has_finalize` flag for the otherwise-block.
-            otherwise_block_has_finalize = self.has_finalize;
+            otherwise_block_has_return = self.scope_state.has_return;
         }
 
+        // Update the set of all possible BST paths.
+        self.await_checker.exit_statement_scope(self.scope_state.is_finalize, saved_paths);
+
         // Restore the previous `has_return` flag.
-        self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
-        // Restore the previous `has_finalize` flag.
-        // TODO: doesn't this mean that we allow multiple finalizes?
-        self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
+        self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
+        // Restore the previous `is_conditional` flag.
+        self.scope_state.is_conditional = previous_is_conditional;
     }
 
     fn visit_console(&mut self, _: &'a ConsoleStatement) {
@@ -318,21 +322,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        let prior_has_return = core::mem::take(&mut self.has_return);
-        let prior_has_finalize = core::mem::take(&mut self.has_finalize);
+        let prior_has_return = core::mem::take(&mut self.scope_state.has_return);
+        let prior_has_finalize = core::mem::take(&mut self.scope_state.has_finalize);
 
         self.visit_block(&input.block);
 
-        if self.has_return {
+        if self.scope_state.has_return {
             self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
-        if self.has_finalize {
+        if self.scope_state.has_finalize {
             self.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
         }
 
-        self.has_return = prior_has_return;
-        self.has_finalize = prior_has_finalize;
+        self.scope_state.has_return = prior_has_return;
+        self.scope_state.has_finalize = prior_has_finalize;
 
         // Exit the scope.
         self.exit_scope(scope_index);
@@ -382,15 +386,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
-        let parent = self.function.unwrap();
+        let parent = self.scope_state.function.unwrap();
         let return_type = &self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.program_name.unwrap(), parent)
+            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent)
             .map(|f| f.output_type.clone());
 
         // Set the `has_return` flag.
-        self.has_return = true;
+        self.scope_state.has_return = true;
 
         // Check that the return expression is not a nested tuple.
         if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
@@ -402,10 +406,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        self.is_return = true;
+        self.scope_state.is_return = true;
         // Type check the associated expression.
         self.visit_expression(&input.expression, return_type);
         // Unset the `is_return` flag.
-        self.is_return = false;
+        self.scope_state.is_return = false;
     }
 }
