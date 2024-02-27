@@ -112,7 +112,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
         // Create scope for checking awaits in `then` branch of conditional.
-        let mut current_bst_nodes: &mut Vec<ConditionalTreeNode> =
+        let current_bst_nodes: &mut Vec<ConditionalTreeNode> =
             match self.await_checker.create_then_scope(self.scope_state.is_finalize, input.span) {
                 Ok(nodes) => nodes,
                 Err(err) => return self.emit_err(err),
@@ -125,7 +125,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         then_block_has_return = self.scope_state.has_return;
 
         // Exit scope for checking awaits in `then` branch of conditional.
-        let saved_paths = self.await_checker.exit_then_scope(self.scope_state.is_finalize, &mut current_bst_nodes);
+        let saved_paths = self.await_checker.exit_then_scope(self.scope_state.is_finalize, current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
