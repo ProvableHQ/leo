@@ -33,6 +33,8 @@ pub enum AccessExpression {
     AssociatedFunction(AssociatedFunction),
     /// An expression accessing a field in a structure, e.g., `struct_var.field`.
     Member(MemberAccess),
+    /// Access a method associated to an instance of a struct, `f.await()`.
+    MethodCall(MethodCall),
     /// Access to a tuple field using its position, e.g., `tuple.1`.
     Tuple(TupleAccess),
 }
@@ -44,6 +46,7 @@ impl Node for AccessExpression {
             AccessExpression::AssociatedConstant(n) => n.span(),
             AccessExpression::AssociatedFunction(n) => n.span(),
             AccessExpression::Member(n) => n.span(),
+            AccessExpression::MethodCall(n) => n.span(),
             AccessExpression::Tuple(n) => n.span(),
         }
     }
@@ -54,6 +57,7 @@ impl Node for AccessExpression {
             AccessExpression::AssociatedConstant(n) => n.set_span(span),
             AccessExpression::AssociatedFunction(n) => n.set_span(span),
             AccessExpression::Member(n) => n.set_span(span),
+            AccessExpression::MethodCall(n) => n.set_span(span),
             AccessExpression::Tuple(n) => n.set_span(span),
         }
     }
@@ -64,6 +68,7 @@ impl Node for AccessExpression {
             AccessExpression::AssociatedConstant(n) => n.id(),
             AccessExpression::AssociatedFunction(n) => n.id(),
             AccessExpression::Member(n) => n.id(),
+            AccessExpression::MethodCall(n) => n.id(),
             AccessExpression::Tuple(n) => n.id(),
         }
     }
@@ -74,6 +79,7 @@ impl Node for AccessExpression {
             AccessExpression::AssociatedConstant(n) => n.set_id(id),
             AccessExpression::AssociatedFunction(n) => n.set_id(id),
             AccessExpression::Member(n) => n.set_id(id),
+            AccessExpression::MethodCall(n) => n.set_id(id),
             AccessExpression::Tuple(n) => n.set_id(id),
         }
     }
@@ -87,6 +93,7 @@ impl fmt::Display for AccessExpression {
             AssociatedConstant(access) => access.fmt(f),
             AssociatedFunction(access) => access.fmt(f),
             Member(access) => access.fmt(f),
+            MethodCall(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
         }
     }

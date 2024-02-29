@@ -35,25 +35,19 @@ impl Eq for FutureStub {}
 
 impl FutureStub {
     /// Initialize a new future stub.
-    pub fn new(
-        program: Symbol,
-        function: Symbol,
-    ) -> Self {
-        FutureStub {
-            program,
-            function,
-        }
+    pub fn new(program: Symbol, function: Symbol) -> Self {
+        FutureStub { program, function }
     }
-    
+
     pub fn to_key(&self) -> (Symbol, Symbol) {
         (self.program, self.function)
     }
-    
+
     /// Get the program.
     pub fn program(&self) -> Symbol {
         self.program
     }
-    
+
     /// Get the function.
     pub fn function(&self) -> Symbol {
         self.function

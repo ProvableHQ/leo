@@ -35,7 +35,7 @@ use crate::{
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::Type::{Composite};
+use crate::{stub::future_stub::FutureStub, Type::Composite};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -47,7 +47,6 @@ use snarkvm::{
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
 use std::fmt;
-use crate::stub::future_stub::FutureStub;
 
 /// A function stub definition.
 #[derive(Clone, Serialize, Deserialize)]
@@ -107,7 +106,18 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub { annotations, is_async, variant, identifier, future_stubs: Vec::new(), input, output, output_type, span, id }
+        FunctionStub {
+            annotations,
+            is_async,
+            variant,
+            identifier,
+            future_stubs: Vec::new(),
+            input,
+            output,
+            output_type,
+            span,
+            id,
+        }
     }
 
     /// Returns function name.
@@ -271,10 +281,17 @@ impl FunctionStub {
             is_async: true,
             variant: Variant::Transition,
             identifier: Identifier::new(name, Default::default()),
-            future_stubs: function.inputs().iter().filter_map(|input| match input.value_type() {
-                ValueType::Future(val) => Some(FutureStub::new(Identifier::from(val.program_id().name()).name, Identifier::from(val.resource()).name)),
-                _ => None,
-            }).collect(),
+            future_stubs: function
+                .inputs()
+                .iter()
+                .filter_map(|input| match input.value_type() {
+                    ValueType::Future(val) => Some(FutureStub::new(
+                        Identifier::from(val.program_id().name()).name,
+                        Identifier::from(val.resource()).name,
+                    )),
+                    _ => None,
+                })
+                .collect(),
             input: function
                 .finalize_logic()
                 .unwrap()

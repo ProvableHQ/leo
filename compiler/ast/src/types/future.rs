@@ -31,6 +31,7 @@ impl FutureType {
     pub fn new(inputs: Vec<Type>) -> Self {
         Self { inputs }
     }
+
     /// Returns the inputs of the future type.
     pub fn inputs(&self) -> &[Type] {
         &self.inputs
