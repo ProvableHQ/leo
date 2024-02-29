@@ -772,17 +772,16 @@ create_messages!(
     @formatted
     async_function_must_return_single_future {
         args: (),
-        msg: "An async function must return a single future.".to_string(),
+        msg: "An async function must only a single output, and it must be a future.".to_string(),
         help: Some("Example: `async function foo() -> Future {...}`".to_string()),
     }
 
     @formatted
-    async_transition_must_return_future_as_first_output {
+    async_transition_invalid_output {
         args: (),
-        msg: "An async transition must return a future as its first output.".to_string(),
-        help: Some("Each async transition must make a call to an async function that returns a future. Return that future at the end of the transition function.".to_string()),
+        msg: "An async transition must return a future as its first and only output.".to_string(),
+        help: Some("Example: `async transition foo() -> (Future, u8, bool) {...}`".to_string()),
     }
-
 
     @formatted
     must_propagate_all_futures {
@@ -839,5 +838,89 @@ create_messages!(
         args: (unawaited: impl Display),
         msg: format!("The following futures were never awaited: {unawaited}"),
         help: Some("Ex: for `f: Future` call `f.await()` to await a future.".to_string()),
+    }
+
+    @formatted
+    cannot_reassign_future_variable {
+        args: (var: impl Display),
+        msg: format!("Cannot reassign variable `{var}` since it has type Future."),
+        help: Some("Futures can only be defined as the result of async calls.".to_string()),
+    }
+
+    @formatted
+    invalid_await_call {
+        args: (),
+        msg: "Not a valid await call.".to_string(),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::Await(f)` to await a future.".to_string()),
+    }
+
+    @formatted
+    can_only_await_one_future_at_a_time {
+        args: (),
+        msg: "Must await exactly one future at a time".to_string(),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::Await(f)` to await a future.".to_string()),
+    }
+
+    @formatted
+    expected_future {
+        args: (type_: impl Display),
+        msg: format!("Expected a future, but found `{type_}`"),
+        help: Some("Only futures can be awaited.".to_string()),
+    }
+
+    @formatted
+    invalid_method_call {
+        args: (),
+        msg: "Not a valid method call.".to_string(),
+        help: Some("Ex: for `f: Future` call associated method for the struct instance `f.await()`.".to_string()),
+    }
+
+    @formatted
+    async_call_in_conditional {
+        args: (),
+        msg: "Cannot call an async function in a conditional block.".to_string(),
+        help: Some("Move the async call outside of the conditional block.".to_string()),
+    }
+
+    @formatted
+    must_call_finalize_once {
+        args: (),
+        msg: "Must call exactly one local async function per transition function.".to_string(),
+        help: Some("Move the async call outside of the transition block.".to_string()),
+    }
+
+    @formatted
+    async_call_can_only_be_done_from_async_transition {
+        args: (),
+        msg: "Can only make an async call from an async transition.".to_string(),
+        help: Some("Move the async call inside of the async transition block.".to_string()),
+    }
+
+    @formatted
+    external_transition_call_must_be_before_finalize {
+        args: (),
+        msg: "Inside the body of an async transition, all external async transition calls must be made before the transition's async function call.".to_string(),
+        help: Some("Move the async call before the function call.".to_string()),
+    }
+
+    @formatted
+    unknown_future_consumed {
+        args: (future: impl Display),
+        msg: format!("Unknown future consumed: `{future}`"),
+        help: Some("Make sure the future is defined and consumed only once.".to_string()),
+    }
+
+    @formatted
+    not_all_futures_consumed {
+        args: (unconsumed: impl Display),
+        msg: format!("Not all futures were consumed: {unconsumed}"),
+        help: Some("Make sure all futures are consumed exactly once. Consume by passing to an async function call.".to_string()),
+    }
+
+    @formatted
+    return_in_finalize {
+        args: (),
+        msg: "Cannot return a value in an async function block.".to_string(),
+        help: Some("Async functions execute on-chain. Since async transitions call async functions, and async transitions execute offline, it would be impossible for the async function to be able to return on-chain state to the transition function.".to_string()),
     }
 );

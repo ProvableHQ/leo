@@ -35,19 +35,24 @@ pub struct AwaitChecker {
 impl AwaitChecker {
     /// Initializes a new `AwaitChecker`.
     pub fn new(max_depth: usize, enabled: bool) -> Self {
-        Self {
-            to_await: Vec::new(),
-            static_to_await: IndexSet::new(),
-            enabled,
-            max_depth,
+        Self { to_await: Vec::new(), static_to_await: IndexSet::new(), enabled, max_depth }
+    }
+
+    /// Remove from list.
+    pub fn remove(&mut self, id: &Identifier) {
+        // Can assume in finalize block.
+        if self.enabled {
+            // Remove from dynamic list.
+            self.to_await.iter_mut().for_each(|node| node.remove_element(id));
         }
+
+        // Remove from static list.
+        self.static_to_await.remove(id);
     }
 
     /// Initialize futures.
     pub fn set_futures(&mut self, futures: IndexSet<Identifier>) {
-        (self.to_await, self.static_to_await) = (vec![TreeNode::new(
-            futures.clone(),
-        )], futures);
+        (self.to_await, self.static_to_await) = (vec![TreeNode::new(futures.clone())], futures);
     }
 
     /// Enter scope for `then` branch of conditional.
@@ -76,7 +81,11 @@ impl AwaitChecker {
     }
 
     /// Exit scope for `then` branch of conditional.
-    pub fn exit_then_scope(&mut self, is_finalize: bool, parent_nodes: &mut Vec<ConditionalTreeNode>) -> &mut Vec<ConditionalTreeNode> {
+    pub fn exit_then_scope(
+        &mut self,
+        is_finalize: bool,
+        parent_nodes: &mut Vec<ConditionalTreeNode>,
+    ) -> &mut Vec<ConditionalTreeNode> {
         // Check if a nested conditional statement signaled their existence.
         if is_finalize && self.enabled {
             &mut core::mem::replace(&mut self.to_await, core::mem::take(parent_nodes))

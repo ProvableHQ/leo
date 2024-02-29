@@ -49,12 +49,9 @@ impl<N: Node> TreeNode<N> {
     }
 
     /// Removes an element from the current node.
-    pub fn remove_element(&mut self, element: &N) -> bool {
-        if self.elements.remove(element) {
-            true
-        } else {
+    pub fn remove_element(&mut self, element: &N) {
+        if !self.elements.remove(element) {
             self.counter += 1;
-            false
         }
     }
 }

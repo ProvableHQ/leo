@@ -34,15 +34,13 @@ pub struct ScopeState {
     /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
     /// Whether or not we are in an async transition function.
-    pub(crate) is_finalize_caller: bool,
+    pub(crate) is_async_transition: bool,
     /// The futures that must be propagated to an async function.
     pub(crate) futures: IndexSet<Identifier>,
     /// Whether the finalize caller has called the finalize function.
-    pub(crate) has_finalize: bool,
+    pub(crate) has_called_finalize: bool,
     /// Whether currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
-    /// Finalize input types.
-    pub(crate) finalize_input_types: IndexMap<(Symbol, Symbol), Identifier>,
 }
 
 impl ScopeState {
@@ -56,11 +54,10 @@ impl ScopeState {
             is_return: false,
             program_name: None,
             is_stub: false,
-            is_finalize_caller: false,
+            is_async_transition: false,
             futures: IndexSet::new(),
-            has_finalize: false,
+            has_called_finalize: false,
             is_conditional: false,
-            finalize_input_types: IndexMap::new(),
         }
     }
 
@@ -68,8 +65,8 @@ impl ScopeState {
     pub fn initialize_function_state(&mut self, variant: Variant, is_async: bool) {
         self.variant = Some(variant);
         self.is_finalize = variant == Variant::Standard && is_async;
-        self.is_finalize_caller = variant == Variant::Transition && is_async;
-        self.has_finalize = false;
+        self.is_async_transition = variant == Variant::Transition && is_async;
+        self.has_called_finalize = false;
         self.futures = IndexSet::new();
     }
 }
