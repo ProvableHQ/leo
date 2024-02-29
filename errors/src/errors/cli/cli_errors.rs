@@ -196,6 +196,20 @@ create_messages!(
     }
 
     @backtraced
+    failed_to_parse_private_key {
+        args: (error: impl Display),
+        msg: format!("Failed to parse private key.\nSnarkVM Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_execute_account {
+        args: (error: impl Display),
+        msg: format!("Failed to execute the `account` command.\nSnarkVM Error: {error}"),
+        help: None,
+    }
+
+    @backtraced
     failed_to_read_environment_private_key {
         args: (error: impl Display),
         msg: format!("Failed to read private key from environment.\nIO Error: {error}"),

@@ -50,7 +50,7 @@ pub enum Account {
     /// Derive an Aleo account from a private key.
     Import {
         /// Private key plaintext
-        private_key: PrivateKey<CurrentNetwork>,
+        private_key: Option<PrivateKey<CurrentNetwork>>,
         /// Write the private key to the .env file.
         #[clap(short = 'w', long)]
         write: bool,
@@ -128,12 +128,28 @@ impl Command for Account {
                 }
             }
             Account::Import { private_key, write, discreet } => {
+                let priv_key = match discreet {
+                    true => {
+                        let private_key_input = rpassword::prompt_password("Please enter your private key: ").unwrap();
+                        snarkvm::prelude::FromStr::from_str(&private_key_input)
+                            .map_err(CliError::failed_to_parse_private_key)?
+                    }
+                    false => match private_key {
+                        Some(private_key) => private_key,
+                        None => {
+                            return Err(CliError::failed_to_execute_account(
+                                "PRIVATE_KEY shouldn't be empty when --discreet is false",
+                            )
+                            .into());
+                        }
+                    },
+                };
                 // Derive the view key and address and print to stdout.
-                print_keys(private_key, discreet)?;
+                print_keys(priv_key, discreet)?;
 
                 // Save key data to .env file.
                 if write {
-                    write_to_env_file(private_key, &ctx)?;
+                    write_to_env_file(priv_key, &ctx)?;
                 }
             }
             Self::Sign { message, seed, raw, private_key, private_key_file } => {
