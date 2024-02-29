@@ -379,6 +379,22 @@
 <a href="#378" id="378">378</a>
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -431,7 +447,7 @@
     <span class="doccomment">/// Derive an Aleo account from a private key.
     </span>Import {
         <span class="doccomment">/// Private key plaintext
-        </span>private_key: PrivateKey&lt;CurrentNetwork&gt;,
+        </span>private_key: <span class="prelude-ty">Option</span>&lt;PrivateKey&lt;CurrentNetwork&gt;&gt;,
         <span class="doccomment">/// Write the private key to the .env file.
         </span><span class="attr">#[clap(short = <span class="string">'w'</span>, long)]
         </span>write: bool,
@@ -509,12 +525,28 @@
                 }
             }
             Account::Import { private_key, write, discreet } =&gt; {
+                <span class="kw">let </span>priv_key = <span class="kw">match </span>discreet {
+                    <span class="bool-val">true </span>=&gt; {
+                        <span class="kw">let </span>private_key_input = rpassword::prompt_password(<span class="string">"Please enter your private key: "</span>).unwrap();
+                        snarkvm::prelude::FromStr::from_str(<span class="kw-2">&amp;</span>private_key_input)
+                            .map_err(CliError::failed_to_parse_private_key)<span class="question-mark">?
+                    </span>}
+                    <span class="bool-val">false </span>=&gt; <span class="kw">match </span>private_key {
+                        <span class="prelude-val">Some</span>(private_key) =&gt; private_key,
+                        <span class="prelude-val">None </span>=&gt; {
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::failed_to_execute_account(
+                                <span class="string">"PRIVATE_KEY shouldn't be empty when --discreet is false"</span>,
+                            )
+                            .into());
+                        }
+                    },
+                };
                 <span class="comment">// Derive the view key and address and print to stdout.
-                </span>print_keys(private_key, discreet)<span class="question-mark">?</span>;
+                </span>print_keys(priv_key, discreet)<span class="question-mark">?</span>;
 
                 <span class="comment">// Save key data to .env file.
                 </span><span class="kw">if </span>write {
-                    write_to_env_file(private_key, <span class="kw-2">&amp;</span>ctx)<span class="question-mark">?</span>;
+                    write_to_env_file(priv_key, <span class="kw-2">&amp;</span>ctx)<span class="question-mark">?</span>;
                 }
             }
             <span class="self">Self</span>::Sign { message, seed, raw, private_key, private_key_file } =&gt; {

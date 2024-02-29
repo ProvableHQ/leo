@@ -203,6 +203,20 @@
 <a href="#202" id="202">202</a>
 <a href="#203" id="203">203</a>
 <a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -397,6 +411,20 @@
     failed_to_write_file {
         args: (error: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Failed to write file.\nIO Error: {error}"</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_parse_private_key {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to parse private key.\nSnarkVM Error: {error}"</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    failed_to_execute_account {
+        args: (error: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Failed to execute the `account` command.\nSnarkVM Error: {error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
