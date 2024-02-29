@@ -23,9 +23,11 @@ use leo_span::sym;
 use snarkvm::console::network::{Network, Testnet3};
 
 use indexmap::IndexSet;
-use leo_ast::Input::{External, Internal};
+use leo_ast::{
+    Input::{External, Internal},
+    Type::Future,
+};
 use std::collections::HashSet;
-use leo_ast::Type::Future;
 
 // TODO: Cleanup logic for tuples.
 
@@ -89,18 +91,24 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Create future stubs.
         let finalize_input_map = &mut self.finalize_input_types;
         let mut future_stubs = input.future_stubs.clone();
-        let resolved_inputs = input.input.iter().map(|input_mode| {
+        let resolved_inputs = input
+            .input
+            .iter()
+            .map(|input_mode| {
                 match input_mode {
                     Internal(function_input) => match &function_input.type_ {
                         Future(_) => {
                             // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                            Future(FutureType::new(finalize_input_map.get(&future_stubs.pop().unwrap().to_key()).unwrap().clone()))
+                            Future(FutureType::new(
+                                finalize_input_map.get(&future_stubs.pop().unwrap().to_key()).unwrap().clone(),
+                            ))
                         }
                         _ => function_input.clone().type_,
                     },
                     External(_) => {}
                 }
-            }).collect();
+            })
+            .collect();
         assert!(future_stubs.is_empty(), "Disassembler produced malformed stub.");
 
         finalize_input_map.insert((self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
@@ -327,19 +335,20 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Initialize the list of input futures. Each one must be awaited before the end of the function.
             self.await_checker.set_futures(
                 function
-                .input
-                .iter()
-                .filter_map(|input| match input {
-                    Internal(parameter) => {
-                        if let Some(Type::Future(ty)) = parameter.type_.clone() {
-                            Some(parameter.identifier)
-                        } else {
-                            None
+                    .input
+                    .iter()
+                    .filter_map(|input| match input {
+                        Internal(parameter) => {
+                            if let Some(Type::Future(ty)) = parameter.type_.clone() {
+                                Some(parameter.identifier)
+                            } else {
+                                None
+                            }
                         }
-                    }
-                    External(_) => None,
-                })
-                .collect());
+                        External(_) => None,
+                    })
+                    .collect(),
+            );
         }
 
         self.visit_block(&function.block);
@@ -356,7 +365,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.is_finalize_caller && !self.scope_state.has_finalize {
+        if self.scope_state.is_async_transition && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 

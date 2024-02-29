@@ -16,7 +16,23 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TreeNode, TypeTable, VariableSymbol, VariableType};
 
-use leo_ast::{Composite, CompositeType, CoreConstant, CoreFunction, Function, Identifier, Input, IntegerType, MappingType, Mode, Node, Output, Type, Variant};
+use leo_ast::{
+    Composite,
+    CompositeType,
+    CoreConstant,
+    CoreFunction,
+    Expression,
+    Function,
+    Identifier,
+    Input,
+    IntegerType,
+    MappingType,
+    Mode,
+    Node,
+    Output,
+    Type,
+    Variant,
+};
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
@@ -1070,10 +1086,7 @@ impl<'a> TypeChecker<'a> {
                 // Return a boolean.
                 Some(Type::Boolean)
             }
-            CoreFunction::FutureAwait => {
-                // TODO: check that were in finalize here?
-                None
-            }
+            CoreFunction::FutureAwait => Some(Type::Unit),
         }
     }
 
@@ -1357,13 +1370,11 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::async_function_must_return_single_future(function_output.span));
                     }
                     // Async transitions must return one future in the first position.
-                    if self.scope_state.is_finalize_caller
+                    if self.scope_state.is_async_transition
                         && ((index > 0 && matches!(function_output.type_, Type::Future(_)))
                             || (index == 0 && !matches!(function_output.type_, Type::Future(_))))
                     {
-                        self.emit_err(TypeCheckerError::async_transition_must_return_future_as_first_output(
-                            function_output.span,
-                        ));
+                        self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
                     }
                 }
             }
@@ -1380,6 +1391,31 @@ impl<'a> TypeChecker<'a> {
                 {
                     self.emit_err(TypeCheckerError::cannot_define_external_struct(composite.id, span))
                 }
+            }
+        }
+    }
+
+    /// Type checks the awaiting of a future.
+    pub(crate) fn assert_future_await(&mut self, future: &Option<&Expression>, span: Span) {
+        // Make sure that it is an identifier expression.
+        let future_variable = match future {
+            Some(Expression::Identifier(name)) => name,
+            _ => {
+                return self.emit_err(TypeCheckerError::invalid_await_call(span));
+            }
+        };
+
+        // Make sure that the future is defined.
+        match self.symbol_table.borrow().lookup_variable(future_variable.name) {
+            Some(var) => {
+                if !matches!(&var.type_, &Type::Future(_)) {
+                    self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
+                }
+                // Mark the future as consumed.
+                self.await_checker.remove(future_variable);
+            }
+            None => {
+                self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
             }
         }
     }

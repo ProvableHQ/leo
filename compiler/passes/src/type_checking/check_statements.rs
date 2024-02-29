@@ -18,7 +18,7 @@ use crate::{ConditionalTreeNode, TreeNode, TypeChecker, VariableSymbol, Variable
 use indexmap::IndexSet;
 use itertools::Itertools;
 
-use leo_ast::*;
+use leo_ast::{Type::Future, *};
 use leo_errors::TypeCheckerError;
 use leo_span::{Span, Symbol};
 
@@ -76,6 +76,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
                 _ => {}
+            }
+            // Prohibit reassignment of futures.
+            if let Type::Future(_) = var.type_ {
+                self.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
             }
 
             Some(var.type_.clone())
@@ -241,12 +245,17 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check the expression on the right-hand side.
-        self.visit_expression(&input.value, &Some(input.type_.clone()));
+        let inferred_type = self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
+        let insert_variable = |name: &Identifier, type_: Type, span: Span| {
+            // Add to list of futures that must be consumed.
+            if let Type::Future(_) = type_ {
+                self.scope_state.futures.insert(name.clone());
+            }
+            // Insert the variable into the symbol table.
+            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(name.name, VariableSymbol {
                 type_,
                 span,
                 declaration: VariableType::Mut,
@@ -257,9 +266,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Insert the variables into the symbol table.
         match &input.place {
-            Expression::Identifier(identifier) => {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span)
-            }
+            Expression::Identifier(identifier) => insert_variable(identifier, input.type_.clone(), identifier.span),
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
                     Type::Tuple(tuple_type) => tuple_type,
@@ -285,7 +292,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                                 ));
                             }
                         };
-                        insert_variable(identifier.name, type_.clone(), identifier.span)
+                        insert_variable(identifier, type_.clone(), identifier.span)
                     },
                 );
             }
@@ -323,7 +330,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         let prior_has_return = core::mem::take(&mut self.scope_state.has_return);
-        let prior_has_finalize = core::mem::take(&mut self.scope_state.has_finalize);
+        let prior_has_finalize = core::mem::take(&mut self.scope_state.has_called_finalize);
 
         self.visit_block(&input.block);
 
@@ -331,12 +338,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
-        if self.scope_state.has_finalize {
+        if self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
         }
 
         self.scope_state.has_return = prior_has_return;
-        self.scope_state.has_finalize = prior_has_finalize;
+        self.scope_state.has_called_finalize = prior_has_finalize;
 
         // Exit the scope.
         self.exit_scope(scope_index);
@@ -384,14 +391,43 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
+        // Cannot return anything from finalize.
+        if self.scope_state.is_finalize {
+            self.emit_err(TypeCheckerError::return_in_finalize(input.span()));
+        }
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();
-        let return_type = &self
+        let mut return_type = &self
             .symbol_table
             .borrow()
             .lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent)
             .map(|f| f.output_type.clone());
+
+        // Fully type the expected return value.
+        if self.scope_state.is_async_transition {
+            let inferred_future_type = match self
+                .finalize_input_types
+                .get(&(self.scope_state.program_name.unwrap(), self.scope_state.function.unwrap()))
+            {
+                Some(types) => Future(FutureType::new(types.clone())),
+                None => {
+                    return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+                }
+            };
+            return_type = &match return_type {
+                Some(Future(_)) => Some(inferred_future_type),
+                Some(Type::Tuple(tuple)) => {
+                    let mut elements = tuple.elements().clone().to_vec();
+                    elements[0] = inferred_future_type;
+                    Some(Type::new(elements))
+                }
+                _ => {
+                    self.emit_err(TypeCheckerError::async_transition_invalid_output_type(input.span()));
+                    None
+                }
+            }
+        }
 
         // Set the `has_return` flag.
         self.scope_state.has_return = true;

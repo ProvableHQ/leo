@@ -21,6 +21,7 @@ use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
 use itertools::Itertools;
+use leo_ast::CoreFunction::FutureAwait;
 use snarkvm::console::network::{Network, Testnet3};
 use std::str::FromStr;
 
@@ -95,7 +96,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.variant, &access.name) {
                     // Check that operation is not restricted to finalize blocks.
-                    if !self.is_finalize && core_instruction.is_finalize_command() {
+                    if !self.scope_state.is_finalize && core_instruction.is_finalize_command() {
                         self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
                     }
 
@@ -114,9 +115,43 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.assert_type(&return_type, expected, input.span());
                     }
 
+                    // Await futures here so that can use the argument variable names to lookup.
+                    if core_instruction == FutureAwait {
+                        if access.arguments.len() != 1 {
+                            self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
+                            return Some(Type::Unit);
+                        }
+                        self.assert_future_await(&access.arguments.get(0), input.span());
+                    }
+
                     return return_type;
                 } else {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
+                }
+            }
+            AccessExpression::MethodCall(call) => {
+                if call.name.name == sym::Await {
+                    // Check core struct name and function.
+                    if let Some(core_instruction) =
+                        self.get_core_function_call(&Identifier::new(sym::Future, Default::default()), &call.name)
+                    {
+                        // Check that operation is not restricted to finalize blocks.
+                        if !self.scope_state.is_finalize && core_instruction.is_finalize_command() {
+                            self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
+                        }
+
+                        // Await futures here so that can use the argument variable names to lookup.
+                        if core_instruction == FutureAwait {
+                            self.assert_future_await(&Some(&call.receiver), input.span());
+                        }
+                        else {
+                            self.emit_err(TypeCheckerError::invalid_method_call(call.span()));
+                        }
+
+                        return Some(Type::Unit);
+                    } else {
+                        self.emit_err(TypeCheckerError::invalid_method_call(call.span()));
+                    }
                 }
             }
             AccessExpression::Tuple(access) => {
@@ -162,7 +197,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
-                            if self.is_finalize {
+                            if self.scope_state.is_finalize {
                                 self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
                                     "self.caller",
                                     access.name.span(),
@@ -172,7 +207,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                         sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
-                            if self.is_finalize {
+                            if self.scope_state.is_finalize {
                                 self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
                                     "self.signer",
                                     access.name.span(),
@@ -188,7 +223,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
                         sym::height => {
                             // Check that the operation is invoked in a `finalize` block.
-                            if !self.is_finalize {
+                            if !self.scope_state.is_finalize {
                                 self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                                     "block.height",
                                     access.name.span(),
@@ -236,8 +271,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 }
                             }
                             Some(Type::Future(f)) => {
-                                // Retrieve the inferred input types for the future argument access.
-
                                 // Make sure that the input parameter accessed is valid.
                                 if let Some(arg_num) = access.name.name.to_string().parse::<usize>() {
                                     // Make sure in range.
@@ -288,6 +321,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::invalid_associated_constant(access, access.span))
                 }
             }
+            _ => {}
         }
         None
     }
@@ -601,7 +635,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 if let Some(func) = func {
                     // Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
-                    match self.variant.unwrap() {
+                    match self.scope_state.variant.unwrap() {
                         // If the function is not a transition function, it can only call "inline" functions.
                         Variant::Inline | Variant::Standard => {
                             if !matches!(func.variant, Variant::Inline) {
@@ -611,7 +645,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         // If the function is a transition function, then check that the call is not to another local transition function.
                         Variant::Transition => {
                             if matches!(func.variant, Variant::Transition)
-                                && input.program.unwrap() == self.program_name.unwrap()
+                                && input.program.unwrap() == self.scope_state.program_name.unwrap()
                             {
                                 self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
                                     input.span,
@@ -621,11 +655,13 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Check that the call is not to an external `inline` function.
-                    if func.variant == Variant::Inline && input.program.unwrap() != self.program_name.unwrap() {
+                    if func.variant == Variant::Inline
+                        && input.program.unwrap() != self.scope_state.program_name.unwrap()
+                    {
                         self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
 
-                    let ret = self.assert_and_return_type(func.output_type, expected, input.span());
+                    let mut ret = self.assert_and_return_type(func.output_type, expected, input.span());
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {
@@ -642,15 +678,99 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     });
 
                     // Add the call to the call graph.
-                    let caller_name = match self.function {
+                    let caller_name = match self.scope_state.function {
                         None => unreachable!("`self.function` is set every time a function is visited."),
                         Some(func) => func,
                     };
 
-                    // Don't add external functions to call graph.
-                    // We check that there is no dependency cycle of imports, so we know that external functions can never lead to a call graph cycle
-                    if input.program.unwrap() == self.program_name.unwrap() {
+                    // Don't add external functions to call graph. Since imports are acyclic, these can never produce a cycle.
+                    if input.program.unwrap() == self.scope_state.program_name.unwrap() {
                         self.call_graph.add_edge(caller_name, ident.name);
+                    }
+
+                    // Propagate futures from async functions and transitions.
+                    if func.is_async {
+                        // Cannot have async calls in a conditional block.
+                        if self.scope_state.is_conditional {
+                            self.emit_err(TypeCheckerError::async_call_in_conditional(input.span));
+                        }
+
+                        // Can only call async functions and external async transitions from an async transition body.
+                        if !self.scope_state.is_async_transition {
+                            self.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(
+                                input.span,
+                            ));
+                        }
+
+                        if func.variant == Variant::Transition {
+                            // Cannot call an external async transition after having called the async function.
+                            if self.scope_state.has_called_finalize {
+                                self.emit_err(
+                                    TypeCheckerError::external_transition_call_must_be_before_finalize(
+                                        input.span,
+                                    ),
+                                );
+                            }
+                            // Fully infer future type.
+                            let future_type = Type::Future(FutureType::new(
+                                // Assumes that external function stubs have been processed.
+                                self.finalize_input_types.get(&(input.program.unwrap(), ident.name)).unwrap().clone(),
+                            ));
+                            ret = match ret.clone() {
+                                Some(Type::Tuple(tup)) => {
+                                    // Replace first element of `tup.elements` with `future_type`. This will always be a future.
+                                    let mut elements: Vec<Type> = tup.elements().clone().to_vec();
+                                    elements[0] = future_type.clone();
+                                    Type::Tuple(TupleType::new(elements))
+                                }
+                                Some(Type::Future(f)) => future_type,
+                                _ => {
+                                    self.emit_err(TypeCheckerError::async_transition_invalid_output(input.span));
+                                    ret
+                                }
+                            }
+                        } else if func.variant == Variant::Standard {
+                            // Can only call an async function once in a transition function body.
+                            if self.scope_state.has_called_finalize {
+                                self.emit_err(TypeCheckerError::must_call_finalize_once(input.span));
+                            }
+                            // Consume futures.
+                            let st = self.symbol_table.borrow();
+                            let mut inferred_finalize_inputs = Vec::new();
+                            input.arguments.iter().for_each(|arg| {
+                                if let Expression::Identifier(ident) = arg {
+                                    if let Some(variable) = st.lookup_variable(ident.name) {
+                                        if let Type::Future(_) = variable {
+                                            if !self.scope_state.futures.remove(ident) {
+                                                self.emit_err(TypeCheckerError::unknown_future_consumed(
+                                                    ident.name, ident.span,
+                                                ));
+                                            }
+                                        }
+                                        // Add to expected finalize inputs signature.
+                                        inferred_finalize_inputs.push(variable.clone().type_);
+                                    }
+                                }
+                            });
+                            // Check that all futures consumed.
+                            if !self.scope_state.futures.is_empty() {
+                                self.emit_err(TypeCheckerError::not_all_futures_consumed(
+                                    self.scope_state.futures.iter().map(|f| f.name.to_string()).join(", "),
+                                    input.span,
+                                ));
+                            }
+                            // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
+                            self.finalize_input_types.insert(
+                                (self.scope_state.program_name.unwrap(), self.scope_state.function.unwrap()),
+                                inferred_finalize_inputs.clone(),
+                            );
+
+                            // Set scope state flag.
+                            self.scope_state.has_called_finalize = true;
+
+                            // Update ret to reflect fully inferred future type.
+                            ret = Type::Future(FutureType::new(inferred_finalize_inputs));
+                        }
                     }
 
                     Some(ret)
@@ -676,7 +796,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.symbol_table.borrow().lookup_struct(self.program_name.unwrap(), input.name.name).cloned();
+        let struct_ =
+            self.symbol_table.borrow().lookup_struct(self.scope_state.program_name.unwrap(), input.name.name).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());
@@ -890,7 +1011,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_unit(&mut self, input: &'a UnitExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         // Unit expression are only allowed inside a return statement.
-        if !self.is_return {
+        if !self.scope_state.is_return {
             self.emit_err(TypeCheckerError::unit_expression_only_in_return_statements(input.span()));
         }
         Some(Type::Unit)
