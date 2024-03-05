@@ -772,7 +772,7 @@ create_messages!(
     @formatted
     async_function_must_return_single_future {
         args: (),
-        msg: "An async function must only a single output, and it must be a future.".to_string(),
+        msg: "An async function must have only a single output, and it must be a future.".to_string(),
         help: Some("Example: `async function foo() -> Future {...}`".to_string()),
     }
 
@@ -923,7 +923,7 @@ create_messages!(
         msg: "Cannot return a value in an async function block.".to_string(),
         help: Some("Async functions execute on-chain. Since async transitions call async functions, and async transitions execute offline, it would be impossible for the async function to be able to return on-chain state to the transition function.".to_string()),
     }
-    
+
     @formatted
     async_transition_missing_future_to_return {
         args: (),

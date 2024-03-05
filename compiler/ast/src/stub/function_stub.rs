@@ -24,6 +24,7 @@ use crate::{
     FutureType,
     Identifier,
     Input,
+    Location,
     Mode,
     Node,
     NodeID,
@@ -35,7 +36,7 @@ use crate::{
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::{stub::future_stub::FutureStub, Type::Composite};
+use crate::Type::Composite;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -60,7 +61,7 @@ pub struct FunctionStub {
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
     /// Ordered list of futures inputted to finalize.
-    pub future_stubs: Vec<FutureStub>,
+    pub future_locations: Vec<Location>,
     /// The function's input parameters.
     pub input: Vec<Input>,
     /// The function's output declarations.
@@ -111,7 +112,7 @@ impl FunctionStub {
             is_async,
             variant,
             identifier,
-            future_stubs: Vec::new(),
+            future_locations: Vec::new(),
             input,
             output,
             output_type,
@@ -218,7 +219,7 @@ impl FunctionStub {
             is_async: function.finalize_logic().is_some(),
             variant: Variant::Transition,
             identifier: Identifier::from(function.name()),
-            future_stubs: Vec::new(),
+            future_locations: Vec::new(),
             input: function
                 .inputs()
                 .iter()
@@ -281,11 +282,11 @@ impl FunctionStub {
             is_async: true,
             variant: Variant::Transition,
             identifier: Identifier::new(name, Default::default()),
-            future_stubs: function
+            future_locations: function
                 .inputs()
                 .iter()
                 .filter_map(|input| match input.value_type() {
-                    ValueType::Future(val) => Some(FutureStub::new(
+                    ValueType::Future(val) => Some(Location::new(
                         Identifier::from(val.program_id().name()).name,
                         Identifier::from(val.resource()).name,
                     )),
@@ -303,7 +304,7 @@ impl FunctionStub {
                         identifier: Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default()),
                         mode: Mode::Public,
                         type_: match input.finalize_type() {
-                            PlaintextFinalizeType(val) => Type::from_snarkvm(&val, name),
+                            PlaintextFinalizeType(val) => Type::from_snarkvm(val, name),
                             FutureFinalizeType(_) => Type::Future(Default::default()),
                         },
                         span: Default::default(),
@@ -359,7 +360,7 @@ impl FunctionStub {
             is_async: false,
             variant: Variant::Standard,
             identifier: Identifier::from(closure.name()),
-            future_stubs: Vec::new(),
+            future_locations: Vec::new(),
             input: closure
                 .inputs()
                 .iter()
@@ -395,7 +396,7 @@ impl From<Function> for FunctionStub {
             is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
-            future_stubs: Vec::new(),
+            future_locations: Vec::new(),
             input: function.input,
             output: function.output,
             output_type: function.output_type,

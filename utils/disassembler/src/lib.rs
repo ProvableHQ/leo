@@ -70,7 +70,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
                 .functions()
                 .iter()
                 .filter_map(|(id, function)| match function.finalize_logic() {
-                    Some(f) => {
+                    Some(_f) => {
                         let name = Symbol::intern(&format!(
                             "finalize/{}",
                             Symbol::intern(&Identifier::from(id).name.to_string())

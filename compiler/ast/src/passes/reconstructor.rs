@@ -48,6 +48,7 @@ pub trait ExpressionReconstructor {
             AccessExpression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
             AccessExpression::Member(member) => self.reconstruct_member_access(member),
+            AccessExpression::MethodCall(call) => self.reconstruct_method_call(call),
             AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
         }
     }
@@ -96,6 +97,19 @@ pub trait ExpressionReconstructor {
                 name: input.name,
                 span: input.span,
                 id: input.id,
+            })),
+            Default::default(),
+        )
+    }
+
+    fn reconstruct_method_call(&mut self, input: MethodCall) -> (Expression, Self::AdditionalOutput) {
+        (
+            Expression::Access(AccessExpression::MethodCall(MethodCall {
+                receiver: input.receiver,
+                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
+                span: input.span,
+                id: input.id,
+                name: input.name,
             })),
             Default::default(),
         )
@@ -397,9 +411,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Return(ReturnStatement {
                 expression: self.reconstruct_expression(input.expression).0,
-                finalize_arguments: input.finalize_arguments.map(|arguments| {
-                    arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
-                }),
                 span: input.span,
                 id: input.id,
             }),
@@ -459,21 +470,13 @@ pub trait ProgramReconstructor: StatementReconstructor {
     fn reconstruct_function(&mut self, input: Function) -> Function {
         Function {
             annotations: input.annotations,
+            is_async: input.is_async,
             variant: input.variant,
             identifier: input.identifier,
             input: input.input,
             output: input.output,
             output_type: input.output_type,
             block: self.reconstruct_block(input.block).0,
-            finalize: input.finalize.map(|finalize| Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block: self.reconstruct_block(finalize.block).0,
-                span: finalize.span,
-                id: finalize.id,
-            }),
             span: input.span,
             id: input.id,
         }

@@ -210,11 +210,6 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
-        if let Some(arguments) = &input.finalize_arguments {
-            arguments.iter().for_each(|argument| {
-                self.visit_expression(argument, &Default::default());
-            })
-        }
     }
 }
 
@@ -248,9 +243,6 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
 
     fn visit_function(&mut self, input: &'a Function) {
         self.visit_block(&input.block);
-        if let Some(finalize) = &input.finalize {
-            self.visit_block(&finalize.block);
-        }
     }
 
     fn visit_function_stub(&mut self, _input: &'a FunctionStub) {}

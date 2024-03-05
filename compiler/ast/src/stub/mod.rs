@@ -19,9 +19,6 @@
 pub mod function_stub;
 pub use function_stub::*;
 
-pub mod future_stub;
-pub use future_stub;
-
 use crate::{Composite, ConstDeclaration, Identifier, Mapping, NodeID, ProgramId};
 use leo_span::{Span, Symbol};
 use serde::{Deserialize, Serialize};

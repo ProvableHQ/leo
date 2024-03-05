@@ -21,13 +21,13 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Location {
     pub program: Symbol,
-    pub name: Symbol,
+    pub function: Symbol,
 }
 
 impl Location {
     // Create new Location instance.
     pub fn new(program: Symbol, name: Symbol) -> Location {
-        Location { program, name }
+        Location { program, function: name }
     }
 }
 
@@ -36,7 +36,7 @@ impl Serialize for Location {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!("{}/{}", self.program, self.name))
+        serializer.serialize_str(&format!("{}/{}", self.program, self.function))
     }
 }
 
