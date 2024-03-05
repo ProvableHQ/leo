@@ -116,7 +116,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
         // Create scope for checking awaits in `then` branch of conditional.
-        let current_bst_nodes: &mut Vec<ConditionalTreeNode> =
+        let current_bst_nodes: Vec<ConditionalTreeNode> =
             match self.await_checker.create_then_scope(self.scope_state.is_finalize, input.span) {
                 Ok(nodes) => nodes,
                 Err(err) => return self.emit_err(err),

@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalTreeNode, TreeNode};
-use indexmap::{IndexMap, IndexSet};
-use leo_ast::{Identifier, Type};
+use indexmap::{IndexSet};
+use leo_ast::{Identifier};
 use leo_errors::TypeCheckerError;
-use leo_span::{Span, Symbol};
+use leo_span::{Span};
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
 pub struct AwaitChecker {
@@ -60,7 +60,7 @@ impl AwaitChecker {
         &mut self,
         is_finalize: bool,
         input: Span,
-    ) -> Result<&mut Vec<ConditionalTreeNode>, TypeCheckerError> {
+    ) -> Result<Vec<ConditionalTreeNode>, TypeCheckerError> {
         if is_finalize && self.enabled {
             let mut current_nodes = Vec::new();
             // Extend all paths by one node to represent the upcoming `then` branch.
@@ -74,9 +74,9 @@ impl AwaitChecker {
             }
             // Update the set of nodes to be current set.
             self.to_await = current_nodes.clone();
-            Ok(&mut current_nodes)
+            Ok(current_nodes)
         } else {
-            Ok(&mut Vec::new())
+            Ok(Vec::new())
         }
     }
 
@@ -84,21 +84,21 @@ impl AwaitChecker {
     pub fn exit_then_scope(
         &mut self,
         is_finalize: bool,
-        parent_nodes: &mut Vec<ConditionalTreeNode>,
-    ) -> &mut Vec<ConditionalTreeNode> {
+        parent_nodes: Vec<ConditionalTreeNode>,
+    ) -> Vec<ConditionalTreeNode> {
         // Check if a nested conditional statement signaled their existence.
         if is_finalize && self.enabled {
-            &mut core::mem::replace(&mut self.to_await, core::mem::take(parent_nodes))
+            core::mem::replace(&mut self.to_await, parent_nodes)
         } else {
             Vec::new()
         }
     }
 
     /// Exit scope for conditional statement at current depth.
-    pub fn exit_statement_scope(&mut self, is_finalize: bool, then_nodes: &mut Vec<ConditionalTreeNode>) {
+    pub fn exit_statement_scope(&mut self, is_finalize: bool, then_nodes:  Vec<ConditionalTreeNode>) {
         if is_finalize && self.enabled {
             // Merge together the current set of nodes (from `otherwise` branch) with `then` nodes.
-            self.to_await.extend(core::mem::take(then_nodes));
+            self.to_await.extend(then_nodes);
         }
     }
 }
