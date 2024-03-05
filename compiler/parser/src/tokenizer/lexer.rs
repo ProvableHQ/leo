@@ -393,7 +393,7 @@ impl Token {
                     "else" => Token::Else,
                     "false" => Token::False,
                     "field" => Token::Field,
-                    "future" => Token::Future,
+                    "Future" => Token::Future,
                     "for" => Token::For,
                     "function" => Token::Function,
                     "group" => Token::Group,
