@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::{IndexMap, IndexSet};
-use leo_ast::{Identifier, Variant};
+use indexmap::IndexMap;
+use leo_ast::{Identifier, Location, Variant};
 use leo_span::Symbol;
 
 pub struct ScopeState {
@@ -36,11 +36,13 @@ pub struct ScopeState {
     /// Whether or not we are in an async transition function.
     pub(crate) is_async_transition: bool,
     /// The futures that must be propagated to an async function.
-    pub(crate) futures: IndexSet<Identifier>,
+    pub(crate) futures: IndexMap<Identifier, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
     /// Whether currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
+    /// Location of most recent external call that produced a future.
+    pub(crate) call_location: Option<Location>,
 }
 
 impl ScopeState {
@@ -55,9 +57,10 @@ impl ScopeState {
             program_name: None,
             is_stub: false,
             is_async_transition: false,
-            futures: IndexSet::new(),
+            futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,
+            call_location: None,
         }
     }
 
@@ -67,6 +70,11 @@ impl ScopeState {
         self.is_finalize = variant == Variant::Standard && is_async;
         self.is_async_transition = variant == Variant::Transition && is_async;
         self.has_called_finalize = false;
-        self.futures = IndexSet::new();
+        self.futures = IndexMap::new();
+    }
+
+    /// Get the current location.
+    pub fn location(&self) -> Location {
+        Location::new(self.program_name.unwrap(), self.function.unwrap())
     }
 }

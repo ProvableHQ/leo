@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TreeNode, TypeTable, VariableSymbol, VariableType};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
 use leo_ast::{
     Composite,
@@ -24,8 +24,8 @@ use leo_ast::{
     Expression,
     Function,
     Identifier,
-    Input,
     IntegerType,
+    Location,
     MappingType,
     Mode,
     Node,
@@ -39,9 +39,10 @@ use leo_span::{Span, Symbol};
 use snarkvm::console::network::{Network, Testnet3};
 
 use crate::type_checking::{await_checker::AwaitChecker, scope_state::ScopeState};
-use indexmap::{IndexMap, IndexSet};
+use indexmap::{IndexMap};
 use itertools::Itertools;
-use std::{cell::RefCell, mem::discriminant};
+use leo_ast::Type::{Future, Tuple};
+use std::{cell::RefCell};
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -59,7 +60,7 @@ pub struct TypeChecker<'a> {
     /// Struct to store the state relevant to checking all futures are awaited.
     pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
-    pub(crate) finalize_input_types: IndexMap<(Symbol, Symbol), Vec<Type>>,
+    pub(crate) finalize_input_types: IndexMap<Location, Vec<Type>>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -115,8 +116,8 @@ impl<'a> TypeChecker<'a> {
         max_depth: usize,
         disabled: bool,
     ) -> Self {
-        let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
-        let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
+        let struct_names = symbol_table.structs.keys().map(|loc| loc.function).collect();
+        let function_names = symbol_table.functions.keys().map(|loc| loc.function).collect();
 
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
@@ -183,7 +184,7 @@ impl<'a> TypeChecker<'a> {
         // All of these types could return false for `eq_flat` if they have an external struct.
         match (t1, t2) {
             (Type::Array(left), Type::Array(right)) => {
-                self.check_eq_type_structure(&left.element_type(), right.element_type(), span)
+                self.check_eq_type_structure(left.element_type(), right.element_type(), span)
                     && left.length() == right.length()
             }
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
@@ -195,7 +196,7 @@ impl<'a> TypeChecker<'a> {
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| self.check_eq_type_structure(&left_type, &right_type, span)),
+                .all(|(left_type, right_type)| self.check_eq_type_structure(left_type, right_type, span)),
             (Type::Composite(left), Type::Composite(right)) => {
                 if left.id.name == right.id.name && left.program == right.program {
                     true
@@ -217,7 +218,7 @@ impl<'a> TypeChecker<'a> {
                 .inputs()
                 .iter()
                 .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| self.check_eq_type_structure(&left_type, &right_type, span)),
+                .all(|(left_type, right_type)| self.check_eq_type_structure(left_type, right_type, span)),
             _ => false,
         }
     }
@@ -1244,9 +1245,7 @@ impl<'a> TypeChecker<'a> {
 
         // Special type checking for finalize blocks. Can skip for stubs.
         if self.scope_state.is_finalize & !self.scope_state.is_stub {
-            if let Some(inferred_future_types) =
-                self.finalize_input_types.borrow().get(&self.scope_state.function.unwrap())
-            {
+            if let Some(inferred_future_types) = self.finalize_input_types.get(&self.scope_state.location()) {
                 // Check same number of inputs as expected.
                 if inferred_future_types.len() != function.input.len() {
                     self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
@@ -1260,8 +1259,8 @@ impl<'a> TypeChecker<'a> {
                     .input
                     .iter()
                     .zip_eq(inferred_future_types.iter())
-                    .for_each(|(t1, t2)| self.check_eq_type(&t1.type_(), t2, t1.span()));
-            } else if function.input.len() > 0 {
+                    .for_each(|(t1, t2)| self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span()));
+            } else if !function.input.is_empty() {
                 self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
                     0,
                     function.input.len(),
@@ -1271,7 +1270,7 @@ impl<'a> TypeChecker<'a> {
         }
 
         // Type check the function's parameters.
-        function.input.iter().enumerate().for_each(|(index, input_var)| {
+        function.input.iter().enumerate().for_each(|(_index, input_var)| {
             // Check that the type of input parameter is defined.
             self.assert_type_is_valid(&input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
@@ -1294,10 +1293,8 @@ impl<'a> TypeChecker<'a> {
             }
 
             // Check that the finalize input parameter is not constant or private.
-            if self.scope_state.is_finalize && (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
-                if (self.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
-                    self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-                }
+            if self.scope_state.is_finalize && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private) && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
+                self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
             }
 
             // Note that this unwrap is safe since we assign to `self.variant` above.
@@ -1417,6 +1414,40 @@ impl<'a> TypeChecker<'a> {
             None => {
                 self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
             }
+        }
+    }
+
+    /// Inserts variable to symbol table.
+    pub(crate) fn insert_variable(
+        &mut self,
+        inferred_type: Option<Type>,
+        name: &Identifier,
+        type_: Type,
+        index: usize,
+        span: Span,
+    ) {
+        let ty: Type = if let Future(_) = type_ {
+            // Need to insert the fully inferred future type, or else will just be default future type.
+            match inferred_type.unwrap() {
+                Future(future) => Future(future),
+                Tuple(tuple) => match tuple.elements().get(index) {
+                    Some(Future(future)) => Future(future.clone()),
+                    _ => unreachable!("Parsing guarantees that the inferred type is a future."),
+                },
+                _ => {
+                    unreachable!("TYC guarantees that the inferred type is a future, or tuple containing futures.")
+                }
+            }
+        } else {
+            type_
+        };
+        // Insert the variable into the symbol table.
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(name.name, VariableSymbol {
+            type_: ty,
+            span,
+            declaration: VariableType::Mut,
+        }) {
+            self.handler.emit_err(err);
         }
     }
 }

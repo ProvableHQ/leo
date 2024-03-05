@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, TreeNode, TypeChecker};
+use crate::{DiGraphError, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
@@ -22,7 +22,7 @@ use leo_span::sym;
 
 use snarkvm::console::network::{Network, Testnet3};
 
-use indexmap::IndexSet;
+
 use leo_ast::{
     Input::{External, Internal},
     Type::Future,
@@ -90,7 +90,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Create future stubs.
         let finalize_input_map = &mut self.finalize_input_types;
-        let mut future_stubs = input.future_stubs.clone();
+        let mut future_stubs = input.future_locations.clone();
         let resolved_inputs = input
             .input
             .iter()
@@ -100,18 +100,19 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                         Future(_) => {
                             // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                             Future(FutureType::new(
-                                finalize_input_map.get(&future_stubs.pop().unwrap().to_key()).unwrap().clone(),
+                                finalize_input_map.get(&future_stubs.pop().unwrap()).unwrap().clone(),
                             ))
                         }
                         _ => function_input.clone().type_,
                     },
-                    External(_) => {}
+                    External(_) => unreachable!("External inputs are not allowed in finalize outputs of stubs."),
                 }
             })
             .collect();
         assert!(future_stubs.is_empty(), "Disassembler produced malformed stub.");
 
-        finalize_input_map.insert((self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
+        finalize_input_map
+            .insert(Location::new(self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
 
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(&Function::from(input.clone()));
@@ -339,7 +340,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     .iter()
                     .filter_map(|input| match input {
                         Internal(parameter) => {
-                            if let Some(Type::Future(ty)) = parameter.type_.clone() {
+                            if let Future(_) = parameter.type_.clone() {
                                 Some(parameter.identifier)
                             } else {
                                 None
@@ -374,7 +375,13 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
                 self.emit_err(TypeCheckerError::future_awaits_missing(
-                    self.await_checker.static_to_await.clone().iter().map(|f| f.to_string().collect::<Vec<String>>()),
+                    self.await_checker
+                        .static_to_await
+                        .clone()
+                        .iter()
+                        .map(|f| f.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", "),
                     function.span(),
                 ));
             } else {

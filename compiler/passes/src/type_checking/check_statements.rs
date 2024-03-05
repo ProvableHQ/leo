@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalTreeNode, TreeNode, TypeChecker, VariableSymbol, VariableType};
-use indexmap::IndexSet;
+use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
+
 use itertools::Itertools;
 
-use leo_ast::{Type::Future, *};
+use leo_ast::{
+    Type::{Future, Tuple},
+    *,
+};
 use leo_errors::TypeCheckerError;
-use leo_span::{Span, Symbol};
+
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
@@ -247,26 +250,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check the expression on the right-hand side.
         let inferred_type = self.visit_expression(&input.value, &Some(input.type_.clone()));
 
-        // TODO: Dedup with unrolling pass.
-        // Helper to insert the variables into the symbol table.
-        let insert_variable = |name: &Identifier, type_: Type, span: Span| {
-            // Add to list of futures that must be consumed.
-            if let Type::Future(_) = type_ {
-                self.scope_state.futures.insert(name.clone());
-            }
-            // Insert the variable into the symbol table.
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(name.name, VariableSymbol {
-                type_,
-                span,
-                declaration: VariableType::Mut,
-            }) {
-                self.handler.emit_err(err);
-            }
-        };
-
         // Insert the variables into the symbol table.
         match &input.place {
-            Expression::Identifier(identifier) => insert_variable(identifier, input.type_.clone(), identifier.span),
+            Expression::Identifier(identifier) => self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span),
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
                     Type::Tuple(tuple_type) => tuple_type,
@@ -282,19 +268,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     ));
                 }
 
-                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(
-                    |(expression, type_)| {
-                        let identifier = match expression {
-                            Expression::Identifier(identifier) => identifier,
-                            _ => {
-                                return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
-                                    expression.span(),
-                                ));
-                            }
-                        };
-                        insert_variable(identifier, type_.clone(), identifier.span)
-                    },
-                );
+                for ((index, expr), type_) in
+                    tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
+                {
+                    let identifier = match expr {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => {
+                            return self
+                                .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
+                        }
+                    };
+                    self.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
@@ -398,7 +383,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();
-        let mut return_type = &self
+        let mut return_type = self
             .symbol_table
             .borrow()
             .lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent)
@@ -406,24 +391,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Fully type the expected return value.
         if self.scope_state.is_async_transition {
-            let inferred_future_type = match self
-                .finalize_input_types
-                .get(&(self.scope_state.program_name.unwrap(), self.scope_state.function.unwrap()))
-            {
+            let inferred_future_type = match self.finalize_input_types.get(&self.scope_state.location()) {
                 Some(types) => Future(FutureType::new(types.clone())),
                 None => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
             };
-            return_type = &match return_type {
+            return_type = match return_type {
                 Some(Future(_)) => Some(inferred_future_type),
-                Some(Type::Tuple(tuple)) => {
-                    let mut elements = tuple.elements().clone().to_vec();
+                Some(Tuple(tuple)) => {
+                    let mut elements = tuple.elements().to_vec();
                     elements[0] = inferred_future_type;
-                    Some(Type::new(elements))
+                    Some(Tuple(TupleType::new(elements)))
                 }
                 _ => {
-                    self.emit_err(TypeCheckerError::async_transition_invalid_output_type(input.span()));
+                    self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                     None
                 }
             }
@@ -444,7 +426,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
         self.scope_state.is_return = true;
         // Type check the associated expression.
-        self.visit_expression(&input.expression, return_type);
+        self.visit_expression(&input.expression, &return_type);
         // Unset the `is_return` flag.
         self.scope_state.is_return = false;
     }
