@@ -354,7 +354,7 @@ impl fmt::Display for Token {
             Else => write!(f, "else"),
             For => write!(f, "for"),
             Function => write!(f, "function"),
-            Future => write!(f, "future"),
+            Future => write!(f, "Future"),
             If => write!(f, "if"),
             Import => write!(f, "import"),
             In => write!(f, "in"),

@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Function, Input, Type, Variant};
+use leo_ast::{Function, Input, Location, Type, Variant};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 
 use crate::SymbolTable;
-
-/// Metadata associated with the finalize block.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FinalizeData {
-    /// The inputs to the finalize block.
-    pub(crate) input: Vec<Input>,
-    /// The output type of the finalize block.
-    pub(crate) output_type: Type,
-}
 
 /// An entry for a function in the symbol table.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -45,6 +36,10 @@ pub struct FunctionSymbol {
     pub(crate) _span: Span,
     /// The inputs to the function.
     pub(crate) input: Vec<Input>,
+    /// Future inputs.
+    pub(crate) future_inputs: Vec<Location>,
+    /// The finalize block associated with the function.
+    pub(crate) finalize: Option<Location>,
 }
 
 impl SymbolTable {
@@ -56,6 +51,8 @@ impl SymbolTable {
             variant: func.variant,
             _span: func.span,
             input: func.input.clone(),
+            future_inputs: Vec::new(),
+            finalize: None,
         }
     }
 }

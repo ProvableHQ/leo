@@ -407,7 +407,7 @@ impl ParserContext<'_> {
         let (is_async, start_async) =
             if self.token.token == Token::Async { (true, self.expect(&Token::Async)?) } else { (false, Span::dummy()) };
         // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
-        let (variant, mut start) = match self.token.token {
+        let (variant, start) = match self.token.token {
             Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
             Token::Function => (Variant::Standard, self.expect(&Token::Function)?),
             Token::Transition => (Variant::Transition, self.expect(&Token::Transition)?),

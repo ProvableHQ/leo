@@ -16,7 +16,7 @@
 
 use crate::DeadCodeEliminator;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for DeadCodeEliminator<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -27,35 +27,15 @@ impl ProgramReconstructor for DeadCodeEliminator<'_> {
         // Traverse the function body.
         let block = self.reconstruct_block(input.block).0;
 
-        // Reconstruct the finalize block, if it exists.
-        let finalize = input.finalize.map(|finalize| {
-            // Reset the state of the dead code eliminator.
-            self.used_variables.clear();
-            self.is_necessary = false;
-
-            // Traverse the finalize block.
-            let block = self.reconstruct_block(finalize.block).0;
-
-            Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block,
-                span: finalize.span,
-                id: finalize.id,
-            }
-        });
-
         Function {
             annotations: input.annotations,
+            is_async: input.is_async,
             variant: input.variant,
             identifier: input.identifier,
             input: input.input,
             output: input.output,
             output_type: input.output_type,
             block,
-            finalize,
             span: input.span,
             id: input.id,
         }

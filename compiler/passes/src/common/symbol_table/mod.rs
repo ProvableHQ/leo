@@ -17,16 +17,13 @@
 pub mod function_symbol;
 pub use function_symbol::*;
 
-pub mod location;
-pub use location::*;
-
 pub mod variable_symbol;
 
 pub use variable_symbol::*;
 
 use std::cell::RefCell;
 
-use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
+use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function, Location};
 use leo_errors::{AstError, Result};
 use leo_span::{Span, Symbol};
 
@@ -107,11 +104,35 @@ impl SymbolTable {
         }
     }
 
+    /// Attach a finalize to a function.
+    pub fn attach_finalize(&mut self, caller: Location, callee: Location) -> Result<()> {
+        if let Some(func) = self.functions.get_mut(&caller) {
+            func.finalize = Some(callee);
+            Ok(())
+        } else if let Some(parent) = self.parent.as_mut() {
+            parent.attach_finalize(caller, callee)
+        } else {
+            Err(AstError::function_not_found(caller.function).into())
+        }
+    }
+
     /// Inserts a variable into the symbol table.
     pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol) -> Result<()> {
         self.check_shadowing(None, symbol, insert.span)?;
         self.variables.insert(symbol, insert);
         Ok(())
+    }
+
+    /// Inserts futures into the function definition.
+    pub fn insert_futures(&mut self, program: Symbol, function: Symbol, futures: Vec<Location>) -> Result<()> {
+        if let Some(func) = self.functions.get_mut(&Location::new(program, function)) {
+            func.future_inputs = futures;
+            Ok(())
+        } else if let Some(parent) = self.parent.as_mut() {
+            parent.insert_futures(program, function, futures)
+        } else {
+            Err(AstError::function_not_found(function).into())
+        }
     }
 
     /// Removes a variable from the symbol table.

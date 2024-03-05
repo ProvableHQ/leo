@@ -27,7 +27,7 @@ pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 impl Node for Identifier {}
 
 /// A node in a tree.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TreeNode<N: Node> {
     /// The current depth.
     pub depth: usize,
