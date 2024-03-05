@@ -17,7 +17,7 @@
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Function, Program, ProgramId};
-use leo_span::Symbol;
+use leo_span::{Symbol};
 
 use indexmap::IndexMap;
 
@@ -46,9 +46,6 @@ pub struct CodeGenerator<'a> {
     pub(crate) is_transition_function: bool,
     /// Are we traversing a finalize block?
     pub(crate) in_finalize: bool,
-    // TODO (@d0cd): There are a temporary solution to be compatible with futures introduced in Aleo instructions.
-    // The registers containing futures produced in the current transition.
-    pub(crate) futures: Vec<(String, String)>,
     // A reference to program. This is needed to look up external programs.
     pub(crate) program: &'a Program,
     // The program ID of the current program.
@@ -77,7 +74,6 @@ impl<'a> CodeGenerator<'a> {
             global_mapping: IndexMap::new(),
             is_transition_function: false,
             in_finalize: false,
-            futures: Vec::new(),
             program,
             program_id: None,
         }

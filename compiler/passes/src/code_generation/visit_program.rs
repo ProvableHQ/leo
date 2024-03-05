@@ -84,15 +84,42 @@ impl<'a> CodeGenerator<'a> {
                 .functions
                 .iter()
                 .map(|(_, function)| {
-                    // Set the `is_transition_function` flag.
-                    self.is_transition_function = matches!(function.variant, Variant::Transition);
+                    if !(function.is_async && function.variant == Variant::Standard) {
+                        // Set the `is_transition_function` flag.
+                        self.is_transition_function = matches!(function.variant, Variant::Transition);
 
-                    let function_string = self.visit_function(function);
+                        let mut function_string = self.visit_function(function);
 
-                    // Unset the `is_transition_function` flag.
-                    self.is_transition_function = false;
+                        // Unset the `is_transition_function` flag.
+                        self.is_transition_function = false;
 
-                    function_string
+                        // Attach the associated finalize to async transitions.
+                        if function.variant == Variant::Transition && function.is_async {
+                            self.is_transition_function = false;
+                            let finalize = &self
+                                .symbol_table
+                                .lookup_fn_symbol(
+                                    self.program_id.unwrap().name.name,
+                                    function.identifier.name,
+                                )
+                                .unwrap()
+                                .clone()
+                                .finalize
+                                .unwrap()
+                                .function;
+                            // Write the finalize string.
+                            function_string.push_str(&format!(
+                                "{}\n",
+                                &self.visit_function(
+                                    &program_scope.functions.iter().find(|(name, _f)| name == finalize).unwrap().1
+                                )
+                            ));
+                        }
+
+                        function_string
+                    } else {
+                        String::new()
+                    }
                 })
                 .join("\n"),
         );
@@ -148,7 +175,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
-        self.futures.clear();
+        self.in_finalize = function.is_async && function.variant == Variant::Standard;
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.variable_mapping.insert(&sym::block, "block".to_string());
@@ -158,13 +185,20 @@ impl<'a> CodeGenerator<'a> {
         // If a function is a program function, generate an Aleo `function`,
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
-        let mut function_string = match function.variant {
-            Variant::Transition => format!("\nfunction {}:\n", function.identifier),
-            Variant::Standard => format!("\nclosure {}:\n", function.identifier),
-            Variant::Inline => return String::from("\n"),
+        let mut function_string = match (function.is_async, function.variant) {
+            (_, Variant::Transition) => format!("\nfunction {}:\n", function.identifier),
+            (false, Variant::Standard) => format!("\nclosure {}:\n", function.identifier),
+            (true, Variant::Standard) => format!("\nfinalize {}:\n", function.identifier),
+            (_, Variant::Inline) => return String::from("\n"),
         };
 
         // Construct and append the input declarations of the function.
+        let mut futures = self
+            .symbol_table
+            .lookup_fn_symbol(self.program_id.unwrap().name.name, function.identifier.name)
+            .unwrap()
+            .future_inputs
+            .clone();
         for input in function.input.iter() {
             let register_string = format!("r{}", self.next_register);
             self.next_register += 1;
@@ -176,7 +210,13 @@ impl<'a> CodeGenerator<'a> {
                         (true, Mode::None) => Mode::Private,
                         _ => input.mode,
                     };
-                    self.visit_type_with_visibility(&input.type_, visibility)
+                    // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
+                    if matches!(input.type_, Type::Future(_)) {
+                        let location = futures.pop().unwrap();
+                        format!("{}.aleo/{}.future", location.program, location.function)
+                    } else {
+                        self.visit_type_with_visibility(&input.type_, visibility)
+                    }
                 }
                 functions::Input::External(input) => {
                     self.variable_mapping.insert(&input.identifier.name, register_string.clone());
@@ -191,72 +231,6 @@ impl<'a> CodeGenerator<'a> {
         //  Construct and append the function body.
         let block_string = self.visit_block(&function.block);
         function_string.push_str(&block_string);
-
-        // If the finalize block exists, generate the appropriate bytecode.
-        if !self.futures.is_empty() || function.finalize.is_some() {
-            // Clear the register count.
-            self.next_register = 0;
-            self.in_finalize = true;
-
-            // Clear the variable mapping.
-            // TODO: Figure out a better way to initialize.
-            self.variable_mapping = IndexMap::new();
-            self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
-            self.variable_mapping.insert(&sym::block, "block".to_string());
-
-            function_string.push_str(&format!("\nfinalize {}:\n", function.identifier));
-
-            // If the function contained calls that produced futures, then we need to add the futures to the finalize block as input.
-            // Store the new future registers.
-            let mut future_registers = Vec::new();
-            for (_, future_type) in self.futures.drain(..) {
-                let register_string = format!("r{}", self.next_register);
-                writeln!(function_string, "    input {register_string} as {future_type}.future;")
-                    .expect("failed to write to string");
-                future_registers.push(register_string);
-                self.next_register += 1;
-            }
-
-            // Construct and append the input declarations of the finalize block, if it exists.
-            if let Some(finalize) = &function.finalize {
-                for input in finalize.input.iter() {
-                    let register_string = format!("r{}", self.next_register);
-                    self.next_register += 1;
-
-                    // TODO: Dedup code.
-                    let type_string = match input {
-                        functions::Input::Internal(input) => {
-                            self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-
-                            let visibility = match (self.is_transition_function, input.mode) {
-                                (true, Mode::None) => Mode::Public,
-                                _ => input.mode,
-                            };
-                            self.visit_type_with_visibility(&input.type_, visibility)
-                        }
-                        functions::Input::External(input) => {
-                            self.variable_mapping.insert(&input.program_name.name, register_string.clone());
-                            format!("{}.aleo/{}.record", input.program_name, input.record)
-                        }
-                    };
-
-                    writeln!(function_string, "    input {register_string} as {type_string};",)
-                        .expect("failed to write to string");
-                }
-            }
-
-            // Invoke `await` on each future.
-            for register in future_registers {
-                writeln!(function_string, "    await {register};").expect("failed to write to string");
-            }
-
-            // Construct and append the finalize block body, if it exists.
-            if let Some(finalize) = &function.finalize {
-                function_string.push_str(&self.visit_block(&finalize.block));
-            }
-
-            self.in_finalize = false;
-        }
 
         function_string
     }
