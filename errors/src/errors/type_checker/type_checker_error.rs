@@ -770,13 +770,6 @@ create_messages!(
     }
 
     @formatted
-    async_function_must_return_single_future {
-        args: (),
-        msg: "An async function must have only a single output, and it must be a future.".to_string(),
-        help: Some("Example: `async function foo() -> Future {...}`".to_string()),
-    }
-
-    @formatted
     async_transition_invalid_output {
         args: (),
         msg: "An async transition must return a future as its first and only output.".to_string(),
@@ -929,5 +922,19 @@ create_messages!(
         args: (),
         msg: "An async transition must return a future.".to_string(),
         help: Some("Call an async function inside of the async transition body so that there is a future to return.".to_string()),
+    }
+    
+    @formatted
+    finalize_function_cannot_return_value {
+        args: (),
+        msg: "An async function is not allowed to return a value.".to_string(),
+        help: Some("Remove an output type in the function signature, and remove the return statement from the function.".to_string()),
+    }
+    
+    @formatted
+    return_type_of_finalize_function_is_future {
+        args: (),
+        msg: "The output of an async function must be assigned to a Future type..".to_string(),
+        help: None,
     }
 );

@@ -659,8 +659,20 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     {
                         self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
-
-                    let mut ret = self.assert_and_return_type(func.output_type, expected, input.span());
+                    
+                    // Async functions return a single future.
+                    let mut ret = if func.is_async && func.variant == Standard {
+                        if let Some(Type::Future(_)) = expected {
+                            Type::Future(FutureType::new(Vec::new()))
+                        }
+                        else {
+                            self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
+                            Type::Unit
+                        }
+                    }
+                    else {
+                        self.assert_and_return_type(func.output_type, expected, input.span())
+                    };
 
                     // Check number of function arguments.
                     if func.input.len() != input.arguments.len() {

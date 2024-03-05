@@ -1245,6 +1245,12 @@ impl<'a> TypeChecker<'a> {
 
         // Special type checking for finalize blocks. Can skip for stubs.
         if self.scope_state.is_finalize & !self.scope_state.is_stub {
+            // Finalize functions are not allowed to return values.
+            if !function.output.is_empty() {
+                self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(function.span()));
+            }
+            
+            // Check that the input types are consistent with when the function is invoked.
             if let Some(inferred_future_types) = self.finalize_input_types.get(&self.scope_state.location()) {
                 // Check same number of inputs as expected.
                 if inferred_future_types.len() != function.input.len() {
@@ -1260,10 +1266,9 @@ impl<'a> TypeChecker<'a> {
                     .iter()
                     .zip_eq(inferred_future_types.iter())
                     .for_each(|(t1, t2)| self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span()));
-            } else if !function.input.is_empty() {
-                self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
-                    0,
-                    function.input.len(),
+            } else {
+                self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
+                    function.identifier.name,
                     function.span(),
                 ));
             }
@@ -1360,11 +1365,6 @@ impl<'a> TypeChecker<'a> {
                     // For functions, only public and private outputs are allowed
                     if function_output.mode == Mode::Constant {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
-                    }
-                    // An async function must return a single future.
-                    if self.scope_state.is_finalize && (index > 0 || !matches!(function_output.type_, Type::Future(_)))
-                    {
-                        self.emit_err(TypeCheckerError::async_function_must_return_single_future(function_output.span));
                     }
                     // Async transitions must return one future in the first position.
                     if self.scope_state.is_async_transition
