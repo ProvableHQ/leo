@@ -17,14 +17,15 @@
 use indexmap::IndexSet;
 use leo_ast::Identifier;
 use std::{fmt::Debug, hash::Hash};
+use leo_span::Symbol;
 
 ///  A binary search tree to store all paths through nested conditional blocks.
-pub type ConditionalTreeNode = TreeNode<Identifier>;
+pub type ConditionalTreeNode = TreeNode<Symbol>;
 
 /// A node in a graph.
 pub trait Node: Copy + 'static + Eq + PartialEq + Debug + Hash {}
 
-impl Node for Identifier {}
+impl Node for Symbol {}
 
 /// A node in a tree.
 #[derive(Debug, Clone, PartialEq, Eq)]
