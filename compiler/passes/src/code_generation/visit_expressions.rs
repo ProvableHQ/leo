@@ -15,30 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CodeGenerator;
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedConstant,
-    AssociatedFunction,
-    BinaryExpression,
-    BinaryOperation,
-    CallExpression,
-    CastExpression,
-    ErrExpression,
-    Expression,
-    Identifier,
-    Literal,
-    MemberAccess,
-    MethodCall,
-    StructExpression,
-    TernaryExpression,
-    TupleExpression,
-    Type,
-    UnaryExpression,
-    UnaryOperation,
-    UnitExpression,
-};
+use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, MemberAccess, MethodCall, Node, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression, Variant};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -298,10 +275,9 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
         let (inner_expr, _) = self.visit_expression(&input.inner);
-        let member_access = match self.type_table.get(&input.id) {
-            Some(Type::Future(_)) => format!("{inner_expr}[{}]", input.name),
-            Some(Type::Composite(_)) => format!("{}.{}", inner_expr, input.name),
-            _ => unreachable!("Member access must be future or struct."),
+        let member_access = match self.type_table.get(&input.inner.id()) {
+            Some(Type::Future(_)) => format!("{inner_expr}[{}u32]", input.name),
+            _ => format!("{}.{}", inner_expr, input.name),
         };
 
         (member_access, String::new())
@@ -482,12 +458,14 @@ impl<'a> CodeGenerator<'a> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            sym::Await => {
+            sym::Future => {
                 let mut instruction = "    await".to_string();
                 writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
                 (String::new(), instruction)
             }
-            _ => unreachable!("All core functions should be known at this phase of compilation"),
+            _ => {
+                unreachable!("All core functions should be known at this phase of compilation")
+            },
         };
         // Add the instruction to the list of instructions.
         instructions.push_str(&instruction);
@@ -529,7 +507,7 @@ impl<'a> CodeGenerator<'a> {
             // Lookup in symbol table to determine if its an async function.
             if let Some(func) = self.symbol_table.lookup_fn_symbol(input.program.unwrap(), function_name) {
                 if func.is_async && input.program.unwrap() == self.program_id.unwrap().name.name {
-                    format!("    async {}", input.function)
+                    format!("    async {}", self.current_function.unwrap().identifier)
                 } else {
                     format!("    call {}", input.function)
                 }
@@ -548,8 +526,9 @@ impl<'a> CodeGenerator<'a> {
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type = &self.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap().output_type;
-        match return_type {
+        // Create operands for the output registers.
+        let func = self.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap();
+        match &func.output_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
@@ -566,6 +545,13 @@ impl<'a> CodeGenerator<'a> {
                 destinations.push(destination_register);
                 self.next_register += 1;
             }
+        }
+        
+        // Add a register for async functions to represent the future created.
+        if func.is_async && func.variant == Variant::Standard {
+            let destination_register = format!("r{}", self.next_register);
+            destinations.push(destination_register);
+            self.next_register += 1;
         }
 
         // Construct the output operands. These are the destination registers **without** the future.

@@ -95,7 +95,10 @@ impl<'a> CodeGenerator<'a> {
 
                         // Attach the associated finalize to async transitions.
                         if function.variant == Variant::Transition && function.is_async {
+                            // Set state variables.
                             self.is_transition_function = false;
+                            self.finalize_caller = Some(function.identifier.name.clone());
+                            // Generate code for the associated finalize function.
                             let finalize = &self
                                 .symbol_table
                                 .lookup_fn_symbol(
@@ -188,7 +191,7 @@ impl<'a> CodeGenerator<'a> {
         let mut function_string = match (function.is_async, function.variant) {
             (_, Variant::Transition) => format!("\nfunction {}:\n", function.identifier),
             (false, Variant::Standard) => format!("\nclosure {}:\n", function.identifier),
-            (true, Variant::Standard) => format!("\nfinalize {}:\n", function.identifier),
+            (true, Variant::Standard) => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
             (_, Variant::Inline) => return String::from("\n"),
         };
 
@@ -206,8 +209,9 @@ impl<'a> CodeGenerator<'a> {
             let type_string = match input {
                 functions::Input::Internal(input) => {
                     self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-                    let visibility = match (self.is_transition_function, input.mode) {
-                        (true, Mode::None) => Mode::Private,
+                    let visibility = match (self.is_transition_function, self.in_finalize, input.mode) {
+                        (true, _, Mode::None) => Mode::Private,
+                        (_, true, Mode::None) => Mode::Public,
                         _ => input.mode,
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
@@ -223,7 +227,7 @@ impl<'a> CodeGenerator<'a> {
                     format!("{}.aleo/{}.record", input.program_name, input.record)
                 }
             };
-
+            
             writeln!(function_string, "    input {register_string} as {type_string};",)
                 .expect("failed to write to string");
         }

@@ -46,10 +46,12 @@ pub struct CodeGenerator<'a> {
     pub(crate) is_transition_function: bool,
     /// Are we traversing a finalize block?
     pub(crate) in_finalize: bool,
-    // A reference to program. This is needed to look up external programs.
+    /// A reference to program. This is needed to look up external programs.
     pub(crate) program: &'a Program,
-    // The program ID of the current program.
+    /// The program ID of the current program.
     pub(crate) program_id: Option<ProgramId>,
+    /// A reference to the finalize caller.
+    pub(crate) finalize_caller: Option<Symbol>, 
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -76,6 +78,7 @@ impl<'a> CodeGenerator<'a> {
             in_finalize: false,
             program,
             program_id: None,
+            finalize_caller: None,
         }
     }
 }

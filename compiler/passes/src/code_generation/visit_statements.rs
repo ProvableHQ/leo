@@ -16,22 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{
-    AssertStatement,
-    AssertVariant,
-    AssignStatement,
-    Block,
-    ConditionalStatement,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionStatement,
-    IterationStatement,
-    Mode,
-    Output,
-    ReturnStatement,
-    Statement,
-};
+use leo_ast::{AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionStatement, IterationStatement, Mode, Output, ReturnStatement, Statement, Type};
 
 use itertools::Itertools;
 
@@ -89,11 +74,13 @@ impl<'a> CodeGenerator<'a> {
                 // Get the output type of the function.
                 let output = self.current_function.unwrap().output.iter();
                 // If the operand string is empty, initialize an empty vector.
-                let operand_strings = match operand.is_empty() {
+                let mut operand_strings = match operand.is_empty() {
                     true => vec![],
                     false => operand.split(' ').collect_vec(),
                 };
-                let instructions = operand_strings
+
+                let mut future_output = String::new();
+                let mut instructions = operand_strings
                     .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
@@ -116,11 +103,19 @@ impl<'a> CodeGenerator<'a> {
                                     // Only program functions have visibilities associated with their outputs.
                                     Mode::None
                                 };
-                                format!(
-                                    "    output {} as {};\n",
-                                    operand,
-                                    self.visit_type_with_visibility(&output.type_, visibility)
-                                )
+                                if let Type::Future(_) = output.type_ {
+                                    future_output = format!(
+                                        "    output {} as {}.aleo/{}.future;\n",
+                                        operand, self.program_id.unwrap().name, self.current_function.unwrap().identifier,
+                                    );
+                                    String::new()
+                                } else {
+                                    format!(
+                                        "    output {} as {};\n",
+                                        operand,
+                                        self.visit_type_with_visibility(&output.type_, visibility)
+                                    )
+                                }
                             }
                             Output::External(output) => {
                                 format!(
@@ -131,6 +126,9 @@ impl<'a> CodeGenerator<'a> {
                         }
                     })
                     .join("");
+
+                // Insert future output at the end.
+                instructions.push_str(&future_output);
 
                 expression_instructions.push_str(&instructions);
 
