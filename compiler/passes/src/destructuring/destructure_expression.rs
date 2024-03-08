@@ -16,7 +16,8 @@
 
 use crate::Destructurer;
 
-use leo_ast::{Expression, ExpressionReconstructor, Statement, TupleAccess};
+use leo_ast::{AccessExpression, Expression, ExpressionReconstructor, Identifier, MemberAccess, Statement, TupleAccess, Type};
+use leo_span::Symbol;
 
 impl ExpressionReconstructor for Destructurer<'_> {
     type AdditionalOutput = Vec<Statement>;
@@ -29,7 +30,19 @@ impl ExpressionReconstructor for Destructurer<'_> {
                 match self.tuples.get(&identifier.name).and_then(|tuple| tuple.elements.get(input.index.value())) {
                     Some(element) => (element.clone(), Default::default()),
                     None => {
-                        unreachable!("SSA guarantees that all tuples are declared and indices are valid.")
+                        if matches!(self.type_table.get(&identifier.id), Some(Type::Future(_))) {
+                            (
+                                Expression::Access(AccessExpression::Member(MemberAccess {
+                                    inner: Box::new(Expression::Identifier(*identifier)),
+                                    name: Identifier::new(Symbol::intern(&input.index.to_string()), Default::default()),
+                                    span: input.span,
+                                    id: input.id,
+                                })),
+                                Default::default(),
+                            )
+                        } else {
+                            unreachable!("SSA guarantees that all tuple accesses are declared and indices are valid.")
+                        }
                     }
                 }
             }
