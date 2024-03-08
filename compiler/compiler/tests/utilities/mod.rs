@@ -97,11 +97,13 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
                             .expect("Expected key `dce_enabled`")
                             .as_bool()
                             .expect("Expected value to be a boolean."),
+                        conditional_block_max_depth: 10,
+                        disable_conditional_branch_type_checking: false,
                     }
                 })
                 .collect()
         }
-        None => vec![BuildOptions { dce_enabled: true }],
+        None => vec![BuildOptions { dce_enabled: true, conditional_block_max_depth: 10, disable_conditional_branch_type_checking: false }],
     }
 }
 

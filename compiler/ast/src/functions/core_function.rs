@@ -843,7 +843,7 @@ impl CoreFunction {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
-            Self::FutureAwait => 0,
+            Self::FutureAwait => 1,
         }
     }
 
