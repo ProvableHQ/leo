@@ -750,6 +750,9 @@ impl ParserContext<'_> {
             Token::Block => {
                 Expression::Identifier(Identifier { name: sym::block, span, id: self.node_builder.next_id() })
             }
+            Token::Future => {
+                Expression::Identifier(Identifier { name: sym::Future, span, id: self.node_builder.next_id() })
+            },
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),
                 span,
