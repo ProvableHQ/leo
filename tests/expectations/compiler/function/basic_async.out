@@ -1,0 +1,16 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - - initial_symbol_table: 8239588580197a92398142074283d5ba36891e04cbfc82ab52c4d28019580d7c
+      type_checked_symbol_table: a0fa0ea6c44833ed71fd6ce4affd5437a66e72f04f5af19c7a68deae7ae2d5fa
+      unrolled_symbol_table: a0fa0ea6c44833ed71fd6ce4affd5437a66e72f04f5af19c7a68deae7ae2d5fa
+      initial_ast: a55bb5df325267ca729880d011015ab304d4a58422a2c80bc5dc79293706282e
+      unrolled_ast: a55bb5df325267ca729880d011015ab304d4a58422a2c80bc5dc79293706282e
+      ssa_ast: b99d35fa7e0f0d79cc0e71e0471d9b35cad3d0cb59af5c26540b018d6ae91383
+      flattened_ast: 198fb9e46b0813fe23dc14d88826b985a3e68e5898ab0314af7996e0ae682427
+      destructured_ast: 29a5a70b3c59b46c636930fcaff8ff40036d021b4b84d88b2c5d79234c7138c8
+      inlined_ast: 2323fb24086f3f3e03f339e3c1b81ea95866e84bb590d8be1d37309abeb22981
+      dce_ast: 2323fb24086f3f3e03f339e3c1b81ea95866e84bb590d8be1d37309abeb22981
+      bytecode: cc273037c3ab51d0adc1aa2a98ba98703f5bc15c14cce5207e29b1f6e3d88ab7
+      warnings: "Warning [WTYC0372000]: Not all paths through the function await all futures. 1/1 paths contain at least one future that is never awaited.\n    --> compiler-test:11:5\n     |\n  11 |     async function finalize_main(a:u32, b:u32) {\n  12 |         Mapping::set(Yo, a, b);\n  13 |     }\n     |     ^\n     |\n     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag."
