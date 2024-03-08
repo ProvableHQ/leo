@@ -18,14 +18,14 @@ use crate::{ConditionalTreeNode, TreeNode};
 use indexmap::{IndexSet};
 use leo_ast::{Identifier};
 use leo_errors::TypeCheckerError;
-use leo_span::{Span};
+use leo_span::{Span, Symbol};
 
 // TODO: Could optimize by removing duplicate paths (if set of futures is the same).
 pub struct AwaitChecker {
     /// All possible subsets of futures that must be awaited.
     pub(crate) to_await: Vec<ConditionalTreeNode>,
     /// Statically updated set of futures to await.
-    pub(crate) static_to_await: IndexSet<Identifier>,
+    pub(crate) static_to_await: IndexSet<Symbol>,
     /// Whether or not to do full tree search for await checking.
     pub(crate) enabled: bool,
     /// Maximum nesting depth to search for await checking.
@@ -43,16 +43,21 @@ impl AwaitChecker {
         // Can assume in finalize block.
         if self.enabled {
             // Remove from dynamic list.
-            self.to_await.iter_mut().for_each(|node| node.remove_element(id));
+            self.to_await.iter_mut().for_each(|node| node.remove_element(&id.name));
         }
 
         // Remove from static list.
-        self.static_to_await.remove(id);
+        self.static_to_await.remove(&id.name);
     }
 
     /// Initialize futures.
-    pub fn set_futures(&mut self, futures: IndexSet<Identifier>) {
-        (self.to_await, self.static_to_await) = (vec![TreeNode::new(futures.clone())], futures);
+    pub fn set_futures(&mut self, futures: IndexSet<Symbol>) {
+        if futures.is_empty() {
+            self.to_await = Vec::new();
+        } else {
+            self.to_await = vec![TreeNode::new(futures.clone())];
+        }
+        self.static_to_await = futures;
     }
 
     /// Enter scope for `then` branch of conditional.

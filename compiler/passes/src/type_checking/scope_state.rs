@@ -36,11 +36,13 @@ pub struct ScopeState {
     /// Whether or not we are in an async transition function.
     pub(crate) is_async_transition: bool,
     /// The futures that must be propagated to an async function.
-    pub(crate) futures: IndexMap<Identifier, Location>,
+    pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
     pub(crate) has_called_finalize: bool,
     /// Whether currently traversing a conditional statement.
     pub(crate) is_conditional: bool,
+    /// Whether the current function is a call.
+    pub(crate) is_call: bool,
     /// Location of most recent external call that produced a future.
     pub(crate) call_location: Option<Location>,
 }
@@ -60,6 +62,7 @@ impl ScopeState {
             futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,
+            is_call: false,
             call_location: None,
         }
     }
