@@ -162,43 +162,47 @@ impl FunctionStub {
             .outputs()
             .iter()
             .map(|output| match output.value_type() {
-                ValueType::Constant(val) => vec![Output::Internal(FunctionOutput {
+                ValueType::Constant(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Constant,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Public(val) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Public(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Private(val) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Private(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Private,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Record(id) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Record(id) => Output::Internal(FunctionOutput {
                     mode: Mode::None,
                     type_: Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
                     span: Default::default(),
                     id: Default::default(),
-                })],
+                }),
                 ValueType::ExternalRecord(loc) => {
-                    vec![Output::External(External {
+                    Output::External(External {
                         identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
                         program_name: ProgramId::from(loc.program_id()).name,
                         record: Identifier::from(loc.resource()),
                         span: Default::default(),
                         id: Default::default(),
-                    })]
+                    })
                 }
-                ValueType::Future(_) => Vec::new(), // Don't include futures in the output signature
+                ValueType::Future(_) => Output::Internal(FunctionOutput {
+                    mode: Mode::Public,
+                    type_: Type::Future(FutureType::new(Vec::new())),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
             })
-            .collect_vec()
-            .concat();
+            .collect_vec();
         let output_vec = outputs
             .iter()
             .map(|output| match output {

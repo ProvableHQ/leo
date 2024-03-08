@@ -135,7 +135,7 @@ impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
         Self {
             annotations: function.annotations,
-            is_async: false,
+            is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
             input: function.input,
