@@ -341,7 +341,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     .filter_map(|input| match input {
                         Internal(parameter) => {
                             if let Future(_) = parameter.type_.clone() {
-                                Some(parameter.identifier)
+                                Some(parameter.identifier.name)
                             } else {
                                 None
                             }
@@ -384,12 +384,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                         .join(", "),
                     function.span(),
                 ));
-            } else {
+            } else if self.await_checker.enabled && !self.await_checker.to_await.is_empty() {
                 // Tally up number of paths that are unawaited and number of paths that are awaited more than once.
                 let (num_paths_unawaited, num_paths_duplicate_awaited, num_perfect) =
                     self.await_checker.to_await.iter().fold((0, 0, 0), |(unawaited, duplicate, perfect), path| {
                         (
-                            unawaited + if !path.elements.is_empty() { 0 } else { 1 },
+                            unawaited + if !path.elements.is_empty() { 1 } else { 0 },
                             duplicate + if path.counter > 0 { 1 } else { 0 },
                             perfect + if path.counter > 0 || !path.elements.is_empty() { 0 } else { 1 },
                         )
