@@ -43,6 +43,8 @@ use indexmap::{IndexMap};
 use itertools::Itertools;
 use leo_ast::Type::{Future, Tuple};
 use std::{cell::RefCell};
+use leo_ast::Input::Internal;
+use leo_ast::Mode::Public;
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -1251,11 +1253,11 @@ impl<'a> TypeChecker<'a> {
             }
             
             // Check that the input types are consistent with when the function is invoked.
-            if let Some(inferred_future_types) = self.finalize_input_types.get(&self.scope_state.location()) {
+            if let Some(inferred_input_types) = self.finalize_input_types.get(&self.scope_state.location()) {
                 // Check same number of inputs as expected.
-                if inferred_future_types.len() != function.input.len() {
-                    self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
-                        inferred_future_types.len(),
+                if inferred_input_types.len() != function.input.len() {
+                    return self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
+                        inferred_input_types.len(),
                         function.input.len(),
                         function.span(),
                     ));
@@ -1264,8 +1266,27 @@ impl<'a> TypeChecker<'a> {
                 function
                     .input
                     .iter()
-                    .zip_eq(inferred_future_types.iter())
-                    .for_each(|(t1, t2)| self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span()));
+                    .zip_eq(inferred_input_types.iter())
+                    .for_each(|(t1, t2)| {
+                        if let Internal(fn_input) = t1 {
+                            // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
+                            if !(matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_))) {
+                                self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
+                            } else {
+                                // Insert to symbol table
+                                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                                    fn_input.identifier.name,
+                                    VariableSymbol {
+                                        type_: t2.clone(),
+                                        span: fn_input.identifier.span(),
+                                        declaration: VariableType::Input(Public),
+                                    },
+                                ) {
+                                    self.handler.emit_err(err);
+                                }
+                            }
+                        }
+                    });
             } else {
                 self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
@@ -1315,15 +1336,15 @@ impl<'a> TypeChecker<'a> {
                 _ => {} // Do nothing.
             }
 
-            // Add function inputs to the symbol table.
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+            // Add function inputs to the symbol table. Futures have already been added.
+            if !matches!(&input_var.type_(), &Type::Future(_)) {
+                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
                     type_: input_var.type_(),
                     span: input_var.identifier().span(),
                     declaration: VariableType::Input(input_var.mode()),
-                })
-            {
-                self.handler.emit_err(err);
+                }) {
+                    self.handler.emit_err(err);
+                }
             }
         });
 
@@ -1366,10 +1387,10 @@ impl<'a> TypeChecker<'a> {
                     if function_output.mode == Mode::Constant {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
-                    // Async transitions must return one future in the first position.
+                    // Async transitions must return exactly one future, and it must be in the last position.
                     if self.scope_state.is_async_transition
-                        && ((index > 0 && matches!(function_output.type_, Type::Future(_)))
-                            || (index == 0 && !matches!(function_output.type_, Type::Future(_))))
+                        && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
+                            || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
                     {
                         self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
                     }
@@ -1428,7 +1449,7 @@ impl<'a> TypeChecker<'a> {
     ) {
         let ty: Type = if let Future(_) = type_ {
             // Need to insert the fully inferred future type, or else will just be default future type.
-            match inferred_type.unwrap() {
+            let ret = match inferred_type.unwrap() {
                 Future(future) => Future(future),
                 Tuple(tuple) => match tuple.elements().get(index) {
                     Some(Future(future)) => Future(future.clone()),
@@ -1437,7 +1458,10 @@ impl<'a> TypeChecker<'a> {
                 _ => {
                     unreachable!("TYC guarantees that the inferred type is a future, or tuple containing futures.")
                 }
-            }
+            };
+            // Insert future into list of futures for the function.
+            self.scope_state.futures.insert(name.name, self.scope_state.call_location.clone().unwrap());
+            ret
         } else {
             type_
         };
