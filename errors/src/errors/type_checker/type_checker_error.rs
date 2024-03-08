@@ -772,7 +772,7 @@ create_messages!(
     @formatted
     async_transition_invalid_output {
         args: (),
-        msg: "An async transition must return a future as its first and only output.".to_string(),
+        msg: "An async transition must return a future as the final output, and in no other position return a future.".to_string(),
         help: Some("Example: `async transition foo() -> (Future, u8, bool) {...}`".to_string()),
     }
 
