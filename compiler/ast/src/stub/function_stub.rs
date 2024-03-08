@@ -48,6 +48,7 @@ use snarkvm::{
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
 use std::fmt;
+use snarkvm::prelude::FinalizeType;
 
 /// A function stub definition.
 #[derive(Clone, Serialize, Deserialize)]
@@ -229,7 +230,7 @@ impl FunctionStub {
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+                    let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.value_type() {
                         ValueType::Constant(val) => Input::Internal(FunctionInput {
                             identifier: arg_name,
@@ -284,15 +285,17 @@ impl FunctionStub {
         Self {
             annotations: Vec::new(),
             is_async: true,
-            variant: Variant::Transition,
+            variant: Variant::Standard,
             identifier: Identifier::new(name, Default::default()),
             future_locations: function
+                .finalize_logic()
+                .unwrap()
                 .inputs()
                 .iter()
-                .filter_map(|input| match input.value_type() {
-                    ValueType::Future(val) => Some(Location::new(
+                .filter_map(|input| match input.finalize_type() {
+                    FinalizeType::Future(val) => Some(Location::new(
                         Identifier::from(val.program_id().name()).name,
-                        Identifier::from(val.resource()).name,
+                        Symbol::intern(&format!("finalize/{}", val.resource())),
                     )),
                     _ => None,
                 })
@@ -305,8 +308,8 @@ impl FunctionStub {
                 .enumerate()
                 .map(|(index, input)| {
                     Input::Internal(FunctionInput {
-                        identifier: Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default()),
-                        mode: Mode::Public,
+                        identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
+                        mode: Mode::None,
                         type_: match input.finalize_type() {
                             PlaintextFinalizeType(val) => Type::from_snarkvm(val, name),
                             FutureFinalizeType(_) => Type::Future(Default::default()),
@@ -317,7 +320,7 @@ impl FunctionStub {
                 })
                 .collect_vec(),
             output: vec![Output::Internal(FunctionOutput {
-                mode: Mode::Public,
+                mode: Mode::None,
                 type_: Type::Future(FutureType { inputs: Vec::new() }),
                 span: Default::default(),
                 id: 0,
@@ -370,7 +373,7 @@ impl FunctionStub {
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+                    let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.register_type() {
                         Plaintext(val) => Input::Internal(FunctionInput {
                             identifier: arg_name,
