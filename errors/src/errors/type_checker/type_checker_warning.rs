@@ -37,7 +37,7 @@ create_messages!(
         msg: format!("Some paths through the function contain duplicate future awaits. {num_duplicate_await_paths}/{num_total_paths} paths contain at least one future that is awaited more than once."),
         help: Some("Look at the times `.await()` is called, and try to reduce redundancies. Remove this warning by including the `--disable-conditional-branch-type-checking` flag.".to_string()),
     }
-    
+
     @formatted
     async_function_is_never_called_by_transition_function {
         args: (name: impl Display),

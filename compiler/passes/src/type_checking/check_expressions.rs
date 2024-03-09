@@ -21,10 +21,13 @@ use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span, Symbol};
 
 use itertools::Itertools;
-use leo_ast::{CoreFunction::FutureAwait, Variant::Standard};
+use leo_ast::{
+    CoreFunction::FutureAwait,
+    Type::{Future, Tuple},
+    Variant::Standard,
+};
 use snarkvm::console::network::{Network, Testnet3};
 use std::str::FromStr;
-use leo_ast::Type::{Future, Tuple};
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -187,7 +190,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                         Future(_) => {
                             // Get the fully inferred type.
-                            if let Some(Type::Future(inferred_f)) = self.type_table.get(&access.tuple.id())  {
+                            if let Some(Type::Future(inferred_f)) = self.type_table.get(&access.tuple.id()) {
                                 // Make sure in range.
                                 if access.index.value() >= inferred_f.inputs().len() {
                                     self.emit_err(TypeCheckerError::invalid_future_access(
@@ -659,13 +662,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     let mut ret = if func.is_async && func.variant == Standard {
                         if let Some(Type::Future(_)) = expected {
                             Type::Future(FutureType::new(Vec::new()))
-                        }
-                        else {
+                        } else {
                             self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
                         }
-                    }
-                    else {
+                    } else {
                         self.assert_and_return_type(func.output_type, expected, input.span())
                     };
 
@@ -686,7 +687,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         // Extract information about futures that are being consumed.
                         if func.is_async && func.variant == Standard && matches!(expected.type_(), Type::Future(_)) {
                             match argument {
-                                Expression::Identifier(_) | Expression::Call(_) | Expression::Access(AccessExpression::Tuple(_)) => {
+                                Expression::Identifier(_)
+                                | Expression::Call(_)
+                                | Expression::Access(AccessExpression::Tuple(_)) => {
                                     match self.scope_state.call_location.clone() {
                                         Some(location) => {
                                             // Get the external program and function name.
@@ -701,7 +704,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                             ));
                                         }
                                     }
-                                },
+                                }
                                 _ => {
                                     self.emit_err(TypeCheckerError::unknown_future_consumed(
                                         "unknown",
@@ -709,8 +712,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     ));
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             inferred_finalize_inputs.push(ty.unwrap());
                         }
                     });
@@ -752,20 +754,20 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             let future_type = Type::Future(FutureType::new(
                                 // Assumes that external function stubs have been processed.
                                 self.finalize_input_types
-                                    .get(&Location::new(input.program.unwrap(), Symbol::intern(&format!("finalize/{}",ident.name))))
+                                    .get(&Location::new(
+                                        input.program.unwrap(),
+                                        Symbol::intern(&format!("finalize/{}", ident.name)),
+                                    ))
                                     .unwrap()
                                     .clone(),
                             ));
                             ret = match ret.clone() {
-                                Tuple(tup) => {
-                                    Tuple(TupleType::new(tup.elements().iter().map(|t| {
-                                        if matches!(t, Future(_)) {
-                                            future_type.clone()
-                                        } else {
-                                            t.clone()
-                                        }
-                                    }).collect::<Vec<Type>>()))
-                                }
+                                Tuple(tup) => Tuple(TupleType::new(
+                                    tup.elements()
+                                        .iter()
+                                        .map(|t| if matches!(t, Future(_)) { future_type.clone() } else { t.clone() })
+                                        .collect::<Vec<Type>>(),
+                                )),
                                 Future(_) => future_type,
                                 _ => {
                                     self.emit_err(TypeCheckerError::async_transition_invalid_output(input.span));
@@ -795,8 +797,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             )
                             .unwrap();
                             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
-                            self.finalize_input_types
-                                .insert(Location::new(self.scope_state.program_name.unwrap(), ident.name), inferred_finalize_inputs.clone());
+                            self.finalize_input_types.insert(
+                                Location::new(self.scope_state.program_name.unwrap(), ident.name),
+                                inferred_finalize_inputs.clone(),
+                            );
 
                             // Set scope state flag.
                             self.scope_state.has_called_finalize = true;
@@ -886,7 +890,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         Some(future) => {
                             self.scope_state.call_location = Some(future.clone());
                             return Some(var.type_.clone());
-                        },
+                        }
                         None => {
                             self.emit_err(TypeCheckerError::unknown_future_consumed(input.name, input.span));
                         }

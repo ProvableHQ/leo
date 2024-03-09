@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use indexmap::IndexMap;
-use leo_ast::{Identifier, Location, Variant};
+use leo_ast::{Location, Variant};
 use leo_span::Symbol;
 
 pub struct ScopeState {

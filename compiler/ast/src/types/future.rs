@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Type};
+use crate::Type;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// A future type consisting of the type of the inputs.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 pub struct FutureType {
     // Optional type specification of inputs.
     pub inputs: Vec<Type>,
@@ -38,7 +37,6 @@ impl FutureType {
         &self.inputs
     }
 }
-
 
 impl fmt::Display for crate::FutureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

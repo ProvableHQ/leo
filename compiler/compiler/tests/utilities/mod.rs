@@ -103,7 +103,11 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
                 })
                 .collect()
         }
-        None => vec![BuildOptions { dce_enabled: true, conditional_block_max_depth: 10, disable_conditional_branch_type_checking: false }],
+        None => vec![BuildOptions {
+            dce_enabled: true,
+            conditional_block_max_depth: 10,
+            disable_conditional_branch_type_checking: false,
+        }],
     }
 }
 

@@ -17,7 +17,7 @@
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
 use leo_ast::{Function, Program, ProgramId};
-use leo_span::{Symbol};
+use leo_span::Symbol;
 
 use indexmap::IndexMap;
 
@@ -51,7 +51,7 @@ pub struct CodeGenerator<'a> {
     /// The program ID of the current program.
     pub(crate) program_id: Option<ProgramId>,
     /// A reference to the finalize caller.
-    pub(crate) finalize_caller: Option<Symbol>, 
+    pub(crate) finalize_caller: Option<Symbol>,
 }
 
 impl<'a> CodeGenerator<'a> {

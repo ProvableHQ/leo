@@ -15,7 +15,32 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::CodeGenerator;
-use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, MemberAccess, MethodCall, Node, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression, Variant};
+use leo_ast::{
+    AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
+    AssociatedConstant,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    CastExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    MemberAccess,
+    MethodCall,
+    Node,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
+    Variant,
+};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -465,7 +490,7 @@ impl<'a> CodeGenerator<'a> {
             }
             _ => {
                 unreachable!("All core functions should be known at this phase of compilation")
-            },
+            }
         };
         // Add the instruction to the list of instructions.
         instructions.push_str(&instruction);
@@ -546,7 +571,7 @@ impl<'a> CodeGenerator<'a> {
                 self.next_register += 1;
             }
         }
-        
+
         // Add a register for async functions to represent the future created.
         if func.is_async && func.variant == Variant::Standard {
             let destination_register = format!("r{}", self.next_register);

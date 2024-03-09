@@ -923,14 +923,14 @@ create_messages!(
         msg: "An async transition must return a future.".to_string(),
         help: Some("Call an async function inside of the async transition body so that there is a future to return.".to_string()),
     }
-    
+
     @formatted
     finalize_function_cannot_return_value {
         args: (),
         msg: "An async function is not allowed to return a value.".to_string(),
         help: Some("Remove an output type in the function signature, and remove the return statement from the function.".to_string()),
     }
-    
+
     @formatted
     return_type_of_finalize_function_is_future {
         args: (),

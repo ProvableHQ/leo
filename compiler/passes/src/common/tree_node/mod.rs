@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use indexmap::IndexSet;
-use leo_ast::Identifier;
-use std::{fmt::Debug, hash::Hash};
+
 use leo_span::Symbol;
+use std::{fmt::Debug, hash::Hash};
 
 ///  A binary search tree to store all paths through nested conditional blocks.
 pub type ConditionalTreeNode = TreeNode<Symbol>;

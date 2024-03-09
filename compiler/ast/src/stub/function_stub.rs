@@ -44,11 +44,10 @@ use snarkvm::{
         FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
         RegisterType::{ExternalRecord, Future, Plaintext, Record},
     },
-    prelude::{Network, ValueType},
+    prelude::{FinalizeType, Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
 use std::fmt;
-use snarkvm::prelude::FinalizeType;
 
 /// A function stub definition.
 #[derive(Clone, Serialize, Deserialize)]
@@ -187,15 +186,13 @@ impl FunctionStub {
                     span: Default::default(),
                     id: Default::default(),
                 }),
-                ValueType::ExternalRecord(loc) => {
-                    Output::External(External {
-                        identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                        program_name: ProgramId::from(loc.program_id()).name,
-                        record: Identifier::from(loc.resource()),
-                        span: Default::default(),
-                        id: Default::default(),
-                    })
-                }
+                ValueType::ExternalRecord(loc) => Output::External(External {
+                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                    program_name: ProgramId::from(loc.program_id()).name,
+                    record: Identifier::from(loc.resource()),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
                 ValueType::Future(_) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
                     type_: Type::Future(FutureType::new(Vec::new())),

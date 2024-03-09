@@ -16,7 +16,16 @@
 
 use crate::Destructurer;
 
-use leo_ast::{AccessExpression, Expression, ExpressionReconstructor, Identifier, MemberAccess, Statement, TupleAccess, Type};
+use leo_ast::{
+    AccessExpression,
+    Expression,
+    ExpressionReconstructor,
+    Identifier,
+    MemberAccess,
+    Statement,
+    TupleAccess,
+    Type,
+};
 use leo_span::Symbol;
 
 impl ExpressionReconstructor for Destructurer<'_> {

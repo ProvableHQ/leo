@@ -18,10 +18,9 @@ use crate::{DiGraphError, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 
 use snarkvm::console::network::{Network, Testnet3};
-
 
 use leo_ast::{
     Input::{External, Internal},
@@ -92,7 +91,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         if input.variant == Variant::Standard && input.is_async {
             let finalize_input_map = &mut self.finalize_input_types;
             let mut future_stubs = input.future_locations.clone();
-            let resolved_inputs:Vec<Type> = input
+            let resolved_inputs: Vec<Type> = input
                 .input
                 .iter()
                 .map(|input_mode| {

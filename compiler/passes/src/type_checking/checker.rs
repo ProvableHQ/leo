@@ -39,12 +39,14 @@ use leo_span::{Span, Symbol};
 use snarkvm::console::network::{Network, Testnet3};
 
 use crate::type_checking::{await_checker::AwaitChecker, scope_state::ScopeState};
-use indexmap::{IndexMap};
+use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_ast::Type::{Future, Tuple};
-use std::{cell::RefCell};
-use leo_ast::Input::Internal;
-use leo_ast::Mode::Public;
+use leo_ast::{
+    Input::Internal,
+    Mode::Public,
+    Type::{Future, Tuple},
+};
+use std::cell::RefCell;
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -1251,7 +1253,7 @@ impl<'a> TypeChecker<'a> {
             if !function.output.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(function.span()));
             }
-            
+
             // Check that the input types are consistent with when the function is invoked.
             if let Some(inferred_input_types) = self.finalize_input_types.get(&self.scope_state.location()) {
                 // Check same number of inputs as expected.
@@ -1263,30 +1265,26 @@ impl<'a> TypeChecker<'a> {
                     ));
                 }
                 // Check that the input parameters match the inferred types from when the async function is invoked.
-                function
-                    .input
-                    .iter()
-                    .zip_eq(inferred_input_types.iter())
-                    .for_each(|(t1, t2)| {
-                        if let Internal(fn_input) = t1 {
-                            // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
-                            if !(matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_))) {
-                                self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
-                            } else {
-                                // Insert to symbol table
-                                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                                    fn_input.identifier.name,
-                                    VariableSymbol {
-                                        type_: t2.clone(),
-                                        span: fn_input.identifier.span(),
-                                        declaration: VariableType::Input(Public),
-                                    },
-                                ) {
-                                    self.handler.emit_err(err);
-                                }
+                function.input.iter().zip_eq(inferred_input_types.iter()).for_each(|(t1, t2)| {
+                    if let Internal(fn_input) = t1 {
+                        // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
+                        if !(matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_))) {
+                            self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
+                        } else {
+                            // Insert to symbol table
+                            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                                fn_input.identifier.name,
+                                VariableSymbol {
+                                    type_: t2.clone(),
+                                    span: fn_input.identifier.span(),
+                                    declaration: VariableType::Input(Public),
+                                },
+                            ) {
+                                self.handler.emit_err(err);
                             }
                         }
-                    });
+                    }
+                });
             } else {
                 self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
@@ -1319,7 +1317,10 @@ impl<'a> TypeChecker<'a> {
             }
 
             // Check that the finalize input parameter is not constant or private.
-            if self.scope_state.is_finalize && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private) && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private) {
+            if self.scope_state.is_finalize
+                && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
+                && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
+            {
                 self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
             }
 
@@ -1338,11 +1339,13 @@ impl<'a> TypeChecker<'a> {
 
             // Add function inputs to the symbol table. Futures have already been added.
             if !matches!(&input_var.type_(), &Type::Future(_)) {
-                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
-                    type_: input_var.type_(),
-                    span: input_var.identifier().span(),
-                    declaration: VariableType::Input(input_var.mode()),
-                }) {
+                if let Err(err) =
+                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                        type_: input_var.type_(),
+                        span: input_var.identifier().span(),
+                        declaration: VariableType::Input(input_var.mode()),
+                    })
+                {
                     self.handler.emit_err(err);
                 }
             }
@@ -1390,7 +1393,8 @@ impl<'a> TypeChecker<'a> {
                     // Async transitions must return exactly one future, and it must be in the last position.
                     if self.scope_state.is_async_transition
                         && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
-                            || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
+                            || (index == function.output.len() - 1
+                                && !matches!(function_output.type_, Type::Future(_))))
                     {
                         self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
                     }

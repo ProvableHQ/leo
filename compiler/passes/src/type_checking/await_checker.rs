@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalTreeNode, TreeNode};
-use indexmap::{IndexSet};
-use leo_ast::{Identifier};
+use indexmap::IndexSet;
+use leo_ast::Identifier;
 use leo_errors::TypeCheckerError;
 use leo_span::{Span, Symbol};
 
@@ -92,15 +92,11 @@ impl AwaitChecker {
         parent_nodes: Vec<ConditionalTreeNode>,
     ) -> Vec<ConditionalTreeNode> {
         // Check if a nested conditional statement signaled their existence.
-        if is_finalize && self.enabled {
-            core::mem::replace(&mut self.to_await, parent_nodes)
-        } else {
-            Vec::new()
-        }
+        if is_finalize && self.enabled { core::mem::replace(&mut self.to_await, parent_nodes) } else { Vec::new() }
     }
 
     /// Exit scope for conditional statement at current depth.
-    pub fn exit_statement_scope(&mut self, is_finalize: bool, then_nodes:  Vec<ConditionalTreeNode>) {
+    pub fn exit_statement_scope(&mut self, is_finalize: bool, then_nodes: Vec<ConditionalTreeNode>) {
         if is_finalize && self.enabled {
             // Merge together the current set of nodes (from `otherwise` branch) with `then` nodes.
             self.to_await.extend(then_nodes);

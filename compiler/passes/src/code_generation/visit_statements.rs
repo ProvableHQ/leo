@@ -16,10 +16,25 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{AssertStatement, AssertVariant, AssignStatement, Block, ConditionalStatement, ConsoleStatement, DefinitionStatement, Expression, ExpressionStatement, IterationStatement, Mode, Output, ReturnStatement, Statement, Type};
+use leo_ast::{
+    AssertStatement,
+    AssertVariant,
+    AssignStatement,
+    Block,
+    ConditionalStatement,
+    ConsoleStatement,
+    DefinitionStatement,
+    Expression,
+    ExpressionStatement,
+    IterationStatement,
+    Mode,
+    Output,
+    ReturnStatement,
+    Statement,
+    Type,
+};
 
 use itertools::Itertools;
-
 
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
@@ -74,7 +89,7 @@ impl<'a> CodeGenerator<'a> {
                 // Get the output type of the function.
                 let output = self.current_function.unwrap().output.iter();
                 // If the operand string is empty, initialize an empty vector.
-                let mut operand_strings = match operand.is_empty() {
+                let operand_strings = match operand.is_empty() {
                     true => vec![],
                     false => operand.split(' ').collect_vec(),
                 };
@@ -106,7 +121,9 @@ impl<'a> CodeGenerator<'a> {
                                 if let Type::Future(_) = output.type_ {
                                     future_output = format!(
                                         "    output {} as {}.aleo/{}.future;\n",
-                                        operand, self.program_id.unwrap().name, self.current_function.unwrap().identifier,
+                                        operand,
+                                        self.program_id.unwrap().name,
+                                        self.current_function.unwrap().identifier,
                                     );
                                     String::new()
                                 } else {

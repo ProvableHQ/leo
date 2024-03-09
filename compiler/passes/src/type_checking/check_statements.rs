@@ -24,7 +24,6 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
@@ -252,7 +251,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Insert the variables into the symbol table.
         match &input.place {
-            Expression::Identifier(identifier) => self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span),
+            Expression::Identifier(identifier) => {
+                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span)
+            }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
                     Type::Tuple(tuple_type) => tuple_type,
@@ -289,8 +290,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Expression statements can only be function calls.
         if !matches!(
             input.expression,
-            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_)) | Expression::Access(AccessExpression::MethodCall(_)))
-        {
+            Expression::Call(_)
+                | Expression::Access(AccessExpression::AssociatedFunction(_))
+                | Expression::Access(AccessExpression::MethodCall(_))
+        ) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {
             // Check the expression.
@@ -383,13 +386,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();
-        let func = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent)
-            .map(|f| f.clone());
-        let mut return_type = func.clone()
-            .map(|f| f.output_type.clone());
+        let func = self.symbol_table.borrow().lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent).cloned();
+        let mut return_type = func.clone().map(|f| f.output_type.clone());
 
         // Fully type the expected return value.
         if self.scope_state.is_async_transition && self.scope_state.has_called_finalize {
@@ -402,15 +400,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
             return_type = match return_type {
                 Some(Future(_)) => Some(inferred_future_type),
-                Some(Tuple(tuple)) => {
-                    Some(Tuple(TupleType::new(tuple.elements().iter().map(|t| {
-                        if matches!(t, Future(_)) {
-                            inferred_future_type.clone()
-                        } else {
-                            t.clone()
-                        }
-                    }).collect::<Vec<Type>>())))
-                }
+                Some(Tuple(tuple)) => Some(Tuple(TupleType::new(
+                    tuple
+                        .elements()
+                        .iter()
+                        .map(|t| if matches!(t, Future(_)) { inferred_future_type.clone() } else { t.clone() })
+                        .collect::<Vec<Type>>(),
+                ))),
                 _ => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
