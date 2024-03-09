@@ -101,7 +101,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                             Future(_) => {
                                 // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                                 Future(FutureType::new(
-                                    finalize_input_map.get(&future_stubs.pop().unwrap()).unwrap().clone(),
+                                    finalize_input_map.get(&future_stubs.remove(0)).unwrap().clone(),
                                 ))
                             }
                             _ => function_input.clone().type_,

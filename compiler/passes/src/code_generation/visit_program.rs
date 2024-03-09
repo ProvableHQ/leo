@@ -216,7 +216,7 @@ impl<'a> CodeGenerator<'a> {
                     };
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                     if matches!(input.type_, Type::Future(_)) {
-                        let location = futures.pop().unwrap();
+                        let location = futures.remove(0);
                         format!("{}.aleo/{}.future", location.program, location.function)
                     } else {
                         self.visit_type_with_visibility(&input.type_, visibility)
