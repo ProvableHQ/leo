@@ -1,3 +1,5 @@
+discord username = tcp5153
+
 <p align="center">
     <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
 </p>
