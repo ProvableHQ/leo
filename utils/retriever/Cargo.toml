@@ -52,4 +52,4 @@ version = "2.9"
 version = "1.9.4"
 path = "../../compiler/passes"
 [dependencies]
-tempfile = "3.10.0"
+tempfile = "3.10.1"
