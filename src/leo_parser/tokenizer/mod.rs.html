@@ -401,10 +401,10 @@ ppp            test
             <span class="kw">let </span>sm = <span class="kw-2">&amp;</span>s.source_map;
             <span class="kw">let </span>sf = sm.new_source(raw, FileName::Custom(<span class="string">"test"</span>.into()));
             <span class="kw">let </span>tokens = tokenize(<span class="kw-2">&amp;</span>sf.src, sf.start_pos).unwrap();
-            <span class="kw">let </span><span class="kw-2">mut </span>line_indicies = <span class="macro">vec!</span>[<span class="number">0</span>];
+            <span class="kw">let </span><span class="kw-2">mut </span>line_indices = <span class="macro">vec!</span>[<span class="number">0</span>];
             <span class="kw">for </span>(i, c) <span class="kw">in </span>raw.chars().enumerate() {
                 <span class="kw">if </span>c == <span class="string">'\n' </span>{
-                    line_indicies.push(i + <span class="number">1</span>);
+                    line_indices.push(i + <span class="number">1</span>);
                 }
             }
             <span class="kw">for </span>token <span class="kw">in </span>tokens.iter() {
