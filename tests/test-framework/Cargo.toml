@@ -48,7 +48,7 @@ features = [ "preserve_order" ]
 version = "0.8"
 
 [dependencies.walkdir]
-version = "2.4"
+version = "2.5"
 
 [dependencies.regex]
 version = "1.10"
