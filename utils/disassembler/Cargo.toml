@@ -1,8 +1,8 @@
 [package]
-name = "disassembler"
+name = "leo-disassembler"
 version = "1.10.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Compiler passes for the Leo programming language"
+description = "A disassembler for the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [

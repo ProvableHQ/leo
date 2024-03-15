@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use disassembler::disassemble_from_str;
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::Stub;
+use leo_disassembler::disassemble_from_str;
 use leo_errors::UtilError;
 use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;

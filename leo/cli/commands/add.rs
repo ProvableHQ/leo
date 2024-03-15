@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use retriever::{Dependency, Location, Manifest, Network};
+use leo_retriever::{Dependency, Location, Manifest, Network};
 use std::path::PathBuf;
 
 /// Clean outputs folder command
