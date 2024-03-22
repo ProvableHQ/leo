@@ -91,7 +91,7 @@ path = "./utils/retriever"
 version = "1.10.0"
 
 [dependencies.backtrace]
-version = "0.3.68"
+version = "0.3.70"
 
 [dependencies.clap]
 version = "4.5"
