@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"leo_span":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.76.0/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"enum\" href=\"leo_span/symbol/enum.InternedStr.html\" title=\"enum leo_span::symbol::InternedStr\">InternedStr</a>"]]
+"leo_span":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.77.0/core/ops/deref/trait.Deref.html\" title=\"trait core::ops::deref::Deref\">Deref</a> for <a class=\"enum\" href=\"leo_span/symbol/enum.InternedStr.html\" title=\"enum leo_span::symbol::InternedStr\">InternedStr</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
