@@ -26,9 +26,9 @@ use utilities::{
     hash_symbol_tables,
     parse_program,
     setup_build_directory,
-    Aleo,
     BufferEmitter,
-    Network,
+    CurrentAleo,
+    CurrentNetwork,
 };
 
 use leo_compiler::{CompilerOptions, OutputOptions};
@@ -160,7 +160,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
                     .as_sequence()
                     .unwrap()
                     .iter()
-                    .map(|input| console::program::Value::<Network>::from_str(input.as_str().unwrap()).unwrap())
+                    .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
                     .collect();
                 let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
                 let private_key = match case.get(&Value::from("private_key")) {
@@ -173,7 +173,7 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
 
                 // TODO: Add support for custom config like custom private keys.
                 // Execute the program and get the outputs.
-                let output_string = match package.run::<Aleo, _>(&private_key, function_name, &inputs, rng) {
+                let output_string = match package.run::<CurrentAleo, _>(&private_key, function_name, &inputs, rng) {
                     Ok((response, _)) => format!(
                         "[{}]",
                         response

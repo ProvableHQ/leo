@@ -23,8 +23,8 @@ use utilities::{
     hash_content,
     hash_symbol_tables,
     parse_program,
-    setup_build_directory,
     BufferEmitter,
+    CurrentNetwork,
 };
 
 use disassembler::disassemble_from_str;
@@ -43,6 +43,7 @@ use indexmap::IndexMap;
 use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
+use snarkvm::{prelude::Process, synthesizer::program::ProgramCore};
 use std::{fs, path::Path, rc::Rc};
 
 struct CompileNamespace;
@@ -111,6 +112,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Initialize storage for the stubs.
         let mut import_stubs = IndexMap::new();
 
+        // Initialize a `Process`. This should always succeed.
+        let mut process = Process::<CurrentNetwork>::load().unwrap();
+
         // Compile each program string separately.
         for program_string in program_strings {
             // Parse the program.
@@ -124,19 +128,19 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Compile the program to bytecode.
             let program_name = parsed.program_name.to_string();
-            let full_program_name = format!("{program_name}.{}", parsed.network);
             let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+
+            // Parse the bytecode as an Aleo program.
+            // Note that this function checks that the bytecode is well-formed.
+            let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
+
+            // Add the program to the process.
+            // Note that this function performs an additional validity check on the bytecode.
+            handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
 
             // Add the bytecode to the import stubs.
             let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
             import_stubs.insert(Symbol::intern(&program_name), stub);
-
-            // Set up the build directory.
-            // Note that this function checks that the bytecode is well-formed.
-            let package = setup_build_directory(&full_program_name, &bytecode, handler)?;
-
-            // Get the program process and check all instructions.
-            handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
 
             // Hash the ast files.
             let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =

@@ -42,9 +42,9 @@ use std::{
     rc::Rc,
 };
 
-pub type Network = Testnet3;
+pub type CurrentNetwork = Testnet3;
 #[allow(unused)]
-pub type Aleo = snarkvm::circuit::AleoV0;
+pub type CurrentAleo = snarkvm::circuit::AleoV0;
 
 pub fn hash_asts() -> (String, String, String, String, String, String, String) {
     let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
@@ -107,12 +107,16 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
 }
 
 #[allow(unused)]
-pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Handler) -> Result<Package<Network>, ()> {
+pub fn setup_build_directory(
+    program_name: &str,
+    bytecode: &String,
+    handler: &Handler,
+) -> Result<Package<CurrentNetwork>, ()> {
     // Initialize a temporary directory.
     let directory = temp_dir();
 
     // Create the program id.
-    let program_id = ProgramID::<Network>::from_str(program_name).unwrap();
+    let program_id = ProgramID::<CurrentNetwork>::from_str(program_name).unwrap();
 
     // Write the program string to a file in the temporary directory.
     let path = directory.join("main.aleo");
@@ -123,8 +127,8 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
     // Create the environment file.
-    Env::<Network>::new().unwrap().write_to(&directory).unwrap();
-    if Env::<Network>::exists_at(&directory) {
+    Env::<CurrentNetwork>::new().unwrap().write_to(&directory).unwrap();
+    if Env::<CurrentNetwork>::exists_at(&directory) {
         println!(".env file created at {:?}", &directory);
     }
 
@@ -133,7 +137,7 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     fs::create_dir_all(build_directory).unwrap();
 
     // Open the package at the temporary directory.
-    handler.extend_if_error(Package::<Network>::open(&directory).map_err(LeoError::Anyhow))
+    handler.extend_if_error(Package::<CurrentNetwork>::open(&directory).map_err(LeoError::Anyhow))
 }
 
 pub fn new_compiler(
@@ -263,11 +267,11 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
 /// Returns the private key from the .env file specified in the directory.
 #[allow(unused)]
-pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<Network>> {
+pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<CurrentNetwork>> {
     use std::str::FromStr;
     dotenvy::from_path(directory.join(".env")).map_err(|_| anyhow!("Missing a '.env' file in the test directory."))?;
     // Load the private key from the environment.
     let private_key = dotenvy::var("PRIVATE_KEY").map_err(|e| anyhow!("Missing PRIVATE_KEY - {e}"))?;
     // Parse the private key.
-    PrivateKey::<Network>::from_str(&private_key)
+    PrivateKey::<CurrentNetwork>::from_str(&private_key)
 }
