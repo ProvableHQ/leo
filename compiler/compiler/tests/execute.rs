@@ -18,17 +18,17 @@ mod utilities;
 use utilities::{
     buffer_if_err,
     compile_and_process,
-    dotenv_private_key,
     get_build_options,
     get_cwd_option,
     hash_asts,
     hash_content,
     hash_symbol_tables,
     parse_program,
-    setup_build_directory,
     BufferEmitter,
+    CompileOutput,
     CurrentAleo,
     CurrentNetwork,
+    ExecuteOutput,
 };
 
 use leo_compiler::{CompilerOptions, OutputOptions};
@@ -38,14 +38,20 @@ use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     test::TestExpectationMode,
     Test,
+    PROGRAM_DELIMITER,
 };
 
 use snarkvm::{console, prelude::*};
 
+use disassembler::disassemble_from_str;
+use indexmap::IndexMap;
+use leo_errors::LeoError;
+use leo_span::Symbol;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use std::{collections::BTreeMap, fs, path::Path, rc::Rc};
+use snarkvm::synthesizer::program::ProgramCore;
+use std::{fs, path::Path, rc::Rc};
 
 // TODO: Evaluate namespace.
 struct ExecuteNamespace;
@@ -64,28 +70,16 @@ impl Namespace for ExecuteNamespace {
     }
 }
 
-// TODO: Format this better.
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
-struct ExecuteOutput {
-    pub initial_symbol_table: String,
-    pub type_checked_symbol_table: String,
-    pub unrolled_symbol_table: String,
-    pub initial_ast: String,
-    pub unrolled_ast: String,
-    pub ssa_ast: String,
-    pub flattened_ast: String,
-    pub destructured_ast: String,
-    pub inlined_ast: String,
-    pub dce_ast: String,
-    pub bytecode: String,
-    pub warnings: String,
-    pub results: BTreeMap<String, Vec<BTreeMap<String, String>>>,
+struct CompileAndExecuteOutputs {
+    pub compile: Vec<CompileOutput>,
+    pub execute: Vec<ExecuteOutput>,
 }
 
-fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Value, ()> {
+fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value, ()> {
     // Check that config expectation is always pass.
     if test.config.expectation != TestExpectationMode::Pass {
-        buffer_if_err(err_buf, Err("Test expectation must be `Pass` for `Execute` tests.".to_string()))?;
+        buffer_if_err(buf, Err("Test expectation must be `Pass` for `Execute` tests.".to_string()))?;
     }
 
     // Check for CWD option:
@@ -115,18 +109,74 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             },
         };
 
-        // Parse the program.
-        let mut parsed = handler.extend_if_error(parse_program(
-            handler,
-            &test.content,
-            cwd.clone(),
-            Some(compiler_options),
-            Default::default(),
-        ))?;
+        // Split the test content into individual program strings based on the program delimiter.
+        let program_strings = test.content.split(PROGRAM_DELIMITER).collect::<Vec<&str>>();
 
-        // Compile the program to bytecode.
-        let program_name = format!("{}.{}", parsed.program_name, parsed.network);
-        let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+        // Initialize storage for the stubs.
+        let mut import_stubs = IndexMap::new();
+
+        // Initialize a `Process`. This should always succeed.
+        let mut process = Process::<CurrentNetwork>::load().unwrap();
+
+        // Initialize storage for the compilation outputs.
+        let mut compile = Vec::with_capacity(program_strings.len());
+
+        // Compile each program string separately.
+        for program_string in program_strings {
+            // Parse the program.
+            let mut parsed = handler.extend_if_error(parse_program(
+                handler,
+                program_string,
+                cwd.clone(),
+                Some(compiler_options.clone()),
+                import_stubs.clone(),
+            ))?;
+
+            // Compile the program to bytecode.
+            let program_name = parsed.program_name.to_string();
+            let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+
+            // Parse the bytecode as an Aleo program.
+            // Note that this function checks that the bytecode is well-formed.
+            let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
+
+            // Add the program to the process.
+            // Note that this function performs an additional validity check on the bytecode.
+            handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
+
+            // Add the bytecode to the import stubs.
+            let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
+            import_stubs.insert(Symbol::intern(&program_name), stub);
+
+            // Hash the ast files.
+            let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
+                hash_asts();
+
+            // Hash the symbol tables.
+            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+
+            // Clean up the output directory.
+            if fs::read_dir("/tmp/output").is_ok() {
+                fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+            }
+
+            let output = CompileOutput {
+                initial_symbol_table,
+                type_checked_symbol_table,
+                unrolled_symbol_table,
+                initial_ast,
+                unrolled_ast,
+                ssa_ast,
+                flattened_ast,
+                destructured_ast,
+                inlined_ast,
+                dce_ast,
+                bytecode: hash_content(&bytecode),
+                warnings: buf.1.take().to_string(),
+            };
+
+            compile.push(output);
+        }
 
         // Extract the cases from the test config.
         let all_cases = test
@@ -134,104 +184,78 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
             .extra
             .get("cases")
             .expect("An `Execute` config must have a `cases` field.")
-            .as_mapping()
+            .as_sequence()
             .unwrap();
 
-        // Initialize a map for the expected results.
-        let mut results = BTreeMap::new();
-
-        // Setup the build directory.
-        let package = setup_build_directory(&program_name, &bytecode, handler)?;
+        // Initialize storage for the execution outputs.
+        let mut execute = Vec::with_capacity(all_cases.len());
 
         // Initialize an rng.
-        let rng = &mut TestRng::default();
+        let rng = &mut match test.config.extra.get("seed").map(|seed| seed.as_u64()) {
+            Some(Some(seed)) => TestRng::from_seed(seed),
+            _ => TestRng::default(),
+        };
 
         // Run each test case for each function.
-        for (function_name, function_cases) in all_cases {
-            let function_name = Identifier::from_str(function_name.as_str().unwrap()).unwrap();
-            let cases = function_cases.as_sequence().unwrap();
-            let mut function_results = Vec::with_capacity(cases.len());
+        for case in all_cases {
+            let case = case.as_mapping().unwrap();
+            let program_name = case.get(&Value::from("program")).expect("expected program name").as_str().unwrap();
+            let function_name = case.get(&Value::from("function")).expect("expected function name").as_str().unwrap();
+            let inputs: Vec<_> = case
+                .get(&Value::from("input"))
+                .unwrap()
+                .as_sequence()
+                .unwrap()
+                .iter()
+                .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
+                .collect();
+            let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
+            let private_key = match case.get(&Value::from("private_key")) {
+                Some(private_key) => {
+                    PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
+                        .expect("unable to parse private key")
+                }
+                None => PrivateKey::new(rng).unwrap(),
+            };
 
-            for case in cases {
-                let case = case.as_mapping().unwrap();
-                let inputs: Vec<_> = case
-                    .get(&Value::from("input"))
-                    .unwrap()
-                    .as_sequence()
-                    .unwrap()
-                    .iter()
-                    .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
-                    .collect();
-                let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
-                let private_key = match case.get(&Value::from("private_key")) {
-                    Some(private_key) => {
-                        PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
-                            .expect("unable to parse private key")
-                    }
-                    None => dotenv_private_key(package.directory()).unwrap(),
-                };
-
-                // TODO: Add support for custom config like custom private keys.
-                // Execute the program and get the outputs.
-                let output_string = match package.run::<CurrentAleo, _>(&private_key, function_name, &inputs, rng) {
-                    Ok((response, _)) => format!(
-                        "[{}]",
-                        response
-                            .outputs()
-                            .iter()
-                            .map(|output| {
-                                match output {
-                                    // Remove the `_nonce` from the record string.
-                                    console::program::Value::Record(record) => {
-                                        let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
-                                        pattern.replace(&record.to_string(), "").to_string()
-                                    }
-                                    _ => output.to_string(),
+            // TODO: Add support for custom config like custom private keys.
+            // Compute the authorization, execute, and return the result as a string.
+            let output_string = match process
+                .authorize::<CurrentAleo, _>(&private_key, program_name, function_name, inputs.iter(), rng)
+                .and_then(|authorization| process.execute::<CurrentAleo, _>(authorization, rng))
+            {
+                Ok((response, _)) => format!(
+                    "[{}]",
+                    response
+                        .outputs()
+                        .iter()
+                        .map(|output| {
+                            match output {
+                                // Remove the `_nonce` from the record string.
+                                console::program::Value::Record(record) => {
+                                    let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
+                                    pattern.replace(&record.to_string(), "").to_string()
                                 }
-                            })
-                            .join(", ")
-                    ),
-                    Err(err) => format!("SnarkVMError({err})"),
-                };
+                                _ => output.to_string(),
+                            }
+                        })
+                        .join(", ")
+                ),
+                Err(err) => format!("SnarkVMExecutionError({err})"),
+            };
 
-                // Store the inputs and outputs in a map.
-                let mut result = BTreeMap::new();
-                result.insert("input".to_string(), input_string);
-                result.insert("output".to_string(), output_string);
-
-                // Add the hashes of the inputs and outputs to the function results.
-                function_results.push(result);
-            }
-            results.insert(function_name.to_string(), function_results);
+            // Construct the output.
+            let output = ExecuteOutput {
+                program: program_name.to_string(),
+                function: function_name.to_string(),
+                inputs: input_string,
+                outputs: output_string,
+            };
+            execute.push(output);
         }
-
-        // Hash the ast files.
-        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) = hash_asts();
-
-        // Hash the symbol tables.
-        let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
-
-        // Clean up the output directory.
-        if fs::read_dir("/tmp/output").is_ok() {
-            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
-        }
-
-        let final_output = ExecuteOutput {
-            initial_symbol_table,
-            type_checked_symbol_table,
-            unrolled_symbol_table,
-            initial_ast,
-            unrolled_ast,
-            ssa_ast,
-            flattened_ast,
-            destructured_ast,
-            inlined_ast,
-            dce_ast,
-            bytecode: hash_content(&bytecode),
-            warnings: err_buf.1.take().to_string(),
-            results,
-        };
-        outputs.push(final_output);
+        // Construct the combined output.
+        let combined_output = CompileAndExecuteOutputs { compile, execute };
+        outputs.push(combined_output);
     }
     Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
 }

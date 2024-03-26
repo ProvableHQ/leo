@@ -24,6 +24,7 @@ use utilities::{
     hash_symbol_tables,
     parse_program,
     BufferEmitter,
+    CompileOutput,
     CurrentNetwork,
 };
 
@@ -41,7 +42,6 @@ use snarkvm::console::prelude::*;
 
 use indexmap::IndexMap;
 use leo_span::Symbol;
-use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use snarkvm::{prelude::Process, synthesizer::program::ProgramCore};
 use std::{fs, path::Path, rc::Rc};
@@ -63,19 +63,8 @@ impl Namespace for CompileNamespace {
 }
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
-struct CompileOutput {
-    pub initial_symbol_table: String,
-    pub type_checked_symbol_table: String,
-    pub unrolled_symbol_table: String,
-    pub initial_ast: String,
-    pub unrolled_ast: String,
-    pub ssa_ast: String,
-    pub flattened_ast: String,
-    pub destructured_ast: String,
-    pub inlined_ast: String,
-    pub dce_ast: String,
-    pub bytecode: String,
-    pub warnings: String,
+struct CompileOutputs {
+    pub compile: Vec<CompileOutput>,
 }
 
 fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value, ()> {
@@ -85,7 +74,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     // Extract the compiler build configurations from the config file.
     let build_options = get_build_options(&test.config);
 
-    let mut outputs = Vec::with_capacity(build_options.len());
+    let mut all_outputs = Vec::with_capacity(build_options.len());
 
     for build in build_options {
         let compiler_options = CompilerOptions {
@@ -114,6 +103,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
         // Initialize a `Process`. This should always succeed.
         let mut process = Process::<CurrentNetwork>::load().unwrap();
+
+        // Initialize storage for the compilation outputs.
+        let mut compile = Vec::with_capacity(program_strings.len());
 
         // Compile each program string separately.
         for program_string in program_strings {
@@ -154,7 +146,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
             }
 
-            let final_output = CompileOutput {
+            let output = CompileOutput {
                 initial_symbol_table,
                 type_checked_symbol_table,
                 unrolled_symbol_table,
@@ -168,11 +160,14 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 bytecode: hash_content(&bytecode),
                 warnings: buf.1.take().to_string(),
             };
-
-            outputs.push(final_output);
+            compile.push(output);
         }
+
+        // Combine all compilation outputs.
+        let compile_outputs = CompileOutputs { compile };
+        all_outputs.push(compile_outputs);
     }
-    Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
+    Ok(serde_yaml::to_value(all_outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

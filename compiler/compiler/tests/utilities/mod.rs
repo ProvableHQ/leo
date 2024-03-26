@@ -17,6 +17,9 @@
 mod check_unique_node_ids;
 use check_unique_node_ids::*;
 
+mod output;
+pub use output::*;
+
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
