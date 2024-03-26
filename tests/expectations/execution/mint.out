@@ -2,21 +2,25 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: efa9087e88f3d49f7e1b4db71e0d2facf4f2d8cd6babd9a5f2d3d1087a741bc6
-      type_checked_symbol_table: 69eb1827a3984cf1f84d228c6a81508430a197c5ccb4574e4bc31476cb54467e
-      unrolled_symbol_table: 69eb1827a3984cf1f84d228c6a81508430a197c5ccb4574e4bc31476cb54467e
-      initial_ast: 6c1994b601ef44f2e37e8b65b242a84407707b6c6c35c0777569ddf61e9fa610
-      unrolled_ast: 7ad3d032eb757db254079ee69dfd765c9713d432066b2efcdc869adac64d5a39
-      ssa_ast: 4f006f2cb738f369c599f56b412707108d2c463147a46e4719f36339f1b27693
-      flattened_ast: 43a444e70204e8fd43ecaca9d30bdd7d02cdf4cd647e3bb3dafc716cff64bba4
-      destructured_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
-      inlined_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
-      dce_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
-      bytecode: d47819ba59e730eb159ee9e33fef5a35aac6062e70c743a749157d54824a45d9
-      warnings: ""
-      results:
-        mint:
-          - input: "[aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs, 0u64]"
-            output: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  amount: 0u64.private,\n  flag: true.constant,\n  \n}]"
-          - input: "[aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q, 1u64]"
-            output: "[{\n  owner: aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q.private,\n  amount: 1u64.private,\n  flag: true.constant,\n  \n}]"
+  - - compile:
+        - initial_symbol_table: efa9087e88f3d49f7e1b4db71e0d2facf4f2d8cd6babd9a5f2d3d1087a741bc6
+          type_checked_symbol_table: 69eb1827a3984cf1f84d228c6a81508430a197c5ccb4574e4bc31476cb54467e
+          unrolled_symbol_table: 69eb1827a3984cf1f84d228c6a81508430a197c5ccb4574e4bc31476cb54467e
+          initial_ast: 6c1994b601ef44f2e37e8b65b242a84407707b6c6c35c0777569ddf61e9fa610
+          unrolled_ast: 7ad3d032eb757db254079ee69dfd765c9713d432066b2efcdc869adac64d5a39
+          ssa_ast: 4f006f2cb738f369c599f56b412707108d2c463147a46e4719f36339f1b27693
+          flattened_ast: 43a444e70204e8fd43ecaca9d30bdd7d02cdf4cd647e3bb3dafc716cff64bba4
+          destructured_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
+          inlined_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
+          dce_ast: a6d5b0fb0e3b904b8a8dc08d00fd73877b13dd773814e201e418fad4d00fa7a0
+          bytecode: d47819ba59e730eb159ee9e33fef5a35aac6062e70c743a749157d54824a45d9
+          warnings: ""
+      execute:
+        - program: test
+          function: mint
+          inputs: "[aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs, 0u64]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: mint
+          inputs: "[aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q, 1u64]"
+          outputs: SnarkVMExecutionError(Invalid program ID)

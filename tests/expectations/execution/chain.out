@@ -2,25 +2,33 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 1d8632a1a2fa69ff76cf59869e3f4f0fd0d3a67df7acd68e84dc620bd9c080cc
-      type_checked_symbol_table: 788657858fc7d1391e64f03bc5e45963f1135e9545e38e93eb97f5818a593651
-      unrolled_symbol_table: 788657858fc7d1391e64f03bc5e45963f1135e9545e38e93eb97f5818a593651
-      initial_ast: 671ad6b623c417287a562a53a7f4804d9165d94f36f7df397c79463b5d6d219b
-      unrolled_ast: 671ad6b623c417287a562a53a7f4804d9165d94f36f7df397c79463b5d6d219b
-      ssa_ast: d1384235205da73c64abe3f46d464bb2c58ed9da71f667c4136331d25727048a
-      flattened_ast: 808a602f56b5b820abb83e0d9893674703d6d8b87a6472b1c7eaee1dcf19fd36
-      destructured_ast: 321095336a0801e17b885f9132505767d7d4d927199da4b052508b9ff4ca49e6
-      inlined_ast: 321095336a0801e17b885f9132505767d7d4d927199da4b052508b9ff4ca49e6
-      dce_ast: cf79556733f708589458e59541c54aa18a81e52e6d168265baa0b1b5f0389f42
-      bytecode: f6aaf7f7a13fb233511385db7479f2612e7a77734ee6a189f063bd3d33a7afaa
-      warnings: ""
-      results:
-        main:
-          - input: "[1u32]"
-            output: "[true]"
-          - input: "[2u32]"
-            output: "[true]"
-          - input: "[3u32]"
-            output: "[true]"
-          - input: "[4u32]"
-            output: "[false]"
+  - - compile:
+        - initial_symbol_table: 1d8632a1a2fa69ff76cf59869e3f4f0fd0d3a67df7acd68e84dc620bd9c080cc
+          type_checked_symbol_table: 788657858fc7d1391e64f03bc5e45963f1135e9545e38e93eb97f5818a593651
+          unrolled_symbol_table: 788657858fc7d1391e64f03bc5e45963f1135e9545e38e93eb97f5818a593651
+          initial_ast: 671ad6b623c417287a562a53a7f4804d9165d94f36f7df397c79463b5d6d219b
+          unrolled_ast: 671ad6b623c417287a562a53a7f4804d9165d94f36f7df397c79463b5d6d219b
+          ssa_ast: d1384235205da73c64abe3f46d464bb2c58ed9da71f667c4136331d25727048a
+          flattened_ast: 808a602f56b5b820abb83e0d9893674703d6d8b87a6472b1c7eaee1dcf19fd36
+          destructured_ast: 321095336a0801e17b885f9132505767d7d4d927199da4b052508b9ff4ca49e6
+          inlined_ast: 321095336a0801e17b885f9132505767d7d4d927199da4b052508b9ff4ca49e6
+          dce_ast: cf79556733f708589458e59541c54aa18a81e52e6d168265baa0b1b5f0389f42
+          bytecode: f6aaf7f7a13fb233511385db7479f2612e7a77734ee6a189f063bd3d33a7afaa
+          warnings: ""
+      execute:
+        - program: test
+          function: main
+          inputs: "[1u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[2u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[3u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[4u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)

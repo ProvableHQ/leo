@@ -2,25 +2,33 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: a56c5db08f6890c8f13ddf9458ca5ed0cc39b8388bcc7545672c59ff33b9eb2e
-      type_checked_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-      unrolled_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-      initial_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-      unrolled_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-      ssa_ast: 5b38714260ed02a1fa30e2226fb8d69363a8cc28c8b19a99d501cd25e52fe499
-      flattened_ast: b217d33cfcd234126e9f708676e43d8edc957692b5cb36b8284f092c9a14bad9
-      destructured_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      inlined_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      dce_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
-      warnings: ""
-      results:
-        main:
-          - input: "[0u32, 1u32]"
-            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (13430 constraints).)"
-          - input: "[1u32, 1u32]"
-            output: "[true]"
-          - input: "[1u32, 2u32]"
-            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (13430 constraints).)"
-          - input: "[2u32, 2u32]"
-            output: "[true]"
+  - - compile:
+        - initial_symbol_table: a56c5db08f6890c8f13ddf9458ca5ed0cc39b8388bcc7545672c59ff33b9eb2e
+          type_checked_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
+          unrolled_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
+          initial_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
+          unrolled_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
+          ssa_ast: 5b38714260ed02a1fa30e2226fb8d69363a8cc28c8b19a99d501cd25e52fe499
+          flattened_ast: b217d33cfcd234126e9f708676e43d8edc957692b5cb36b8284f092c9a14bad9
+          destructured_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          inlined_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          dce_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
+          warnings: ""
+      execute:
+        - program: test
+          function: main
+          inputs: "[0u32, 1u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[1u32, 1u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[1u32, 2u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[2u32, 2u32]"
+          outputs: SnarkVMExecutionError(Invalid program ID)

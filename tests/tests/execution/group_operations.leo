@@ -2,9 +2,12 @@
 namespace: Execute
 expectation: Pass
 cases:
-    main:
-    - input: ["0group"]
-    - input: ["2group"]
+    - program: test
+      function: main
+      input: ["0group"]
+    - program: test
+      function: main
+      input: ["2group"]
 */
 
 program test.aleo {

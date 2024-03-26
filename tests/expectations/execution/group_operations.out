@@ -2,21 +2,25 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: bc514d42fda9301342e97526a5d7b285932c2f08397380e8adaa7a936446c2b5
-      type_checked_symbol_table: faec5a168946bcb416ad867754c3dff7e9e500a17cecb27d41eb87ba53830b5a
-      unrolled_symbol_table: faec5a168946bcb416ad867754c3dff7e9e500a17cecb27d41eb87ba53830b5a
-      initial_ast: 4794f01f6892393550582ac94044c1da19fcb709d930818b3642f025e42fc765
-      unrolled_ast: 4794f01f6892393550582ac94044c1da19fcb709d930818b3642f025e42fc765
-      ssa_ast: 0b298dfa420e1b53ef9aaabb715915789be62e281ef78f5fe52569d6473db1c4
-      flattened_ast: 92cceac872757a41b2ae195c3d2fd3c4da0fab39815345a7a4c21a1109c2a655
-      destructured_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
-      inlined_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
-      dce_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
-      bytecode: 5c20fda21a40464a1462524cf913438776a39383a671949312f48ce8ceb2dd16
-      warnings: ""
-      results:
-        main:
-          - input: "[0group]"
-            output: "[0field, 1field]"
-          - input: "[2group]"
-            output: "[2field, 5553594316923449299484601589326170487897520766531075014687114064346375156608field]"
+  - - compile:
+        - initial_symbol_table: bc514d42fda9301342e97526a5d7b285932c2f08397380e8adaa7a936446c2b5
+          type_checked_symbol_table: faec5a168946bcb416ad867754c3dff7e9e500a17cecb27d41eb87ba53830b5a
+          unrolled_symbol_table: faec5a168946bcb416ad867754c3dff7e9e500a17cecb27d41eb87ba53830b5a
+          initial_ast: 4794f01f6892393550582ac94044c1da19fcb709d930818b3642f025e42fc765
+          unrolled_ast: 4794f01f6892393550582ac94044c1da19fcb709d930818b3642f025e42fc765
+          ssa_ast: 0b298dfa420e1b53ef9aaabb715915789be62e281ef78f5fe52569d6473db1c4
+          flattened_ast: 92cceac872757a41b2ae195c3d2fd3c4da0fab39815345a7a4c21a1109c2a655
+          destructured_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
+          inlined_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
+          dce_ast: c4e86396b7b518b17b715805716ff155a7178046b7b78b35a476ef4c7651feef
+          bytecode: 5c20fda21a40464a1462524cf913438776a39383a671949312f48ce8ceb2dd16
+          warnings: ""
+      execute:
+        - program: test
+          function: main
+          inputs: "[0group]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
+        - program: test
+          function: main
+          inputs: "[2group]"
+          outputs: SnarkVMExecutionError(Invalid program ID)
