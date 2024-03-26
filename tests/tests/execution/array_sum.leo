@@ -2,10 +2,10 @@
 namespace: Execute
 expectation: Pass
 cases:
-    - program: test
+    - program: test.aleo
       function: sum_manually
       input: ["[1u64, 2u64, 3u64, 4u64]"]
-    - program: test
+    - program: test.aleo
       function: sum_with_loop
       input: ["[1u64, 2u64, 3u64, 4u64]"]
 */

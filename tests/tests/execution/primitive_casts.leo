@@ -2,49 +2,49 @@
 namespace: Execute
 expectation: Pass
 cases:
-    - program: test
+    - program: test.aleo
       function: address_casts
       input: ["aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey"]
-    - program: test
+    - program: test.aleo
       function: bool_casts
       input: ["false"]
-    - program: test
+    - program: test.aleo
       function: field_casts
       input: ["0field"]
-    - program: test
+    - program: test.aleo
       function: group_casts
       input: ["0group"]
-    - program: test
+    - program: test.aleo
       function: i8_casts
       input: ["0i8"]
-    - program: test
+    - program: test.aleo
       function: i16_casts
       input: ["0i16"]
-    - program: test
+    - program: test.aleo
       function: i32_casts
       input: ["0i32"]
-    - program: test
+    - program: test.aleo
       function: i64_casts
       input: ["0i64"]
-    - program: test
+    - program: test.aleo
       function: i128_casts
       input: ["0i128"]
-    - program: test
+    - program: test.aleo
       function: u8_casts
       input: ["0u8"]
-    - program: test
+    - program: test.aleo
       function: u16_casts
       input: ["0u16"]
-    - program: test
+    - program: test.aleo
       function: u32_casts
       input: ["0u32"]
-    - program: test
+    - program: test.aleo
       function: u64_casts
       input: ["0u64"]
-    - program: test
+    - program: test.aleo
       function: u128_casts
       input: ["0u128"]
-    - program: test
+    - program: test.aleo
       function: scalar_casts
       input: ["0scalar"]
 */

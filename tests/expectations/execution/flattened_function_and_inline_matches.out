@@ -16,35 +16,35 @@ outputs:
           bytecode: a52c852c5ea5e31d35c812e4ab15e4c098022431bb58b592d797137abf015e29
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: bar
           inputs: "[true, true, 1u8, 0u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[4u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+        - program: test.aleo
           function: bar
           inputs: "[true, false, 1u8, 1u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
+        - program: test.aleo
           function: bar
           inputs: "[false, true, 2u8, 1u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[5u8, 2u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+        - program: test.aleo
           function: bar
           inputs: "[false, false, 2u8, 2u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[2u8, 2u8, {\n  a: 2u8,\n  b: 2u8,\n  c: {\n    c: 2u8\n  }\n}]"
+        - program: test.aleo
           function: blar
           inputs: "[true, true, 1u8, 0u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[4u8, 1u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+        - program: test.aleo
           function: blar
           inputs: "[true, false, 1u8, 1u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[1u8, 1u8, {\n  a: 1u8,\n  b: 1u8,\n  c: {\n    c: 1u8\n  }\n}]"
+        - program: test.aleo
           function: blar
           inputs: "[false, true, 2u8, 1u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[5u8, 2u8, {\n  a: 2u8,\n  b: 1u8,\n  c: {\n    c: 2u8\n  }\n}]"
+        - program: test.aleo
           function: blar
           inputs: "[false, false, 2u8, 2u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[2u8, 2u8, {\n  a: 2u8,\n  b: 2u8,\n  c: {\n    c: 2u8\n  }\n}]"

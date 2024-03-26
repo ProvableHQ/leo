@@ -16,11 +16,11 @@ outputs:
           bytecode: 5c20fda21a40464a1462524cf913438776a39383a671949312f48ce8ceb2dd16
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: main
           inputs: "[0group]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[0field, 1field]"
+        - program: test.aleo
           function: main
           inputs: "[2group]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[2field, 5553594316923449299484601589326170487897520766531075014687114064346375156608field]"

@@ -16,63 +16,63 @@ outputs:
           bytecode: 9f8baa3f1bada186c32440e4880e858bd76b54dedb2d667a2b93c2d2a98f0752
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: address_casts
           inputs: "[aleo1hjnn8jdxlzzlqjywamdx4hzcxny5gszzm0q5xmnae4ed6qqn2gys4ugtey]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "SnarkVMExecutionError(Failed to evaluate instruction (cast r0 into r2 as boolean;): Failed to convert field to boolean: field element is not zero or one)"
+        - program: test.aleo
           function: bool_casts
           inputs: "[false]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: field_casts
           inputs: "[0field]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: group_casts
           inputs: "[0group]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: i8_casts
           inputs: "[0i8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: i16_casts
           inputs: "[0i16]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: i32_casts
           inputs: "[0i32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: i64_casts
           inputs: "[0i64]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: i128_casts
           inputs: "[0i128]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: u8_casts
           inputs: "[0u8]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: u16_casts
           inputs: "[0u16]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: u32_casts
           inputs: "[0u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: u64_casts
           inputs: "[0u64]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: u128_casts
           inputs: "[0u128]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"
+        - program: test.aleo
           function: scalar_casts
           inputs: "[0scalar]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc, false, 0field, 0group, 0i8, 0i16, 0i32, 0i64, 0i128, 0u8, 0u16, 0u32, 0u64, 0u128, 0scalar]"

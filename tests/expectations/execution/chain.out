@@ -16,19 +16,19 @@ outputs:
           bytecode: f6aaf7f7a13fb233511385db7479f2612e7a77734ee6a189f063bd3d33a7afaa
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: main
           inputs: "[1u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[true]"
+        - program: test.aleo
           function: main
           inputs: "[2u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[true]"
+        - program: test.aleo
           function: main
           inputs: "[3u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[true]"
+        - program: test.aleo
           function: main
           inputs: "[4u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[false]"

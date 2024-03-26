@@ -16,19 +16,19 @@ outputs:
           bytecode: 75252a5477a2943c07eaf114bef3dd214acbd7184b3118f14786beb8215bfb94
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: dubble
           inputs: "[]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
+        - program: test.aleo
           function: dubble
           inputs: "[]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
+        - program: test.aleo
           function: dubble
           inputs: "[]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"
+        - program: test.aleo
           function: dubble
           inputs: "[]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}]"

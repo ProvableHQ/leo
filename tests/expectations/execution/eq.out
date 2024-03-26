@@ -16,19 +16,19 @@ outputs:
           bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: main
           inputs: "[0u32, 1u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "SnarkVMExecutionError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
+        - program: test.aleo
           function: main
           inputs: "[1u32, 1u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[true]"
+        - program: test.aleo
           function: main
           inputs: "[1u32, 2u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "SnarkVMExecutionError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
+        - program: test.aleo
           function: main
           inputs: "[2u32, 2u32]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[true]"

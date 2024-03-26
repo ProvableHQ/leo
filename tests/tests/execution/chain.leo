@@ -2,16 +2,16 @@
 namespace: Execute
 expectation: Pass
 cases:
-    - program: test
+    - program: test.aleo
       function: main
       input: ["1u32"]
-    - program: test
+    - program: test.aleo
       function: main
       input: ["2u32"]
-    - program: test
+    - program: test.aleo
       function: main
       input: ["3u32"]
-    - program: test
+    - program: test.aleo
       function: main
       input: ["4u32"]
 */

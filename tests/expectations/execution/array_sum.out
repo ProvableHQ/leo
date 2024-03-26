@@ -16,11 +16,11 @@ outputs:
           bytecode: f8442f404e7a865ea2161ba7fa50f682ad3b4fe62585456913ccc47a01a6c5ef
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: sum_manually
           inputs: "[[\n  1u64,\n  2u64,\n  3u64,\n  4u64\n]]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[10u64]"
+        - program: test.aleo
           function: sum_with_loop
           inputs: "[[\n  1u64,\n  2u64,\n  3u64,\n  4u64\n]]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[10u64]"

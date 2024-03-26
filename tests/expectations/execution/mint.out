@@ -16,11 +16,11 @@ outputs:
           bytecode: d47819ba59e730eb159ee9e33fef5a35aac6062e70c743a749157d54824a45d9
           warnings: ""
       execute:
-        - program: test
+        - program: test.aleo
           function: mint
           inputs: "[aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs, 0u64]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
-        - program: test
+          outputs: "[{\n  owner: aleo14lskz87tkqwwkyt2z44h64ave5gcwqs6yyfdztus37nupxsj8ypsmqsqcs.private,\n  amount: 0u64.private,\n  flag: true.constant,\n  \n}]"
+        - program: test.aleo
           function: mint
           inputs: "[aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q, 1u64]"
-          outputs: SnarkVMExecutionError(Invalid program ID)
+          outputs: "[{\n  owner: aleo12keuztkg4cjzxx7hwwmrnnv85dkeqf8pjm877lf6f6lupma2pqrqcl2d8q.private,\n  amount: 1u64.private,\n  flag: true.constant,\n  \n}]"
