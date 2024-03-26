@@ -18,12 +18,14 @@ use crate::Type;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use leo_span::Symbol;
 
 /// A mapping type of a key and value type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct MappingType {
     pub key: Box<Type>,
     pub value: Box<Type>,
+    pub program: Symbol,
 }
 
 impl fmt::Display for MappingType {
