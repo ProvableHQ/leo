@@ -304,7 +304,7 @@ impl Retriever {
             })?;
 
             // Cache the disassembled stub
-            let stub: Stub = disassemble_from_str(content)?;
+            let stub: Stub = disassemble_from_str(&content)?;
             if cur_context.add_stub(stub.clone()) {
                 Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
             }
@@ -484,7 +484,7 @@ fn retrieve_from_network(
     })?;
 
     // Disassemble into Stub
-    let stub: Stub = disassemble_from_str(file_str)?;
+    let stub: Stub = disassemble_from_str(&file_str)?;
 
     // Create entry for leo.lock
     Ok((

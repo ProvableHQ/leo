@@ -30,7 +30,8 @@ use leo_test_framework::{test::TestConfig, Test};
 use snarkvm::prelude::*;
 
 use indexmap::IndexMap;
-use leo_ast::ProgramVisitor;
+use leo_ast::{ProgramVisitor, Stub};
+use leo_span::Symbol;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -139,6 +140,7 @@ pub fn new_compiler(
     handler: &Handler,
     main_file_path: PathBuf,
     compiler_options: Option<CompilerOptions>,
+    import_stubs: IndexMap<Symbol, Stub>,
 ) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
@@ -150,7 +152,7 @@ pub fn new_compiler(
         main_file_path,
         output_dir,
         compiler_options,
-        IndexMap::new(),
+        import_stubs,
     )
 }
 
@@ -159,8 +161,10 @@ pub fn parse_program<'a>(
     program_string: &str,
     cwd: Option<PathBuf>,
     compiler_options: Option<CompilerOptions>,
+    import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()), compiler_options);
+    let mut compiler =
+        new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()), compiler_options, import_stubs);
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 

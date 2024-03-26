@@ -116,8 +116,13 @@ fn run_test(test: Test, handler: &Handler, err_buf: &BufferEmitter) -> Result<Va
         };
 
         // Parse the program.
-        let mut parsed =
-            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        let mut parsed = handler.extend_if_error(parse_program(
+            handler,
+            &test.content,
+            cwd.clone(),
+            Some(compiler_options),
+            Default::default(),
+        ))?;
 
         // Compile the program to bytecode.
         let program_name = format!("{}.{}", parsed.program_name, parsed.network);

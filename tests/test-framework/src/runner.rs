@@ -25,6 +25,8 @@ use std::{
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
+pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ParseType {
     Line,

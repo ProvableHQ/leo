@@ -27,16 +27,20 @@ use utilities::{
     BufferEmitter,
 };
 
+use disassembler::disassemble_from_str;
 use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
+    PROGRAM_DELIMITER,
 };
 
 use snarkvm::console::prelude::*;
 
+use indexmap::IndexMap;
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::{fs, path::Path, rc::Rc};
@@ -101,48 +105,68 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             },
         };
 
-        // Parse the program.
-        let mut parsed =
-            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        // Split the test content into individual program strings based on the program delimiter.
+        let program_strings = test.content.split(PROGRAM_DELIMITER).collect::<Vec<&str>>();
 
-        // Compile the program to bytecode.
-        let program_name = format!("{}.{}", parsed.program_name, parsed.network);
-        let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+        // Initialize storage for the stubs.
+        let mut import_stubs = IndexMap::new();
 
-        // Set up the build directory.
-        // Note that this function checks that the bytecode is well-formed.
-        let package = setup_build_directory(&program_name, &bytecode, handler)?;
+        // Compile each program string separately.
+        for program_string in program_strings {
+            // Parse the program.
+            let mut parsed = handler.extend_if_error(parse_program(
+                handler,
+                program_string,
+                cwd.clone(),
+                Some(compiler_options.clone()),
+                import_stubs.clone(),
+            ))?;
 
-        // Get the program process and check all instructions.
-        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+            // Compile the program to bytecode.
+            let program_name = parsed.program_name.to_string();
+            let full_program_name = format!("{program_name}.{}", parsed.network);
+            let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-        // Hash the ast files.
-        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) = hash_asts();
+            // Add the bytecode to the import stubs.
+            let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
+            import_stubs.insert(Symbol::intern(&program_name), stub);
 
-        // Hash the symbol tables.
-        let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+            // Set up the build directory.
+            // Note that this function checks that the bytecode is well-formed.
+            let package = setup_build_directory(&full_program_name, &bytecode, handler)?;
 
-        // Clean up the output directory.
-        if fs::read_dir("/tmp/output").is_ok() {
-            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+            // Get the program process and check all instructions.
+            handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+
+            // Hash the ast files.
+            let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
+                hash_asts();
+
+            // Hash the symbol tables.
+            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+
+            // Clean up the output directory.
+            if fs::read_dir("/tmp/output").is_ok() {
+                fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+            }
+
+            let final_output = CompileOutput {
+                initial_symbol_table,
+                type_checked_symbol_table,
+                unrolled_symbol_table,
+                initial_ast,
+                unrolled_ast,
+                ssa_ast,
+                flattened_ast,
+                destructured_ast,
+                inlined_ast,
+                dce_ast,
+                bytecode: hash_content(&bytecode),
+                warnings: buf.1.take().to_string(),
+            };
+
+            outputs.push(final_output);
         }
-
-        let final_output = CompileOutput {
-            initial_symbol_table,
-            type_checked_symbol_table,
-            unrolled_symbol_table,
-            initial_ast,
-            unrolled_ast,
-            ssa_ast,
-            flattened_ast,
-            destructured_ast,
-            inlined_ast,
-            dce_ast,
-            bytecode: hash_content(&bytecode),
-            warnings: buf.1.take().to_string(),
-        };
-
-        outputs.push(final_output);
     }
     Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
 }

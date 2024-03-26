@@ -71,8 +71,8 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
     }
 }
 
-pub fn disassemble_from_str(program: String) -> Result<Stub, UtilError> {
-    match Program::<CurrentNetwork>::from_str(&program) {
+pub fn disassemble_from_str(program: &str) -> Result<Stub, UtilError> {
+    match Program::<CurrentNetwork>::from_str(program) {
         Ok(p) => Ok(disassemble(p)),
         Err(_) => Err(UtilError::snarkvm_parsing_error(Default::default())),
     }
@@ -109,7 +109,7 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let program_from_file =
                 fs::read_to_string("../tmp/.aleo/registry/testnet3/zk_bitwise_stack_v0_0_2.aleo").unwrap();
-            let _program = disassemble_from_str(program_from_file).unwrap();
+            let _program = disassemble_from_str(&program_from_file).unwrap();
         });
     }
 }
