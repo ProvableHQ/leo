@@ -14,31 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::StaticSingleAssigner;
+use crate::{Location, StaticSingleAssigner};
 
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedFunction,
-    BinaryExpression,
-    CallExpression,
-    CastExpression,
-    Composite,
-    Expression,
-    ExpressionConsumer,
-    Identifier,
-    Literal,
-    MemberAccess,
-    Statement,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    TupleExpression,
-    UnaryExpression,
-    UnitExpression,
-};
+use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedFunction, BinaryExpression, CallExpression, CastExpression, Composite, Expression, ExpressionConsumer, Identifier, Literal, LocatorExpression, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, UnitExpression};
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
@@ -253,7 +231,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
         let struct_definition: &Composite =
-            self.symbol_table.lookup_struct(self.program.unwrap(), input.name.name).unwrap();
+            self.symbol_table.lookup_struct(Location::new(self.program, input.name.name)).unwrap();
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());
@@ -317,6 +295,14 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (place, statement) = self.unique_simple_assign_statement(Expression::Literal(input));
         (Expression::Identifier(place), vec![statement])
     }
+    
+    /// Consumes and returns the locator expression without making any modifciations 
+    fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
+        // Construct and accumulate a new assignment statement for the locator expression.
+        let (place, statement) = self.unique_simple_assign_statement(Expression::Locator(input));
+        (Expression::Identifier(place), vec![statement])
+    }
+    
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {

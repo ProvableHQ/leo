@@ -14,31 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CodeGenerator;
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedConstant,
-    AssociatedFunction,
-    BinaryExpression,
-    BinaryOperation,
-    CallExpression,
-    CastExpression,
-    ErrExpression,
-    Expression,
-    Identifier,
-    Literal,
-    MemberAccess,
-    ProgramScope,
-    StructExpression,
-    TernaryExpression,
-    TupleExpression,
-    Type,
-    UnaryExpression,
-    UnaryOperation,
-    UnitExpression,
-};
+use crate::{CodeGenerator, Location};
+use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, LocatorExpression, MemberAccess, ProgramScope, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -60,6 +37,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Literal(expr) => self.visit_value(expr),
+            Expression::Locator(expr) => self.visit_locator(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
             Expression::Unary(expr) => self.visit_unary(expr),
@@ -79,6 +57,10 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
+        (format!("{input}"), String::new())
+    }
+
+    fn visit_locator(&mut self, input: &'a LocatorExpression) -> (String, String) {
         (format!("{input}"), String::new())
     }
 
@@ -533,7 +515,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type = &self.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap().output_type;
+        let return_type = &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
