@@ -101,6 +101,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
         self.program_name = Some(input.stub_id.name.name);
         input.functions.iter().for_each(|(_, c)| (self.visit_function_stub(c)));
         input.structs.iter().for_each(|(_, c)| (self.visit_struct_stub(c)));
+        input.mappings.iter().for_each(|(_, c)| (self.visit_mapping(c)));
     }
 
     fn visit_function_stub(&mut self, input: &'a FunctionStub) {
