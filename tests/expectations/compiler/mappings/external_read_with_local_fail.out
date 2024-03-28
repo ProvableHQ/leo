@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370026]: Only one program scope is allowed in a Leo file.\n    --> compiler-test:16:1\n     |\n  16 | program relay.aleo {\n     | ^^^^^^^"
