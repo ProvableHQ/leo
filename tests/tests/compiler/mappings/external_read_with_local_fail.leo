@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 */
 
 program registry.aleo {
@@ -15,14 +15,14 @@ program registry.aleo {
 }
 
 // --- Next Program --- //
-
+import registry.aleo;
 program relay.aleo {
     mapping users: address => bool;
 
-    function send(addr: address) {
+    transition send(addr: address) {
         return then finalize(addr);
     }
     finalize send(addr: address) {
-        let a:bool = Mapping::get(relay.aleo/users, r0);
+        let a:bool = Mapping::get(relay.aleo/users, addr);
     }
 }

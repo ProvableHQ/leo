@@ -113,6 +113,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
         // Compile each program string separately.
         for program_string in program_strings {
+            println!("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ\n\n");
+            
+            println!("{}", program_string.to_string());
             // Parse the program name from the program string.
             let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
             let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
@@ -129,6 +132,8 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             // Compile the program to bytecode.
             let program_name = parsed.program_name.to_string();
             let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+            
+            dbg!(bytecode.clone());
 
             // Parse the bytecode as an Aleo program.
             // Note that this function checks that the bytecode is well-formed.
