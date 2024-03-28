@@ -288,9 +288,19 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 handler.emit_err(LeoError::Anyhow(anyhow!("SnarkVMError({:?})", err)));
             }
 
+            // Extract the execution and remove the global state root.
+            let execution = match execution {
+                Some(Transaction::Execute(_, execution, _)) => {
+                    let proof = execution.proof().cloned();
+                    let transitions = execution.into_transitions();
+                    Some(Execution::from(transitions, Default::default(), proof).unwrap())
+                }
+                _ => None,
+            };
+
             // Aggregate the output.
             let output = ExecuteOutput {
-                transaction: execution,
+                execution,
                 verified,
                 status: status.to_string(),
                 errors: buf.0.take().to_string(),
