@@ -218,8 +218,7 @@ impl SymbolTable {
 mod tests {
     use super::*;
     use leo_ast::{Identifier, Type, Variant};
-    use leo_span::Symbol;
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::{symbol::create_session_if_not_set_then, Symbol};
     #[test]
     fn serialization_test() {
         create_session_if_not_set_then(|_| {
