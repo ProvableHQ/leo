@@ -37,8 +37,8 @@ impl Serialize for Location {
         S: Serializer,
     {
         let condensed_str = match self.program {
-                Some(program) => format!("{}/{}", program, self.name),
-                None => format!("{}", self.name),
+            Some(program) => format!("{}/{}", program, self.name),
+            None => format!("{}", self.name),
         };
         serializer.serialize_str(&condensed_str)
     }
@@ -51,12 +51,8 @@ impl<'de> Deserialize<'de> for Location {
     {
         let s = String::deserialize(deserializer)?;
         let mut parts: Vec<&str> = s.split('/').collect();
-        let program = if parts.len() == 1 {
-            None
-        } else {
-            Some(Symbol::intern(parts.remove(0)))
-        };
-        let name = Symbol::intern(parts.get(0).unwrap());
+        let program = if parts.len() == 1 { None } else { Some(Symbol::intern(parts.remove(0))) };
+        let name = Symbol::intern(parts.first().unwrap());
         Ok(Location::new(program, name))
     }
 }

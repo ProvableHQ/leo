@@ -61,7 +61,7 @@ pub trait ExpressionConsumer {
     fn consume_identifier(&mut self, _input: Identifier) -> Self::Output;
 
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
-    
+
     fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
 
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;

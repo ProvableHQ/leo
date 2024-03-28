@@ -16,9 +16,9 @@
 
 use crate::Type;
 
+use leo_span::Symbol;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use leo_span::Symbol;
 
 /// A mapping type of a key and value type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

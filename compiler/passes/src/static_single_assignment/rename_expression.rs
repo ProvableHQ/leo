@@ -16,7 +16,30 @@
 
 use crate::{Location, StaticSingleAssigner};
 
-use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedFunction, BinaryExpression, CallExpression, CastExpression, Composite, Expression, ExpressionConsumer, Identifier, Literal, LocatorExpression, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, UnitExpression};
+use leo_ast::{
+    AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
+    AssociatedFunction,
+    BinaryExpression,
+    CallExpression,
+    CastExpression,
+    Composite,
+    Expression,
+    ExpressionConsumer,
+    Identifier,
+    Literal,
+    LocatorExpression,
+    MemberAccess,
+    Statement,
+    StructExpression,
+    StructVariableInitializer,
+    TernaryExpression,
+    TupleAccess,
+    TupleExpression,
+    UnaryExpression,
+    UnitExpression,
+};
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
@@ -295,14 +318,13 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         let (place, statement) = self.unique_simple_assign_statement(Expression::Literal(input));
         (Expression::Identifier(place), vec![statement])
     }
-    
-    /// Consumes and returns the locator expression without making any modifciations 
+
+    /// Consumes and returns the locator expression without making any modifciations
     fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
         // Construct and accumulate a new assignment statement for the locator expression.
         let (place, statement) = self.unique_simple_assign_statement(Expression::Locator(input));
         (Expression::Identifier(place), vec![statement])
     }
-    
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
     fn consume_ternary(&mut self, input: TernaryExpression) -> Self::Output {

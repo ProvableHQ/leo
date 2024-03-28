@@ -494,7 +494,6 @@ impl ParserContext<'_> {
                 } else if self.eat(&Token::Leo) {
                     return Err(ParserError::only_aleo_external_calls(expr.span()).into());
                 } else if self.eat(&Token::Aleo) {
-
                     expr = self.parse_external_resource(expr)?;
                 } else {
                     // Parse identifier name.

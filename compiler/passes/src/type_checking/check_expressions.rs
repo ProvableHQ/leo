@@ -53,7 +53,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
-            Expression::Locator(locator) => panic!("aiya"), // TODO: self.visit_locator(locator, additional),
+            Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
@@ -571,7 +571,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             Expression::Identifier(ident) => {
                 // Note: The function symbol lookup is performed outside of the `if let Some(func) ...` block to avoid a RefCell lifetime bug in Rust.
                 // Do not move it into the `if let Some(func) ...` block or it will keep `self.symbol_table_creation` alive for the entire block and will be very memory inefficient!
-                let func = self.symbol_table.borrow().lookup_fn_symbol(Location::new(input.program, ident.name)).cloned();
+                let func =
+                    self.symbol_table.borrow().lookup_fn_symbol(Location::new(input.program, ident.name)).cloned();
                 if let Some(func) = func {
                     // Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
@@ -650,7 +651,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.symbol_table.borrow().lookup_struct(Location::new(self.program_name, input.name.name)).cloned();
+        let struct_ =
+            self.symbol_table.borrow().lookup_struct(Location::new(self.program_name, input.name.name)).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());
@@ -765,6 +767,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.assert_and_return_type(Type::String, expected, input.span())
             }
         })
+    }
+
+    fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
+        // Check that the locator points to a valid resource in the ST.
+        if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(Some(input.program), input.name)) {
+            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
+        } else {
+            self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
+            None
+        }
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {

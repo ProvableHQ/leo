@@ -107,8 +107,8 @@ pub trait ExpressionVisitor<'a> {
     fn visit_literal(&mut self, _input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
-    
-    fn visit_locator(&mut self, input: &'a LocatorExpression, additional: &Self::AdditionalInput) -> Self::Output {
+
+    fn visit_locator(&mut self, _input: &'a LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 

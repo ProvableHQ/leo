@@ -15,7 +15,31 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CodeGenerator, Location};
-use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, LocatorExpression, MemberAccess, ProgramScope, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression};
+use leo_ast::{
+    AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
+    AssociatedConstant,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    CastExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    LocatorExpression,
+    MemberAccess,
+    ProgramScope,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
+};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -515,7 +539,8 @@ impl<'a> CodeGenerator<'a> {
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type = &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap().output_type;
+        let return_type =
+            &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap().output_type;
         match return_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {

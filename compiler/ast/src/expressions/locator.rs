@@ -58,7 +58,7 @@ impl LocatorExpression {
     /// Check if the Locator name and program matches the other name and program.
     pub fn matches(&self, other: &Self) -> bool {
         self.name == other.name && self.program == other.program
-    } 
+    }
 }
 
 impl fmt::Display for LocatorExpression {
@@ -134,7 +134,7 @@ impl<'de> Deserialize<'de> for LocatorExpression {
                     Some(name) => Symbol::intern(name),
                     None => return Err(E::custom("missing 'name' in serialized Identifier struct")),
                 };
-                
+
                 let program = match key.get("program") {
                     Some(program) => Symbol::intern(program),
                     None => return Err(E::custom("missing 'program' in serialized Identifier struct")),

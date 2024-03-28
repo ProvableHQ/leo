@@ -976,10 +976,7 @@ impl<'a> TypeChecker<'a> {
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
                     if mapping_type.program != self.program_name.unwrap() {
-                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(
-                            "set",
-                            function_span,
-                        ));
+                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping("set", function_span));
                     }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
@@ -1003,10 +1000,8 @@ impl<'a> TypeChecker<'a> {
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
                     if mapping_type.program != self.program_name.unwrap() {
-                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(
-                            "remove",
-                            function_span,
-                        ));
+                        self.handler
+                            .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
                     }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
@@ -1078,7 +1073,10 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn check_duplicate_struct(&self, name: Symbol, program_1: Symbol, program_2: Symbol) -> bool {
         // Make sure that both structs have been defined already.
         let st = self.symbol_table.borrow();
-        let (struct_1, struct_2) = match (st.lookup_struct(Location::new(Some(program_1), name)), st.lookup_struct(Location::new(Some(program_2), name))) {
+        let (struct_1, struct_2) = match (
+            st.lookup_struct(Location::new(Some(program_1), name)),
+            st.lookup_struct(Location::new(Some(program_2), name)),
+        ) {
             (Some(struct_1), Some(struct_2)) => (struct_1, struct_2),
             _ => return false,
         };
@@ -1148,7 +1146,11 @@ impl<'a> TypeChecker<'a> {
             }
             // Check that the named composite type has been defined.
             Type::Composite(struct_)
-                if self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name)).is_none() =>
+                if self
+                    .symbol_table
+                    .borrow()
+                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
+                    .is_none() =>
             {
                 is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
@@ -1181,8 +1183,10 @@ impl<'a> TypeChecker<'a> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) =
-                            self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
+                        if let Some(struct_) = self
+                            .symbol_table
+                            .borrow()
+                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                         {
                             // Check that the type is not a record.
                             if struct_.is_record {
@@ -1241,7 +1245,9 @@ impl<'a> TypeChecker<'a> {
 
             // If the function is not a transition function, then it cannot have a record as input
             if let Type::Composite(struct_) = input_var.type_() {
-                if let Some(val) = self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name)) {
+                if let Some(val) =
+                    self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
+                {
                     if val.is_record && !matches!(function.variant, Variant::Transition) {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
@@ -1250,13 +1256,14 @@ impl<'a> TypeChecker<'a> {
 
             // Add non-stub inputs to the symbol table.
             if !self.is_stub {
-                if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(Location::new(None, input_var.identifier().name), VariableSymbol {
+                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                    Location::new(None, input_var.identifier().name),
+                    VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
+                    },
+                ) {
                     self.handler.emit_err(err);
                 }
             }
@@ -1349,13 +1356,14 @@ impl<'a> TypeChecker<'a> {
                 }
                 // Add non-stub inputs to the symbol table.
                 if !self.is_stub {
-                    if let Err(err) =
-                        self.symbol_table.borrow_mut().insert_variable(Location::new(None, input_var.identifier().name), VariableSymbol {
+                    if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                        Location::new(None, input_var.identifier().name),
+                        VariableSymbol {
                             type_: input_var.type_(),
                             span: input_var.identifier().span(),
                             declaration: VariableType::Input(input_var.mode()),
-                        })
-                    {
+                        },
+                    ) {
                         self.handler.emit_err(err);
                     }
                 }

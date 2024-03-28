@@ -198,12 +198,9 @@ pub trait ExpressionReconstructor {
     fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
         (Expression::Literal(input), Default::default())
     }
-    
+
     fn reconstruct_locator(&mut self, input: LocatorExpression) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Locator(input),
-            Default::default(),
-        )
+        (Expression::Locator(input), Default::default())
     }
 
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {

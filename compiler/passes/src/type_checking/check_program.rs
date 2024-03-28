@@ -69,8 +69,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index =
-            self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.program_name, input.identifier.name)).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(Location::new(self.program_name, input.identifier.name))
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);

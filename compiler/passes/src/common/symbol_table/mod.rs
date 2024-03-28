@@ -28,7 +28,7 @@ use std::cell::RefCell;
 
 use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
 use leo_errors::{AstError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -60,7 +60,7 @@ impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
     pub fn check_shadowing(&self, location: &Location, span: Span) -> Result<()> {
-        if let Some(_) = location.program {
+        if location.program.is_some() {
             if self.functions.contains_key(location) {
                 return Err(AstError::shadowed_function(location.name, span).into());
             } else if let Some(existing) = self.structs.get(location) {
@@ -68,16 +68,11 @@ impl SymbolTable {
                     true => Err(AstError::shadowed_record(location.name, span).into()),
                     false => Err(AstError::shadowed_struct(location.name, span).into()),
                 };
+            } else if self.variables.contains_key(location) {
+                return Err(AstError::shadowed_variable(location.name, span).into());
             }
-            else if self.variables.contains_key(location) {
-                return Err(AstError::shadowed_variable(location.name, span).into())
-            }
-        } 
-        if let Some(parent) = self.parent.as_ref() {
-            return parent.check_shadowing(location, span)
-        } else {
-            Ok(())
         }
+        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, span) } else { Ok(()) }
     }
 
     /// Returns the current scope index.
@@ -244,30 +239,29 @@ mod tests {
                 block: Default::default(),
             };
             symbol_table.insert_fn(func_loc, &insert).unwrap();
-            symbol_table.insert_variable(
-                Location::new(Some(Symbol::intern("credits")), Symbol::intern("accounts")),
-                VariableSymbol {
-                    type_: Type::Address,
-                    span: Default::default(),
-                    declaration: VariableType::Const,
-                }).unwrap();
-            symbol_table.insert_struct(
-                Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")),
-                &Composite {
+            symbol_table
+                .insert_variable(
+                    Location::new(Some(Symbol::intern("credits")), Symbol::intern("accounts")),
+                    VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
+                )
+                .unwrap();
+            symbol_table
+                .insert_struct(Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")), &Composite {
                     is_record: false,
                     span: Default::default(),
                     id: 0,
                     identifier: Identifier::new(Symbol::intern("token"), Default::default()),
                     members: Vec::new(),
                     external: None,
-                }).unwrap();
-            symbol_table.insert_variable(
-                Location::new(None, Symbol::intern("foo")),
-                VariableSymbol {
+                })
+                .unwrap();
+            symbol_table
+                .insert_variable(Location::new(None, Symbol::intern("foo")), VariableSymbol {
                     type_: Type::Address,
                     span: Default::default(),
                     declaration: VariableType::Const,
-                }).unwrap();
+                })
+                .unwrap();
             let json = symbol_table.to_json_string().unwrap();
             let deserialized = SymbolTable::from_json_string(&json).unwrap();
             assert_eq!(symbol_table, deserialized);
