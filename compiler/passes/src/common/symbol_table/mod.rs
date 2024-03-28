@@ -60,17 +60,15 @@ impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
     pub fn check_shadowing(&self, location: &Location, span: Span) -> Result<()> {
-        if location.program.is_some() {
-            if self.functions.contains_key(location) {
-                return Err(AstError::shadowed_function(location.name, span).into());
-            } else if let Some(existing) = self.structs.get(location) {
-                return match existing.is_record {
-                    true => Err(AstError::shadowed_record(location.name, span).into()),
-                    false => Err(AstError::shadowed_struct(location.name, span).into()),
-                };
-            } else if self.variables.contains_key(location) {
-                return Err(AstError::shadowed_variable(location.name, span).into());
-            }
+        if self.functions.contains_key(location) {
+            return Err(AstError::shadowed_function(location.name, span).into());
+        } else if let Some(existing) = self.structs.get(location) {
+            return match existing.is_record {
+                true => Err(AstError::shadowed_record(location.name, span).into()),
+                false => Err(AstError::shadowed_struct(location.name, span).into()),
+            };
+        } else if self.variables.contains_key(location) {
+            return Err(AstError::shadowed_variable(location.name, span).into());
         }
         if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, span) } else { Ok(()) }
     }
@@ -220,6 +218,7 @@ impl SymbolTable {
 mod tests {
     use super::*;
     use leo_ast::{Identifier, Type, Variant};
+    use leo_span::Symbol;
     use leo_span::symbol::create_session_if_not_set_then;
     #[test]
     fn serialization_test() {
