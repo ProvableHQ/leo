@@ -29,13 +29,15 @@ pub struct CompileOutput {
     pub inlined_ast: String,
     pub dce_ast: String,
     pub bytecode: String,
+    pub errors: String,
     pub warnings: String,
 }
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 pub struct ExecuteOutput {
-    pub program: String,
-    pub function: String,
-    pub inputs: String,
-    pub outputs: String,
+    pub transaction: Option<String>,
+    pub verified: bool,
+    pub status: String,
+    pub errors: String,
+    pub warnings: String,
 }

@@ -14,4 +14,5 @@ outputs:
           inlined_ast: 43c713564c45ba5eea4f3e2abeb3266b261e512e9f8b4c6fe150888e7baa2146
           dce_ast: 43c713564c45ba5eea4f3e2abeb3266b261e512e9f8b4c6fe150888e7baa2146
           bytecode: 447867c0cff55fb14313d71ddd48f1a8fbee509cd357304c12fba830841dcd09
+          errors: ""
           warnings: ""

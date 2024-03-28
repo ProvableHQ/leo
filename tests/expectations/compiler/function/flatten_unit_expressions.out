@@ -14,6 +14,7 @@ outputs:
           inlined_ast: 71c3a36c89c81627ddf0b6da278f38847a546344256abb0d2f6cf4d1f390fb05
           dce_ast: b2ed655e4d792c6efcd64da50f55234673f8d6cdc7a8fc6b5c8e249d96c4e266
           bytecode: b5e0f18e08535e19b2bc80bd0bc3d2893e58223cea4d006a8a8de262d3ab41fd
+          errors: ""
           warnings: ""
     - compile:
         - initial_symbol_table: a3104062809642350b9fda830757e057f7de3b287a8ad9bbe32037644b52e5ca
@@ -27,4 +28,5 @@ outputs:
           inlined_ast: 45f95b18687edfa76d0debafc231ce34d5e4a79832f8f50fba734030779c4181
           dce_ast: 45f95b18687edfa76d0debafc231ce34d5e4a79832f8f50fba734030779c4181
           bytecode: b5e0f18e08535e19b2bc80bd0bc3d2893e58223cea4d006a8a8de262d3ab41fd
+          errors: ""
           warnings: ""

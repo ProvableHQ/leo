@@ -74,6 +74,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     // Extract the compiler build configurations from the config file.
     let build_options = get_build_options(&test.config);
 
+    // Initialize a `Process`. This should always succeed.
+    let process = Process::<CurrentNetwork>::load().unwrap();
+
     let mut all_outputs = Vec::with_capacity(build_options.len());
 
     for build in build_options {
@@ -101,8 +104,8 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Initialize storage for the stubs.
         let mut import_stubs = IndexMap::new();
 
-        // Initialize a `Process`. This should always succeed.
-        let mut process = Process::<CurrentNetwork>::load().unwrap();
+        // Clone the process.
+        let mut process = process.clone();
 
         // Initialize storage for the compilation outputs.
         let mut compile = Vec::with_capacity(program_strings.len());
@@ -158,6 +161,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 inlined_ast,
                 dce_ast,
                 bytecode: hash_content(&bytecode),
+                errors: buf.0.take().to_string(),
                 warnings: buf.1.take().to_string(),
             };
             compile.push(output);

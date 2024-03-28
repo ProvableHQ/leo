@@ -26,7 +26,6 @@ use utilities::{
     parse_program,
     BufferEmitter,
     CompileOutput,
-    CurrentAleo,
     CurrentNetwork,
     ExecuteOutput,
 };
@@ -41,17 +40,20 @@ use leo_test_framework::{
     PROGRAM_DELIMITER,
 };
 
+use aleo_std_storage::StorageMode;
 use snarkvm::{console, prelude::*};
 
 use disassembler::disassemble_from_str;
 use indexmap::IndexMap;
 use leo_errors::LeoError;
 use leo_span::Symbol;
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
-use snarkvm::synthesizer::program::ProgramCore;
-use std::{fs, path::Path, rc::Rc};
+use snarkvm::{
+    prelude::store::{helpers::memory::ConsensusMemory, ConsensusStore},
+    synthesizer::program::ProgramCore,
+};
+use std::{fs, panic::AssertUnwindSafe, path::Path, rc::Rc};
 
 // TODO: Evaluate namespace.
 struct ExecuteNamespace;
@@ -85,6 +87,12 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     // Check for CWD option:
     let cwd = get_cwd_option(&test);
 
+    // Initialize an rng.
+    let rng = &mut match test.config.extra.get("seed").map(|seed| seed.as_u64()) {
+        Some(Some(seed)) => TestRng::from_seed(seed),
+        _ => TestRng::from_seed(1234567890),
+    };
+
     // Extract the compiler build configurations from the config file.
     let build_options = get_build_options(&test.config);
 
@@ -115,8 +123,20 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Initialize storage for the stubs.
         let mut import_stubs = IndexMap::new();
 
-        // Initialize a `Process`. This should always succeed.
-        let mut process = Process::<CurrentNetwork>::load().unwrap();
+        // Initialize a `VM`. This should always succeed.
+        let vm =
+            VM::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::from(ConsensusStore::open(None).unwrap()).unwrap();
+
+        // Initialize a genesis private key.
+        let genesis_private_key = PrivateKey::new(rng).unwrap();
+
+        // Construct the genesis block.
+        let genesis_block = vm.genesis_beacon(&genesis_private_key, rng).unwrap();
+
+        // Initialize a `Ledger`. This should always succeed.
+        let ledger =
+            Ledger::<CurrentNetwork, ConsensusMemory<CurrentNetwork>>::load(genesis_block, StorageMode::Production)
+                .unwrap();
 
         // Initialize storage for the compilation outputs.
         let mut compile = Vec::with_capacity(program_strings.len());
@@ -140,9 +160,17 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             // Note that this function checks that the bytecode is well-formed.
             let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
 
-            // Add the program to the process.
+            // Add the program to the ledger.
             // Note that this function performs an additional validity check on the bytecode.
-            handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
+            let deployment = handler.extend_if_error(
+                ledger.vm().deploy(&genesis_private_key, &aleo_program, None, 0, None, rng).map_err(LeoError::Anyhow),
+            )?;
+            let block = handler.extend_if_error(
+                ledger
+                    .prepare_advance_to_next_beacon_block(&genesis_private_key, vec![], vec![], vec![deployment], rng)
+                    .map_err(LeoError::Anyhow),
+            )?;
+            handler.extend_if_error(ledger.advance_to_next_block(&block).map_err(LeoError::Anyhow))?;
 
             // Add the bytecode to the import stubs.
             let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
@@ -172,6 +200,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 inlined_ast,
                 dce_ast,
                 bytecode: hash_content(&bytecode),
+                errors: buf.0.take().to_string(),
                 warnings: buf.1.take().to_string(),
             };
 
@@ -190,12 +219,6 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
         // Initialize storage for the execution outputs.
         let mut execute = Vec::with_capacity(all_cases.len());
 
-        // Initialize an rng.
-        let rng = &mut match test.config.extra.get("seed").map(|seed| seed.as_u64()) {
-            Some(Some(seed)) => TestRng::from_seed(seed),
-            _ => TestRng::default(),
-        };
-
         // Run each test case for each function.
         for case in all_cases {
             let case = case.as_mapping().unwrap();
@@ -209,47 +232,62 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 .iter()
                 .map(|input| console::program::Value::<CurrentNetwork>::from_str(input.as_str().unwrap()).unwrap())
                 .collect();
-            let input_string = format!("[{}]", inputs.iter().map(|input| input.to_string()).join(", "));
             let private_key = match case.get(&Value::from("private_key")) {
                 Some(private_key) => {
                     PrivateKey::from_str(private_key.as_str().expect("expected string for private key"))
                         .expect("unable to parse private key")
                 }
-                None => PrivateKey::new(rng).unwrap(),
+                None => genesis_private_key,
             };
 
-            // TODO: Add support for custom config like custom private keys.
-            // Compute the authorization, execute, and return the result as a string.
-            let output_string = match process
-                .authorize::<CurrentAleo, _>(&private_key, program_name, function_name, inputs.iter(), rng)
-                .and_then(|authorization| process.execute::<CurrentAleo, _>(authorization, rng))
-            {
-                Ok((response, _)) => format!(
-                    "[{}]",
-                    response
-                        .outputs()
-                        .iter()
-                        .map(|output| {
-                            match output {
-                                // Remove the `_nonce` from the record string.
-                                console::program::Value::Record(record) => {
-                                    let pattern = Regex::new(r"_nonce: \d+group.public").unwrap();
-                                    pattern.replace(&record.to_string(), "").to_string()
-                                }
-                                _ => output.to_string(),
-                            }
+            // Initialize the statuses of execution.
+            let mut execution = None;
+            let mut verified = false;
+            let mut status = "None";
+
+            // Execute the program, construct a block and add it to the ledger.
+            let result = std::panic::catch_unwind(AssertUnwindSafe(|| {
+                handler.extend_if_error(
+                    ledger
+                        .vm()
+                        .execute(&private_key, (program_name, function_name), inputs.iter(), None, 0, None, rng)
+                        .and_then(|transaction| {
+                            verified = ledger.vm().check_transaction(&transaction, None, rng).is_ok();
+                            execution = Some(transaction.clone());
+                            ledger.prepare_advance_to_next_beacon_block(
+                                &private_key,
+                                vec![],
+                                vec![],
+                                vec![transaction],
+                                rng,
+                            )
                         })
-                        .join(", ")
-                ),
-                Err(err) => format!("SnarkVMExecutionError({err})"),
-            };
+                        .and_then(|block| {
+                            status = match block.aborted_transaction_ids().is_empty() {
+                                false => "Aborted",
+                                true => match block.transactions().num_accepted() == 1 {
+                                    true => "Accepted",
+                                    false => "Rejected",
+                                },
+                            };
+                            ledger.advance_to_next_block(&block)
+                        })
+                        .map_err(LeoError::Anyhow),
+                )
+            }));
 
-            // Construct the output.
+            // Emit any errors from panics.
+            if let Err(err) = result {
+                handler.emit_err(LeoError::Anyhow(anyhow!("SnarkVMError({:?})", err)));
+            }
+
+            // Aggregate the output.
             let output = ExecuteOutput {
-                program: program_name.to_string(),
-                function: function_name.to_string(),
-                inputs: input_string,
-                outputs: output_string,
+                transaction: execution.map(|transaction| transaction.to_string()),
+                verified,
+                status: status.to_string(),
+                errors: buf.0.take().to_string(),
+                warnings: buf.1.take().to_string(),
             };
             execute.push(output);
         }
