@@ -290,7 +290,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Aggregate the output.
             let output = ExecuteOutput {
-                transaction: execution.map(|transaction| transaction.to_string()),
+                transaction: execution,
                 verified,
                 status: status.to_string(),
                 errors: buf.0.take().to_string(),

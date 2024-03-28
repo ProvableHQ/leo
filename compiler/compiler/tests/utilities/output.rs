@@ -35,7 +35,7 @@ pub struct CompileOutput {
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
 pub struct ExecuteOutput {
-    pub transaction: Option<String>,
+    pub transaction: Option<Transaction<CurrentNetwork>>,
     pub verified: bool,
     pub status: String,
     pub errors: String,
