@@ -974,6 +974,13 @@ impl<'a> TypeChecker<'a> {
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Cannot modify external mappings.
+                    if mapping_type.program != self.program_name.unwrap() {
+                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(
+                            "set",
+                            function_span,
+                        ));
+                    }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
                     // Check that the third argument matches the value type of the mapping.
@@ -994,6 +1001,13 @@ impl<'a> TypeChecker<'a> {
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Cannot modify external mappings.
+                    if mapping_type.program != self.program_name.unwrap() {
+                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(
+                            "remove",
+                            function_span,
+                        ));
+                    }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
                     // Return nothing.
