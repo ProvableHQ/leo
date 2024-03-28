@@ -20,8 +20,8 @@ use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_errors::UtilError;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
+use leo_retriever::Retriever;
 use leo_span::Symbol;
-use retriever::Retriever;
 
 use snarkvm::{
     package::Package,

@@ -1,9 +1,50 @@
 [package]
-name = "retriever"
+name = "leo-retriever"
 version = "1.10.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "A retriever for the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+    "aleo",
+    "cryptography",
+    "leo",
+    "programming-language",
+    "zero-knowledge"
+]
+categories = [ "compilers", "cryptography", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
 edition = "2021"
+rust-version = "1.69"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies.leo-ast]
+version = "1.10.0"
+path = "../../compiler/ast"
+
+[dependencies.leo-disassembler]
+version = "1.10.0"
+path = "../disassembler"
+
+[dependencies.leo-errors]
+path = "../../errors"
+version = "=1.10.0"
+
+[dependencies.leo-passes]
+version = "1.10.0"
+path = "../../compiler/passes"
+
+[dependencies.leo-span]
+version = "1.10.0"
+path = "../../compiler/span"
+
+[dependencies.aleo-std]
+version = "0.1.24"
+default-features = false
+
+[dependencies.indexmap]
+version = "1.9"
+features = [ "serde-1" ]
 
 [dependencies.serde]
 version = "1.0"
@@ -12,44 +53,17 @@ features = [ "derive"]
 [dependencies.serde_json]
 version = "1.0"
 
-[dependencies.leo-errors]
-path = "../../errors"
-version = "=1.10.0"
-
-[dependencies.indexmap]
-version = "1.9"
-features = [ "serde-1" ]
-
-[dependencies.leo-ast]
-version = "1.9.4"
-path = "../../compiler/ast"
-
-[dependencies.toml]
-version = "0.8.12"
-
-[dependencies.aleo-std]
-version = "0.1.24"
-default-features = false
-
-[dependencies.disassembler]
-version = "1.10.0"
-path = "../disassembler"
+[dependencies.serial_test]
+version = "3.0.0"
 
 [dependencies.sha2]
 version = "0.10.8"
 
-[dependencies.serial_test]
-version = "3.0.0"
+[dependencies.tempfile]
+version = "3.10.1"
 
-[dependencies.leo-span]
-version = "1.9.4"
-path = "../../compiler/span"
+[dependencies.toml]
+version = "0.8.12"
 
 [dependencies.ureq]
 version = "2.9"
-
-[dependencies.leo-passes]
-version = "1.9.4"
-path = "../../compiler/passes"
-[dependencies]
-tempfile = "3.10.1"

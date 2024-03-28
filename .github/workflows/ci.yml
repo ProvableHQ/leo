@@ -100,6 +100,7 @@ jobs:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: /Users/runner/Library/Caches/Mozilla.sccache
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
     steps:
       - name: Xcode Select
         uses: maxim-lobanov/setup-xcode@v1
@@ -148,8 +149,8 @@ jobs:
           
       - name: Test
         run: |
-          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
-          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
           cargo test --all
 
       - name: Print sccache stats

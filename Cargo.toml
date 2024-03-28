@@ -58,10 +58,6 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
-[dependencies.aleo-std]
-version = "0.1.24"
-default-features = false
-
 [dependencies.leo-ast]
 path = "./compiler/ast"
 version = "=1.10.0"
@@ -86,9 +82,13 @@ version = "=1.10.0"
 path = "./compiler/span"
 version = "=1.10.0"
 
-[dependencies.retriever]
+[dependencies.leo-retriever]
 path = "./utils/retriever"
 version = "1.10.0"
+
+[dependencies.aleo-std]
+version = "0.1.24"
+default-features = false
 
 [dependencies.backtrace]
 version = "0.3.68"
