@@ -149,8 +149,8 @@ jobs:
           
       - name: Test
         run: |
-          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
-          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
           cargo test --all
 
       - name: Print sccache stats
