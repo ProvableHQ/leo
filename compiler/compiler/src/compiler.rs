@@ -336,7 +336,7 @@ impl<'a> Compiler<'a> {
     }
 
     /// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
-    fn add_import_stubs(&mut self) -> Result<()> {
+    pub fn add_import_stubs(&mut self) -> Result<()> {
         // Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
         let (mut unexplored, mut explored): (IndexSet<Symbol>, IndexSet<Symbol>) =
             (self.ast.ast.imports.keys().cloned().collect(), IndexSet::new());

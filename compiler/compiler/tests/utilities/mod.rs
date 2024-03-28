@@ -49,22 +49,23 @@ pub type CurrentNetwork = Testnet3;
 #[allow(unused)]
 pub type CurrentAleo = snarkvm::circuit::AleoV0;
 
-pub fn hash_asts() -> (String, String, String, String, String, String, String) {
-    let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
-    let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
-    let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
-    let destructured_ast = hash_file("/tmp/output/test.destructured_ast.json");
-    let inlined_ast = hash_file("/tmp/output/test.inlined_ast.json");
-    let dce_ast = hash_file("/tmp/output/test.dce_ast.json");
+pub fn hash_asts(program_name: &str) -> (String, String, String, String, String, String, String) {
+    let initial_ast = hash_file(&format!("/tmp/output/{program_name}.initial_ast.json"));
+    let unrolled_ast = hash_file(&format!("/tmp/output/{program_name}.unrolled_ast.json"));
+    let ssa_ast = hash_file(&format!("/tmp/output/{program_name}.ssa_ast.json"));
+    let flattened_ast = hash_file(&format!("/tmp/output/{program_name}.flattened_ast.json"));
+    let destructured_ast = hash_file(&format!("/tmp/output/{program_name}.destructured_ast.json"));
+    let inlined_ast = hash_file(&format!("/tmp/output/{program_name}.inlined_ast.json"));
+    let dce_ast = hash_file(&format!("/tmp/output/{program_name}.dce_ast.json"));
 
     (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast)
 }
 
-pub fn hash_symbol_tables() -> (String, String, String) {
-    let initial_symbol_table = hash_file("/tmp/output/test.initial_symbol_table.json");
-    let type_checked_symbol_table = hash_file("/tmp/output/test.type_checked_symbol_table.json");
-    let unrolled_symbol_table = hash_file("/tmp/output/test.unrolled_symbol_table.json");
+pub fn hash_symbol_tables(program_name: &str) -> (String, String, String) {
+    let initial_symbol_table = hash_file(&format!("/tmp/output/{program_name}.initial_symbol_table.json"));
+    let type_checked_symbol_table = hash_file(&format!("/tmp/output/{program_name}.type_checked_symbol_table.json"));
+    let unrolled_symbol_table = hash_file(&format!("/tmp/output/{program_name}.unrolled_symbol_table.json"));
+
     (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table)
 }
 
@@ -144,6 +145,7 @@ pub fn setup_build_directory(
 }
 
 pub fn new_compiler(
+    program_name: String,
     handler: &Handler,
     main_file_path: PathBuf,
     compiler_options: Option<CompilerOptions>,
@@ -153,7 +155,7 @@ pub fn new_compiler(
     fs::create_dir_all(output_dir.clone()).unwrap();
 
     Compiler::new(
-        String::from("test"),
+        program_name,
         String::from("aleo"),
         handler,
         main_file_path,
@@ -164,14 +166,20 @@ pub fn new_compiler(
 }
 
 pub fn parse_program<'a>(
+    program_name: String,
     handler: &'a Handler,
     program_string: &str,
     cwd: Option<PathBuf>,
     compiler_options: Option<CompilerOptions>,
     import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler =
-        new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()), compiler_options, import_stubs);
+    let mut compiler = new_compiler(
+        program_name,
+        handler,
+        cwd.clone().unwrap_or_else(|| "compiler-test".into()),
+        compiler_options,
+        import_stubs,
+    );
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 
@@ -242,6 +250,8 @@ pub fn temp_dir() -> PathBuf {
 }
 
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
+    parsed.add_import_stubs()?;
+
     let st = parsed.symbol_table_pass()?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);

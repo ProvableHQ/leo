@@ -47,6 +47,7 @@ use disassembler::disassemble_from_str;
 use indexmap::IndexMap;
 use leo_errors::LeoError;
 use leo_span::Symbol;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use snarkvm::{
@@ -143,8 +144,13 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
         // Compile each program string separately.
         for program_string in program_strings {
+            // Parse the program name from the program string.
+            let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
+            let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
+
             // Parse the program.
             let mut parsed = handler.extend_if_error(parse_program(
+                program_name.to_string(),
                 handler,
                 program_string,
                 cwd.clone(),
@@ -178,10 +184,11 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Hash the ast files.
             let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
-                hash_asts();
+                hash_asts(&program_name);
 
             // Hash the symbol tables.
-            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) =
+                hash_symbol_tables(&program_name);
 
             // Clean up the output directory.
             if fs::read_dir("/tmp/output").is_ok() {
@@ -243,7 +250,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             // Initialize the statuses of execution.
             let mut execution = None;
             let mut verified = false;
-            let mut status = "None";
+            let mut status = "none";
 
             // Execute the program, construct a block and add it to the ledger.
             let result = std::panic::catch_unwind(AssertUnwindSafe(|| {
@@ -264,10 +271,10 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                         })
                         .and_then(|block| {
                             status = match block.aborted_transaction_ids().is_empty() {
-                                false => "Aborted",
+                                false => "aborted",
                                 true => match block.transactions().num_accepted() == 1 {
-                                    true => "Accepted",
-                                    false => "Rejected",
+                                    true => "accepted",
+                                    false => "rejected",
                                 },
                             };
                             ledger.advance_to_next_block(&block)

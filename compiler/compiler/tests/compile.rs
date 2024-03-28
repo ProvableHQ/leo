@@ -42,6 +42,7 @@ use snarkvm::console::prelude::*;
 
 use indexmap::IndexMap;
 use leo_span::Symbol;
+use regex::Regex;
 use serde_yaml::Value;
 use snarkvm::{prelude::Process, synthesizer::program::ProgramCore};
 use std::{fs, path::Path, rc::Rc};
@@ -112,8 +113,12 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
         // Compile each program string separately.
         for program_string in program_strings {
+            // Parse the program name from the program string.
+            let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
+            let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
             // Parse the program.
             let mut parsed = handler.extend_if_error(parse_program(
+                program_name.to_string(),
                 handler,
                 program_string,
                 cwd.clone(),
@@ -139,10 +144,11 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Hash the ast files.
             let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
-                hash_asts();
+                hash_asts(&program_name);
 
             // Hash the symbol tables.
-            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) =
+                hash_symbol_tables(&program_name);
 
             // Clean up the output directory.
             if fs::read_dir("/tmp/output").is_ok() {
