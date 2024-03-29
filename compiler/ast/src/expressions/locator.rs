@@ -17,11 +17,8 @@
 use leo_span::{Span, Symbol};
 
 use crate::{simple_node_impl, Node, NodeID, ProgramId};
-use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use serde::{Deserialize, Serialize};
+use std::{fmt, hash::Hash};
 
 /// A locator that references an external resource.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
