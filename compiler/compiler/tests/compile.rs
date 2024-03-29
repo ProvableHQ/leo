@@ -28,7 +28,7 @@ use utilities::{
     CurrentNetwork,
 };
 
-use disassembler::disassemble_from_str;
+use leo_disassembler::disassemble_from_str;
 use leo_compiler::{CompilerOptions, OutputOptions};
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
