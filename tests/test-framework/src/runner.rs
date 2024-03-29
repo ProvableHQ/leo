@@ -266,7 +266,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         }
         panic!(
             "failed {}/{} tests in {}/{} categories",
-            pass_tests,
+            fail_tests,
             fail_tests + pass_tests,
             cases.fail_categories.len(),
             cases.fail_categories.len() + pass_categories
