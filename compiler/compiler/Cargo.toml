@@ -45,7 +45,7 @@ version = "0.10"
 version = "1.9"
 features = []
 
-[dev-dependencies.disassembler]
+[dev-dependencies.leo-disassembler]
 path = "../../utils/disassembler"
 
 [dev-dependencies.leo-test-framework]
