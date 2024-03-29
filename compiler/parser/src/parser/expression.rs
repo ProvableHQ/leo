@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 use snarkvm::console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
