@@ -764,6 +764,20 @@
 <a href="#762" id="762">762</a>
 <a href="#763" id="763">763</a>
 <a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -783,7 +797,7 @@
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">use </span>leo_span::{sym, Symbol};
+<span class="kw">use </span>leo_span::sym;
 <span class="kw">use </span>snarkvm::console::{account::Address, network::Testnet3};
 
 <span class="kw">const </span>INT_TYPES: <span class="kw-2">&amp;</span>[Token] = <span class="kw-2">&amp;</span>[
@@ -1195,32 +1209,46 @@
         <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))
     }
 
-    <span class="comment">// Parses an external function call `credits.aleo/transfer()` or `board.leo/make_move()`
-    </span><span class="kw">fn </span>parse_external_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
+    <span class="comment">// Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    </span><span class="kw">fn </span>parse_external_resource(<span class="kw-2">&amp;mut </span><span class="self">self</span>, expr: Expression, network_span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&gt; {
         <span class="comment">// Eat an external function call.
         </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div); <span class="comment">// todo: Make `/` a more general token.
 
-        // Parse function name.
+        // Parse name.
         </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+
+        <span class="comment">// Parse the parent program identifier.
+        </span><span class="kw">let </span>program: Identifier = <span class="kw">match </span>expr {
+            Expression::Identifier(identifier) =&gt; identifier,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Function called must be preceded by a program identifier."</span>),
+        };
 
         <span class="comment">// Parsing a '{' means that user is trying to illegally define an external record.
         </span><span class="kw">if </span><span class="self">self</span>.token.token == Token::LeftCurly {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::cannot_define_external_record(expr.span() + name.span()).into());
         }
 
+        <span class="comment">// If there is no parenthesis, then it is a locator.
+        </span><span class="kw">if </span><span class="self">self</span>.token.token != Token::LeftParen {
+            <span class="comment">// Parse an external resource locator.
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>(Expression::Locator(LocatorExpression {
+                program: ProgramId {
+                    name: program,
+                    network: Identifier { name: sym::aleo, span: network_span, id: <span class="self">self</span>.node_builder.next_id() },
+                },
+                name: name.name,
+                span: expr.span() + name.span(),
+                id: <span class="self">self</span>.node_builder.next_id(),
+            }));
+        }
+
         <span class="comment">// Parse the function call.
         </span><span class="kw">let </span>(arguments, <span class="kw">_</span>, span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_expression().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-
-        <span class="comment">// Parse the parent program identifier.
-        </span><span class="kw">let </span>program: Symbol = <span class="kw">match </span>expr {
-            Expression::Identifier(identifier) =&gt; identifier.name,
-            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"Function called must be preceded by a program identifier."</span>),
-        };
 
         <span class="prelude-val">Ok</span>(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            program: <span class="prelude-val">Some</span>(program),
+            program: <span class="prelude-val">Some</span>(program.name),
             arguments,
             id: <span class="self">self</span>.node_builder.next_id(),
         }))
@@ -1249,7 +1277,7 @@
                 } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Leo) {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::only_aleo_external_calls(expr.span()).into());
                 } <span class="kw">else if </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Aleo) {
-                    expr = <span class="self">self</span>.parse_external_call(expr)<span class="question-mark">?</span>;
+                    expr = <span class="self">self</span>.parse_external_resource(expr, <span class="self">self</span>.prev_token.span)<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
                     <span class="comment">// Parse identifier name.
                     </span><span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;

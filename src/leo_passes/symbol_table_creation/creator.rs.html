@@ -109,6 +109,19 @@
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
 <a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -129,7 +142,7 @@
 <span class="kw">use </span>leo_errors::emitter::Handler;
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use crate</span>::{SymbolTable, VariableSymbol, VariableType};
+<span class="kw">use crate</span>::{Location, SymbolTable, VariableSymbol, VariableType};
 
 <span class="doccomment">/// A compiler pass during which the `SymbolTable` is created.
 /// Note that this pass only creates the initial entries for functions, structs, and records.
@@ -141,11 +154,13 @@
     </span>handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler,
     <span class="doccomment">/// The current program name.
     </span>program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
+    <span class="doccomment">/// Whether or not traversing stub.
+    </span>is_stub: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SymbolTableCreator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ symbol_table: Default::default(), handler, program_name: <span class="prelude-val">None </span>}
+        <span class="self">Self </span>{ symbol_table: Default::default(), handler, program_name: <span class="prelude-val">None</span>, is_stub: <span class="bool-val">false </span>}
     }
 }
 
@@ -160,6 +175,7 @@
     <span class="kw">fn </span>visit_program_scope(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ProgramScope) {
         <span class="comment">// Set current program name
         </span><span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.program_id.name.name);
+        <span class="self">self</span>.is_stub = <span class="bool-val">false</span>;
 
         <span class="comment">// Visit the program scope
         </span>input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct(c)));
@@ -173,47 +189,57 @@
     }
 
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(<span class="self">self</span>.program_name, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
     <span class="kw">fn </span>visit_mapping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Mapping) {
+        <span class="comment">// Check if mapping is external.
+        </span><span class="kw">let </span>program = <span class="kw">match </span><span class="self">self</span>.is_stub {
+            <span class="bool-val">true </span>=&gt; <span class="self">self</span>.program_name,
+            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
+        };
         <span class="comment">// Add the variable associated with the mapping to the symbol table.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_variable(input.identifier.name, VariableSymbol {
-            type_: Type::Mapping(MappingType {
-                key: Box::new(input.key_type.clone()),
-                value: Box::new(input.value_type.clone()),
-            }),
-            span: input.span,
-            declaration: VariableType::Mut,
-        }) {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.insert_variable(Location::new(program, input.identifier.name), VariableSymbol {
+                type_: Type::Mapping(MappingType {
+                    key: Box::new(input.key_type.clone()),
+                    value: Box::new(input.value_type.clone()),
+                    program: <span class="self">self</span>.program_name.unwrap(),
+                }),
+                span: input.span,
+                declaration: VariableType::Mut,
+            })
+        {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
     <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_fn(Location::new(<span class="self">self</span>.program_name, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
     <span class="kw">fn </span>visit_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Stub) {
+        <span class="self">self</span>.is_stub = <span class="bool-val">true</span>;
         <span class="self">self</span>.program_name = <span class="prelude-val">Some</span>(input.stub_id.name.name);
         input.functions.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_function_stub(c)));
         input.structs.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_struct_stub(c)));
+        input.mappings.iter().for_each(|(<span class="kw">_</span>, c)| (<span class="self">self</span>.visit_mapping(c)));
     }
 
     <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {
         <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-            <span class="self">self</span>.symbol_table.insert_fn(<span class="self">self</span>.program_name.unwrap(), input.name(), <span class="kw-2">&amp;</span>Function::from(input.clone()))
+            <span class="self">self</span>.symbol_table.insert_fn(Location::new(<span class="self">self</span>.program_name, input.name()), <span class="kw-2">&amp;</span>Function::from(input.clone()))
         {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
 
     <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(<span class="self">self</span>.program_name.unwrap(), input.name(), input) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(<span class="self">self</span>.program_name, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

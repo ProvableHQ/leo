@@ -259,6 +259,11 @@
 <a href="#257" id="257">257</a>
 <a href="#258" id="258">258</a>
 <a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -297,6 +302,7 @@
             Expression::Err(err) =&gt; <span class="self">self</span>.visit_err(err, additional),
             Expression::Identifier(identifier) =&gt; <span class="self">self</span>.visit_identifier(identifier, additional),
             Expression::Literal(literal) =&gt; <span class="self">self</span>.visit_literal(literal, additional),
+            Expression::Locator(locator) =&gt; <span class="self">self</span>.visit_locator(locator, additional),
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.visit_tuple(tuple, additional),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.visit_unary(unary, additional),
@@ -365,6 +371,10 @@
     }
 
     <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        Default::default()
+    }
+
+    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, _additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         Default::default()
     }
 

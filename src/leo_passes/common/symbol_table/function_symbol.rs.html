@@ -88,7 +88,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::SymbolTable;
 
 <span class="doccomment">/// Metadata associated with the finalize block.
-</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 </span><span class="kw">pub struct </span>FinalizeData {
     <span class="doccomment">/// The inputs to the finalize block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) input: Vec&lt;Input&gt;,
@@ -97,7 +97,7 @@
 }
 
 <span class="doccomment">/// An entry for a function in the symbol table.
-</span><span class="attr">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="attr">#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 </span><span class="kw">pub struct </span>FunctionSymbol {
     <span class="doccomment">/// The index associated with the scope in the parent symbol table.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) id: usize,

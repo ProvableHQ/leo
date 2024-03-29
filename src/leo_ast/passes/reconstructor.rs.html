@@ -497,6 +497,11 @@
 <a href="#495" id="495">495</a>
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -534,6 +539,7 @@
             Expression::Err(err) =&gt; <span class="self">self</span>.reconstruct_err(err),
             Expression::Identifier(identifier) =&gt; <span class="self">self</span>.reconstruct_identifier(identifier),
             Expression::Literal(value) =&gt; <span class="self">self</span>.reconstruct_literal(value),
+            Expression::Locator(locator) =&gt; <span class="self">self</span>.reconstruct_locator(locator),
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.reconstruct_ternary(ternary),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.reconstruct_tuple(tuple),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.reconstruct_unary(unary),
@@ -695,6 +701,10 @@
 
     <span class="kw">fn </span>reconstruct_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Literal) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (Expression::Literal(input), Default::default())
+    }
+
+    <span class="kw">fn </span>reconstruct_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: LocatorExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
+        (Expression::Locator(input), Default::default())
     }
 
     <span class="kw">fn </span>reconstruct_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: TernaryExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {

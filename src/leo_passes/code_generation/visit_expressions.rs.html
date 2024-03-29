@@ -610,6 +610,13 @@
 <a href="#608" id="608">608</a>
 <a href="#609" id="609">609</a>
 <a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -626,7 +633,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
+</span><span class="kw">use crate</span>::{CodeGenerator, Location};
 <span class="kw">use </span>leo_ast::{
     AccessExpression,
     ArrayAccess,
@@ -641,6 +648,7 @@
     Expression,
     Identifier,
     Literal,
+    LocatorExpression,
     MemberAccess,
     ProgramScope,
     StructExpression,
@@ -672,6 +680,7 @@
             Expression::Err(expr) =&gt; <span class="self">self</span>.visit_err(expr),
             Expression::Identifier(expr) =&gt; <span class="self">self</span>.visit_identifier(expr),
             Expression::Literal(expr) =&gt; <span class="self">self</span>.visit_value(expr),
+            Expression::Locator(expr) =&gt; <span class="self">self</span>.visit_locator(expr),
             Expression::Ternary(expr) =&gt; <span class="self">self</span>.visit_ternary(expr),
             Expression::Tuple(expr) =&gt; <span class="self">self</span>.visit_tuple(expr),
             Expression::Unary(expr) =&gt; <span class="self">self</span>.visit_unary(expr),
@@ -691,6 +700,10 @@
     }
 
     <span class="kw">fn </span>visit_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal) -&gt; (String, String) {
+        (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
+    }
+
+    <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression) -&gt; (String, String) {
         (<span class="macro">format!</span>(<span class="string">"{input}"</span>), String::new())
     }
 
@@ -1145,7 +1158,8 @@
         <span class="comment">// Initialize storage for the destination registers.
         </span><span class="kw">let </span><span class="kw-2">mut </span>destinations = Vec::new();
 
-        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap().output_type;
+        <span class="kw">let </span>return_type =
+            <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.lookup_fn_symbol(Location::new(<span class="prelude-val">Some</span>(main_program), function_name)).unwrap().output_type;
         <span class="kw">match </span>return_type {
             Type::Unit =&gt; {} <span class="comment">// Do nothing
             </span>Type::Tuple(tuple) =&gt; <span class="kw">match </span>tuple.length() {

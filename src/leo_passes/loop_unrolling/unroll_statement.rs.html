@@ -197,6 +197,8 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -218,7 +220,7 @@
 <span class="kw">use </span>leo_errors::loop_unroller::LoopUnrollerError;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use crate</span>::{unroller::Unroller, VariableSymbol, VariableType};
+<span class="kw">use crate</span>::{unroller::Unroller, Location, VariableSymbol, VariableType};
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {
@@ -259,7 +261,7 @@
         }
 
         <span class="comment">// Remove from symbol table
-        </span><span class="self">self</span>.symbol_table.borrow_mut().remove_variable_from_current_scope(input.place.name);
+        </span><span class="self">self</span>.symbol_table.borrow_mut().remove_variable_from_current_scope(Location::new(<span class="prelude-val">None</span>, input.place.name));
 
         (
             Statement::Const(ConstDeclaration {
@@ -276,11 +278,13 @@
     <span class="kw">fn </span>reconstruct_definition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: DefinitionStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="comment">// Helper function to add  variables to symbol table
         </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
-                type_,
-                span,
-                declaration: VariableType::Mut,
-            }) {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, symbol), VariableSymbol {
+                    type_,
+                    span,
+                    declaration: VariableType::Mut,
+                })
+            {
                 <span class="self">self</span>.handler.emit_err(err);
             }
         };

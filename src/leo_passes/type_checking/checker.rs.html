@@ -1409,6 +1409,33 @@
 <a href="#1407" id="1407">1407</a>
 <a href="#1408" id="1408">1408</a>
 <a href="#1409" id="1409">1409</a>
+<a href="#1410" id="1410">1410</a>
+<a href="#1411" id="1411">1411</a>
+<a href="#1412" id="1412">1412</a>
+<a href="#1413" id="1413">1413</a>
+<a href="#1414" id="1414">1414</a>
+<a href="#1415" id="1415">1415</a>
+<a href="#1416" id="1416">1416</a>
+<a href="#1417" id="1417">1417</a>
+<a href="#1418" id="1418">1418</a>
+<a href="#1419" id="1419">1419</a>
+<a href="#1420" id="1420">1420</a>
+<a href="#1421" id="1421">1421</a>
+<a href="#1422" id="1422">1422</a>
+<a href="#1423" id="1423">1423</a>
+<a href="#1424" id="1424">1424</a>
+<a href="#1425" id="1425">1425</a>
+<a href="#1426" id="1426">1426</a>
+<a href="#1427" id="1427">1427</a>
+<a href="#1428" id="1428">1428</a>
+<a href="#1429" id="1429">1429</a>
+<a href="#1430" id="1430">1430</a>
+<a href="#1431" id="1431">1431</a>
+<a href="#1432" id="1432">1432</a>
+<a href="#1433" id="1433">1433</a>
+<a href="#1434" id="1434">1434</a>
+<a href="#1435" id="1435">1435</a>
+<a href="#1436" id="1436">1436</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1425,7 +1452,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
+</span><span class="kw">use crate</span>::{CallGraph, Location, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
 <span class="kw">use </span>leo_ast::{
     Composite,
@@ -2385,6 +2412,10 @@
                 }
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
+                    <span class="comment">// Cannot modify external mappings.
+                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
+                        <span class="self">self</span>.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"set"</span>, function_span));
+                    }
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
                     </span><span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>arguments[<span class="number">1</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>mapping_type.key, arguments[<span class="number">1</span>].<span class="number">1</span>);
                     <span class="comment">// Check that the third argument matches the value type of the mapping.
@@ -2405,6 +2436,11 @@
                 }
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
+                    <span class="comment">// Cannot modify external mappings.
+                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
+                        <span class="self">self</span>.handler
+                            .emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"remove"</span>, function_span));
+                    }
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
                     </span><span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>arguments[<span class="number">1</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>mapping_type.key, arguments[<span class="number">1</span>].<span class="number">1</span>);
                     <span class="comment">// Return nothing.
@@ -2423,6 +2459,11 @@
                 }
                 <span class="comment">// Check that the first argument is a mapping.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(mapping_type) = <span class="self">self</span>.assert_mapping_type(<span class="kw-2">&amp;</span>arguments[<span class="number">0</span>].<span class="number">0</span>, arguments[<span class="number">0</span>].<span class="number">1</span>) {
+                    <span class="comment">// Cannot use `contains` on external mappings.
+                    </span><span class="kw">if </span>mapping_type.program != <span class="self">self</span>.program_name.unwrap() {
+                        <span class="self">self</span>.handler
+                            .emit_err(TypeCheckerError::cannot_modify_external_mapping(<span class="string">"contains"</span>, function_span));
+                    }
                     <span class="comment">// Check that the second argument matches the key type of the mapping.
                     </span><span class="self">self</span>.assert_type(<span class="kw-2">&amp;</span>arguments[<span class="number">1</span>].<span class="number">0</span>, <span class="kw-2">&amp;</span>mapping_type.key, arguments[<span class="number">1</span>].<span class="number">1</span>);
                     <span class="comment">// Return a boolean.
@@ -2475,7 +2516,10 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_duplicate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, name: Symbol, program_1: Symbol, program_2: Symbol) -&gt; bool {
         <span class="comment">// Make sure that both structs have been defined already.
         </span><span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
-        <span class="kw">let </span>(struct_1, struct_2) = <span class="kw">match </span>(st.lookup_struct(program_1, name), st.lookup_struct(program_2, name)) {
+        <span class="kw">let </span>(struct_1, struct_2) = <span class="kw">match </span>(
+            st.lookup_struct(Location::new(<span class="prelude-val">Some</span>(program_1), name)),
+            st.lookup_struct(Location::new(<span class="prelude-val">Some</span>(program_2), name)),
+        ) {
             (<span class="prelude-val">Some</span>(struct_1), <span class="prelude-val">Some</span>(struct_2)) =&gt; (struct_1, struct_2),
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
         };
@@ -2520,7 +2564,7 @@
                 <span class="kw">if </span><span class="self">self
                     </span>.symbol_table
                     .borrow()
-                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
                     .map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
             {
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
@@ -2545,7 +2589,11 @@
             }
             <span class="comment">// Check that the named composite type has been defined.
             </span>Type::Composite(struct_)
-                <span class="kw">if </span><span class="self">self</span>.symbol_table.borrow().lookup_struct(struct_.program.unwrap(), struct_.id.name).is_none() =&gt;
+                <span class="kw">if </span><span class="self">self
+                    </span>.symbol_table
+                    .borrow()
+                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
+                    .is_none() =&gt;
             {
                 is_valid = <span class="bool-val">false</span>;
                 <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
@@ -2578,8 +2626,10 @@
                     <span class="comment">// Array elements cannot be records.
                     </span>Type::Composite(struct_type) =&gt; {
                         <span class="comment">// Look up the type.
-                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) =
-                            <span class="self">self</span>.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self
+                            </span>.symbol_table
+                            .borrow()
+                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                         {
                             <span class="comment">// Check that the type is not a record.
                             </span><span class="kw">if </span>struct_.is_record {
@@ -2638,7 +2688,9 @@
 
             <span class="comment">// If the function is not a transition function, then it cannot have a record as input
             </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.symbol_table.borrow().lookup_struct(struct_.program.unwrap(), struct_.id.name) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) =
+                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
+                {
                     <span class="kw">if </span>val.is_record &amp;&amp; !<span class="macro">matches!</span>(function.variant, Variant::Transition) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
@@ -2647,13 +2699,14 @@
 
             <span class="comment">// Add non-stub inputs to the symbol table.
             </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
-                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                    <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                    Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
+                    VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
+                    },
+                ) {
                     <span class="self">self</span>.handler.emit_err(err);
                 }
             }
@@ -2681,7 +2734,7 @@
                                 &amp;&amp; <span class="self">self
                                     </span>.symbol_table
                                     .borrow()
-                                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
                                     .unwrap()
                                     .is_record
                             {
@@ -2733,7 +2786,7 @@
                     </span><span class="kw">if </span><span class="self">self
                         </span>.symbol_table
                         .borrow()
-                        .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
                         .unwrap()
                         .is_record
                     {
@@ -2746,13 +2799,14 @@
                 }
                 <span class="comment">// Add non-stub inputs to the symbol table.
                 </span><span class="kw">if </span>!<span class="self">self</span>.is_stub {
-                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
-                        <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
+                        Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
+                        VariableSymbol {
                             type_: input_var.type_(),
                             span: input_var.identifier().span(),
                             declaration: VariableType::Input(input_var.mode()),
-                        })
-                    {
+                        },
+                    ) {
                         <span class="self">self</span>.handler.emit_err(err);
                     }
                 }
@@ -2782,7 +2836,7 @@
                     </span><span class="kw">if </span><span class="self">self
                         </span>.symbol_table
                         .borrow()
-                        .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
                         .unwrap()
                         .is_record
                     {
@@ -2804,7 +2858,7 @@
     <span class="doccomment">/// Emits an error if the type corresponds to an external struct.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_internal_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, composite: <span class="kw-2">&amp;</span>CompositeType, span: Span) {
         <span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
-        <span class="kw">match </span>st.lookup_struct(composite.program.unwrap(), composite.id.name) {
+        <span class="kw">match </span>st.lookup_struct(Location::new(composite.program, composite.id.name)) {
             <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
             <span class="prelude-val">Some</span>(composite_def) =&gt; {
                 <span class="kw">if </span>!composite_def.is_record &amp;&amp; composite_def.external.unwrap() != <span class="self">self</span>.program_name.unwrap() {

@@ -450,6 +450,15 @@
 <a href="#448" id="448">448</a>
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -466,7 +475,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{TypeChecker, VariableSymbol, VariableType};
+</span><span class="kw">use crate</span>::{Location, TypeChecker, VariableSymbol, VariableType};
 <span class="kw">use </span>itertools::Itertools;
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
@@ -520,7 +529,9 @@
             }
         };
 
-        <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(var_name.name) {
+        <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
+            <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(Location::new(<span class="prelude-val">None</span>, var_name.name))
+        {
             <span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
                 VariableType::Const =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) =&gt; {
@@ -644,11 +655,13 @@
         </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.value, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.type_.clone()));
 
         <span class="comment">// Add constants to symbol table so that any references to them in later statements will pass TC
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.place.span,
-            declaration: VariableType::Const,
-        }) {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, input.place.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.place.span,
+                declaration: VariableType::Const,
+            })
+        {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
@@ -692,11 +705,13 @@
         <span class="comment">// TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
         </span><span class="kw">let </span>insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
-                type_,
-                span,
-                declaration: VariableType::Mut,
-            }) {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+                <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, symbol), VariableSymbol {
+                    type_,
+                    span,
+                    declaration: VariableType::Mut,
+                })
+            {
                 <span class="self">self</span>.handler.emit_err(err);
             }
         };
@@ -760,11 +775,13 @@
         </span><span class="kw">let </span>scope_index = <span class="self">self</span>.create_child_scope();
 
         <span class="comment">// Add the loop variable to the scope of the loop body.
-        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(input.variable.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.span(),
-            declaration: VariableType::Const,
-        }) {
+        </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(Location::new(<span class="prelude-val">None</span>, input.variable.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration: VariableType::Const,
+            })
+        {
             <span class="self">self</span>.handler.emit_err(err);
         }
 
@@ -799,7 +816,7 @@
                 }
             }
             Expression::Identifier(id) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(id.name) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, id.name)) {
                     <span class="kw">if </span>VariableType::Const != var.declaration {
                         <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -819,7 +836,7 @@
                 }
             }
             Expression::Identifier(id) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(id.name) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, id.name)) {
                     <span class="kw">if </span>VariableType::Const != var.declaration {
                         <span class="self">self</span>.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -833,14 +850,15 @@
         <span class="comment">// We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         </span><span class="kw">let </span>parent = <span class="self">self</span>.function.unwrap();
-        <span class="kw">let </span>return_type = <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), parent).map(|f| {
-            <span class="kw">match </span><span class="self">self</span>.is_finalize {
-                <span class="comment">// TODO: Check this.
-                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
-                <span class="bool-val">false </span>=&gt; f.output_type.clone(),
-            }
-        });
+        <span class="kw">let </span>return_type =
+            <span class="kw-2">&amp;</span><span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, parent)).map(|f| {
+                <span class="kw">match </span><span class="self">self</span>.is_finalize {
+                    <span class="comment">// TODO: Check this.
+                    // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                    </span><span class="bool-val">true </span>=&gt; f.finalize.as_ref().unwrap().output_type.clone(),
+                    <span class="bool-val">false </span>=&gt; f.output_type.clone(),
+                }
+            });
 
         <span class="comment">// Set the `has_return` flag.
         </span><span class="self">self</span>.has_return = <span class="bool-val">true</span>;
@@ -875,7 +893,7 @@
             </span><span class="kw">let </span>finalize = <span class="self">self
                 </span>.symbol_table
                 .borrow()
-                .lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), <span class="self">self</span>.function.unwrap())
+                .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, <span class="self">self</span>.function.unwrap()))
                 .unwrap()
                 .finalize
                 .clone();

@@ -127,6 +127,8 @@
 <a href="#125" id="125">125</a>
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -143,7 +145,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::Flattener;
+</span><span class="kw">use crate</span>::{Flattener, Location};
 
 <span class="kw">use </span>leo_ast::{
     Expression,
@@ -218,8 +220,10 @@
                     Type::Array(first_type) =&gt; <span class="self">self</span>.ternary_array(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),
                     Type::Composite(first_type) =&gt; {
                         <span class="comment">// Get the struct definitions.
-                        </span><span class="kw">let </span>first_type =
-                            <span class="self">self</span>.symbol_table.lookup_struct(first_type.program.unwrap(), first_type.id.name).unwrap();
+                        </span><span class="kw">let </span>first_type = <span class="self">self
+                            </span>.symbol_table
+                            .lookup_struct(Location::new(first_type.program, first_type.id.name))
+                            .unwrap();
                         <span class="self">self</span>.ternary_struct(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second)
                     }
                     Type::Tuple(first_type) =&gt; <span class="self">self</span>.ternary_tuple(first_type, <span class="kw-2">&amp;</span>input.condition, <span class="kw-2">&amp;</span>first, <span class="kw-2">&amp;</span>second),

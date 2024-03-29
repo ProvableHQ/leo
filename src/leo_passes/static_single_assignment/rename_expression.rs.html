@@ -393,6 +393,12 @@
 <a href="#391" id="391">391</a>
 <a href="#392" id="392">392</a>
 <a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -409,7 +415,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::StaticSingleAssigner;
+</span><span class="kw">use crate</span>::{Location, StaticSingleAssigner};
 
 <span class="kw">use </span>leo_ast::{
     AccessExpression,
@@ -424,6 +430,7 @@
     ExpressionConsumer,
     Identifier,
     Literal,
+    LocatorExpression,
     MemberAccess,
     Statement,
     StructExpression,
@@ -648,7 +655,7 @@
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
         </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Composite =
-            <span class="self">self</span>.symbol_table.lookup_struct(<span class="self">self</span>.program.unwrap(), input.name.name).unwrap();
+            <span class="self">self</span>.symbol_table.lookup_struct(Location::new(<span class="self">self</span>.program, input.name.name)).unwrap();
 
         <span class="comment">// Initialize the list of reordered members.
         </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());
@@ -711,6 +718,11 @@
         <span class="comment">// Construct and accumulate a new assignment statement for the literal.
         </span><span class="kw">let </span>(place, statement) = <span class="self">self</span>.unique_simple_assign_statement(Expression::Literal(input));
         (Expression::Identifier(place), <span class="macro">vec!</span>[statement])
+    }
+
+    <span class="doccomment">/// Consumes and returns the locator expression without making any modifciations
+    </span><span class="kw">fn </span>consume_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: LocatorExpression) -&gt; <span class="self">Self</span>::Output {
+        (Expression::Locator(input), Vec::new())
     }
 
     <span class="doccomment">/// Consumes a ternary expression, accumulating any statements that are generated.

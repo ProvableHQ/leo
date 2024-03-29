@@ -481,6 +481,8 @@
 <a href="#479" id="479">479</a>
 <a href="#480" id="480">480</a>
 <a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -519,7 +521,9 @@
                 Token::Program =&gt; {
                     <span class="kw">match </span>parsed_program_scope {
                         <span class="comment">// Only one program scope is allowed per file.
-                        </span><span class="bool-val">true </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::only_one_program_scope_is_allowed(<span class="self">self</span>.token.span).into()),
+                        </span><span class="bool-val">true </span>=&gt; {
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(ParserError::only_one_program_scope_is_allowed(<span class="self">self</span>.token.span).into());
+                        }
                         <span class="bool-val">false </span>=&gt; {
                             parsed_program_scope = <span class="bool-val">true</span>;
                             <span class="kw">let </span>program_scope = <span class="self">self</span>.parse_program_scope()<span class="question-mark">?</span>;

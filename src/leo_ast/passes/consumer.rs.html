@@ -152,6 +152,9 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -188,6 +191,7 @@
             Expression::Err(err) =&gt; <span class="self">self</span>.consume_err(err),
             Expression::Identifier(identifier) =&gt; <span class="self">self</span>.consume_identifier(identifier),
             Expression::Literal(value) =&gt; <span class="self">self</span>.consume_literal(value),
+            Expression::Locator(locator) =&gt; <span class="self">self</span>.consume_locator(locator),
             Expression::Ternary(ternary) =&gt; <span class="self">self</span>.consume_ternary(ternary),
             Expression::Tuple(tuple) =&gt; <span class="self">self</span>.consume_tuple(tuple),
             Expression::Unary(unary) =&gt; <span class="self">self</span>.consume_unary(unary),
@@ -214,6 +218,8 @@
     <span class="kw">fn </span>consume_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Identifier) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: Literal) -&gt; <span class="self">Self</span>::Output;
+
+    <span class="kw">fn </span>consume_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: LocatorExpression) -&gt; <span class="self">Self</span>::Output;
 
     <span class="kw">fn </span>consume_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: TernaryExpression) -&gt; <span class="self">Self</span>::Output;
 

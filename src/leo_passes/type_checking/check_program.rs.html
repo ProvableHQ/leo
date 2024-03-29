@@ -364,6 +364,10 @@
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -380,7 +384,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{DiGraphError, TypeChecker};
+</span><span class="kw">use crate</span>::{DiGraphError, Location, TypeChecker};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::TypeCheckerError;
@@ -435,8 +439,12 @@
 
         <span class="comment">// Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        </span><span class="kw">let </span>function_index =
-            <span class="self">self</span>.symbol_table.borrow().lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), input.identifier.name).unwrap().id;
+        </span><span class="kw">let </span>function_index = <span class="self">self
+            </span>.symbol_table
+            .borrow()
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, input.identifier.name))
+            .unwrap()
+            .id;
 
         <span class="comment">// Enter the function's scope.
         </span><span class="self">self</span>.enter_scope(function_index);
@@ -603,7 +611,7 @@
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) =
-                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     <span class="kw">if </span>struct_.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"record"</span>, input.span));
@@ -622,7 +630,7 @@
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) =
-                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     <span class="kw">if </span>struct_.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"record"</span>, input.span));
@@ -650,7 +658,7 @@
         </span><span class="kw">let </span>function_index = <span class="self">self
             </span>.symbol_table
             .borrow()
-            .lookup_fn_symbol(<span class="self">self</span>.program_name.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.program_name, function.identifier.name))
             .unwrap()
             .id;
 

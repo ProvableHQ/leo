@@ -54,6 +54,10 @@
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -76,13 +80,13 @@
 <span class="comment">// Create custom struct to wrap (Symbol, Symbol) so that it can be serialized and deserialized.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 </span><span class="kw">pub struct </span>Location {
-    <span class="kw">pub </span>program: Symbol,
+    <span class="kw">pub </span>program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="kw">pub </span>name: Symbol,
 }
 
 <span class="kw">impl </span>Location {
     <span class="comment">// Create new Location instance.
-    </span><span class="kw">pub fn </span>new(program: Symbol, name: Symbol) -&gt; Location {
+    </span><span class="kw">pub fn </span>new(program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; Location {
         Location { program, name }
     }
 }
@@ -92,7 +96,11 @@
     <span class="kw">where
         </span>S: Serializer,
     {
-        serializer.serialize_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/{}"</span>, <span class="self">self</span>.program, <span class="self">self</span>.name))
+        <span class="kw">let </span>condensed_str = <span class="kw">match </span><span class="self">self</span>.program {
+            <span class="prelude-val">Some</span>(program) =&gt; <span class="macro">format!</span>(<span class="string">"{}/{}"</span>, program, <span class="self">self</span>.name),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">"{}"</span>, <span class="self">self</span>.name),
+        };
+        serializer.serialize_str(<span class="kw-2">&amp;</span>condensed_str)
     }
 }
 
@@ -102,9 +110,9 @@
         </span>D: Deserializer&lt;<span class="lifetime">'de</span>&gt;,
     {
         <span class="kw">let </span>s = String::deserialize(deserializer)<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>parts = s.split(<span class="string">'/'</span>);
-        <span class="kw">let </span>program = Symbol::intern(parts.next().unwrap());
-        <span class="kw">let </span>name = Symbol::intern(parts.next().unwrap());
+        <span class="kw">let </span><span class="kw-2">mut </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = s.split(<span class="string">'/'</span>).collect();
+        <span class="kw">let </span>program = <span class="kw">if </span>parts.len() == <span class="number">1 </span>{ <span class="prelude-val">None </span>} <span class="kw">else </span>{ <span class="prelude-val">Some</span>(Symbol::intern(parts.remove(<span class="number">0</span>))) };
+        <span class="kw">let </span>name = Symbol::intern(parts.first().unwrap());
         <span class="prelude-val">Ok</span>(Location::new(program, name))
     }
 }

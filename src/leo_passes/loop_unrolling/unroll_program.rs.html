@@ -148,7 +148,7 @@
 
 </span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 
-<span class="kw">use </span><span class="kw">crate</span>::Unroller;
+<span class="kw">use crate</span>::{Location, Unroller};
 
 <span class="kw">impl </span>ProgramReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>reconstruct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Stub) -&gt; Stub {
@@ -190,7 +190,7 @@
         </span><span class="kw">let </span>function_index = <span class="self">self
             </span>.symbol_table
             .borrow()
-            .lookup_fn_symbol(<span class="self">self</span>.current_program.unwrap(), input.identifier.name)
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.current_program, input.identifier.name))
             .unwrap()
             .id;
 
@@ -209,7 +209,7 @@
         </span><span class="kw">let </span>function_index = <span class="self">self
             </span>.symbol_table
             .borrow()
-            .lookup_fn_symbol(<span class="self">self</span>.current_program.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(Location::new(<span class="self">self</span>.current_program, function.identifier.name))
             .unwrap()
             .id;
 

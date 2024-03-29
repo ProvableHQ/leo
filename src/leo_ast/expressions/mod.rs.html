@@ -188,6 +188,16 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -246,6 +256,9 @@
 <span class="kw">mod </span>literal;
 <span class="kw">pub use </span>literal::<span class="kw-2">*</span>;
 
+<span class="kw">pub mod </span>locator;
+<span class="kw">pub use </span>locator::<span class="kw-2">*</span>;
+
 <span class="doccomment">/// Expression that evaluates to a value.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 </span><span class="kw">pub enum </span>Expression {
@@ -259,8 +272,6 @@
     </span>Call(CallExpression),
     <span class="doccomment">/// A cast expression, e.g., `42u32 as u8`.
     </span>Cast(CastExpression),
-    <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    </span>Struct(StructExpression),
     <span class="doccomment">/// An expression of type "error".
     /// Will result in a compile error eventually.
     </span><span class="prelude-val">Err</span>(ErrExpression),
@@ -268,6 +279,10 @@
     </span>Identifier(Identifier),
     <span class="doccomment">/// A literal expression.
     </span>Literal(Literal),
+    <span class="doccomment">/// A locator expression, e.g., `hello.aleo/foo`.
+    </span>Locator(LocatorExpression),
+    <span class="doccomment">/// An expression constructing a struct like `Foo { bar: 42, baz }`.
+    </span>Struct(StructExpression),
     <span class="doccomment">/// A ternary conditional expression `cond ? if_expr : else_expr`.
     </span>Ternary(TernaryExpression),
     <span class="doccomment">/// A tuple expression e.g., `(foo, 42, true)`.
@@ -287,10 +302,11 @@
             Binary(n) =&gt; n.span(),
             Call(n) =&gt; n.span(),
             Cast(n) =&gt; n.span(),
-            Struct(n) =&gt; n.span(),
             <span class="prelude-val">Err</span>(n) =&gt; n.span(),
             Identifier(n) =&gt; n.span(),
             Literal(n) =&gt; n.span(),
+            Locator(n) =&gt; n.span(),
+            Struct(n) =&gt; n.span(),
             Ternary(n) =&gt; n.span(),
             Tuple(n) =&gt; n.span(),
             Unary(n) =&gt; n.span(),
@@ -306,10 +322,11 @@
             Binary(n) =&gt; n.set_span(span),
             Call(n) =&gt; n.set_span(span),
             Cast(n) =&gt; n.set_span(span),
-            Struct(n) =&gt; n.set_span(span),
             Identifier(n) =&gt; n.set_span(span),
             Literal(n) =&gt; n.set_span(span),
+            Locator(n) =&gt; n.set_span(span),
             <span class="prelude-val">Err</span>(n) =&gt; n.set_span(span),
+            Struct(n) =&gt; n.set_span(span),
             Ternary(n) =&gt; n.set_span(span),
             Tuple(n) =&gt; n.set_span(span),
             Unary(n) =&gt; n.set_span(span),
@@ -325,10 +342,11 @@
             Binary(n) =&gt; n.id(),
             Call(n) =&gt; n.id(),
             Cast(n) =&gt; n.id(),
-            Struct(n) =&gt; n.id(),
             Identifier(n) =&gt; n.id(),
             Literal(n) =&gt; n.id(),
+            Locator(n) =&gt; n.id(),
             <span class="prelude-val">Err</span>(n) =&gt; n.id(),
+            Struct(n) =&gt; n.id(),
             Ternary(n) =&gt; n.id(),
             Tuple(n) =&gt; n.id(),
             Unary(n) =&gt; n.id(),
@@ -344,10 +362,11 @@
             Binary(n) =&gt; n.set_id(id),
             Call(n) =&gt; n.set_id(id),
             Cast(n) =&gt; n.set_id(id),
-            Struct(n) =&gt; n.set_id(id),
             Identifier(n) =&gt; n.set_id(id),
             Literal(n) =&gt; n.set_id(id),
+            Locator(n) =&gt; n.set_id(id),
             <span class="prelude-val">Err</span>(n) =&gt; n.set_id(id),
+            Struct(n) =&gt; n.set_id(id),
             Ternary(n) =&gt; n.set_id(id),
             Tuple(n) =&gt; n.set_id(id),
             Unary(n) =&gt; n.set_id(id),
@@ -365,10 +384,11 @@
             Binary(n) =&gt; n.fmt(f),
             Call(n) =&gt; n.fmt(f),
             Cast(n) =&gt; n.fmt(f),
-            Struct(n) =&gt; n.fmt(f),
             <span class="prelude-val">Err</span>(n) =&gt; n.fmt(f),
             Identifier(n) =&gt; n.fmt(f),
             Literal(n) =&gt; n.fmt(f),
+            Locator(n) =&gt; n.fmt(f),
+            Struct(n) =&gt; n.fmt(f),
             Ternary(n) =&gt; n.fmt(f),
             Tuple(n) =&gt; n.fmt(f),
             Unary(n) =&gt; n.fmt(f),
