@@ -772,7 +772,7 @@ create_messages!(
     @formatted
     cannot_modify_external_mapping {
         args: (operation: impl Display),
-        msg: format!("Cannot use operation `{operation}` to modify external mapping."),
-        help: Some("The only valid operations on external mappings are get, get_or_use, and contains.".to_string()),
+        msg: format!("Cannot use operation `{operation}` on external mapping."),
+        help: Some("The only valid operations on external mappings are get, and get_or_use.".to_string()),
     }
 );

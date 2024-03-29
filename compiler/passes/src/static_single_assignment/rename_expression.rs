@@ -321,9 +321,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
 
     /// Consumes and returns the locator expression without making any modifciations
     fn consume_locator(&mut self, input: LocatorExpression) -> Self::Output {
-        // Construct and accumulate a new assignment statement for the locator expression.
-        let (place, statement) = self.unique_simple_assign_statement(Expression::Locator(input));
-        (Expression::Identifier(place), vec![statement])
+        (Expression::Locator(input), Vec::new())
     }
 
     /// Consumes a ternary expression, accumulating any statements that are generated.
