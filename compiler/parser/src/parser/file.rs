@@ -40,8 +40,8 @@ impl ParserContext<'_> {
                             println!("here!!!!\n");
                             dbg!(self.prev_token.token.clone());
                             dbg!(self.token.token.clone());
-                            return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into())
-                        },
+                            return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into());
+                        }
                         false => {
                             parsed_program_scope = true;
                             let program_scope = self.parse_program_scope()?;

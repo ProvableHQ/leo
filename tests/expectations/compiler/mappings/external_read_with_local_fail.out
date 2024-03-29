@@ -1,5 +1,31 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "Error [EPAR0370026]: Only one program scope is allowed in a Leo file.\n    --> compiler-test:16:1\n     |\n  16 | program relay.aleo {\n     | ^^^^^^^"
+  - - compile:
+        - initial_symbol_table: fc307df07f8a0a99719ce23e16d771c29663370df120dc876a4def3c7edd38f8
+          type_checked_symbol_table: 74dce5ddd90f9483b16a0ae4ddce3eb728f079f5ed712874318dbd57feb7dba7
+          unrolled_symbol_table: 74dce5ddd90f9483b16a0ae4ddce3eb728f079f5ed712874318dbd57feb7dba7
+          initial_ast: efda1c6e7be18efe4ea6169f6d27b7f106db42d5bcde956e70da339e30e091df
+          unrolled_ast: efda1c6e7be18efe4ea6169f6d27b7f106db42d5bcde956e70da339e30e091df
+          ssa_ast: 9ac972bcd784822c2f6fecfd95137246ae16fe5bf981891067feb17527bcfcd9
+          flattened_ast: 379bca911757006b6ea7396ddd3b73bceabb8f7a05b5561a59d01dee9c3944fd
+          destructured_ast: 94de0a00b2744a8d57c0d9a24b99c9a41b061dded4fc41a01e61c32dcc157511
+          inlined_ast: 94de0a00b2744a8d57c0d9a24b99c9a41b061dded4fc41a01e61c32dcc157511
+          dce_ast: 94de0a00b2744a8d57c0d9a24b99c9a41b061dded4fc41a01e61c32dcc157511
+          bytecode: a79b2e6157ea82497b98275cbe0746e2d547267bd062ba5e089f837534c28d92
+          errors: ""
+          warnings: ""
+        - initial_symbol_table: a1113e81d6c945d804f8e014f4170218ed27823345d10beaef7c47b67241ef10
+          type_checked_symbol_table: 9db8362dfadd19afd9c39b1fe1da4bb8db6e8bcedc4ebd715126089e9157bc6c
+          unrolled_symbol_table: 9db8362dfadd19afd9c39b1fe1da4bb8db6e8bcedc4ebd715126089e9157bc6c
+          initial_ast: 0d7c905b9e1a1e3c04fcac8019cac1def846ac1e12c73cd119096fdb6d26195d
+          unrolled_ast: 70ed7ac2b24e252a3a04db25601d3a32d5848c1b3a8c5ec7813fc1faa436d691
+          ssa_ast: af87a3be9d09336844cea42bb7d7cf8b71513ce3695d38759f2a6944ce39bd88
+          flattened_ast: 84812afb475e8b27510d8202520e1b2a2bc893df20841a0e43fd164b55ee93fe
+          destructured_ast: 35f55a0a47aea8d4394db748c6c0eaa23bbd43650530507c28b952de8f00456e
+          inlined_ast: 35f55a0a47aea8d4394db748c6c0eaa23bbd43650530507c28b952de8f00456e
+          dce_ast: 35f55a0a47aea8d4394db748c6c0eaa23bbd43650530507c28b952de8f00456e
+          bytecode: 427876b88e7f2efa548ec261aeffae11a73c629a9e6a561f7d43a802dd493c78
+          errors: ""
+          warnings: ""
