@@ -56,6 +56,7 @@ version = "1.10"
 [dev-dependencies.leo-compiler]
 path = "../../compiler/compiler"
 
+
 [dev-dependencies.leo-span]
 path = "../../compiler/span"
 

@@ -280,7 +280,7 @@ mod tests {
     fn relaxed_struct_shadowing_run_test() {
         // Set current directory to temporary directory
         let temp_dir = temp_dir();
-        let project_name = "outer";
+        let project_name = "outer_2";
         let project_directory = temp_dir.join(project_name);
 
         // Remove it if it already exists
@@ -684,7 +684,7 @@ program outer.aleo {
     }
 
     pub(crate) fn sample_struct_shadowing_package(temp_dir: &Path) {
-        let outer_directory = temp_dir.join("outer");
+        let outer_directory = temp_dir.join("outer_2");
         let inner_1_directory = outer_directory.join("inner_1");
         let inner_2_directory = outer_directory.join("inner_2");
 
@@ -692,11 +692,11 @@ program outer.aleo {
             std::fs::remove_dir_all(outer_directory.clone()).unwrap();
         }
 
-        // Create project file structure `outer/inner_1` and `outer/inner_2`
+        // Create project file structure `outer_2/inner_1` and `outer_2/inner_2`
         let create_outer_project = CLI {
             debug: false,
             quiet: false,
-            command: Commands::New { command: New { name: "outer".to_string() } },
+            command: Commands::New { command: New { name: "outer_2".to_string() } },
             path: Some(outer_directory.clone()),
             home: None,
         };
@@ -717,11 +717,11 @@ program outer.aleo {
             home: None,
         };
 
-        // Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
+        // Add source files `outer_2/src/main.leo` and `outer_2/inner/src/main.leo`
         let outer_program = "
 import inner_1.aleo;
 import inner_2.aleo;
-program outer.aleo {
+program outer_2.aleo {
     struct Foo {
         a: u32,
         b: u32,
@@ -803,7 +803,7 @@ program outer.aleo {
         return Goo {a:100u32, b:1u32, c:1u32};
     }
 }";
-        // Add dependencies `outer/program.json`
+        // Add dependencies `outer_2/program.json`
         let add_outer_dependency_1 = CLI {
             debug: false,
             quiet: false,

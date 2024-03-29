@@ -2,16 +2,30 @@
 namespace: Execute
 expectation: Pass
 cases:
-    bar:
-    - input: ["true", "true", "1u8", "0u8"]
-    - input: ["true", "false", "1u8", "1u8"]
-    - input: ["false", "true", "2u8", "1u8"]
-    - input: ["false", "false", "2u8", "2u8"]
-    blar:
-    - input: ["true", "true", "1u8", "0u8"]
-    - input: ["true", "false", "1u8", "1u8"]
-    - input: ["false", "true", "2u8", "1u8"]
-    - input: ["false", "false", "2u8", "2u8"]
+    - program: test.aleo
+      function: bar
+      input: ["true", "true", "1u8", "0u8"]
+    - program: test.aleo
+      function: bar
+      input: ["true", "false", "1u8", "1u8"]
+    - program: test.aleo
+      function: bar
+      input: ["false", "true", "2u8", "1u8"]
+    - program: test.aleo
+      function: bar
+      input: ["false", "false", "2u8", "2u8"]
+    - program: test.aleo
+      function: blar
+      input: ["true", "true", "1u8", "0u8"]
+    - program: test.aleo
+      function: blar
+      input: ["true", "false", "1u8", "1u8"]
+    - program: test.aleo
+      function: blar
+      input: ["false", "true", "2u8", "1u8"]
+    - program: test.aleo
+      function: blar
+      input: ["false", "false", "2u8", "2u8"]
 */
 
 // In this test, we expect bar and blar to produce the same result for all inputs.

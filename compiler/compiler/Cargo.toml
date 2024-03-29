@@ -45,11 +45,18 @@ version = "0.10"
 version = "1.9"
 features = []
 
+[dev-dependencies.disassembler]
+path = "../../utils/disassembler"
+
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 
 [dev-dependencies.leo-package]
 path = "../../leo/package"
+
+[dev-dependencies.aleo-std-storage]
+version = "0.1.7"
+default-features = false
 
 [dev-dependencies.dotenvy]
 version = "0.15.7"

@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: f6f2e35337709bfaaa8117b87c12c814128ac5519c1c00041e5e67aa7536e00f
-      type_checked_symbol_table: 504f40fef7e2fb8267f2e8338c3580e86d3c2ec5710c7d5c80faa063bb021a67
-      unrolled_symbol_table: 504f40fef7e2fb8267f2e8338c3580e86d3c2ec5710c7d5c80faa063bb021a67
-      initial_ast: fd49423086e80748e2df0611434ab8ea239afbeb70a4583a1fad90265ab38698
-      unrolled_ast: fd49423086e80748e2df0611434ab8ea239afbeb70a4583a1fad90265ab38698
-      ssa_ast: 7b281b52d3b0ca2ed6603a0b10a5b92ca048f9c176381fc6d0a0dc2a94bc4c79
-      flattened_ast: fb52cb954eda18d22bd8b68f86e67844850b2d085c9aa220fd2138f335bf1c88
-      destructured_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
-      inlined_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
-      dce_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
-      bytecode: 319b96ef20018acc654ec52780087d599a75f6204095ab426882087218865bcc
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: f6f2e35337709bfaaa8117b87c12c814128ac5519c1c00041e5e67aa7536e00f
+          type_checked_symbol_table: 504f40fef7e2fb8267f2e8338c3580e86d3c2ec5710c7d5c80faa063bb021a67
+          unrolled_symbol_table: 504f40fef7e2fb8267f2e8338c3580e86d3c2ec5710c7d5c80faa063bb021a67
+          initial_ast: fd49423086e80748e2df0611434ab8ea239afbeb70a4583a1fad90265ab38698
+          unrolled_ast: fd49423086e80748e2df0611434ab8ea239afbeb70a4583a1fad90265ab38698
+          ssa_ast: 7b281b52d3b0ca2ed6603a0b10a5b92ca048f9c176381fc6d0a0dc2a94bc4c79
+          flattened_ast: fb52cb954eda18d22bd8b68f86e67844850b2d085c9aa220fd2138f335bf1c88
+          destructured_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
+          inlined_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
+          dce_ast: 1b276c077bc5b8cefdaf1a41771f6cac1638cd64f8f4c9e3562c7c83e4619828
+          bytecode: 319b96ef20018acc654ec52780087d599a75f6204095ab426882087218865bcc
+          errors: ""
+          warnings: ""

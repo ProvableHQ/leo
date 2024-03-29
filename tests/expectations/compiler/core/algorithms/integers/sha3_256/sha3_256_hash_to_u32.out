@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 2dc7ad5e83f9c1cba20c56645ec155cb70abd718a81424b366f6c5678c6de77a
-      type_checked_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
-      unrolled_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
-      initial_ast: 311a9396e6a21eee4880a4620969c802afbcc2e32cca0b6f95ae0c57b87a1660
-      unrolled_ast: 311a9396e6a21eee4880a4620969c802afbcc2e32cca0b6f95ae0c57b87a1660
-      ssa_ast: 3e3d6ed70af718d6a1920a72313b55dc2661bdd38cde3fdd75b315b3a149b377
-      flattened_ast: 9697698559c03df66fe7071959ac1b242e30a714844888401ce89dba4ca02213
-      destructured_ast: 07a37d49bb89ca336dbbd2e828d627321f14102342d8e21bc863fb9e14afb952
-      inlined_ast: 07a37d49bb89ca336dbbd2e828d627321f14102342d8e21bc863fb9e14afb952
-      dce_ast: ada247469bec98a67ca8ec77886135e3e1bb7c1c0df5a1b3ce7e2d1c9e3a2bfd
-      bytecode: 32f8e6f9a0f4869bb08c45ba1b94b5411c3641959a3f21203f34f54bfbdf120f
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 2dc7ad5e83f9c1cba20c56645ec155cb70abd718a81424b366f6c5678c6de77a
+          type_checked_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
+          unrolled_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
+          initial_ast: 311a9396e6a21eee4880a4620969c802afbcc2e32cca0b6f95ae0c57b87a1660
+          unrolled_ast: 311a9396e6a21eee4880a4620969c802afbcc2e32cca0b6f95ae0c57b87a1660
+          ssa_ast: 3e3d6ed70af718d6a1920a72313b55dc2661bdd38cde3fdd75b315b3a149b377
+          flattened_ast: 9697698559c03df66fe7071959ac1b242e30a714844888401ce89dba4ca02213
+          destructured_ast: 07a37d49bb89ca336dbbd2e828d627321f14102342d8e21bc863fb9e14afb952
+          inlined_ast: 07a37d49bb89ca336dbbd2e828d627321f14102342d8e21bc863fb9e14afb952
+          dce_ast: ada247469bec98a67ca8ec77886135e3e1bb7c1c0df5a1b3ce7e2d1c9e3a2bfd
+          bytecode: 32f8e6f9a0f4869bb08c45ba1b94b5411c3641959a3f21203f34f54bfbdf120f
+          errors: ""
+          warnings: ""

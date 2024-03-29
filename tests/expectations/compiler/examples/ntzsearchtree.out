@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: c20a0219726883d91e651747e032454a6df25fe5b60ef0a49a98d72f597feb59
-      type_checked_symbol_table: 10b7ac826acfe3133da96257404fa3f6d04d8b15cb8f061a8c34523d9f6df2c9
-      unrolled_symbol_table: 10b7ac826acfe3133da96257404fa3f6d04d8b15cb8f061a8c34523d9f6df2c9
-      initial_ast: 151382f7a4ca5e55f5010774212ef840e43e998e60a8ce00fa598087d9395524
-      unrolled_ast: 151382f7a4ca5e55f5010774212ef840e43e998e60a8ce00fa598087d9395524
-      ssa_ast: 798a0fa6573eb17bf16feac7ae1176daea0b7a6e3c674b23bfadae5b088ecb23
-      flattened_ast: 8c1404c3e644892ef078f733bf8bbcaea9b2a43916526cda902d7764edc5442d
-      destructured_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
-      inlined_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
-      dce_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
-      bytecode: 3516104be238849345d986d90ff7aa2bc01fe31609f34330e279eef25edb7752
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: c20a0219726883d91e651747e032454a6df25fe5b60ef0a49a98d72f597feb59
+          type_checked_symbol_table: 10b7ac826acfe3133da96257404fa3f6d04d8b15cb8f061a8c34523d9f6df2c9
+          unrolled_symbol_table: 10b7ac826acfe3133da96257404fa3f6d04d8b15cb8f061a8c34523d9f6df2c9
+          initial_ast: 151382f7a4ca5e55f5010774212ef840e43e998e60a8ce00fa598087d9395524
+          unrolled_ast: 151382f7a4ca5e55f5010774212ef840e43e998e60a8ce00fa598087d9395524
+          ssa_ast: 798a0fa6573eb17bf16feac7ae1176daea0b7a6e3c674b23bfadae5b088ecb23
+          flattened_ast: 8c1404c3e644892ef078f733bf8bbcaea9b2a43916526cda902d7764edc5442d
+          destructured_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
+          inlined_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
+          dce_ast: eb8dd57ae105cb55984d3c96b562307f5fa9d94a659dad28e0a4a4dbea29fd99
+          bytecode: 3516104be238849345d986d90ff7aa2bc01fe31609f34330e279eef25edb7752
+          errors: ""
+          warnings: ""

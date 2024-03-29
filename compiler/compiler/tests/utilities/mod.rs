@@ -17,6 +17,9 @@
 mod check_unique_node_ids;
 use check_unique_node_ids::*;
 
+mod output;
+pub use output::*;
+
 use leo_compiler::{BuildOptions, Compiler, CompilerOptions};
 use leo_errors::{
     emitter::{Buffer, Emitter, Handler},
@@ -30,7 +33,8 @@ use leo_test_framework::{test::TestConfig, Test};
 use snarkvm::prelude::*;
 
 use indexmap::IndexMap;
-use leo_ast::ProgramVisitor;
+use leo_ast::{ProgramVisitor, Stub};
+use leo_span::Symbol;
 use snarkvm::{file::Manifest, package::Package};
 use std::{
     cell::RefCell,
@@ -41,26 +45,27 @@ use std::{
     rc::Rc,
 };
 
-pub type Network = Testnet3;
+pub type CurrentNetwork = Testnet3;
 #[allow(unused)]
-pub type Aleo = snarkvm::circuit::AleoV0;
+pub type CurrentAleo = snarkvm::circuit::AleoV0;
 
-pub fn hash_asts() -> (String, String, String, String, String, String, String) {
-    let initial_ast = hash_file("/tmp/output/test.initial_ast.json");
-    let unrolled_ast = hash_file("/tmp/output/test.unrolled_ast.json");
-    let ssa_ast = hash_file("/tmp/output/test.ssa_ast.json");
-    let flattened_ast = hash_file("/tmp/output/test.flattened_ast.json");
-    let destructured_ast = hash_file("/tmp/output/test.destructured_ast.json");
-    let inlined_ast = hash_file("/tmp/output/test.inlined_ast.json");
-    let dce_ast = hash_file("/tmp/output/test.dce_ast.json");
+pub fn hash_asts(program_name: &str) -> (String, String, String, String, String, String, String) {
+    let initial_ast = hash_file(&format!("/tmp/output/{program_name}.initial_ast.json"));
+    let unrolled_ast = hash_file(&format!("/tmp/output/{program_name}.unrolled_ast.json"));
+    let ssa_ast = hash_file(&format!("/tmp/output/{program_name}.ssa_ast.json"));
+    let flattened_ast = hash_file(&format!("/tmp/output/{program_name}.flattened_ast.json"));
+    let destructured_ast = hash_file(&format!("/tmp/output/{program_name}.destructured_ast.json"));
+    let inlined_ast = hash_file(&format!("/tmp/output/{program_name}.inlined_ast.json"));
+    let dce_ast = hash_file(&format!("/tmp/output/{program_name}.dce_ast.json"));
 
     (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast)
 }
 
-pub fn hash_symbol_tables() -> (String, String, String) {
-    let initial_symbol_table = hash_file("/tmp/output/test.initial_symbol_table.json");
-    let type_checked_symbol_table = hash_file("/tmp/output/test.type_checked_symbol_table.json");
-    let unrolled_symbol_table = hash_file("/tmp/output/test.unrolled_symbol_table.json");
+pub fn hash_symbol_tables(program_name: &str) -> (String, String, String) {
+    let initial_symbol_table = hash_file(&format!("/tmp/output/{program_name}.initial_symbol_table.json"));
+    let type_checked_symbol_table = hash_file(&format!("/tmp/output/{program_name}.type_checked_symbol_table.json"));
+    let unrolled_symbol_table = hash_file(&format!("/tmp/output/{program_name}.unrolled_symbol_table.json"));
+
     (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table)
 }
 
@@ -106,12 +111,16 @@ pub fn get_build_options(test_config: &TestConfig) -> Vec<BuildOptions> {
 }
 
 #[allow(unused)]
-pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Handler) -> Result<Package<Network>, ()> {
+pub fn setup_build_directory(
+    program_name: &str,
+    bytecode: &String,
+    handler: &Handler,
+) -> Result<Package<CurrentNetwork>, ()> {
     // Initialize a temporary directory.
     let directory = temp_dir();
 
     // Create the program id.
-    let program_id = ProgramID::<Network>::from_str(program_name).unwrap();
+    let program_id = ProgramID::<CurrentNetwork>::from_str(program_name).unwrap();
 
     // Write the program string to a file in the temporary directory.
     let path = directory.join("main.aleo");
@@ -122,8 +131,8 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     let _manifest_file = Manifest::create(&directory, &program_id).unwrap();
 
     // Create the environment file.
-    Env::<Network>::new().unwrap().write_to(&directory).unwrap();
-    if Env::<Network>::exists_at(&directory) {
+    Env::<CurrentNetwork>::new().unwrap().write_to(&directory).unwrap();
+    if Env::<CurrentNetwork>::exists_at(&directory) {
         println!(".env file created at {:?}", &directory);
     }
 
@@ -132,35 +141,45 @@ pub fn setup_build_directory(program_name: &str, bytecode: &String, handler: &Ha
     fs::create_dir_all(build_directory).unwrap();
 
     // Open the package at the temporary directory.
-    handler.extend_if_error(Package::<Network>::open(&directory).map_err(LeoError::Anyhow))
+    handler.extend_if_error(Package::<CurrentNetwork>::open(&directory).map_err(LeoError::Anyhow))
 }
 
 pub fn new_compiler(
+    program_name: String,
     handler: &Handler,
     main_file_path: PathBuf,
     compiler_options: Option<CompilerOptions>,
+    import_stubs: IndexMap<Symbol, Stub>,
 ) -> Compiler<'_> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
     Compiler::new(
-        String::from("test"),
+        program_name,
         String::from("aleo"),
         handler,
         main_file_path,
         output_dir,
         compiler_options,
-        IndexMap::new(),
+        import_stubs,
     )
 }
 
 pub fn parse_program<'a>(
+    program_name: String,
     handler: &'a Handler,
     program_string: &str,
     cwd: Option<PathBuf>,
     compiler_options: Option<CompilerOptions>,
+    import_stubs: IndexMap<Symbol, Stub>,
 ) -> Result<Compiler<'a>, LeoError> {
-    let mut compiler = new_compiler(handler, cwd.clone().unwrap_or_else(|| "compiler-test".into()), compiler_options);
+    let mut compiler = new_compiler(
+        program_name,
+        handler,
+        cwd.clone().unwrap_or_else(|| "compiler-test".into()),
+        compiler_options,
+        import_stubs,
+    );
     let name = cwd.map_or_else(|| FileName::Custom("compiler-test".into()), FileName::Real);
     compiler.parse_program_from_string(program_string, name)?;
 
@@ -231,6 +250,8 @@ pub fn temp_dir() -> PathBuf {
 }
 
 pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
+    parsed.add_import_stubs()?;
+
     let st = parsed.symbol_table_pass()?;
 
     CheckUniqueNodeIds::new().visit_program(&parsed.ast.ast);
@@ -259,11 +280,11 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
 /// Returns the private key from the .env file specified in the directory.
 #[allow(unused)]
-pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<Network>> {
+pub fn dotenv_private_key(directory: &Path) -> Result<PrivateKey<CurrentNetwork>> {
     use std::str::FromStr;
     dotenvy::from_path(directory.join(".env")).map_err(|_| anyhow!("Missing a '.env' file in the test directory."))?;
     // Load the private key from the environment.
     let private_key = dotenvy::var("PRIVATE_KEY").map_err(|e| anyhow!("Missing PRIVATE_KEY - {e}"))?;
     // Parse the private key.
-    PrivateKey::<Network>::from_str(&private_key)
+    PrivateKey::<CurrentNetwork>::from_str(&private_key)
 }

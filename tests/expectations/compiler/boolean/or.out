@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: c2554df804e76bce64e5beedbf8d8e065838dbcbd414e55b572828825d0d697b
-      type_checked_symbol_table: 22b375401300c7518693377bd090bac20ee7b423925434817e9d88c889e7deba
-      unrolled_symbol_table: 22b375401300c7518693377bd090bac20ee7b423925434817e9d88c889e7deba
-      initial_ast: b1d21cb0ba71715333e75efca70fe0bcf972fe6cd829450005477642b87073fe
-      unrolled_ast: b1d21cb0ba71715333e75efca70fe0bcf972fe6cd829450005477642b87073fe
-      ssa_ast: 2d68d235dcd42e1f8bc6c6a7b33df61ea8f568ef47f0f8d45ec829f5ba322747
-      flattened_ast: 69ba227eb312a96c98b9bd948e0211f3d5a5ab776baee208d240ab26cbf44f9c
-      destructured_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
-      inlined_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
-      dce_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
-      bytecode: c3a0c03f4324a6dd6baea42e664ffad91868714739e03525dcbc968582007ceb
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: c2554df804e76bce64e5beedbf8d8e065838dbcbd414e55b572828825d0d697b
+          type_checked_symbol_table: 22b375401300c7518693377bd090bac20ee7b423925434817e9d88c889e7deba
+          unrolled_symbol_table: 22b375401300c7518693377bd090bac20ee7b423925434817e9d88c889e7deba
+          initial_ast: b1d21cb0ba71715333e75efca70fe0bcf972fe6cd829450005477642b87073fe
+          unrolled_ast: b1d21cb0ba71715333e75efca70fe0bcf972fe6cd829450005477642b87073fe
+          ssa_ast: 2d68d235dcd42e1f8bc6c6a7b33df61ea8f568ef47f0f8d45ec829f5ba322747
+          flattened_ast: 69ba227eb312a96c98b9bd948e0211f3d5a5ab776baee208d240ab26cbf44f9c
+          destructured_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
+          inlined_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
+          dce_ast: a05609fc7fb96a7c9287782e1077381d674700017b8340a40c1515af3c97ae50
+          bytecode: c3a0c03f4324a6dd6baea42e664ffad91868714739e03525dcbc968582007ceb
+          errors: ""
+          warnings: ""

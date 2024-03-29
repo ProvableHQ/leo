@@ -2,25 +2,76 @@
 namespace: Execute
 expectation: Pass
 outputs:
-  - - initial_symbol_table: a56c5db08f6890c8f13ddf9458ca5ed0cc39b8388bcc7545672c59ff33b9eb2e
-      type_checked_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-      unrolled_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-      initial_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-      unrolled_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-      ssa_ast: 5b38714260ed02a1fa30e2226fb8d69363a8cc28c8b19a99d501cd25e52fe499
-      flattened_ast: b217d33cfcd234126e9f708676e43d8edc957692b5cb36b8284f092c9a14bad9
-      destructured_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      inlined_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      dce_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-      bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
-      warnings: ""
-      results:
-        main:
-          - input: "[0u32, 1u32]"
-            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (13430 constraints).)"
-          - input: "[1u32, 1u32]"
-            output: "[true]"
-          - input: "[1u32, 2u32]"
-            output: "SnarkVMError('test.aleo/main' is not satisfied on the given inputs (13430 constraints).)"
-          - input: "[2u32, 2u32]"
-            output: "[true]"
+  - - compile:
+        - initial_symbol_table: a56c5db08f6890c8f13ddf9458ca5ed0cc39b8388bcc7545672c59ff33b9eb2e
+          type_checked_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
+          unrolled_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
+          initial_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
+          unrolled_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
+          ssa_ast: 5b38714260ed02a1fa30e2226fb8d69363a8cc28c8b19a99d501cd25e52fe499
+          flattened_ast: b217d33cfcd234126e9f708676e43d8edc957692b5cb36b8284f092c9a14bad9
+          destructured_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          inlined_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          dce_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+          bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
+          errors: ""
+          warnings: ""
+      execute:
+        - execution: ~
+          verified: false
+          status: none
+          errors: "Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)"
+          warnings: ""
+        - execution:
+            transitions:
+              - id: au1k0q0h4gkdaqy0aqfy797g09th80z3wxvr7qu9xysw4gfd0pqdg8qnvnf0g
+                program: test.aleo
+                function: main
+                inputs:
+                  - type: private
+                    id: 3129859445991755804068827277405102140364469690507775238534982738220499322341field
+                    value: ciphertext1qyqw9399tz03l4hltp0dzqumvqu3hv2hkrhxa2hwgmud8jadyfah7yqjv2d2d
+                  - type: private
+                    id: 8123211100540490470474568348277995735504507054925035195184366205548001158862field
+                    value: ciphertext1qyqgze93qk7w433qljn9nl65gf6v66h3dedlxntjk3cz4gx94dtx6pqvf0mpl
+                outputs:
+                  - type: private
+                    id: 4111292270986645593993032074790067041174992229907615843156066736406157250053field
+                    value: ciphertext1qyqqnrk5vrjqlep053p45az5rvkpe2advf93yfgpnqatf5hxywxfwpcxhev4g
+                tpk: 6654485319628803800473258408142528349831222331508895911400234571777773035209group
+                tcm: 6507505051645685160053074479285395717792646481272559037995197631826177047620field
+            global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqvt4cduxdg7u25nr7rhl725r766k5vgp26nt7sdhhne9trlqrfde23klyu0elq4z8399fw30r9j3gpq9e56dcz5a4r3fytte5jft9eawpcsdgk7g0r6hk4j5u2u7svz58k450ep5xuumx789zq33nyvmzfnqdux3afsqh5xz5q96h3ckd47599lftvkrtcvk2hp239q48gz24c9wxpzwakj8nmflu3jfqcf4xlwsqzem3l3wc22ac4ug34mjscn682fv5zpdglpmyjexke5a25sa7hg3rv6hk8du7xav0d5c02wjwz0usq3rmmuppxh4e5h22z5lhl6q53q8mx09gpnyzhmqusghec3exkwsl4h4wm6djyznhecdqmz45htmfgpyzc8mquxx8lh22aak9xk6z74nqw93gl6tvpggp5fgxd2f6ehmrt8znflu4sfecc4x5wl2rwdsgpqqmdun6r7n8tcfzrt8rphqddv2ywrnvgen9xsrhfsjp02dpnvzkn9z2ahnf7aqwae98a6la2kvuheqrju8l445nmpu40v646y4es0rmj44qtkfcj9fya786zwqpuqv2nc59nd2ycukvskamc350v0jlt87qhudy5k4xk5mwfruz6km3pum3jm2k3hctednzl5v38llaqpzatngp4vupde72ds4m3k2k4p7vakacpewjj42c5eclhk4805fjqh40yw2zs53yw5lq59wmwd2al96fw0vpunq9xm2w8j46jkfz98nsd6m2mfr4le4jww4z43k92e7sz98u7wpsh8k0pwwzf7amfu25xhjc9979agxeekegw8fk4fmfpz6nqlpm2ps3fml2gls9rnjlny5yqh970tfmgttrvvqa8dwm759s0swvpeadpr6xv2lft7reaklg5652zz34f4xmj4rk6mnu733c7u9tnre9rgwcpcfxcj4qpvppkp2f8zelnq2ylvjamr7dt7wkd24fa3psdq9le4q8xatyjhpzdu8zrgmd2kdd20jv8eqdsnvufuhn39ru0j2dcxnvxyyhn5yush85ca3r2vyfp622g2w0fk4xkdzjgtfyhwfl8taf3axzrq6lqwcuqp236zafdgy5z5fxusj753hutggyrjuh8x55sj2p0fnjsle2h8tqe73fl8y9fs6s7q25557p4mpq0xejvjedt284c77d58ucgqvqqqqqqqqqqp0wjsxd89k3357zzcysqnwjr57sthfuemhxt2cdgz6jl45uep9pzfkcxm8pcn8dtusl6agxdq7p3qyq9njxw8q7pe0u875yqe8g485qhshhtz52t609tu8mgymwvtnxm9paxgdyxsyehafawvl7sga0gnfgpqxlkte30g5k3gx3tc70tpafzmaz6724gwvk02hdfxt9ud0xryqjsya0un3q3rvyvcqcxq06v3g7qz6acwkhm3upzasg6qta7n3ea4ky06sdrk6kjp7es4zq8ends7wntsqqqxl6jj8
+          verified: true
+          status: accepted
+          errors: ""
+          warnings: ""
+        - execution: ~
+          verified: false
+          status: none
+          errors: "Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)"
+          warnings: ""
+        - execution:
+            transitions:
+              - id: au1a90p6gdqumuyem27tf47qt7tu69vmccry52jgeyq0757trqa5czshreh0g
+                program: test.aleo
+                function: main
+                inputs:
+                  - type: private
+                    id: 228366991749873961122523868839743068087424207461164519707009478940041253874field
+                    value: ciphertext1qyqpr2gyst5wk08ghthj9s7mmrq0xh6662t32n2q9p5w23h8qqjq6pcv3tqu3
+                  - type: private
+                    id: 1481034795795504943045507126725110339738363269740484848424313712909237438574field
+                    value: ciphertext1qyqfxnq4a0r7gf3sjxa748kt4nxjvpshwr6kr8h46kzxe5v87cdsvrqf08fg8
+                outputs:
+                  - type: private
+                    id: 5675423662846604543781715428642377427196842386148561031503169160256284498938field
+                    value: ciphertext1qyqphuexpgddp4gcfn7vuj6s44umsmkycv4a8xne7cahaz69cuu4zzq3yagtm
+                tpk: 1935543592088280092038812920295743682220128815042903324823516767534490742275group
+                tcm: 6222207888346167456363249570125515482674694987529506741674028832540431099790field
+            global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq97u56j8mrjgy3ykydh50l8gzu8wvg0w7xlvan7g2d6snr6zsqwam0gp8dmtvqtn9te5tq0sz2fcvqqx6sw3ctghk42ahcy9w4yn8ssedc9c9ytlarf3rkt6hvelt9utzmer037nqyyynwn9n0vh462e4uhqr0qx9cvrzkxhcast0pj80hnuqj4cqv3dldz7y8d27haenj8j7zn7lhgxk5raced8hke4ve24mg0gqm3n2yf7lxw5fk60gjncr74lnp4d8gusrpm8qr3lyccx0mu2vtzurse0cnt8vdm70kjee5cl85vvcqksug5wce6xpznffe4djl0c28tc2cnrf2xxp6efca5245r9tpkzwnkxmtms3v22aykq9dqym8vjmcpwsnnsertcfqj0tmtu8jzj6yh6gk65075uckkpw2u8uspxj6qszhqtv23p7r66u5hfee49seta5zqy2ga6d8tuv0dp2se0v2nuuffym9j5clpgmzntp5hua9drj5d46xslpzrrjvpjx5nk445uy3qr8reqdzx8pn97d3vuf0ztx6r6qzf36pyyphl686p6ks0d2thlqytcct3vw0ave8x6pjmjhccxevkxvzlyqf2zxapqdm0zk979vm78fn48gs59epw5dzj3a2xs654grry7g6x0r0vlpk5444xshgt583xszysscqkgrwytutznfnqlqp6gwev77cc4kqlfvpupy7v8dgawpschyf4cxc5eusn38h0yudsq4rry6mzcydaengx5cj85au0ja30jwpqnfy7pgy6myt865etw77vxjnspqp7kt4wn04alkc8y02qc88zdpffdnlp99j879ajgle409vk0fql3scdqhqk3jz7f5707vcu2grk42mej6qx0hhjp42kt70jj0g95lxxtfx8cp6mw56twmrjn66gnh30u0lz2sxt2nrar2al2y50l0p7shcqjstq94glt3ygkpvk9dd5f26axvrey9jgzwmayt2msv4yppznk3553seflhptdtj3ws0j3nynz6f8rl4kyhh6jkm3y5hqce53hq64ph4a90slrvg9ks7k8ht32t2xkjqhpxxqutur0v5e3whyyqanuhzjw3hmwqcvsqmx8k9l9fk5xlvm7fzqr6swfed78mqehm00fwqg0rw3cqc4t24tzv37k253ux2d8apl62s5jcfqvqqqqqqqqqqqe3vyejddftv0dlqd7a7juxwfv2aw5sqqxcn6fqfvysg2v9d7swqs48hhk6v052azw3lvkx5wmtfsqqq52q6srt87v2cu7trd9yaq2z254myl2pgze0wp4cfwjrwftyp0cktd8zk3wl9dwdug2akqk7nz6gqqyq2nz2vfqmmsp7r074ve3g82tzveq88wtnzu48c3a5nr0krf0spzdu5rlz2jlptx7wq2jlzvrzafr0uex7wfa32lurxguxcwq0vfjmetd5f9rt9e5lfw4gwkuzlrrrlqqqq56ulgg
+          verified: true
+          status: accepted
+          errors: ""
+          warnings: ""

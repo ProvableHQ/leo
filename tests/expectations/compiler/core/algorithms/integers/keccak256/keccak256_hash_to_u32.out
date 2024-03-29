@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 2dc7ad5e83f9c1cba20c56645ec155cb70abd718a81424b366f6c5678c6de77a
-      type_checked_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
-      unrolled_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
-      initial_ast: cf6789533bc01bc72205ab784c85415bec8573efae5aa7c1161a7b32d03894ee
-      unrolled_ast: cf6789533bc01bc72205ab784c85415bec8573efae5aa7c1161a7b32d03894ee
-      ssa_ast: 41cea737c3237e9713fa3c743d83f66ff05aa29e272668966d420c8f722c95db
-      flattened_ast: 08a473b72eddab65398e35b9b64047fb0897e43470e717bb15a451b4261ef813
-      destructured_ast: 1043fe91aa6735a08854bf668dea389c40139a997bbc4654f1466db3d8f058ab
-      inlined_ast: 1043fe91aa6735a08854bf668dea389c40139a997bbc4654f1466db3d8f058ab
-      dce_ast: 633e737ff89609c809b2daab761b01a7a9e66ffd6dd391efba0bbbd910fec441
-      bytecode: a90328ca973213775dcbfa872950cc8126b172ef1cd4c1a1650277b23b6f6957
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 2dc7ad5e83f9c1cba20c56645ec155cb70abd718a81424b366f6c5678c6de77a
+          type_checked_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
+          unrolled_symbol_table: c149a9b656b0bf41d055568d6d3c38be12cb9e7c46fd669f861d918fc8f86e99
+          initial_ast: cf6789533bc01bc72205ab784c85415bec8573efae5aa7c1161a7b32d03894ee
+          unrolled_ast: cf6789533bc01bc72205ab784c85415bec8573efae5aa7c1161a7b32d03894ee
+          ssa_ast: 41cea737c3237e9713fa3c743d83f66ff05aa29e272668966d420c8f722c95db
+          flattened_ast: 08a473b72eddab65398e35b9b64047fb0897e43470e717bb15a451b4261ef813
+          destructured_ast: 1043fe91aa6735a08854bf668dea389c40139a997bbc4654f1466db3d8f058ab
+          inlined_ast: 1043fe91aa6735a08854bf668dea389c40139a997bbc4654f1466db3d8f058ab
+          dce_ast: 633e737ff89609c809b2daab761b01a7a9e66ffd6dd391efba0bbbd910fec441
+          bytecode: a90328ca973213775dcbfa872950cc8126b172ef1cd4c1a1650277b23b6f6957
+          errors: ""
+          warnings: ""

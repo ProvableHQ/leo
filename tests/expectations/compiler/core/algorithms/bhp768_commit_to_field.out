@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 0b53989640055bef15deab2fb1e4d8691b4f1b439f1bdba64f34278be1cb37e0
-      type_checked_symbol_table: 8e5ad458f96ada8c3cdd6424e864c7a94692cfab224dc16b6941cfd5fc99f883
-      unrolled_symbol_table: 8e5ad458f96ada8c3cdd6424e864c7a94692cfab224dc16b6941cfd5fc99f883
-      initial_ast: 45b5e75c32023cdef7aab58b99384b5311c9010256a9cfaca51781888fae3495
-      unrolled_ast: 45b5e75c32023cdef7aab58b99384b5311c9010256a9cfaca51781888fae3495
-      ssa_ast: 2066bd314a11bc63d536be349e58aa72b89aa0472e40ecfb2c92be92d55bf01a
-      flattened_ast: 2b0a92d72558c86071293ef91a47e5e2bea76d37a62aaf662c8475cf4658c488
-      destructured_ast: ab1d8272569899f77a41d0771840b24e2d1dea785ae3116ba2349e34362579ff
-      inlined_ast: ab1d8272569899f77a41d0771840b24e2d1dea785ae3116ba2349e34362579ff
-      dce_ast: 84a79017a8b5ac8cb5edac27cfc397b266efef38fb9489b75002abfe65de74bf
-      bytecode: d6282c666e51c8c3f3ce541b16d07701dc4d0900acf44bf392cc235ed79a2484
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 0b53989640055bef15deab2fb1e4d8691b4f1b439f1bdba64f34278be1cb37e0
+          type_checked_symbol_table: 8e5ad458f96ada8c3cdd6424e864c7a94692cfab224dc16b6941cfd5fc99f883
+          unrolled_symbol_table: 8e5ad458f96ada8c3cdd6424e864c7a94692cfab224dc16b6941cfd5fc99f883
+          initial_ast: 45b5e75c32023cdef7aab58b99384b5311c9010256a9cfaca51781888fae3495
+          unrolled_ast: 45b5e75c32023cdef7aab58b99384b5311c9010256a9cfaca51781888fae3495
+          ssa_ast: 2066bd314a11bc63d536be349e58aa72b89aa0472e40ecfb2c92be92d55bf01a
+          flattened_ast: 2b0a92d72558c86071293ef91a47e5e2bea76d37a62aaf662c8475cf4658c488
+          destructured_ast: ab1d8272569899f77a41d0771840b24e2d1dea785ae3116ba2349e34362579ff
+          inlined_ast: ab1d8272569899f77a41d0771840b24e2d1dea785ae3116ba2349e34362579ff
+          dce_ast: 84a79017a8b5ac8cb5edac27cfc397b266efef38fb9489b75002abfe65de74bf
+          bytecode: d6282c666e51c8c3f3ce541b16d07701dc4d0900acf44bf392cc235ed79a2484
+          errors: ""
+          warnings: ""

@@ -77,7 +77,7 @@ To make several aspects of the test framework easier to work with there are seve
 - `TEST_FILTER` - Now runs all tests in the given directory, or the exact given test.
   - `TEST_FILTER="address" cargo test -p leo-compiler` will run all tests in the located in `tests/compiler/address`.
   - `TEST_FILTER="address/branch.leo" cargo test -p leo-compiler` will run the test located in `tests/compiler/address/branch.leo`.
-- `CLEAR_LEO_TEST_EXPECTATIONS` - which if set clears all current expectations for the tests being run and regenerates them all.
+- `REWRITE_EXPECTATIONS` - which if set clears all current expectations for the tests being run and regenerates them all.
 
 To set environment variables please look at your Shell(bash/powershell/cmd/fish/etc) specific implementation for doing so
 

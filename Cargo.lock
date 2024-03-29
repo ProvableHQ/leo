@@ -1558,6 +1558,8 @@ dependencies = [
 name = "leo-compiler"
 version = "1.10.0"
 dependencies = [
+ "aleo-std-storage",
+ "disassembler",
  "dotenvy",
  "indexmap 1.9.3",
  "leo-ast",

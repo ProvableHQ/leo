@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 133fcbba9bb86f1d0958a6f72b4960abcd59d162a5ceefa2296a927c7cf149d9
-      type_checked_symbol_table: b50b494402d36ace0a248fac90024f9c74622d22c92bda44696bb012dad8966a
-      unrolled_symbol_table: b50b494402d36ace0a248fac90024f9c74622d22c92bda44696bb012dad8966a
-      initial_ast: 737656f278c000d14d3a7a2d65ed6a15f798a98ee57325b6a7086e83ca6f5392
-      unrolled_ast: 737656f278c000d14d3a7a2d65ed6a15f798a98ee57325b6a7086e83ca6f5392
-      ssa_ast: 516ea160eab03b099e904e755fd9a15ebe62cf2277beeaf4683915adf0244c36
-      flattened_ast: 06a7bc6432a0f6010812c5ac09c33e9d0ffd8fa8d21bdb3b56adc48245e40bab
-      destructured_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
-      inlined_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
-      dce_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
-      bytecode: 4d6180dac5a97d9a8f2825b4cae41adec00897380b309e1ffadda4ddd4f607fa
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 133fcbba9bb86f1d0958a6f72b4960abcd59d162a5ceefa2296a927c7cf149d9
+          type_checked_symbol_table: b50b494402d36ace0a248fac90024f9c74622d22c92bda44696bb012dad8966a
+          unrolled_symbol_table: b50b494402d36ace0a248fac90024f9c74622d22c92bda44696bb012dad8966a
+          initial_ast: 737656f278c000d14d3a7a2d65ed6a15f798a98ee57325b6a7086e83ca6f5392
+          unrolled_ast: 737656f278c000d14d3a7a2d65ed6a15f798a98ee57325b6a7086e83ca6f5392
+          ssa_ast: 516ea160eab03b099e904e755fd9a15ebe62cf2277beeaf4683915adf0244c36
+          flattened_ast: 06a7bc6432a0f6010812c5ac09c33e9d0ffd8fa8d21bdb3b56adc48245e40bab
+          destructured_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
+          inlined_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
+          dce_ast: 88b3f91e27b1bc817e0a25311659bc13999d6c2f48468821d20b32ebc1a1ed40
+          bytecode: 4d6180dac5a97d9a8f2825b4cae41adec00897380b309e1ffadda4ddd4f607fa
+          errors: ""
+          warnings: ""
