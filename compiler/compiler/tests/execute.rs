@@ -43,8 +43,8 @@ use leo_test_framework::{
 use aleo_std_storage::StorageMode;
 use snarkvm::{console, prelude::*};
 
-use disassembler::disassemble_from_str;
 use indexmap::IndexMap;
+use leo_disassembler::disassemble_from_str;
 use leo_errors::LeoError;
 use leo_span::Symbol;
 use regex::Regex;
