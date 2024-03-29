@@ -1134,7 +1134,7 @@
     </span><span class="kw">fn </span>relaxed_struct_shadowing_run_test() {
         <span class="comment">// Set current directory to temporary directory
         </span><span class="kw">let </span>temp_dir = temp_dir();
-        <span class="kw">let </span>project_name = <span class="string">"outer"</span>;
+        <span class="kw">let </span>project_name = <span class="string">"outer_2"</span>;
         <span class="kw">let </span>project_directory = temp_dir.join(project_name);
 
         <span class="comment">// Remove it if it already exists
@@ -1538,7 +1538,7 @@ program outer.aleo {
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sample_struct_shadowing_package(temp_dir: <span class="kw-2">&amp;</span>Path) {
-        <span class="kw">let </span>outer_directory = temp_dir.join(<span class="string">"outer"</span>);
+        <span class="kw">let </span>outer_directory = temp_dir.join(<span class="string">"outer_2"</span>);
         <span class="kw">let </span>inner_1_directory = outer_directory.join(<span class="string">"inner_1"</span>);
         <span class="kw">let </span>inner_2_directory = outer_directory.join(<span class="string">"inner_2"</span>);
 
@@ -1546,11 +1546,11 @@ program outer.aleo {
             std::fs::remove_dir_all(outer_directory.clone()).unwrap();
         }
 
-        <span class="comment">// Create project file structure `outer/inner_1` and `outer/inner_2`
+        <span class="comment">// Create project file structure `outer_2/inner_1` and `outer_2/inner_2`
         </span><span class="kw">let </span>create_outer_project = CLI {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,
-            command: Commands::New { command: New { name: <span class="string">"outer"</span>.to_string() } },
+            command: Commands::New { command: New { name: <span class="string">"outer_2"</span>.to_string() } },
             path: <span class="prelude-val">Some</span>(outer_directory.clone()),
             home: <span class="prelude-val">None</span>,
         };
@@ -1571,11 +1571,11 @@ program outer.aleo {
             home: <span class="prelude-val">None</span>,
         };
 
-        <span class="comment">// Add source files `outer/src/main.leo` and `outer/inner/src/main.leo`
+        <span class="comment">// Add source files `outer_2/src/main.leo` and `outer_2/inner/src/main.leo`
         </span><span class="kw">let </span>outer_program = <span class="string">"
 import inner_1.aleo;
 import inner_2.aleo;
-program outer.aleo {
+program outer_2.aleo {
     struct Foo {
         a: u32,
         b: u32,
@@ -1657,7 +1657,7 @@ program outer.aleo {
         return Goo {a:100u32, b:1u32, c:1u32};
     }
 }"</span>;
-        <span class="comment">// Add dependencies `outer/program.json`
+        <span class="comment">// Add dependencies `outer_2/program.json`
         </span><span class="kw">let </span>add_outer_dependency_1 = CLI {
             debug: <span class="bool-val">false</span>,
             quiet: <span class="bool-val">false</span>,

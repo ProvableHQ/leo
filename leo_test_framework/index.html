@@ -63,7 +63,7 @@ directory and run the [<code>parser_tests()</code>] test in [<code>parser/src/te
 <li><code>TEST_FILTER=&quot;address/branch.leo&quot; cargo test -p leo-compiler</code> will run the test located in <code>tests/compiler/address/branch.leo</code>.</li>
 </ul>
 </li>
-<li><code>CLEAR_LEO_TEST_EXPECTATIONS</code> - which if set clears all current expectations for the tests being run and regenerates them all.</li>
+<li><code>REWRITE_EXPECTATIONS</code> - which if set clears all current expectations for the tests being run and regenerates them all.</li>
 </ul>
 <p>To set environment variables please look at your Shell(bash/powershell/cmd/fish/etc) specific implementation for doing so</p>
 <p><strong>NOTE</strong>: Don’t forget to clear the environment variable after running it with that setting, or set a temporary env variable if your shell supports it.</p>

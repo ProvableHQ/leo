@@ -300,6 +300,10 @@
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -326,6 +330,8 @@
 };
 
 <span class="kw">use crate</span>::{error::<span class="kw-2">*</span>, fetch::find_tests, output::TestExpectation, test::<span class="kw-2">*</span>};
+
+<span class="kw">pub const </span>PROGRAM_DELIMITER: <span class="kw-2">&amp;</span>str = <span class="string">"// --- Next Program --- //"</span>;
 
 <span class="attr">#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 </span><span class="kw">pub enum </span>ParseType {
@@ -411,10 +417,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>test_path = <span class="self">self</span>.path_prefix.clone();
         test_path.push(<span class="string">"tests"</span>);
         test_path.push(<span class="kw-2">&amp;</span><span class="self">self</span>.expectation_category);
-        <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = std::env::var(<span class="string">"TEST_FILTER"</span>) {
-            test_path.push(p);
-        }
 
+        <span class="kw">let </span>tests = find_tests(<span class="kw-2">&amp;</span>test_path);
+        <span class="comment">// Print all paths.
+        </span><span class="kw">for </span>(path, <span class="kw">_</span>) <span class="kw">in </span>tests {
+            <span class="macro">println!</span>(<span class="string">"{:?}"</span>, path);
+        }
         <span class="self">self</span>.tests = find_tests(<span class="kw-2">&amp;</span>test_path)
             .filter(|(path, content)| <span class="kw">match </span>extract_test_config(content) {
                 <span class="prelude-val">None </span>=&gt; {
@@ -469,7 +477,7 @@
             .with_extension(<span class="string">"out"</span>);
 
         <span class="kw">if </span>expectation_path.exists() {
-            <span class="kw">if </span>!is_env_var_set(<span class="string">"CLEAR_LEO_TEST_EXPECTATIONS"</span>) {
+            <span class="kw">if </span>!is_env_var_set(<span class="string">"REWRITE_EXPECTATIONS"</span>) {
                 (expectation_path, <span class="prelude-val">None</span>)
             } <span class="kw">else </span>{
                 <span class="kw">let </span>raw = std::fs::read_to_string(<span class="kw-2">&amp;</span>expectation_path).expect(<span class="string">"failed to read expectations file"</span>);

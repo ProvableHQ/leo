@@ -823,7 +823,7 @@
             })<span class="question-mark">?</span>;
 
             <span class="comment">// Cache the disassembled stub
-            </span><span class="kw">let </span>stub: Stub = disassemble_from_str(content)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>stub: Stub = disassemble_from_str(<span class="kw-2">&amp;</span>content)<span class="question-mark">?</span>;
             <span class="kw">if </span>cur_context.add_stub(stub.clone()) {
                 <span class="prelude-val">Err</span>(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))<span class="question-mark">?</span>;
             }
@@ -1003,7 +1003,7 @@
     })<span class="question-mark">?</span>;
 
     <span class="comment">// Disassemble into Stub
-    </span><span class="kw">let </span>stub: Stub = disassemble_from_str(file_str)<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stub: Stub = disassemble_from_str(<span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
 
     <span class="comment">// Create entry for leo.lock
     </span><span class="prelude-val">Ok</span>((

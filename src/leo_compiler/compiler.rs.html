@@ -712,7 +712,7 @@
     }
 
     <span class="doccomment">/// Merges the dependencies defined in `program.json` with the dependencies imported in `.leo` file
-    </span><span class="kw">fn </span>add_import_stubs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>add_import_stubs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="comment">// Create a list of both the explicit dependencies specified in the `.leo` file, as well as the implicit ones derived from those dependencies.
         </span><span class="kw">let </span>(<span class="kw-2">mut </span>unexplored, <span class="kw-2">mut </span>explored): (IndexSet&lt;Symbol&gt;, IndexSet&lt;Symbol&gt;) =
             (<span class="self">self</span>.ast.ast.imports.keys().cloned().collect(), IndexSet::new());

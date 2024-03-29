@@ -56,6 +56,19 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -81,10 +94,23 @@
 
 <span class="kw">pub fn </span>find_tests(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (PathBuf, String)&gt; {
     WalkDir::new(path).into_iter().flatten().filter_map(<span class="kw">move </span>|f| {
-        <span class="kw">let </span>path = f.path();
-        path.extension()
-            .filter(|s| <span class="kw-2">*</span>s == <span class="string">"leo"</span>)
-            .map(|<span class="kw">_</span>| (path.to_path_buf(), fs::read_to_string(path).expect(<span class="string">"failed to read test"</span>)))
+        <span class="comment">// Get the path.
+        </span><span class="kw">let </span>path = f.path();
+        <span class="comment">// Check if the file is a .leo file.
+        </span><span class="kw">let </span>is_leo_file = path.extension().filter(|s| <span class="kw-2">*</span>s == <span class="string">"leo"</span>).is_some();
+        <span class="comment">// Read the test filter from the environment.
+        </span><span class="kw">let </span>filter = <span class="kw">match </span>std::env::var(<span class="string">"TEST_FILTER"</span>) {
+            <span class="prelude-val">Ok</span>(filter) =&gt; filter,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; String::new(),
+        };
+        <span class="comment">// Check if the path contains the filter.
+        </span><span class="kw">let </span>satisfies_filter = filter.is_empty() || path.to_string_lossy().contains(<span class="kw-2">&amp;</span>filter);
+        <span class="comment">// If the file is a .leo file and satisfies the filter, return the path and the file contents.
+        </span><span class="kw">if </span>is_leo_file &amp;&amp; satisfies_filter {
+            <span class="prelude-val">Some</span>((path.to_path_buf(), fs::read_to_string(path).expect(<span class="string">"failed to read test"</span>)))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     })
 }
 
