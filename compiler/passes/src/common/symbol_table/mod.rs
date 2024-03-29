@@ -28,7 +28,7 @@ use std::cell::RefCell;
 
 use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
 use leo_errors::{AstError, Result};
-use leo_span::{Span, Symbol};
+use leo_span::Span;
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -36,7 +36,7 @@ use serde_json;
 
 // TODO (@d0cd) Consider a safe interface for the symbol table.
 // TODO (@d0cd) Cleanup API
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct SymbolTable {
     /// The parent scope if it exists.
     /// For example, the parent scope of a then-block is the scope containing the associated ConditionalStatement.
@@ -49,7 +49,7 @@ pub struct SymbolTable {
     pub structs: IndexMap<Location, Composite>,
     /// The variables defined in a scope.
     /// This field is populated as necessary.
-    pub(crate) variables: IndexMap<Symbol, VariableSymbol>,
+    pub(crate) variables: IndexMap<Location, VariableSymbol>,
     /// The index of the current scope.
     pub(crate) scope_index: usize,
     /// The sub-scopes of this scope.
@@ -59,24 +59,18 @@ pub struct SymbolTable {
 impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    pub fn check_shadowing(&self, program: Option<Symbol>, symbol: Symbol, span: Span) -> Result<()> {
-        if let Some(program) = program {
-            if self.functions.contains_key(&Location::new(program, symbol)) {
-                return Err(AstError::shadowed_function(symbol, span).into());
-            } else if let Some(existing) = self.structs.get(&Location::new(program, symbol)) {
-                return match existing.is_record {
-                    true => Err(AstError::shadowed_record(symbol, span).into()),
-                    false => Err(AstError::shadowed_struct(symbol, span).into()),
-                };
-            }
+    pub fn check_shadowing(&self, location: &Location, span: Span) -> Result<()> {
+        if self.functions.contains_key(location) {
+            return Err(AstError::shadowed_function(location.name, span).into());
+        } else if let Some(existing) = self.structs.get(location) {
+            return match existing.is_record {
+                true => Err(AstError::shadowed_record(location.name, span).into()),
+                false => Err(AstError::shadowed_struct(location.name, span).into()),
+            };
+        } else if self.variables.contains_key(location) {
+            return Err(AstError::shadowed_variable(location.name, span).into());
         }
-        if self.variables.contains_key(&symbol) {
-            Err(AstError::shadowed_variable(symbol, span).into())
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.check_shadowing(program, symbol, span)
-        } else {
-            Ok(())
-        }
+        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, span) } else { Ok(()) }
     }
 
     /// Returns the current scope index.
@@ -88,19 +82,19 @@ impl SymbolTable {
     }
 
     /// Inserts a function into the symbol table.
-    pub fn insert_fn(&mut self, program: Symbol, symbol: Symbol, insert: &Function) -> Result<()> {
+    pub fn insert_fn(&mut self, location: Location, insert: &Function) -> Result<()> {
         let id = self.scope_index();
-        self.check_shadowing(Some(program), symbol, insert.span)?;
-        self.functions.insert(Location::new(program, symbol), Self::new_function_symbol(id, insert));
+        self.check_shadowing(&location, insert.span)?;
+        self.functions.insert(location, Self::new_function_symbol(id, insert));
         self.scopes.push(Default::default());
         Ok(())
     }
 
     /// Inserts a struct into the symbol table.
-    pub fn insert_struct(&mut self, program: Symbol, symbol: Symbol, insert: &Composite) -> Result<()> {
-        match self.check_shadowing(Some(program), symbol, insert.span) {
+    pub fn insert_struct(&mut self, location: Location, insert: &Composite) -> Result<()> {
+        match self.check_shadowing(&location, insert.span) {
             Ok(_) => {
-                self.structs.insert(Location::new(program, symbol), insert.clone());
+                self.structs.insert(location, insert.clone());
                 Ok(())
             }
             Err(e) => Err(e),
@@ -108,15 +102,15 @@ impl SymbolTable {
     }
 
     /// Inserts a variable into the symbol table.
-    pub fn insert_variable(&mut self, symbol: Symbol, insert: VariableSymbol) -> Result<()> {
-        self.check_shadowing(None, symbol, insert.span)?;
-        self.variables.insert(symbol, insert);
+    pub fn insert_variable(&mut self, location: Location, insert: VariableSymbol) -> Result<()> {
+        self.check_shadowing(&location, insert.span)?;
+        self.variables.insert(location, insert);
         Ok(())
     }
 
     /// Removes a variable from the symbol table.
-    pub fn remove_variable_from_current_scope(&mut self, symbol: Symbol) {
-        self.variables.remove(&symbol);
+    pub fn remove_variable_from_current_scope(&mut self, location: Location) {
+        self.variables.remove(&location);
     }
 
     /// Creates a new scope for the block and stores it in the symbol table.
@@ -126,58 +120,33 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a function in the symbol table.
-    pub fn lookup_fn_symbol(&self, program: Symbol, symbol: Symbol) -> Option<&FunctionSymbol> {
-        if let Some(func) = self.functions.get(&Location::new(program, symbol)) {
+    pub fn lookup_fn_symbol(&self, location: Location) -> Option<&FunctionSymbol> {
+        if let Some(func) = self.functions.get(&location) {
             Some(func)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_fn_symbol(program, symbol)
+            parent.lookup_fn_symbol(location)
         } else {
             None
         }
     }
 
     /// Attempts to lookup a struct in the symbol table.
-    pub fn lookup_struct(&self, program: Symbol, symbol: Symbol) -> Option<&Composite> {
-        if let Some(struct_) = self.structs.get(&Location::new(program, symbol)) {
+    pub fn lookup_struct(&self, location: Location) -> Option<&Composite> {
+        if let Some(struct_) = self.structs.get(&location) {
             Some(struct_)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_struct(program, symbol)
+            parent.lookup_struct(location)
         } else {
             None
         }
     }
 
     /// Attempts to lookup a variable in the symbol table.
-    pub fn lookup_variable(&self, symbol: Symbol) -> Option<&VariableSymbol> {
-        if let Some(var) = self.variables.get(&symbol) {
+    pub fn lookup_variable(&self, location: Location) -> Option<&VariableSymbol> {
+        if let Some(var) = self.variables.get(&location) {
             Some(var)
         } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_variable(symbol)
-        } else {
-            None
-        }
-    }
-
-    /// Returns true if the variable exists in the local scope
-    pub fn variable_in_local_scope(&self, symbol: Symbol) -> bool {
-        self.variables.contains_key(&symbol)
-    }
-
-    /// Returns true if the variable exists in any parent scope
-    pub fn variable_in_parent_scope(&self, symbol: Symbol) -> bool {
-        if let Some(parent) = self.parent.as_ref() {
-            if parent.variables.contains_key(&symbol) { true } else { parent.variable_in_parent_scope(symbol) }
-        } else {
-            false
-        }
-    }
-
-    /// Returns a mutable reference to the `VariableSymbol` if it exists in the symbol table.
-    pub fn lookup_variable_mut(&mut self, symbol: Symbol) -> Option<&mut VariableSymbol> {
-        if let Some(var) = self.variables.get_mut(&symbol) {
-            Some(var)
-        } else if let Some(parent) = self.parent.as_mut() {
-            parent.lookup_variable_mut(symbol)
+            parent.lookup_variable(location)
         } else {
             None
         }
@@ -249,14 +218,12 @@ impl SymbolTable {
 mod tests {
     use super::*;
     use leo_ast::{Identifier, Type, Variant};
-    use leo_span::symbol::create_session_if_not_set_then;
+    use leo_span::{symbol::create_session_if_not_set_then, Symbol};
     #[test]
-    #[ignore]
     fn serialization_test() {
         create_session_if_not_set_then(|_| {
             let mut symbol_table = SymbolTable::default();
-            let program = Symbol::intern("credits");
-            let function = Symbol::intern("transfer_public");
+            let func_loc = Location::new(Some(Symbol::intern("credits")), Symbol::intern("transfer_public"));
             let insert = Function {
                 annotations: Vec::new(),
                 id: 0,
@@ -269,11 +236,33 @@ mod tests {
                 output: vec![],
                 block: Default::default(),
             };
-            symbol_table.insert_fn(program, function, &insert).unwrap();
+            symbol_table.insert_fn(func_loc, &insert).unwrap();
+            symbol_table
+                .insert_variable(
+                    Location::new(Some(Symbol::intern("credits")), Symbol::intern("accounts")),
+                    VariableSymbol { type_: Type::Address, span: Default::default(), declaration: VariableType::Const },
+                )
+                .unwrap();
+            symbol_table
+                .insert_struct(Location::new(Some(Symbol::intern("credits")), Symbol::intern("token")), &Composite {
+                    is_record: false,
+                    span: Default::default(),
+                    id: 0,
+                    identifier: Identifier::new(Symbol::intern("token"), Default::default()),
+                    members: Vec::new(),
+                    external: None,
+                })
+                .unwrap();
+            symbol_table
+                .insert_variable(Location::new(None, Symbol::intern("foo")), VariableSymbol {
+                    type_: Type::Address,
+                    span: Default::default(),
+                    declaration: VariableType::Const,
+                })
+                .unwrap();
             let json = symbol_table.to_json_string().unwrap();
-            dbg!(json.clone());
             let deserialized = SymbolTable::from_json_string(&json).unwrap();
-            dbg!(deserialized);
+            assert_eq!(symbol_table, deserialized);
         });
     }
 }

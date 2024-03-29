@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{TypeChecker, VariableSymbol, VariableType};
+use crate::{Location, TypeChecker, VariableSymbol, VariableType};
 use itertools::Itertools;
 
 use leo_ast::*;
@@ -68,7 +68,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
+        let var_type = if let Some(var) =
+            self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
+        {
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) => {
@@ -192,11 +194,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // Add constants to symbol table so that any references to them in later statements will pass TC
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.place.span,
-            declaration: VariableType::Const,
-        }) {
+        if let Err(err) =
+            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.place.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.place.span,
+                declaration: VariableType::Const,
+            })
+        {
             self.handler.emit_err(err);
         }
     }
@@ -240,11 +244,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // TODO: Dedup with unrolling pass.
         // Helper to insert the variables into the symbol table.
         let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
-                type_,
-                span,
-                declaration: VariableType::Mut,
-            }) {
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(Location::new(None, symbol), VariableSymbol {
+                    type_,
+                    span,
+                    declaration: VariableType::Mut,
+                })
+            {
                 self.handler.emit_err(err);
             }
         };
@@ -308,11 +314,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let scope_index = self.create_child_scope();
 
         // Add the loop variable to the scope of the loop body.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.variable.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.span(),
-            declaration: VariableType::Const,
-        }) {
+        if let Err(err) =
+            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.variable.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration: VariableType::Const,
+            })
+        {
             self.handler.emit_err(err);
         }
 
@@ -347,7 +355,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -367,7 +375,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -381,14 +389,15 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.function.unwrap();
-        let return_type = &self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), parent).map(|f| {
-            match self.is_finalize {
-                // TODO: Check this.
-                // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                true => f.finalize.as_ref().unwrap().output_type.clone(),
-                false => f.output_type.clone(),
-            }
-        });
+        let return_type =
+            &self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.program_name, parent)).map(|f| {
+                match self.is_finalize {
+                    // TODO: Check this.
+                    // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
+                    true => f.finalize.as_ref().unwrap().output_type.clone(),
+                    false => f.output_type.clone(),
+                }
+            });
 
         // Set the `has_return` flag.
         self.has_return = true;
@@ -423,7 +432,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             let finalize = self
                 .symbol_table
                 .borrow()
-                .lookup_fn_symbol(self.program_name.unwrap(), self.function.unwrap())
+                .lookup_fn_symbol(Location::new(self.program_name, self.function.unwrap()))
                 .unwrap()
                 .finalize
                 .clone();

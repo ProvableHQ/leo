@@ -34,6 +34,7 @@ pub trait ExpressionConsumer {
             Expression::Err(err) => self.consume_err(err),
             Expression::Identifier(identifier) => self.consume_identifier(identifier),
             Expression::Literal(value) => self.consume_literal(value),
+            Expression::Locator(locator) => self.consume_locator(locator),
             Expression::Ternary(ternary) => self.consume_ternary(ternary),
             Expression::Tuple(tuple) => self.consume_tuple(tuple),
             Expression::Unary(unary) => self.consume_unary(unary),
@@ -60,6 +61,8 @@ pub trait ExpressionConsumer {
     fn consume_identifier(&mut self, _input: Identifier) -> Self::Output;
 
     fn consume_literal(&mut self, _input: Literal) -> Self::Output;
+
+    fn consume_locator(&mut self, _input: LocatorExpression) -> Self::Output;
 
     fn consume_ternary(&mut self, _input: TernaryExpression) -> Self::Output;
 

@@ -36,7 +36,9 @@ impl ParserContext<'_> {
                 Token::Program => {
                     match parsed_program_scope {
                         // Only one program scope is allowed per file.
-                        true => return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into()),
+                        true => {
+                            return Err(ParserError::only_one_program_scope_is_allowed(self.token.span).into());
+                        }
                         false => {
                             parsed_program_scope = true;
                             let program_scope = self.parse_program_scope()?;

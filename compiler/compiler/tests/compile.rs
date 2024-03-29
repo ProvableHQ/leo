@@ -116,6 +116,7 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             // Parse the program name from the program string.
             let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
             let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
+
             // Parse the program.
             let mut parsed = handler.extend_if_error(parse_program(
                 program_name.to_string(),

@@ -768,4 +768,11 @@ create_messages!(
         msg: format!("The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"),
         help: Some("Check that the struct definition in the current program matches the definition in the imported program.".to_string()),
     }
+
+    @formatted
+    cannot_modify_external_mapping {
+        args: (operation: impl Display),
+        msg: format!("Cannot use operation `{operation}` on external mapping."),
+        help: Some("The only valid operations on external mappings are get, and get_or_use.".to_string()),
+    }
 );

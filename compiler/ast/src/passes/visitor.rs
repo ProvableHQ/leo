@@ -36,6 +36,7 @@ pub trait ExpressionVisitor<'a> {
             Expression::Err(err) => self.visit_err(err, additional),
             Expression::Identifier(identifier) => self.visit_identifier(identifier, additional),
             Expression::Literal(literal) => self.visit_literal(literal, additional),
+            Expression::Locator(locator) => self.visit_locator(locator, additional),
             Expression::Ternary(ternary) => self.visit_ternary(ternary, additional),
             Expression::Tuple(tuple) => self.visit_tuple(tuple, additional),
             Expression::Unary(unary) => self.visit_unary(unary, additional),
@@ -104,6 +105,10 @@ pub trait ExpressionVisitor<'a> {
     }
 
     fn visit_literal(&mut self, _input: &'a Literal, _additional: &Self::AdditionalInput) -> Self::Output {
+        Default::default()
+    }
+
+    fn visit_locator(&mut self, _input: &'a LocatorExpression, _additional: &Self::AdditionalInput) -> Self::Output {
         Default::default()
     }
 

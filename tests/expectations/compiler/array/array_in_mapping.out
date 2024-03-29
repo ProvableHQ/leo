@@ -3,9 +3,9 @@ namespace: Compile
 expectation: Pass
 outputs:
   - - compile:
-        - initial_symbol_table: 8d141d5fae8f9558d51c1c1724328232a0ec9ac2f2395536fd57c94fd3c0c9db
-          type_checked_symbol_table: 18804e4a6c45cb4615393e10f9bcdf03d1b3c57c0543d47c9fbc9481330c80e5
-          unrolled_symbol_table: 18804e4a6c45cb4615393e10f9bcdf03d1b3c57c0543d47c9fbc9481330c80e5
+        - initial_symbol_table: 500c040c7c93a9b43123f9b77a4c805ad791563acccaa8fe77f2077d242a1a14
+          type_checked_symbol_table: 2194ee075b5de9a883208b611ee50d05dd98a0b70cfb1c3b7cd14c1eb2f5c4b9
+          unrolled_symbol_table: 2194ee075b5de9a883208b611ee50d05dd98a0b70cfb1c3b7cd14c1eb2f5c4b9
           initial_ast: 7d40187329bfa45bc12a8722d93ae749d18bc1e74140426242a684297dd1f3e8
           unrolled_ast: 7d40187329bfa45bc12a8722d93ae749d18bc1e74140426242a684297dd1f3e8
           ssa_ast: 7d40187329bfa45bc12a8722d93ae749d18bc1e74140426242a684297dd1f3e8

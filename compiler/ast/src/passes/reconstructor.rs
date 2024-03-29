@@ -35,6 +35,7 @@ pub trait ExpressionReconstructor {
             Expression::Err(err) => self.reconstruct_err(err),
             Expression::Identifier(identifier) => self.reconstruct_identifier(identifier),
             Expression::Literal(value) => self.reconstruct_literal(value),
+            Expression::Locator(locator) => self.reconstruct_locator(locator),
             Expression::Ternary(ternary) => self.reconstruct_ternary(ternary),
             Expression::Tuple(tuple) => self.reconstruct_tuple(tuple),
             Expression::Unary(unary) => self.reconstruct_unary(unary),
@@ -196,6 +197,10 @@ pub trait ExpressionReconstructor {
 
     fn reconstruct_literal(&mut self, input: Literal) -> (Expression, Self::AdditionalOutput) {
         (Expression::Literal(input), Default::default())
+    }
+
+    fn reconstruct_locator(&mut self, input: LocatorExpression) -> (Expression, Self::AdditionalOutput) {
+        (Expression::Locator(input), Default::default())
     }
 
     fn reconstruct_ternary(&mut self, input: TernaryExpression) -> (Expression, Self::AdditionalOutput) {

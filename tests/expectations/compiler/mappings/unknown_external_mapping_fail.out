@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown variable `foo`\n    --> compiler-test:9:35\n     |\n   9 |         let a:bool = Mapping::get(registry.aleo/foo, addr);\n     |                                   ^^^^^^^^^^^^^^^^^\n"

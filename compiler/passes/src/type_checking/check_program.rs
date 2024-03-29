@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, TypeChecker};
+use crate::{DiGraphError, Location, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::TypeCheckerError;
@@ -69,8 +69,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index =
-            self.symbol_table.borrow().lookup_fn_symbol(self.program_name.unwrap(), input.identifier.name).unwrap().id;
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(Location::new(self.program_name, input.identifier.name))
+            .unwrap()
+            .id;
 
         // Enter the function's scope.
         self.enter_scope(function_index);
@@ -237,7 +241,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -256,7 +260,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
@@ -284,7 +288,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.program_name.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(Location::new(self.program_name, function.identifier.name))
             .unwrap()
             .id;
 

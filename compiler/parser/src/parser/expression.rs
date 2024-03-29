@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-use leo_span::{sym, Symbol};
+use leo_span::sym;
 use snarkvm::console::{account::Address, network::Testnet3};
 
 const INT_TYPES: &[Token] = &[
@@ -429,32 +429,46 @@ impl ParserContext<'_> {
         self.parse_paren_comma_list(|p| p.parse_expression().map(Some))
     }
 
-    // Parses an external function call `credits.aleo/transfer()` or `board.leo/make_move()`
-    fn parse_external_call(&mut self, expr: Expression) -> Result<Expression> {
+    // Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
+    fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
         // Eat an external function call.
         self.eat(&Token::Div); // todo: Make `/` a more general token.
 
-        // Parse function name.
+        // Parse name.
         let name = self.expect_identifier()?;
+
+        // Parse the parent program identifier.
+        let program: Identifier = match expr {
+            Expression::Identifier(identifier) => identifier,
+            _ => unreachable!("Function called must be preceded by a program identifier."),
+        };
 
         // Parsing a '{' means that user is trying to illegally define an external record.
         if self.token.token == Token::LeftCurly {
             return Err(ParserError::cannot_define_external_record(expr.span() + name.span()).into());
         }
 
+        // If there is no parenthesis, then it is a locator.
+        if self.token.token != Token::LeftParen {
+            // Parse an external resource locator.
+            return Ok(Expression::Locator(LocatorExpression {
+                program: ProgramId {
+                    name: program,
+                    network: Identifier { name: sym::aleo, span: network_span, id: self.node_builder.next_id() },
+                },
+                name: name.name,
+                span: expr.span() + name.span(),
+                id: self.node_builder.next_id(),
+            }));
+        }
+
         // Parse the function call.
         let (arguments, _, span) = self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?;
-
-        // Parse the parent program identifier.
-        let program: Symbol = match expr {
-            Expression::Identifier(identifier) => identifier.name,
-            _ => unreachable!("Function called must be preceded by a program identifier."),
-        };
 
         Ok(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            program: Some(program),
+            program: Some(program.name),
             arguments,
             id: self.node_builder.next_id(),
         }))
@@ -483,7 +497,7 @@ impl ParserContext<'_> {
                 } else if self.eat(&Token::Leo) {
                     return Err(ParserError::only_aleo_external_calls(expr.span()).into());
                 } else if self.eat(&Token::Aleo) {
-                    expr = self.parse_external_call(expr)?;
+                    expr = self.parse_external_resource(expr, self.prev_token.span)?;
                 } else {
                     // Parse identifier name.
                     let name = self.expect_identifier()?;

@@ -20,13 +20,13 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 // Create custom struct to wrap (Symbol, Symbol) so that it can be serialized and deserialized.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Location {
-    pub program: Symbol,
+    pub program: Option<Symbol>,
     pub name: Symbol,
 }
 
 impl Location {
     // Create new Location instance.
-    pub fn new(program: Symbol, name: Symbol) -> Location {
+    pub fn new(program: Option<Symbol>, name: Symbol) -> Location {
         Location { program, name }
     }
 }
@@ -36,7 +36,11 @@ impl Serialize for Location {
     where
         S: Serializer,
     {
-        serializer.serialize_str(&format!("{}/{}", self.program, self.name))
+        let condensed_str = match self.program {
+            Some(program) => format!("{}/{}", program, self.name),
+            None => format!("{}", self.name),
+        };
+        serializer.serialize_str(&condensed_str)
     }
 }
 
@@ -46,9 +50,9 @@ impl<'de> Deserialize<'de> for Location {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        let mut parts = s.split('/');
-        let program = Symbol::intern(parts.next().unwrap());
-        let name = Symbol::intern(parts.next().unwrap());
+        let mut parts: Vec<&str> = s.split('/').collect();
+        let program = if parts.len() == 1 { None } else { Some(Symbol::intern(parts.remove(0))) };
+        let name = Symbol::intern(parts.first().unwrap());
         Ok(Location::new(program, name))
     }
 }
