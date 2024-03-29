@@ -16,15 +16,13 @@ program registry.aleo {
 
 // --- Next Program --- //
 
-import registry.aleo;
 program relay.aleo {
-    mapping users: address => bool;
-
     transition send(addr: address) {
         return then finalize(addr);
     }
     finalize send(addr: address) {
-        let a:bool = Mapping::get(relay.aleo/users, addr);
+        let a:bool = Mapping::get(registry.aleo/users, addr);
         assert_eq(a, true);
     }
 }
+

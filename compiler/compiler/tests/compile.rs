@@ -131,8 +131,6 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             let program_name = parsed.program_name.to_string();
             let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
 
-            dbg!(bytecode.clone());
-
             // Parse the bytecode as an Aleo program.
             // Note that this function checks that the bytecode is well-formed.
             let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
