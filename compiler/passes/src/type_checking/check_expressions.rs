@@ -771,7 +771,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check that the locator points to a valid resource in the ST.
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(Some(input.program), input.name)) {
+        if let Some(var) =
+            self.symbol_table.borrow().lookup_variable(Location::new(Some(input.program.name.name), input.name))
+        {
             Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));

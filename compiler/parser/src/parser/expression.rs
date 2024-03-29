@@ -430,7 +430,7 @@ impl ParserContext<'_> {
     }
 
     // Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
-    fn parse_external_resource(&mut self, expr: Expression) -> Result<Expression> {
+    fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
         // Eat an external function call.
         self.eat(&Token::Div); // todo: Make `/` a more general token.
 
@@ -438,8 +438,8 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
 
         // Parse the parent program identifier.
-        let program: Symbol = match expr {
-            Expression::Identifier(identifier) => identifier.name,
+        let program: Identifier = match expr {
+            Expression::Identifier(identifier) => identifier,
             _ => unreachable!("Function called must be preceded by a program identifier."),
         };
 
@@ -452,7 +452,10 @@ impl ParserContext<'_> {
         if self.token.token != Token::LeftParen {
             // Parse an external resource locator.
             return Ok(Expression::Locator(LocatorExpression {
-                program,
+                program: ProgramId {
+                    name: program,
+                    network: Identifier { name: sym::aleo, span: network_span, id: self.node_builder.next_id() },
+                },
                 name: name.name,
                 span: expr.span() + name.span(),
                 id: self.node_builder.next_id(),
@@ -465,7 +468,7 @@ impl ParserContext<'_> {
         Ok(Expression::Call(CallExpression {
             span: expr.span() + span,
             function: Box::new(Expression::Identifier(name)),
-            program: Some(program),
+            program: Some(program.name),
             arguments,
             id: self.node_builder.next_id(),
         }))
@@ -494,7 +497,7 @@ impl ParserContext<'_> {
                 } else if self.eat(&Token::Leo) {
                     return Err(ParserError::only_aleo_external_calls(expr.span()).into());
                 } else if self.eat(&Token::Aleo) {
-                    expr = self.parse_external_resource(expr)?;
+                    expr = self.parse_external_resource(expr, self.prev_token.span)?;
                 } else {
                     // Parse identifier name.
                     let name = self.expect_identifier()?;
