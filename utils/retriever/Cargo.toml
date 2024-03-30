@@ -1,16 +1,16 @@
 [package]
 name = "leo-retriever"
-version = "1.10.0"
+version = "1.11.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "A retriever for the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
-    "aleo",
-    "cryptography",
-    "leo",
-    "programming-language",
-    "zero-knowledge"
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
 ]
 categories = [ "compilers", "cryptography", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
@@ -19,23 +19,23 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.leo-ast]
-version = "1.10.0"
+version = "1.11.0"
 path = "../../compiler/ast"
 
 [dependencies.leo-disassembler]
-version = "1.10.0"
+version = "1.11.0"
 path = "../disassembler"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.leo-passes]
-version = "1.10.0"
+version = "1.11.0"
 path = "../../compiler/passes"
 
 [dependencies.leo-span]
-version = "1.10.0"
+version = "1.11.0"
 path = "../../compiler/span"
 
 [dependencies.aleo-std]
@@ -48,7 +48,7 @@ features = [ "serde-1" ]
 
 [dependencies.serde]
 version = "1.0"
-features = [ "derive"]
+features = [ "derive" ]
 
 [dependencies.serde_json]
 version = "1.0"
