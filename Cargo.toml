@@ -44,7 +44,9 @@ members = [
 ]
 
 [workspace.dependencies.snarkvm]
-version = "0.16.19"
+#version = "0.16.19"
+git = "https://github.com/AleoHQ/snarkVM"
+rev = "2cbf34a"
 
 [lib]
 path = "leo/lib.rs"
