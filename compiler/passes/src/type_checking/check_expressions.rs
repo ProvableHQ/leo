@@ -21,7 +21,7 @@ use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span};
 
 use itertools::Itertools;
-use snarkvm::console::network::{Network, Testnet3};
+use snarkvm::console::network::{MainnetV0, Network};
 use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
@@ -279,7 +279,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 None
             }
             // Check that the element types match.
-            1..=Testnet3::MAX_ARRAY_ELEMENTS => {
+            1..=MainnetV0::MAX_ARRAY_ELEMENTS => {
                 let mut element_types = element_types.into_iter();
                 // Note that this unwrap is safe because we already checked that the array is not empty.
                 element_types.next().unwrap().map(|first_type| {
@@ -295,7 +295,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
             num_elements => {
                 self.emit_err(TypeCheckerError::array_too_large(
                     num_elements,
-                    Testnet3::MAX_ARRAY_ELEMENTS,
+                    MainnetV0::MAX_ARRAY_ELEMENTS,
                     input.span(),
                 ));
                 None

@@ -20,7 +20,7 @@ use leo_ast::*;
 use leo_errors::TypeCheckerError;
 use leo_span::sym;
 
-use snarkvm::console::network::{Network, Testnet3};
+use snarkvm::console::network::{MainnetV0, Network};
 
 use std::collections::HashSet;
 
@@ -132,9 +132,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that the number of mappings does not exceed the maximum.
-        if mapping_count > Testnet3::MAX_MAPPINGS {
+        if mapping_count > MainnetV0::MAX_MAPPINGS {
             self.emit_err(TypeCheckerError::too_many_mappings(
-                Testnet3::MAX_MAPPINGS,
+                MainnetV0::MAX_MAPPINGS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -155,9 +155,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > Testnet3::MAX_FUNCTIONS {
+        if transition_count > MainnetV0::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                Testnet3::MAX_FUNCTIONS,
+                MainnetV0::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }

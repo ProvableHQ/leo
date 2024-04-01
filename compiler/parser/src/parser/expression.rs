@@ -18,7 +18,7 @@ use super::*;
 use leo_errors::{ParserError, Result};
 
 use leo_span::sym;
-use snarkvm::console::{account::Address, network::Testnet3};
+use snarkvm::console::{account::Address, network::MainnetV0};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -732,7 +732,7 @@ impl ParserContext<'_> {
             Token::True => Expression::Literal(Literal::Boolean(true, span, self.node_builder.next_id())),
             Token::False => Expression::Literal(Literal::Boolean(false, span, self.node_builder.next_id())),
             Token::AddressLit(address_string) => {
-                if address_string.parse::<Address<Testnet3>>().is_err() {
+                if address_string.parse::<Address<MainnetV0>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&address_string, span));
                 }
                 Expression::Literal(Literal::Address(address_string, span, self.node_builder.next_id()))

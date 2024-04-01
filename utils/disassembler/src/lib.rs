@@ -15,11 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm::{
-    prelude::{Itertools, Network, Testnet3},
+    prelude::{Itertools, MainnetV0, Network},
     synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
 };
 use std::str::FromStr;
-type CurrentNetwork = Testnet3;
+type CurrentNetwork = MainnetV0;
 
 use leo_ast::{Composite, FunctionStub, Identifier, Mapping, ProgramId, Stub};
 use leo_errors::UtilError;
@@ -82,10 +82,10 @@ pub fn disassemble_from_str(program: &str) -> Result<Stub, UtilError> {
 mod tests {
     use super::*;
     use leo_span::symbol::create_session_if_not_set_then;
-    use snarkvm::{prelude::Testnet3, synthesizer::program::Program};
+    use snarkvm::{prelude::MainnetV0, synthesizer::program::Program};
     use std::fs;
 
-    type CurrentNetwork = Testnet3;
+    type CurrentNetwork = MainnetV0;
 
     #[test]
     #[ignore]

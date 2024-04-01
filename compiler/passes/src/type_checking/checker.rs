@@ -35,7 +35,7 @@ use leo_ast::{
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{Span, Symbol};
 
-use snarkvm::console::network::{Network, Testnet3};
+use snarkvm::console::network::{MainnetV0, Network};
 
 use itertools::Itertools;
 use std::cell::RefCell;
@@ -1176,9 +1176,9 @@ impl<'a> TypeChecker<'a> {
                 // Check that the array length is valid.
                 match array_type.length() {
                     0 => self.emit_err(TypeCheckerError::array_empty(span)),
-                    1..=Testnet3::MAX_ARRAY_ELEMENTS => {}
+                    1..=MainnetV0::MAX_ARRAY_ELEMENTS => {}
                     length => {
-                        self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                        self.emit_err(TypeCheckerError::array_too_large(length, MainnetV0::MAX_ARRAY_ELEMENTS, span))
                     }
                 }
                 // Check that the array element type is valid.

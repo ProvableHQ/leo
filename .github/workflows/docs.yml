@@ -1,8 +1,8 @@
-name: Testnet3 Crates Docs
+name: Mainnet Crates Docs
 on:
   push:
     branches:
-      - testnet3
+      - mainnet
 
 jobs:
   build-crates-docs:
