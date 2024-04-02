@@ -1,6 +1,7 @@
 /*
 namespace: Execute
 expectation: Pass
+seed: 1234567
 cases:
     - program: test.aleo
       function: address_casts
