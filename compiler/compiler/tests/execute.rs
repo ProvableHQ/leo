@@ -178,6 +178,11 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             )?;
             handler.extend_if_error(ledger.advance_to_next_block(&block).map_err(LeoError::Anyhow))?;
 
+            // Check that the deployment transaction was accepted.
+            if block.transactions().num_accepted() != 1 {
+                handler.emit_err(LeoError::Anyhow(anyhow!("Deployment transaction was not accepted.")));
+            }
+
             // Add the bytecode to the import stubs.
             let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
             import_stubs.insert(Symbol::intern(&program_name), stub);
@@ -247,6 +252,9 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
                 None => genesis_private_key,
             };
 
+            // Check if the vm contains the program.
+            println!("Program exists: {}", ledger.vm().contains_program(&ProgramID::from_str(program_name).unwrap()));
+
             // Initialize the statuses of execution.
             let mut execution = None;
             let mut verified = false;
@@ -254,38 +262,41 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
 
             // Execute the program, construct a block and add it to the ledger.
             let result = std::panic::catch_unwind(AssertUnwindSafe(|| {
-                handler.extend_if_error(
-                    ledger
-                        .vm()
-                        .execute(&private_key, (program_name, function_name), inputs.iter(), None, 0, None, rng)
-                        .and_then(|transaction| {
-                            verified = ledger.vm().check_transaction(&transaction, None, rng).is_ok();
-                            execution = Some(transaction.clone());
-                            ledger.prepare_advance_to_next_beacon_block(
-                                &private_key,
-                                vec![],
-                                vec![],
-                                vec![transaction],
-                                rng,
-                            )
-                        })
-                        .and_then(|block| {
-                            status = match block.aborted_transaction_ids().is_empty() {
-                                false => "aborted",
-                                true => match block.transactions().num_accepted() == 1 {
-                                    true => "accepted",
-                                    false => "rejected",
-                                },
-                            };
-                            ledger.advance_to_next_block(&block)
-                        })
-                        .map_err(LeoError::Anyhow),
-                )
+                ledger
+                    .vm()
+                    .execute(&private_key, (program_name, function_name), inputs.iter(), None, 0, None, rng)
+                    .and_then(|transaction| {
+                        verified = ledger.vm().check_transaction(&transaction, None, rng).is_ok();
+                        execution = Some(transaction.clone());
+                        ledger.prepare_advance_to_next_beacon_block(
+                            &private_key,
+                            vec![],
+                            vec![],
+                            vec![transaction],
+                            rng,
+                        )
+                    })
+                    .and_then(|block| {
+                        status = match block.aborted_transaction_ids().is_empty() {
+                            false => "aborted",
+                            true => match block.transactions().num_accepted() == 1 {
+                                true => "accepted",
+                                false => "rejected",
+                            },
+                        };
+                        ledger.advance_to_next_block(&block)
+                    })
             }));
 
             // Emit any errors from panics.
-            if let Err(err) = result {
-                handler.emit_err(LeoError::Anyhow(anyhow!("SnarkVMError({:?})", err)));
+            match result {
+                Err(err) => {
+                    handler.emit_err(LeoError::Anyhow(anyhow!("PanicError({:?})", err)));
+                }
+                Ok(Err(err)) => {
+                    handler.emit_err(LeoError::Anyhow(anyhow!("SnarkVMError({:?})", err)));
+                }
+                _ => {}
             }
 
             // Extract the execution and remove the global state root.

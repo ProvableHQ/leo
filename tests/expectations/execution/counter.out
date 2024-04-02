@@ -19,73 +19,77 @@ outputs:
       execute:
         - execution:
             transitions:
-              - id: au1v3uahqh8ctyhhg428cj3uxly74k492aghsg3te5fpg6pr4t8ucyslwnmvr
+              - id: au1xe9ss45s52a7s6pa806dwgkdaazn7vs3zvspwhpuqn0rfymz7g8qnt9f6l
                 program: test.aleo
                 function: dubble
                 inputs: []
                 outputs:
                   - type: future
-                    id: 7587057648822751964230334925801177245866529814278840157056492984984988324702field
+                    id: 4946982913093244233049959804312122789186741969911776114977991679216808685109field
                     value: "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-                tpk: 2103880578084686515589560133690189415477182552396235015097213118325829598067group
-                tcm: 5087819575863491199090260401736678768913740202835780599430282551194488825494field
+                tpk: 5335156928382662463417682951586372143768154017026570642038100848385013470524group
+                tcm: 4767822739789057211554348258725193428142828427072824810197371556604343646664field
+                scm: 2701033919833853562637728369527609701654193986187336931878103571063109198360field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqrz5dt77ql2p0t488x8nqg9x3qd0659lezehg8ky4ekm7clq83s3r3uxrg55p7grufcp58p6r9rtuqq9yf9w65wljx2cnx7vypkln2nc06nxft7akf7ata4xk2tnn5q6snhwwx49gndwgdx25qc0mz4q8srqqswj4fka7r2fru7mqjul0qea84pcl0xjsa0m9tj8sajn3xymhk7vwml9gazcmnsm8mtf2x6uc7tjqm7zazzvc9wvrv93472yqqk00kh9ee988lw345rdgjy9g49faau8jylaz6en72yp4u2jpdm3y799sqk9e0z9dev9hthwxtgvtds7cgcgcxttjvewhjxnesywmn0h52quv5807aka25jnc0l2ng9tzv3uksr269tlzlrxevjpwgrl5ppev6pvqrtgcjguzyhjdx2n8rh0j0yrzmveyq05keasad6gnwhmwk6ltcqxcjvxgyqlsw4mtwz39qclrsm7p8wc9zgaqz2750lwt3emz44mqmvus4pw4kt3kjxqq0ylt7m4craqgysz3dfzpt2e5uz6r2t6knamzhl3yfg2tkfk4tcucpuap8xnztxcyhl0lkc8g2f86s94x49cvefvqra8yu6qparx9cwftgpvj36q4pk6yrl9uuqxfaglnqr8mlky3l6u3szs6q9g2zfyl8nyfkqywz9xyqjl0cy4mkampn492v9dehl44553ctzzh0gyt0vawxhzcmg9tq55g96xpus2r73kkf5emevykcgg4yyp5u277tv8vw35zykprk20dnwz43ll8yw68ll2fmaupp8nq98ztcynruhrfjkln9t6re6655h4djp3yd60uy3nh2hj2dnhj0vfxjka02sflhv6r6uppvpjnau5j3g8ks9qv9ltz43d3r9jr2vg86a3ufpll5vk68w6qahpr6qd8jg9eldmgphtjhfw35estghhm4jafdnepkkwtvnsksv5slgw5e75gc4lexfvpdktdhc5jq6ap4zfpaulntjshm9xdwhpgk9hsehgwyugcz6ujqsy4akxalddyhxpckq3dc84vf7yr3wvd567ujn667d37hhfyv9xxzqya74p0s8jaj0xyllfy55xwpdh6r54583vncvwjqtxe46fs2rlfq7lnyqtvl2333j7tl4lkwykwg2c66ps92vx65y3m9309q9jmr48qrqvqqqqqqqqqqqlgs6jmuljlu72a3myyjw69z86llzhnscfzdszutl6ytq82t8s34ld054394km4fnu4v9z8qs7y6syqx86xcawwtkhqxu09psvkrpzu3vvftgmvemu8d5lfdfq09huxfw2n3r3dqerjq7u5z5y8cx0hfzvypq87nsekw7969k8hghq2amqak3rvncuftph5m07gzwv9kry70w85qcendn5xe6dpyx0m8zkepmdh7quyep7ceq67l7sy3epcm3fw9jv7ff85du43yrf4mycpsye2dhcskqyqqtyld4k
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqp5lf5rvda34lj66ey06fy5v5y8dmqmd0nxx0ywzjw7kkf3r0qwz90vmk4uvmpmrccdzj4w8tm2lypqxvfqlmmzxxpkc473c9s87y080gtjfrtnceqdy0jfp6l2lxqgun7hcy9wgcwh856ug2ca4qqfenfsqw3snk3ayvn258s6944p6wxya8j996t872pr5vdcuxdxn8yfs4ujz3quwu35udud6fk7hcqznves7qwjwsrgxcxdfhs80jj2hr5jmgjgul3fdmtms8t65jdage57wlzsfzel9e48vpz8sau496j70yu3qcpk7qgmtr68hl9kqy94fp3w34e6zz4azqfnrjz82u98g63mrr6pa3ef34w8n3kyr45sz0l8cmxsekqq9t5j9jy9lksw0wnn58k7jyfud0l983tqt4emr7sd5u3chpc9at76y43cnjx99l24uktv70m9962sx9lxc5a9hv7eh5fqjgwvflff5yl6zzwrmz5edutqxqr9gvfc3vjvvtdpuh46xqx3lv0sj3pjjvcnqf5drdynn37xr0xdq94ef0t333c0f7n8kdg9u57gkytq3cgu94zx86grwrr7wqljza86cqrx6jk6uqgq9qxf3gm8y9g54ntk7mg9e6ff6fcj83fupqvptjdknygrfpczrsjwnjeteyadpn47znzfvg29s5qea80wdg7vcu08hlwurcqx3ha2u3dre4gsq9y3jfv5w2hqfltf58esahpu6kjkcwj324uzuh5d5wjt38zptld6cvzxgtewrjusdc3cz789uhare62vqu4cv24ryzdln0ssldz7lgs5glgrzvfqzt6km5tzp4vem6srwtn93xjwahqjmv0zq88mfwl22960yv0ufgl83dudy9s27svht4uvnk54uhgap8wuwdqnhra6mzt0ndcd05py3egzvrfj4qt5unuz44zz4a8tsdtd0rkk4y6v4lksaekp23al67rh9ttut9xysxw3jxqsxw50w70h68d2px4stssw4w5p2dupljmf9wn0qhqpav85qeeaudmxxrsdf546fuu8my3ewnrszaamf9gjeveqtmk6perrsljzqxhw5daqqsgnc79g7m7gzzryslqy57j33j2xsz55jzqahm7grss3m56jhxwy82v5v5pk7sdxdcawql8cg5um4z0jj0dkzkumxht57czqvqqqqqqqqqqpg2wesjekvvp8rvnvh9529sjgfrdu2x74qej909vk352qf7uneaay38rwpcwet7hgs5k5davn0wvqqqtzwacjvnl2e006ufve83hm4s4rzupv5y6ymhhy6h6z26kuz6pgd3duj3a5nkk6urhtjxy8lf3zpgqqy7xr6vam98hfqft3uxcm90yedkaf3n5npy2jkd032qlzvyzezvqcl3acm0azpu75ran0gs6vj9v9xs6h0mkkny6hphyu724gs7nqz02fflmuq993fyfmsd5zyegnwzfqqqq4h5zpp
           verified: false
-          status: none
-          errors: Cannot create a block with zero transactions
+          status: aborted
+          errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au14nj0jp0aqwdxjqgfj2darhntvllpccv2e8wlmh0rg94mc626jvfqd9qp4x
+              - id: au1swdqa0gvpj8nkyuwlmdvnl3l47w5h7msfy0ffde7ak3w9h9k4qzqpygrq6
                 program: test.aleo
                 function: dubble
                 inputs: []
                 outputs:
                   - type: future
-                    id: 7430039529170909410002537360505563790459318153445594569743177806065970588690field
+                    id: 1184425809541876528352487757023810608320265088071696360444411605535247651179field
                     value: "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-                tpk: 6135841435175593367065881616643923946848948400571240133314419780252261538504group
-                tcm: 3464577812084988995518969555399771601466105420741877341978206393368230123897field
+                tpk: 7679013795696412973166636110506506287029261995751574797228429469383914885030group
+                tcm: 5230462678570884926650621076942441638266528513315727266355035900011749049784field
+                scm: 5163336880258719423318414929737729511082942523362925092387252645454920125063field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqtg0a4pn628glc4njl6f5avhzgrl57q75wmknpd8k23kpzwkdefdy74zzdc4kd3fspgh98r2qw2ugpqyz3r2ljn2nt8u6zqrv8pq8rvfyth7f6hr7yk2vdnf9trmv9umjrd2fw0jjtl0azee039r59lky9zqz80ezuhs7hyputew4uc2sd5a2qrwhmedkp454hnj4v3zg72kxnvxwhatlhqzk7t6jcdyu659mw5vqpasx444uaffjpa088ngayncgzdxrqca3lcuyf7ajs3yr9yap58xer4fhcmv94egkg58w5a388mhgqgv44rzhd2vg549c9p4cgqm4zenmce2728x35dqd9gr0jf8zqf3jqv9xjq3vzlgcnu4wzfl7khgwgpdjd03d27z43pnzw4pygc48kztq6awjvku344lhnh26zd83y3sdt9x0nyxv6gmrp5rwv6ew9zazasrl9jpr9hj0s6v77n0ergnlp2xgfysewxctxnn0rswxmg2gqfpfzrwja6n95fqyp640cha5uajk3zqwtkz7fjuegh48hm4w7cca9csvh4jlxyh0cghzjc02g0ywm4mst0nq7jq9cttxy22un2xzc7tpaxxqyrvr2pnad8v66pl0327yw7mh5spd9lt66ywpwm0q7m5c5utfr8rj0s5lu58e7katvcqd0l0nj7vsqhrup0dg58xh8qmxmffs03e94hu9qgsh2dk6ghw7dxxu5dkv3r5pc0k7jqq4h8y96arxdrzw5wtemajg4z3kkfvxgm7y8dwwllc4qjqlfkmvvmfdnyxcpu8j7tganvzntrhhxpf5te4k9lj3vq68cv7vwzq8put0yquc3j02mftusp04vp3rudd82s0nd955n40jmlgfc8qys7l9aqczmwzher5w0r5fv6wr9uv53jgkge5a4mllyd3cyfqtmmasp5wyknqvyd0jgvrzlms6ty00s73p9nkzmuevjzcwczd6fjh2tpy9c2p84w6rmgdkhngzcgvpgf3wdh4gv6a5g3dv5adavrvtwd3nkqq8a5h7lr4nxvpyhhqxne5qklt8mnct82qgq6slz2xf667pnrp47qa63gq9qeyunemls0djlnwfy0cxm7q2hnmchxvchz8dqvlp3ftyssk637hvygslwprxczq08duvf8ytuns5p4ug4nal6jf6wpgw0ajc2qvqqqqqqqqqqphl3tcnxtnmc0p77epq44t8mlrv842utmu5hr2t63crlpjnrkqrcz3nvlqzan3z30aczye7n9zjmsyqp6d326m0hsmqtxjs7a47uxdm7wgdzvaeul9mnddx4gkpla7qrqk93uuhjeyu59hkxyfkfdfwrhxyqq8kvs3dw7tsfgp3w30zef9h68edzzwv0yddehtgq6rn65vgmfknsmar7t495paqf7rs9f4sg5pxkvp96rxw56sxl4pk65djg9q40gl6232hzstn7lq6cp794alsua963qyqq8znw5n
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqpe98rzx0qmypzu72vdj3r2pq6ve8qrhlljfm0qc8sn0q5a94l4mpg7ectel59e2jchnqlra7qfgqpqy8ar6emfl4avcm3uwwgk30td78ltv8dgg7cz4urkah8pgepmyuv56jz453p7fty3vn5pcsck4fymqwtjqqg36k6wvu20waqf3ffzft8pk8vrqkn7fr0csujpct7gjj8mvj5pumg0dmrkxh2dy6347gw8uqucku9wp4qu2cyea7vrm72vn0gmqnme50ntqwum9ercfwxp4s67n0l288kljlz3xhs4tth70sgwsyq302thysgg4uaf4pal9dzpw49y30rdh4dafeprjnplrzq9l4s3cv2enttxlsssqk798gaksfv3lrqpjq0pe5emdlcntxta90cdxzj4twlsmgtemmuvhjnxpvtxrct2te5crwf83qge4f9ngehlumwqdsmqx2xels3g0p2gy00y7z9kdxswtv6av6zlflccd4denz2afd39hldue03y0xauntlan93fyv2khghvqv0n2e59dm5aehk8h0mr5pg0duelktvkjl7gn6mnud8djl2n3zd4m57aap4gtgyhgscl0784pqpvsqzrz7e8vn4knwmddkmrr928ths0rxqx8a8fqty6tzupjafm9hk33v6ytyctmnvef5ddle8umwtdyqqrck9fqk8p2w5mtlfynt3vmw06k0xv5qu33laa86le0tn7p0xrq97dly047gyvcxaa5fs8a6mdk4zd45h8gpdq8ychk3crd2fyyzyxqhnnq3nssxfm0205u6fs0xxq8hl6tnzjl59du5xp57w5uucgs63zgyfz23ds74k5mml82x0ydk0l24urnf53x9z4y73d33z3ec9c74sy48evfu5rjmnze4m8kety3cvrlap224fyqlt9u226dq4u4w6qwgvac7vzuz6rzw577a3t05rautnk8jmfdeua7q234tda726d480dgy2aedqras00tq7erfd42w8ze6f3nxvcf6ghhvzlsu94gc2aey66pldwkml0l96wxmhm7lltejvhg44n9n6hnn7a6957mv5ykcx24rhp6retw6grhss9uqt303f9939xa0s34w0gwym044mxzrc2ej348gpzn8k2226pvh688zt0mmsqxd44grpjh0t8rrcmu34553d79d4ujggqvqqqqqqqqqqps280t09c0p0m6dp4k94859m7aa8yu0t9n9apnzyzd5k4aphsztw0y40cr3asnnwt92xsvfsjy5ssyqfkqy4xf6sthnrd5tv0qyf2g9gq4694kkc8gn5psj87ltplfnr0qlch92hkmjrayrnpkfrurqcnyvqqxax7wky4gqcsmnape9erxaa84hw2thtmc0h3x9d0dezuqvj0rxqx4sdqnlt7c3fj6a3hr4fhd338mpk6jc2g73gjuahetwmv093ukem9aahrxmxns703yt448hgzrpmqqqqn0x3yg
           verified: false
-          status: none
-          errors: Cannot create a block with zero transactions
+          status: aborted
+          errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1xenlq7p33tnr0x9sdav2kjgt96za7eereeydtttdad3nduqn8cqqcq3nyr
+              - id: au1m65ckcdcpsp5lnph3sa5c5k5v9rg9ca60xhz207cpyaz38d6ccrqhgur0t
                 program: test.aleo
                 function: dubble
                 inputs: []
                 outputs:
                   - type: future
-                    id: 7744006900582213331170410880656283700785058890761338304811585288550427336350field
+                    id: 4963389433888733314641496564477627877281230309950450748272665391727802870262field
                     value: "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-                tpk: 2266714210502541399212369587223618912056135613907075680194616778112321541946group
-                tcm: 1203331062209382798928865200187258987695290620394496312814971661943989197868field
+                tpk: 4545722811456393354251751239512283909430122413441855759325069958043556361870group
+                tcm: 7637843507110493620394876345321266909895315670903950929197809320352518649676field
+                scm: 7575811133241041418981647279984692830593058486355500897231811587998092572540field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqwd6jf85nt457n9kyga0mtv5lfnz08w7utpqzh0q3vpqu8zcs885ekwvz046f3q3t87lehk87lrqvqq95362dn5ykj8rq8awadznx8cg0fulxs6w4edd9khevprxqt6dqkannvgjqpc2dtj84jyv7vlkd9fq8eu3acha34q0ulu2877c6wsydgafx4juunvmzf7994c3t5uak97f24w65dd3sv4xk04sxrukkkl7qpl9j4ugdheqn9gkv229ytsv6hc45tt7sd9j9dtmpxlwpd7q3093s2g3mw7zpv9cy7zzknnvlqmuqqvtkd42xteekkjw04g5j6lf2fcd8eglre6cceevh4x0prtzjaex72gsflh2zc5u3kpxktkxuzk37gzu00n9u2jdl035kuvhpy39m4p5qsma45qjjnhf6u69cwmw89u5xjxsc5fpfvttnp7rzwp36d6xunqz8nshzthjvt4p0sekd5qqxkzuk37x8963p266qtjggc2jckjjgmz57w67rsu5zew3yc7te6s6t73qyjzdmspxl2eq3qpky25m59npfql5qp4fmaegram7jel8npc96qtvf9ack9987hvzfyrl2493gvx7qahcc5m0x4z0acaxdy6fzwjppaasj6c7ltju8khyhndvc69uus7mdtg3g9snl4e00j8pgsaz39ezqq2fladdrnjdh67h7078yrwzlrlakcdz3wtwelzg8s2hj0qvspnvpg4rjx7gwxt5g94p78canka5qa0e5zw2ttmf4ddgxqeng8vluykywlkk4kvrfdggw9ulxlrca7nq28y9axd4tk85l4nplxlwudvt4lqaq98v4z2g5f4wcyfzxyh3hcm5562uk85vpz2a8rkxsclf5d9mnq80l2zpw7aur9lnmay78xjmm0pl0v5rjdatylqrjdef3frtmzyjspjewmjtm809rsdgcnf6c247jzs35h9zkthyhm53c2sdhuqeks0u93eh4z7xse3fkzf9mxvangc9gsc3lpcyxle8hh3rftz9dagq9jxq6acmzn7xuel0ldy5s2t4xdq76e753cw8ld3dq6zjfx6fqzpp8tp6gfnu02sf3zsvgqsjges7qkrw90ve7fty3jepza5ygk9jru456prvyd2072cg2tmlelugah54m3laa4sx35wj7487czdug7dr5zysqpqvqqqqqqqqqqqm060jdsyrqjmgnzsfdfs9kku92zgffanv7vu46g8kdrncdv9v9aluw5wk4t4k0du70m3hu5xszcsyqvunraehsqhnxj7d47cfj8wzrrmgl9thfn8af3k4vsyetrrdmtzg7ywpa9509dch3qg92m0g7lum5qq8fzemrsn2q6st73t2te2c69qeclap3tyfcvvw52jvfwpm8xsqcsnus6dymykat9tdfe40ttdfaaduwcuzl4k6su63ttc9y2r656mm7ncet0lr8qa449yan3js8yx6nnsqqq8vsvm9
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqf8f3unek2r7vgxqan2f3grksn7uavrjyek35h2rcmg3urxze72jrkggfzmlkdwv34exu9dkyw0xcpqxjewyxsrxyd9ac7qu3f9s5wu5yj60tx96t85mss95n3ejgdm3fl9m9kc8flvdxx5jyehtmrstk5nqwyl3u6rttwmntl2a8fvnp6mj3u3kw35axvze4p7tul9mgxpx4qq32m27vc9tvqamhhlcrgk9eg32qmteqdzav88ughh7nm48th3jzx8x3cl6alvmnzgpmus4764r50ajqjrarf50n05tcuwf0dt4l864uq3lfmzql9a83509zumfr8v3d7xew8x7q675fs7jp2zntrnmt7crxcdcu7tkxwz4uyrmc0f9654zncq4amhjnsayzvg5mxtnms3zmrj0n0s0jsrjjecu4wd0tjsgfsw3hraq8e8f3tq3ew50pewkml3s6dsq6mxcdpr3pjwpq5d4elfagavxx28z8fjqn3jwucjzz52x84wn3gg95am0r9judj8ucjgy4ydn92yqfr7thlv8nvwlllktv80f9cuxl4966vkj4x5jzqy6fn4xqrqwpsu94y7jrd6we3haxu00ek6jd9ryqnkypuz7zgcmgfq9jggnyhgxas8wcuzvezfr600fnpwndm474m3lp5rhyl8fdx48k7pl5v52n8x45p92f4v5rz9hkpr22neszdvzj6qh0exan4fsns4pmrg7q2j9k96qzm9n7aave259zd2fvsdp47vvsecxjej0mkac0epsjze44mraeeczdrcdcvwp4l6mlwu6wse8q67sgswdswr4g3089c7dd5yl4yqejlp2j4xawg9y5gtv729av97xljr3t4de62zy69c6my4gd7drn3zm7qulmtwezu44qgzqpl4res43ste9akncc3xqr6esr9560ftd64g7sdhwzwsjskfh0y7ujddkeej0stdzhcf60flxsratxcj0jn3903xvpl53ug0jfxe2gyc989cmqza3l9w5c6aqqevj6kyp6atvhcgp0rxqummuykqw2ns0jlxgltr7vr4y5yw5mv9xq3gmuktukx8ju9c8mmqll8jsud3f8acvkqavxasggxqcxf308d8txkadntgntd5ugk7pcq5eckqfy7zqdpu0jlgrymerx09pmf0s6zsqdd0su42jdyryd97qs8qvqqqqqqqqqqq3ch2d3njr557353dpy48c9h9eh02cakurz9pvyls283u30dh5f2zkuzxzdfkjws3vzzxsd4l4e5qqqrqu0xmnsrqny3kwkra6vy7xaaakeu9gyxdjtvj5jqgdhr89mqdwcppr8kstxs2rj207tr22p733yqqy8pa9ft9766wwnu9t3y7cfg4qxrl6jy07hvls8p7nntt5x04wf39hp0778ng9k6q2etmu30l8tye7uanrledn777x0cplrpta6fks328jj7nydakd7l8kr74p44pyyfsyqqnuefnq
           verified: false
-          status: none
-          errors: Cannot create a block with zero transactions
+          status: aborted
+          errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au139yf28w6uxs0cgq2fwatngy3g56rs6vmtfx0t8yv3es3kdlrmvrq78ezmu
+              - id: au1a0dfm9029pa26ctn4dzvw6wg5azkw5lpuesaxhg4mpq4vyutdypqrlpamz
                 program: test.aleo
                 function: dubble
                 inputs: []
                 outputs:
                   - type: future
-                    id: 283683012735846234944964440624169965241581091508162432216072708263810021694field
+                    id: 799577801655743476058618710552090601157841292687939705703670286571410000383field
                     value: "{\n  program_id: test.aleo,\n  function_name: dubble,\n  arguments: [\n    aleo17z49cl3wfpjdyu5juxaxnuttag24ygz36pg8ln2qmlcsw4w8cs9s3f45uq\n  ]\n}"
-                tpk: 2026369194105547093488491361630788461902933084228733281430594784631588064083group
-                tcm: 6807489397420669008274892702147737415469157534097338858473169014698908902203field
+                tpk: 2061902098647092759709411225873182397624137849910529114929786253268731178950group
+                tcm: 7219029958952748694562627472038747887956514538329569951777221346009407378711field
+                scm: 388247481429182894113292412233252927860399026948145842414191700538352215282field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqz09lhxerf690ztewpthe0tlyty4dejy8npgsykjayaw5ky0836ews9r7daqf6kd62lh0pntre9ecqq9sz8zha76fgq5uk4p6qknhvkk9dyj929kntg68kv20urpak3lpc7dx6097khf3rxx4fyhvpc8t2gq04ykl6srgwrgw5ywz6qztkegsemm3jntw4lvufkf7frq3fm4qc0qccfy3ypf5mxc63tluf38twfxqqn3c0eknmncw6l5h3hsdd723ac3wg73la8h5ypzda4gx7zuvxv53pvtmgl8ckameq7dkx99xwwsyquj5pn6fnakluqzvcddtk98vc3dr4klptqrernxjmlhl9rszk9x824q67cp63dvgfex4ddp0fdzkgzavx4602ntg9kcmpa8qv79ul2mq672he4cnfypjhugq88t3en67n66dw4r2zfu4ynquzrhtjnyk0qpzd4frftef3xk29acjnagrz54anzc8gh6rpgt99dup69hkmsh03jlkl4zl85ugy0nm945hqt8ag8qpwfl6xutu29ep6e0sdfjy298nhv62nx4rczgru5c5ryul72d59wnd8qk57dl87u6pej7ljmxtmjzqucgzemzlc25a58v7nvrkgprnpm5xaxglhlm7v5zg7xgadex55skm4ycsysha6dsl8ft5jjegn5luqvhs22nvswarez5jyjyd5cpj27td7xmx6xfttw632l0vkkut3m5yw2axjhxygy2nthzy2gsr3c54xtud44d4q7fd9egt4neu0d8q6vqsq9prhzfm82mjmpx0r09j5faretqs84hp2ej4jj3esg6swytkeqq0p04p7kg33kefaeu3v3xtkf8wkxgnuysu4smykk8du549aqc9qrwg5z5d32unvnzavr2wwtg7hzjtj639rmpxv6j5un5gym467u2qyy9nrg0vpcumctwhcvvhx6yktzjg42yacu58s5sy0xatadn75nvqa0ll7rx9t558fkcwkpq4aq6c2frq4qzds6qveykygycnpwm9rwqa76aw9c0hwvj22xmydvxcwdq27exmv7z6znaxf9lg2dgya6jxppp4w7qp3ns9xns3tyc6kc3fysj6f6u7zf0vdn8pqe07ysm6txvzqavy4wfdawdndergqkns87l2kpnvfr982pdjp2m384ajkm5ra94gzqvqqqqqqqqqqpzm2w7ea8cnz9pshd355pmgwxvlfx2l68cwx2elvmnh8lz0w6phzcgyg37g7ldmvpccve06n2xcxqqqyjutjpdpwn5vpw7m747lc9yx48278dgrw0y9qtjp768uyfx0qvtz4339g4chpn9mn7ldwak26c3cpq95w3pxqdyg2tsdduhnnucmj55g6wmakp3f7umm07e6d8gp8lqhpz4ayya69pu2uzmh7gsjzlzheqdf8gwmfp06055plzsqe9rurg2sarwutntuzct8wfyr60mcj972tqqqq7f33zz
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq80k3xfr6yzux3yqm3k4rhz2l4ryx74xtzs0vcds07rwka7rnqgslfardqge2dgk97qujnwcytgnqqqymd8d4knt9zzh0lczxtmfw5dkdfud3ej8dv2ju3fq5qtq4m4ksa5s66w45rfzwhjcysyuat79eknqfls68sc2jl0xmy92m09ngx2y6jz2ftr4zne2ylty47w2tf8psu0evzvkz6ufc29ycahh9re0tlezq9mss3w9py6yaflf6wcrx6c06a2q2z65qs8w4v974d86xdlhsyl08mhrhh5l2ycl42hu3huqqtkvypzwzm3l26zskt4gxt8u4767faqkda7yq4y47n5dzn6am4u50255p2z92evgyv85gnd85qfz34mf6czpw8mn9e3yr7mxe5dm9vppexujtmz8z80eyg7axzwmanp3csd9fawjgedjekw5d7nnx8j3e35804srvaf72l3p4q2hfvx3xjmlmsjq8c46t4gfc6cxcxfef3tq2758hl22xwglkznlk2nnhh48xldqhj5qq5aps2g9haqea42p3a3az9gt45zgv2mtfq9eahw0h9kut5dznjvrdf055vk67vawft8pu9ew8ln5q39968yuektflslsrr7cpghvu3y47gjfjc03wzynaayqq7zu58zlm0dk4zznrc72qauydkwhr7aycqw3wuxqeq4tlnlnkhqfkphvu666rkff9zqzpjhmshj36538waeqp45kekg8zh3zafgrg88qg9d65qlxyn3xnq94d33a3czlyf8m692rawfjysj9atyqkxys4sewjauvq6jnnd8d9l56utvcqekmkgza6cpt6ls853ueetvlrvthvvmllpeakv4ty5xruaxtd4u9ckc84ql3ds2wah8lfaruth0qmgfph46tt668k6z6kxlsavpvwddv46mvjae8q2n8mugxc9x5536zjyxcy29mjpr884h6u47fkgnl7nfk9c5vmwtyp4xxve4ax0lhjfl878q33pmhq9g993d6jkkhmkw548w5lkh0sfjqzlly0hpvhl6ywu0a4tdxxyk6gndp89yg279cgga5sq73nwpj5jp2fvv23n0ptghy9fcwamf6fs89xzzlyul99h3wwrcak6p8cgl5v3y0n5hq32u2ejuyhv5m2357k32q0ktzys4gpg27puhy39vmumuyssqvqqqqqqqqqqpm627kcdp3ujxr9jmhpwypu400zf7efxk4lcjvkf7t3fqnmqw6nq5306jff4u7qq6hapd0fl4vfjqyq8axr70jszezgjpnwafprckwuyv5lfrzd77asurtsjy4ds6qcdeutykpgfhn6w74r90earxf85c3sqq9mv890pe47nrg8lppxqauy6jcksl7z3m9q03zh4y8ee6grz4z8spsjw26ggkghzd9y5mfe6e2ze4pwuq6v9f73zdkt74qdt8rf6ur0urgcmmqsufzmutmxsdz24vauqqqqq8h5ryh
           verified: false
-          status: none
-          errors: Cannot create a block with zero transactions
+          status: aborted
+          errors: ""
           warnings: ""
