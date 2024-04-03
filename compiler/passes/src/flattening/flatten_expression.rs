@@ -14,18 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Flattener, Location};
+use crate::{Flattener};
 
-use leo_ast::{
-    Expression,
-    ExpressionReconstructor,
-    Node,
-    Statement,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    Type,
-};
+use leo_ast::{Expression, ExpressionReconstructor, Location, Node, Statement, StructExpression, StructVariableInitializer, TernaryExpression, Type};
 
 impl ExpressionReconstructor for Flattener<'_> {
     type AdditionalOutput = Vec<Statement>;

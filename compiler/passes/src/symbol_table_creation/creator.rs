@@ -19,7 +19,7 @@ use leo_errors::emitter::Handler;
 
 use leo_span::Symbol;
 
-use crate::{Location, SymbolTable, VariableSymbol, VariableType};
+use crate::{SymbolTable, VariableSymbol, VariableType};
 
 /// A compiler pass during which the `SymbolTable` is created.
 /// Note that this pass only creates the initial entries for functions, structs, and records.

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, Location, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
+use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
 use leo_ast::{
     Composite,
@@ -1018,7 +1018,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
-                    if mapping_type.program != self.program_name.unwrap() {
+                    if mapping_type.program != self.scope_state.program_name.unwrap() {
                         self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping("set", function_span));
                     }
                     // Check that the second argument matches the key type of the mapping.
@@ -1042,7 +1042,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
-                    if mapping_type.program != self.program_name.unwrap() {
+                    if mapping_type.program != self.scope_state.program_name.unwrap() {
                         self.handler
                             .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
                     }
@@ -1291,7 +1291,7 @@ impl<'a> TypeChecker<'a> {
                         } else {
                             // Insert to symbol table
                             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                                fn_input.identifier.name,
+                                Location::new(None, fn_input.identifier.name),
                                 VariableSymbol {
                                     type_: t2.clone(),
                                     span: fn_input.identifier.span(),
@@ -1326,7 +1326,7 @@ impl<'a> TypeChecker<'a> {
                     && self
                         .symbol_table
                         .borrow()
-                        .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
                         .unwrap()
                         .is_record
                 {
@@ -1358,7 +1358,7 @@ impl<'a> TypeChecker<'a> {
             // Add function inputs to the symbol table. Futures have already been added.
             if !matches!(&input_var.type_(), &Type::Future(_)) {
                 if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(input_var.identifier().name, VariableSymbol {
+                    self.symbol_table.borrow_mut().insert_variable(Location::new(None, input_var.identifier().name), VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
@@ -1446,7 +1446,7 @@ impl<'a> TypeChecker<'a> {
         };
 
         // Make sure that the future is defined.
-        match self.symbol_table.borrow().lookup_variable(future_variable.name) {
+        match self.symbol_table.borrow().lookup_variable(Location::new(None, future_variable.name)) {
             Some(var) => {
                 if !matches!(&var.type_, &Type::Future(_)) {
                     self.emit_err(TypeCheckerError::expected_future(future_variable.name, future_variable.span()));
@@ -1488,7 +1488,7 @@ impl<'a> TypeChecker<'a> {
             type_
         };
         // Insert the variable into the symbol table.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(name.name, VariableSymbol {
+        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(Location::new(None, name.name), VariableSymbol {
             type_: ty,
             span,
             declaration: VariableType::Mut,

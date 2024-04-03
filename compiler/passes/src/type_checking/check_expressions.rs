@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, TypeChecker};
+use crate::{TypeChecker};
 
 use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
@@ -757,7 +757,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 // Assumes that external function stubs have been processed.
                                 self.finalize_input_types
                                     .get(&Location::new(
-                                        input.program.unwrap(),
+                                        input.program,
                                         Symbol::intern(&format!("finalize/{}", ident.name)),
                                     ))
                                     .unwrap()
@@ -795,12 +795,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             // Link async transition to the async function that finalizes it.
                             st.attach_finalize(
                                 self.scope_state.location(),
-                                Location::new(self.scope_state.program_name.unwrap(), ident.name),
+                                Location::new(self.scope_state.program_name, ident.name),
                             )
                             .unwrap();
                             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
                             self.finalize_input_types.insert(
-                                Location::new(self.scope_state.program_name.unwrap(), ident.name),
+                                Location::new(self.scope_state.program_name, ident.name),
                                 inferred_finalize_inputs.clone(),
                             );
 
@@ -811,7 +811,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             ret = Type::Future(FutureType::new(inferred_finalize_inputs));
                         }
                         // Set call location so that definition statement knows where future comes from.
-                        self.scope_state.call_location = Some(Location::new(input.program.unwrap(), ident.name));
+                        self.scope_state.call_location = Some(Location::new(input.program, ident.name));
                     }
 
                     Some(ret)
@@ -838,7 +838,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
         let struct_ =
-            self.symbol_table.borrow().lookup_struct(self.scope_state.program_name).cloned();
+            self.symbol_table.borrow().lookup_struct(Location::new(self.scope_state.program_name, input.name.name)).cloned();
         if let Some(struct_) = struct_ {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());

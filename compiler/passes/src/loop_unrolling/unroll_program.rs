@@ -16,7 +16,7 @@
 
 use leo_ast::*;
 
-use crate::{Location, Unroller};
+use crate::{Unroller};
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {

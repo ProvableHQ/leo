@@ -15,8 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
-
-use crate::{Location, TypeChecker, VariableSymbol, VariableType};
 use itertools::Itertools;
 
 use leo_ast::{
@@ -393,7 +391,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();
-        let func = self.symbol_table.borrow().lookup_fn_symbol(self.scope_state.program_name.unwrap(), parent).cloned();
+        let func = self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.scope_state.program_name, parent)).cloned();
         let mut return_type = func.clone().map(|f| f.output_type.clone());
 
         // Fully type the expected return value.

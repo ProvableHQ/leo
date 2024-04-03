@@ -25,7 +25,7 @@ use std::cell::RefCell;
 
 use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function, Location};
 use leo_errors::{AstError, Result};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -106,7 +106,7 @@ impl SymbolTable {
         } else if let Some(parent) = self.parent.as_mut() {
             parent.attach_finalize(caller, callee)
         } else {
-            Err(AstError::function_not_found(caller.function).into())
+            Err(AstError::function_not_found(caller.name).into())
         }
     }
 
@@ -119,7 +119,7 @@ impl SymbolTable {
 
     /// Inserts futures into the function definition.
     pub fn insert_futures(&mut self, program: Symbol, function: Symbol, futures: Vec<Location>) -> Result<()> {
-        if let Some(func) = self.functions.get_mut(&Location::new(program, function)) {
+        if let Some(func) = self.functions.get_mut(&Location::new(Some(program), function)) {
             func.future_inputs = futures;
             Ok(())
         } else if let Some(parent) = self.parent.as_mut() {

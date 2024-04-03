@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CodeGenerator, Location};
+use crate::{CodeGenerator};
 use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, Location, LocatorExpression, MemberAccess, MethodCall, Node, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression, Variant};
 use leo_span::sym;
 use std::borrow::Borrow;
@@ -512,7 +512,7 @@ impl<'a> CodeGenerator<'a> {
             }
         } else {
             // Lookup in symbol table to determine if its an async function.
-            if let Some(func) = self.symbol_table.lookup_fn_symbol(input.program.unwrap(), function_name) {
+            if let Some(func) = self.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
                 if func.is_async && input.program.unwrap() == self.program_id.unwrap().name.name {
                     format!("    async {}", self.current_function.unwrap().identifier)
                 } else {
@@ -536,7 +536,7 @@ impl<'a> CodeGenerator<'a> {
         // Create operands for the output registers.
         let func =
             &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
-        match func.output_type {
+        match func.output_type.clone() {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),

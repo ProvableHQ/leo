@@ -25,16 +25,12 @@ pub struct ScopeState {
     pub(crate) variant: Option<Variant>,
     /// Whether or not the function that we are currently traversing has a return statement.
     pub(crate) has_return: bool,
-    /// Whether or not we are currently traversing a finalize block.
-    pub(crate) is_finalize: bool,
     /// Whether or not we are currently traversing a return statement.
     pub(crate) is_return: bool,
     /// Current program name.
     pub(crate) program_name: Option<Symbol>,
     /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
-    /// Whether or not we are in an async transition function.
-    pub(crate) is_async_transition: bool,
     /// The futures that must be propagated to an async function.
     pub(crate) futures: IndexMap<Symbol, Location>,
     /// Whether the finalize caller has called the finalize function.
@@ -54,11 +50,9 @@ impl ScopeState {
             function: None,
             variant: None,
             has_return: false,
-            is_finalize: false,
             is_return: false,
             program_name: None,
             is_stub: false,
-            is_async_transition: false,
             futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,
@@ -78,6 +72,6 @@ impl ScopeState {
 
     /// Get the current location.
     pub fn location(&self) -> Location {
-        Location::new(self.program_name.unwrap(), self.function.unwrap())
+        Location::new(self.program_name, self.function.unwrap())
     }
 }

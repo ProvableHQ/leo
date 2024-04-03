@@ -14,32 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, StaticSingleAssigner};
+use crate::{StaticSingleAssigner};
 
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedFunction,
-    BinaryExpression,
-    CallExpression,
-    CastExpression,
-    Composite,
-    Expression,
-    ExpressionConsumer,
-    Identifier,
-    Literal,
-    LocatorExpression,
-    MemberAccess,
-    Statement,
-    StructExpression,
-    StructVariableInitializer,
-    TernaryExpression,
-    TupleAccess,
-    TupleExpression,
-    UnaryExpression,
-    UnitExpression,
-};
+use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedFunction, BinaryExpression, CallExpression, CastExpression, Composite, Expression, ExpressionConsumer, Identifier, Literal, Location, LocatorExpression, MemberAccess, Statement, StructExpression, StructVariableInitializer, TernaryExpression, TupleAccess, TupleExpression, UnaryExpression, UnitExpression};
 use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;

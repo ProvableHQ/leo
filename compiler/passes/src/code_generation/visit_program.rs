@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant, Location};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -102,14 +102,14 @@ impl<'a> CodeGenerator<'a> {
                             let finalize = &self
                                 .symbol_table
                                 .lookup_fn_symbol(
-                                    self.program_id.unwrap().name.name,
+                                    Location::new(Some(self.program_id.unwrap().name.name),
                                     function.identifier.name,
-                                )
+                                ))
                                 .unwrap()
                                 .clone()
                                 .finalize
                                 .unwrap()
-                                .function;
+                                .name;
                             // Write the finalize string.
                             function_string.push_str(&format!(
                                 "{}\n",
@@ -198,7 +198,7 @@ impl<'a> CodeGenerator<'a> {
         // Construct and append the input declarations of the function.
         let mut futures = self
             .symbol_table
-            .lookup_fn_symbol(self.program_id.unwrap().name.name, function.identifier.name)
+            .lookup_fn_symbol(Location::new(Some(self.program_id.unwrap().name.name), function.identifier.name))
             .unwrap()
             .future_inputs
             .clone();
@@ -217,7 +217,7 @@ impl<'a> CodeGenerator<'a> {
                     // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
                     if matches!(input.type_, Type::Future(_)) {
                         let location = futures.remove(0);
-                        format!("{}.aleo/{}.future", location.program, location.function)
+                        format!("{}.aleo/{}.future", location.program.unwrap(), location.name)
                     } else {
                         self.visit_type_with_visibility(&input.type_, visibility)
                     }

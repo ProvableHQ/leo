@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, Location, TypeChecker};
+use crate::{DiGraphError, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
@@ -77,7 +77,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(Location::new(self.program_name, input.identifier.name))
+            .lookup_fn_symbol(Location::new(self.scope_state.program_name, input.identifier.name))
             .unwrap()
             .id;
 
@@ -112,7 +112,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             assert!(future_stubs.is_empty(), "Disassembler produced malformed stub.");
 
             finalize_input_map
-                .insert(Location::new(self.scope_state.program_name.unwrap(), input.identifier.name), resolved_inputs);
+                .insert(Location::new(self.scope_state.program_name, input.identifier.name), resolved_inputs);
         }
 
         // Query helper function to type check function parameters and outputs.
@@ -309,7 +309,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(Location::new(self.program_name, function.identifier.name))
+            .lookup_fn_symbol(Location::new(self.scope_state.program_name, function.identifier.name))
             .unwrap()
             .id;
 
