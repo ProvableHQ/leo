@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use disassembler::disassemble_from_str;
 use indexmap::{IndexMap, IndexSet};
 use leo_ast::Stub;
+use leo_disassembler::disassemble_from_str;
 use leo_errors::UtilError;
 use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;
@@ -304,7 +304,7 @@ impl Retriever {
             })?;
 
             // Cache the disassembled stub
-            let stub: Stub = disassemble_from_str(content)?;
+            let stub: Stub = disassemble_from_str(&content)?;
             if cur_context.add_stub(stub.clone()) {
                 Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
             }
@@ -484,7 +484,7 @@ fn retrieve_from_network(
     })?;
 
     // Disassemble into Stub
-    let stub: Stub = disassemble_from_str(file_str)?;
+    let stub: Stub = disassemble_from_str(&file_str)?;
 
     // Create entry for leo.lock
     Ok((

@@ -20,12 +20,12 @@ use leo_ast::Stub;
 use leo_compiler::{Compiler, CompilerOptions, OutputOptions};
 use leo_errors::UtilError;
 use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::SourceDirectory};
+use leo_retriever::Retriever;
 use leo_span::Symbol;
-use retriever::Retriever;
 
 use snarkvm::{
     package::Package,
-    prelude::{ProgramID, Testnet3},
+    prelude::{MainnetV0, ProgramID},
 };
 
 use indexmap::IndexMap;
@@ -34,7 +34,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-type CurrentNetwork = Testnet3;
+type CurrentNetwork = MainnetV0;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -142,7 +142,7 @@ impl Command for Build {
                 for file_path in local_source_files {
                     compile_leo_file(
                         file_path,
-                        &ProgramID::<Testnet3>::try_from(format!("{}.aleo", dependency))
+                        &ProgramID::<MainnetV0>::try_from(format!("{}.aleo", dependency))
                             .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
                         &local_outputs_directory,
                         &local_build_directory,
@@ -186,7 +186,7 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    program_id: &ProgramID<Testnet3>,
+    program_id: &ProgramID<MainnetV0>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,

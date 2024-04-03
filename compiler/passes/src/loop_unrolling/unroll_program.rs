@@ -16,7 +16,7 @@
 
 use leo_ast::*;
 
-use crate::Unroller;
+use crate::{Location, Unroller};
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {
@@ -58,7 +58,7 @@ impl ProgramReconstructor for Unroller<'_> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.current_program.unwrap(), input.identifier.name)
+            .lookup_fn_symbol(Location::new(self.current_program, input.identifier.name))
             .unwrap()
             .id;
 
@@ -77,7 +77,7 @@ impl ProgramReconstructor for Unroller<'_> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.current_program.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(Location::new(self.current_program, function.identifier.name))
             .unwrap()
             .id;
 

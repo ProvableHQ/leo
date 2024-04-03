@@ -37,9 +37,9 @@ program tictactoe.aleo {
         return
             (b.r1.c1 == p && b.r1.c2 == p && b.r1.c3 == p) || // row 1
             (b.r2.c1 == p && b.r2.c2 == p && b.r2.c3 == p) || // row 2
-            (b.r3.c1 == p && b.r3.c3 == p && b.r3.c3 == p) || // row 3
+            (b.r3.c1 == p && b.r3.c2 == p && b.r3.c3 == p) || // row 3
             (b.r1.c1 == p && b.r2.c1 == p && b.r3.c1 == p) || // column 1
-            (b.r1.c2 == p && b.r2.c3 == p && b.r3.c2 == p) || // column 2
+            (b.r1.c2 == p && b.r2.c2 == p && b.r3.c2 == p) || // column 2
             (b.r1.c3 == p && b.r2.c3 == p && b.r3.c3 == p) || // column 3
             (b.r1.c1 == p && b.r2.c2 == p && b.r3.c3 == p) || // diagonal
             (b.r1.c3 == p && b.r2.c2 == p && b.r3.c1 == p); // other diagonal

@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 99dbe3e2dbac9ca70ae79a045cb21a9b8f1760c3eab3c972dfae7cc68cc0d99c
-      type_checked_symbol_table: 8511be2fe8496e670693e0be9d32494ddca6df83ec9696f1f6dbb56c82f2611f
-      unrolled_symbol_table: 8511be2fe8496e670693e0be9d32494ddca6df83ec9696f1f6dbb56c82f2611f
-      initial_ast: e59d5767584e59cc80c211502d1988e98903fd73fc6dbc0615a65a3e90d626f8
-      unrolled_ast: e59d5767584e59cc80c211502d1988e98903fd73fc6dbc0615a65a3e90d626f8
-      ssa_ast: ed50455eeaebc6991842a6140ecd4ea43a3179da073f608fcfdc05c2c2438fa8
-      flattened_ast: de991e83f05fb8385e5b443298d13e6d707131f4b243f8fa82db878983271c44
-      destructured_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
-      inlined_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
-      dce_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
-      bytecode: 955b3e3d4d80a6816de6d59563cc6f31f94dbff43853facba45936dfdc2012ca
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 99dbe3e2dbac9ca70ae79a045cb21a9b8f1760c3eab3c972dfae7cc68cc0d99c
+          type_checked_symbol_table: 8511be2fe8496e670693e0be9d32494ddca6df83ec9696f1f6dbb56c82f2611f
+          unrolled_symbol_table: 8511be2fe8496e670693e0be9d32494ddca6df83ec9696f1f6dbb56c82f2611f
+          initial_ast: e59d5767584e59cc80c211502d1988e98903fd73fc6dbc0615a65a3e90d626f8
+          unrolled_ast: e59d5767584e59cc80c211502d1988e98903fd73fc6dbc0615a65a3e90d626f8
+          ssa_ast: ed50455eeaebc6991842a6140ecd4ea43a3179da073f608fcfdc05c2c2438fa8
+          flattened_ast: de991e83f05fb8385e5b443298d13e6d707131f4b243f8fa82db878983271c44
+          destructured_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
+          inlined_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
+          dce_ast: ef984dda91e9ad324644f057cc8462ebc4b29ec7919b22595cb6b5179238633d
+          bytecode: 955b3e3d4d80a6816de6d59563cc6f31f94dbff43853facba45936dfdc2012ca
+          errors: ""
+          warnings: ""

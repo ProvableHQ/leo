@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372005]: Unknown variable `users`\n    --> compiler-test:8:35\n     |\n   8 |         let a:bool = Mapping::get(registry.aleo/users, addr);\n     |                                   ^^^^^^^^^^^^^^^^^^^\n"

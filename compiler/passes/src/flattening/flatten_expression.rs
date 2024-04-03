@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Flattener;
+use crate::{Flattener, Location};
 
 use leo_ast::{
     Expression,
@@ -89,8 +89,10 @@ impl ExpressionReconstructor for Flattener<'_> {
                     Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),
                     Type::Composite(first_type) => {
                         // Get the struct definitions.
-                        let first_type =
-                            self.symbol_table.lookup_struct(first_type.program.unwrap(), first_type.id.name).unwrap();
+                        let first_type = self
+                            .symbol_table
+                            .lookup_struct(Location::new(first_type.program, first_type.id.name))
+                            .unwrap();
                         self.ternary_struct(first_type, &input.condition, &first, &second)
                     }
                     Type::Tuple(first_type) => self.ternary_tuple(first_type, &input.condition, &first, &second),

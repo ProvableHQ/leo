@@ -14,33 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CodeGenerator;
-use leo_ast::{
-    AccessExpression,
-    ArrayAccess,
-    ArrayExpression,
-    AssociatedConstant,
-    AssociatedFunction,
-    BinaryExpression,
-    BinaryOperation,
-    CallExpression,
-    CastExpression,
-    ErrExpression,
-    Expression,
-    Identifier,
-    Literal,
-    MemberAccess,
-    MethodCall,
-    Node,
-    StructExpression,
-    TernaryExpression,
-    TupleExpression,
-    Type,
-    UnaryExpression,
-    UnaryOperation,
-    UnitExpression,
-    Variant,
-};
+use crate::{CodeGenerator, Location};
+use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, Location, LocatorExpression, MemberAccess, MethodCall, Node, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression, Variant};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -62,6 +37,7 @@ impl<'a> CodeGenerator<'a> {
             Expression::Err(expr) => self.visit_err(expr),
             Expression::Identifier(expr) => self.visit_identifier(expr),
             Expression::Literal(expr) => self.visit_value(expr),
+            Expression::Locator(expr) => self.visit_locator(expr),
             Expression::Ternary(expr) => self.visit_ternary(expr),
             Expression::Tuple(expr) => self.visit_tuple(expr),
             Expression::Unary(expr) => self.visit_unary(expr),
@@ -81,6 +57,10 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_value(&mut self, input: &'a Literal) -> (String, String) {
+        (format!("{input}"), String::new())
+    }
+
+    fn visit_locator(&mut self, input: &'a LocatorExpression) -> (String, String) {
         (format!("{input}"), String::new())
     }
 
@@ -327,6 +307,8 @@ impl<'a> CodeGenerator<'a> {
     // Pedersen64::hash() -> hash.ped64
     fn visit_associated_function(&mut self, input: &'a AssociatedFunction) -> (String, String) {
         let mut instructions = String::new();
+
+        // Visit each function argument and accumulate instructions from expressions.
         let arguments = input
             .arguments
             .iter()
@@ -552,8 +534,9 @@ impl<'a> CodeGenerator<'a> {
         let mut destinations = Vec::new();
 
         // Create operands for the output registers.
-        let func = self.symbol_table.lookup_fn_symbol(main_program, function_name).unwrap();
-        match &func.output_type {
+        let func =
+            &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
+        match func.output_type {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),

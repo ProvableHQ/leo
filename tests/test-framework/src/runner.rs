@@ -25,6 +25,8 @@ use std::{
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
+pub const PROGRAM_DELIMITER: &str = "// --- Next Program --- //";
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ParseType {
     Line,
@@ -109,10 +111,12 @@ impl TestCases {
         let mut test_path = self.path_prefix.clone();
         test_path.push("tests");
         test_path.push(&self.expectation_category);
-        if let Ok(p) = std::env::var("TEST_FILTER") {
-            test_path.push(p);
-        }
 
+        let tests = find_tests(&test_path);
+        // Print all paths.
+        for (path, _) in tests {
+            println!("{:?}", path);
+        }
         self.tests = find_tests(&test_path)
             .filter(|(path, content)| match extract_test_config(content) {
                 None => {
@@ -167,7 +171,7 @@ impl TestCases {
             .with_extension("out");
 
         if expectation_path.exists() {
-            if !is_env_var_set("CLEAR_LEO_TEST_EXPECTATIONS") {
+            if !is_env_var_set("REWRITE_EXPECTATIONS") {
                 (expectation_path, None)
             } else {
                 let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
@@ -262,7 +266,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         }
         panic!(
             "failed {}/{} tests in {}/{} categories",
-            pass_tests,
+            fail_tests,
             fail_tests + pass_tests,
             cases.fail_categories.len(),
             cases.fail_categories.len() + pass_categories

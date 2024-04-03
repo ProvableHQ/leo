@@ -158,8 +158,8 @@ jobs:
 
       - name: Build Leo
         run: |
-          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
-          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
           cargo build -p leo-lang --release --target=aarch64-apple-darwin --features noconfig && strip target/aarch64-apple-darwin/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true

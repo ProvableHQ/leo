@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "1.10.0"
+version = "1.11.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Compiler for Leo programming language"
 homepage = "https://aleo.org"
@@ -20,36 +20,43 @@ rust-version = "1.69"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.leo-passes]
 path = "../passes"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.leo-span]
 path = "../span"
-version = "=1.10.0"
+version = "=1.11.0"
 
 [dependencies.sha2]
 version = "0.10"
 
 [dependencies.indexmap]
 version = "1.9"
-features = []
+features = [ ]
+
+[dev-dependencies.leo-disassembler]
+path = "../../utils/disassembler"
 
 [dev-dependencies.leo-test-framework]
 path = "../../tests/test-framework"
 
 [dev-dependencies.leo-package]
 path = "../../leo/package"
+
+[dev-dependencies.aleo-std-storage]
+version = "0.1.7"
+default-features = false
 
 [dev-dependencies.dotenvy]
 version = "0.15.7"
@@ -62,10 +69,10 @@ default-features = false
 workspace = true
 
 [dev-dependencies.regex]
-version = "1.10.3"
+version = "1.10.4"
 
 [dev-dependencies.serde]
-version = "1.0.196"
+version = "1.0.197"
 features = [ "derive" ]
 
 [dev-dependencies.serde_yaml]

@@ -937,4 +937,11 @@ create_messages!(
         msg: "The output of an async function must be assigned to a Future type..".to_string(),
         help: None,
     }
+
+    @formatted
+    cannot_modify_external_mapping {
+        args: (operation: impl Display),
+        msg: format!("Cannot use operation `{operation}` on external mapping."),
+        help: Some("The only valid operations on external mappings are contains, get, and get_or_use.".to_string()),
+    }
 );

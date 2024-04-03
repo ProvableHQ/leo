@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
+use crate::{CallGraph, Location, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
 use leo_ast::{
     Composite,
@@ -36,7 +36,7 @@ use leo_ast::{
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
-use snarkvm::console::network::{Network, Testnet3};
+use snarkvm::console::network::{MainnetV0, Network};
 
 use crate::type_checking::{await_checker::AwaitChecker, scope_state::ScopeState};
 use indexmap::IndexMap;
@@ -120,8 +120,8 @@ impl<'a> TypeChecker<'a> {
         max_depth: usize,
         disabled: bool,
     ) -> Self {
-        let struct_names = symbol_table.structs.keys().map(|loc| loc.function).collect();
-        let function_names = symbol_table.functions.keys().map(|loc| loc.function).collect();
+        let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
+        let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
         // Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
         Self {
@@ -1017,6 +1017,10 @@ impl<'a> TypeChecker<'a> {
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Cannot modify external mappings.
+                    if mapping_type.program != self.program_name.unwrap() {
+                        self.handler.emit_err(TypeCheckerError::cannot_modify_external_mapping("set", function_span));
+                    }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
                     // Check that the third argument matches the value type of the mapping.
@@ -1037,6 +1041,11 @@ impl<'a> TypeChecker<'a> {
                 }
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
+                    // Cannot modify external mappings.
+                    if mapping_type.program != self.program_name.unwrap() {
+                        self.handler
+                            .emit_err(TypeCheckerError::cannot_modify_external_mapping("remove", function_span));
+                    }
                     // Check that the second argument matches the key type of the mapping.
                     self.assert_type(&arguments[1].0, &mapping_type.key, arguments[1].1);
                     // Return nothing.
@@ -1108,7 +1117,10 @@ impl<'a> TypeChecker<'a> {
     pub(crate) fn check_duplicate_struct(&self, name: Symbol, program_1: Symbol, program_2: Symbol) -> bool {
         // Make sure that both structs have been defined already.
         let st = self.symbol_table.borrow();
-        let (struct_1, struct_2) = match (st.lookup_struct(program_1, name), st.lookup_struct(program_2, name)) {
+        let (struct_1, struct_2) = match (
+            st.lookup_struct(Location::new(Some(program_1), name)),
+            st.lookup_struct(Location::new(Some(program_2), name)),
+        ) {
             (Some(struct_1), Some(struct_2)) => (struct_1, struct_2),
             _ => return false,
         };
@@ -1153,7 +1165,7 @@ impl<'a> TypeChecker<'a> {
                 if self
                     .symbol_table
                     .borrow()
-                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
                     .map_or(false, |struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
@@ -1178,7 +1190,11 @@ impl<'a> TypeChecker<'a> {
             }
             // Check that the named composite type has been defined.
             Type::Composite(struct_)
-                if self.symbol_table.borrow().lookup_struct(struct_.program.unwrap(), struct_.id.name).is_none() =>
+                if self
+                    .symbol_table
+                    .borrow()
+                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
+                    .is_none() =>
             {
                 is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
@@ -1199,9 +1215,9 @@ impl<'a> TypeChecker<'a> {
                 // Check that the array length is valid.
                 match array_type.length() {
                     0 => self.emit_err(TypeCheckerError::array_empty(span)),
-                    1..=Testnet3::MAX_ARRAY_ELEMENTS => {}
+                    1..=MainnetV0::MAX_ARRAY_ELEMENTS => {}
                     length => {
-                        self.emit_err(TypeCheckerError::array_too_large(length, Testnet3::MAX_ARRAY_ELEMENTS, span))
+                        self.emit_err(TypeCheckerError::array_too_large(length, MainnetV0::MAX_ARRAY_ELEMENTS, span))
                     }
                 }
                 // Check that the array element type is valid.
@@ -1211,8 +1227,10 @@ impl<'a> TypeChecker<'a> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) =
-                            self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                        if let Some(struct_) = self
+                            .symbol_table
+                            .borrow()
+                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                         {
                             // Check that the type is not a record.
                             if struct_.is_record {
@@ -1344,8 +1362,8 @@ impl<'a> TypeChecker<'a> {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
-                    })
-                {
+                    },
+                ) {
                     self.handler.emit_err(err);
                 }
             }
@@ -1371,7 +1389,7 @@ impl<'a> TypeChecker<'a> {
                                 && self
                                     .symbol_table
                                     .borrow()
-                                    .lookup_struct(struct_.program.unwrap(), struct_.id.name)
+                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
                                     .unwrap()
                                     .is_record
                             {
@@ -1406,7 +1424,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the type corresponds to an external struct.
     pub(crate) fn assert_internal_struct(&self, composite: &CompositeType, span: Span) {
         let st = self.symbol_table.borrow();
-        match st.lookup_struct(composite.program.unwrap(), composite.id.name) {
+        match st.lookup_struct(Location::new(composite.program, composite.id.name)) {
             None => self.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
             Some(composite_def) => {
                 if !composite_def.is_record && composite_def.external.unwrap() != self.scope_state.program_name.unwrap()

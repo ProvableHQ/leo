@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "1.10.0"
+version = "1.11.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Package parser for the Leo programming language"
 homepage = "https://aleo.org"
@@ -18,19 +18,20 @@ license = "GPL-3.0"
 edition = "2021"
 rust-version = "1.69"
 
-[dependencies.aleo-std]
-version = "0.1.24"
-default-features = false
+[dependencies.leo-errors]
+path = "../../errors"
+version = "=1.11.0"
+
+[dependencies.leo-retriever]
+path = "../../utils/retriever"
+version = "1.11.0"
 
 [dependencies.snarkvm]
 workspace = true
 
-#[dependencies.snarkos-cli]
-#version = "2.2.4"
-
-[dependencies.leo-errors]
-path = "../../errors"
-version = "=1.10.0"
+[dependencies.aleo-std]
+version = "0.1.24"
+default-features = false
 
 [dependencies.indexmap]
 version = "1.9"
@@ -51,10 +52,6 @@ version = "0.8"
 
 [dependencies.tracing]
 version = "0.1"
-
-[dependencies.retriever]
-path = "../../utils/retriever"
-version = "1.10.0"
 
 [dev-dependencies.lazy_static]
 version = "1.3.0"

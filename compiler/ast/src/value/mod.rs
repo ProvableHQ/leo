@@ -765,20 +765,12 @@ impl TryFrom<&Value> for i128 {
     fn try_from(value: &Value) -> Result<Self, Self::Error> {
         use Value::*;
         match value {
-            U8(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            U16(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            U32(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
-            U64(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
-            }
+            U8(val, _) => Ok(*val as i128),
+            U16(val, _) => Ok(*val as i128),
+            U32(val, _) => Ok(*val as i128),
+            U64(val, _) => Ok(*val as i128),
             U128(val, span) => {
-                i128::try_from(*val).map_err(|_| FlattenError::loop_has_neg_value(Type::from(value), *span).into())
+                i128::try_from(*val).map_err(|_| FlattenError::u128_to_i128(Type::from(value), *span).into())
             }
             I8(val, _) => Ok(*val as i128),
             I16(val, _) => Ok(*val as i128),

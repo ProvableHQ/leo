@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 9f555c476a06d6ea8a6f591dda6ad59d83bb1bd710c8103a44da65580a91fc0d
-      type_checked_symbol_table: 3986f23c54b9606297a9663dd1fa002ecd7b16001479b76664b780d0646a5610
-      unrolled_symbol_table: 3986f23c54b9606297a9663dd1fa002ecd7b16001479b76664b780d0646a5610
-      initial_ast: 498a2a98bd995c199f3deb82581b07cc26f3fa22dbbe5348082cc2a31b1923ce
-      unrolled_ast: 498a2a98bd995c199f3deb82581b07cc26f3fa22dbbe5348082cc2a31b1923ce
-      ssa_ast: a10c6df9f238628822978efbe365aed4fcf7a1328a878e5b197a09961f510352
-      flattened_ast: 18fa42d700983e42c30868e453b69dbdc82400c8e296a4a1cd86a470cb1d3edf
-      destructured_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
-      inlined_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
-      dce_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
-      bytecode: 8fbbd1ffdc2128ce18c84c8eee60a408dd29cdc99ca197ffe094a8be0c4019c4
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 9f555c476a06d6ea8a6f591dda6ad59d83bb1bd710c8103a44da65580a91fc0d
+          type_checked_symbol_table: 3986f23c54b9606297a9663dd1fa002ecd7b16001479b76664b780d0646a5610
+          unrolled_symbol_table: 3986f23c54b9606297a9663dd1fa002ecd7b16001479b76664b780d0646a5610
+          initial_ast: 498a2a98bd995c199f3deb82581b07cc26f3fa22dbbe5348082cc2a31b1923ce
+          unrolled_ast: 498a2a98bd995c199f3deb82581b07cc26f3fa22dbbe5348082cc2a31b1923ce
+          ssa_ast: a10c6df9f238628822978efbe365aed4fcf7a1328a878e5b197a09961f510352
+          flattened_ast: 18fa42d700983e42c30868e453b69dbdc82400c8e296a4a1cd86a470cb1d3edf
+          destructured_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
+          inlined_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
+          dce_ast: 8fdb5d9c5248c5bfa32da99edc20880f75a6ac6d033484b1d72a1c02dd80f35e
+          bytecode: 8fbbd1ffdc2128ce18c84c8eee60a408dd29cdc99ca197ffe094a8be0c4019c4
+          errors: ""
+          warnings: ""

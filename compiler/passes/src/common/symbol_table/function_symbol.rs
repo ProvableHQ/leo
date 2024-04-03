@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 use crate::SymbolTable;
 
 /// An entry for a function in the symbol table.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,

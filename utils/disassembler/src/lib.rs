@@ -15,11 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm::{
-    prelude::{Itertools, Network, Testnet3},
+    prelude::{Itertools, MainnetV0, Network},
     synthesizer::program::{CommandTrait, InstructionTrait, Program, ProgramCore},
 };
 use std::str::FromStr;
-type CurrentNetwork = Testnet3;
+type CurrentNetwork = MainnetV0;
 
 use leo_ast::{Composite, FunctionStub, Identifier, Mapping, ProgramId, Stub};
 use leo_errors::UtilError;
@@ -86,8 +86,8 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
     }
 }
 
-pub fn disassemble_from_str(program: String) -> Result<Stub, UtilError> {
-    match Program::<CurrentNetwork>::from_str(&program) {
+pub fn disassemble_from_str(program: &str) -> Result<Stub, UtilError> {
+    match Program::<CurrentNetwork>::from_str(program) {
         Ok(p) => Ok(disassemble(p)),
         Err(_) => Err(UtilError::snarkvm_parsing_error(Default::default())),
     }
@@ -97,10 +97,10 @@ pub fn disassemble_from_str(program: String) -> Result<Stub, UtilError> {
 mod tests {
     use super::*;
     use leo_span::symbol::create_session_if_not_set_then;
-    use snarkvm::{prelude::Testnet3, synthesizer::program::Program};
+    use snarkvm::{prelude::MainnetV0, synthesizer::program::Program};
     use std::fs;
 
-    type CurrentNetwork = Testnet3;
+    type CurrentNetwork = MainnetV0;
 
     #[test]
     #[ignore]
@@ -124,7 +124,7 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let program_from_file =
                 fs::read_to_string("../tmp/.aleo/registry/testnet3/zk_bitwise_stack_v0_0_2.aleo").unwrap();
-            let _program = disassemble_from_str(program_from_file).unwrap();
+            let _program = disassemble_from_str(&program_from_file).unwrap();
         });
     }
 }

@@ -23,22 +23,28 @@ use utilities::{
     hash_content,
     hash_symbol_tables,
     parse_program,
-    setup_build_directory,
     BufferEmitter,
+    CompileOutput,
+    CurrentNetwork,
 };
 
 use leo_compiler::{CompilerOptions, OutputOptions};
+use leo_disassembler::disassemble_from_str;
 use leo_errors::{emitter::Handler, LeoError};
 use leo_span::symbol::create_session_if_not_set_then;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
+    PROGRAM_DELIMITER,
 };
 
 use snarkvm::console::prelude::*;
 
-use serde::{Deserialize, Serialize};
+use indexmap::IndexMap;
+use leo_span::Symbol;
+use regex::Regex;
 use serde_yaml::Value;
+use snarkvm::{prelude::Process, synthesizer::program::ProgramCore};
 use std::{fs, path::Path, rc::Rc};
 
 struct CompileNamespace;
@@ -58,19 +64,8 @@ impl Namespace for CompileNamespace {
 }
 
 #[derive(Deserialize, PartialEq, Eq, Serialize)]
-struct CompileOutput {
-    pub initial_symbol_table: String,
-    pub type_checked_symbol_table: String,
-    pub unrolled_symbol_table: String,
-    pub initial_ast: String,
-    pub unrolled_ast: String,
-    pub ssa_ast: String,
-    pub flattened_ast: String,
-    pub destructured_ast: String,
-    pub inlined_ast: String,
-    pub dce_ast: String,
-    pub bytecode: String,
-    pub warnings: String,
+struct CompileOutputs {
+    pub compile: Vec<CompileOutput>,
 }
 
 fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value, ()> {
@@ -80,7 +75,10 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
     // Extract the compiler build configurations from the config file.
     let build_options = get_build_options(&test.config);
 
-    let mut outputs = Vec::with_capacity(build_options.len());
+    // Initialize a `Process`. This should always succeed.
+    let process = Process::<CurrentNetwork>::load().unwrap();
+
+    let mut all_outputs = Vec::with_capacity(build_options.len());
 
     for build in build_options {
         let compiler_options = CompilerOptions {
@@ -101,50 +99,86 @@ fn run_test(test: Test, handler: &Handler, buf: &BufferEmitter) -> Result<Value,
             },
         };
 
-        // Parse the program.
-        let mut parsed =
-            handler.extend_if_error(parse_program(handler, &test.content, cwd.clone(), Some(compiler_options)))?;
+        // Split the test content into individual program strings based on the program delimiter.
+        let program_strings = test.content.split(PROGRAM_DELIMITER).collect::<Vec<&str>>();
 
-        // Compile the program to bytecode.
-        let program_name = format!("{}.{}", parsed.program_name, parsed.network);
-        let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+        // Initialize storage for the stubs.
+        let mut import_stubs = IndexMap::new();
 
-        // Set up the build directory.
-        // Note that this function checks that the bytecode is well-formed.
-        let package = setup_build_directory(&program_name, &bytecode, handler)?;
+        // Clone the process.
+        let mut process = process.clone();
 
-        // Get the program process and check all instructions.
-        handler.extend_if_error(package.get_process().map_err(LeoError::Anyhow))?;
+        // Initialize storage for the compilation outputs.
+        let mut compile = Vec::with_capacity(program_strings.len());
 
-        // Hash the ast files.
-        let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) = hash_asts();
+        // Compile each program string separately.
+        for program_string in program_strings {
+            // Parse the program name from the program string.
+            let re = Regex::new(r"program\s+([^\s.]+)\.aleo").unwrap();
+            let program_name = re.captures(program_string).unwrap().get(1).unwrap().as_str();
 
-        // Hash the symbol tables.
-        let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) = hash_symbol_tables();
+            // Parse the program.
+            let mut parsed = handler.extend_if_error(parse_program(
+                program_name.to_string(),
+                handler,
+                program_string,
+                cwd.clone(),
+                Some(compiler_options.clone()),
+                import_stubs.clone(),
+            ))?;
 
-        // Clean up the output directory.
-        if fs::read_dir("/tmp/output").is_ok() {
-            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+            // Compile the program to bytecode.
+            let program_name = parsed.program_name.to_string();
+            let bytecode = handler.extend_if_error(compile_and_process(&mut parsed))?;
+
+            // Parse the bytecode as an Aleo program.
+            // Note that this function checks that the bytecode is well-formed.
+            let aleo_program = handler.extend_if_error(ProgramCore::from_str(&bytecode).map_err(LeoError::Anyhow))?;
+
+            // Add the program to the process.
+            // Note that this function performs an additional validity check on the bytecode.
+            handler.extend_if_error(process.add_program(&aleo_program).map_err(LeoError::Anyhow))?;
+
+            // Add the bytecode to the import stubs.
+            let stub = handler.extend_if_error(disassemble_from_str(&bytecode).map_err(|err| err.into()))?;
+            import_stubs.insert(Symbol::intern(&program_name), stub);
+
+            // Hash the ast files.
+            let (initial_ast, unrolled_ast, ssa_ast, flattened_ast, destructured_ast, inlined_ast, dce_ast) =
+                hash_asts(&program_name);
+
+            // Hash the symbol tables.
+            let (initial_symbol_table, type_checked_symbol_table, unrolled_symbol_table) =
+                hash_symbol_tables(&program_name);
+
+            // Clean up the output directory.
+            if fs::read_dir("/tmp/output").is_ok() {
+                fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+            }
+
+            let output = CompileOutput {
+                initial_symbol_table,
+                type_checked_symbol_table,
+                unrolled_symbol_table,
+                initial_ast,
+                unrolled_ast,
+                ssa_ast,
+                flattened_ast,
+                destructured_ast,
+                inlined_ast,
+                dce_ast,
+                bytecode: hash_content(&bytecode),
+                errors: buf.0.take().to_string(),
+                warnings: buf.1.take().to_string(),
+            };
+            compile.push(output);
         }
 
-        let final_output = CompileOutput {
-            initial_symbol_table,
-            type_checked_symbol_table,
-            unrolled_symbol_table,
-            initial_ast,
-            unrolled_ast,
-            ssa_ast,
-            flattened_ast,
-            destructured_ast,
-            inlined_ast,
-            dce_ast,
-            bytecode: hash_content(&bytecode),
-            warnings: buf.1.take().to_string(),
-        };
-
-        outputs.push(final_output);
+        // Combine all compilation outputs.
+        let compile_outputs = CompileOutputs { compile };
+        all_outputs.push(compile_outputs);
     }
-    Ok(serde_yaml::to_value(outputs).expect("serialization failed"))
+    Ok(serde_yaml::to_value(all_outputs).expect("serialization failed"))
 }
 
 struct TestRunner;

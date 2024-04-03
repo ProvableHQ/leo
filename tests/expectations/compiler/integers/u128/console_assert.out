@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 558f0b1b32353f64b68359e6fc763e272e12c3a04890c1c0ff6371412dff060a
-      type_checked_symbol_table: 2c6aef46bd179e82f07dd3415b0eda9434faac4a7aad67e58a7e7ea2281d837f
-      unrolled_symbol_table: 2c6aef46bd179e82f07dd3415b0eda9434faac4a7aad67e58a7e7ea2281d837f
-      initial_ast: 8cd7ae4a74ddafc04bd74caaeb3e2cae3394a339d62e83c13f0528d1303af83d
-      unrolled_ast: 8cd7ae4a74ddafc04bd74caaeb3e2cae3394a339d62e83c13f0528d1303af83d
-      ssa_ast: 3c5aa4dbf1c58d2b7b127d2814e91effd1d9d83da19997d4054880ac18dbfe0d
-      flattened_ast: d4c70d57084dfe9bbfcb7065339cb91d263f1a35d3161f2247542c5c4b802084
-      destructured_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
-      inlined_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
-      dce_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
-      bytecode: 0d83f401cd41e95e3c0df3dc876c4f162207f2073c8e550beca92e21ef07a3b9
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 558f0b1b32353f64b68359e6fc763e272e12c3a04890c1c0ff6371412dff060a
+          type_checked_symbol_table: 2c6aef46bd179e82f07dd3415b0eda9434faac4a7aad67e58a7e7ea2281d837f
+          unrolled_symbol_table: 2c6aef46bd179e82f07dd3415b0eda9434faac4a7aad67e58a7e7ea2281d837f
+          initial_ast: 8cd7ae4a74ddafc04bd74caaeb3e2cae3394a339d62e83c13f0528d1303af83d
+          unrolled_ast: 8cd7ae4a74ddafc04bd74caaeb3e2cae3394a339d62e83c13f0528d1303af83d
+          ssa_ast: 3c5aa4dbf1c58d2b7b127d2814e91effd1d9d83da19997d4054880ac18dbfe0d
+          flattened_ast: d4c70d57084dfe9bbfcb7065339cb91d263f1a35d3161f2247542c5c4b802084
+          destructured_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
+          inlined_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
+          dce_ast: d2de970d172f84ebf79314fdd35c03795044e3d251fe8eecdba7209907132af0
+          bytecode: 0d83f401cd41e95e3c0df3dc876c4f162207f2073c8e550beca92e21ef07a3b9
+          errors: ""
+          warnings: ""

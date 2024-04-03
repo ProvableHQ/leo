@@ -53,4 +53,14 @@ create_messages!(
         ),
         help: None,
     }
+
+    /// For when a u128 value cannot be converted into an i128.
+    @formatted
+    u128_to_i128 {
+        args: (value: impl Display),
+        msg: format!(
+            "The value `{value}` cannot be converted into an i128.",
+        ),
+        help: None,
+    }
 );

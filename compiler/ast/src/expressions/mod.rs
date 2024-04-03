@@ -56,6 +56,9 @@ pub use unit::*;
 mod literal;
 pub use literal::*;
 
+pub mod locator;
+pub use locator::*;
+
 /// Expression that evaluates to a value.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Expression {
@@ -69,8 +72,6 @@ pub enum Expression {
     Call(CallExpression),
     /// A cast expression, e.g., `42u32 as u8`.
     Cast(CastExpression),
-    /// An expression constructing a struct like `Foo { bar: 42, baz }`.
-    Struct(StructExpression),
     /// An expression of type "error".
     /// Will result in a compile error eventually.
     Err(ErrExpression),
@@ -78,6 +79,10 @@ pub enum Expression {
     Identifier(Identifier),
     /// A literal expression.
     Literal(Literal),
+    /// A locator expression, e.g., `hello.aleo/foo`.
+    Locator(LocatorExpression),
+    /// An expression constructing a struct like `Foo { bar: 42, baz }`.
+    Struct(StructExpression),
     /// A ternary conditional expression `cond ? if_expr : else_expr`.
     Ternary(TernaryExpression),
     /// A tuple expression e.g., `(foo, 42, true)`.
@@ -97,10 +102,11 @@ impl Node for Expression {
             Binary(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
-            Struct(n) => n.span(),
             Err(n) => n.span(),
             Identifier(n) => n.span(),
             Literal(n) => n.span(),
+            Locator(n) => n.span(),
+            Struct(n) => n.span(),
             Ternary(n) => n.span(),
             Tuple(n) => n.span(),
             Unary(n) => n.span(),
@@ -116,10 +122,11 @@ impl Node for Expression {
             Binary(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
-            Struct(n) => n.set_span(span),
             Identifier(n) => n.set_span(span),
             Literal(n) => n.set_span(span),
+            Locator(n) => n.set_span(span),
             Err(n) => n.set_span(span),
+            Struct(n) => n.set_span(span),
             Ternary(n) => n.set_span(span),
             Tuple(n) => n.set_span(span),
             Unary(n) => n.set_span(span),
@@ -135,10 +142,11 @@ impl Node for Expression {
             Binary(n) => n.id(),
             Call(n) => n.id(),
             Cast(n) => n.id(),
-            Struct(n) => n.id(),
             Identifier(n) => n.id(),
             Literal(n) => n.id(),
+            Locator(n) => n.id(),
             Err(n) => n.id(),
+            Struct(n) => n.id(),
             Ternary(n) => n.id(),
             Tuple(n) => n.id(),
             Unary(n) => n.id(),
@@ -154,10 +162,11 @@ impl Node for Expression {
             Binary(n) => n.set_id(id),
             Call(n) => n.set_id(id),
             Cast(n) => n.set_id(id),
-            Struct(n) => n.set_id(id),
             Identifier(n) => n.set_id(id),
             Literal(n) => n.set_id(id),
+            Locator(n) => n.set_id(id),
             Err(n) => n.set_id(id),
+            Struct(n) => n.set_id(id),
             Ternary(n) => n.set_id(id),
             Tuple(n) => n.set_id(id),
             Unary(n) => n.set_id(id),
@@ -175,10 +184,11 @@ impl fmt::Display for Expression {
             Binary(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
-            Struct(n) => n.fmt(f),
             Err(n) => n.fmt(f),
             Identifier(n) => n.fmt(f),
             Literal(n) => n.fmt(f),
+            Locator(n) => n.fmt(f),
+            Struct(n) => n.fmt(f),
             Ternary(n) => n.fmt(f),
             Tuple(n) => n.fmt(f),
             Unary(n) => n.fmt(f),

@@ -1,17 +1,22 @@
 /*
 namespace: Execute
 expectation: Pass
-initial_state:
-    counter: []
 cases:
-    dubble:
-    - input: []
+    - program: test.aleo
+      function: dubble
+      input: []
       private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
-    - input: []
+    - program: test.aleo
+      function: dubble
+      input: []
       private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
-    - input: []
+    - program: test.aleo
+      function: dubble
+      input: []
       private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
-    - input: []
+    - program: test.aleo
+      function: dubble
+      input: []
       private_key: APrivateKey1zkpH5Ne1Xfd79t61VhK7b6yaYz92yW5dbuVkiFheR7rwCDE
 */
 

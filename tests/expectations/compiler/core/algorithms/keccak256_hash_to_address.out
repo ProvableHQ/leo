@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 0b53989640055bef15deab2fb1e4d8691b4f1b439f1bdba64f34278be1cb37e0
-      type_checked_symbol_table: 7ea97bd3f2f1366697977d015b733d7f70222006a2c318ffd71f85b486683aa0
-      unrolled_symbol_table: 7ea97bd3f2f1366697977d015b733d7f70222006a2c318ffd71f85b486683aa0
-      initial_ast: c528132d7be5b76c9a35f393bae99e2e26e4a39e57c5f6121818a08fe84a3e97
-      unrolled_ast: c528132d7be5b76c9a35f393bae99e2e26e4a39e57c5f6121818a08fe84a3e97
-      ssa_ast: e7cd1542d64a70cfa0ac658afceb669f0fdf398a91528e19b8a61af4e5e76b87
-      flattened_ast: 6569cd1eb9b550601d4b90e1cc343f32becf78e9777d6afbf09e3c0fd085506f
-      destructured_ast: e9e2abca24816d352227949f55f6adc6b79a64d1d23df16428c689614f4f7dc1
-      inlined_ast: e9e2abca24816d352227949f55f6adc6b79a64d1d23df16428c689614f4f7dc1
-      dce_ast: 88ee42f5fd06dfb1978c8e550305aab91a7c2f6367df7a10db294c9d5af27c4c
-      bytecode: 03845ec2f54d49f71640659603ead8f68ad067a15fda438e5e13524777d1559b
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 0b53989640055bef15deab2fb1e4d8691b4f1b439f1bdba64f34278be1cb37e0
+          type_checked_symbol_table: 7ea97bd3f2f1366697977d015b733d7f70222006a2c318ffd71f85b486683aa0
+          unrolled_symbol_table: 7ea97bd3f2f1366697977d015b733d7f70222006a2c318ffd71f85b486683aa0
+          initial_ast: c528132d7be5b76c9a35f393bae99e2e26e4a39e57c5f6121818a08fe84a3e97
+          unrolled_ast: c528132d7be5b76c9a35f393bae99e2e26e4a39e57c5f6121818a08fe84a3e97
+          ssa_ast: e7cd1542d64a70cfa0ac658afceb669f0fdf398a91528e19b8a61af4e5e76b87
+          flattened_ast: 6569cd1eb9b550601d4b90e1cc343f32becf78e9777d6afbf09e3c0fd085506f
+          destructured_ast: e9e2abca24816d352227949f55f6adc6b79a64d1d23df16428c689614f4f7dc1
+          inlined_ast: e9e2abca24816d352227949f55f6adc6b79a64d1d23df16428c689614f4f7dc1
+          dce_ast: 88ee42f5fd06dfb1978c8e550305aab91a7c2f6367df7a10db294c9d5af27c4c
+          bytecode: 03845ec2f54d49f71640659603ead8f68ad067a15fda438e5e13524777d1559b
+          errors: ""
+          warnings: ""

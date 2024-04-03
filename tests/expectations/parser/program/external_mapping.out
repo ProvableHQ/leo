@@ -1,0 +1,240 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports:
+      hello:
+        - imports: {}
+          stubs: {}
+          program_scopes: {}
+        - lo: 1
+          hi: 19
+    stubs: {}
+    program_scopes:
+      test:
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"2\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
+        consts: []
+        structs: []
+        mappings: []
+        functions:
+          - - main
+            - annotations: []
+              variant: Standard
+              identifier: "{\"id\":\"3\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":57}\"}"
+              input: []
+              output: []
+              output_type: Unit
+              block:
+                statements:
+                  - Definition:
+                      declaration_type: Let
+                      place:
+                        Identifier: "{\"id\":\"4\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":74,\\\"hi\\\":75}\"}"
+                      type_:
+                        Integer: U8
+                      value:
+                        Literal:
+                          Integer:
+                            - U8
+                            - "1"
+                            - span:
+                                lo: 81
+                                hi: 84
+                            - 5
+                      span:
+                        lo: 70
+                        hi: 84
+                      id: 6
+                  - Return:
+                      expression:
+                        Unit:
+                          span:
+                            lo: 101
+                            hi: 105
+                          id: 7
+                      finalize_arguments: []
+                      span:
+                        lo: 94
+                        hi: 117
+                      id: 8
+                span:
+                  lo: 60
+                  hi: 123
+                id: 9
+              finalize:
+                identifier: "{\"id\":\"10\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":137,\\\"hi\\\":141}\"}"
+                input: []
+                output: []
+                output_type: Unit
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Access:
+                            AssociatedFunction:
+                              variant: "{\"id\":\"11\",\"name\":\"Mapping\",\"span\":\"{\\\"lo\\\":154,\\\"hi\\\":161}\"}"
+                              name: "{\"id\":\"12\",\"name\":\"set\",\"span\":\"{\\\"lo\\\":163,\\\"hi\\\":166}\"}"
+                              arguments:
+                                - Locator:
+                                    program: "{\"name\":\"hello\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"15\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":173,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":177}\\\\\\\"}\\\"\"}"
+                                    name: counter
+                                    span:
+                                      lo: 167
+                                      hi: 185
+                                    id: 16
+                                - Identifier: "{\"id\":\"17\",\"name\":\"addr\",\"span\":\"{\\\"lo\\\":187,\\\"hi\\\":191}\"}"
+                                - Binary:
+                                    left:
+                                      Identifier: "{\"id\":\"18\",\"name\":\"current_value\",\"span\":\"{\\\"lo\\\":193,\\\"hi\\\":206}\"}"
+                                    right:
+                                      Literal:
+                                        Integer:
+                                          - U64
+                                          - "1"
+                                          - span:
+                                              lo: 209
+                                              hi: 213
+                                          - 19
+                                    op: Add
+                                    span:
+                                      lo: 193
+                                      hi: 213
+                                    id: 20
+                              span:
+                                lo: 154
+                                hi: 214
+                              id: 21
+                        span:
+                          lo: 154
+                          hi: 215
+                        id: 22
+                    - Expression:
+                        expression:
+                          Access:
+                            AssociatedFunction:
+                              variant: "{\"id\":\"23\",\"name\":\"Mapping\",\"span\":\"{\\\"lo\\\":224,\\\"hi\\\":231}\"}"
+                              name: "{\"id\":\"24\",\"name\":\"remove\",\"span\":\"{\\\"lo\\\":233,\\\"hi\\\":239}\"}"
+                              arguments:
+                                - Locator:
+                                    program: "{\"name\":\"hello\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"27\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":246,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":250}\\\\\\\"}\\\"\"}"
+                                    name: foo
+                                    span:
+                                      lo: 240
+                                      hi: 254
+                                    id: 28
+                                - Identifier: "{\"id\":\"29\",\"name\":\"addr\",\"span\":\"{\\\"lo\\\":256,\\\"hi\\\":260}\"}"
+                              span:
+                                lo: 224
+                                hi: 261
+                              id: 30
+                        span:
+                          lo: 224
+                          hi: 262
+                        id: 31
+                    - Definition:
+                        declaration_type: Let
+                        place:
+                          Identifier: "{\"id\":\"32\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":275,\\\"hi\\\":276}\"}"
+                        type_:
+                          Integer: U32
+                        value:
+                          Access:
+                            AssociatedFunction:
+                              variant: "{\"id\":\"33\",\"name\":\"Mapping\",\"span\":\"{\\\"lo\\\":283,\\\"hi\\\":290}\"}"
+                              name: "{\"id\":\"34\",\"name\":\"get\",\"span\":\"{\\\"lo\\\":292,\\\"hi\\\":295}\"}"
+                              arguments:
+                                - Locator:
+                                    program: "{\"name\":\"hello\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"37\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":302,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":306}\\\\\\\"}\\\"\"}"
+                                    name: foo
+                                    span:
+                                      lo: 296
+                                      hi: 310
+                                    id: 38
+                                - Identifier: "{\"id\":\"39\",\"name\":\"addr\",\"span\":\"{\\\"lo\\\":312,\\\"hi\\\":316}\"}"
+                              span:
+                                lo: 283
+                                hi: 317
+                              id: 40
+                        span:
+                          lo: 271
+                          hi: 317
+                        id: 41
+                    - Definition:
+                        declaration_type: Let
+                        place:
+                          Identifier: "{\"id\":\"42\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":331,\\\"hi\\\":332}\"}"
+                        type_:
+                          Integer: U32
+                        value:
+                          Access:
+                            AssociatedFunction:
+                              variant: "{\"id\":\"43\",\"name\":\"Mapping\",\"span\":\"{\\\"lo\\\":339,\\\"hi\\\":346}\"}"
+                              name: "{\"id\":\"44\",\"name\":\"get_or_use\",\"span\":\"{\\\"lo\\\":348,\\\"hi\\\":358}\"}"
+                              arguments:
+                                - Locator:
+                                    program: "{\"name\":\"hello\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"47\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":365,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":369}\\\\\\\"}\\\"\"}"
+                                    name: foo
+                                    span:
+                                      lo: 359
+                                      hi: 373
+                                    id: 48
+                                - Identifier: "{\"id\":\"49\",\"name\":\"addr\",\"span\":\"{\\\"lo\\\":375,\\\"hi\\\":379}\"}"
+                                - Literal:
+                                    Integer:
+                                      - U64
+                                      - "0"
+                                      - span:
+                                          lo: 381
+                                          hi: 385
+                                      - 50
+                              span:
+                                lo: 339
+                                hi: 386
+                              id: 51
+                        span:
+                          lo: 327
+                          hi: 386
+                        id: 52
+                    - Definition:
+                        declaration_type: Let
+                        place:
+                          Identifier: "{\"id\":\"53\",\"name\":\"c\",\"span\":\"{\\\"lo\\\":400,\\\"hi\\\":401}\"}"
+                        type_:
+                          Integer: U32
+                        value:
+                          Access:
+                            AssociatedFunction:
+                              variant: "{\"id\":\"54\",\"name\":\"Mapping\",\"span\":\"{\\\"lo\\\":408,\\\"hi\\\":415}\"}"
+                              name: "{\"id\":\"55\",\"name\":\"contains\",\"span\":\"{\\\"lo\\\":417,\\\"hi\\\":425}\"}"
+                              arguments:
+                                - Locator:
+                                    program: "{\"name\":\"hello\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"58\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":432,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":436}\\\\\\\"}\\\"\"}"
+                                    name: foo
+                                    span:
+                                      lo: 426
+                                      hi: 440
+                                    id: 59
+                                - Identifier: "{\"id\":\"60\",\"name\":\"addr\",\"span\":\"{\\\"lo\\\":442,\\\"hi\\\":446}\"}"
+                              span:
+                                lo: 408
+                                hi: 447
+                              id: 61
+                        span:
+                          lo: 396
+                          hi: 447
+                        id: 62
+                  span:
+                    lo: 144
+                    hi: 454
+                  id: 63
+                span:
+                  lo: 128
+                  hi: 454
+                id: 64
+              span:
+                lo: 44
+                hi: 123
+              id: 65
+        span:
+          lo: 20
+          hi: 456

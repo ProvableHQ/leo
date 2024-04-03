@@ -2,15 +2,17 @@
 namespace: Compile
 expectation: Pass
 outputs:
-  - - initial_symbol_table: 41e6ada8c83400558af3f988c3ff570d80330b9877883f7c120635242a0deeef
-      type_checked_symbol_table: e1c36e4a8e486aac91ec0eaa1314a38db026d97a6a798d56a664b0d43afbb3a6
-      unrolled_symbol_table: e1c36e4a8e486aac91ec0eaa1314a38db026d97a6a798d56a664b0d43afbb3a6
-      initial_ast: f2a010303ab0097a671f677b34f1f10400a7bc6edf8e97013e76d0cf521f14f0
-      unrolled_ast: f2a010303ab0097a671f677b34f1f10400a7bc6edf8e97013e76d0cf521f14f0
-      ssa_ast: 50b84b6345b10f42990bc06a4d0d699ea59874f8ffba520b8e6272dbcd5a5285
-      flattened_ast: 93c4f289ce6f68ab9e8a5ee81d24b11e2f63a1ffd925dc8d80884c80290c317c
-      destructured_ast: f930890677346a802c6808fb732e464aab9e45a65848ea639cefe1d140743573
-      inlined_ast: f930890677346a802c6808fb732e464aab9e45a65848ea639cefe1d140743573
-      dce_ast: 560f580ad89ada190a2de4ad2abb57a8e5b6c9e1a51741916acaed99f444cf29
-      bytecode: 26120360e31f59b6a23dae65fe61c87e9e310aa11c12d90e995485dbeef81151
-      warnings: ""
+  - - compile:
+        - initial_symbol_table: 41e6ada8c83400558af3f988c3ff570d80330b9877883f7c120635242a0deeef
+          type_checked_symbol_table: e1c36e4a8e486aac91ec0eaa1314a38db026d97a6a798d56a664b0d43afbb3a6
+          unrolled_symbol_table: e1c36e4a8e486aac91ec0eaa1314a38db026d97a6a798d56a664b0d43afbb3a6
+          initial_ast: f2a010303ab0097a671f677b34f1f10400a7bc6edf8e97013e76d0cf521f14f0
+          unrolled_ast: f2a010303ab0097a671f677b34f1f10400a7bc6edf8e97013e76d0cf521f14f0
+          ssa_ast: 50b84b6345b10f42990bc06a4d0d699ea59874f8ffba520b8e6272dbcd5a5285
+          flattened_ast: 93c4f289ce6f68ab9e8a5ee81d24b11e2f63a1ffd925dc8d80884c80290c317c
+          destructured_ast: f930890677346a802c6808fb732e464aab9e45a65848ea639cefe1d140743573
+          inlined_ast: f930890677346a802c6808fb732e464aab9e45a65848ea639cefe1d140743573
+          dce_ast: 560f580ad89ada190a2de4ad2abb57a8e5b6c9e1a51741916acaed99f444cf29
+          bytecode: 26120360e31f59b6a23dae65fe61c87e9e310aa11c12d90e995485dbeef81151
+          errors: ""
+          warnings: ""

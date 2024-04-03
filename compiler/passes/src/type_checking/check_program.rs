@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{DiGraphError, TypeChecker};
+use crate::{DiGraphError, Location, TypeChecker};
 
 use leo_ast::*;
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
-use snarkvm::console::network::{Network, Testnet3};
+use snarkvm::console::network::{MainnetV0, Network};
 
 use leo_ast::{
     Input::{External, Internal},
@@ -77,7 +77,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), input.identifier.name)
+            .lookup_fn_symbol(Location::new(self.program_name, input.identifier.name))
             .unwrap()
             .id;
 
@@ -152,9 +152,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that the number of mappings does not exceed the maximum.
-        if mapping_count > Testnet3::MAX_MAPPINGS {
+        if mapping_count > MainnetV0::MAX_MAPPINGS {
             self.emit_err(TypeCheckerError::too_many_mappings(
-                Testnet3::MAX_MAPPINGS,
+                MainnetV0::MAX_MAPPINGS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -175,9 +175,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > Testnet3::MAX_FUNCTIONS {
+        if transition_count > MainnetV0::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                Testnet3::MAX_FUNCTIONS,
+                MainnetV0::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -261,7 +261,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
@@ -280,7 +280,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
                 if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(struct_type.program.unwrap(), struct_type.id.name)
+                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
                 {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
@@ -309,7 +309,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let function_index = self
             .symbol_table
             .borrow()
-            .lookup_fn_symbol(self.scope_state.program_name.unwrap(), function.identifier.name)
+            .lookup_fn_symbol(Location::new(self.program_name, function.identifier.name))
             .unwrap()
             .id;
 

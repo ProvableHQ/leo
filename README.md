@@ -1,6 +1,6 @@
-<p align="center">
-    <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
-</p>
+<!--p align="center">
+     <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
+</p-->
 
 <h1 align="center">The Leo Programming Language</h1>
 
@@ -20,6 +20,8 @@ Leo is a functional, statically-typed programming language built for writing pri
 * [⚙️️ Build Guide](#-build-guide)
     * [🦀 Install Rust](#-install-rust)
     * [🐙 Build from Source Code](#-build-from-source-code)
+    * [🦁 Update from Leo](#-update-from-leo)
+    * [📦 Download using Cargo](#-download-using-cargo)
 * [🚀 Quick Start](#-quick-start)
 * [🧰 Troubleshooting](#-troubleshooting)
 * [📖 Documentation](#-documentation)
@@ -77,6 +79,33 @@ Now to use leo, in your terminal, run:
 ```bash
 leo
 ```
+
+### 🦁 Update from Leo
+
+You can update Leo to the latest version using the following command:
+
+```bash
+leo update
+```
+Now to check the version of leo, in your terminal, run:
+```bash
+leo --version
+```
+
+### 📦 Download using Cargo
+
+You can also install Leo directly from [crates.io](https://crates.io/crates/leo) using `cargo`:
+
+```bash
+cargo install leo-lang
+```
+Now to use leo, in your terminal, run:
+```bash
+leo
+```
+
+
+
 
 ## 🚀 Quick Start
 

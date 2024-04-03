@@ -16,6 +16,7 @@
 
 use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
 
+use crate::{Location, TypeChecker, VariableSymbol, VariableType};
 use itertools::Itertools;
 
 use leo_ast::{
@@ -71,7 +72,9 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) = self.symbol_table.borrow_mut().lookup_variable(var_name.name) {
+        let var_type = if let Some(var) =
+            self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
+        {
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) => {
@@ -204,11 +207,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // Add constants to symbol table so that any references to them in later statements will pass TC
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.place.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.place.span,
-            declaration: VariableType::Const,
-        }) {
+        if let Err(err) =
+            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.place.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.place.span,
+                declaration: VariableType::Const,
+            })
+        {
             self.handler.emit_err(err);
         }
     }
@@ -309,11 +314,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let scope_index = self.create_child_scope();
 
         // Add the loop variable to the scope of the loop body.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(input.variable.name, VariableSymbol {
-            type_: input.type_.clone(),
-            span: input.span(),
-            declaration: VariableType::Const,
-        }) {
+        if let Err(err) =
+            self.symbol_table.borrow_mut().insert_variable(Location::new(None, input.variable.name), VariableSymbol {
+                type_: input.type_.clone(),
+                span: input.span(),
+                declaration: VariableType::Const,
+            })
+        {
             self.handler.emit_err(err);
         }
 
@@ -348,7 +355,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }
@@ -368,7 +375,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
             }
             Expression::Identifier(id) => {
-                if let Some(var) = self.symbol_table.borrow().lookup_variable(id.name) {
+                if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, id.name)) {
                     if VariableType::Const != var.declaration {
                         self.emit_err(TypeCheckerError::loop_bound_must_be_literal_or_const(id.span));
                     }

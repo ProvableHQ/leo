@@ -19,7 +19,7 @@ use leo_ast::{Expression::Literal, Type::Integer, *};
 use leo_errors::loop_unroller::LoopUnrollerError;
 use leo_span::{Span, Symbol};
 
-use crate::{unroller::Unroller, VariableSymbol, VariableType};
+use crate::{unroller::Unroller, Location, VariableSymbol, VariableType};
 
 impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_block(&mut self, input: Block) -> (Block, Self::AdditionalOutput) {
@@ -60,7 +60,7 @@ impl StatementReconstructor for Unroller<'_> {
         }
 
         // Remove from symbol table
-        self.symbol_table.borrow_mut().remove_variable_from_current_scope(input.place.name);
+        self.symbol_table.borrow_mut().remove_variable_from_current_scope(Location::new(None, input.place.name));
 
         (
             Statement::Const(ConstDeclaration {
@@ -77,11 +77,13 @@ impl StatementReconstructor for Unroller<'_> {
     fn reconstruct_definition(&mut self, input: DefinitionStatement) -> (Statement, Self::AdditionalOutput) {
         // Helper function to add  variables to symbol table
         let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(symbol, VariableSymbol {
-                type_,
-                span,
-                declaration: VariableType::Mut,
-            }) {
+            if let Err(err) =
+                self.symbol_table.borrow_mut().insert_variable(Location::new(None, symbol), VariableSymbol {
+                    type_,
+                    span,
+                    declaration: VariableType::Mut,
+                })
+            {
                 self.handler.emit_err(err);
             }
         };
