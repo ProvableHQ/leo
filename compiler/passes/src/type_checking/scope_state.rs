@@ -62,10 +62,8 @@ impl ScopeState {
     }
 
     /// Initialize state variables for new function.
-    pub fn initialize_function_state(&mut self, variant: Variant, is_async: bool) {
+    pub fn initialize_function_state(&mut self, variant: Variant) {
         self.variant = Some(variant);
-        self.is_finalize = variant == Variant::Standard && is_async;
-        self.is_async_transition = variant == Variant::Transition && is_async;
         self.has_called_finalize = false;
         self.futures = IndexMap::new();
     }

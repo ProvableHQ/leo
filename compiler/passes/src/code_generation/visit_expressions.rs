@@ -14,8 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CodeGenerator};
-use leo_ast::{AccessExpression, ArrayAccess, ArrayExpression, AssociatedConstant, AssociatedFunction, BinaryExpression, BinaryOperation, CallExpression, CastExpression, ErrExpression, Expression, Identifier, Literal, Location, LocatorExpression, MemberAccess, MethodCall, Node, StructExpression, TernaryExpression, TupleExpression, Type, UnaryExpression, UnaryOperation, UnitExpression, Variant};
+use crate::CodeGenerator;
+use leo_ast::{
+    AccessExpression,
+    ArrayAccess,
+    ArrayExpression,
+    AssociatedConstant,
+    AssociatedFunction,
+    BinaryExpression,
+    BinaryOperation,
+    CallExpression,
+    CastExpression,
+    ErrExpression,
+    Expression,
+    Identifier,
+    Literal,
+    Location,
+    LocatorExpression,
+    MemberAccess,
+    MethodCall,
+    Node,
+    StructExpression,
+    TernaryExpression,
+    TupleExpression,
+    Type,
+    UnaryExpression,
+    UnaryOperation,
+    UnitExpression,
+    Variant,
+};
 use leo_span::sym;
 use std::borrow::Borrow;
 
@@ -513,7 +540,7 @@ impl<'a> CodeGenerator<'a> {
         } else {
             // Lookup in symbol table to determine if its an async function.
             if let Some(func) = self.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
-                if func.is_async && input.program.unwrap() == self.program_id.unwrap().name.name {
+                if func.variant.is_async() && input.program.unwrap() == self.program_id.unwrap().name.name {
                     format!("    async {}", self.current_function.unwrap().identifier)
                 } else {
                     format!("    call {}", input.function)
@@ -534,8 +561,7 @@ impl<'a> CodeGenerator<'a> {
         let mut destinations = Vec::new();
 
         // Create operands for the output registers.
-        let func =
-            &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
+        let func = &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
         match func.output_type.clone() {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
@@ -556,7 +582,7 @@ impl<'a> CodeGenerator<'a> {
         }
 
         // Add a register for async functions to represent the future created.
-        if func.is_async && func.variant == Variant::Standard {
+        if func.variant == Variant::AsyncFunction {
             let destination_register = format!("r{}", self.next_register);
             destinations.push(destination_register);
             self.next_register += 1;

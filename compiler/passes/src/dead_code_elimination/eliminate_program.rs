@@ -29,7 +29,6 @@ impl ProgramReconstructor for DeadCodeEliminator<'_> {
 
         Function {
             annotations: input.annotations,
-            is_async: input.is_async,
             variant: input.variant,
             identifier: input.identifier,
             input: input.input,

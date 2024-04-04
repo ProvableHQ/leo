@@ -26,8 +26,6 @@ use crate::SymbolTable;
 pub struct FunctionSymbol {
     /// The index associated with the scope in the parent symbol table.
     pub(crate) id: usize,
-    /// Whether the function is asynchronous or not.
-    pub(crate) is_async: bool,
     /// The output type of the function.
     pub(crate) output_type: Type,
     /// Is this function a transition, inlined, or a regular function?.
@@ -46,7 +44,6 @@ impl SymbolTable {
     pub(crate) fn new_function_symbol(id: usize, func: &Function) -> FunctionSymbol {
         FunctionSymbol {
             id,
-            is_async: func.is_async,
             output_type: func.output_type.clone(),
             variant: func.variant,
             _span: func.span,

@@ -53,7 +53,6 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
         // Inline the callee function, if required, otherwise, return the call expression.
         match callee.variant {
-            Variant::Transition | Variant::Standard => (Expression::Call(input), Default::default()),
             Variant::Inline => {
                 // Construct a mapping from input variables of the callee function to arguments passed to the callee.
                 let parameter_to_argument = callee
@@ -103,6 +102,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
                 (result, inlined_statements)
             }
+            _  => (Expression::Call(input), Default::default()),
         }
     }
 }

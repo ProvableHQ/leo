@@ -32,7 +32,6 @@ impl ProgramReconstructor for Flattener<'_> {
 
         Function {
             annotations: function.annotations,
-            is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
             input: function.input,

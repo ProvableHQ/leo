@@ -120,7 +120,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Create scope for checking awaits in `then` branch of conditional.
         let current_bst_nodes: Vec<ConditionalTreeNode> =
-            match self.await_checker.create_then_scope(self.scope_state.is_finalize, input.span) {
+            match self.await_checker.create_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), input.span) {
                 Ok(nodes) => nodes,
                 Err(err) => return self.emit_err(err),
             };
@@ -132,7 +132,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         then_block_has_return = self.scope_state.has_return;
 
         // Exit scope for checking awaits in `then` branch of conditional.
-        let saved_paths = self.await_checker.exit_then_scope(self.scope_state.is_finalize, current_bst_nodes);
+        let saved_paths = self.await_checker.exit_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
@@ -152,7 +152,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         // Update the set of all possible BST paths.
-        self.await_checker.exit_statement_scope(self.scope_state.is_finalize, saved_paths);
+        self.await_checker.exit_statement_scope(self.scope_state.variant == Some(Variant::AsyncFunction), saved_paths);
 
         // Restore the previous `has_return` flag.
         self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
@@ -385,17 +385,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // Cannot return anything from finalize.
-        if self.scope_state.is_finalize {
+        if self.scope_state.variant == Some(Variant::AsyncFunction) {
             self.emit_err(TypeCheckerError::return_in_finalize(input.span()));
         }
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();
-        let func = self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.scope_state.program_name, parent)).cloned();
+        let func =
+            self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.scope_state.program_name, parent)).cloned();
         let mut return_type = func.clone().map(|f| f.output_type.clone());
 
         // Fully type the expected return value.
-        if self.scope_state.is_async_transition && self.scope_state.has_called_finalize {
+        if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = match self.finalize_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
                 Some(types) => Future(FutureType::new(types.clone())),
                 None => {

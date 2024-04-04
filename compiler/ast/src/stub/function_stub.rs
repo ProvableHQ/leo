@@ -54,8 +54,6 @@ use std::fmt;
 pub struct FunctionStub {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
-    /// Is this function asynchronous or synchronous?
-    pub is_async: bool,
     /// Is this function a transition, inlined, or a regular function?.
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
@@ -109,7 +107,6 @@ impl FunctionStub {
 
         FunctionStub {
             annotations,
-            is_async,
             variant,
             identifier,
             future_locations: Vec::new(),
@@ -137,8 +134,8 @@ impl FunctionStub {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
             Variant::Inline => write!(f, "inline ")?,
-            Variant::Standard => write!(f, "function ")?,
-            Variant::Transition => write!(f, "transition ")?,
+            Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
+            Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
         }
         write!(f, "{}", self.identifier)?;
 
@@ -218,8 +215,10 @@ impl FunctionStub {
 
         Self {
             annotations: Vec::new(),
-            is_async: function.finalize_logic().is_some(),
-            variant: Variant::Transition,
+            variant: match function.finalize_logic().is_some() {
+                true => Variant::AsyncTransition,
+                false => Variant::Transition,
+            },
             identifier: Identifier::from(function.name()),
             future_locations: Vec::new(),
             input: function
@@ -281,8 +280,7 @@ impl FunctionStub {
     ) -> Self {
         Self {
             annotations: Vec::new(),
-            is_async: true,
-            variant: Variant::Standard,
+            variant: Variant::AsyncFunction,
             identifier: Identifier::new(name, Default::default()),
             future_locations: function
                 .finalize_logic()
@@ -291,7 +289,7 @@ impl FunctionStub {
                 .iter()
                 .filter_map(|input| match input.finalize_type() {
                     FinalizeType::Future(val) => Some(Location::new(
-                        Identifier::from(val.program_id().name()).name,
+                        Some(Identifier::from(val.program_id().name()).name),
                         Symbol::intern(&format!("finalize/{}", val.resource())),
                     )),
                     _ => None,
@@ -361,8 +359,7 @@ impl FunctionStub {
         };
         Self {
             annotations: Vec::new(),
-            is_async: false,
-            variant: Variant::Standard,
+            variant: Variant::Function,
             identifier: Identifier::from(closure.name()),
             future_locations: Vec::new(),
             input: closure
@@ -397,7 +394,6 @@ impl From<Function> for FunctionStub {
     fn from(function: Function) -> Self {
         Self {
             annotations: function.annotations,
-            is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
             future_locations: Vec::new(),

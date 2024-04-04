@@ -47,6 +47,7 @@ use leo_ast::{
     Type::{Future, Tuple},
 };
 use std::cell::RefCell;
+use leo_ast::Variant::AsyncTransition;
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -975,7 +976,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.scope_state.is_finalize {
+                if self.scope_state.variant != Some(Variant::AsyncFunction) {
                     self.handler
                         .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::get", function_span))
                 }
@@ -991,7 +992,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.scope_state.is_finalize {
+                if self.scope_state.variant != Some(Variant::AsyncFunction) {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::get_or",
                         function_span,
@@ -1011,7 +1012,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingSet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.scope_state.is_finalize {
+                if self.scope_state.variant != Some(Variant::AsyncFunction) {
                     self.handler
                         .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::set", function_span))
                 }
@@ -1033,7 +1034,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.scope_state.is_finalize {
+                if self.scope_state.variant != Some(Variant::AsyncFunction) {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::remove",
                         function_span,
@@ -1056,7 +1057,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
-                if !self.scope_state.is_finalize {
+                if self.scope_state.variant != Some(Variant::AsyncFunction) {
                     self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
                         "Mapping::contains",
                         function_span,
@@ -1266,7 +1267,7 @@ impl<'a> TypeChecker<'a> {
         self.scope_state.variant = Some(function.variant);
 
         // Special type checking for finalize blocks. Can skip for stubs.
-        if self.scope_state.is_finalize & !self.scope_state.is_stub {
+        if self.scope_state.variant == Some(Variant::AsyncFunction) && !self.scope_state.is_stub {
             // Finalize functions are not allowed to return values.
             if !function.output.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(function.span()));
@@ -1335,7 +1336,7 @@ impl<'a> TypeChecker<'a> {
             }
 
             // Check that the finalize input parameter is not constant or private.
-            if self.scope_state.is_finalize
+            if self.scope_state.variant == Some(Variant::AsyncFunction)
                 && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
                 && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
             {
@@ -1345,11 +1346,11 @@ impl<'a> TypeChecker<'a> {
             // Note that this unwrap is safe since we assign to `self.variant` above.
             match self.scope_state.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
-                Variant::Transition if input_var.mode() == Mode::Constant => {
+                Variant::Transition | Variant::AsyncTransition if input_var.mode() == Mode::Constant => {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
                 }
                 // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                Variant::Standard | Variant::Inline if input_var.mode() != Mode::None => {
+                Variant::Function | Variant::AsyncFunction | Variant::Inline if input_var.mode() != Mode::None => {
                     self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
                 }
                 _ => {} // Do nothing.
@@ -1357,8 +1358,9 @@ impl<'a> TypeChecker<'a> {
 
             // Add function inputs to the symbol table. Futures have already been added.
             if !matches!(&input_var.type_(), &Type::Future(_)) {
-                if let Err(err) =
-                    self.symbol_table.borrow_mut().insert_variable(Location::new(None, input_var.identifier().name), VariableSymbol {
+                if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                    Location::new(None, input_var.identifier().name),
+                    VariableSymbol {
                         type_: input_var.type_(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
@@ -1409,7 +1411,7 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                     // Async transitions must return exactly one future, and it must be in the last position.
-                    if self.scope_state.is_async_transition
+                    if self.scope_state.variant == Some(AsyncTransition) 
                         && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
                             || (index == function.output.len() - 1
                                 && !matches!(function_output.type_, Type::Future(_))))
@@ -1488,11 +1490,13 @@ impl<'a> TypeChecker<'a> {
             type_
         };
         // Insert the variable into the symbol table.
-        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(Location::new(None, name.name), VariableSymbol {
-            type_: ty,
-            span,
-            declaration: VariableType::Mut,
-        }) {
+        if let Err(err) =
+            self.symbol_table.borrow_mut().insert_variable(Location::new(None, name.name), VariableSymbol {
+                type_: ty,
+                span,
+                declaration: VariableType::Mut,
+            })
+        {
             self.handler.emit_err(err);
         }
     }

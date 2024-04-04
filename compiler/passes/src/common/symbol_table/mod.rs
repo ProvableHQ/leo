@@ -247,7 +247,6 @@ mod tests {
             let func_loc = Location::new(Some(Symbol::intern("credits")), Symbol::intern("transfer_public"));
             let insert = Function {
                 annotations: Vec::new(),
-                is_async: false,
                 id: 0,
                 output_type: Type::Address,
                 variant: Variant::Inline,

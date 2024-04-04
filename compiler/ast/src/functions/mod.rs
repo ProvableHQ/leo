@@ -46,8 +46,6 @@ use std::fmt;
 pub struct Function {
     /// Annotations on the function.
     pub annotations: Vec<Annotation>,
-    /// Is this function asynchronous or synchronous?
-    pub is_async: bool,
     /// Is this function a transition, inlined, or a regular function?.
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
@@ -79,7 +77,6 @@ impl Function {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
-        is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
@@ -100,7 +97,7 @@ impl Function {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        Function { annotations, is_async, variant, identifier, input, output, output_type, block, span, id }
+        Function { annotations, variant, identifier, input, output, output_type, block, span, id }
     }
 
     /// Returns function name.
@@ -114,8 +111,8 @@ impl Function {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
             Variant::Inline => write!(f, "inline ")?,
-            Variant::Standard => write!(f, "function ")?,
-            Variant::Transition => write!(f, "transition ")?,
+            Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
+            Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
         }
         write!(f, "{}", self.identifier)?;
 
@@ -135,7 +132,6 @@ impl From<FunctionStub> for Function {
     fn from(function: FunctionStub) -> Self {
         Self {
             annotations: function.annotations,
-            is_async: function.is_async,
             variant: function.variant,
             identifier: function.identifier,
             input: function.input,

@@ -16,7 +16,7 @@
 
 use leo_ast::*;
 
-use crate::{Unroller};
+use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {
@@ -92,7 +92,6 @@ impl ProgramReconstructor for Unroller<'_> {
 
         // Reconstruct the function block.
         let reconstructed_function = Function {
-            is_async: function.is_async,
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,

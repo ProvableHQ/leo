@@ -138,7 +138,7 @@ impl ParserContext<'_> {
                     let (id, function) = self.parse_function()?;
 
                     // Partition into transitions and functions so that don't have to sort later.
-                    if function.variant == Variant::Transition {
+                    if function.variant.is_transition() {
                         transitions.push((id, function));
                     } else {
                         functions.push((id, function));
@@ -409,10 +409,12 @@ impl ParserContext<'_> {
         let (is_async, start_async) =
             if self.token.token == Token::Async { (true, self.expect(&Token::Async)?) } else { (false, Span::dummy()) };
         // Parse `<variant> IDENT`, where `<variant>` is `function`, `transition`, or `inline`.
-        let (variant, start) = match self.token.token {
+        let (variant, start) = match self.token.token.clone() {
             Token::Inline => (Variant::Inline, self.expect(&Token::Inline)?),
-            Token::Function => (Variant::Standard, self.expect(&Token::Function)?),
-            Token::Transition => (Variant::Transition, self.expect(&Token::Transition)?),
+            Token::Function => {
+                (if is_async { Variant::AsyncFunction } else { Variant::Function }, self.expect(&Token::Function)?)
+            }
+            Token::Transition => (if is_async { Variant::AsyncTransition } else { Variant::Transition }, self.expect(&Token::Transition)?),
             _ => self.unexpected("'function', 'transition', or 'inline'")?,
         };
         let name = self.expect_identifier()?;
@@ -450,7 +452,6 @@ impl ParserContext<'_> {
             name.name,
             Function::new(
                 annotations,
-                is_async,
                 variant,
                 name,
                 inputs,

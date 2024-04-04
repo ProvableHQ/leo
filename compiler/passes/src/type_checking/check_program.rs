@@ -27,6 +27,7 @@ use leo_ast::{
     Type::Future,
 };
 use std::collections::HashSet;
+use leo_ast::Variant::{AsyncFunction, AsyncTransition};
 
 // TODO: Cleanup logic for tuples.
 
@@ -88,7 +89,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let scope_index = self.create_child_scope();
 
         // Create future stubs.
-        if input.variant == Variant::Standard && input.is_async {
+        if input.variant == Variant::AsyncFunction {
             let finalize_input_map = &mut self.finalize_input_types;
             let mut future_stubs = input.future_locations.clone();
             let resolved_inputs: Vec<Type> = input
@@ -302,7 +303,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Set type checker variables for function variant details.
-        self.scope_state.initialize_function_state(function.variant, function.is_async);
+        self.scope_state.initialize_function_state(function.variant);
 
         // Lookup function metadata in the symbol table.
         // Note that this unwrap is safe since function metadata is stored in a prior pass.
@@ -328,7 +329,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Query helper function to type check function parameters and outputs.
         self.check_function_signature(function);
 
-        if self.scope_state.is_finalize {
+        if self.scope_state.variant == Some(Variant::AsyncFunction) {
             // Async functions cannot have empty blocks
             if function.block.statements.is_empty() {
                 self.emit_err(TypeCheckerError::finalize_block_must_not_be_empty(function.block.span));
@@ -367,12 +368,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.is_async_transition && !self.scope_state.has_called_finalize {
+        if self.scope_state.variant == Some(AsyncTransition) && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
         // Check that all futures were awaited exactly once.
-        if self.scope_state.is_finalize {
+        if self.scope_state.variant == Some(AsyncFunction) {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
                 self.emit_err(TypeCheckerError::future_awaits_missing(

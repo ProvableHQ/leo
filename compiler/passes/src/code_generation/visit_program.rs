@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant, Location};
+use leo_ast::{functions, Composite, Function, Location, Mapping, Mode, Program, ProgramScope, Type, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -84,7 +84,7 @@ impl<'a> CodeGenerator<'a> {
                 .functions
                 .iter()
                 .map(|(_, function)| {
-                    if !(function.is_async && function.variant == Variant::Standard) {
+                    if function.variant != Variant::AsyncFunction {
                         // Set the `is_transition_function` flag.
                         self.is_transition_function = matches!(function.variant, Variant::Transition);
 
@@ -94,15 +94,15 @@ impl<'a> CodeGenerator<'a> {
                         self.is_transition_function = false;
 
                         // Attach the associated finalize to async transitions.
-                        if function.variant == Variant::Transition && function.is_async {
+                        if function.variant == Variant::AsyncTransition {
                             // Set state variables.
                             self.is_transition_function = false;
                             self.finalize_caller = Some(function.identifier.name.clone());
                             // Generate code for the associated finalize function.
                             let finalize = &self
                                 .symbol_table
-                                .lookup_fn_symbol(
-                                    Location::new(Some(self.program_id.unwrap().name.name),
+                                .lookup_fn_symbol(Location::new(
+                                    Some(self.program_id.unwrap().name.name),
                                     function.identifier.name,
                                 ))
                                 .unwrap()
@@ -178,7 +178,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
-        self.in_finalize = function.is_async && function.variant == Variant::Standard;
+        self.in_finalize = function.variant == Variant::AsyncFunction;
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.variable_mapping.insert(&sym::block, "block".to_string());
@@ -188,11 +188,11 @@ impl<'a> CodeGenerator<'a> {
         // If a function is a program function, generate an Aleo `function`,
         // if it is a standard function generate an Aleo `closure`,
         // otherwise, it is an inline function, in which case a function should not be generated.
-        let mut function_string = match (function.is_async, function.variant) {
-            (_, Variant::Transition) => format!("\nfunction {}:\n", function.identifier),
-            (false, Variant::Standard) => format!("\nclosure {}:\n", function.identifier),
-            (true, Variant::Standard) => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
-            (_, Variant::Inline) => return String::from("\n"),
+        let mut function_string = match function.variant {
+            Variant::Transition | Variant::AsyncTransition => format!("\nfunction {}:\n", function.identifier),
+            Variant::Function => format!("\nclosure {}:\n", function.identifier),
+            Variant::AsyncFunction => format!("\nfinalize {}:\n", self.finalize_caller.unwrap()),
+            Variant::Inline => return String::from("\n"),
         };
 
         // Construct and append the input declarations of the function.
