@@ -135,30 +135,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
-            AccessExpression::MethodCall(call) => {
-                if call.name.name == sym::Await {
-                    // Check core struct name and function.
-                    if let Some(core_instruction) =
-                        self.get_core_function_call(&Identifier::new(sym::Future, Default::default()), &call.name)
-                    {
-                        // Check that operation is not restricted to finalize blocks.
-                        if self.scope_state.variant != Some(AsyncFunction) && core_instruction.is_finalize_command() {
-                            self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
-                        }
-
-                        // Await futures here so that can use the argument variable names to lookup.
-                        if core_instruction == FutureAwait {
-                            self.assert_future_await(&Some(&call.receiver), input.span());
-                        } else {
-                            self.emit_err(TypeCheckerError::invalid_method_call(call.span()));
-                        }
-
-                        return Some(Type::Unit);
-                    } else {
-                        self.emit_err(TypeCheckerError::invalid_method_call(call.span()));
-                    }
-                }
-            }
+            AccessExpression::MethodCall(_) => panic!("Method calls should not appear in this area of the code."),
             AccessExpression::Tuple(access) => {
                 if let Some(type_) = self.visit_expression(&access.tuple, &None) {
                     match type_ {

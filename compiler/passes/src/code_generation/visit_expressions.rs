@@ -317,13 +317,7 @@ impl<'a> CodeGenerator<'a> {
 
     // f.await() -> await r3;
     fn visit_method_call(&mut self, input: &'a MethodCall) -> (String, String) {
-        if input.name.name == sym::Await {
-            let (expr_string, mut expr_instructions) = self.visit_expression(&input.receiver);
-            expr_instructions.push_str(format!("    {} {};\n", sym::Await, expr_string).as_str());
-            (expr_string, expr_instructions)
-        } else {
-            (String::new(), String::new())
-        }
+        panic!("Method calls should not appear at this phase of compilation.");
     }
 
     // group::GEN -> group::GEN
