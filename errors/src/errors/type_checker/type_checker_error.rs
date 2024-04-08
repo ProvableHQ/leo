@@ -934,7 +934,7 @@ create_messages!(
     @formatted
     return_type_of_finalize_function_is_future {
         args: (),
-        msg: "The output of an async function must be assigned to a Future type..".to_string(),
+        msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
         help: None,
     }
 
