@@ -250,7 +250,6 @@ impl StatementReconstructor for Destructurer<'_> {
             _ => input.expression,
         };
 
-        // TODO: Do finalize args need to be destructured.
         (Statement::Return(ReturnStatement { expression, span: input.span, id: input.id }), Default::default())
     }
 }
