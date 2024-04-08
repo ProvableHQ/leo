@@ -41,7 +41,7 @@ create_messages!(
     @formatted
     async_function_is_never_called_by_transition_function {
         args: (name: impl Display),
-        msg: format!("The async function `{name}` is never called by an async transition function."),
+        msg: format!("The async function `{name}` is never called by an async transition."),
         help: None,
     }
 );
