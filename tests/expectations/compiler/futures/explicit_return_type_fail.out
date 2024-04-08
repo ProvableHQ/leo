@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372118]: An async function is not allowed to return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize() -> Future {\n  11 |         Mapping::set(foo, 1u32, 1u32);\n  12 |     }\n     |     ^\n     |\n     = Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.\nError [ETYC0372038]: Function must return a value.\n    --> compiler-test:10:5\n     |\n  10 |     async function finalize() -> Future {\n  11 |         Mapping::set(foo, 1u32, 1u32);\n  12 |     }\n     |     ^\n"

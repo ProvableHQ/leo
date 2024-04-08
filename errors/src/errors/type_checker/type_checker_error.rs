@@ -928,7 +928,7 @@ create_messages!(
     finalize_function_cannot_return_value {
         args: (),
         msg: "An async function is not allowed to return a value.".to_string(),
-        help: Some("Remove an output type in the function signature, and remove the return statement from the function.".to_string()),
+        help: Some("Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.".to_string()),
     }
 
     @formatted

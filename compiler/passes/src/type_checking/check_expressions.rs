@@ -629,7 +629,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Async functions return a single future.
                     let mut ret = if func.variant == AsyncFunction {
                         if let Some(Type::Future(_)) = expected {
-                            Type::Future(FutureType::new(Vec::new()))
+                            Type::Future(FutureType::new(Vec::new(), Some(Location::new(input.program, ident.name))))
                         } else {
                             self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
