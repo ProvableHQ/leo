@@ -16,7 +16,6 @@
 
 use leo_ast::*;
 use leo_errors::emitter::Handler;
-
 use leo_span::Symbol;
 
 use crate::{SymbolTable, VariableSymbol, VariableType};
