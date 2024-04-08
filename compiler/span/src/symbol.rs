@@ -202,7 +202,7 @@ symbols! {
     to_x_coordinate,
     to_y_coordinate,
     verify,
-    Await: "await",
+    await,
 
     // types
     address,
