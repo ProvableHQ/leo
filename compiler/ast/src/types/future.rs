@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Type;
+use crate::{Location, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,17 +24,24 @@ use std::fmt;
 pub struct FutureType {
     // Optional type specification of inputs.
     pub inputs: Vec<Type>,
+    // The location of the function that produced the future.
+    pub location: Option<Location>
 }
 
 impl FutureType {
     /// Initialize a new future type.
-    pub fn new(inputs: Vec<Type>) -> Self {
-        Self { inputs }
+    pub fn new(inputs: Vec<Type>, location: Option<Location>) -> Self {
+        Self { inputs, location }
     }
 
     /// Returns the inputs of the future type.
     pub fn inputs(&self) -> &[Type] {
         &self.inputs
+    }
+    
+    /// Returns the location of the future type.
+    pub fn location(&self) -> &Option<Location> {
+        &self.location
     }
 }
 
