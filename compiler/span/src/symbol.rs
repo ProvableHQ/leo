@@ -214,7 +214,7 @@ symbols! {
     i32,
     i64,
     i128,
-    Future: "future",
+    Future
     record,
     scalar,
     signature,
