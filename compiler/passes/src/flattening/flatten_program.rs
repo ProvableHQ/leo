@@ -19,7 +19,7 @@ use crate::Flattener;
 use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
-    /// Flattens a function's body and finalize block, if it exists.
+    /// Flattens a function's body.
     fn reconstruct_function(&mut self, function: Function) -> Function {
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;
