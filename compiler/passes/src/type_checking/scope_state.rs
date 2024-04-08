@@ -52,7 +52,7 @@ impl ScopeState {
             has_return: false,
             is_return: false,
             program_name: None,
-            is_stub: false,
+            is_stub: true,
             futures: IndexMap::new(),
             has_called_finalize: false,
             is_conditional: false,

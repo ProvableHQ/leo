@@ -91,18 +91,16 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         // Create future stubs.
         if input.variant == Variant::AsyncFunction {
             let finalize_input_map = &mut self.finalize_input_types;
-            let mut future_stubs = input.future_locations.clone();
             let resolved_inputs: Vec<Type> = input
                 .input
                 .iter()
                 .map(|input_mode| {
                     match input_mode {
                         Internal(function_input) => match &function_input.type_ {
-                            Future(_) => {
+                            Future(f) => {
                                 // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                                 Future(FutureType::new(
-                                    finalize_input_map.get(&future_stubs.remove(0)).unwrap().clone(),
-                                ))
+                                    finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(), f.location.clone()))
                             }
                             _ => function_input.clone().type_,
                         },
@@ -110,7 +108,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                     }
                 })
                 .collect();
-            assert!(future_stubs.is_empty(), "Disassembler produced malformed stub.");
 
             finalize_input_map
                 .insert(Location::new(self.scope_state.program_name, input.identifier.name), resolved_inputs);
@@ -164,7 +161,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         let mut transition_count = 0;
         for (_, function) in input.functions.iter() {
             self.visit_function(function);
-            if matches!(function.variant, Variant::Transition) {
+            if function.variant.is_transition() {
                 transition_count += 1;
             }
         }

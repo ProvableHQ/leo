@@ -751,6 +751,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     ))
                                     .unwrap()
                                     .clone(),
+                                Some(Location::new(input.program, ident.name))
                             ));
                             ret = match ret.clone() {
                                 Tuple(tup) => Tuple(TupleType::new(
@@ -797,7 +798,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.scope_state.has_called_finalize = true;
 
                             // Update ret to reflect fully inferred future type.
-                            ret = Type::Future(FutureType::new(inferred_finalize_inputs));
+                            ret = Type::Future(FutureType::new(inferred_finalize_inputs, Some(Location::new(input.program, ident.name))));
                         }
                         // Set call location so that definition statement knows where future comes from.
                         self.scope_state.call_location = Some(Location::new(input.program, ident.name));

@@ -1323,7 +1323,7 @@ impl<'a> TypeChecker<'a> {
             // Check that the input parameter is not a record.
             else if let Type::Composite(struct_) = input_var.type_() {
                 // Note that this unwrap is safe, as the type is defined.
-                if !matches!(function.variant, Variant::Transition)
+                if !function.variant.is_transition() 
                     && self
                         .symbol_table
                         .borrow()
@@ -1378,7 +1378,7 @@ impl<'a> TypeChecker<'a> {
                 Output::External(external) => {
                     // If the function is not a transition function, then it cannot output a record.
                     // Note that an external output must always be a record.
-                    if !matches!(function.variant, Variant::Transition) {
+                    if !function.variant.is_transition() {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
                     }
                 }
@@ -1387,7 +1387,7 @@ impl<'a> TypeChecker<'a> {
                     if self.assert_type_is_valid(&function_output.type_, function_output.span) {
                         // If the function is not a transition function, then it cannot output a record.
                         if let Type::Composite(struct_) = function_output.type_.clone() {
-                            if !matches!(function.variant, Variant::Transition)
+                            if !function.variant.is_transition()
                                 && self
                                     .symbol_table
                                     .borrow()

@@ -71,11 +71,11 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
                 .iter()
                 .filter_map(|(id, function)| match function.finalize_logic() {
                     Some(_f) => {
-                        let name = Symbol::intern(&format!(
+                        let key_name = Symbol::intern(&format!(
                             "finalize/{}",
                             Symbol::intern(&Identifier::from(id).name.to_string())
                         ));
-                        Some((name, FunctionStub::from_finalize(function, name)))
+                        Some((key_name, FunctionStub::from_finalize(function, key_name, program_id.name.name)))
                     }
                     None => None,
                 })

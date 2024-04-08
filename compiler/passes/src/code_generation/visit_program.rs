@@ -86,7 +86,7 @@ impl<'a> CodeGenerator<'a> {
                 .map(|(_, function)| {
                     if function.variant != Variant::AsyncFunction {
                         // Set the `is_transition_function` flag.
-                        self.is_transition_function = matches!(function.variant, Variant::Transition);
+                        self.is_transition_function = function.variant.is_transition();
 
                         let mut function_string = self.visit_function(function);
 

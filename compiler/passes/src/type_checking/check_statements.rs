@@ -398,7 +398,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = match self.finalize_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
-                Some(types) => Future(FutureType::new(types.clone())),
+                Some(types) => Future(FutureType::new(types.clone(), Some(Location::new(self.scope_state.program_name, parent)))),
                 None => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }

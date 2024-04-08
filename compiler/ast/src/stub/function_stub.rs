@@ -58,8 +58,6 @@ pub struct FunctionStub {
     pub variant: Variant,
     /// The function identifier, e.g., `foo` in `function foo(...) { ... }`.
     pub identifier: Identifier,
-    /// Ordered list of futures inputted to finalize.
-    pub future_locations: Vec<Location>,
     /// The function's input parameters.
     pub input: Vec<Input>,
     /// The function's output declarations.
@@ -109,7 +107,6 @@ impl FunctionStub {
             annotations,
             variant,
             identifier,
-            future_locations: Vec::new(),
             input,
             output,
             output_type,
@@ -192,7 +189,7 @@ impl FunctionStub {
                 }),
                 ValueType::Future(_) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
-                    type_: Type::Future(FutureType::new(Vec::new())),
+                    type_: Type::Future(FutureType::new(Vec::new(), Some(Location::new(Some(program), Identifier::from(function.name()).name)))),
                     span: Default::default(),
                     id: Default::default(),
                 }),
@@ -220,7 +217,6 @@ impl FunctionStub {
                 false => Variant::Transition,
             },
             identifier: Identifier::from(function.name()),
-            future_locations: Vec::new(),
             input: function
                 .inputs()
                 .iter()
@@ -276,25 +272,13 @@ impl FunctionStub {
 
     pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
         function: &FunctionCore<N, Instruction, Command>,
-        name: Symbol,
+        key_name: Symbol,
+        program: Symbol,
     ) -> Self {
         Self {
             annotations: Vec::new(),
             variant: Variant::AsyncFunction,
-            identifier: Identifier::new(name, Default::default()),
-            future_locations: function
-                .finalize_logic()
-                .unwrap()
-                .inputs()
-                .iter()
-                .filter_map(|input| match input.finalize_type() {
-                    FinalizeType::Future(val) => Some(Location::new(
-                        Some(Identifier::from(val.program_id().name()).name),
-                        Symbol::intern(&format!("finalize/{}", val.resource())),
-                    )),
-                    _ => None,
-                })
-                .collect(),
+            identifier: Identifier::new(key_name, Default::default()),
             input: function
                 .finalize_logic()
                 .unwrap()
@@ -306,21 +290,19 @@ impl FunctionStub {
                         identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
                         mode: Mode::None,
                         type_: match input.finalize_type() {
-                            PlaintextFinalizeType(val) => Type::from_snarkvm(val, name),
-                            FutureFinalizeType(_) => Type::Future(Default::default()),
+                            PlaintextFinalizeType(val) => Type::from_snarkvm(val, key_name),
+                            FutureFinalizeType(val) => Type::Future(FutureType::new(Vec::new(), Some(Location::new(
+                        Some(Identifier::from(val.program_id().name()).name),
+                        Symbol::intern(&format!("finalize/{}", val.resource()))),
+                    ))),
                         },
                         span: Default::default(),
                         id: Default::default(),
                     })
                 })
                 .collect_vec(),
-            output: vec![Output::Internal(FunctionOutput {
-                mode: Mode::None,
-                type_: Type::Future(FutureType { inputs: Vec::new() }),
-                span: Default::default(),
-                id: 0,
-            })],
-            output_type: Type::Future(FutureType { inputs: Vec::new() }),
+            output: Vec::new(),
+            output_type: Type::Unit,
             span: Default::default(),
             id: 0,
         }
@@ -361,7 +343,6 @@ impl FunctionStub {
             annotations: Vec::new(),
             variant: Variant::Function,
             identifier: Identifier::from(closure.name()),
-            future_locations: Vec::new(),
             input: closure
                 .inputs()
                 .iter()
@@ -396,7 +377,6 @@ impl From<Function> for FunctionStub {
             annotations: function.annotations,
             variant: function.variant,
             identifier: function.identifier,
-            future_locations: Vec::new(),
             input: function.input,
             output: function.output,
             output_type: function.output_type,
