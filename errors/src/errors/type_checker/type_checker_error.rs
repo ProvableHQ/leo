@@ -851,7 +851,7 @@ create_messages!(
     can_only_await_one_future_at_a_time {
         args: (),
         msg: "Must await exactly one future at a time".to_string(),
-        help: Some("Ex: for `f: Future` call `f.await()` or `Future::Await(f)` to await a future.".to_string()),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
     }
 
     @formatted
