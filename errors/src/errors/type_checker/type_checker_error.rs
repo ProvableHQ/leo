@@ -900,7 +900,7 @@ create_messages!(
     unknown_future_consumed {
         args: (future: impl Display),
         msg: format!("Unknown future consumed: `{future}`"),
-        help: Some("Make sure the future is defined and consumed only once.".to_string()),
+        help: Some("Make sure the future is defined and consumed exactly once.".to_string()),
     }
 
     @formatted
