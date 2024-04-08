@@ -865,7 +865,7 @@ create_messages!(
     invalid_method_call {
         args: (),
         msg: "Not a valid method call.".to_string(),
-        help: Some("Ex: for `f: Future` call associated method for the struct instance `f.await()`.".to_string()),
+        help: Some("For a `f: Future`, call the associated method `f.await()`.".to_string()),
     }
 
     @formatted
