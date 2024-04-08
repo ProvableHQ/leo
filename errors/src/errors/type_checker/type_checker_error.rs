@@ -844,7 +844,7 @@ create_messages!(
     invalid_await_call {
         args: (),
         msg: "Not a valid await call.".to_string(),
-        help: Some("Ex: for `f: Future` call `f.await()` or `Future::Await(f)` to await a future.".to_string()),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
     }
 
     @formatted
