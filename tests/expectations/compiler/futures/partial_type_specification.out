@@ -1,0 +1,57 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - - compile:
+        - initial_symbol_table: 5ca921ebf6db69e2cc02b89b751bc97e9b60d165d1a9d438cb8f3c2ff2e0ca01
+          type_checked_symbol_table: a029bd3510b56cc1c678fc8b82269373d79a29fe9c34e5350997e5672f339b6d
+          unrolled_symbol_table: a029bd3510b56cc1c678fc8b82269373d79a29fe9c34e5350997e5672f339b6d
+          initial_ast: 9da79a0ee0cf6e4b5a8c7ca9943aa33954e0a25fa8c61a76d71b2fd65e0c95fd
+          unrolled_ast: 9da79a0ee0cf6e4b5a8c7ca9943aa33954e0a25fa8c61a76d71b2fd65e0c95fd
+          ssa_ast: bd828c1d5976f030a44c93f644f5eed451df9fda0058b28eba368bc28bb97411
+          flattened_ast: 6f2cbd528ac76cecc014828cb79ea10867f9662b8e6bea422ec02e4d7516708a
+          destructured_ast: 1e81877f5b1496c21fbd5c8771112fb2f2c58c2061ba8bbda8bed4b6fa653dc7
+          inlined_ast: ab4e6709e65c15e1c4b649c58cf2f76dc76fbba0b995deefbbda466b74060df8
+          dce_ast: deee914f1ab39447896c26612c3fcac3ce451006de441ea3f0b68acd85ce2984
+          bytecode: d207ac4b2d723295d2e715b2ea29f26bf8adcddbe41b4d5a036b69998a0ecfd6
+          errors: ""
+          warnings: ""
+        - initial_symbol_table: 809c42b30e0aa18e10707d26ca124b7a008ad47b530ed3411d5ec106e5b8928f
+          type_checked_symbol_table: 3fea8d5bc236a4b0d4bb7e0740d96464201e1833924aeb5af7f63250a630043c
+          unrolled_symbol_table: 3fea8d5bc236a4b0d4bb7e0740d96464201e1833924aeb5af7f63250a630043c
+          initial_ast: 4f8c54f004b2a2adb1759f6a680a0d2b5f42b4859c85dc96e7f044bdc916124c
+          unrolled_ast: ea3e0f9285420a4b9ff57d6bea336b52b49ca576cda92d55df693c2bed3503de
+          ssa_ast: b5a6e70c033e9459b2c85ea6893d2875d15450eb79eaec3365dede48d024805e
+          flattened_ast: 89043f365ab200b9543f86c53f1d44068fd77e1c66740c7efb122bff7d89aa68
+          destructured_ast: deae4cb5f9a7aa806132db62b96f3004f7a6c6995c0422a069be6709371e0efe
+          inlined_ast: ae39454ac9ace8258a9cc4c1d24d1f5afce3537fa0d673789cd70ecf81a1c448
+          dce_ast: 7caa74de23c64943760519804e2b52abb650c3b0c85ac861f780ed94b6ab5553
+          bytecode: 06118b170bd8fcf39f203c974615c368081e6bceae6dbe0d6aaa125d76bd9ac2
+          errors: ""
+          warnings: "Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.\n    --> compiler-test:17:5\n     |\n  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {\n  18 |         // f.await();\n  19 |         if a == 1u32 {\n  20 |             Future::await(f);\n  21 |             f2.await();\n  22 |         }\n  23 | \n  24 |         if a == 2u32 {\n  25 |             //f2.await();\n  26 |             Mapping::set(ayo, 1u32, 1u32);\n  27 |         }\n  28 | \n  29 |         let total: u32 = f.0 + f2.0;\n  30 |         Mapping::set(ayo, 1u32, total);\n  31 |     }\n     |     ^\n     |\n     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag."
+        - initial_symbol_table: 84aba10c7682941bab0b7b92a1fd7f8cb05c2eddd51d24442e7b64fbc2736ea0
+          type_checked_symbol_table: da016b22fa88fd196887edce8926a68f9d91e7efdfde858c1e3c6fdc1fe408b6
+          unrolled_symbol_table: da016b22fa88fd196887edce8926a68f9d91e7efdfde858c1e3c6fdc1fe408b6
+          initial_ast: b4046e718278252f50544068d0b57f7808cfff868a2ae91abbcce54cf10ec2f8
+          unrolled_ast: f87f1be959ef071751866dc975bd567c2b39cc1093b445ae2916936682321ef7
+          ssa_ast: 82ef9fa0b5d9d1b9151e986d5eebfa05cf49951500fd7c57069b10fcd6d748ed
+          flattened_ast: 59da77b0c3cd83f4d12666a4035a84de4e7c7db2ac3b06900a3541f17460e257
+          destructured_ast: b421851c7c70eba122aa498ecebce6e2880bcb81a3a7881dda638d749b0c532b
+          inlined_ast: c8213bc414393c65cb13533b03aedb54c12a10cc9ca6b67869d0f6af4b74d037
+          dce_ast: 9cf03913d5f9c4ec1b24912359dae5e64c2c7aea89bddbfd442482d84213ed77
+          bytecode: 7a2fd5581e13d3b66f1fad269ba868cf6d272929b84cea2dc1cb6a0af22867c2
+          errors: ""
+          warnings: ""
+        - initial_symbol_table: cccf95ec1779120d414bd4bc3a9a76c039f32b3dbe1bcd1765eb7da5ff4f8a54
+          type_checked_symbol_table: bd09092e98f274d8efdef0c4986063ac08c29723b0392e1c0b3cb5dad68e72a9
+          unrolled_symbol_table: bd09092e98f274d8efdef0c4986063ac08c29723b0392e1c0b3cb5dad68e72a9
+          initial_ast: 9430abd63c2567c1c22260b177b70f668f88c9bb6aefd876d4fc2c4807c20660
+          unrolled_ast: 8aeb14248ba30951cd24f48f2b8bdcbb06083dcfb0f53612e4722de2632e6b70
+          ssa_ast: 230730e6d6a0d0ee332b10d89ab90cf6cd73da54718ed54e850a0a6a55a38617
+          flattened_ast: e3698a6a2bde5e8977628220f1396124b58ed90180ee004f383904564d0205dd
+          destructured_ast: 8164d12b681effd27ef362bad480b970c526c3914acf172b486a989753aaa90e
+          inlined_ast: 1c04d1f8229b0f93d5de486644c38a193401f9293cf49270eeb2af9787277e81
+          dce_ast: 6bd0b3c0f4f006e109d25c131d3f4c3ffc9f295c079c7b39a0696d4829583bae
+          bytecode: 388c60022d4ad4fac382a685cc997c84d142f4e1357eb7c00e3efb545f5f70e5
+          errors: ""
+          warnings: ""
