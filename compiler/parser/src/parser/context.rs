@@ -253,7 +253,7 @@ impl<'a> ParserContext<'a> {
 
     /// Parse a list separated by `,` and delimited by angle brackets.
     /// Since the `>>` token is ambiguous, we need to create special state checks.
-    pub (super) fn parse_angle_comma_list<T>(
+    pub(super) fn parse_angle_comma_list<T>(
         &mut self,
         sep: Option<Token>,
         mut f: impl FnMut(&mut Self) -> Result<Option<T>>,
@@ -261,11 +261,11 @@ impl<'a> ParserContext<'a> {
         let (open, close) = Delimiter::AngleBracket.open_close_pair();
         let mut list = Vec::new();
         let mut trailing = false;
-        
+
         // Parse opening delimiter.
         let open_span = self.expect(&open)?;
-        
-        while !self.check(&close) && !self.check(&Token::Shr){
+
+        while !self.check(&close) && !self.check(&Token::Shr) {
             // Parse the element. We allow inner parser recovery through the `Option`.
             if let Some(elem) = f(self)? {
                 list.push(elem);
@@ -276,9 +276,9 @@ impl<'a> ParserContext<'a> {
                 break;
             }
 
-            trailing = true;        
+            trailing = true;
         }
-        
+
         if self.token.token == Token::Shr {
             return if self.in_angle {
                 self.in_angle = false;
@@ -289,10 +289,10 @@ impl<'a> ParserContext<'a> {
                 Ok((list, trailing, open_span + self.prev_token.span))
             };
         }
-        
+
         // Parse closing delimiter.
         let span = open_span + self.expect(&close)?;
-        
+
         Ok((list, trailing, span))
     }
 

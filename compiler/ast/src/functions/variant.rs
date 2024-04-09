@@ -34,25 +34,16 @@ pub enum Variant {
 impl Variant {
     /// Returns true if the variant is async.
     pub fn is_async(self) -> bool {
-        match self {
-            Variant::AsyncFunction | Variant::AsyncTransition => true,
-            _ => false,
-        }
+        matches!(self, Variant::AsyncFunction | Variant::AsyncTransition)
     }
 
     /// Returns true if the variant is a transition.
     pub fn is_transition(self) -> bool {
-        match self {
-            Variant::Transition | Variant::AsyncTransition => true,
-            _ => false,
-        }
+        matches!(self, Variant::Transition | Variant::AsyncTransition)
     }
 
     /// Returns true if the variant is a function.
     pub fn is_function(self) -> bool {
-        match self {
-            Variant::Function | Variant::AsyncFunction => true,
-            _ => false,
-        }
+        matches!(self, Variant::AsyncFunction | Variant::Function)
     }
 }

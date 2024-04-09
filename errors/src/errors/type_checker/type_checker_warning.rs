@@ -44,7 +44,7 @@ create_messages!(
         msg: format!("The async function `{name}` is never called by an async transition."),
         help: None,
     }
-    
+
     @formatted
     max_conditional_block_depth_exceeded {
         args: (max: impl Display),

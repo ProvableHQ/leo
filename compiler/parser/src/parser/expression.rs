@@ -357,7 +357,9 @@ impl ParserContext<'_> {
                 span,
                 id: self.node_builder.next_id(),
             })))
-        } else if let (0, Some(CoreFunction::FutureAwait)) = (args.len(), CoreFunction::from_symbols(sym::Future, method.name)) {
+        } else if let (0, Some(CoreFunction::FutureAwait)) =
+            (args.len(), CoreFunction::from_symbols(sym::Future, method.name))
+        {
             Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
                 variant: Identifier::new(sym::Future, self.node_builder.next_id()),
                 name: method,

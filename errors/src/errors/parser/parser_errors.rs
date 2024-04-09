@@ -342,7 +342,7 @@ create_messages!(
         msg: format!("Cannot create an external record. Records can only be created in the program that they are defined in."),
         help: None,
     }
-    
+
     @formatted
     future_must_have_at_least_one_element {
         args: (),

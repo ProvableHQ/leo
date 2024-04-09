@@ -515,7 +515,7 @@ create_messages!(
         msg: format!("Cannot call an external `inline` function."),
         help: None,
     }
-    
+
     @formatted
     too_many_mappings {
         args: (max: impl Display),

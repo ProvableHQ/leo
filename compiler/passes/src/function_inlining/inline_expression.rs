@@ -102,7 +102,7 @@ impl ExpressionReconstructor for FunctionInliner<'_> {
 
                 (result, inlined_statements)
             }
-            _  => (Expression::Call(input), Default::default()),
+            _ => (Expression::Call(input), Default::default()),
         }
     }
 }

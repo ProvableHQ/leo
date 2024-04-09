@@ -17,8 +17,7 @@
 use crate::{Location, Type};
 
 use serde::{Deserialize, Serialize};
-use std::fmt;
-use std::fmt::Display;
+use std::{fmt};
 
 /// A future type consisting of the type of the inputs.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -41,7 +40,7 @@ impl FutureType {
     pub fn inputs(&self) -> &[Type] {
         &self.inputs
     }
-    
+
     /// Returns the location of the future type.
     pub fn location(&self) -> &Option<Location> {
         &self.location

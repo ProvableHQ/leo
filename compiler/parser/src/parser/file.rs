@@ -414,7 +414,10 @@ impl ParserContext<'_> {
             Token::Function => {
                 (if is_async { Variant::AsyncFunction } else { Variant::Function }, self.expect(&Token::Function)?)
             }
-            Token::Transition => (if is_async { Variant::AsyncTransition } else { Variant::Transition }, self.expect(&Token::Transition)?),
+            Token::Transition => (
+                if is_async { Variant::AsyncTransition } else { Variant::Transition },
+                self.expect(&Token::Transition)?,
+            ),
             _ => self.unexpected("'function', 'transition', or 'inline'")?,
         };
         let name = self.expect_identifier()?;
@@ -450,16 +453,7 @@ impl ParserContext<'_> {
 
         Ok((
             name.name,
-            Function::new(
-                annotations,
-                variant,
-                name,
-                inputs,
-                output,
-                block,
-                span,
-                self.node_builder.next_id(),
-            ),
+            Function::new(annotations, variant, name, inputs, output, block, span, self.node_builder.next_id()),
         ))
     }
 }

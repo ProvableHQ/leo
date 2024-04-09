@@ -96,13 +96,14 @@ impl Type {
             (Type::Composite(left), Type::Composite(right)) => {
                 left.id.name == right.id.name && left.program == right.program
             }
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => 
-                left.location == right.location &&  
-                    left
-                    .inputs()
-                    .iter()
-                    .zip_eq(right.inputs().iter())
-                    .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => {
+                left.location == right.location
+                    && left
+                        .inputs()
+                        .iter()
+                        .zip_eq(right.inputs().iter())
+                        .all(|(left_type, right_type)| left_type.eq_flat(right_type))
+            }
             _ => false,
         }
     }

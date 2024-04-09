@@ -16,7 +16,23 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
-use leo_ast::{Composite, CompositeType, CoreConstant, CoreFunction, Expression, Function, FutureType, Identifier, IntegerType, Location, MappingType, Mode, Node, Output, Type, Variant};
+use leo_ast::{
+    Composite,
+    CompositeType,
+    CoreConstant,
+    CoreFunction,
+    Expression,
+    Function,
+    Identifier,
+    IntegerType,
+    Location,
+    MappingType,
+    Mode,
+    Node,
+    Output,
+    Type,
+    Variant,
+};
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
@@ -29,9 +45,9 @@ use leo_ast::{
     Input::Internal,
     Mode::Public,
     Type::{Future, Tuple},
+    Variant::AsyncTransition,
 };
 use std::cell::RefCell;
-use leo_ast::Variant::AsyncTransition;
 
 pub struct TypeChecker<'a> {
     /// The symbol table for the program.
@@ -1308,7 +1324,7 @@ impl<'a> TypeChecker<'a> {
             // Check that the input parameter is not a record.
             else if let Type::Composite(struct_) = input_var.type_() {
                 // Note that this unwrap is safe, as the type is defined.
-                if !function.variant.is_transition() 
+                if !function.variant.is_transition()
                     && self
                         .symbol_table
                         .borrow()
@@ -1396,7 +1412,7 @@ impl<'a> TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
                     }
                     // Async transitions must return exactly one future, and it must be in the last position.
-                    if self.scope_state.variant == Some(AsyncTransition) 
+                    if self.scope_state.variant == Some(AsyncTransition)
                         && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
                             || (index == function.output.len() - 1
                                 && !matches!(function_output.type_, Type::Future(_))))

@@ -16,9 +16,18 @@
 
 use crate::Destructurer;
 
-use leo_ast::{AccessExpression, ArrayAccess, Expression, ExpressionReconstructor, Identifier, IntegerType, Literal, MemberAccess, Statement, TupleAccess, Type};
-use leo_ast::Expression::Identifier as IdentifierExpression;
-use leo_span::Symbol;
+use leo_ast::{
+    AccessExpression,
+    ArrayAccess,
+    Expression,
+    ExpressionReconstructor,
+    IntegerType,
+    Literal,
+    Statement,
+    TupleAccess,
+    Type,
+};
+
 
 impl ExpressionReconstructor for Destructurer<'_> {
     type AdditionalOutput = Vec<Statement>;
@@ -35,7 +44,12 @@ impl ExpressionReconstructor for Destructurer<'_> {
                             (
                                 Expression::Access(AccessExpression::Array(ArrayAccess {
                                     array: Box::new(Expression::Identifier(*identifier)),
-                                    index: Box::new(Expression::Literal(Literal::Integer(IntegerType::U32, input.index.to_string(), input.span, Default::default()))),
+                                    index: Box::new(Expression::Literal(Literal::Integer(
+                                        IntegerType::U32,
+                                        input.index.to_string(),
+                                        input.span,
+                                        Default::default(),
+                                    ))),
                                     span: input.span,
                                     id: input.id,
                                 })),

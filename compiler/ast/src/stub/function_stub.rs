@@ -44,7 +44,7 @@ use snarkvm::{
         FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
         RegisterType::{ExternalRecord, Future, Plaintext, Record},
     },
-    prelude::{FinalizeType, Network, ValueType},
+    prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
 use std::fmt;
@@ -83,7 +83,7 @@ impl FunctionStub {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
-        is_async: bool,
+        _is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
@@ -103,16 +103,7 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub {
-            annotations,
-            variant,
-            identifier,
-            input,
-            output,
-            output_type,
-            span,
-            id,
-        }
+        FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
     }
 
     /// Returns function name.
@@ -189,7 +180,11 @@ impl FunctionStub {
                 }),
                 ValueType::Future(_) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
-                    type_: Type::Future(FutureType::new(Vec::new(), Some(Location::new(Some(program), Identifier::from(function.name()).name)), false)),
+                    type_: Type::Future(FutureType::new(
+                        Vec::new(),
+                        Some(Location::new(Some(program), Identifier::from(function.name()).name)),
+                        false,
+                    )),
                     span: Default::default(),
                     id: Default::default(),
                 }),
@@ -273,7 +268,7 @@ impl FunctionStub {
     pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
         function: &FunctionCore<N, Instruction, Command>,
         key_name: Symbol,
-        program: Symbol,
+        _program: Symbol,
     ) -> Self {
         Self {
             annotations: Vec::new(),
@@ -291,10 +286,14 @@ impl FunctionStub {
                         mode: Mode::None,
                         type_: match input.finalize_type() {
                             PlaintextFinalizeType(val) => Type::from_snarkvm(val, key_name),
-                            FutureFinalizeType(val) => Type::Future(FutureType::new(Vec::new(), Some(Location::new(
-                        Some(Identifier::from(val.program_id().name()).name),
-                        Symbol::intern(&format!("finalize/{}", val.resource()))),
-                    ), false)),
+                            FutureFinalizeType(val) => Type::Future(FutureType::new(
+                                Vec::new(),
+                                Some(Location::new(
+                                    Some(Identifier::from(val.program_id().name()).name),
+                                    Symbol::intern(&format!("finalize/{}", val.resource())),
+                                )),
+                                false,
+                            )),
                         },
                         span: Default::default(),
                         id: Default::default(),

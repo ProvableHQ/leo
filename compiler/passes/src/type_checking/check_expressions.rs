@@ -16,8 +16,10 @@
 
 use crate::TypeChecker;
 
-use leo_ast::{*,
-              Variant::{AsyncFunction, AsyncTransition}};
+use leo_ast::{
+    Variant::{AsyncFunction, AsyncTransition},
+    *,
+};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span, Symbol};
 
@@ -101,7 +103,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 // Check core struct name and function.
                 if let Some(core_instruction) = self.get_core_function_call(&access.variant, &access.name) {
                     // Check that operation is not restricted to finalize blocks.
-                    if self.scope_state.variant != Some(Variant::AsyncFunction) && core_instruction.is_finalize_command() {
+                    if self.scope_state.variant != Some(Variant::AsyncFunction)
+                        && core_instruction.is_finalize_command()
+                    {
                         self.emit_err(TypeCheckerError::operation_must_be_in_finalize_block(input.span()));
                     }
 
@@ -615,10 +619,15 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     // Check that the call is valid.
                     // Note that this unwrap is safe since we always set the variant before traversing the body of the function.
                     match self.scope_state.variant.unwrap() {
-                        Variant::AsyncFunction | Variant::Function  if !matches!(func.variant, Variant::Inline) => self.emit_err(TypeCheckerError::can_only_call_inline_function(input.span)),
-                        Variant::Transition | Variant::AsyncTransition if matches!(func.variant, Variant::Transition) && input.program.unwrap() == self.scope_state.program_name.unwrap() => self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(
-                            input.span,
-                        )),
+                        Variant::AsyncFunction | Variant::Function if !matches!(func.variant, Variant::Inline) => {
+                            self.emit_err(TypeCheckerError::can_only_call_inline_function(input.span))
+                        }
+                        Variant::Transition | Variant::AsyncTransition
+                            if matches!(func.variant, Variant::Transition)
+                                && input.program.unwrap() == self.scope_state.program_name.unwrap() =>
+                        {
+                            self.emit_err(TypeCheckerError::cannot_invoke_call_to_local_transition_function(input.span))
+                        }
                         _ => {}
                     }
 
@@ -632,7 +641,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     let mut ret = if func.variant == AsyncFunction {
                         // Type check after know the input types.
                         if let Some(Type::Future(_)) = expected {
-                            Type::Future(FutureType::new(Vec::new(), Some(Location::new(input.program, ident.name)), false))
+                            Type::Future(FutureType::new(
+                                Vec::new(),
+                                Some(Location::new(input.program, ident.name)),
+                                false,
+                            ))
                         } else {
                             self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
@@ -642,14 +655,11 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         let future_type = Type::Future(FutureType::new(
                             // Assumes that external function stubs have been processed.
                             self.finalize_input_types
-                                .get(&Location::new(
-                                    input.program,
-                                    Symbol::intern(&format!("finalize/{}", ident.name)),
-                                ))
+                                .get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name))))
                                 .unwrap()
                                 .clone(),
                             Some(Location::new(input.program, ident.name)),
-                            true
+                            true,
                         ));
                         let fully_inferred_type = match func.output_type {
                             Tuple(tup) => Tuple(TupleType::new(
@@ -659,7 +669,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     .collect::<Vec<Type>>(),
                             )),
                             Future(_) => future_type,
-                            _ => panic!("Invalid output type for async transition."), 
+                            _ => panic!("Invalid output type for async transition."),
                         };
                         self.assert_and_return_type(fully_inferred_type, expected, input.span())
                     } else {
@@ -778,8 +788,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.scope_state.has_called_finalize = true;
 
                             // Update ret to reflect fully inferred future type.
-                            ret = Type::Future(FutureType::new(inferred_finalize_inputs, Some(Location::new(input.program, ident.name)), true));
-                            
+                            ret = Type::Future(FutureType::new(
+                                inferred_finalize_inputs,
+                                Some(Location::new(input.program, ident.name)),
+                                true,
+                            ));
+
                             // Type check in case the expected type is known.
                             self.assert_and_return_type(ret.clone(), expected, input.span());
                         }

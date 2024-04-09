@@ -130,20 +130,25 @@ impl ParserContext<'_> {
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
                 _ => Ok((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.0).collect())), span)),
             }
-        }
-        else if self.token.token == Token::Future {
+        } else if self.token.token == Token::Future {
             // Parse the `Future` token.
             let span = self.expect(&Token::Future)?;
             // Parse the angle bracket list.
             if self.token.token == Token::Lt {
-                let (types, _, full_span) = self.parse_angle_comma_list(Some(Token::Comma),|p| p.parse_type().map(Some))?;
+                let (types, _, full_span) =
+                    self.parse_angle_comma_list(Some(Token::Comma), |p| p.parse_type().map(Some))?;
                 match types.len() {
                     0 => return Err(ParserError::future_must_have_at_least_one_element(span).into()),
                     // `Future<()>` corresponds to explicitly specifying a `Future` type with no inputs.
-                    1 if matches!(types.get(0).unwrap().0, Type::Unit) => return Ok((Type::Future(FutureType::new(vec![], None, true)), span + full_span)),
-                    _ => {},
+                    1 if matches!(types.first().unwrap().0, Type::Unit) => {
+                        return Ok((Type::Future(FutureType::new(vec![], None, true)), span + full_span));
+                    }
+                    _ => {}
                 }
-                Ok((Type::Future(FutureType::new(types.into_iter().map(|t| t.0).collect(), None, true)), span + full_span))
+                Ok((
+                    Type::Future(FutureType::new(types.into_iter().map(|t| t.0).collect(), None, true)),
+                    span + full_span,
+                ))
             } else {
                 Ok((Type::Future(Default::default()), span))
             }

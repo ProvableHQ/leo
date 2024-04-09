@@ -97,7 +97,7 @@ impl<'a> CodeGenerator<'a> {
                         if function.variant == Variant::AsyncTransition {
                             // Set state variables.
                             self.is_transition_function = false;
-                            self.finalize_caller = Some(function.identifier.name.clone());
+                            self.finalize_caller = Some(function.identifier.name);
                             // Generate code for the associated finalize function.
                             let finalize = &self
                                 .symbol_table
@@ -227,7 +227,7 @@ impl<'a> CodeGenerator<'a> {
                     format!("{}.aleo/{}.record", input.program_name, input.record)
                 }
             };
-            
+
             writeln!(function_string, "    input {register_string} as {type_string};",)
                 .expect("failed to write to string");
         }
