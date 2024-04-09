@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalTreeNode};
+use crate::ConditionalTreeNode;
 use indexmap::IndexSet;
 use leo_ast::Identifier;
 use leo_errors::TypeCheckerWarning;

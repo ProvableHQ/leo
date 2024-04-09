@@ -1351,8 +1351,12 @@ impl<'a> TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
                 }
                 // If the function is not a transition function, then check that the parameters do not have an associated mode.
-                Variant::Function | Variant::AsyncFunction | Variant::Inline if input_var.mode() != Mode::None => {
+                Variant::Function | Variant::Inline if input_var.mode() != Mode::None => {
                     self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
+                }
+                // Async functions cannot have private inputs.
+                Variant::AsyncFunction if input_var.mode() == Mode::Private => {
+                    self.emit_err(TypeCheckerError::async_function_input_cannot_be_private(input_var.span()));
                 }
                 _ => {} // Do nothing.
             }

@@ -283,6 +283,13 @@ create_messages!(
         msg: format!("Standard functions cannot have modes associated with their inputs."),
         help: Some("Consider removing the mode or using the keyword `transition` instead of `function`.".to_string()),
     }
+    
+    @formatted
+    async_function_input_cannot_be_private {
+        args: (),
+        msg: format!("Async functions cannot have private inputs."),
+        help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
 
     @formatted
     struct_or_record_cannot_contain_record {
