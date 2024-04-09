@@ -16,7 +16,8 @@
 
 use crate::TypeChecker;
 
-use leo_ast::*;
+use leo_ast::{*,
+              Variant::{AsyncFunction, AsyncTransition}};
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span, Symbol};
 
@@ -27,7 +28,6 @@ use leo_ast::{
 };
 use snarkvm::console::network::{MainnetV0, Network};
 use std::str::FromStr;
-use leo_ast::Variant::{Transition, Function, AsyncFunction, AsyncTransition};
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
     match (t1, t2) {
@@ -169,6 +169,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         Future(_) => {
                             // Get the fully inferred type.
                             if let Some(Type::Future(inferred_f)) = self.type_table.get(&access.tuple.id()) {
+                                dbg!(inferred_f.clone());
+                                dbg!(access.clone());
                                 // Make sure in range.
                                 if access.index.value() >= inferred_f.inputs().len() {
                                     self.emit_err(TypeCheckerError::invalid_future_access(
@@ -628,12 +630,38 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
                     // Async functions return a single future.
                     let mut ret = if func.variant == AsyncFunction {
+                        // Type check after know the input types.
                         if let Some(Type::Future(_)) = expected {
-                            Type::Future(FutureType::new(Vec::new(), Some(Location::new(input.program, ident.name))))
+                            Type::Future(FutureType::new(Vec::new(), Some(Location::new(input.program, ident.name)), false))
                         } else {
                             self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
                         }
+                    } else if func.variant == AsyncTransition {
+                        // Fully infer future type.
+                        let future_type = Type::Future(FutureType::new(
+                            // Assumes that external function stubs have been processed.
+                            self.finalize_input_types
+                                .get(&Location::new(
+                                    input.program,
+                                    Symbol::intern(&format!("finalize/{}", ident.name)),
+                                ))
+                                .unwrap()
+                                .clone(),
+                            Some(Location::new(input.program, ident.name)),
+                            true
+                        ));
+                        let fully_inferred_type = match func.output_type {
+                            Tuple(tup) => Tuple(TupleType::new(
+                                tup.elements()
+                                    .iter()
+                                    .map(|t| if matches!(t, Future(_)) { future_type.clone() } else { t.clone() })
+                                    .collect::<Vec<Type>>(),
+                            )),
+                            Future(_) => future_type,
+                            _ => panic!("Invalid output type for async transition."), 
+                        };
+                        self.assert_and_return_type(fully_inferred_type, expected, input.span())
                     } else {
                         self.assert_and_return_type(func.output_type, expected, input.span())
                     };
@@ -718,35 +746,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                     input.span,
                                 ));
                             }
-                            // Fully infer future type.
-                            let future_type = Type::Future(FutureType::new(
-                                // Assumes that external function stubs have been processed.
-                                self.finalize_input_types
-                                    .get(&Location::new(
-                                        input.program,
-                                        Symbol::intern(&format!("finalize/{}", ident.name)),
-                                    ))
-                                    .unwrap()
-                                    .clone(),
-                                Some(Location::new(input.program, ident.name))
-                            ));
-                            ret = match ret.clone() {
-                                Tuple(tup) => Tuple(TupleType::new(
-                                    tup.elements()
-                                        .iter()
-                                        .map(|t| if matches!(t, Future(_)) { future_type.clone() } else { t.clone() })
-                                        .collect::<Vec<Type>>(),
-                                )),
-                                Future(_) => future_type,
-                                _ => {
-                                    self.emit_err(TypeCheckerError::async_transition_invalid_output(input.span));
-                                    ret
-                                }
-                            };
                         } else if func.variant.is_function() {
                             // Can only call an async function once in a transition function body.
                             if self.scope_state.has_called_finalize {
-                                self.emit_err(TypeCheckerError::must_call_finalize_once(input.span));
+                                self.emit_err(TypeCheckerError::must_call_async_function_once(input.span));
                             }
                             // Check that all futures consumed.
                             if !self.scope_state.futures.is_empty() {
@@ -775,7 +778,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.scope_state.has_called_finalize = true;
 
                             // Update ret to reflect fully inferred future type.
-                            ret = Type::Future(FutureType::new(inferred_finalize_inputs, Some(Location::new(input.program, ident.name))));
+                            ret = Type::Future(FutureType::new(inferred_finalize_inputs, Some(Location::new(input.program, ident.name)), true));
+                            
+                            // Type check in case the expected type is known.
+                            self.assert_and_return_type(ret.clone(), expected, input.span());
                         }
                         // Set call location so that definition statement knows where future comes from.
                         self.scope_state.call_location = Some(Location::new(input.program, ident.name));

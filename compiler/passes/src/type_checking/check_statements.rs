@@ -122,7 +122,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let current_bst_nodes: Vec<ConditionalTreeNode> =
             match self.await_checker.create_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), input.span) {
                 Ok(nodes) => nodes,
-                Err(err) => return self.emit_err(err),
+                Err(warn) => return self.emit_warning(warn),
             };
 
         // Visit block.
@@ -386,7 +386,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // Cannot return anything from finalize.
         if self.scope_state.variant == Some(Variant::AsyncFunction) {
-            self.emit_err(TypeCheckerError::return_in_finalize(input.span()));
+            self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(input.span()));
         }
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
@@ -398,13 +398,13 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
             let inferred_future_type = match self.finalize_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
-                Some(types) => Future(FutureType::new(types.clone(), Some(Location::new(self.scope_state.program_name, parent)))),
+                Some(types) => Future(FutureType::new(types.clone(), Some(Location::new(self.scope_state.program_name, parent)), true)),
                 None => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
             };
             // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
-            return_type = match return_type {
+            let inferred = match return_type.clone() {
                 Some(Future(_)) => Some(inferred_future_type),
                 Some(Tuple(tuple)) => Some(Tuple(TupleType::new(
                     tuple
@@ -416,6 +416,11 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 _ => {
                     return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
+            };
+            
+            // Check that the explicit type declared in the function output signature matches the inferred type.
+            if let Some(ty) = inferred {
+                return_type = Some(self.assert_and_return_type(ty, &return_type, input.span()));
             }
         }
 

@@ -16,23 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
 
-use leo_ast::{
-    Composite,
-    CompositeType,
-    CoreConstant,
-    CoreFunction,
-    Expression,
-    Function,
-    Identifier,
-    IntegerType,
-    Location,
-    MappingType,
-    Mode,
-    Node,
-    Output,
-    Type,
-    Variant,
-};
+use leo_ast::{Composite, CompositeType, CoreConstant, CoreFunction, Expression, Function, FutureType, Identifier, IntegerType, Location, MappingType, Mode, Node, Output, Type, Variant};
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
@@ -167,7 +151,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits a type checker warning
-    pub(crate) fn emit_warning(&self, warning: TypeCheckerWarning) {
+    pub fn emit_warning(&self, warning: TypeCheckerWarning) {
         self.handler.emit_warning(warning.into());
     }
 
@@ -182,12 +166,12 @@ impl<'a> TypeChecker<'a> {
 
     /// Determines if the two types have the same structure.
     /// Needs access to the symbol table in order to compare nested future and struct types.
-    pub(crate) fn check_eq_type_structure(&self, t1: &Type, t2: &Type, span: Span) -> bool {
-        if t1.eq_flat(t2) {
+    pub(crate) fn check_eq_type_structure(&self, actual: &Type, expected: &Type, span: Span) -> bool {
+        if actual.eq_flat(expected) {
             return true;
         }
         // All of these types could return false for `eq_flat` if they have an external struct.
-        match (t1, t2) {
+        match (actual, expected) {
             (Type::Array(left), Type::Array(right)) => {
                 self.check_eq_type_structure(left.element_type(), right.element_type(), span)
                     && left.length() == right.length()
@@ -219,6 +203,8 @@ impl<'a> TypeChecker<'a> {
                     true
                 }
             }
+            // Don't type check when type hasn't been explicitly defined.
+            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
             (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
                 .inputs()
                 .iter()
@@ -1287,9 +1273,7 @@ impl<'a> TypeChecker<'a> {
                 function.input.iter().zip_eq(inferred_input_types.iter()).for_each(|(t1, t2)| {
                     if let Internal(fn_input) = t1 {
                         // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
-                        if !(matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_))) {
-                            self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
-                        } else {
+                        if matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_)) {
                             // Insert to symbol table
                             if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                                 Location::new(None, fn_input.identifier.name),
@@ -1302,6 +1286,7 @@ impl<'a> TypeChecker<'a> {
                                 self.handler.emit_err(err);
                             }
                         }
+                        self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
                     }
                 });
             } else {

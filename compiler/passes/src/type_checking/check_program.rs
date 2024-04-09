@@ -16,16 +16,14 @@
 
 use crate::{DiGraphError, TypeChecker};
 
-use leo_ast::*;
+use leo_ast::{*, 
+              Input::{External, Internal}, 
+              Type::Future,
+};
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
 use snarkvm::console::network::{MainnetV0, Network};
-
-use leo_ast::{
-    Input::{External, Internal},
-    Type::Future,
-};
 use std::collections::HashSet;
 use leo_ast::Variant::{AsyncFunction, AsyncTransition};
 
@@ -100,7 +98,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                             Future(f) => {
                                 // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
                                 Future(FutureType::new(
-                                    finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(), f.location.clone()))
+                                    finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(), f.location.clone(), true))
                             }
                             _ => function_input.clone().type_,
                         },

@@ -18,20 +18,23 @@ use crate::{Location, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::fmt::Display;
 
 /// A future type consisting of the type of the inputs.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FutureType {
     // Optional type specification of inputs.
     pub inputs: Vec<Type>,
     // The location of the function that produced the future.
-    pub location: Option<Location>
+    pub location: Option<Location>,
+    // Whether or not the type has been explicitly specified.
+    pub is_explicit: bool,
 }
 
 impl FutureType {
     /// Initialize a new future type.
-    pub fn new(inputs: Vec<Type>, location: Option<Location>) -> Self {
-        Self { inputs, location }
+    pub fn new(inputs: Vec<Type>, location: Option<Location>, is_explicit: bool) -> Self {
+        Self { inputs, location, is_explicit }
     }
 
     /// Returns the inputs of the future type.
@@ -42,6 +45,12 @@ impl FutureType {
     /// Returns the location of the future type.
     pub fn location(&self) -> &Option<Location> {
         &self.location
+    }
+}
+
+impl Default for crate::FutureType {
+    fn default() -> Self {
+        Self::new(vec![], None, false)
     }
 }
 
