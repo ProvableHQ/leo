@@ -16,16 +16,8 @@
 
 use crate::Destructurer;
 
-use leo_ast::{
-    AccessExpression,
-    Expression,
-    ExpressionReconstructor,
-    Identifier,
-    MemberAccess,
-    Statement,
-    TupleAccess,
-    Type,
-};
+use leo_ast::{AccessExpression, ArrayAccess, Expression, ExpressionReconstructor, Identifier, IntegerType, Literal, MemberAccess, Statement, TupleAccess, Type};
+use leo_ast::Expression::Identifier as IdentifierExpression;
 use leo_span::Symbol;
 
 impl ExpressionReconstructor for Destructurer<'_> {
@@ -41,9 +33,9 @@ impl ExpressionReconstructor for Destructurer<'_> {
                     None => {
                         if matches!(self.type_table.get(&identifier.id), Some(Type::Future(_))) {
                             (
-                                Expression::Access(AccessExpression::Member(MemberAccess {
-                                    inner: Box::new(Expression::Identifier(*identifier)),
-                                    name: Identifier::new(Symbol::intern(&input.index.to_string()), Default::default()),
+                                Expression::Access(AccessExpression::Array(ArrayAccess {
+                                    array: Box::new(Expression::Identifier(*identifier)),
+                                    index: Box::new(Expression::Literal(Literal::Integer(IntegerType::U32, input.index.to_string(), input.span, Default::default()))),
                                     span: input.span,
                                     id: input.id,
                                 })),

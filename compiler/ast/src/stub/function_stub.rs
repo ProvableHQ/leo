@@ -189,7 +189,7 @@ impl FunctionStub {
                 }),
                 ValueType::Future(_) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
-                    type_: Type::Future(FutureType::new(Vec::new(), Some(Location::new(Some(program), Identifier::from(function.name()).name)))),
+                    type_: Type::Future(FutureType::new(Vec::new(), Some(Location::new(Some(program), Identifier::from(function.name()).name)), false)),
                     span: Default::default(),
                     id: Default::default(),
                 }),
@@ -294,7 +294,7 @@ impl FunctionStub {
                             FutureFinalizeType(val) => Type::Future(FutureType::new(Vec::new(), Some(Location::new(
                         Some(Identifier::from(val.program_id().name()).name),
                         Symbol::intern(&format!("finalize/{}", val.resource()))),
-                    ))),
+                    ), false)),
                         },
                         span: Default::default(),
                         id: Default::default(),

@@ -307,16 +307,13 @@ impl<'a> CodeGenerator<'a> {
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
         let (inner_expr, _) = self.visit_expression(&input.inner);
-        let member_access = match self.type_table.get(&input.inner.id()) {
-            Some(Type::Future(_)) => format!("{inner_expr}[{}u32]", input.name),
-            _ => format!("{}.{}", inner_expr, input.name),
-        };
+        let member_access = format!("{}.{}", inner_expr, input.name);
 
         (member_access, String::new())
     }
 
     // f.await() -> await r3;
-    fn visit_method_call(&mut self, input: &'a MethodCall) -> (String, String) {
+    fn visit_method_call(&mut self, _input: &'a MethodCall) -> (String, String) {
         panic!("Method calls should not appear at this phase of compilation.");
     }
 

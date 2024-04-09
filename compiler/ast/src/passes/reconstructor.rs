@@ -155,7 +155,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Call(CallExpression {
-                function: Box::new(self.reconstruct_expression(*input.function).0),
+                function: input.function, 
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 program: input.program,
                 span: input.span,

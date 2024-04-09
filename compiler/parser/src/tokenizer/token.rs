@@ -384,6 +384,8 @@ pub enum Delimiter {
     Brace,
     /// `[ ... ]`
     Bracket,
+    /// `< ... >`
+    AngleBracket,
 }
 
 impl Delimiter {
@@ -393,6 +395,7 @@ impl Delimiter {
             Self::Parenthesis => (Token::LeftParen, Token::RightParen),
             Self::Brace => (Token::LeftCurly, Token::RightCurly),
             Self::Bracket => (Token::LeftSquare, Token::RightSquare),
+            Self::AngleBracket => (Token::Lt, Token::Gt),
         }
     }
 }

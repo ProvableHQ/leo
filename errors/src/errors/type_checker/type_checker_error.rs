@@ -299,52 +299,31 @@ create_messages!(
     }
 
     @formatted
-    only_transition_functions_can_have_finalize {
-        args: (),
-        msg: format!("Only transition functions can have a `finalize` block."),
-        help: Some("Remove the `finalize` block or use the keyword `transition` instead of `function`.".to_string()),
-    }
-
-    @formatted
     finalize_input_mode_must_be_public {
         args: (),
-        msg: format!("An input to a finalize block must be public."),
+        msg: format!("An input to an async function must be public."),
         help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
     }
 
     @formatted
     finalize_output_mode_must_be_public {
         args: (),
-        msg: format!("An output from a finalize block must be public."),
+        msg: format!("An output from an async function block must be public."),
         help: Some("Use a `public` modifier to the output type declaration or remove the visibility modifier entirely.".to_string()),
-    }
-
-    @formatted
-    finalize_in_finalize {
-        args: (),
-        msg: format!("A finalize block cannot contain a finalize statement."),
-        help: None,
     }
 
     @formatted
     invalid_operation_outside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` must be inside a finalize block."),
-        help: None,
-    }
-
-    @formatted
-    finalize_without_finalize_block {
-        args: (),
-        msg: format!("Cannot use a `finalize` statement without a `finalize` block."),
+        msg: format!("`{operation}` must be inside an async function block."),
         help: None,
     }
 
     @formatted
     loop_body_contains_finalize {
         args: (),
-        msg: format!("Loop body contains a finalize statement."),
-        help: Some("Remove the finalize statement.".to_string()),
+        msg: format!("Loop body contains an async function call."),
+        help: Some("Remove the async function call.".to_string()),
     }
 
     @formatted
@@ -357,7 +336,7 @@ create_messages!(
     @formatted
     finalize_block_must_not_be_empty {
         args: (),
-        msg: format!("A finalize block cannot be empty."),
+        msg: format!("An async function call block cannot be empty."),
         help: None,
     }
 
@@ -376,32 +355,9 @@ create_messages!(
     }
 
     @formatted
-    incorrect_num_args_to_finalize {
-        args: (expected: impl Display, received: impl Display),
-        msg: format!(
-            "`finalize` expected `{expected}` args, but got `{received}`",
-        ),
-        help: None,
-    }
-
-    @formatted
     invalid_self_access {
         args: (),
         msg: format!("The allowed accesses to `self` are `self.caller` and `self.signer`."),
-        help: None,
-    }
-
-    @formatted
-    missing_finalize {
-        args: (),
-        msg: format!("Async transitions must contain an async function call on all execution paths."),
-        help: None,
-    }
-
-    @formatted
-    finalize_name_mismatch {
-        args: (finalize_name: impl Display, function_name: impl Display),
-        msg: format!("`finalize` name `{finalize_name}` does not match function name `{function_name}`"),
         help: None,
     }
 
@@ -485,23 +441,9 @@ create_messages!(
     }
 
     @formatted
-    finalize_cannot_take_tuple_as_input {
-        args: (),
-        msg: format!("A finalize block cannot take in a tuple as input."),
-        help: None,
-    }
-
-    @formatted
     nested_tuple_expression {
         args: (),
         msg: format!("A tuple expression cannot contain another tuple expression."),
-        help: None,
-    }
-
-    @formatted
-    finalize_statement_cannot_contain_tuples {
-        args: (),
-        msg: format!("A finalize statement cannot contain tuple expressions."),
         help: None,
     }
 
@@ -573,27 +515,7 @@ create_messages!(
         msg: format!("Cannot call an external `inline` function."),
         help: None,
     }
-
-    @formatted
-    finalize_cannot_take_record_as_input {
-        args: (),
-        msg: format!("A finalize block cannot take in a record as input."),
-        help: None,
-    }
-
-    @formatted
-    finalize_cannot_output_record {
-        args: (),
-        msg: format!("A finalize block cannot return a record."),
-        help: None,
-    }
-
-    @formatted
-    finalize_cannot_return_value {
-        args: (),
-        msg: format!("A finalize block cannot return a value."),
-        help: None,
-    }
+    
     @formatted
     too_many_mappings {
         args: (max: impl Display),
@@ -632,14 +554,14 @@ create_messages!(
     @formatted
     invalid_operation_inside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` is not a valid operand in a finalize context."),
+        msg: format!("`{operation}` is not a valid operand in an async function call context."),
         help: None,
     }
 
     @formatted
     operation_must_be_in_finalize_block {
         args: (),
-        msg: format!("This operation can only be used in a `finalize` block."),
+        msg: format!("This operation can only be used in an async function block."),
         help: None,
     }
 
@@ -813,13 +735,6 @@ create_messages!(
     }
 
     @formatted
-    max_conditional_block_depth_exceeded {
-        args: (max: impl Display),
-        msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
-        help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
-    }
-
-    @formatted
     no_path_awaits_all_futures_exactly_once {
         args: (num_total_paths: impl Display),
         msg: format!("Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."),
@@ -876,7 +791,7 @@ create_messages!(
     }
 
     @formatted
-    must_call_finalize_once {
+    must_call_async_function_once {
         args: (),
         msg: "Must call exactly one local async function per transition function.".to_string(),
         help: Some("Move the async call outside of the transition block.".to_string()),
@@ -892,7 +807,7 @@ create_messages!(
     @formatted
     external_transition_call_must_be_before_finalize {
         args: (),
-        msg: "Inside the body of an async transition, all external async transition calls must be made before the transition's async function call.".to_string(),
+        msg: "External async transition calls cannot be made after local async function call".to_string(),
         help: Some("Move the async call before the function call.".to_string()),
     }
 
@@ -908,13 +823,6 @@ create_messages!(
         args: (unconsumed: impl Display),
         msg: format!("Not all futures were consumed: {unconsumed}"),
         help: Some("Make sure all futures are consumed exactly once. Consume by passing to an async function call.".to_string()),
-    }
-
-    @formatted
-    return_in_finalize {
-        args: (),
-        msg: "Cannot return a value in an async function block.".to_string(),
-        help: Some("Async functions execute on-chain. Since async transitions call async functions, and async transitions execute offline, it would be impossible for the async function to be able to return on-chain state to the transition function.".to_string()),
     }
 
     @formatted

@@ -44,4 +44,11 @@ create_messages!(
         msg: format!("The async function `{name}` is never called by an async transition."),
         help: None,
     }
+    
+    @formatted
+    max_conditional_block_depth_exceeded {
+        args: (max: impl Display),
+        msg: format!("The type checker has exceeded the max depth of nested conditional blocks: {max}."),
+        help: Some("Re-run with a larger maximum depth using the `--conditional_block_max_depth` build option. Ex: `leo run main --conditional_block_max_depth 25`.".to_string()),
+    }
 );
