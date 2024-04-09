@@ -18,7 +18,7 @@ pub mod assigner;
 pub use assigner::*;
 
 pub mod tree_node;
-pub use tree_node::*;
+pub use tree_node::ConditionalTreeNode;
 
 pub mod graph;
 pub use graph::*;

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalTreeNode, TreeNode};
+use crate::{ConditionalTreeNode};
 use indexmap::IndexSet;
 use leo_ast::Identifier;
 use leo_errors::TypeCheckerWarning;
@@ -55,7 +55,7 @@ impl AwaitChecker {
         if futures.is_empty() {
             self.to_await = Vec::new();
         } else {
-            self.to_await = vec![TreeNode::new(futures.clone())];
+            self.to_await = vec![ConditionalTreeNode::new(futures.clone())];
         }
         self.static_to_await = futures;
     }

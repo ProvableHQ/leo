@@ -17,7 +17,7 @@
 use crate::{Location, Type};
 
 use serde::{Deserialize, Serialize};
-use std::{fmt};
+use std::fmt;
 
 /// A future type consisting of the type of the inputs.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

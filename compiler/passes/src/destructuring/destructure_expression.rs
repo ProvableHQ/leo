@@ -28,7 +28,6 @@ use leo_ast::{
     Type,
 };
 
-
 impl ExpressionReconstructor for Destructurer<'_> {
     type AdditionalOutput = Vec<Statement>;
 

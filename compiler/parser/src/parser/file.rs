@@ -115,8 +115,7 @@ impl ParserContext<'_> {
 
         // Parse the body of the program scope.
         let mut consts: Vec<(Symbol, ConstDeclaration)> = Vec::new();
-        let (mut transitions, mut functions): (Vec<(Symbol, Function)>, Vec<(Symbol, Function)>) =
-            (Vec::new(), Vec::new());
+        let (mut transitions, mut functions) = (Vec::new(), Vec::new());
         let mut structs: Vec<(Symbol, Composite)> = Vec::new();
         let mut mappings: Vec<(Symbol, Mapping)> = Vec::new();
 
