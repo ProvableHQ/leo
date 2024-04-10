@@ -55,6 +55,6 @@ impl Default for crate::FutureType {
 
 impl fmt::Display for crate::FutureType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Future<{}>", self.inputs.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
+        write!(f, "Future<Fn({})>", self.inputs.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","))
     }
 }

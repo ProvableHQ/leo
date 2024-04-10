@@ -2,23 +2,11 @@
 namespace: Parse
 expectation: Pass
 outputs:
-  - imports:
-      hello:
-        - imports: {}
-          stubs: {}
-          program_scopes: {}
-        - lo: 2
-          hi: 20
-      bye:
-        - imports: {}
-          stubs: {}
-          program_scopes: {}
-        - lo: 21
-          hi: 37
+  - imports: {}
     stubs: {}
     program_scopes:
       test:
-        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"3\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
         consts: []
         structs: []
         mappings: []
@@ -26,7 +14,7 @@ outputs:
           - - main
             - annotations: []
               variant: AsyncTransition
-              identifier: "{\"id\":\"4\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":79,\\\"hi\\\":83}\"}"
+              identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":42,\\\"hi\\\":46}\"}"
               input: []
               output:
                 - Internal:
@@ -54,9 +42,9 @@ outputs:
                         location: ~
                         is_explicit: true
                     span:
-                      lo: 89
-                      hi: 148
-                    id: 5
+                      lo: 52
+                      hi: 124
+                    id: 3
               output_type:
                 Future:
                   inputs:
@@ -84,7 +72,7 @@ outputs:
                   - Definition:
                       declaration_type: Let
                       place:
-                        Identifier: "{\"id\":\"6\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":163,\\\"hi\\\":165}\"}"
+                        Identifier: "{\"id\":\"4\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":140,\\\"hi\\\":142}\"}"
                       type_:
                         Future:
                           inputs: []
@@ -93,21 +81,21 @@ outputs:
                       value:
                         Call:
                           function:
-                            Identifier: "{\"id\":\"8\",\"name\":\"add\",\"span\":\"{\\\"lo\\\":189,\\\"hi\\\":192}\"}"
+                            Identifier: "{\"id\":\"6\",\"name\":\"add\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
                           arguments: []
                           program: bye
                           span:
-                            lo: 180
-                            hi: 194
-                          id: 9
+                            lo: 159
+                            hi: 173
+                          id: 7
                       span:
-                        lo: 159
-                        hi: 194
-                      id: 10
+                        lo: 136
+                        hi: 173
+                      id: 8
                   - Definition:
                       declaration_type: Let
                       place:
-                        Identifier: "{\"id\":\"11\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":208,\\\"hi\\\":210}\"}"
+                        Identifier: "{\"id\":\"9\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":187,\\\"hi\\\":189}\"}"
                       type_:
                         Future:
                           inputs:
@@ -123,21 +111,21 @@ outputs:
                       value:
                         Call:
                           function:
-                            Identifier: "{\"id\":\"13\",\"name\":\"nested_fn\",\"span\":\"{\\\"lo\\\":255,\\\"hi\\\":264}\"}"
+                            Identifier: "{\"id\":\"11\",\"name\":\"nested_fn\",\"span\":\"{\\\"lo\\\":242,\\\"hi\\\":251}\"}"
                           arguments: []
                           program: hello
                           span:
-                            lo: 244
-                            hi: 266
-                          id: 14
+                            lo: 231
+                            hi: 253
+                          id: 12
                       span:
-                        lo: 204
-                        hi: 266
-                      id: 15
+                        lo: 183
+                        hi: 253
+                      id: 13
                   - Definition:
                       declaration_type: Let
                       place:
-                        Identifier: "{\"id\":\"16\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":280,\\\"hi\\\":282}\"}"
+                        Identifier: "{\"id\":\"14\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":267,\\\"hi\\\":269}\"}"
                       type_:
                         Future:
                           inputs:
@@ -163,75 +151,75 @@ outputs:
                       value:
                         Call:
                           function:
-                            Identifier: "{\"id\":\"17\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":346,\\\"hi\\\":359}\"}"
+                            Identifier: "{\"id\":\"15\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":360}\"}"
                           arguments:
                             - Literal:
                                 Integer:
                                   - U32
                                   - "1"
                                   - span:
-                                      lo: 360
-                                      hi: 364
-                                  - 18
+                                      lo: 361
+                                      hi: 365
+                                  - 16
                             - Literal:
                                 Integer:
                                   - U32
                                   - "1"
                                   - span:
-                                      lo: 366
-                                      hi: 370
-                                  - 19
-                            - Identifier: "{\"id\":\"20\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":372,\\\"hi\\\":374}\"}"
-                            - Identifier: "{\"id\":\"21\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":376,\\\"hi\\\":378}\"}"
+                                      lo: 367
+                                      hi: 371
+                                  - 17
+                            - Identifier: "{\"id\":\"18\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":373,\\\"hi\\\":375}\"}"
+                            - Identifier: "{\"id\":\"19\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":377,\\\"hi\\\":379}\"}"
                           program: test
                           span:
-                            lo: 346
-                            hi: 379
-                          id: 22
+                            lo: 347
+                            hi: 380
+                          id: 20
                       span:
-                        lo: 276
-                        hi: 379
-                      id: 23
+                        lo: 263
+                        hi: 380
+                      id: 21
                   - Return:
                       expression:
-                        Identifier: "{\"id\":\"24\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":396,\\\"hi\\\":398}\"}"
+                        Identifier: "{\"id\":\"22\",\"name\":\"f2\",\"span\":\"{\\\"lo\\\":397,\\\"hi\\\":399}\"}"
                       span:
-                        lo: 389
-                        hi: 399
-                      id: 25
+                        lo: 390
+                        hi: 400
+                      id: 23
                 span:
-                  lo: 149
-                  hi: 405
-                id: 26
+                  lo: 126
+                  hi: 406
+                id: 24
               span:
-                lo: 62
-                hi: 405
-              id: 27
+                lo: 25
+                hi: 406
+              id: 25
           - - finalize_main
             - annotations: []
               variant: AsyncFunction
-              identifier: "{\"id\":\"28\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":425,\\\"hi\\\":438}\"}"
+              identifier: "{\"id\":\"26\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":426,\\\"hi\\\":439}\"}"
               input:
                 - Internal:
-                    identifier: "{\"id\":\"29\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":439,\\\"hi\\\":440}\"}"
+                    identifier: "{\"id\":\"27\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":440,\\\"hi\\\":441}\"}"
                     mode: None
                     type_:
                       Integer: U32
                     span:
-                      lo: 439
-                      hi: 440
+                      lo: 440
+                      hi: 441
+                    id: 28
+                - Internal:
+                    identifier: "{\"id\":\"29\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":448,\\\"hi\\\":449}\"}"
+                    mode: None
+                    type_:
+                      Integer: U32
+                    span:
+                      lo: 448
+                      hi: 449
                     id: 30
                 - Internal:
-                    identifier: "{\"id\":\"31\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":447,\\\"hi\\\":448}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 447
-                      hi: 448
-                    id: 32
-                - Internal:
-                    identifier: "{\"id\":\"33\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":455,\\\"hi\\\":457}\"}"
+                    identifier: "{\"id\":\"31\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":456,\\\"hi\\\":458}\"}"
                     mode: None
                     type_:
                       Future:
@@ -239,11 +227,11 @@ outputs:
                         location: ~
                         is_explicit: true
                     span:
-                      lo: 455
-                      hi: 457
-                    id: 34
+                      lo: 456
+                      hi: 458
+                    id: 32
                 - Internal:
-                    identifier: "{\"id\":\"35\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":471,\\\"hi\\\":473}\"}"
+                    identifier: "{\"id\":\"33\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":474,\\\"hi\\\":476}\"}"
                     mode: None
                     type_:
                       Future:
@@ -258,9 +246,9 @@ outputs:
                         location: ~
                         is_explicit: true
                     span:
-                      lo: 471
-                      hi: 473
-                    id: 36
+                      lo: 474
+                      hi: 476
+                    id: 34
               output: []
               output_type: Unit
               block:
@@ -269,51 +257,51 @@ outputs:
                       expression:
                         Access:
                           AssociatedFunction:
-                            variant: "{\"id\":\"39\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
-                            name: "{\"id\":\"38\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":519,\\\"hi\\\":524}\"}"
+                            variant: "{\"id\":\"37\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
+                            name: "{\"id\":\"36\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":530,\\\"hi\\\":535}\"}"
                             arguments:
-                              - Identifier: "{\"id\":\"37\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":516,\\\"hi\\\":518}\"}"
+                              - Identifier: "{\"id\":\"35\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":527,\\\"hi\\\":529}\"}"
                             span:
-                              lo: 516
-                              hi: 526
-                            id: 40
+                              lo: 527
+                              hi: 537
+                            id: 38
                       span:
-                        lo: 516
-                        hi: 527
-                      id: 41
+                        lo: 527
+                        hi: 538
+                      id: 39
                   - Expression:
                       expression:
                         Access:
                           AssociatedFunction:
-                            variant: "{\"id\":\"44\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
-                            name: "{\"id\":\"43\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":539,\\\"hi\\\":544}\"}"
+                            variant: "{\"id\":\"42\",\"name\":\"Future\",\"span\":\"{\\\"lo\\\":0,\\\"hi\\\":0}\"}"
+                            name: "{\"id\":\"41\",\"name\":\"await\",\"span\":\"{\\\"lo\\\":550,\\\"hi\\\":555}\"}"
                             arguments:
-                              - Identifier: "{\"id\":\"42\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":536,\\\"hi\\\":538}\"}"
+                              - Identifier: "{\"id\":\"40\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":547,\\\"hi\\\":549}\"}"
                             span:
-                              lo: 536
-                              hi: 546
-                            id: 45
+                              lo: 547
+                              hi: 557
+                            id: 43
                       span:
-                        lo: 536
-                        hi: 547
-                      id: 46
+                        lo: 547
+                        hi: 558
+                      id: 44
                   - Assert:
                       variant:
                         AssertEq:
-                          - Identifier: "{\"id\":\"47\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":566,\\\"hi\\\":567}\"}"
-                          - Identifier: "{\"id\":\"48\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":568,\\\"hi\\\":569}\"}"
+                          - Identifier: "{\"id\":\"45\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":577,\\\"hi\\\":578}\"}"
+                          - Identifier: "{\"id\":\"46\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":579,\\\"hi\\\":580}\"}"
                       span:
-                        lo: 556
-                        hi: 565
-                      id: 49
+                        lo: 567
+                        hi: 576
+                      id: 47
                 span:
-                  lo: 506
-                  hi: 577
-                id: 50
+                  lo: 517
+                  hi: 588
+                id: 48
               span:
-                lo: 410
-                hi: 577
-              id: 51
+                lo: 411
+                hi: 588
+              id: 49
         span:
-          lo: 38
-          hi: 579
+          lo: 1
+          hi: 590

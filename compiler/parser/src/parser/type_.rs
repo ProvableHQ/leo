@@ -133,18 +133,16 @@ impl ParserContext<'_> {
         } else if self.token.token == Token::Future {
             // Parse the `Future` token.
             let span = self.expect(&Token::Future)?;
-            // Parse the angle bracket list.
+            // Parse the explicit future type, e.g. `Future<Fn(u32, u32)>`, `Future<Fn(u32, Future<Fn(u32, u32, u64)>)>` etc.
             if self.token.token == Token::Lt {
+                // Expect the sequence `<`, `Fn`.
+                self.expect(&Token::Lt)?;
+                self.expect(&Token::Fn)?;
+                // Parse the parenthesis list of function arguments.
                 let (types, _, full_span) =
-                    self.parse_angle_comma_list(Some(Token::Comma), |p| p.parse_type().map(Some))?;
-                match types.len() {
-                    0 => return Err(ParserError::future_must_have_at_least_one_element(span).into()),
-                    // `Future<()>` corresponds to explicitly specifying a `Future` type with no inputs.
-                    1 if matches!(types.first().unwrap().0, Type::Unit) => {
-                        return Ok((Type::Future(FutureType::new(vec![], None, true)), span + full_span));
-                    }
-                    _ => {}
-                }
+                    self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
+                // Expect the closing `>`.
+                self.expect(&Token::Gt)?;
                 Ok((
                     Type::Future(FutureType::new(types.into_iter().map(|t| t.0).collect(), None, true)),
                     span + full_span,

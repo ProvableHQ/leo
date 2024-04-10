@@ -11,8 +11,8 @@ program test_dep.aleo {
         val: u32,
     }
 
-    async transition main_dep(a:u32) -> (yeets, Future<u32, u32>) {
-        let f: Future<u32, u32> = finalize_main_dep(a, 1u32);
+    async transition main_dep(a:u32) -> (yeets, Future<Fn(u32, u32)>) {
+        let f: Future<Fn(u32, u32)> = finalize_main_dep(a, 1u32);
         let l: yeets = yeets {owner: self.caller, val: 1u32};
         return (l, f);
     }
@@ -22,8 +22,8 @@ program test_dep.aleo {
         let c:u32 = a + b;
     }
 
-    async transition main_dep_2(a:u32) -> (yeets, Future<()>) {
-        let f: Future<()> = finalize_main_dep_2();
+    async transition main_dep_2(a:u32) -> (yeets, Future<Fn()>) {
+        let f: Future<Fn()> = finalize_main_dep_2();
         let l: yeets = yeets {owner: self.caller, val: 1u32};
         return (l, f);
     }
@@ -91,7 +91,7 @@ program wrapper.aleo {
 import wrapper.aleo;
 import test_dep.aleo;
 program big_wrapper.aleo {
-    async transition main(public a: u32, b: u32) -> (u32, Future<Future<Future<Future<u32,u32>,Future<u32,u32>,u32>,Future<Future<u32,u32>,Future<u32,u32>,u32>,Future<Future<u32,u32>,Future<u32,u32>,u32>>>){
+    async transition main(public a: u32, b: u32) -> (u32, Future<Fn(Future<Fn(Future<Fn(Future<Fn(u32,u32)>,Future<Fn(u32,u32)>,u32)>,Future<Fn(Future<Fn(u32,u32)>,Future<Fn(u32,u32)>,u32)>,Future<Fn(Future<Fn(u32,u32)>,Future<Fn(u32,u32)>,u32)>)>)>){
         let (val, f): (u32, Future) = wrapper.aleo/main(10u32, 10u32);
         let f2:Future = finalize_main(f);
         return (f2.0.0.0.0, f2);

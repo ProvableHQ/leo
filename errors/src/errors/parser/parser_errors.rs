@@ -342,11 +342,4 @@ create_messages!(
         msg: format!("Cannot create an external record. Records can only be created in the program that they are defined in."),
         help: None,
     }
-
-    @formatted
-    future_must_have_at_least_one_element {
-        args: (),
-        msg: "Future type must have at least one element.".to_string(),
-        help: Some("Write `Future<()>` to explicitly type a future with no inputs.".to_string()),
-    }
 );

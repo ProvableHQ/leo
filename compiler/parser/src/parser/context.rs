@@ -41,8 +41,6 @@ pub(crate) struct ParserContext<'a> {
     pub(crate) disallow_struct_construction: bool,
     /// The name of the program being parsed.
     pub(crate) program_name: Option<Symbol>,
-    /// Whether traversing an ambiguous Shr token.
-    pub in_angle: bool,
 }
 
 /// Dummy span used to appease borrow checker.
@@ -65,7 +63,6 @@ impl<'a> ParserContext<'a> {
             token,
             tokens,
             program_name: None,
-            in_angle: false,
         };
         p.bump();
         p
@@ -249,51 +246,6 @@ impl<'a> ParserContext<'a> {
         f: impl FnMut(&mut Self) -> Result<Option<T>>,
     ) -> Result<(Vec<T>, bool, Span)> {
         self.parse_list(Delimiter::Bracket, Some(Token::Comma), f)
-    }
-
-    /// Parse a list separated by `,` and delimited by angle brackets.
-    /// Since the `>>` token is ambiguous, we need to create special state checks.
-    pub(super) fn parse_angle_comma_list<T>(
-        &mut self,
-        sep: Option<Token>,
-        mut f: impl FnMut(&mut Self) -> Result<Option<T>>,
-    ) -> Result<(Vec<T>, bool, Span)> {
-        let (open, close) = Delimiter::AngleBracket.open_close_pair();
-        let mut list = Vec::new();
-        let mut trailing = false;
-
-        // Parse opening delimiter.
-        let open_span = self.expect(&open)?;
-
-        while !self.check(&close) && !self.check(&Token::Shr) {
-            // Parse the element. We allow inner parser recovery through the `Option`.
-            if let Some(elem) = f(self)? {
-                list.push(elem);
-            }
-            // Parse the separator, if any.
-            if sep.as_ref().filter(|sep| !self.eat(sep)).is_some() {
-                trailing = false;
-                break;
-            }
-
-            trailing = true;
-        }
-
-        if self.token.token == Token::Shr {
-            return if self.in_angle {
-                self.in_angle = false;
-                let end_span = self.expect(&Token::Shr)?;
-                Ok((list, trailing, open_span + end_span))
-            } else {
-                self.in_angle = true;
-                Ok((list, trailing, open_span + self.prev_token.span))
-            };
-        }
-
-        // Parse closing delimiter.
-        let span = open_span + self.expect(&close)?;
-
-        Ok((list, trailing, span))
     }
 
     /// Returns true if the current token is `(`.

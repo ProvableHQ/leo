@@ -118,6 +118,7 @@ pub enum Token {
     Const,
     Constant,
     Else,
+    Fn,
     For,
     Function,
     Future,
@@ -163,6 +164,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Else,
     Token::False,
     Token::Field,
+    Token::Fn,
     Token::For,
     Token::Function,
     Token::Future,
@@ -352,6 +354,7 @@ impl fmt::Display for Token {
             Const => write!(f, "const"),
             Constant => write!(f, "constant"),
             Else => write!(f, "else"),
+            Fn => write!(f, "Fn"),
             For => write!(f, "for"),
             Function => write!(f, "function"),
             Future => write!(f, "Future"),
@@ -384,8 +387,6 @@ pub enum Delimiter {
     Brace,
     /// `[ ... ]`
     Bracket,
-    /// `< ... >`
-    AngleBracket,
 }
 
 impl Delimiter {
@@ -395,7 +396,6 @@ impl Delimiter {
             Self::Parenthesis => (Token::LeftParen, Token::RightParen),
             Self::Brace => (Token::LeftCurly, Token::RightCurly),
             Self::Bracket => (Token::LeftSquare, Token::RightSquare),
-            Self::AngleBracket => (Token::Lt, Token::Gt),
         }
     }
 }

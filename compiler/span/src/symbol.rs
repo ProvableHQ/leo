@@ -215,6 +215,7 @@ symbols! {
     i64,
     i128,
     Future,
+    Fn, 
     record,
     scalar,
     signature,
