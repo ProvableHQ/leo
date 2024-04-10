@@ -68,21 +68,33 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
+        // Lookup the variable in the symbol table and retrieve its type.
         let var_type = if let Some(var) =
             self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
         {
+            // If the variable exists, then check that it is not a constant.
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                _ => {}
+                VariableType::Mut | VariableType::Input(_) => {}
+            }
+
+            // If the variable exists and its in a finalize, then check that it is in the current scope.
+            if self.is_finalize
+                && self
+                    .symbol_table
+                    .borrow()
+                    .lookup_variable_in_current_scope(Location::new(None, var_name.name))
+                    .is_none()
+            {
+                self.emit_err(TypeCheckerError::finalize_cannot_assign_to_outer_scope(var_name, var.span));
             }
 
             Some(var.type_.clone())
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-
             None
         };
 
