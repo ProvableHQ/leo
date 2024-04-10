@@ -181,6 +181,11 @@ impl SymbolTable {
         }
     }
 
+    /// Attempts to lookup a variable in the current scope.
+    pub fn lookup_variable_in_current_scope(&self, location: Location) -> Option<&VariableSymbol> {
+        self.variables.get(&location)
+    }
+
     /// Returns the scope associated with `index`, if it exists in the symbol table.
     pub fn lookup_scope_by_index(&self, index: usize) -> Option<&RefCell<Self>> {
         self.scopes.get(index)
