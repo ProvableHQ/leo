@@ -12,16 +12,16 @@ program test.aleo {
         return a + b;
     }
     
-    finalize bar(a: u8, b: u8) -> u8 {
+    async function finalize_bar(a: u8, b: u8) -> u8 {
         return a + b;
     }
     
     
-    function mint_public(receiver: address, amount: u64) {
-        return then finalize(receiver, amount);
+    function mint_public(receiver: address, amount: u64) -> Future {
+        return finalize_mint(receiver, amount);
     }
     
-    finalize mint_public(receiver: address, amount: u64) {
+    async function finalize_mint(receiver: address, amount: u64) {
         Mapping::set(account, receiver, amount);
     }
     

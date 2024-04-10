@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370031]: `finalize` statements are deprecated.\n    --> compiler-test:15:9\n     |\n  15 |         finalize(addr);\n     |         ^^^^^^^^\n     |\n     = Use `return <expr> then finalize(<args>)` instead."
+  - "Error [EPAR0370009]: unexpected string: expected 'identifier', found ':'\n    --> compiler-test:26:53\n     |\n  26 |     async function finalize_write_in_finalize(public: addr: address, public amount: u128) {\n     |                                                     ^"

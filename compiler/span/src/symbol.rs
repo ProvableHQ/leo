@@ -215,7 +215,7 @@ symbols! {
     i64,
     i128,
     Future,
-    Fn, 
+    Fn,
     record,
     scalar,
     signature,
@@ -260,7 +260,6 @@ symbols! {
     SelfUpper: "Self",
     signer,
     Star: "*",
-    then,
     transition,
     Type: "type",
 

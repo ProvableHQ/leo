@@ -1323,16 +1323,17 @@ impl<'a> TypeChecker<'a> {
             }
             // Check that the input parameter is not a record.
             else if let Type::Composite(struct_) = input_var.type_() {
-                // Note that this unwrap is safe, as the type is defined.
-                if !function.variant.is_transition()
-                    && self
-                        .symbol_table
-                        .borrow()
-                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                        .unwrap()
-                        .is_record
-                {
-                    self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
+                // Throw error for undefined type.
+                if !function.variant.is_transition() {
+                    if let Some(elem) =
+                        self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
+                    {
+                        if elem.is_record {
+                            self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
+                        }
+                    } else {
+                        self.emit_err(TypeCheckerError::undefined_type(struct_.id, input_var.span()));
+                    }
                 }
             }
 

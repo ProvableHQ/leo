@@ -139,8 +139,7 @@ impl ParserContext<'_> {
                 self.expect(&Token::Lt)?;
                 self.expect(&Token::Fn)?;
                 // Parse the parenthesis list of function arguments.
-                let (types, _, full_span) =
-                    self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
+                let (types, _, full_span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
                 // Expect the closing `>`.
                 self.expect(&Token::Gt)?;
                 Ok((

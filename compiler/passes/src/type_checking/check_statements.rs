@@ -388,10 +388,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
-        // Cannot return anything from finalize.
-        if self.scope_state.variant == Some(Variant::AsyncFunction) {
-            self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(input.span()));
-        }
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
         let parent = self.scope_state.function.unwrap();

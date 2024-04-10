@@ -283,7 +283,7 @@ create_messages!(
         msg: format!("Standard functions cannot have modes associated with their inputs."),
         help: Some("Consider removing the mode or using the keyword `transition` instead of `function`.".to_string()),
     }
-    
+
     @formatted
     async_function_input_cannot_be_private {
         args: (),
@@ -852,7 +852,6 @@ create_messages!(
         msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
         help: None,
     }
-
     @formatted
     cannot_modify_external_mapping {
         args: (operation: impl Display),

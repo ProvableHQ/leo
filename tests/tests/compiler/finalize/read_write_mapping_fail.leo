@@ -15,18 +15,18 @@ program test.aleo {
     }
     
     function read_in_finalize(public addr: address) {
-        finalize(addr);
+        return finalize_read_in_finalize(addr);
     }
     
-    finalize read_in_finalize(public addr: address) -> public u128 {
+    async function finalize_read_in_finalize(public addr: address) -> public u128 {
         return balances[addr];
     }
     
     function write_in_finalize(public addr: address, public amount: u128) {
-        return then finalize(addr, amount);
+        return finalize_write_in_finalize(addr, amount);
     }
     
-    finalize write_in_finalize(public: addr: address, public amount: u128) {
+    async function finalize_write_in_finalize(public: addr: address, public amount: u128) {
         balances[addr] = amount;
     }
 }

@@ -24,11 +24,11 @@ program test.aleo {
     const SMALL:u64 = 0_1u64;
     mapping counter: address => u64;
 
-    transition dubble() {
-        return then finalize(self.caller);
+    async transition dubble() -> Future {
+        return finalize_dubble(self.caller);
     }
 
-    finalize dubble(addr: address) {
+    async function finalize_dubble(addr: address) {
         const BIG: u64 = 234u64;
         let current_value: u64 = Mapping::get_or_use(counter, addr, 0_0u64 + BIG + SMALL);
         Mapping::set(counter, addr, current_value + 1__u64);
@@ -36,11 +36,11 @@ program test.aleo {
         Mapping::set(counter, addr, current_value + 0___1u64);
     }
 
-    transition unsafe_increment() {
-        return then finalize(self.caller);
+    async transition unsafe_increment() -> Future {
+        return finalize_unsafe_increment(self.caller);
     }
 
-    finalize unsafe_increment(addr: address) {
+    async function finalize_unsafe_increment(addr: address) {
         let current_value: u64 = Mapping::get(counter, addr);
         for i:u64 in SMALL..10u64 {
             current_value = current_value + 1u64;

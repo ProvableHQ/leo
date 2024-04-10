@@ -173,8 +173,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         Future(_) => {
                             // Get the fully inferred type.
                             if let Some(Type::Future(inferred_f)) = self.type_table.get(&access.tuple.id()) {
-                                dbg!(inferred_f.clone());
-                                dbg!(access.clone());
                                 // Make sure in range.
                                 if access.index.value() >= inferred_f.inputs().len() {
                                     self.emit_err(TypeCheckerError::invalid_future_access(

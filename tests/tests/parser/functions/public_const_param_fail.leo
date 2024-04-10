@@ -8,6 +8,6 @@ program test.aleo {
         return 0;
     }
     
-    function x(public constant x: u32, y: i32) {
+    async function x(public constant x: u32, y: i32) {
         return 0;
     }}
