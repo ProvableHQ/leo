@@ -26,8 +26,5 @@ pub use associated_function_access::*;
 mod member_access;
 pub use member_access::*;
 
-pub mod method_call;
-pub use method_call::*;
-
 mod tuple_access;
 pub use tuple_access::*;

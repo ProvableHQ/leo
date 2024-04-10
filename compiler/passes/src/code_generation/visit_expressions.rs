@@ -32,7 +32,6 @@ use leo_ast::{
     Location,
     LocatorExpression,
     MemberAccess,
-    MethodCall,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -311,11 +310,6 @@ impl<'a> CodeGenerator<'a> {
         (member_access, String::new())
     }
 
-    // f.await() -> await r3;
-    fn visit_method_call(&mut self, _input: &'a MethodCall) -> (String, String) {
-        panic!("Method calls should not appear at this phase of compilation.");
-    }
-
     // group::GEN -> group::GEN
     fn visit_associated_constant(&mut self, input: &'a AssociatedConstant) -> (String, String) {
         (format!("{input}"), String::new())
@@ -501,7 +495,6 @@ impl<'a> CodeGenerator<'a> {
         match input {
             AccessExpression::Array(array) => self.visit_array_access(array),
             AccessExpression::Member(access) => self.visit_member_access(access),
-            AccessExpression::MethodCall(call) => self.visit_method_call(call),
             AccessExpression::AssociatedConstant(constant) => self.visit_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.visit_associated_function(function),
             AccessExpression::Tuple(_) => {

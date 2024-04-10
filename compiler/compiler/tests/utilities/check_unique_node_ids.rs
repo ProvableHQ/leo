@@ -86,14 +86,6 @@ impl<'a> ExpressionVisitor<'a> for CheckUniqueNodeIds<'a> {
                 self.visit_identifier(name, &Default::default());
                 self.check(*id);
             }
-            AccessExpression::MethodCall(MethodCall { receiver, name, arguments, id, .. }) => {
-                self.visit_expression(receiver, &Default::default());
-                self.visit_identifier(name, &Default::default());
-                for argument in arguments {
-                    self.visit_expression(argument, &Default::default());
-                }
-                self.check(*id);
-            }
             AccessExpression::Tuple(TupleAccess { tuple, id, .. }) => {
                 self.visit_expression(tuple, &Default::default());
                 self.check(*id);

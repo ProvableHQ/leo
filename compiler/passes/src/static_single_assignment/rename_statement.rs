@@ -33,7 +33,6 @@ use leo_ast::{
     ExpressionStatement,
     Identifier,
     IterationStatement,
-    MethodCall,
     Node,
     ReturnStatement,
     Statement,
@@ -365,23 +364,6 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
                         arguments,
                         span: associated_function.span,
                         id: associated_function.id,
-                    })),
-                    span: input.span,
-                    id: input.id,
-                }))
-            }
-            Expression::Access(AccessExpression::MethodCall(method_call)) => {
-                // Process the arguments.
-                let arguments = process_arguments(method_call.arguments);
-                // Create and accumulate the new expression statement.
-                // Note that we do not create a new assignment for the method call; this is necessary for correct code generation.
-                statements.push(Statement::Expression(ExpressionStatement {
-                    expression: Expression::Access(AccessExpression::MethodCall(MethodCall {
-                        receiver: method_call.receiver,
-                        arguments,
-                        span: method_call.span,
-                        id: method_call.id,
-                        name: method_call.name,
                     })),
                     span: input.span,
                     id: input.id,

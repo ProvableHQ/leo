@@ -49,7 +49,6 @@ pub trait ExpressionReconstructor {
             AccessExpression::AssociatedConstant(constant) => self.reconstruct_associated_constant(constant),
             AccessExpression::AssociatedFunction(function) => self.reconstruct_associated_function(function),
             AccessExpression::Member(member) => self.reconstruct_member_access(member),
-            AccessExpression::MethodCall(call) => self.reconstruct_method_call(call),
             AccessExpression::Tuple(tuple) => self.reconstruct_tuple_access(tuple),
         }
     }
@@ -98,19 +97,6 @@ pub trait ExpressionReconstructor {
                 name: input.name,
                 span: input.span,
                 id: input.id,
-            })),
-            Default::default(),
-        )
-    }
-
-    fn reconstruct_method_call(&mut self, input: MethodCall) -> (Expression, Self::AdditionalOutput) {
-        (
-            Expression::Access(AccessExpression::MethodCall(MethodCall {
-                receiver: input.receiver,
-                arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
-                span: input.span,
-                id: input.id,
-                name: input.name,
             })),
             Default::default(),
         )

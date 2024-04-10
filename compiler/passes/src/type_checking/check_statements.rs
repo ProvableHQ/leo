@@ -297,9 +297,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Expression statements can only be function calls.
         if !matches!(
             input.expression,
-            Expression::Call(_)
-                | Expression::Access(AccessExpression::AssociatedFunction(_))
-                | Expression::Access(AccessExpression::MethodCall(_))
+            Expression::Call(_) | Expression::Access(AccessExpression::AssociatedFunction(_))
         ) {
             self.emit_err(TypeCheckerError::expression_statement_must_be_function_call(input.span()));
         } else {

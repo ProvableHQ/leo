@@ -139,7 +139,6 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     self.emit_err(TypeCheckerError::invalid_core_function_call(access, access.span()));
                 }
             }
-            AccessExpression::MethodCall(_) => panic!("Method calls should not appear in this area of the code."),
             AccessExpression::Tuple(access) => {
                 if let Some(type_) = self.visit_expression(&access.tuple, &None) {
                     match type_ {
