@@ -96,7 +96,9 @@ impl Type {
             (Type::Composite(left), Type::Composite(right)) => {
                 left.id.name == right.id.name && left.program == right.program
             }
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => {
+            (Type::Future(left), Type::Future(right))
+                if left.inputs.len() == right.inputs.len() && left.location.is_some() && right.location.is_some() =>
+            {
                 left.location == right.location
                     && left
                         .inputs()
