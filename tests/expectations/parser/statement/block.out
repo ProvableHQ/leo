@@ -20,7 +20,6 @@ outputs:
                       lo: 9
                       hi: 12
                   - 0
-            finalize_arguments: ~
             span:
               lo: 2
               hi: 13
@@ -55,7 +54,6 @@ outputs:
                             lo: 11
                             hi: 14
                         - 0
-                  finalize_arguments: ~
                   span:
                     lo: 4
                     hi: 15
@@ -85,7 +83,6 @@ outputs:
                               lo: 16
                               hi: 19
                           - 1
-                    finalize_arguments: ~
                     span:
                       lo: 9
                       hi: 20

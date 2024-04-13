@@ -57,7 +57,6 @@ outputs:
                                 lo: 77
                                 hi: 81
                             - 8
-                      finalize_arguments: ~
                       span:
                         lo: 70
                         hi: 82
@@ -66,7 +65,6 @@ outputs:
                   lo: 60
                   hi: 88
                 id: 10
-              finalize: ~
               span:
                 lo: 26
                 hi: 88

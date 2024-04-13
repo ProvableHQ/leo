@@ -23,8 +23,7 @@ outputs:
         functions:
           - - main
             - annotations: []
-              is_async: true
-              variant: Transition
+              variant: AsyncTransition
               identifier: "{\"id\":\"4\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":76}\"}"
               input: []
               output:
@@ -33,6 +32,8 @@ outputs:
                     type_:
                       Future:
                         inputs: []
+                        location: ~
+                        is_explicit: false
                     span:
                       lo: 82
                       hi: 88
@@ -40,6 +41,8 @@ outputs:
               output_type:
                 Future:
                   inputs: []
+                  location: ~
+                  is_explicit: false
               block:
                 statements:
                   - Definition:
@@ -49,6 +52,8 @@ outputs:
                       type_:
                         Future:
                           inputs: []
+                          location: ~
+                          is_explicit: false
                       value:
                         Call:
                           function:
@@ -96,8 +101,7 @@ outputs:
               id: 15
           - - finalize_main
             - annotations: []
-              is_async: true
-              variant: Standard
+              variant: AsyncFunction
               identifier: "{\"id\":\"16\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":186,\\\"hi\\\":199}\"}"
               input:
                 - Internal:
@@ -124,6 +128,8 @@ outputs:
                     type_:
                       Future:
                         inputs: []
+                        location: ~
+                        is_explicit: false
                     span:
                       lo: 217
                       hi: 223
@@ -131,6 +137,8 @@ outputs:
               output_type:
                 Future:
                   inputs: []
+                  location: ~
+                  is_explicit: false
               block:
                 statements:
                   - Expression:

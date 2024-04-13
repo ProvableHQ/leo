@@ -13,7 +13,7 @@ outputs:
         functions:
           - - main
             - annotations: []
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
               input: []
               output:
@@ -43,8 +43,6 @@ outputs:
                                 - 5
                           op: Add
                           id: 6
-                      finalize_arguments: ~
                       id: 7
                 id: 8
-              finalize: ~
               id: 9

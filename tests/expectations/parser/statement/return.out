@@ -5,7 +5,6 @@ outputs:
   - Return:
       expression:
         Identifier: "{\"id\":\"0\",\"name\":\"expr\",\"span\":\"{\\\"lo\\\":7,\\\"hi\\\":11}\"}"
-      finalize_arguments: ~
       span:
         lo: 0
         hi: 12
@@ -20,7 +19,6 @@ outputs:
                 lo: 7
                 hi: 10
             - 0
-      finalize_arguments: ~
       span:
         lo: 0
         hi: 11

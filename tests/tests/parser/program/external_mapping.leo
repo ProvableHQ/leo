@@ -6,7 +6,7 @@ import hello.aleo;
 program test.aleo {
     async transition main() {
         let x:u8 = 1u8;
-        return then finalize();
+        return;
     }
     async function finalize_main() {
         Mapping::set(hello.aleo/counter, addr, current_value + 1u64);
