@@ -87,9 +87,9 @@ impl Composite {
                         mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
                         identifier: Identifier::from(id),
                         type_: match entry {
-                            Public(t) => Type::from_snarkvm(t, Some(external_program)),
-                            Private(t) => Type::from_snarkvm(t, Some(external_program)),
-                            Constant(t) => Type::from_snarkvm(t, Some(external_program)),
+                            Public(t) => Type::from_snarkvm(t, None),
+                            Private(t) => Type::from_snarkvm(t, None),
+                            Constant(t) => Type::from_snarkvm(t, None),
                         },
                         span: Default::default(),
                         id: Default::default(),

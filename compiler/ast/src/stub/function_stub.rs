@@ -171,7 +171,7 @@ impl FunctionStub {
                         span: Default::default(),
                         id: Default::default(),
                         type_: Composite(CompositeType {
-                            id: Identifier::from(loc.name()),
+                            id: Identifier::from(loc.resource()),
                             program: Some(ProgramId::from(loc.program_id()).name.name),
                         }),
                     }]
@@ -242,7 +242,7 @@ impl FunctionStub {
                 .collect_vec(),
             output: outputs,
             output_type,
-            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f, program)),
+            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f)),
             span: Default::default(),
             id: Default::default(),
         }
