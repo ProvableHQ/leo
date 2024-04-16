@@ -29,16 +29,16 @@ outputs:
           bytecode: 5a1ca0038e83880d6d2cd5413ca4e8ec01e2622d635d6d8b2cb64463cd5c4817
           errors: ""
           warnings: ""
-        - initial_symbol_table: e80a77083f229ce01b84834841c3e7d330ad78706aee47f6fc42141cf7f77cec
-          type_checked_symbol_table: 5958f63685c7956cdc25d43d19b292ef961f29bf0ec690e8b73afc1c47fdda7c
-          unrolled_symbol_table: 5958f63685c7956cdc25d43d19b292ef961f29bf0ec690e8b73afc1c47fdda7c
-          initial_ast: 5ca5cf48edf7f39b3354b62a6734f405deddccdd8410aa08daed5658c9a79b53
-          unrolled_ast: 36b9c5c7c81ec9def1ef719adadced944756ddea840d29686cb47c0cfa1e81c5
-          ssa_ast: dd9bf2ce3d140495623090b88a85d5a3c574218e79952ffeb859ec8d34d538de
-          flattened_ast: 88c2918ebbf795fdb8a45c751abcec24026aeaecbac32b36e83b5e7bc19bb366
-          destructured_ast: ee0c8933257d1577e4a6bd78eda5c989a9f02df7603949407a0f71a53a66301a
-          inlined_ast: ee0c8933257d1577e4a6bd78eda5c989a9f02df7603949407a0f71a53a66301a
-          dce_ast: ee0c8933257d1577e4a6bd78eda5c989a9f02df7603949407a0f71a53a66301a
-          bytecode: 641b261d2641bab7d3bc2b54ddbaf507988552b5488bd1d33a88de17edc33d42
+        - initial_symbol_table: 79d90634b478abc3e148c20ff90bfe9c0083d101f48d1c4d94afb79f64942644
+          type_checked_symbol_table: 9d247b6c68aaabb4dc45b63453a743c1749bd8aaa219ab0496423d3988a37711
+          unrolled_symbol_table: 9d247b6c68aaabb4dc45b63453a743c1749bd8aaa219ab0496423d3988a37711
+          initial_ast: 070bd43d4107a130483d632bc8165a334086e1438d5e1fc0e8b654bab1d4685e
+          unrolled_ast: 81d58c4b860d8c17a4ebb26e34d43e5290c621494deccbf942e382e5d01366c1
+          ssa_ast: b9e6f20c75176b67237fe22a4e443a785935dfea77b78312618e04bc7fc90980
+          flattened_ast: 8fc36264012c04ecd01716682783ab63576a1681e3aef8e5d1c9e6725e784239
+          destructured_ast: 1d3a771916a7d4db86a78a83d97cda890277498c5a8b9a5b593c1f1cc3bf6685
+          inlined_ast: 1d3a771916a7d4db86a78a83d97cda890277498c5a8b9a5b593c1f1cc3bf6685
+          dce_ast: dc6d50ca5757e38de65b4d1e1dfd173a9ee56d423c417bbd813205369790ce98
+          bytecode: 81e7b663dbb9d60c89b80b448c71ada9bdc7a93fac808bd8d1b6ca3ab053f914
           errors: ""
           warnings: ""

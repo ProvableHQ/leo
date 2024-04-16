@@ -75,8 +75,8 @@ program grandparent.aleo {
         return a;
     }
 
-    ///transition omega_wrapper() -> (Foo, child.aleo/Boo, parent.aleo/BooHoo, Woo) {
-    ///    let (f, b, bh, w): (Foo, child.aleo/Boo, parent.aleo/BooHoo, Woo) = parent.aleo/create_another_wrapper();
-    ///    return parent.aleo/create_another_wrapper();
-    ///}
+    transition omega_wrapper() -> (Foo, child.aleo/Boo, parent.aleo/BooHoo, Woo) {
+        let (f, b, bh, w): (Foo, child.aleo/Boo, parent.aleo/BooHoo, Woo) = parent.aleo/create_another_wrapper();
+        return parent.aleo/create_another_wrapper();
+    }
 }
