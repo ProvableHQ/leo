@@ -777,9 +777,9 @@ create_messages!(
     }
 
     @formatted
-    finalize_cannot_assign_to_outer_scope {
+    finalize_cannot_assign_outside_conditional {
         args: (variable: impl Display),
-        msg: format!("Cannot re-assign to `{variable}` in an outer scope in a finalize block."),
+        msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in a finalize block."),
         help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in finalize blocks.".to_string()),
     }
 );

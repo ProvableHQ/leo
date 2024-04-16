@@ -16,7 +16,7 @@
 
 use crate::Flattener;
 
-use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, ProgramScope, Statement, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
     /// Flattens a program scope.
