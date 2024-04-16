@@ -30,11 +30,13 @@ pub struct Destructurer<'a> {
     pub(crate) assigner: &'a Assigner,
     /// A mapping between variables and flattened tuple expressions.
     pub(crate) tuples: IndexMap<Symbol, TupleExpression>,
+    /// Whether or not we are currently traversing a finalize block.
+    pub(crate) is_finalize: bool,
 }
 
 impl<'a> Destructurer<'a> {
     pub(crate) fn new(type_table: &'a TypeTable, node_builder: &'a NodeBuilder, assigner: &'a Assigner) -> Self {
-        Self { type_table, node_builder, assigner, tuples: IndexMap::new() }
+        Self { type_table, node_builder, assigner, tuples: IndexMap::new(), is_finalize: false }
     }
 
     /// A wrapper around `assigner.simple_assign_statement` that tracks the type of the lhs.
