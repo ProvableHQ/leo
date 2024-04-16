@@ -36,7 +36,8 @@ impl<'a> Pass for TypeChecker<'a> {
         let mut visitor = TypeChecker::new(st, tt, handler);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)?;
-
+        // Remove unused structs from the struct graph.
+        visitor.struct_graph.retain_nodes(&visitor.used_structs);
         Ok((visitor.symbol_table.take(), visitor.struct_graph, visitor.call_graph))
     }
 }
