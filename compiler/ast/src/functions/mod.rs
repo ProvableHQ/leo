@@ -23,9 +23,6 @@ pub use core_function::*;
 pub mod variant;
 pub use variant::*;
 
-pub mod external;
-pub use external::*;
-
 pub mod finalize;
 pub use finalize::*;
 
@@ -91,16 +88,10 @@ impl Function {
         span: Span,
         id: NodeID,
     ) -> Self {
-        // Determine the output type of the function
-        let get_output_type = |output: &Output| match &output {
-            Output::Internal(output) => output.type_.clone(),
-            Output::External(output) => output.type_(),
-        };
-
         let output_type = match output.len() {
             0 => Type::Unit,
-            1 => get_output_type(&output[0]),
-            _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
+            1 => output[0].type_.clone(),
+            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
         Function { annotations, variant, identifier, input, output, output_type, block, finalize, span, id }
