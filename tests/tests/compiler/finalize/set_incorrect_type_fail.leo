@@ -12,11 +12,11 @@ program test.aleo {
     mapping amounts: address => u128;
     mapping tokens: address => Token;
     
-    transition decrease_self(amount: u128) {
-        return then finalize(self.caller, amount);
+    async transition decrease_self(amount: u128) -> Future {
+        return finalize_decrease_self(self.caller, amount);
     }
     
-    finalize decrease_self(addr: address, amount: u128) {
+    async function finalize_decrease_self(addr: address, amount: u128) {
         Mapping::set(tokens, addr, amount);
         tokens.set(addr, amount);
         Mapping::set(amounts, 1u8, amount);

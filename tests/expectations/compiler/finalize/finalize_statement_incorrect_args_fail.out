@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ETYC0372042]: `finalize` expected `2` args, but got `3`\n    --> compiler-test:8:9\n     |\n   8 |         return then finalize(receiver, amount, amount);\n     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+  - "Error [ETYC0372006]: Call expected `2` args, but got `3`\n    --> compiler-test:8:16\n     |\n   8 |         return finalize_mint_public(receiver, amount, amount);\n     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"

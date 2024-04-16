@@ -14,17 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, TypeChecker, VariableSymbol, VariableType};
+use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
 use itertools::Itertools;
 
-use leo_ast::*;
+use leo_ast::{
+    Type::{Future, Tuple},
+    *,
+};
 use leo_errors::TypeCheckerError;
-use leo_span::{Span, Symbol};
 
 impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
-        if self.has_return {
+        if self.scope_state.has_return {
             self.emit_err(TypeCheckerError::unreachable_code_after_return(input.span()));
             return;
         }
@@ -78,6 +80,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                 }
                 _ => {}
             }
+            // Prohibit reassignment of futures.
+            if let Type::Future(_) = var.type_ {
+                self.emit_err(TypeCheckerError::cannot_reassign_future_variable(var_name, var.span));
+            }
 
             Some(var.type_.clone())
         } else {
@@ -107,26 +113,34 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let mut then_block_has_return = false;
         let mut otherwise_block_has_return = false;
 
-        let mut then_block_has_finalize = false;
-        let mut otherwise_block_has_finalize = false;
-
         // Set the `has_return` flag for the then-block.
-        let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
-        // Set the `has_finalize` flag for the then-block.
-        let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
+        let previous_has_return = core::mem::replace(&mut self.scope_state.has_return, then_block_has_return);
+        // Set the `is_conditional` flag for the conditional block.
+        let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
+        // Create scope for checking awaits in `then` branch of conditional.
+        let current_bst_nodes: Vec<ConditionalTreeNode> = match self
+            .await_checker
+            .create_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), input.span)
+        {
+            Ok(nodes) => nodes,
+            Err(warn) => return self.emit_warning(warn),
+        };
+
+        // Visit block.
         self.visit_block(&input.then);
 
         // Store the `has_return` flag for the then-block.
-        then_block_has_return = self.has_return;
-        // Store the `has_finalize` flag for the then-block.
-        then_block_has_finalize = self.has_finalize;
+        then_block_has_return = self.scope_state.has_return;
+
+        // Exit scope for checking awaits in `then` branch of conditional.
+        let saved_paths = self
+            .await_checker
+            .exit_then_scope(self.scope_state.variant == Some(Variant::AsyncFunction), current_bst_nodes);
 
         if let Some(otherwise) = &input.otherwise {
             // Set the `has_return` flag for the otherwise-block.
-            self.has_return = otherwise_block_has_return;
-            // Set the `has_finalize` flag for the otherwise-block.
-            self.has_finalize = otherwise_block_has_finalize;
+            self.scope_state.has_return = otherwise_block_has_return;
 
             match &**otherwise {
                 Statement::Block(stmt) => {
@@ -138,15 +152,16 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
 
             // Store the `has_return` flag for the otherwise-block.
-            otherwise_block_has_return = self.has_return;
-            // Store the `has_finalize` flag for the otherwise-block.
-            otherwise_block_has_finalize = self.has_finalize;
+            otherwise_block_has_return = self.scope_state.has_return;
         }
 
+        // Update the set of all possible BST paths.
+        self.await_checker.exit_statement_scope(self.scope_state.variant == Some(Variant::AsyncFunction), saved_paths);
+
         // Restore the previous `has_return` flag.
-        self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
-        // Restore the previous `has_finalize` flag.
-        self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
+        self.scope_state.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
+        // Restore the previous `is_conditional` flag.
+        self.scope_state.is_conditional = previous_is_conditional;
     }
 
     fn visit_console(&mut self, _: &'a ConsoleStatement) {
@@ -239,26 +254,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check the expression on the right-hand side.
-        self.visit_expression(&input.value, &Some(input.type_.clone()));
-
-        // TODO: Dedup with unrolling pass.
-        // Helper to insert the variables into the symbol table.
-        let insert_variable = |symbol: Symbol, type_: Type, span: Span| {
-            if let Err(err) =
-                self.symbol_table.borrow_mut().insert_variable(Location::new(None, symbol), VariableSymbol {
-                    type_,
-                    span,
-                    declaration: VariableType::Mut,
-                })
-            {
-                self.handler.emit_err(err);
-            }
-        };
+        let inferred_type = self.visit_expression(&input.value, &Some(input.type_.clone()));
 
         // Insert the variables into the symbol table.
         match &input.place {
             Expression::Identifier(identifier) => {
-                insert_variable(identifier.name, input.type_.clone(), identifier.span)
+                self.insert_variable(inferred_type.clone(), identifier, input.type_.clone(), 0, identifier.span)
             }
             Expression::Tuple(tuple_expression) => {
                 let tuple_type = match &input.type_ {
@@ -275,19 +276,18 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                     ));
                 }
 
-                tuple_expression.elements.iter().zip_eq(tuple_type.elements().iter()).for_each(
-                    |(expression, type_)| {
-                        let identifier = match expression {
-                            Expression::Identifier(identifier) => identifier,
-                            _ => {
-                                return self.emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(
-                                    expression.span(),
-                                ));
-                            }
-                        };
-                        insert_variable(identifier.name, type_.clone(), identifier.span)
-                    },
-                );
+                for ((index, expr), type_) in
+                    tuple_expression.elements.iter().enumerate().zip_eq(tuple_type.elements().iter())
+                {
+                    let identifier = match expr {
+                        Expression::Identifier(identifier) => identifier,
+                        _ => {
+                            return self
+                                .emit_err(TypeCheckerError::lhs_tuple_element_must_be_an_identifier(expr.span()));
+                        }
+                    };
+                    self.insert_variable(inferred_type.clone(), identifier, type_.clone(), index, identifier.span);
+                }
             }
             _ => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.place.span())),
         }
@@ -324,21 +324,21 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             self.handler.emit_err(err);
         }
 
-        let prior_has_return = core::mem::take(&mut self.has_return);
-        let prior_has_finalize = core::mem::take(&mut self.has_finalize);
+        let prior_has_return = core::mem::take(&mut self.scope_state.has_return);
+        let prior_has_finalize = core::mem::take(&mut self.scope_state.has_called_finalize);
 
         self.visit_block(&input.block);
 
-        if self.has_return {
+        if self.scope_state.has_return {
             self.emit_err(TypeCheckerError::loop_body_contains_return(input.span()));
         }
 
-        if self.has_finalize {
+        if self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::loop_body_contains_finalize(input.span()));
         }
 
-        self.has_return = prior_has_return;
-        self.has_finalize = prior_has_finalize;
+        self.scope_state.has_return = prior_has_return;
+        self.scope_state.has_called_finalize = prior_has_finalize;
 
         // Exit the scope.
         self.exit_scope(scope_index);
@@ -388,19 +388,46 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         // We can safely unwrap all self.parent instances because
         // statements should always have some parent block
-        let parent = self.function.unwrap();
-        let return_type =
-            &self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.program_name, parent)).map(|f| {
-                match self.is_finalize {
-                    // TODO: Check this.
-                    // Note that this `unwrap()` is safe since we checked that the function has a finalize block.
-                    true => f.finalize.as_ref().unwrap().output_type.clone(),
-                    false => f.output_type.clone(),
+        let parent = self.scope_state.function.unwrap();
+        let func =
+            self.symbol_table.borrow().lookup_fn_symbol(Location::new(self.scope_state.program_name, parent)).cloned();
+        let mut return_type = func.clone().map(|f| f.output_type.clone());
+
+        // Fully type the expected return value.
+        if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
+            let inferred_future_type = match self.finalize_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
+                Some(types) => Future(FutureType::new(
+                    types.clone(),
+                    Some(Location::new(self.scope_state.program_name, parent)),
+                    true,
+                )),
+                None => {
+                    return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
                 }
-            });
+            };
+            // Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
+            let inferred = match return_type.clone() {
+                Some(Future(_)) => Some(inferred_future_type),
+                Some(Tuple(tuple)) => Some(Tuple(TupleType::new(
+                    tuple
+                        .elements()
+                        .iter()
+                        .map(|t| if matches!(t, Future(_)) { inferred_future_type.clone() } else { t.clone() })
+                        .collect::<Vec<Type>>(),
+                ))),
+                _ => {
+                    return self.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+                }
+            };
+
+            // Check that the explicit type declared in the function output signature matches the inferred type.
+            if let Some(ty) = inferred {
+                return_type = Some(self.assert_and_return_type(ty, &return_type, input.span()));
+            }
+        }
 
         // Set the `has_return` flag.
-        self.has_return = true;
+        self.scope_state.has_return = true;
 
         // Check that the return expression is not a nested tuple.
         if let Expression::Tuple(TupleExpression { elements, .. }) = &input.expression {
@@ -412,48 +439,10 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         }
 
         // Set the `is_return` flag. This is necessary to allow unit expressions in the return statement.
-        self.is_return = true;
+        self.scope_state.is_return = true;
         // Type check the associated expression.
-        self.visit_expression(&input.expression, return_type);
+        self.visit_expression(&input.expression, &return_type);
         // Unset the `is_return` flag.
-        self.is_return = false;
-
-        if let Some(arguments) = &input.finalize_arguments {
-            if self.is_finalize {
-                self.emit_err(TypeCheckerError::finalize_in_finalize(input.span()));
-            }
-
-            // Set the `has_finalize` flag.
-            self.has_finalize = true;
-
-            // Check that the function has a finalize block.
-            // Note that `self.function.unwrap()` is safe since every `self.function` is set for every function.
-            // Note that `(self.function.unwrap()).unwrap()` is safe since all functions have been checked to exist.
-            let finalize = self
-                .symbol_table
-                .borrow()
-                .lookup_fn_symbol(Location::new(self.program_name, self.function.unwrap()))
-                .unwrap()
-                .finalize
-                .clone();
-            match finalize {
-                None => self.emit_err(TypeCheckerError::finalize_without_finalize_block(input.span())),
-                Some(finalize) => {
-                    // Check number of function arguments.
-                    if finalize.input.len() != arguments.len() {
-                        self.emit_err(TypeCheckerError::incorrect_num_args_to_finalize(
-                            finalize.input.len(),
-                            arguments.len(),
-                            input.span(),
-                        ));
-                    }
-
-                    // Check function argument types.
-                    finalize.input.iter().zip(arguments.iter()).for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_()));
-                    });
-                }
-            }
-        }
+        self.scope_state.is_return = false;
     }
 }

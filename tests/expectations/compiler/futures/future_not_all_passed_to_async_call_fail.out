@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372104]: Not all futures were consumed: f1\n    --> compiler-test:16:16\n     |\n  16 |         return finalize_foo(f0, f3, f2, f5, f4);\n     |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = Make sure all futures are consumed exactly once. Consume by passing to an async function call.\n"

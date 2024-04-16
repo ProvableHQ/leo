@@ -16,13 +16,34 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Functions are always one of three variants.
+/// Functions are always one of five variants.
 /// A transition function is permitted the ability to manipulate records.
+/// An asynchronous transition function is a transition function that calls an asynchronous function.
 /// A regular function is not permitted to manipulate records.
+/// An asynchronous function contains on-chain operations.
 /// An inline function is directly copied at the call site.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Variant {
     Inline,
-    Standard,
+    Function,
     Transition,
+    AsyncTransition,
+    AsyncFunction,
+}
+
+impl Variant {
+    /// Returns true if the variant is async.
+    pub fn is_async(self) -> bool {
+        matches!(self, Variant::AsyncFunction | Variant::AsyncTransition)
+    }
+
+    /// Returns true if the variant is a transition.
+    pub fn is_transition(self) -> bool {
+        matches!(self, Variant::Transition | Variant::AsyncTransition)
+    }
+
+    /// Returns true if the variant is a function.
+    pub fn is_function(self) -> bool {
+        matches!(self, Variant::AsyncFunction | Variant::Function)
+    }
 }

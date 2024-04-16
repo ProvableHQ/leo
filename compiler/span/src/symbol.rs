@@ -202,6 +202,7 @@ symbols! {
     to_x_coordinate,
     to_y_coordinate,
     verify,
+    Await: "await",
 
     // types
     address,
@@ -213,6 +214,8 @@ symbols! {
     i32,
     i64,
     i128,
+    Future,
+    Fn,
     record,
     scalar,
     signature,
@@ -239,7 +242,6 @@ symbols! {
     constant,
     decrement,
     Else: "else",
-    finalize,
     For: "for",
     function,
     If: "if",
@@ -258,7 +260,6 @@ symbols! {
     SelfUpper: "Self",
     signer,
     Star: "*",
-    then,
     transition,
     Type: "type",
 

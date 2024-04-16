@@ -7,11 +7,11 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
     
-    transition mint_public(public receiver: address, public amount: u64) {
-        return then finalize(receiver, amount);
+    async transition mint_public(public receiver: address, public amount: u64) -> Future {
+        return finalize_mint_public(receiver, amount);
     }
     
-    finalize mint_private (public receiver: address, public amount: u64) {
+    async function finalize_mint_private (public receiver: address, public amount: u64) {
         Mapping::set(account, receiver, amount);
     }
     

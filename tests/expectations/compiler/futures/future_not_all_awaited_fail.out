@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372093]: The following futures were never awaited: f4\n    --> compiler-test:12:5\n     |\n  12 |     async function finalize_foo(f0: Future, f1: Future, f2: Future, f3: Future, f4: Future, f5: Future) {\n  13 |         f1.await();\n  14 |         f2.await();\n  15 |         f3.await();\n  16 |         f0.await();\n  17 |         f5.await();\n  18 |     }\n     |     ^\n     |\n     = Ex: for `f: Future` call `f.await()` to await a future.\n"

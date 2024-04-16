@@ -160,4 +160,8 @@ pub struct BuildOptions {
     pub enable_inlined_ast_snapshot: bool,
     #[clap(long, help = "Writes AST snapshot of the dead code eliminated (DCE) AST.")]
     pub enable_dce_ast_snapshot: bool,
+    #[clap(long, help = "Max depth to type check nested conditionals.", default_value = "10")]
+    pub conditional_block_max_depth: usize,
+    #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
+    pub disable_conditional_branch_type_checking: bool,
 }

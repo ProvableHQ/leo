@@ -11,7 +11,7 @@ program test.aleo {
         data: field;
     }
 
-    transition main(a: field) {
+    async transition main(a: field) -> Future {
         // Cannot cast to a string.
         let b: string = a as string;
         // Cannot cast a struct.
@@ -20,10 +20,10 @@ program test.aleo {
         // Cannot cast a tuple.
         let e: (field, field) = (a, a);
         let f: field = e as field;
-        return then finalize(a);
+        return finalize_main(a);
     }
 
-    finalize main(a: field) {
+    async function finalize_main(a: field) {
         // Cannot cast a mapping.
         let b: field = balances as field;
         assert_eq(b, a);

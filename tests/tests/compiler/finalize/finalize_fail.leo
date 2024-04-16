@@ -7,7 +7,7 @@ program test.aleo {
     mapping account: address => u64;
     mapping values: u8 => u8;
     
-    transition mint_public(public receiver: address, public amount: u64) {
+    async transition mint_public(public receiver: address, public amount: u64) -> Future {
         return then finalize(receiver, amount);
     }
     

@@ -89,7 +89,11 @@ fn new_compiler(handler: &Handler) -> Compiler<'_> {
         PathBuf::from(String::new()),
         PathBuf::from(String::new()),
         Some(CompilerOptions {
-            build: BuildOptions { dce_enabled: true },
+            build: BuildOptions {
+                dce_enabled: true,
+                conditional_block_max_depth: 10,
+                disable_conditional_branch_type_checking: false,
+            },
             output: OutputOptions {
                 symbol_table_spans_enabled: false,
                 initial_symbol_table: false,

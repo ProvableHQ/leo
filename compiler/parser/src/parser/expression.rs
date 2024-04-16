@@ -357,6 +357,16 @@ impl ParserContext<'_> {
                 span,
                 id: self.node_builder.next_id(),
             })))
+        } else if let (0, Some(CoreFunction::FutureAwait)) =
+            (args.len(), CoreFunction::from_symbols(sym::Future, method.name))
+        {
+            Ok(Expression::Access(AccessExpression::AssociatedFunction(AssociatedFunction {
+                variant: Identifier::new(sym::Future, self.node_builder.next_id()),
+                name: method,
+                arguments: vec![receiver],
+                span,
+                id: self.node_builder.next_id(),
+            })))
         } else {
             // Attempt to parse the method call as a mapping operation.
             match (args.len(), CoreFunction::from_symbols(sym::Mapping, method.name)) {
@@ -755,6 +765,9 @@ impl ParserContext<'_> {
             }
             Token::Block => {
                 Expression::Identifier(Identifier { name: sym::block, span, id: self.node_builder.next_id() })
+            }
+            Token::Future => {
+                Expression::Identifier(Identifier { name: sym::Future, span, id: self.node_builder.next_id() })
             }
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),

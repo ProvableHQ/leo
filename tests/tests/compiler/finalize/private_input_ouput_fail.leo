@@ -4,21 +4,21 @@ expectation: Fail
 */
 
 program test.aleo {
-    transition foo(public a: u8) -> u8 {
-        async finalize(a);
+    async transition foo(public a: u8) -> (u8, Future) {
+        async finalize_foo(a);
         return a + a;
     }
 
-    finalize foo(private a: u8) -> u8 {
+    async function finalize_foo(private a: u8) -> u8 {
         return a * a;
     }
 
-    transition bar(public a: u8) -> u8 {
-        async finalize (a);
+    async transition bar(public a: u8) -> (u8, Future) {
+        async finalize_bar(a);
         return a + a;
     }
 
-    finalize bar(a: u8) -> private u8 {
+    async function finalize_bar(a: u8) -> private u8 {
         return a * a;
     }
 }

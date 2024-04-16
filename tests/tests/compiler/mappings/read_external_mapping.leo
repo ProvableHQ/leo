@@ -6,16 +6,16 @@ expectation: Pass
 program registry.aleo {
     mapping users: address => bool;
 
-    transition register() {
-        return then finalize(self.caller);
+    async transition register() -> Future {
+        return finalize_register(self.caller);
     }
-    finalize register(addr: address) {
+    async function finalize_register(addr: address) {
         Mapping::set(users, addr, true);
     }
-    transition unregister() {
-        return then finalize(self.caller);
+    async transition unregister() -> Future {
+        return finalize_unregister(self.caller);
     }
-    finalize unregister(addr: address) {
+    async function finalize_unregister(addr: address) {
         Mapping::set(users, addr, false);
     }
 }
@@ -31,18 +31,18 @@ program relay.aleo {
         data: u8;
     }
 
-    transition send(addr: address, val: u8) -> message {
-        return message {owner: addr, data: val} then finalize(addr);
+    async transition send(addr: address, val: u8) -> (message, Future) {
+        return (message {owner: addr, data: val}, finalize_send(addr));
     }
-    finalize send(addr: address) {
+    async function finalize_send(addr: address) {
         let a:bool = Mapping::get(registry.aleo/users, addr);
         assert_eq(a, true);
     }
 
-    transition send_without_check(addr: address, val: u8) -> message {
-        return message {owner: addr, data: val} then finalize(addr);
+    async transition send_without_check(addr: address, val: u8) -> (message, Future) {
+        return (message {owner: addr, data: val}, finalize_send_without_check(addr));
     }
-    finalize send_without_check(addr: address) {
+    async function finalize_send_without_check(addr: address) {
         let a:bool = Mapping::get_or_use(registry.aleo/users, addr, true);
         assert_eq(a, true);
     }

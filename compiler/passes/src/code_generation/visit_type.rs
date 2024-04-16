@@ -28,6 +28,7 @@ impl<'a> CodeGenerator<'a> {
             | Type::Scalar
             | Type::Signature
             | Type::String
+            | Type::Future(..)
             | Type::Composite(..)
             | Type::Identifier(..)
             | Type::Integer(..) => format!("{input}"),

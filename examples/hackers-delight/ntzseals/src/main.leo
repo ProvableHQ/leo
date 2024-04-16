@@ -61,32 +61,32 @@ program ntzseals.aleo {
         if i == 38u32 {return 0u8;} else  // unused
         if i == 39u32 {return 0u8;} else  // unused
 
-        if i == 40u32 {return 9u8;} else
-        if i == 41u32 {return 0u8;} else  // unused
-        if i == 42u32 {return 0u8;} else  // unused
-        if i == 43u32 {return 24u8;} else
-        if i == 44u32 {return 0u8;} else  // unused
-        if i == 45u32 {return 0u8;} else  // unused
-        if i == 46u32 {return 20u8;} else
-        if i == 47u32 {return 26u8;} else
+        // if i == 40u32 {return 9u8;} else
+        // if i == 41u32 {return 0u8;} else  // unused
+        // if i == 42u32 {return 0u8;} else  // unused
+        // if i == 43u32 {return 24u8;} else
+        // if i == 44u32 {return 0u8;} else  // unused
+        // if i == 45u32 {return 0u8;} else  // unused
+        // if i == 46u32 {return 20u8;} else
+        // if i == 47u32 {return 26u8;} else
 
-        if i == 48u32 {return 30u8;} else
-        if i == 49u32 {return 0u8;} else  // unused
-        if i == 50u32 {return 0u8;} else  // unused
-        if i == 51u32 {return 0u8;} else  // unused
-        if i == 52u32 {return 0u8;} else  // unused
-        if i == 53u32 {return 23u8;} else
-        if i == 54u32 {return 0u8;} else  // unused
-        if i == 55u32 {return 19u8;} else
+        // if i == 48u32 {return 30u8;} else
+        // if i == 49u32 {return 0u8;} else  // unused
+        // if i == 50u32 {return 0u8;} else  // unused
+        // if i == 51u32 {return 0u8;} else  // unused
+        // if i == 52u32 {return 0u8;} else  // unused
+        // if i == 53u32 {return 23u8;} else
+        // if i == 54u32 {return 0u8;} else  // unused
+        // if i == 55u32 {return 19u8;} else
 
-        if i == 56u32 {return 29u8;} else
-        if i == 57u32 {return 0u8;} else  // unused
-        if i == 58u32 {return 22u8;} else
-        if i == 59u32 {return 18u8;} else
-        if i == 60u32 {return 28u8;} else
-        if i == 61u32 {return 17u8;} else
-        if i == 62u32 {return 16u8;} else
-        if i == 63u32 {return 0u8;} else   // unused
+        // if i == 56u32 {return 29u8;} else
+        // if i == 57u32 {return 0u8;} else  // unused
+        // if i == 58u32 {return 22u8;} else
+        // if i == 59u32 {return 18u8;} else
+        // if i == 60u32 {return 28u8;} else
+        // if i == 61u32 {return 17u8;} else
+        // if i == 62u32 {return 16u8;} else
+        // if i == 63u32 {return 0u8;} else   // unused
         {return 0u8;} // unused
     }
 }

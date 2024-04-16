@@ -3,16 +3,16 @@ namespace: Execute
 expectation: Pass
 outputs:
   - - compile:
-        - initial_symbol_table: a56c5db08f6890c8f13ddf9458ca5ed0cc39b8388bcc7545672c59ff33b9eb2e
-          type_checked_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-          unrolled_symbol_table: c1e1d43165e75cdfbf1ea9beb21e38cf186133261eea7e334c79cbb92f41ede3
-          initial_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-          unrolled_ast: 5e206ade9b06975fab301cb0906cc9f410b02cf17eed9df44db072f832489e9a
-          ssa_ast: 5b38714260ed02a1fa30e2226fb8d69363a8cc28c8b19a99d501cd25e52fe499
-          flattened_ast: b217d33cfcd234126e9f708676e43d8edc957692b5cb36b8284f092c9a14bad9
-          destructured_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-          inlined_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
-          dce_ast: 57cb70fc75d108f8a5db472b3abe02215d76486e20fe8932fefa7fa9096193c7
+        - initial_symbol_table: 159884d2742a5521517561b227c926e101eeab217420aa5d3df19114bf7ae7e8
+          type_checked_symbol_table: 51b2cf2c293a27685d5635bed550f6ee9232159e2b4cc61e64e3a979160d2cf4
+          unrolled_symbol_table: 51b2cf2c293a27685d5635bed550f6ee9232159e2b4cc61e64e3a979160d2cf4
+          initial_ast: 2c4ec22c3b11ecc678d01e0ca265f79de84f7f8d59423141529da760a019ed2b
+          unrolled_ast: 2c4ec22c3b11ecc678d01e0ca265f79de84f7f8d59423141529da760a019ed2b
+          ssa_ast: 563e0a1aa0829b1e5981920fa19869ee4d316063010bf8cb53a9ed3c061b787e
+          flattened_ast: 078e3c8ffd1ebe8d1be1eb16a1f55e03cfeb7195f0dff37d79ee94a7f4001a12
+          destructured_ast: c5c656475130a192478c712890436eac836d21f0f16e3d5627d51e8c6eb07f11
+          inlined_ast: c5c656475130a192478c712890436eac836d21f0f16e3d5627d51e8c6eb07f11
+          dce_ast: c5c656475130a192478c712890436eac836d21f0f16e3d5627d51e8c6eb07f11
           bytecode: 15a3a90b1837b318b43b3f3bfc5e454a8821357b4c3feb01da00a4db810bde89
           errors: ""
           warnings: ""
@@ -20,7 +20,7 @@ outputs:
         - execution: ~
           verified: false
           status: none
-          errors: "Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal)"
+          errors: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '0u32' is not equal to '1u32' (should be equal))"
           warnings: ""
         - execution:
             transitions:
@@ -50,7 +50,7 @@ outputs:
         - execution: ~
           verified: false
           status: none
-          errors: "Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal)"
+          errors: "SnarkVMError(Failed to evaluate instruction (assert.eq r0 r1 ;): 'assert.eq' failed: '1u32' is not equal to '2u32' (should be equal))"
           warnings: ""
         - execution:
             transitions:

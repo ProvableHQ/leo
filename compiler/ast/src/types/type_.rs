@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common, ArrayType, CompositeType, Identifier, IntegerType, MappingType, TupleType};
+use crate::{common, ArrayType, CompositeType, FutureType, Identifier, IntegerType, MappingType, TupleType};
 
 use itertools::Itertools;
 use leo_span::Symbol;
@@ -39,6 +39,8 @@ pub enum Type {
     Composite(CompositeType),
     /// The `field` type.
     Field,
+    /// The `future` type.
+    Future(FutureType),
     /// The `group` type.
     Group,
     /// A reference to a built in type.
@@ -81,7 +83,7 @@ impl Type {
             (Type::Array(left), Type::Array(right)) => {
                 left.element_type().eq_flat(right.element_type()) && left.length() == right.length()
             }
-            (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.name == right.name,
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
                 left.key.eq_flat(&right.key) && left.value.eq_flat(&right.value)
@@ -93,6 +95,16 @@ impl Type {
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             (Type::Composite(left), Type::Composite(right)) => {
                 left.id.name == right.id.name && left.program == right.program
+            }
+            (Type::Future(left), Type::Future(right))
+                if left.inputs.len() == right.inputs.len() && left.location.is_some() && right.location.is_some() =>
+            {
+                left.location == right.location
+                    && left
+                        .inputs()
+                        .iter()
+                        .zip_eq(right.inputs().iter())
+                        .all(|(left_type, right_type)| left_type.eq_flat(right_type))
             }
             _ => false,
         }
@@ -132,6 +144,7 @@ impl fmt::Display for Type {
             Type::Array(ref array_type) => write!(f, "{array_type}"),
             Type::Boolean => write!(f, "boolean"),
             Type::Field => write!(f, "field"),
+            Type::Future(ref future_type) => write!(f, "{future_type}"),
             Type::Group => write!(f, "group"),
             Type::Identifier(ref variable) => write!(f, "{variable}"),
             Type::Integer(ref integer_type) => write!(f, "{integer_type}"),

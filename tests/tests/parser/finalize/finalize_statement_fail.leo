@@ -3,16 +3,10 @@ namespace: ParseStatement
 expectation: Fail
 */
 
-finalize(;
+return then finalize;
 
-finalize(foo, ,);
+return then finalize();
 
-finalize(foo, bar)
+return then finalize(foo);
 
-async async finalize(foo);
-
-finalize;
-
-asyn finalize(foo);
-
-return then fin;
+return then finalize(foo, bar);

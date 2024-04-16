@@ -34,7 +34,7 @@ impl ExpressionReconstructor for DeadCodeEliminator<'_> {
     fn reconstruct_associated_function(&mut self, input: AssociatedFunction) -> (Expression, Self::AdditionalOutput) {
         // If the associated function manipulates a mapping, mark the statement as necessary.
         match (&input.variant.name, input.name.name) {
-            (&sym::Mapping, sym::remove) | (&sym::Mapping, sym::set) => {
+            (&sym::Mapping, sym::remove) | (&sym::Mapping, sym::set) | (&sym::Future, sym::Await) => {
                 self.is_necessary = true;
             }
             _ => {}

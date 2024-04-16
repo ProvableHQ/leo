@@ -19,7 +19,7 @@ program test.aleo {
         Mapping::get(values, 0u8);
     }
 
-    finalize finalize_no_params() {
+    async function finalize_finalize_no_params() {
         foo();
         bar();
     }

@@ -140,6 +140,9 @@ pub enum LeoWarning {
     /// Represents an Parser Error in a Leo Error.
     #[error(transparent)]
     ParserWarning(#[from] ParserWarning),
+    /// Represents a Type Checker Error in a Leo Error.
+    #[error(transparent)]
+    TypeCheckerWarning(#[from] TypeCheckerWarning),
 }
 
 impl LeoWarning {
@@ -149,6 +152,7 @@ impl LeoWarning {
 
         match self {
             ParserWarning(warning) => warning.warning_code(),
+            TypeCheckerWarning(warning) => warning.warning_code(),
         }
     }
 }

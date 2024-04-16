@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CodeGenerator, Location};
+use crate::CodeGenerator;
 use leo_ast::{
     AccessExpression,
     ArrayAccess,
@@ -29,9 +29,9 @@ use leo_ast::{
     Expression,
     Identifier,
     Literal,
+    Location,
     LocatorExpression,
     MemberAccess,
-    ProgramScope,
     StructExpression,
     TernaryExpression,
     TupleExpression,
@@ -39,6 +39,7 @@ use leo_ast::{
     UnaryExpression,
     UnaryOperation,
     UnitExpression,
+    Variant,
 };
 use leo_span::sym;
 use std::borrow::Borrow;
@@ -303,8 +304,8 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_member_access(&mut self, input: &'a MemberAccess) -> (String, String) {
-        let (inner_struct, _) = self.visit_expression(&input.inner);
-        let member_access = format!("{inner_struct}.{}", input.name);
+        let (inner_expr, _) = self.visit_expression(&input.inner);
+        let member_access = format!("{}.{}", inner_expr, input.name);
 
         (member_access, String::new())
     }
@@ -475,7 +476,14 @@ impl<'a> CodeGenerator<'a> {
                 .expect("failed to write to string");
                 (destination_register, instruction)
             }
-            _ => unreachable!("All core functions should be known at this phase of compilation"),
+            sym::Future => {
+                let mut instruction = "    await".to_string();
+                writeln!(instruction, " {};", arguments[0]).expect("failed to write to string");
+                (String::new(), instruction)
+            }
+            _ => {
+                unreachable!("All core functions should be known at this phase of compilation")
+            }
         };
         // Add the instruction to the list of instructions.
         instructions.push_str(&instruction);
@@ -496,32 +504,34 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_call(&mut self, input: &'a CallExpression) -> (String, String) {
-        // Need to determine the program the function originated from as well as if the function has a finalize block.
-        let (mut call_instruction, has_finalize);
+        // Lookup the function return type.
+        let function_name = match input.function.borrow() {
+            Expression::Identifier(identifier) => identifier.name,
+            _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
+        };
 
         // Check if function is external.
         let main_program = input.program.unwrap();
-        if main_program != self.program_id.unwrap().name.name {
+        // Need to determine the program the function originated from as well as if the function has a finalize block.
+        let mut call_instruction = if main_program != self.program_id.unwrap().name.name {
             // All external functions must be defined as stubs.
-            if let Some(stub_program) = self.program.stubs.get(&main_program) {
-                let stub_scope = ProgramScope::from(stub_program.clone());
-                let function_name = match *input.function {
-                    Expression::Identifier(identifier) => identifier.name,
-                    _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
-                };
-
-                // Check if the external function has a finalize block.
-                has_finalize = match stub_scope.functions.iter().find(|(sym, _)| *sym == function_name) {
-                    Some((_, function)) => function.finalize.is_some(),
-                    None => unreachable!("Type checking guarantees that imported functions are well defined."),
-                };
-                call_instruction = format!("    call {}.aleo/{}", main_program, input.function);
+            if self.program.stubs.get(&main_program).is_some() {
+                format!("    call {}.aleo/{}", main_program, input.function)
             } else {
                 unreachable!("Type checking guarantees that imported and stub programs are well defined.")
             }
         } else {
-            (call_instruction, has_finalize) = (format!("    call {}", input.function), false);
-        }
+            // Lookup in symbol table to determine if its an async function.
+            if let Some(func) = self.symbol_table.lookup_fn_symbol(Location::new(input.program, function_name)) {
+                if func.variant.is_async() && input.program.unwrap() == self.program_id.unwrap().name.name {
+                    format!("    async {}", self.current_function.unwrap().identifier)
+                } else {
+                    format!("    call {}", input.function)
+                }
+            } else {
+                unreachable!("Type checking guarantees that all functions are well defined.")
+            }
+        };
         let mut instructions = String::new();
 
         for argument in input.arguments.iter() {
@@ -530,18 +540,12 @@ impl<'a> CodeGenerator<'a> {
             instructions.push_str(&argument_instructions);
         }
 
-        // Lookup the function return type.
-        let function_name = match input.function.borrow() {
-            Expression::Identifier(identifier) => identifier.name,
-            _ => unreachable!("Parsing guarantees that a function name is always an identifier."),
-        };
-
         // Initialize storage for the destination registers.
         let mut destinations = Vec::new();
 
-        let return_type =
-            &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap().output_type;
-        match return_type {
+        // Create operands for the output registers.
+        let func = &self.symbol_table.lookup_fn_symbol(Location::new(Some(main_program), function_name)).unwrap();
+        match func.output_type.clone() {
             Type::Unit => {} // Do nothing
             Type::Tuple(tuple) => match tuple.length() {
                 0 | 1 => unreachable!("Parsing guarantees that a tuple type has at least two elements"),
@@ -560,21 +564,15 @@ impl<'a> CodeGenerator<'a> {
             }
         }
 
+        // Add a register for async functions to represent the future created.
+        if func.variant == Variant::AsyncFunction {
+            let destination_register = format!("r{}", self.next_register);
+            destinations.push(destination_register);
+            self.next_register += 1;
+        }
+
         // Construct the output operands. These are the destination registers **without** the future.
         let output_operands = destinations.join(" ");
-
-        // If `has_finalize`, create another destination register for the future.
-        if has_finalize {
-            // Construct the future register.
-            let future_register = format!("r{}", self.next_register);
-            self.next_register += 1;
-
-            // Add the futures register to the list of futures.
-            self.futures.push((future_register.clone(), format!("{}.aleo/{function_name}", main_program)));
-
-            // Add the future register to the list of destinations.
-            destinations.push(future_register);
-        }
 
         // If destination registers were created, write them to the call instruction.
         if !destinations.is_empty() {

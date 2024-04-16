@@ -387,26 +387,8 @@ impl StatementConsumer for StaticSingleAssigner<'_> {
         // Consume the return expression.
         let (expression, mut statements) = self.consume_expression(input.expression);
 
-        // Consume the finalize arguments if they exist.
-        // Process the arguments, accumulating any statements produced.
-        let finalize_args = input.finalize_arguments.map(|arguments| {
-            arguments
-                .into_iter()
-                .map(|argument| {
-                    let (argument, stmts) = self.consume_expression(argument);
-                    statements.extend(stmts);
-                    argument
-                })
-                .collect()
-        });
-
         // Add the simplified return statement to the list of produced statements.
-        statements.push(Statement::Return(ReturnStatement {
-            expression,
-            finalize_arguments: finalize_args,
-            span: input.span,
-            id: input.id,
-        }));
+        statements.push(Statement::Return(ReturnStatement { expression, span: input.span, id: input.id }));
 
         statements
     }

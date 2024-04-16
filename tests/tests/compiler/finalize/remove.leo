@@ -7,11 +7,11 @@ program test.aleo {
 
     mapping balances: address => u32;
 
-    transition foo() -> () {
-        return then finalize(self.caller);
+    async transition foo() -> Future {
+        return finalize_foo(self.caller);
     }
 
-    finalize foo(account: address) -> () {
+    async function finalize_foo(account: address) -> () {
         Mapping::set(balances, account, 1u32);
 
         let expect_true: bool = Mapping::contains(balances, account);

@@ -25,11 +25,11 @@ program zero_program.aleo {
 
   mapping counts: address => u64;
 
-  transition c() {
-    return then finalize(self.signer);
+  async transition c() -> Future {
+    return finalize_c(self.signer);
   }
 
-  finalize c(addr: address) {
+  async function finalize_c(addr: address) {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
   }
@@ -44,11 +44,11 @@ program one_program.aleo {
 
   mapping counts: address => u64;
 
-  transition d() {
-    return then finalize(self.signer);
+  async transition d() -> Future {
+    return finalize_d(self.signer);
   }
 
-  finalize d(addr: address) {
+  async function finalize_d(addr: address) {
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
   }
@@ -66,13 +66,15 @@ program two_program.aleo {
 
   mapping counts: address => u64;
 
-  transition b() {
-    zero_program.aleo/c();
-    one_program.aleo/d();
-    return then finalize(self.signer);
+  async transition b() -> Future {
+    let f0: Future = zero_program.aleo/c();
+    let f1: Future = one_program.aleo/d();
+    return finalize_b(f0, f1, self.signer);
   }
 
-  finalize b(addr: address) {
+  async function finalize_b(f0: Future, f1: Future, addr: address) {
+      f0.await();
+      f1.await();
       let count: u64 = counts.get_or_use(addr, 0u64);
       counts.set(addr, count + 1u64);
   }
@@ -91,14 +93,17 @@ program three_program.aleo {
 
   mapping counts: address => u64;
 
-  transition e() {
-    two_program.aleo/b();
-    one_program.aleo/d();
-    zero_program.aleo/c();
-    return then finalize(self.signer);
+  async transition e() -> Future {
+    let f0: Future = two_program.aleo/b();
+    let f1: Future = one_program.aleo/d();
+    let f2: Future = zero_program.aleo/c();
+    return finalize_e(f0, f1, f2, self.signer);
   }
 
-  finalize e(addr: address) {
+  async function finalize_e(f0: Future, f1: Future, f2: Future, addr: address) {
+      f0.await();
+      f1.await();
+      f2.await();
       let count: u64 = counts.get_or_use(addr, 0u64);
       counts.set(addr, count + 1u64);
   }
@@ -116,13 +121,15 @@ program four_program.aleo {
 
   mapping counts: address => u64;
 
-  transition a() {
-    two_program.aleo/b();
-    three_program.aleo/e();
-    return then finalize(self.signer);
+  async transition a() -> Future {
+    let f0: Future = two_program.aleo/b();
+    let f1: Future = three_program.aleo/e();
+    return finalize_a(f0, f1, self.signer);
   }
 
-  finalize a(addr: address) {
+  async function finalize_a(f0: Future, f1: Future, addr: address) {
+    f0.await();
+    f1.await();
     let count: u64 = counts.get_or_use(addr, 0u64);
     counts.set(addr, count + 1u64);
   }

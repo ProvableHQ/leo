@@ -13,7 +13,7 @@ outputs:
         functions:
           - - "inf"
             - annotations: []
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"2\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
               input: []
               output:
@@ -48,14 +48,13 @@ outputs:
                   lo: 51
                   hi: 73
                 id: 7
-              finalize: ~
               span:
                 lo: 30
                 hi: 73
               id: 8
           - - main
             - annotations: []
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
               input:
                 - Internal:
@@ -95,7 +94,6 @@ outputs:
                   - Return:
                       expression:
                         Identifier: "{\"id\":\"16\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":146,\\\"hi\\\":147}\"}"
-                      finalize_arguments: ~
                       span:
                         lo: 139
                         hi: 148
@@ -104,7 +102,6 @@ outputs:
                   lo: 114
                   hi: 154
                 id: 18
-              finalize: ~
               span:
                 lo: 83
                 hi: 154

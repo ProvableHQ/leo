@@ -25,8 +25,6 @@ use std::fmt;
 pub struct ReturnStatement {
     /// The expression to return to the function caller.
     pub expression: Expression,
-    /// Arguments to the finalize block.
-    pub finalize_arguments: Option<Vec<Expression>>,
     /// The span of `return expression` excluding the semicolon.
     pub span: Span,
     /// The ID of the node.

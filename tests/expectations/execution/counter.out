@@ -3,17 +3,17 @@ namespace: Execute
 expectation: Pass
 outputs:
   - - compile:
-        - initial_symbol_table: 9573a0a69494187f0d44626f4af49ed8ad8fe388f52d12ab38c30c5308626c3c
-          type_checked_symbol_table: 670b9e0e503bd7f3c425c6329eb1af62324b8f81dafa2d9d4f88c8dc0d6289aa
-          unrolled_symbol_table: ff438510f1ac8fd48441db3220b012a1c5d3aa636ae1f5058a1db7a09b40889c
-          initial_ast: c3fc544b34a68911ff6b67586ec9b75027053a9185ba35a0646514d2a7ff24d1
-          unrolled_ast: 3c45e63ecdaf7930aece1cc5ea7d21780fed1b4bec977eced28cf6a8983f87f5
-          ssa_ast: 4cfb191e591b288784e02d4ee1b1117d58a8c6350c22d573397ad43b6e0cdb89
-          flattened_ast: 3e9ee53f31fa10c15493a9ac20023bd2d9eac53849e61afd6e89ba5a46daf188
-          destructured_ast: d0cccd7afb3419c2cd5f697686a67f427174229282ece387e4465a1b0ccce435
-          inlined_ast: d0cccd7afb3419c2cd5f697686a67f427174229282ece387e4465a1b0ccce435
-          dce_ast: d0cccd7afb3419c2cd5f697686a67f427174229282ece387e4465a1b0ccce435
-          bytecode: 75252a5477a2943c07eaf114bef3dd214acbd7184b3118f14786beb8215bfb94
+        - initial_symbol_table: 09dadb761c8ffcdf5202058edf630a4bdaa5a7ee5c1dd1afc9da81e5dae64d05
+          type_checked_symbol_table: 635d6036a8ec63cfa3a97a4667a1a1fb8002ef3a5386bd4c6f4dafca0e218aa8
+          unrolled_symbol_table: 6ae16d9d95fb7c876b1c9aa5674e20f608dad46efd684a9e8ab028ee1d25d2c1
+          initial_ast: 4a28149974915dd3e5bfb2b7f9a73be37f88408f99c5818454bdabdd2524b690
+          unrolled_ast: 3d6c4b138fdcceab0e0668c6b6589b2f7d62f05059f1b675b6679288b83c6eb7
+          ssa_ast: 28a6b1664f8ed8a4e86fdf5dec8faa0f7fe03115f627f94380d825a1a99dc21d
+          flattened_ast: 1dc0a1c08dfe2c0a41f3f33b52338dfd23405ac3b7735824bc5b7862013e305b
+          destructured_ast: 94f93a9b262d26ae4fc74c98b131201aa5537b01267d7de685a00411ba497492
+          inlined_ast: a6960e1444005d75fa6b34142797a33411d758f7eec5a00cf2731f7f51b0f94b
+          dce_ast: a6960e1444005d75fa6b34142797a33411d758f7eec5a00cf2731f7f51b0f94b
+          bytecode: 34f95c324649b856e6e1178f1db6dfb00abe322f43e2ea08b37ba9065c6f3897
           errors: ""
           warnings: ""
       execute:

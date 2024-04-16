@@ -6,10 +6,10 @@ expectation: Fail
 program registry.aleo {
     mapping users: address => bool;
 
-    transition register() {
-        return then finalize(self.caller);
+    async transition register() -> Future {
+        return finalize_register(self.caller);
     }
-    finalize register(addr: address) {
+    async function finalize_register(addr: address) {
         Mapping::set(users, addr, true);
     }
 }
@@ -17,10 +17,10 @@ program registry.aleo {
 // --- Next Program --- //
 
 program relay.aleo {
-    transition send(addr: address) {
-        return then finalize(addr);
+    async transition send(addr: address) -> Future {
+        return finalize_send(addr);
     }
-    finalize send(addr: address) {
+    async function finalize_send(addr: address) {
         let a:bool = Mapping::get(registry.aleo/users, addr);
         assert_eq(a, true);
     }

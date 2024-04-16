@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, StaticSingleAssigner};
+use crate::StaticSingleAssigner;
 
 use leo_ast::{
     AccessExpression,
@@ -29,6 +29,7 @@ use leo_ast::{
     ExpressionConsumer,
     Identifier,
     Literal,
+    Location,
     LocatorExpression,
     MemberAccess,
     Statement,

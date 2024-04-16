@@ -15,15 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    finalize_stub::*,
     Annotation,
     CompositeType,
     External,
     Function,
     FunctionInput,
     FunctionOutput,
+    FutureType,
     Identifier,
     Input,
+    Location,
     Mode,
     Node,
     NodeID,
@@ -39,7 +40,10 @@ use crate::Type::Composite;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
-    console::program::RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    console::program::{
+        FinalizeType::{Future as FutureFinalizeType, Plaintext as PlaintextFinalizeType},
+        RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    },
     prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
@@ -60,8 +64,6 @@ pub struct FunctionStub {
     pub output: Vec<Output>,
     /// The function's output type.
     pub output_type: Type,
-    /// An optional finalize stub
-    pub finalize_stub: Option<FinalizeStub>,
     /// The entire span of the function definition.
     pub span: Span,
     /// The ID of the node.
@@ -81,11 +83,11 @@ impl FunctionStub {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         annotations: Vec<Annotation>,
+        _is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec<Input>,
         output: Vec<Output>,
-        finalize_stub: Option<FinalizeStub>,
         span: Span,
         id: NodeID,
     ) -> Self {
@@ -101,7 +103,7 @@ impl FunctionStub {
             _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
         };
 
-        FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
+        FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
     }
 
     /// Returns function name.
@@ -120,8 +122,8 @@ impl FunctionStub {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.variant {
             Variant::Inline => write!(f, "inline ")?,
-            Variant::Standard => write!(f, "function ")?,
-            Variant::Transition => write!(f, "transition ")?,
+            Variant::Function | Variant::AsyncFunction => write!(f, "function ")?,
+            Variant::Transition | Variant::AsyncTransition => write!(f, "transition ")?,
         }
         write!(f, "{}", self.identifier)?;
 
@@ -133,12 +135,7 @@ impl FunctionStub {
         };
         write!(f, "({parameters}) -> {returns}")?;
 
-        if let Some(finalize) = &self.finalize_stub {
-            let parameters = finalize.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
-            write!(f, " finalize ({parameters})")
-        } else {
-            Ok(())
-        }
+        Ok(())
     }
 
     /// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
@@ -150,43 +147,49 @@ impl FunctionStub {
             .outputs()
             .iter()
             .map(|output| match output.value_type() {
-                ValueType::Constant(val) => vec![Output::Internal(FunctionOutput {
+                ValueType::Constant(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Constant,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Public(val) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Public(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Public,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Private(val) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Private(val) => Output::Internal(FunctionOutput {
                     mode: Mode::Private,
                     type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::Record(id) => vec![Output::Internal(FunctionOutput {
+                }),
+                ValueType::Record(id) => Output::Internal(FunctionOutput {
                     mode: Mode::None,
                     type_: Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
                     span: Default::default(),
                     id: Default::default(),
-                })],
-                ValueType::ExternalRecord(loc) => {
-                    vec![Output::External(External {
-                        identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                        program_name: ProgramId::from(loc.program_id()).name,
-                        record: Identifier::from(loc.resource()),
-                        span: Default::default(),
-                        id: Default::default(),
-                    })]
-                }
-                ValueType::Future(_) => Vec::new(), // Don't include futures in the output signature
+                }),
+                ValueType::ExternalRecord(loc) => Output::External(External {
+                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
+                    program_name: ProgramId::from(loc.program_id()).name,
+                    record: Identifier::from(loc.resource()),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
+                ValueType::Future(_) => Output::Internal(FunctionOutput {
+                    mode: Mode::Public,
+                    type_: Type::Future(FutureType::new(
+                        Vec::new(),
+                        Some(Location::new(Some(program), Identifier::from(function.name()).name)),
+                        false,
+                    )),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
             })
-            .collect_vec()
-            .concat();
+            .collect_vec();
         let output_vec = outputs
             .iter()
             .map(|output| match output {
@@ -204,14 +207,17 @@ impl FunctionStub {
 
         Self {
             annotations: Vec::new(),
-            variant: Variant::Transition,
+            variant: match function.finalize_logic().is_some() {
+                true => Variant::AsyncTransition,
+                false => Variant::Transition,
+            },
             identifier: Identifier::from(function.name()),
             input: function
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+                    let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.value_type() {
                         ValueType::Constant(val) => Input::Internal(FunctionInput {
                             identifier: arg_name,
@@ -254,9 +260,50 @@ impl FunctionStub {
                 .collect_vec(),
             output: outputs,
             output_type,
-            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f, program)),
             span: Default::default(),
             id: Default::default(),
+        }
+    }
+
+    pub fn from_finalize<N: Network, Instruction: InstructionTrait<N>, Command: CommandTrait<N>>(
+        function: &FunctionCore<N, Instruction, Command>,
+        key_name: Symbol,
+        _program: Symbol,
+    ) -> Self {
+        Self {
+            annotations: Vec::new(),
+            variant: Variant::AsyncFunction,
+            identifier: Identifier::new(key_name, Default::default()),
+            input: function
+                .finalize_logic()
+                .unwrap()
+                .inputs()
+                .iter()
+                .enumerate()
+                .map(|(index, input)| {
+                    Input::Internal(FunctionInput {
+                        identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
+                        mode: Mode::None,
+                        type_: match input.finalize_type() {
+                            PlaintextFinalizeType(val) => Type::from_snarkvm(val, key_name),
+                            FutureFinalizeType(val) => Type::Future(FutureType::new(
+                                Vec::new(),
+                                Some(Location::new(
+                                    Some(Identifier::from(val.program_id().name()).name),
+                                    Symbol::intern(&format!("finalize/{}", val.resource())),
+                                )),
+                                false,
+                            )),
+                        },
+                        span: Default::default(),
+                        id: Default::default(),
+                    })
+                })
+                .collect_vec(),
+            output: Vec::new(),
+            output_type: Type::Unit,
+            span: Default::default(),
+            id: 0,
         }
     }
 
@@ -293,14 +340,14 @@ impl FunctionStub {
         };
         Self {
             annotations: Vec::new(),
-            variant: Variant::Standard,
+            variant: Variant::Function,
             identifier: Identifier::from(closure.name()),
             input: closure
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
+                    let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.register_type() {
                         Plaintext(val) => Input::Internal(FunctionInput {
                             identifier: arg_name,
@@ -319,7 +366,6 @@ impl FunctionStub {
             output_type,
             span: Default::default(),
             id: Default::default(),
-            finalize_stub: None,
         }
     }
 }
@@ -333,7 +379,6 @@ impl From<Function> for FunctionStub {
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            finalize_stub: function.finalize.map(FinalizeStub::from),
             span: function.span,
             id: function.id,
         }

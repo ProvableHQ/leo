@@ -31,10 +31,10 @@ use leo_ast::{
     Output,
     ReturnStatement,
     Statement,
+    Type,
 };
 
 use itertools::Itertools;
-use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
     fn visit_statement(&mut self, input: &'a Statement) -> String {
@@ -81,25 +81,21 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_return(&mut self, input: &'a ReturnStatement) -> String {
-        let mut outputs = match input.expression {
+        let outputs = match input.expression {
             // Skip empty return statements.
             Expression::Unit(_) => String::new(),
             _ => {
                 let (operand, mut expression_instructions) = self.visit_expression(&input.expression);
                 // Get the output type of the function.
-                let output = if self.in_finalize {
-                    // Note that the first unwrap is safe, since `current_function` is set in `visit_function`.
-                    self.current_function.unwrap().finalize.as_ref().unwrap().output.iter()
-                } else {
-                    // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-                    self.current_function.unwrap().output.iter()
-                };
+                let output = self.current_function.unwrap().output.iter();
                 // If the operand string is empty, initialize an empty vector.
                 let operand_strings = match operand.is_empty() {
                     true => vec![],
                     false => operand.split(' ').collect_vec(),
                 };
-                let instructions = operand_strings
+
+                let mut future_output = String::new();
+                let mut instructions = operand_strings
                     .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
@@ -122,11 +118,21 @@ impl<'a> CodeGenerator<'a> {
                                     // Only program functions have visibilities associated with their outputs.
                                     Mode::None
                                 };
-                                format!(
-                                    "    output {} as {};\n",
-                                    operand,
-                                    self.visit_type_with_visibility(&output.type_, visibility)
-                                )
+                                if let Type::Future(_) = output.type_ {
+                                    future_output = format!(
+                                        "    output {} as {}.aleo/{}.future;\n",
+                                        operand,
+                                        self.program_id.unwrap().name,
+                                        self.current_function.unwrap().identifier,
+                                    );
+                                    String::new()
+                                } else {
+                                    format!(
+                                        "    output {} as {};\n",
+                                        operand,
+                                        self.visit_type_with_visibility(&output.type_, visibility)
+                                    )
+                                }
                             }
                             Output::External(output) => {
                                 format!(
@@ -138,54 +144,16 @@ impl<'a> CodeGenerator<'a> {
                     })
                     .join("");
 
+                // Insert future output at the end.
+                instructions.push_str(&future_output);
+
                 expression_instructions.push_str(&instructions);
 
                 expression_instructions
             }
         };
 
-        // Initialize storage for the instructions.
-        let mut instructions = String::new();
-
-        // If there are any futures or if the return instruction has `finalize_arguments`, then
-        // create an `async` instruction that uses them.
-        if !self.futures.is_empty() || input.finalize_arguments.is_some() {
-            // Note that this unwrap is safe, since `current_function` is set in `visit_function`.
-            let function_id = self.current_function.unwrap().name();
-            let mut async_instruction = format!("    async {function_id}");
-            // Add the futures to the async instruction.
-            for (future_register, _) in self.futures.iter() {
-                write!(async_instruction, " {}", future_register).expect("failed to write to string");
-            }
-            // Add the finalize arguments to the async instruction.
-            if let Some(arguments) = &input.finalize_arguments {
-                for argument in arguments.iter() {
-                    let (argument, argument_instructions) = self.visit_expression(argument);
-                    write!(async_instruction, " {argument}").expect("failed to write to string");
-                    instructions.push_str(&argument_instructions);
-                }
-            }
-            // Write the destination register.
-            let destination_register = format!("r{}", self.next_register);
-            writeln!(async_instruction, " into {};", destination_register).expect("failed to write to string");
-            // Increment the register counter.
-            self.next_register += 1;
-            // Add the async instruction to the instructions.
-            instructions.push_str(&async_instruction);
-
-            // Add the destination register to the outputs.
-            let program_id = match self.program_id {
-                Some(program_id) => program_id,
-                None => unreachable!("`program_id` should be set in `visit_function`"),
-            };
-            outputs
-                .push_str(&format!("    output {} as {}/{}.future;\n", destination_register, program_id, function_id));
-        }
-
-        // Extend the instructions with the outputs.
-        instructions.push_str(&outputs);
-
-        instructions
+        outputs
     }
 
     fn visit_definition(&mut self, _input: &'a DefinitionStatement) -> String {

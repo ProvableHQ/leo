@@ -4,11 +4,11 @@ expectation: Pass
 */
 
 program test.aleo {
-    transition foo(a: [bool; 8]) {
-        return then finalize a;
+    async transition foo(a: [bool; 8]) -> Future {
+        return fin_foo(a);
     }
 
-    finalize foo(a: [bool; 8]) {
+    async function fin_foo(a: [bool; 8]) {
         assert_eq(true, true);
     }
 }

@@ -240,11 +240,6 @@ impl<'a> StatementVisitor<'a> for CheckUniqueNodeIds<'a> {
 
     fn visit_return(&mut self, input: &'a ReturnStatement) {
         self.visit_expression(&input.expression, &Default::default());
-        if let Some(arguments) = &input.finalize_arguments {
-            arguments.iter().for_each(|argument| {
-                self.visit_expression(argument, &Default::default());
-            })
-        }
         self.check(input.id)
     }
 }
@@ -270,7 +265,7 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
     }
 
     fn visit_function(&mut self, input: &'a Function) {
-        let Function { annotations, identifier, input, output, block, finalize, id, .. } = input;
+        let Function { annotations, identifier, input, output, block, id, .. } = input;
         // Check the annotations.
         for Annotation { identifier, id, .. } in annotations {
             self.visit_identifier(identifier, &Default::default());
@@ -311,45 +306,6 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
         }
         // Check the function body.
         self.visit_block(block);
-        // Check the finalize block.
-        if let Some(Finalize { identifier, input, output, block, id, .. }) = finalize {
-            // Check the finalize name.
-            self.visit_identifier(identifier, &Default::default());
-            // Check the inputs.
-            for in_ in input {
-                match in_ {
-                    Input::Internal(FunctionInput { identifier, type_, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.check_ty(type_);
-                        self.check(*id);
-                    }
-                    Input::External(External { identifier, program_name, record, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.visit_identifier(program_name, &Default::default());
-                        self.visit_identifier(record, &Default::default());
-                        self.check(*id);
-                    }
-                }
-            }
-            // Check the outputs.
-            for out in output {
-                match out {
-                    Output::Internal(FunctionOutput { type_, id, .. }) => {
-                        self.check_ty(type_);
-                        self.check(*id);
-                    }
-                    Output::External(External { identifier, program_name, record, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.visit_identifier(program_name, &Default::default());
-                        self.visit_identifier(record, &Default::default());
-                        self.check(*id);
-                    }
-                }
-            }
-            // Check the function body.
-            self.visit_block(block);
-            self.check(*id);
-        }
         self.check(*id);
     }
 }

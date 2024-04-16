@@ -6,11 +6,11 @@ expectation: Fail
 program relay.aleo {
     mapping users: address => bool;
 
-    transition send(addr: address) {
+    async transition send(addr: address) -> Future {
         let a: u32 = relay.aleo/users;
-        return then finalize(addr);
+        return finalize_send(addr);
     }
-    finalize send(addr: address) {
+    async function finalize_send(addr: address) {
         let a:bool = Mapping::get(relay.aleo/users, addr);
     }
 }

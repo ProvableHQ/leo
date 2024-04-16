@@ -6,11 +6,11 @@ expectation: Pass
 program test.aleo {
     mapping data: address => [bool; 8];
 
-    transition foo(a: [bool; 8]) {
-        return then finalize(self.caller, a);
+    async transition foo(a: [bool; 8]) -> Future {
+        return fin_foo(self.caller, a);
     }
 
-    finalize foo(caller: address, a: [bool; 8]) {
+    async function fin_foo(caller: address, a: [bool; 8]) {
         data.set(caller, a);
     }
 }

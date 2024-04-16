@@ -4,17 +4,18 @@ expectation: Pass
 */
 
 program test.aleo {    
-    function main() -> bool {
+    async transition main() -> bool {
     
     }
     
-    finalize main() {
+    async function finalize_main() {
     
     }
     
     function main() -> bool {
     
-    } finalize main(a: foo, b: bar) -> baz {
+    }
+    async function main(a: foo, b: bar) -> baz {
     
     }
     

@@ -22,6 +22,7 @@ pub(super) const TYPE_TOKENS: &[Token] = &[
     Token::Address,
     Token::Bool,
     Token::Field,
+    Token::Future,
     Token::Group,
     Token::Scalar,
     Token::Signature,
@@ -128,6 +129,25 @@ impl ParserContext<'_> {
                 // Otherwise, parse it into a `Tuple` type.
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
                 _ => Ok((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.0).collect())), span)),
+            }
+        } else if self.token.token == Token::Future {
+            // Parse the `Future` token.
+            let span = self.expect(&Token::Future)?;
+            // Parse the explicit future type, e.g. `Future<Fn(u32, u32)>`, `Future<Fn(u32, Future<Fn(u32, u32, u64)>)>` etc.
+            if self.token.token == Token::Lt {
+                // Expect the sequence `<`, `Fn`.
+                self.expect(&Token::Lt)?;
+                self.expect(&Token::Fn)?;
+                // Parse the parenthesis list of function arguments.
+                let (types, _, full_span) = self.parse_paren_comma_list(|p| p.parse_type().map(Some))?;
+                // Expect the closing `>`.
+                self.expect(&Token::Gt)?;
+                Ok((
+                    Type::Future(FutureType::new(types.into_iter().map(|t| t.0).collect(), None, true)),
+                    span + full_span,
+                ))
+            } else {
+                Ok((Type::Future(Default::default()), span))
             }
         } else {
             self.parse_primitive_type()

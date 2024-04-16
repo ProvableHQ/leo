@@ -13,7 +13,7 @@ outputs:
         functions:
           - - x
             - annotations: []
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               input:
                 - Internal:
@@ -42,7 +42,6 @@ outputs:
                   lo: 63
                   hi: 65
                 id: 6
-              finalize: ~
               span:
                 lo: 30
                 hi: 65

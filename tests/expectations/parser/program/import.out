@@ -19,7 +19,7 @@ outputs:
         functions:
           - - main
             - annotations: []
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"3\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":53,\\\"hi\\\":57}\"}"
               input: []
               output: []
@@ -49,7 +49,6 @@ outputs:
                   lo: 60
                   hi: 91
                 id: 7
-              finalize: ~
               span:
                 lo: 44
                 hi: 91

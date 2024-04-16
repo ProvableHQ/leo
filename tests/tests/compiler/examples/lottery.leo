@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 // The 'lottery' program.
-program test.aleo {
+program lottery.aleo {
 
     mapping num_winners: u8 => u8;
 
@@ -12,14 +12,14 @@ program test.aleo {
         owner: address,
     }
 
-    transition play() -> Ticket {
+    async transition play() -> (Ticket, Future) {
         let ticket: Ticket = Ticket {
             owner: self.caller,
         };
-        return ticket then finalize();
+        return (ticket, finalize_play());
     }
 
-    finalize play() {
+    async function finalize_play() {
         // Check that the lottery has not expired.
         assert(block.height <= 1000u32);
 
@@ -33,3 +33,4 @@ program test.aleo {
 
     }
 }
+

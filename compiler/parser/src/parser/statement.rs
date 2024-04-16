@@ -48,7 +48,6 @@ impl ParserContext<'_> {
             Token::Const => Ok(Statement::Const(self.parse_const_declaration_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
             Token::Console => Err(ParserError::console_statements_are_not_yet_supported(self.token.span).into()),
-            Token::Finalize => Err(ParserError::finalize_statements_are_deprecated(self.token.span).into()),
             _ => Ok(self.parse_assign_statement()?),
         }
     }
@@ -181,31 +180,15 @@ impl ParserContext<'_> {
 
         let expression = match self.token.token {
             // If the next token is a semicolon, implicitly return a unit expression, `()`.
-            Token::Semicolon | Token::Then => {
+            Token::Semicolon => {
                 Expression::Unit(UnitExpression { span: self.token.span, id: self.node_builder.next_id() })
             }
             // Otherwise, attempt to parse an expression.
             _ => self.parse_expression()?,
         };
-
-        let finalize_args = match self.token.token {
-            Token::Then => {
-                // Parse `then`.
-                self.expect(&Token::Then)?;
-                // Parse `finalize`.
-                self.expect(&Token::Finalize)?;
-                // Parse finalize arguments if they exist.
-                match self.token.token {
-                    Token::Semicolon => Some(vec![]),
-                    Token::LeftParen => Some(self.parse_paren_comma_list(|p| p.parse_expression().map(Some))?.0),
-                    _ => Some(vec![self.parse_expression()?]),
-                }
-            }
-            _ => None,
-        };
         let end = self.expect(&Token::Semicolon)?;
         let span = start + end;
-        Ok(ReturnStatement { span, expression, finalize_arguments: finalize_args, id: self.node_builder.next_id() })
+        Ok(ReturnStatement { span, expression, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.

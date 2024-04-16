@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod location;
+pub use location::*;
+
 pub mod identifier;
 pub use identifier::*;
 
@@ -29,5 +32,4 @@ pub mod node_builder;
 pub use node_builder::*;
 
 pub mod static_string;
-
 pub use static_string::*;

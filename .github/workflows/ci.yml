@@ -8,7 +8,7 @@ on:
         - 'docs/**'
         - 'documentation/**'
 env:
-  RUST_BACKTRACE: 1
+  RUST_BACKTRACE: 0
 
 jobs:
   test-package:

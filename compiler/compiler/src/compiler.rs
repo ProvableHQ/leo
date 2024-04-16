@@ -149,8 +149,14 @@ impl<'a> Compiler<'a> {
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) =
-            TypeChecker::do_pass((&self.ast, self.handler, symbol_table, &self.type_table))?;
+        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((
+            &self.ast,
+            self.handler,
+            symbol_table,
+            &self.type_table,
+            self.compiler_options.build.conditional_block_max_depth,
+            self.compiler_options.build.disable_conditional_branch_type_checking,
+        ))?;
         if self.compiler_options.output.type_checked_symbol_table {
             self.write_symbol_table_to_json("type_checked_symbol_table.json", &symbol_table)?;
         }

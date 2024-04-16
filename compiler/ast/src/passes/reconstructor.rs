@@ -141,7 +141,7 @@ pub trait ExpressionReconstructor {
     fn reconstruct_call(&mut self, input: CallExpression) -> (Expression, Self::AdditionalOutput) {
         (
             Expression::Call(CallExpression {
-                function: Box::new(self.reconstruct_expression(*input.function).0),
+                function: input.function,
                 arguments: input.arguments.into_iter().map(|arg| self.reconstruct_expression(arg).0).collect(),
                 program: input.program,
                 span: input.span,
@@ -402,9 +402,6 @@ pub trait StatementReconstructor: ExpressionReconstructor {
         (
             Statement::Return(ReturnStatement {
                 expression: self.reconstruct_expression(input.expression).0,
-                finalize_arguments: input.finalize_arguments.map(|arguments| {
-                    arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
-                }),
                 span: input.span,
                 id: input.id,
             }),
@@ -470,15 +467,6 @@ pub trait ProgramReconstructor: StatementReconstructor {
             output: input.output,
             output_type: input.output_type,
             block: self.reconstruct_block(input.block).0,
-            finalize: input.finalize.map(|finalize| Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block: self.reconstruct_block(finalize.block).0,
-                span: finalize.span,
-                id: finalize.id,
-            }),
             span: input.span,
             id: input.id,
         }

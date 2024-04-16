@@ -183,9 +183,6 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
         // Visit the statement.
         let statement = Statement::Return(ReturnStatement {
             expression: self.reconstruct_expression(input.expression).0,
-            finalize_arguments: input.finalize_arguments.map(|arguments| {
-                arguments.into_iter().map(|argument| self.reconstruct_expression(argument).0).collect()
-            }),
             span: input.span,
             id: input.id,
         });

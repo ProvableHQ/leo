@@ -206,24 +206,9 @@ impl<'a> Flattener<'a> {
         if !returns.is_empty() {
             let mut return_expressions = Vec::with_capacity(returns.len());
 
-            // Construct a vector for each argument position.
-            // Note that the indexing is safe since we check that `returns` is not empty.
-            let (has_finalize, number_of_finalize_arguments) = match &returns[0].1.finalize_arguments {
-                None => (false, 0),
-                Some(args) => (true, args.len()),
-            };
-            let mut finalize_arguments: Vec<Vec<(Option<Expression>, Expression)>> =
-                vec![Vec::with_capacity(returns.len()); number_of_finalize_arguments];
-
             // Aggregate the return expressions and finalize arguments and their respective guards.
             for (guard, return_statement) in returns {
                 return_expressions.push((guard.clone(), return_statement.expression));
-                if let Some(arguments) = return_statement.finalize_arguments {
-                    for (i, argument) in arguments.into_iter().enumerate() {
-                        // Note that the indexing is safe since we initialize `finalize_arguments` with the correct length.
-                        finalize_arguments[i].push((guard.clone(), argument));
-                    }
-                }
             }
 
             // Fold the return expressions into a single expression.
@@ -232,26 +217,9 @@ impl<'a> Flattener<'a> {
             // Add all of the accumulated statements to the end of the block.
             block.statements.extend(stmts);
 
-            // For each position in the finalize call, fold the corresponding arguments into a single expression.
-            let finalize_arguments = match has_finalize {
-                false => None,
-                true => Some(
-                    finalize_arguments
-                        .into_iter()
-                        .enumerate()
-                        .map(|(i, arguments)| {
-                            let (expression, stmts) = self.fold_guards(&format!("finalize${i}$"), arguments);
-                            block.statements.extend(stmts);
-                            expression
-                        })
-                        .collect(),
-                ),
-            };
-
             // Add the `ReturnStatement` to the end of the block.
             block.statements.push(Statement::Return(ReturnStatement {
                 expression,
-                finalize_arguments,
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             }));
@@ -263,7 +231,6 @@ impl<'a> Flattener<'a> {
                     let id = self.node_builder.next_id();
                     Expression::Unit(UnitExpression { span: Default::default(), id })
                 },
-                finalize_arguments: None,
                 span: Default::default(),
                 id: self.node_builder.next_id(),
             }));

@@ -10,7 +10,7 @@ program relay.aleo {
         let a: mapping = relay.aleo/users;
         return then finalize(addr);
     }
-    finalize send(addr: address) {
+    async function finalize_send(addr: address) {
         let a:bool = Mapping::get(relay.aleo/users, addr);
     }
 }

@@ -285,6 +285,13 @@ create_messages!(
     }
 
     @formatted
+    async_function_input_cannot_be_private {
+        args: (),
+        msg: format!("Async functions cannot have private inputs."),
+        help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
+    }
+
+    @formatted
     struct_or_record_cannot_contain_record {
         args: (parent: impl Display, child: impl Display),
         msg: format!("A struct or record cannot contain another record."),
@@ -299,52 +306,31 @@ create_messages!(
     }
 
     @formatted
-    only_transition_functions_can_have_finalize {
-        args: (),
-        msg: format!("Only transition functions can have a `finalize` block."),
-        help: Some("Remove the `finalize` block or use the keyword `transition` instead of `function`.".to_string()),
-    }
-
-    @formatted
     finalize_input_mode_must_be_public {
         args: (),
-        msg: format!("An input to a finalize block must be public."),
+        msg: format!("An input to an async function must be public."),
         help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
     }
 
     @formatted
     finalize_output_mode_must_be_public {
         args: (),
-        msg: format!("An output from a finalize block must be public."),
+        msg: format!("An output from an async function block must be public."),
         help: Some("Use a `public` modifier to the output type declaration or remove the visibility modifier entirely.".to_string()),
-    }
-
-    @formatted
-    finalize_in_finalize {
-        args: (),
-        msg: format!("A finalize block cannot contain a finalize statement."),
-        help: None,
     }
 
     @formatted
     invalid_operation_outside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` must be inside a finalize block."),
-        help: None,
-    }
-
-    @formatted
-    finalize_without_finalize_block {
-        args: (),
-        msg: format!("Cannot use a `finalize` statement without a `finalize` block."),
+        msg: format!("`{operation}` must be inside an async function block."),
         help: None,
     }
 
     @formatted
     loop_body_contains_finalize {
         args: (),
-        msg: format!("Loop body contains a finalize statement."),
-        help: Some("Remove the finalize statement.".to_string()),
+        msg: format!("Loop body contains an async function call."),
+        help: Some("Remove the async function call.".to_string()),
     }
 
     @formatted
@@ -357,7 +343,7 @@ create_messages!(
     @formatted
     finalize_block_must_not_be_empty {
         args: (),
-        msg: format!("A finalize block cannot be empty."),
+        msg: format!("An async function call block cannot be empty."),
         help: None,
     }
 
@@ -376,32 +362,9 @@ create_messages!(
     }
 
     @formatted
-    incorrect_num_args_to_finalize {
-        args: (expected: impl Display, received: impl Display),
-        msg: format!(
-            "`finalize` expected `{expected}` args, but got `{received}`",
-        ),
-        help: None,
-    }
-
-    @formatted
     invalid_self_access {
         args: (),
         msg: format!("The allowed accesses to `self` are `self.caller` and `self.signer`."),
-        help: None,
-    }
-
-    @formatted
-    missing_finalize {
-        args: (),
-        msg: format!("Function must contain a `finalize` statement on all execution paths."),
-        help: None,
-    }
-
-    @formatted
-    finalize_name_mismatch {
-        args: (finalize_name: impl Display, function_name: impl Display),
-        msg: format!("`finalize` name `{finalize_name}` does not match function name `{function_name}`"),
         help: None,
     }
 
@@ -485,23 +448,9 @@ create_messages!(
     }
 
     @formatted
-    finalize_cannot_take_tuple_as_input {
-        args: (),
-        msg: format!("A finalize block cannot take in a tuple as input."),
-        help: None,
-    }
-
-    @formatted
     nested_tuple_expression {
         args: (),
         msg: format!("A tuple expression cannot contain another tuple expression."),
-        help: None,
-    }
-
-    @formatted
-    finalize_statement_cannot_contain_tuples {
-        args: (),
-        msg: format!("A finalize statement cannot contain tuple expressions."),
         help: None,
     }
 
@@ -536,7 +485,7 @@ create_messages!(
     @formatted
     function_cannot_input_or_output_a_record {
         args: (),
-        msg: format!("A `function` cannot have a record as input or output."),
+        msg: format!("Only `transition` functions can have a record as input or output."),
         help: None,
     }
 
@@ -575,26 +524,6 @@ create_messages!(
     }
 
     @formatted
-    finalize_cannot_take_record_as_input {
-        args: (),
-        msg: format!("A finalize block cannot take in a record as input."),
-        help: None,
-    }
-
-    @formatted
-    finalize_cannot_output_record {
-        args: (),
-        msg: format!("A finalize block cannot return a record."),
-        help: None,
-    }
-
-    @formatted
-    finalize_cannot_return_value {
-        args: (),
-        msg: format!("A finalize block cannot return a value."),
-        help: None,
-    }
-    @formatted
     too_many_mappings {
         args: (max: impl Display),
         msg: format!("The number of mappings exceeds the maximum. snarkVM allows up to {max} mappings within a single program."),
@@ -632,14 +561,14 @@ create_messages!(
     @formatted
     invalid_operation_inside_finalize {
         args: (operation: impl Display),
-        msg: format!("`{operation}` is not a valid operand in a finalize context."),
+        msg: format!("`{operation}` is not a valid operand in an async function call context."),
         help: None,
     }
 
     @formatted
     operation_must_be_in_finalize_block {
         args: (),
-        msg: format!("This operation can only be used in a `finalize` block."),
+        msg: format!("This operation can only be used in an async function block."),
         help: None,
     }
 
@@ -751,7 +680,7 @@ create_messages!(
     @formatted
     no_transitions {
         args: (),
-        msg: format!("A program must have at least one transition function."),
+        msg: "A program must have at least one transition function.".to_string(),
         help: None,
     }
 
@@ -769,6 +698,160 @@ create_messages!(
         help: Some("Check that the struct definition in the current program matches the definition in the imported program.".to_string()),
     }
 
+    @formatted
+    async_transition_invalid_output {
+        args: (),
+        msg: "An async transition must return a future as the final output, and in no other position return a future.".to_string(),
+        help: Some("Example: `async transition foo() -> (u8, bool, Future) {...}`".to_string()),
+    }
+
+    @formatted
+    must_propagate_all_futures {
+        args: (never_propagated: impl Display),
+        msg: format!("All futures generated from external transition calls must be inserted into an async function call in the order they were called. The following were never were: {never_propagated}"),
+        help: Some("Example: `async transition foo() -> Future { let a: Future = b.aleo/bar(); return await_futures(a); }`".to_string()),
+    }
+
+    @formatted
+    async_transition_must_call_async_function {
+        args: (),
+        msg: "An async transition must call an async function.".to_string(),
+        help: Some("Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`".to_string()),
+    }
+    @formatted
+    async_function_input_length_mismatch {
+        args: (expected: impl Display, received: impl Display),
+        msg: format!("Expected `{expected}` inputs, but got `{received}`"),
+        help: Some("Check that the number of arguments passed in are the same as the number in the function signature. Ex: `async function foo(a: u8, b: u8)` has two input arguments.".to_string()),
+    }
+
+    @formatted
+    invalid_future_access {
+        args: (num: impl Display, len: impl Display),
+        msg: format!(
+            "Cannot access argument `{num}` from future. The future only has `{len}` arguments."
+        ),
+        help: None,
+    }
+
+    @formatted
+    future_access_must_be_number {
+        args: (name: impl Display),
+        msg: format!("Future access must be a number not `{name}`."),
+        help: Some(" Future arguments must be addressed by their index. Ex: `f.1.3`.".to_string()),
+    }
+
+    @formatted
+    no_path_awaits_all_futures_exactly_once {
+        args: (num_total_paths: impl Display),
+        msg: format!("Futures must be awaited exactly once. Out of `{num_total_paths}`, there does not exist a single path in which all futures are awaited exactly once."),
+        help: Some("Ex: for `f: Future` call `f.await()` to await a future. Remove duplicate future await redundancies, and add future awaits for un-awaited futures.".to_string()),
+    }
+
+    @formatted
+    future_awaits_missing {
+        args: (unawaited: impl Display),
+        msg: format!("The following futures were never awaited: {unawaited}"),
+        help: Some("Ex: for `f: Future` call `f.await()` to await a future.".to_string()),
+    }
+
+    @formatted
+    cannot_reassign_future_variable {
+        args: (var: impl Display),
+        msg: format!("Cannot reassign variable `{var}` since it has type Future."),
+        help: Some("Futures can only be defined as the result of async calls.".to_string()),
+    }
+
+    @formatted
+    invalid_await_call {
+        args: (),
+        msg: "Not a valid await call.".to_string(),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
+    }
+
+    @formatted
+    can_only_await_one_future_at_a_time {
+        args: (),
+        msg: "Must await exactly one future at a time".to_string(),
+        help: Some("Ex: for `f: Future` call `f.await()` or `Future::await(f)` to await a future.".to_string()),
+    }
+
+    @formatted
+    expected_future {
+        args: (type_: impl Display),
+        msg: format!("Expected a future, but found `{type_}`"),
+        help: Some("Only futures can be awaited.".to_string()),
+    }
+
+    @formatted
+    invalid_method_call {
+        args: (),
+        msg: "Not a valid method call.".to_string(),
+        help: Some("For a `f: Future`, call the associated method `f.await()`.".to_string()),
+    }
+
+    @formatted
+    async_call_in_conditional {
+        args: (),
+        msg: "Cannot call an async function in a conditional block.".to_string(),
+        help: Some("Move the async call outside of the conditional block.".to_string()),
+    }
+
+    @formatted
+    must_call_async_function_once {
+        args: (),
+        msg: "Must call exactly one local async function per transition function.".to_string(),
+        help: Some("Move the async call outside of the transition block.".to_string()),
+    }
+
+    @formatted
+    async_call_can_only_be_done_from_async_transition {
+        args: (),
+        msg: "Can only make an async call from an async transition.".to_string(),
+        help: Some("Move the async call inside of the async transition block.".to_string()),
+    }
+
+    @formatted
+    external_transition_call_must_be_before_finalize {
+        args: (),
+        msg: "External async transition calls cannot be made after local async function call".to_string(),
+        help: Some("Move the async call before the function call.".to_string()),
+    }
+
+    @formatted
+    unknown_future_consumed {
+        args: (future: impl Display),
+        msg: format!("Unknown future consumed: `{future}`"),
+        help: Some("Make sure the future is defined and consumed exactly once.".to_string()),
+    }
+
+    @formatted
+    not_all_futures_consumed {
+        args: (unconsumed: impl Display),
+        msg: format!("Not all futures were consumed: {unconsumed}"),
+        help: Some("Make sure all futures are consumed exactly once. Consume by passing to an async function call.".to_string()),
+    }
+
+    @formatted
+    async_transition_missing_future_to_return {
+        args: (),
+        msg: "An async transition must return a future.".to_string(),
+        help: Some("Call an async function inside of the async transition body so that there is a future to return.".to_string()),
+    }
+
+    @formatted
+    finalize_function_cannot_return_value {
+        args: (),
+        msg: "An async function is not allowed to return a value.".to_string(),
+        help: Some("Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.".to_string()),
+    }
+
+    @formatted
+    return_type_of_finalize_function_is_future {
+        args: (),
+        msg: "The output of an async function must be assigned to a `Future` type..".to_string(),
+        help: None,
+    }
     @formatted
     cannot_modify_external_mapping {
         args: (operation: impl Display),

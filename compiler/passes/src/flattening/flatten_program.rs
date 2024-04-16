@@ -16,34 +16,11 @@
 
 use crate::Flattener;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for Flattener<'_> {
-    /// Flattens a function's body and finalize block, if it exists.
+    /// Flattens a function's body.
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        // First, flatten the finalize block. This allows us to initialize self.finalizes correctly.
-        // Note that this is safe since the finalize block is independent of the function body.
-        let finalize = function.finalize.map(|finalize| {
-            // Flatten the finalize block.
-            let mut block = self.reconstruct_block(finalize.block).0;
-
-            // Get all of the guards and return expression.
-            let returns = self.clear_early_returns();
-
-            // Fold the return statements into the block.
-            self.fold_returns(&mut block, returns);
-
-            Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block,
-                span: finalize.span,
-                id: finalize.id,
-            }
-        });
-
         // Flatten the function body.
         let mut block = self.reconstruct_block(function.block).0;
 
@@ -61,7 +38,6 @@ impl ProgramReconstructor for Flattener<'_> {
             output: function.output,
             output_type: function.output_type,
             block,
-            finalize,
             span: function.span,
             id: function.id,
         }

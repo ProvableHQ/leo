@@ -104,7 +104,6 @@ outputs:
                   lo: 77
                   hi: 197
                 id: 29
-              finalize: ~
               span:
                 lo: 26
                 hi: 197
@@ -167,7 +166,6 @@ outputs:
                   - Return:
                       expression:
                         Identifier: "{\"id\":\"40\",\"name\":\"signature\",\"span\":\"{\\\"lo\\\":285,\\\"hi\\\":294}\"}"
-                      finalize_arguments: ~
                       span:
                         lo: 278
                         hi: 295
@@ -176,7 +174,6 @@ outputs:
                   lo: 231
                   hi: 301
                 id: 42
-              finalize: ~
               span:
                 lo: 203
                 hi: 301
@@ -252,7 +249,6 @@ outputs:
                   lo: 357
                   hi: 434
                 id: 63
-              finalize: ~
               span:
                 lo: 306
                 hi: 434

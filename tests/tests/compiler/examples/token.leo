@@ -3,7 +3,7 @@ namespace: Compile
 expectation: Pass
 */
 
-program test.aleo {
+program token.aleo {
     // On-chain storage of an `account` map, with `address` as the key,
     // and `u64` as the value.
     mapping account: address => u64;
@@ -18,12 +18,12 @@ program test.aleo {
     /* Mint */
 
     // The function `mint_public` issues the specified token amount for the token receiver publicly on the network.
-    transition mint_public(public receiver: address, public amount: u64) {
+    async transition mint_public(public receiver: address, public amount: u64) -> Future {
         // Mint the tokens publicly by invoking the computation on-chain.
-        return then finalize(receiver, amount);
+        return finalize_mint_public(receiver, amount);
     }
 
-    finalize mint_public(public receiver: address, public amount: u64) {
+    async function finalize_mint_public(public receiver: address, public amount: u64) {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -40,12 +40,12 @@ program test.aleo {
     }
 
     /* Transfer */
-    transition transfer_public(public receiver: address, public amount: u64) {
+    async transition transfer_public(public receiver: address, public amount: u64) -> Future {
         // Transfer the tokens publicly, by invoking the computation on-chain.
-        return then finalize(self.caller, receiver, amount);
+        return finalize_transfer_public(self.caller, receiver, amount);
     }
 
-    finalize transfer_public(public sender: address, public receiver: address, public amount: u64) {
+    async function finalize_transfer_public(public sender: address, public receiver: address, public amount: u64) {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -83,7 +83,7 @@ program test.aleo {
 
     // The function `transfer_private_to_public` turns a specified token amount from a token record into public tokens for the specified receiver.
     // This function preserves privacy for the sender's record, however it publicly reveals the token receiver and the token amount.
-    transition transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> token {
+    async transition transfer_private_to_public(sender: token, public receiver: address, public amount: u64) -> (token, Future) {
         // Checks the given token record has a sufficient token amount.
         // This `sub` operation is safe, and the proof will fail if an underflow occurs.
         // `difference` holds the change amount for the caller.
@@ -97,10 +97,10 @@ program test.aleo {
 
         // Output the sender's change record.
         // Increment the token amount publicly for the token receiver.
-        return remaining then finalize(receiver, amount);
+        return (remaining, finalize_transfer_private_to_public(receiver, amount));
     }
 
-    finalize transfer_private_to_public(public receiver: address, public amount: u64) {
+    async function finalize_transfer_private_to_public(public receiver: address, public amount: u64) {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.
@@ -110,7 +110,7 @@ program test.aleo {
 
     // The function `transfer_public_to_private` turns a specified token amount from `account` into a token record for the specified receiver.
     // This function preserves privacy for the receiver's record, however it publicly reveals the caller and the specified token amount.
-    transition transfer_public_to_private(public receiver: address, public amount: u64) -> token {
+    async transition transfer_public_to_private(public receiver: address, public amount: u64) -> (token, Future) {
         // Produces a token record for the token receiver.
         let transferred: token = token {
             owner: receiver,
@@ -119,10 +119,10 @@ program test.aleo {
 
         // Output the receiver's record.
         // Decrement the token amount of the caller publicly.
-        return transferred then finalize(self.caller, amount);
+        return (transferred, finalize_transfer_public_to_private(self.caller, amount));
     }
 
-    finalize transfer_public_to_private(public sender: address, public amount: u64) {
+    async function finalize_transfer_public_to_private(public sender: address, public amount: u64) {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public_to_private` is reverted.
@@ -131,3 +131,4 @@ program test.aleo {
     }
 
 }
+

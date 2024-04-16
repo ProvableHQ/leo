@@ -5,11 +5,11 @@ expectation: Pass
 
 program test.aleo {
 
-    transition foo() {
-        return then finalize();
+    async transition foo() -> Future {
+        return finalize_foo();
     }
 
-    finalize foo() {
+    async function finalize_foo() {
         let a: address = ChaCha::rand_address();
         let b: bool = ChaCha::rand_bool();
         let c: field = ChaCha::rand_field();

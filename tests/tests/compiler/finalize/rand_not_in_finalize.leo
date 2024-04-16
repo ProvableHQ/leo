@@ -7,12 +7,12 @@ program test.aleo {
 
     mapping values: scalar => group;
 
-    transition foo() {
+    async transition foo() -> Future {
         let a: scalar = ChaCha::rand_scalar();
-        return then finalize(a);
+        return finalize_foo(a);
     }
 
-    finalize foo(a: scalar) {
+    async function finalize_foo(a: scalar) {
         let b: group = ChaCha::rand_group();
         values.set(a, b);
     }

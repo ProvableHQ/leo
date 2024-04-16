@@ -288,6 +288,7 @@ pub enum CoreFunction {
     GroupToYCoordinate,
 
     SignatureVerify,
+    FutureAwait,
 }
 
 impl CoreFunction {
@@ -564,6 +565,7 @@ impl CoreFunction {
             (sym::group, sym::to_y_coordinate) => Self::GroupToYCoordinate,
 
             (sym::signature, sym::verify) => Self::SignatureVerify,
+            (sym::Future, sym::Await) => Self::FutureAwait,
             _ => return None,
         })
     }
@@ -841,13 +843,15 @@ impl CoreFunction {
             Self::GroupToYCoordinate => 1,
 
             Self::SignatureVerify => 3,
+            Self::FutureAwait => 1,
         }
     }
 
     /// Returns whether or not this function is finalize command.
     pub fn is_finalize_command(&self) -> bool {
         match self {
-            CoreFunction::ChaChaRandAddress
+            CoreFunction::FutureAwait
+            | CoreFunction::ChaChaRandAddress
             | CoreFunction::ChaChaRandBool
             | CoreFunction::ChaChaRandField
             | CoreFunction::ChaChaRandGroup

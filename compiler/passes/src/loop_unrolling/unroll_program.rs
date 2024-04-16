@@ -16,7 +16,7 @@
 
 use leo_ast::*;
 
-use crate::{Location, Unroller};
+use crate::Unroller;
 
 impl ProgramReconstructor for Unroller<'_> {
     fn reconstruct_stub(&mut self, input: Stub) -> Stub {
@@ -90,24 +90,6 @@ impl ProgramReconstructor for Unroller<'_> {
 
         self.exit_scope(previous_scope_index);
 
-        let finalize = function.finalize.map(|finalize| {
-            let previous_scope_index = self.enter_scope(self.scope_index);
-
-            let block = self.reconstruct_block(finalize.block).0;
-
-            self.exit_scope(previous_scope_index);
-
-            Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block,
-                span: finalize.span,
-                id: finalize.id,
-            }
-        });
-
         // Reconstruct the function block.
         let reconstructed_function = Function {
             annotations: function.annotations,
@@ -117,7 +99,6 @@ impl ProgramReconstructor for Unroller<'_> {
             output: function.output,
             output_type: function.output_type,
             block,
-            finalize,
             span: function.span,
             id: function.id,
         };

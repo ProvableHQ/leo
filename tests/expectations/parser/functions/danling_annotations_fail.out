@@ -18,7 +18,7 @@ outputs:
                     lo: 110
                     hi: 115
                   id: 3
-              variant: Standard
+              variant: Function
               identifier: "{\"id\":\"4\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":134,\\\"hi\\\":138}\"}"
               input: []
               output:
@@ -38,7 +38,6 @@ outputs:
                   lo: 147
                   hi: 149
                 id: 6
-              finalize: ~
               span:
                 lo: 125
                 hi: 149

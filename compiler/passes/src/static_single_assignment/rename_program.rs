@@ -19,7 +19,6 @@ use crate::StaticSingleAssigner;
 use leo_ast::{
     Block,
     Composite,
-    Finalize,
     Function,
     FunctionConsumer,
     Member,
@@ -80,37 +79,6 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
         // Remove the `RenameTable` for the function.
         self.pop();
 
-        let finalize = function.finalize.map(|finalize| {
-            // Allocate a `RenameTable` for the finalize block.
-            self.push();
-
-            // There is no need to reconstruct `finalize.inputs`.
-            // However, for each input, we must add each symbol to the rename table.
-            for input_variable in finalize.input.iter() {
-                let identifier = input_variable.identifier();
-                self.rename_table.update(identifier.name, identifier.name, identifier.id);
-            }
-
-            let block = Block {
-                span: finalize.block.span,
-                id: finalize.block.id,
-                statements: self.consume_block(finalize.block),
-            };
-
-            // Remove the `RenameTable` for the finalize block.
-            self.pop();
-
-            Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block,
-                span: finalize.span,
-                id: finalize.id,
-            }
-        });
-
         Function {
             annotations: function.annotations,
             variant: function.variant,
@@ -119,7 +87,6 @@ impl FunctionConsumer for StaticSingleAssigner<'_> {
             output: function.output,
             output_type: function.output_type,
             block,
-            finalize,
             span: function.span,
             id: function.id,
         }

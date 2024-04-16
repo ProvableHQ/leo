@@ -5,9 +5,9 @@ expectation: Fail
 
 program test.aleo {    
     
-    transition mint_public(public receiver: address, public amount: u64) {
-        return then finalize(receiver, amount);
+    async transition mint_public(public receiver: address, public amount: u64) -> Future {
+        return finalize_mint(receiver, amount);
     }
     
-    finalize mint_public (public receiver: address, public amount: u64) {}
+    async function finalize_mint(public receiver: address, public amount: u64) {}
 }
