@@ -16,24 +16,22 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
-                    mode: Constant
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 50
-                      hi: 51
-                    id: 4
+                - identifier: "{\"id\":\"3\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
+                  mode: Constant
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 50
+                    hi: 51
+                  id: 4
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 61
-                      hi: 63
-                    id: 5
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 61
+                    hi: 63
+                  id: 5
               output_type:
                 Integer: U8
               block:
@@ -114,22 +112,20 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"19\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"20\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":150,\\\"hi\\\":151}\"}"
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 150
-                      hi: 151
-                    id: 21
+                - identifier: "{\"id\":\"20\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":150,\\\"hi\\\":151}\"}"
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 150
+                    hi: 151
+                  id: 21
               output:
-                - Internal:
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 162
-                      hi: 166
-                    id: 22
+                - mode: None
+                  type_: Boolean
+                  span:
+                    lo: 162
+                    hi: 166
+                  id: 22
               output_type: Boolean
               block:
                 statements:

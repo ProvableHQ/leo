@@ -32,14 +32,13 @@ outputs:
               identifier: "{\"id\":\"8\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":66,\\\"hi\\\":69}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 75
-                      hi: 77
-                    id: 9
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 75
+                    hi: 77
+                  id: 9
               output_type:
                 Integer: U8
               block:
@@ -59,14 +58,13 @@ outputs:
               identifier: "{\"id\":\"12\",\"name\":\"mint\",\"span\":\"{\\\"lo\\\":101,\\\"hi\\\":105}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 111
-                      hi: 113
-                    id: 13
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 111
+                    hi: 113
+                  id: 13
               output_type:
                 Integer: U8
               block:
@@ -91,14 +89,13 @@ outputs:
               identifier: "{\"id\":\"18\",\"name\":\"test\",\"span\":\"{\\\"lo\\\":145,\\\"hi\\\":149}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 155
-                      hi: 157
-                    id: 19
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 155
+                    hi: 157
+                  id: 19
               output_type:
                 Integer: U8
               block:
@@ -123,14 +120,13 @@ outputs:
               identifier: "{\"id\":\"24\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":192,\\\"hi\\\":195}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 201
-                      hi: 203
-                    id: 25
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 201
+                    hi: 203
+                  id: 25
               output_type:
                 Integer: U8
               block:

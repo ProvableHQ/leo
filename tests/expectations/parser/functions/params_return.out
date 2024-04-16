@@ -16,33 +16,30 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 41
-                      hi: 42
-                    id: 4
-                - Internal:
-                    identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":50}\"}"
-                    mode: None
-                    type_:
-                      Integer: I32
-                    span:
-                      lo: 49
-                      hi: 50
-                    id: 6
+                - identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 41
+                    hi: 42
+                  id: 4
+                - identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":49,\\\"hi\\\":50}\"}"
+                  mode: None
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 49
+                    hi: 50
+                  id: 6
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 60
-                      hi: 63
-                    id: 7
+                - mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 60
+                    hi: 63
+                  id: 7
               output_type:
                 Integer: U32
               block:
