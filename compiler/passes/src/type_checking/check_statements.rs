@@ -82,13 +82,14 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
             // If the variable exists and its in a finalize, then check that it is in the current scope.
             if self.is_finalize
+                && self.is_conditional
                 && self
                     .symbol_table
                     .borrow()
                     .lookup_variable_in_current_scope(Location::new(None, var_name.name))
                     .is_none()
             {
-                self.emit_err(TypeCheckerError::finalize_cannot_assign_to_outer_scope(var_name, var.span));
+                self.emit_err(TypeCheckerError::finalize_cannot_assign_outside_conditional(var_name, var.span));
             }
 
             Some(var.type_.clone())
@@ -125,6 +126,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
         // Set the `has_finalize` flag for the then-block.
         let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
+        // Set the `is_conditional` flag.
+        let previous_is_conditional = core::mem::replace(&mut self.is_conditional, true);
 
         self.visit_block(&input.then);
 
@@ -158,6 +161,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
         // Restore the previous `has_finalize` flag.
         self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
+        // Restore the previous `is_conditional` flag.
+        self.is_conditional = previous_is_conditional;
     }
 
     fn visit_console(&mut self, _: &'a ConsoleStatement) {

@@ -53,6 +53,8 @@ pub struct CodeGenerator<'a> {
     pub(crate) program: &'a Program,
     // The program ID of the current program.
     pub(crate) program_id: Option<ProgramId>,
+    /// A counter to track the next available label.
+    pub(crate) next_label: u64,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -80,6 +82,7 @@ impl<'a> CodeGenerator<'a> {
             futures: Vec::new(),
             program,
             program_id: None,
+            next_label: 0u64,
         }
     }
 }

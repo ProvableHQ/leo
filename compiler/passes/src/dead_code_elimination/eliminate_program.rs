@@ -33,8 +33,14 @@ impl ProgramReconstructor for DeadCodeEliminator<'_> {
             self.used_variables.clear();
             self.is_necessary = false;
 
+            // Set the `is_finalize` flag.
+            self.is_finalize = true;
+
             // Traverse the finalize block.
             let block = self.reconstruct_block(finalize.block).0;
+
+            // Reset the `is_finalize` flag.
+            self.is_finalize = false;
 
             Finalize {
                 identifier: finalize.identifier,

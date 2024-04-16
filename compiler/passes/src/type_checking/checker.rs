@@ -69,6 +69,8 @@ pub struct TypeChecker<'a> {
     pub(crate) is_stub: bool,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
+    /// Whether or not we are currently traversing a conditional statement.
+    pub(crate) is_conditional: bool,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -138,6 +140,7 @@ impl<'a> TypeChecker<'a> {
             program_name: None,
             is_stub: true,
             used_structs: IndexSet::new(),
+            is_conditional: false,
         }
     }
 

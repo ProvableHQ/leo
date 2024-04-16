@@ -270,7 +270,11 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, L
 
     parsed.function_inlining_pass(&call_graph)?;
 
+    println!("AST after inlining: {:#?}", parsed.ast.ast);
+
     parsed.dead_code_elimination_pass()?;
+
+    println!("AST after DCE: {:#?}", parsed.ast.ast);
 
     // Compile Leo program to bytecode.
     let bytecode = parsed.code_generation_pass(&st, &struct_graph, &call_graph)?;
