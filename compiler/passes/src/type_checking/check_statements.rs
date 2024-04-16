@@ -70,7 +70,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Lookup the variable in the symbol table and retrieve its type.
         let var_type = if let Some(var) =
-            self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
+            self.symbol_table.borrow().lookup_variable(Location::new(None, var_name.name))
         {
             // If the variable exists, then check that it is not a constant.
             match &var.declaration {
