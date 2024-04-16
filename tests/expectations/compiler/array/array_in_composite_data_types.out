@@ -3,16 +3,16 @@ namespace: Compile
 expectation: Pass
 outputs:
   - - compile:
-        - initial_symbol_table: 0a9e39c80f4a7f4cac48e8fa673aec1a25fb39998ad02d690a0922bdbf7c91a5
-          type_checked_symbol_table: fcace63f105343adf3ce1f8d99a70762e83a99e81d6d9a366ec7e9a7bfcbbb96
-          unrolled_symbol_table: fcace63f105343adf3ce1f8d99a70762e83a99e81d6d9a366ec7e9a7bfcbbb96
-          initial_ast: ed44f2e8674bc083238a3e55c224e862583cc2118f7032194dd9f866937f6e11
-          unrolled_ast: ed44f2e8674bc083238a3e55c224e862583cc2118f7032194dd9f866937f6e11
-          ssa_ast: cace7d8d010a0387e087f70d50dda22dd9219f10e7e93f4c5b8de4afd2b7abfe
-          flattened_ast: 00d9a1361c7f00b01be1856f385ccb2ce2864a33d17f01cde91b83ba527cf663
-          destructured_ast: 190079c0017bf93950821145acf9f999dd7e8f9cb1a5267b22aefa3c08dd002d
-          inlined_ast: 190079c0017bf93950821145acf9f999dd7e8f9cb1a5267b22aefa3c08dd002d
-          dce_ast: 190079c0017bf93950821145acf9f999dd7e8f9cb1a5267b22aefa3c08dd002d
-          bytecode: a3539a0515c22f4ec653aa601063d7a414db833dc25273cee463985b052b72bc
+        - initial_symbol_table: 7f7aad6cade17933b88c3a7009d8e6819c92fe7f98d8b831bdb6528020a164e8
+          type_checked_symbol_table: 83608e603622b56f92717215e4132cd10e0de089cf8e6842a2728e546bb7e893
+          unrolled_symbol_table: 83608e603622b56f92717215e4132cd10e0de089cf8e6842a2728e546bb7e893
+          initial_ast: 87b76e57afde9b659b7c1a0fa40d40396612bf4d343ef3946a928f6ea8b9736e
+          unrolled_ast: 87b76e57afde9b659b7c1a0fa40d40396612bf4d343ef3946a928f6ea8b9736e
+          ssa_ast: fe88ef24db7090c576afb995752854471b0e78f36f298361e1151d6e94daffe3
+          flattened_ast: c85448af390f96236529dc702d57cecba03195dc97bf558a57dd82f77148109a
+          destructured_ast: 6ca6838bd86ee2be5f898ab84c522bac4239c198b4a57e9309d62b8957bd9e12
+          inlined_ast: 6ca6838bd86ee2be5f898ab84c522bac4239c198b4a57e9309d62b8957bd9e12
+          dce_ast: 6ca6838bd86ee2be5f898ab84c522bac4239c198b4a57e9309d62b8957bd9e12
+          bytecode: 67619846db5121f2179a5a98369037659ac6c8a5f02768bf82b3acf7d8329058
           errors: ""
           warnings: ""

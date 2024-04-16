@@ -241,9 +241,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         match input.key_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
@@ -260,9 +258,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         match input.value_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
