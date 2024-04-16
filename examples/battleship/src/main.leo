@@ -16,7 +16,7 @@ program battleship.aleo {
         destroyer: u64,
         // The address of the opponent.
         player: address,
-    ) -> board.aleo/board_state.record {
+    ) -> board.aleo/board_state {
         // Verify that each individual ship placement bitstring is valid.
         let valid_carrier: bool = verify.aleo/validate_ship(carrier, 5u64, 31u64, 4311810305u64);
         assert(valid_carrier);
@@ -44,22 +44,22 @@ program battleship.aleo {
     // This function commits a given board to a game with an opponent and creates the initial dummy move.
     transition offer_battleship(
         // The board record to start a game with.
-        board: board.aleo/board_state.record,
-    ) -> (board.aleo/board_state.record, move.aleo/move.record) {
+        board: board.aleo/board_state,
+    ) -> (board.aleo/board_state, move.aleo/move) {
         let state: board.aleo/board_state = board.aleo/start_board(board);
         let dummy: move.aleo/move = move.aleo/start_game(board.player_2);
 
         return (state, dummy);
     }
 
-    // Returns updated board_state.record that has been started and can no longer be used to join or start new games.
+    // Returns updated board_state that has been started and can no longer be used to join or start new games.
     // Returns dummy move record owned by the opponent.
     transition start_battleship(
         // The board record to play the game with.
-        board: board.aleo/board_state.record,
+        board: board.aleo/board_state,
         // The move record to play to begin the game. This should be the dummy move record created from offer_battleship.
-        move_start: move.aleo/move.record,
-    ) -> (board.aleo/board_state.record, move.aleo/move.record) {
+        move_start: move.aleo/move,
+    ) -> (board.aleo/board_state, move.aleo/move) {
         // Validate that the move players and board players match each other.
         assert_eq(board.player_1, move_start.player_2);
         assert_eq(board.player_2, move_start.player_1);
@@ -74,12 +74,12 @@ program battleship.aleo {
     // Returns new move record owned by opponent.
     transition play(
         // The board record to update.
-        board: board.aleo/board_state.record,
+        board: board.aleo/board_state,
         // The incoming move from the opponent.
-        move_incoming: move.aleo/move.record,
+        move_incoming: move.aleo/move,
         // The u64 equivalent of the bitwise representation of the next coordinate to play on the opponent's board.
         shoot: u64,
-    ) -> (board.aleo/board_state.record, move.aleo/move.record) {
+    ) -> (board.aleo/board_state, move.aleo/move) {
         // Verify the board has been started. This prevents players from starting a game and then creating
         // a brand new board to play with.
         assert(board.game_started);
