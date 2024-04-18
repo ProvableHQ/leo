@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{Composite, Function, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -138,8 +138,19 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping.insert(&record.identifier.name, (true, output_string.clone()));
         writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
+        let mut members = Vec::with_capacity(record.members.len());
+        let mut member_map: IndexMap<Symbol, Member> =
+            record.members.clone().into_iter().map(|member| (member.identifier.name, member)).collect();
+
+        // Add the owner field to the beginning of the members list.
+        // Note that type checking ensures that the owner field exists.
+        members.push(member_map.shift_remove(&sym::owner).unwrap());
+
+        // Add the remaining fields to the members list.
+        members.extend(member_map.into_iter().map(|(_, member)| member));
+
         // Construct and append the record variables.
-        for var in record.members.iter() {
+        for var in members.iter() {
             let mode = match var.mode {
                 Mode::Constant => "constant",
                 Mode::Public => "public",

@@ -66,7 +66,7 @@ impl SymbolTable {
             // The second half of the conditional makes sure that structs are only caught for shadowing local records during ST creation, not for redefinition of external structs.
             return Err(AstError::shadowed_record(location.name, span).into());
         } else if self.structs.get(&Location::new(None, location.name)).is_some() && !is_struct {
-            // Struct redefinition is allowed. If there are more than one occurrences, the error will be caught in the creator pass. 
+            // Struct redefinition is allowed. If there are more than one occurrences, the error will be caught in the creator pass.
             return Err(AstError::shadowed_struct(location.name, span).into());
         } else if self.variables.contains_key(location) {
             return Err(AstError::shadowed_variable(location.name, span).into());
@@ -95,7 +95,7 @@ impl SymbolTable {
     pub fn insert_struct(&mut self, location: Location, insert: &Composite) -> Result<()> {
         // Check shadowing.
         self.check_shadowing(&location, !insert.is_record, insert.span)?;
-        
+
         if insert.is_record {
             // Insert the record into the symbol table.
             self.structs.insert(location, insert.clone());
@@ -103,7 +103,7 @@ impl SymbolTable {
             if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
                 // Allow redefinition of external structs so long as the definitions match.
                 if !self.check_eq_struct(insert, struct_) {
-                    return Err(AstError::redefining_external_struct(location.name, insert.span).into()); 
+                    return Err(AstError::redefining_external_struct(location.name, insert.span).into());
                 }
             }
             // Insert with program location set to `None` to reflect that in snarkVM structs are not attached to programs (unlike records).

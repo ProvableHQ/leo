@@ -76,7 +76,7 @@ outputs:
                     type_:
                       Composite:
                         id: "{\"id\":\"14\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
-                        program: ~
+                        program: test
                     span:
                       lo: 165
                       hi: 166
@@ -86,7 +86,7 @@ outputs:
                     type_:
                       Composite:
                         id: "{\"id\":\"17\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
-                        program: ~
+                        program: test
                     span:
                       lo: 173
                       hi: 174
@@ -96,7 +96,7 @@ outputs:
                     type_:
                       Composite:
                         id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
-                        program: ~
+                        program: test
                     span:
                       lo: 184
                       hi: 187
@@ -104,7 +104,7 @@ outputs:
                 output_type:
                   Composite:
                     id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
-                    program: ~
+                    program: test
                 block:
                   statements: []
                   span:

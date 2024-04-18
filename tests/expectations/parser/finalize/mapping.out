@@ -15,11 +15,11 @@ outputs:
               key_type:
                 Composite:
                   id: "{\"id\":\"3\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":43,\\\"hi\\\":46}\"}"
-                  program: ~
+                  program: test
               value_type:
                 Composite:
                   id: "{\"id\":\"4\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":53}\"}"
-                  program: ~
+                  program: test
               span:
                 lo: 30
                 hi: 54

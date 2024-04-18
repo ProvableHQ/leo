@@ -91,7 +91,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Get the struct definitions.
                         let first_type = self
                             .symbol_table
-                            .lookup_struct(Location::new(None, first_type.id.name), self.program)
+                            .lookup_struct(Location::new(self.program, first_type.id.name), self.program)
                             .unwrap();
                         self.ternary_struct(first_type, &input.condition, &first, &second)
                     }

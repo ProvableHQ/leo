@@ -35,7 +35,7 @@ outputs:
                   type_:
                     Composite:
                       id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
-                      program: ~
+                      program: test
                   span:
                     lo: 67
                     hi: 68
@@ -200,7 +200,7 @@ outputs:
                   type_:
                     Composite:
                       id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
-                      program: ~
+                      program: test
                   span:
                     lo: 347
                     hi: 348

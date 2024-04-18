@@ -99,7 +99,7 @@ impl Type {
     }
 
     ///
-    /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin. 
+    /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
     ///
     /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
     ///

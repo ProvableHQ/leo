@@ -761,7 +761,7 @@ create_messages!(
         msg: format!("Cannot define external struct `{struct_}`"),
         help: Some("Copy the external definition of the struct into the current program, and then define without the `.aleo` extension.".to_string()),
     }
-    
+
     @formatted
     struct_definitions_dont_match {
         args: (struct_: impl Display, program_1: impl Display, program_2: impl Display),

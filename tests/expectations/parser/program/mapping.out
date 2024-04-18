@@ -24,11 +24,11 @@ outputs:
               key_type:
                 Composite:
                   id: "{\"id\":\"5\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":87,\\\"hi\\\":90}\"}"
-                  program: ~
+                  program: test
               value_type:
                 Composite:
                   id: "{\"id\":\"6\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":94,\\\"hi\\\":97}\"}"
-                  program: ~
+                  program: test
               span:
                 lo: 74
                 hi: 98

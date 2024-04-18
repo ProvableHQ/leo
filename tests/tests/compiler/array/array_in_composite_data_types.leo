@@ -13,7 +13,7 @@ program test.aleo {
         data: [u8; 8],
     }
 
-    transition foo(a: [[bool; 8]; 8]) -> bool {
-        return a[0u32][0u32];
+    transition foo(a: [[bool; 8]; 8]) -> (bool, bar, floo) {
+        return (a[0u32][0u32], bar { data: [1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8] }, floo { owner: self.caller, data: [1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8, 1u8] });
     }
 }
