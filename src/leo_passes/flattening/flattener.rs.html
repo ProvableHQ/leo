@@ -578,6 +578,17 @@
 <a href="#576" id="576">576</a>
 <a href="#577" id="577">577</a>
 <a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -627,6 +638,7 @@
     Type,
     UnitExpression,
 };
+<span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">pub struct </span>Flattener&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// The symbol table associated with the program.
@@ -644,6 +656,8 @@
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) returns: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Expression&gt;, ReturnStatement)&gt;,
+    <span class="doccomment">/// The program name.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Flattener&lt;<span class="lifetime">'a</span>&gt; {
@@ -653,7 +667,15 @@
         node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder,
         assigner: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Assigner,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ symbol_table, type_table, node_builder, assigner, condition_stack: Vec::new(), returns: Vec::new() }
+        <span class="self">Self </span>{
+            symbol_table,
+            type_table,
+            node_builder,
+            assigner,
+            condition_stack: Vec::new(),
+            returns: Vec::new(),
+            program: <span class="prelude-val">None</span>,
+        }
     }
 
     <span class="doccomment">/// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.

@@ -884,8 +884,6 @@
 <a href="#882" id="882">882</a>
 <a href="#883" id="883">883</a>
 <a href="#884" id="884">884</a>
-<a href="#885" id="885">885</a>
-<a href="#886" id="886">886</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -902,7 +900,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Location, TypeChecker};
+</span><span class="kw">use crate</span>::{Location, TypeChecker, VariableSymbol};
 
 <span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
@@ -1094,11 +1092,7 @@
                         </span><span class="kw">match </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
                             <span class="prelude-val">Some</span>(Type::Composite(struct_)) =&gt; {
                                 <span class="comment">// Retrieve the struct definition associated with `identifier`.
-                                </span><span class="kw">let </span>struct_ = <span class="self">self
-                                    </span>.symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .cloned();
+                                </span><span class="kw">let </span>struct_ = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name);
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
                                     <span class="comment">// Check that `access.name` is a member of the struct.
                                     </span><span class="kw">match </span>struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -1501,7 +1495,7 @@
 
                     <span class="comment">// Check function argument types.
                     </span>func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
+                        <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()));
                     });
 
                     <span class="comment">// Add the call to the call graph.
@@ -1539,9 +1533,7 @@
     }
 
     <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>struct_ =
-            <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(<span class="self">self</span>.program_name, input.name.name)).cloned();
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(<span class="self">self</span>.program_name, input.name.name) {
             <span class="comment">// Check struct type name.
             </span><span class="kw">let </span>ret = <span class="self">self</span>.check_expected_struct(<span class="kw-2">&amp;</span>struct_, additional, input.name.span());
 
@@ -1586,12 +1578,14 @@
     }
 
     <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
+        <span class="kw">let </span>var_: VariableSymbol;
         <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, input.name)) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            var_ = var.clone();
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
-            <span class="prelude-val">None
-        </span>}
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var_.type_.clone(), expected, input.span()))
     }
 
     <span class="kw">fn </span>visit_literal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Literal, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
@@ -1659,14 +1653,16 @@
 
     <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Check that the locator points to a valid resource in the ST.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
+        </span><span class="kw">let </span>loc_: VariableSymbol;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
             <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">Some</span>(input.program.name.name), input.name))
         {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            loc_ = var.clone();
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
-            <span class="prelude-val">None
-        </span>}
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(loc_.type_.clone(), expected, input.span()))
     }
 
     <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {

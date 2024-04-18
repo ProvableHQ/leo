@@ -1345,97 +1345,6 @@
 <a href="#1343" id="1343">1343</a>
 <a href="#1344" id="1344">1344</a>
 <a href="#1345" id="1345">1345</a>
-<a href="#1346" id="1346">1346</a>
-<a href="#1347" id="1347">1347</a>
-<a href="#1348" id="1348">1348</a>
-<a href="#1349" id="1349">1349</a>
-<a href="#1350" id="1350">1350</a>
-<a href="#1351" id="1351">1351</a>
-<a href="#1352" id="1352">1352</a>
-<a href="#1353" id="1353">1353</a>
-<a href="#1354" id="1354">1354</a>
-<a href="#1355" id="1355">1355</a>
-<a href="#1356" id="1356">1356</a>
-<a href="#1357" id="1357">1357</a>
-<a href="#1358" id="1358">1358</a>
-<a href="#1359" id="1359">1359</a>
-<a href="#1360" id="1360">1360</a>
-<a href="#1361" id="1361">1361</a>
-<a href="#1362" id="1362">1362</a>
-<a href="#1363" id="1363">1363</a>
-<a href="#1364" id="1364">1364</a>
-<a href="#1365" id="1365">1365</a>
-<a href="#1366" id="1366">1366</a>
-<a href="#1367" id="1367">1367</a>
-<a href="#1368" id="1368">1368</a>
-<a href="#1369" id="1369">1369</a>
-<a href="#1370" id="1370">1370</a>
-<a href="#1371" id="1371">1371</a>
-<a href="#1372" id="1372">1372</a>
-<a href="#1373" id="1373">1373</a>
-<a href="#1374" id="1374">1374</a>
-<a href="#1375" id="1375">1375</a>
-<a href="#1376" id="1376">1376</a>
-<a href="#1377" id="1377">1377</a>
-<a href="#1378" id="1378">1378</a>
-<a href="#1379" id="1379">1379</a>
-<a href="#1380" id="1380">1380</a>
-<a href="#1381" id="1381">1381</a>
-<a href="#1382" id="1382">1382</a>
-<a href="#1383" id="1383">1383</a>
-<a href="#1384" id="1384">1384</a>
-<a href="#1385" id="1385">1385</a>
-<a href="#1386" id="1386">1386</a>
-<a href="#1387" id="1387">1387</a>
-<a href="#1388" id="1388">1388</a>
-<a href="#1389" id="1389">1389</a>
-<a href="#1390" id="1390">1390</a>
-<a href="#1391" id="1391">1391</a>
-<a href="#1392" id="1392">1392</a>
-<a href="#1393" id="1393">1393</a>
-<a href="#1394" id="1394">1394</a>
-<a href="#1395" id="1395">1395</a>
-<a href="#1396" id="1396">1396</a>
-<a href="#1397" id="1397">1397</a>
-<a href="#1398" id="1398">1398</a>
-<a href="#1399" id="1399">1399</a>
-<a href="#1400" id="1400">1400</a>
-<a href="#1401" id="1401">1401</a>
-<a href="#1402" id="1402">1402</a>
-<a href="#1403" id="1403">1403</a>
-<a href="#1404" id="1404">1404</a>
-<a href="#1405" id="1405">1405</a>
-<a href="#1406" id="1406">1406</a>
-<a href="#1407" id="1407">1407</a>
-<a href="#1408" id="1408">1408</a>
-<a href="#1409" id="1409">1409</a>
-<a href="#1410" id="1410">1410</a>
-<a href="#1411" id="1411">1411</a>
-<a href="#1412" id="1412">1412</a>
-<a href="#1413" id="1413">1413</a>
-<a href="#1414" id="1414">1414</a>
-<a href="#1415" id="1415">1415</a>
-<a href="#1416" id="1416">1416</a>
-<a href="#1417" id="1417">1417</a>
-<a href="#1418" id="1418">1418</a>
-<a href="#1419" id="1419">1419</a>
-<a href="#1420" id="1420">1420</a>
-<a href="#1421" id="1421">1421</a>
-<a href="#1422" id="1422">1422</a>
-<a href="#1423" id="1423">1423</a>
-<a href="#1424" id="1424">1424</a>
-<a href="#1425" id="1425">1425</a>
-<a href="#1426" id="1426">1426</a>
-<a href="#1427" id="1427">1427</a>
-<a href="#1428" id="1428">1428</a>
-<a href="#1429" id="1429">1429</a>
-<a href="#1430" id="1430">1430</a>
-<a href="#1431" id="1431">1431</a>
-<a href="#1432" id="1432">1432</a>
-<a href="#1433" id="1433">1433</a>
-<a href="#1434" id="1434">1434</a>
-<a href="#1435" id="1435">1435</a>
-<a href="#1436" id="1436">1436</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1466,7 +1375,6 @@
     MappingType,
     Mode,
     Node,
-    Output,
     Type,
     Variant,
 };
@@ -1475,6 +1383,7 @@
 
 <span class="kw">use </span>snarkvm::console::network::{Network, Testnet3};
 
+<span class="kw">use </span>indexmap::IndexSet;
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::cell::RefCell;
 
@@ -1505,6 +1414,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not we are currently traversing a stub.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_stub: bool,
+    <span class="doccomment">/// The set of used composites.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_structs: IndexSet&lt;Symbol&gt;,
 }
 
 <span class="kw">const </span>ADDRESS_TYPE: Type = Type::Address;
@@ -1554,7 +1465,8 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; TypeChecker&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Returns a new type checker given a symbol table and error handler.
     </span><span class="kw">pub fn </span>new(symbol_table: SymbolTable, type_table: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TypeTable, handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
+        <span class="comment">// Initialize w/ only structs and non-external records.
+        </span><span class="kw">let </span>struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         <span class="kw">let </span>function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
         <span class="comment">// Note that the `struct_graph` and `call_graph` are initialized with their full node sets.
@@ -1572,6 +1484,7 @@
             is_return: <span class="bool-val">false</span>,
             program_name: <span class="prelude-val">None</span>,
             is_stub: <span class="bool-val">true</span>,
+            used_structs: IndexSet::new(),
         }
     }
 
@@ -1614,20 +1527,9 @@
     }
 
     <span class="doccomment">/// Emits an error if the two given types are not equal.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_eq_types(<span class="kw-2">&amp;</span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_eq_types(<span class="kw-2">&amp;mut </span><span class="self">self</span>, t1: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) {
         <span class="kw">match </span>(t1, t2) {
-            (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) <span class="kw">if </span>!Type::eq_flat(t1, t2) =&gt; {
-                <span class="kw">if let </span>(Type::Composite(left), Type::Composite(right)) = (t1, t2) {
-                    <span class="kw">if </span>!<span class="self">self</span>.check_duplicate_struct(left.id.name, left.program.unwrap(), right.program.unwrap()) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::struct_definitions_dont_match(
-                            left.id.name.to_string(),
-                            left.program.unwrap().to_string(),
-                            right.program.unwrap().to_string(),
-                            span,
-                        ));
-                    }
-                    <span class="kw">return</span>;
-                }
+            (<span class="prelude-val">Some</span>(t1), <span class="prelude-val">Some</span>(t2)) <span class="kw">if </span>!Type::eq_flat_relax_composite(t1, t2) =&gt; {
                 <span class="self">self</span>.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (<span class="prelude-val">Some</span>(type_), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(type_)) =&gt; {
@@ -1639,7 +1541,7 @@
 
     <span class="doccomment">/// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_and_return_type(<span class="kw-2">&amp;</span><span class="self">self</span>, actual: Type, expected: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) -&gt; Type {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_and_return_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, actual: Type, expected: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, span: Span) -&gt; Type {
         <span class="kw">if </span>expected.is_some() {
             <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(actual.clone()), expected, span);
         }
@@ -1647,8 +1549,10 @@
     }
 
     <span class="doccomment">/// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type(<span class="kw-2">&amp;</span><span class="self">self</span>, actual: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span>Type, span: Span) {
-        <span class="self">self</span>.check_type(|actual: <span class="kw-2">&amp;</span>Type| actual.eq_flat(expected), expected.to_string(), actual, span)
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, actual: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span>Type, span: Span) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(actual) = actual {
+            <span class="self">self</span>.check_eq_types(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(actual.clone()), <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.clone()), span);
+        }
     }
 
     <span class="doccomment">/// Emits an error to the error handler if the given type is not an address.
@@ -1841,7 +1745,7 @@
     /// Emits an error if the correct number of arguments are not provided.
     /// Emits an error if the arguments are not of the correct type.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_core_function_call(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         core_function: CoreFunction,
         arguments: <span class="kw-2">&amp;</span>[(<span class="prelude-ty">Option</span>&lt;Type&gt;, Span)],
         function_span: Span,
@@ -2512,60 +2416,11 @@
         Type::Composite(current_struct)
     }
 
-    <span class="doccomment">/// Determines if two struct definitions from different programs match or not.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_duplicate_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, name: Symbol, program_1: Symbol, program_2: Symbol) -&gt; bool {
-        <span class="comment">// Make sure that both structs have been defined already.
-        </span><span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
-        <span class="kw">let </span>(struct_1, struct_2) = <span class="kw">match </span>(
-            st.lookup_struct(Location::new(<span class="prelude-val">Some</span>(program_1), name)),
-            st.lookup_struct(Location::new(<span class="prelude-val">Some</span>(program_2), name)),
-        ) {
-            (<span class="prelude-val">Some</span>(struct_1), <span class="prelude-val">Some</span>(struct_2)) =&gt; (struct_1, struct_2),
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="bool-val">false</span>,
-        };
-
-        <span class="comment">// Make sure both structs have the same number of members
-        </span><span class="kw">if </span>struct_1.members.len() != struct_2.members.len() {
-            <span class="kw">return </span><span class="bool-val">false</span>;
-        }
-
-        <span class="comment">// Make sure that all members of the structs match.
-        </span><span class="kw">for </span>(member_1, member_2) <span class="kw">in </span>struct_1.members.iter().zip(struct_2.members.iter()) {
-            <span class="comment">// Make sure that the member names match.
-            </span><span class="kw">if </span>member_1.identifier.name != member_2.identifier.name {
-                <span class="kw">return </span><span class="bool-val">false</span>;
-            }
-
-            <span class="comment">// Make sure that the member types match.
-            </span><span class="kw">if </span>member_1.type_.eq_flat(<span class="kw-2">&amp;</span>member_2.type_) {
-                <span class="kw">continue</span>;
-            }
-
-            <span class="comment">// Recursively check that the member types match in the case that the type is struct.
-            </span><span class="kw">return if let </span>(Type::Composite(internal_struct_1), Type::Composite(internal_struct_2)) =
-                (<span class="kw-2">&amp;</span>member_1.type_, <span class="kw-2">&amp;</span>member_2.type_)
-            {
-                <span class="self">self</span>.check_duplicate_struct(
-                    internal_struct_1.id.name,
-                    internal_struct_1.program.unwrap(),
-                    internal_struct_2.program.unwrap(),
-                )
-            } <span class="kw">else </span>{
-                <span class="bool-val">false
-            </span>};
-        }
-        <span class="bool-val">true
-    </span>}
-
     <span class="doccomment">/// Emits an error if the struct member is a record type.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_member_is_not_record(<span class="kw-2">&amp;</span><span class="self">self</span>, span: Span, parent: Symbol, type_: <span class="kw-2">&amp;</span>Type) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_member_is_not_record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, span: Span, parent: Symbol, type_: <span class="kw-2">&amp;</span>Type) {
         <span class="kw">match </span>type_ {
             Type::Composite(struct_)
-                <span class="kw">if </span><span class="self">self
-                    </span>.symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
+                <span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).map_or(<span class="bool-val">false</span>, |struct_| struct_.is_record) =&gt;
             {
                 <span class="self">self</span>.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
@@ -2579,7 +2434,7 @@
     }
 
     <span class="doccomment">/// Emits an error if the type or its constituent types is not valid.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_valid(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, span: Span) -&gt; bool {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_type_is_valid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span>Type, span: Span) -&gt; bool {
         <span class="kw">let </span><span class="kw-2">mut </span>is_valid = <span class="bool-val">true</span>;
         <span class="kw">match </span>type_ {
             <span class="comment">// String types are temporarily disabled.
@@ -2588,13 +2443,7 @@
                 <span class="self">self</span>.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             <span class="comment">// Check that the named composite type has been defined.
-            </span>Type::Composite(struct_)
-                <span class="kw">if </span><span class="self">self
-                    </span>.symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .is_none() =&gt;
-            {
+            </span>Type::Composite(struct_) <span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).is_none() =&gt; {
                 is_valid = <span class="bool-val">false</span>;
                 <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
@@ -2626,11 +2475,7 @@
                     <span class="comment">// Array elements cannot be records.
                     </span>Type::Composite(struct_type) =&gt; {
                         <span class="comment">// Look up the type.
-                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self
-                            </span>.symbol_table
-                            .borrow()
-                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                        {
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
                             <span class="comment">// Check that the type is not a record.
                             </span><span class="kw">if </span>struct_.is_record {
                                 <span class="self">self</span>.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -2667,7 +2512,7 @@
         <span class="comment">// Type check the function's parameters.
         </span>function.input.iter().for_each(|input_var| {
             <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span());
+            </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span());
             <span class="comment">// Check that the type of the input parameter is not a tuple.
             </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                 <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
@@ -2688,9 +2533,7 @@
 
             <span class="comment">// If the function is not a transition function, then it cannot have a record as input
             </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) =
-                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
-                {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
                     <span class="kw">if </span>val.is_record &amp;&amp; !<span class="macro">matches!</span>(function.variant, Variant::Transition) {
                         <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
@@ -2702,7 +2545,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                     Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
                     VariableSymbol {
-                        type_: input_var.type_(),
+                        type_: input_var.type_().clone(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
                     },
@@ -2714,46 +2557,35 @@
 
         <span class="comment">// Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        </span>function.output.iter().for_each(|output| {
-            <span class="kw">match </span>output {
-                Output::External(external) =&gt; {
-                    <span class="comment">// If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    </span><span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
-                    }
-                    <span class="comment">// Otherwise, do not type check external record function outputs.
-                    // TODO: Verify that this is not needed when the import system is updated.
-                </span>}
-                Output::Internal(function_output) =&gt; {
-                    <span class="comment">// Check that the type of output is defined.
-                    </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
-                        <span class="comment">// If the function is not a transition function, then it cannot output a record.
-                        </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
-                            <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
-                                &amp;&amp; <span class="self">self
-                                    </span>.symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .unwrap()
-                                    .is_record
-                            {
-                                <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
-                                    function_output.span,
-                                ));
-                            }
-                        }
-                    }
-                    <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>function_output.type_, Type::Tuple(<span class="kw">_</span>)) {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    <span class="comment">// Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    </span><span class="kw">if </span>function_output.mode == Mode::Constant {
-                        <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+        </span>function.output.iter().for_each(|function_output| {
+            <span class="comment">// If the function is not a transition function, then it cannot output a record.
+            // Note that an external output must always be a record.
+            </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(val) = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name) {
+                    <span class="kw">if </span>val.is_record &amp;&amp; !<span class="macro">matches!</span>(function.variant, Variant::Transition) {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
                 }
+            }
+            <span class="comment">// Check that the type of output is defined.
+            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>function_output.type_, function_output.span) {
+                <span class="comment">// If the function is not a transition function, then it cannot output a record.
+                </span><span class="kw">if let </span>Type::Composite(struct_) = function_output.type_.clone() {
+                    <span class="kw">if </span>!<span class="macro">matches!</span>(function.variant, Variant::Transition)
+                        &amp;&amp; <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record
+                    {
+                        <span class="self">self</span>.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
+                    }
+                }
+            }
+            <span class="comment">// Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+            </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>function_output.type_, Type::Tuple(<span class="kw">_</span>)) {
+                <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+            }
+            <span class="comment">// Check that the mode of the output is valid.
+            // For functions, only public and private outputs are allowed
+            </span><span class="kw">if </span>function_output.mode == Mode::Constant {
+                <span class="self">self</span>.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
             }
         });
     }
@@ -2775,7 +2607,7 @@
 
         finalize.input.iter().for_each(|input_var| {
             <span class="comment">// Check that the type of input parameter is defined.
-            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input_var.type_(), input_var.span()) {
+            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(input_var.type_(), input_var.span()) {
                 <span class="comment">// Check that the input parameter is not a tuple.
                 </span><span class="kw">if </span><span class="macro">matches!</span>(input_var.type_(), Type::Tuple(<span class="kw">_</span>)) {
                     <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
@@ -2783,13 +2615,7 @@
                 <span class="comment">// Check that the input parameter is not a record.
                 </span><span class="kw">if let </span>Type::Composite(struct_) = input_var.type_() {
                     <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                    </span><span class="kw">if </span><span class="self">self
-                        </span>.symbol_table
-                        .borrow()
-                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                        .unwrap()
-                        .is_record
-                    {
+                    </span><span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
                     }
                 }
@@ -2802,7 +2628,7 @@
                     <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.borrow_mut().insert_variable(
                         Location::new(<span class="prelude-val">None</span>, input_var.identifier().name),
                         VariableSymbol {
-                            type_: input_var.type_(),
+                            type_: input_var.type_().clone(),
                             span: input_var.identifier().span(),
                             declaration: VariableType::Input(input_var.mode()),
                         },
@@ -2825,7 +2651,7 @@
         // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
         </span>finalize.output.iter().for_each(|output_type| {
             <span class="comment">// Check that the type of output is defined.
-            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>output_type.type_(), output_type.span()) {
+            </span><span class="kw">if </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>output_type.type_().clone(), output_type.span()) {
                 <span class="comment">// Check that the output is not a tuple. This is necessary to forbid nested tuples.
                 </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="kw-2">&amp;</span>output_type.type_(), Type::Tuple(<span class="kw">_</span>)) {
                     <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
@@ -2833,13 +2659,7 @@
                 <span class="comment">// Check that the output is not a record.
                 </span><span class="kw">if let </span>Type::Composite(struct_) = output_type.type_() {
                     <span class="comment">// Note that this unwrap is safe, as the type is defined.
-                    </span><span class="kw">if </span><span class="self">self
-                        </span>.symbol_table
-                        .borrow()
-                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                        .unwrap()
-                        .is_record
-                    {
+                    </span><span class="kw">if </span><span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
                     }
                 }
@@ -2855,17 +2675,15 @@
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>finalize.output_type, finalize.span);
     }
 
-    <span class="doccomment">/// Emits an error if the type corresponds to an external struct.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>assert_internal_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, composite: <span class="kw-2">&amp;</span>CompositeType, span: Span) {
-        <span class="kw">let </span>st = <span class="self">self</span>.symbol_table.borrow();
-        <span class="kw">match </span>st.lookup_struct(Location::new(composite.program, composite.id.name)) {
-            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
-            <span class="prelude-val">Some</span>(composite_def) =&gt; {
-                <span class="kw">if </span>!composite_def.is_record &amp;&amp; composite_def.external.unwrap() != <span class="self">self</span>.program_name.unwrap() {
-                    <span class="self">self</span>.emit_err(TypeCheckerError::cannot_define_external_struct(composite.id, span))
-                }
-            }
+    <span class="doccomment">/// Wrapper around lookup_struct that additionally records all structs that are used in the program.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>lookup_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; <span class="prelude-ty">Option</span>&lt;Composite&gt; {
+        <span class="kw">let </span>struct_ =
+            <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(program, name), <span class="self">self</span>.program_name).cloned();
+        <span class="comment">// Record the usage.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(s) = <span class="kw-2">&amp;</span>struct_ {
+            <span class="self">self</span>.used_structs.insert(s.identifier.name);
         }
+        struct_
     }
 }
 

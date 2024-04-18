@@ -297,6 +297,14 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -315,7 +323,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
 
-<span class="kw">use </span>leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant};
+<span class="kw">use </span>leo_ast::{Composite, Function, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>itertools::Itertools;
@@ -350,8 +358,21 @@
         </span><span class="kw">let </span>order = <span class="self">self</span>.struct_graph.post_order().unwrap();
 
         <span class="comment">// Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Composite&gt; =
-            program_scope.structs.iter().map(|(name, struct_)| (<span class="kw-2">*</span>name, struct_)).collect();
+        </span><span class="kw">let </span>structs_map: IndexMap&lt;Symbol, <span class="kw-2">&amp;</span>Composite&gt; = <span class="self">self
+            </span>.symbol_table
+            .structs
+            .iter()
+            .filter_map(|(name, struct_)| {
+                <span class="comment">// Only include structs and local records.
+                </span><span class="kw">if </span>!(struct_.is_record
+                    &amp;&amp; struct_.external.map(|program| program != <span class="self">self</span>.program_id.unwrap().name.name).unwrap_or(<span class="bool-val">false</span>))
+                {
+                    <span class="prelude-val">Some</span>((name.name, struct_))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
+            })
+            .collect();
 
         <span class="comment">// Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         </span>program_string.push_str(
@@ -359,9 +380,9 @@
                 .into_iter()
                 .map(|name| {
                     <span class="kw">match </span>structs_map.get(<span class="kw-2">&amp;</span>name) {
-                        <span class="comment">// If the struct is found, it is a local struct.
+                        <span class="comment">// If the struct is found, it is a struct or external record.
                         </span><span class="prelude-val">Some</span>(struct_) =&gt; <span class="self">self</span>.visit_struct_or_record(struct_),
-                        <span class="comment">// If the struct is not found, it is an imported struct.
+                        <span class="comment">// If the struct is not found, it is an imported record.
                         </span><span class="prelude-val">None </span>=&gt; String::new(),
                     }
                 })
@@ -424,8 +445,19 @@
         <span class="self">self</span>.composite_mapping.insert(<span class="kw-2">&amp;</span>record.identifier.name, (<span class="bool-val">true</span>, output_string.clone()));
         <span class="macro">writeln!</span>(output_string, <span class="string">" {}:"</span>, record.identifier).expect(<span class="string">"failed to write to string"</span>); <span class="comment">// todo: check if this is safe from name conflicts.
 
-        // Construct and append the record variables.
-        </span><span class="kw">for </span>var <span class="kw">in </span>record.members.iter() {
+        </span><span class="kw">let </span><span class="kw-2">mut </span>members = Vec::with_capacity(record.members.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>member_map: IndexMap&lt;Symbol, Member&gt; =
+            record.members.clone().into_iter().map(|member| (member.identifier.name, member)).collect();
+
+        <span class="comment">// Add the owner field to the beginning of the members list.
+        // Note that type checking ensures that the owner field exists.
+        </span>members.push(member_map.shift_remove(<span class="kw-2">&amp;</span>sym::owner).unwrap());
+
+        <span class="comment">// Add the remaining fields to the members list.
+        </span>members.extend(member_map.into_iter().map(|(<span class="kw">_</span>, member)| member));
+
+        <span class="comment">// Construct and append the record variables.
+        </span><span class="kw">for </span>var <span class="kw">in </span>members.iter() {
             <span class="kw">let </span>mode = <span class="kw">match </span>var.mode {
                 Mode::Constant =&gt; <span class="string">"constant"</span>,
                 Mode::Public =&gt; <span class="string">"public"</span>,
@@ -468,20 +500,12 @@
             <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
             <span class="self">self</span>.next_register += <span class="number">1</span>;
 
-            <span class="kw">let </span>type_string = <span class="kw">match </span>input {
-                functions::Input::Internal(input) =&gt; {
-                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
-                    <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
-                        (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
-                        <span class="kw">_ </span>=&gt; input.mode,
-                    };
-                    <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
-                }
-                functions::Input::External(input) =&gt; {
-                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
-                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, input.program_name, input.record)
-                }
+            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+            <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
+                (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Private,
+                <span class="kw">_ </span>=&gt; input.mode,
             };
+            <span class="kw">let </span>type_string = <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility);
 
             <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
                 .expect(<span class="string">"failed to write to string"</span>);
@@ -522,22 +546,14 @@
                     <span class="kw">let </span>register_string = <span class="macro">format!</span>(<span class="string">"r{}"</span>, <span class="self">self</span>.next_register);
                     <span class="self">self</span>.next_register += <span class="number">1</span>;
 
-                    <span class="comment">// TODO: Dedup code.
-                    </span><span class="kw">let </span>type_string = <span class="kw">match </span>input {
-                        functions::Input::Internal(input) =&gt; {
-                            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
+                    <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.identifier.name, register_string.clone());
 
-                            <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
-                                (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Public,
-                                <span class="kw">_ </span>=&gt; input.mode,
-                            };
-                            <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility)
-                        }
-                        functions::Input::External(input) =&gt; {
-                            <span class="self">self</span>.variable_mapping.insert(<span class="kw-2">&amp;</span>input.program_name.name, register_string.clone());
-                            <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, input.program_name, input.record)
-                        }
+                    <span class="kw">let </span>visibility = <span class="kw">match </span>(<span class="self">self</span>.is_transition_function, input.mode) {
+                        (<span class="bool-val">true</span>, Mode::None) =&gt; Mode::Public,
+                        <span class="kw">_ </span>=&gt; input.mode,
                     };
+
+                    <span class="kw">let </span>type_string = <span class="self">self</span>.visit_type_with_visibility(<span class="kw-2">&amp;</span>input.type_, visibility);
 
                     <span class="macro">writeln!</span>(function_string, <span class="string">"    input {register_string} as {type_string};"</span>,)
                         .expect(<span class="string">"failed to write to string"</span>);

@@ -418,71 +418,6 @@
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
 <a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
-<a href="#428" id="428">428</a>
-<a href="#429" id="429">429</a>
-<a href="#430" id="430">430</a>
-<a href="#431" id="431">431</a>
-<a href="#432" id="432">432</a>
-<a href="#433" id="433">433</a>
-<a href="#434" id="434">434</a>
-<a href="#435" id="435">435</a>
-<a href="#436" id="436">436</a>
-<a href="#437" id="437">437</a>
-<a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
-<a href="#444" id="444">444</a>
-<a href="#445" id="445">445</a>
-<a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -708,10 +643,13 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span>(members, end) = <span class="self">self</span>.parse_struct_members()<span class="question-mark">?</span>;
 
+        <span class="comment">// Only provide a program name for records.
+        </span><span class="kw">let </span>external = <span class="kw">if </span>is_record { <span class="self">self</span>.program_name } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
+
         <span class="prelude-val">Ok</span>((struct_name.name, Composite {
             identifier: struct_name,
             members,
-            external: <span class="self">self</span>.program_name,
+            external,
             is_record,
             span: start + end,
             id: <span class="self">self</span>.node_builder.next_id(),
@@ -767,84 +705,16 @@
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span><span class="self">self</span>.peek_is_external() {
-            <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>span = name.span + external.span;
+        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
 
-            <span class="comment">// Parse `.leo/` or `.aleo/`.
-            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
-
-            <span class="comment">// Parse record name.
-            </span><span class="kw">let </span>record = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-
-            <span class="comment">// Parse `.record`.
-            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Record);
-            span = span + <span class="self">self</span>.prev_token.span;
-
-            <span class="prelude-val">Ok</span>(functions::Input::External(External {
-                identifier: name,
-                program_name: external,
-                record,
-                span,
-                id: <span class="self">self</span>.node_builder.next_id(),
-            }))
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
-
-            <span class="prelude-val">Ok</span>(functions::Input::Internal(FunctionInput {
-                identifier: name,
-                mode,
-                type_,
-                span: name.span,
-                id: <span class="self">self</span>.node_builder.next_id(),
-            }))
-        }
-    }
-
-    <span class="doccomment">/// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
-    </span><span class="kw">fn </span>parse_function_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FunctionOutput&gt; {
-        <span class="comment">// TODO: Could this span be made more accurate?
-        </span><span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
-        <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(FunctionOutput { mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
+        <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span: name.span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`Output`] AST node if the next tokens represent a function output.
     </span><span class="kw">fn </span>parse_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Output&gt; {
-        <span class="kw">if </span><span class="self">self</span>.peek_is_external() {
-            <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>span = external.span;
-
-            <span class="comment">// Parse `.leo/` or `.aleo/`.
-            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
-
-            <span class="comment">// Parse record name.
-            </span><span class="kw">let </span>record = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-
-            <span class="comment">// Parse `.record`.
-            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
-            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Record);
-            span = span + <span class="self">self</span>.prev_token.span;
-
-            <span class="prelude-val">Ok</span>(Output::External(External {
-                identifier: Identifier::new(Symbol::intern(<span class="string">"dummy"</span>), <span class="self">self</span>.node_builder.next_id()),
-                program_name: external,
-                record,
-                span,
-                id: <span class="self">self</span>.node_builder.next_id(),
-            }))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(Output::Internal(<span class="self">self</span>.parse_function_output()<span class="question-mark">?</span>))
-        }
-    }
-
-    <span class="kw">pub fn </span>peek_is_external(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token)), (Token::Identifier(<span class="kw">_</span>), Token::Dot))
+        <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Output { mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns an [`Annotation`] AST node if the next tokens represent an annotation.

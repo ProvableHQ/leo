@@ -303,11 +303,11 @@
         help: <span class="prelude-val">None</span>,
     }
 
-    @backtraced
+    @formatted
     redefining_external_struct {
         args: (struct_: <span class="kw">impl </span>Display),
-        msg: <span class="macro">format!</span>(<span class="string">"There are two mismatched definitions of struct `{struct_}`."</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"Duplicate definitions of structs are required to use external structs, but each field's name and type must match exactly."</span>.to_string()),
+        msg: <span class="macro">format!</span>(<span class="string">"There are two definitions of struct `{struct_}` that do not match."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Check the import files to see if there are any struct definitions of the same name."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

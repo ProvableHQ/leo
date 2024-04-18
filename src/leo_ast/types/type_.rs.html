@@ -148,6 +148,39 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -248,7 +281,40 @@
         }
     }
 
-    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(t: <span class="kw-2">&amp;</span>PlaintextType&lt;N&gt;, program: Symbol) -&gt; <span class="self">Self </span>{
+    <span class="doccomment">///
+    /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin.
+    ///
+    /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
+    ///
+    </span><span class="kw">pub fn </span>eq_flat_relax_composite(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">match </span>(<span class="self">self</span>, other) {
+            (Type::Address, Type::Address)
+            | (Type::Boolean, Type::Boolean)
+            | (Type::Field, Type::Field)
+            | (Type::Group, Type::Group)
+            | (Type::Scalar, Type::Scalar)
+            | (Type::Signature, Type::Signature)
+            | (Type::String, Type::String)
+            | (Type::Unit, Type::Unit) =&gt; <span class="bool-val">true</span>,
+            (Type::Array(left), Type::Array(right)) =&gt; {
+                left.element_type().eq_flat_relax_composite(right.element_type()) &amp;&amp; left.length() == right.length()
+            }
+            (Type::Identifier(left), Type::Identifier(right)) =&gt; left.matches(right),
+            (Type::Integer(left), Type::Integer(right)) =&gt; left.eq(right),
+            (Type::Mapping(left), Type::Mapping(right)) =&gt; {
+                left.key.eq_flat_relax_composite(<span class="kw-2">&amp;</span>right.key) &amp;&amp; left.value.eq_flat(<span class="kw-2">&amp;</span>right.value)
+            }
+            (Type::Tuple(left), Type::Tuple(right)) <span class="kw">if </span>left.length() == right.length() =&gt; left
+                .elements()
+                .iter()
+                .zip_eq(right.elements().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
+            (Type::Composite(left), Type::Composite(right)) =&gt; left.id.name == right.id.name,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(t: <span class="kw-2">&amp;</span>PlaintextType&lt;N&gt;, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>t {
             Literal(lit) =&gt; <span class="kw">match </span>lit {
                 snarkvm::prelude::LiteralType::Address =&gt; Type::Address,
@@ -269,7 +335,7 @@
                 snarkvm::prelude::LiteralType::Signature =&gt; Type::Signature,
                 snarkvm::prelude::LiteralType::String =&gt; Type::String,
             },
-            Struct(s) =&gt; Type::Composite(CompositeType { id: common::Identifier::from(s), program: <span class="prelude-val">Some</span>(program) }),
+            Struct(s) =&gt; Type::Composite(CompositeType { id: common::Identifier::from(s), program }),
             Array(array) =&gt; Type::Array(ArrayType::from_snarkvm(array, program)),
         }
     }

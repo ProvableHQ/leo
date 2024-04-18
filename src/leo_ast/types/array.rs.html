@@ -123,7 +123,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(array_type: <span class="kw-2">&amp;</span>ConsoleArrayType&lt;N&gt;, program: Symbol) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(array_type: <span class="kw-2">&amp;</span>ConsoleArrayType&lt;N&gt;, program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
             length: NonNegativeNumber::from(array_type.length().to_string().replace(<span class="string">"u32"</span>, <span class="string">""</span>)),

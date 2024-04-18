@@ -99,9 +99,6 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -118,7 +115,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Finalize, FunctionInput, Identifier, Input, Mode, Node, NodeID, Output, TupleType, Type};
+</span><span class="kw">use crate</span>::{Finalize, Identifier, Input, Mode, Node, NodeID, Output, TupleType, Type};
 
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
@@ -154,29 +151,26 @@
     </span><span class="kw">pub fn </span>new(identifier: Identifier, input: Vec&lt;Input&gt;, output: Vec&lt;Output&gt;, span: Span, id: NodeID) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
-            <span class="number">1 </span>=&gt; output[<span class="number">0</span>].type_(),
-            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|output| output.type_()).collect())),
+            <span class="number">1 </span>=&gt; output[<span class="number">0</span>].type_.clone(),
+            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|output| output.type_.clone()).collect())),
         };
 
         <span class="self">Self </span>{ identifier, input, output, output_type, span, id }
     }
 
-    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network, Command: CommandTrait&lt;N&gt;&gt;(
-        finalize: <span class="kw-2">&amp;</span>FinalizeCore&lt;N, Command&gt;,
-        program: Symbol,
-    ) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network, Command: CommandTrait&lt;N&gt;&gt;(finalize: <span class="kw-2">&amp;</span>FinalizeCore&lt;N, Command&gt;) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>inputs = Vec::new();
 
         finalize.inputs().iter().enumerate().for_each(|(index, input)| {
             <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"a{}"</span>, index + <span class="number">1</span>)), Default::default());
             <span class="kw">match </span>input.finalize_type() {
-                Plaintext(val) =&gt; inputs.push(Input::Internal(FunctionInput {
+                Plaintext(val) =&gt; inputs.push(Input {
                     identifier: arg_name,
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
                     span: Default::default(),
                     id: Default::default(),
-                })),
+                }),
                 Future(<span class="kw">_</span>) =&gt; {} <span class="comment">// Don't need to worry about nested futures
             </span>}
         });

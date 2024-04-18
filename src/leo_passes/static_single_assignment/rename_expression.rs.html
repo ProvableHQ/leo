@@ -655,7 +655,7 @@
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
         </span><span class="kw">let </span>struct_definition: <span class="kw-2">&amp;</span>Composite =
-            <span class="self">self</span>.symbol_table.lookup_struct(Location::new(<span class="self">self</span>.program, input.name.name)).unwrap();
+            <span class="self">self</span>.symbol_table.lookup_struct(Location::new(<span class="self">self</span>.program, input.name.name), <span class="self">self</span>.program).unwrap();
 
         <span class="comment">// Initialize the list of reordered members.
         </span><span class="kw">let </span><span class="kw-2">mut </span>reordered_members = Vec::with_capacity(members.len());

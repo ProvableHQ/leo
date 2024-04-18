@@ -122,6 +122,13 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -138,8 +145,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
-<span class="kw">use </span>leo_errors::emitter::Handler;
+</span><span class="kw">use </span>indexmap::IndexSet;
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
+<span class="kw">use </span>leo_errors::{emitter::Handler, AstError, LeoError};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use crate</span>::{Location, SymbolTable, VariableSymbol, VariableType};
@@ -156,11 +164,13 @@
     </span>program_name: <span class="prelude-ty">Option</span>&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not traversing stub.
     </span>is_stub: bool,
+    <span class="doccomment">/// The set of local structs that have been successfully visited.
+    </span>structs: IndexSet&lt;Symbol&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; SymbolTableCreator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>new(handler: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Handler) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ symbol_table: Default::default(), handler, program_name: <span class="prelude-val">None</span>, is_stub: <span class="bool-val">false </span>}
+        <span class="self">Self </span>{ symbol_table: Default::default(), handler, program_name: <span class="prelude-val">None</span>, is_stub: <span class="bool-val">false</span>, structs: IndexSet::new() }
     }
 }
 
@@ -189,7 +199,11 @@
     }
 
     <span class="kw">fn </span>visit_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(<span class="self">self</span>.program_name, input.name()), input) {
+        <span class="comment">// Allow up to one local redefinition for each external struct.
+        </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="self">self</span>.structs.insert(input.name()) {
+            <span class="kw">return </span><span class="self">self</span>.handler.emit_err::&lt;LeoError&gt;(AstError::shadowed_struct(input.name(), input.span).into());
+        }
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }
@@ -239,7 +253,7 @@
     }
 
     <span class="kw">fn </span>visit_struct_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Composite) {
-        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(<span class="self">self</span>.program_name, input.name()), input) {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = <span class="self">self</span>.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
             <span class="self">self</span>.handler.emit_err(err);
         }
     }

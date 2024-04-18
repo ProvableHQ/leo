@@ -113,8 +113,6 @@
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -153,7 +151,7 @@
             program
                 .structs()
                 .iter()
-                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id.name.name)))
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s)))
                 .collect_vec(),
             program
                 .records()
@@ -165,15 +163,13 @@
         mappings: program
             .mappings()
             .into_iter()
-            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id.name.name)))
+            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m)))
             .collect(),
         functions: [
             program
                 .closures()
                 .iter()
-                .map(|(id, closure)| {
-                    (Identifier::from(id).name, FunctionStub::from_closure(closure, program_id.name.name))
-                })
+                .map(|(id, closure)| (Identifier::from(id).name, FunctionStub::from_closure(closure)))
                 .collect_vec(),
             program
                 .functions()

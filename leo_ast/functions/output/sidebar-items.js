@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Output"],"struct":["FunctionOutput"]};
+window.SIDEBAR_ITEMS = {"struct":["Output"]};

@@ -62,6 +62,15 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -78,7 +87,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::CodeGenerator;
+</span><span class="kw">use crate</span>::{CodeGenerator, Location};
 
 <span class="kw">use </span>leo_ast::{Mode, Type};
 
@@ -112,10 +121,19 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>visit_type_with_visibility(<span class="kw-2">&amp;</span><span class="self">self</span>, type_: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Type, visibility: Mode) -&gt; String {
         <span class="kw">match </span>type_ {
-            <span class="comment">// When the type is a record.
-            // Note that this unwrap is safe because all composite types have been added to the mapping.
-            </span>Type::Composite(struct_) <span class="kw">if </span><span class="self">self</span>.composite_mapping.get(<span class="kw-2">&amp;</span>struct_.id.name).unwrap().<span class="number">0 </span>=&gt; {
-                <span class="macro">format!</span>(<span class="string">"{}.record"</span>, struct_.id.name)
+            <span class="comment">// When the type is a record
+            </span>Type::Composite(struct_)
+                <span class="kw">if </span><span class="self">self
+                    </span>.symbol_table
+                    .lookup_struct(Location::from(struct_), <span class="self">self</span>.program_id.map(|p| p.name.name))
+                    .unwrap()
+                    .is_record =&gt;
+            {
+                <span class="kw">if </span>struct_.program == <span class="self">self</span>.program_id.map(|p| p.name.name) || struct_.program.is_none() {
+                    <span class="macro">format!</span>(<span class="string">"{}.record"</span>, struct_.id.name)
+                } <span class="kw">else </span>{
+                    <span class="macro">format!</span>(<span class="string">"{}.aleo/{}.record"</span>, struct_.program.unwrap(), struct_.id.name)
+                }
             }
             <span class="kw">_ </span>=&gt; <span class="kw">match </span>visibility {
                 Mode::None =&gt; <span class="self">Self</span>::visit_type(type_),

@@ -58,6 +58,13 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -74,7 +81,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>leo_span::Symbol;
+</span><span class="kw">use </span>leo_ast::CompositeType;
+<span class="kw">use </span>leo_span::Symbol;
 <span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 <span class="comment">// Create custom struct to wrap (Symbol, Symbol) so that it can be serialized and deserialized.
@@ -88,6 +96,12 @@
     <span class="comment">// Create new Location instance.
     </span><span class="kw">pub fn </span>new(program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;, name: Symbol) -&gt; Location {
         Location { program, name }
+    }
+}
+
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>CompositeType&gt; <span class="kw">for </span>Location {
+    <span class="kw">fn </span>from(composite: <span class="kw-2">&amp;</span>CompositeType) -&gt; Location {
+        Location::new(composite.program, composite.id.name)
     }
 }
 

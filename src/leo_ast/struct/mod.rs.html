@@ -235,9 +235,9 @@
                         mode: <span class="kw">if </span>input.owner().is_public() { Mode::Public } <span class="kw">else </span>{ Mode::Private },
                         identifier: Identifier::from(id),
                         type_: <span class="kw">match </span>entry {
-                            Public(t) =&gt; Type::from_snarkvm(t, external_program),
-                            Private(t) =&gt; Type::from_snarkvm(t, external_program),
-                            Constant(t) =&gt; Type::from_snarkvm(t, external_program),
+                            Public(t) =&gt; Type::from_snarkvm(t, <span class="prelude-val">None</span>),
+                            Private(t) =&gt; Type::from_snarkvm(t, <span class="prelude-val">None</span>),
+                            Constant(t) =&gt; Type::from_snarkvm(t, <span class="prelude-val">None</span>),
                         },
                         span: Default::default(),
                         id: Default::default(),
@@ -252,7 +252,7 @@
         }
     }
 
-    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(input: <span class="kw-2">&amp;</span>StructType&lt;N&gt;, program: Symbol) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_snarkvm&lt;N: Network&gt;(input: <span class="kw-2">&amp;</span>StructType&lt;N&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             identifier: Identifier::from(input.name()),
             members: input
@@ -261,12 +261,12 @@
                 .map(|(id, type_)| Member {
                     mode: Mode::None,
                     identifier: Identifier::from(id),
-                    type_: Type::from_snarkvm(type_, program),
+                    type_: Type::from_snarkvm(type_, <span class="prelude-val">None</span>),
                     span: Default::default(),
                     id: Default::default(),
                 })
                 .collect(),
-            external: <span class="prelude-val">Some</span>(program),
+            external: <span class="prelude-val">None</span>,
             is_record: <span class="bool-val">false</span>,
             span: Default::default(),
             id: Default::default(),
