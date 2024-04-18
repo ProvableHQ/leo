@@ -291,16 +291,10 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`Output`] AST node if the next tokens represent a function output.
-    fn parse_function_output(&mut self) -> Result<Output> {
-        // TODO: Could this span be made more accurate?
+    fn parse_output(&mut self) -> Result<Output> {
         let mode = self.parse_mode()?;
         let (type_, span) = self.parse_type()?;
         Ok(Output { mode, type_, span, id: self.node_builder.next_id() })
-    }
-
-    /// Returns a [`Output`] AST node if the next tokens represent a function output.
-    fn parse_output(&mut self) -> Result<Output> {
-        self.parse_function_output()
     }
 
     /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.

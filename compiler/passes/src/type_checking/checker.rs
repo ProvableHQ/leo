@@ -1328,7 +1328,7 @@ impl<'a> TypeChecker<'a> {
         self.assert_type_is_valid(&finalize.output_type, finalize.span);
     }
 
-    /// Wrapper around lookup_struct that records all structs that are used in the program.
+    /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
     pub(crate) fn lookup_struct(&mut self, program: Option<Symbol>, name: Symbol) -> Option<Composite> {
         let struct_ =
             self.symbol_table.borrow().lookup_struct(Location::new(program, name), self.program_name).cloned();

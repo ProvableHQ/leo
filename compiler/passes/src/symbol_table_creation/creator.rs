@@ -68,8 +68,8 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     }
 
     fn visit_struct(&mut self, input: &'a Composite) {
+        // Allow up to one local redefinition for each external struct.
         if !input.is_record {
-            // Forbid redefinition of structs.
             if !self.structs.insert(input.name()) {
                 return self.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
             }

@@ -647,8 +647,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self.lookup_struct(None, input.name.name);
-        if let Some(struct_) = struct_ {
+        if let Some(struct_) = self.lookup_struct(self.program_name, input.name.name) {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());
 
