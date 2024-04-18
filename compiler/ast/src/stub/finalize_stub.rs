@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Finalize, FunctionInput, Identifier, Input, Mode, Node, NodeID, Output, TupleType, Type};
+use crate::{Finalize, Identifier, Input, Mode, Node, NodeID, Output, TupleType, Type};
 
 use leo_span::{Span, Symbol};
 
@@ -50,29 +50,26 @@ impl FinalizeStub {
     pub fn new(identifier: Identifier, input: Vec<Input>, output: Vec<Output>, span: Span, id: NodeID) -> Self {
         let output_type = match output.len() {
             0 => Type::Unit,
-            1 => output[0].type_(),
-            _ => Type::Tuple(TupleType::new(output.iter().map(|output| output.type_()).collect())),
+            1 => output[0].type_.clone(),
+            _ => Type::Tuple(TupleType::new(output.iter().map(|output| output.type_.clone()).collect())),
         };
 
         Self { identifier, input, output, output_type, span, id }
     }
 
-    pub fn from_snarkvm<N: Network, Command: CommandTrait<N>>(
-        finalize: &FinalizeCore<N, Command>,
-        program: Symbol,
-    ) -> Self {
+    pub fn from_snarkvm<N: Network, Command: CommandTrait<N>>(finalize: &FinalizeCore<N, Command>) -> Self {
         let mut inputs = Vec::new();
 
         finalize.inputs().iter().enumerate().for_each(|(index, input)| {
             let arg_name = Identifier::new(Symbol::intern(&format!("a{}", index + 1)), Default::default());
             match input.finalize_type() {
-                Plaintext(val) => inputs.push(Input::Internal(FunctionInput {
+                Plaintext(val) => inputs.push(Input {
                     identifier: arg_name,
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, None),
                     span: Default::default(),
                     id: Default::default(),
-                })),
+                }),
                 Future(_) => {} // Don't need to worry about nested futures
             }
         });

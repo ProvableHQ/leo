@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Composite, Function, Mapping, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{Composite, Function, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -51,8 +51,21 @@ impl<'a> CodeGenerator<'a> {
         let order = self.struct_graph.post_order().unwrap();
 
         // Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        let structs_map: IndexMap<Symbol, &Composite> =
-            program_scope.structs.iter().map(|(name, struct_)| (*name, struct_)).collect();
+        let structs_map: IndexMap<Symbol, &Composite> = self
+            .symbol_table
+            .structs
+            .iter()
+            .filter_map(|(name, struct_)| {
+                // Only include structs and local records.
+                if !(struct_.is_record
+                    && struct_.external.map(|program| program != self.program_id.unwrap().name.name).unwrap_or(false))
+                {
+                    Some((name.name, struct_))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
@@ -60,9 +73,9 @@ impl<'a> CodeGenerator<'a> {
                 .into_iter()
                 .map(|name| {
                     match structs_map.get(&name) {
-                        // If the struct is found, it is a local struct.
+                        // If the struct is found, it is a struct or external record.
                         Some(struct_) => self.visit_struct_or_record(struct_),
-                        // If the struct is not found, it is an imported struct.
+                        // If the struct is not found, it is an imported record.
                         None => String::new(),
                     }
                 })
@@ -125,8 +138,19 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping.insert(&record.identifier.name, (true, output_string.clone()));
         writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
+        let mut members = Vec::with_capacity(record.members.len());
+        let mut member_map: IndexMap<Symbol, Member> =
+            record.members.clone().into_iter().map(|member| (member.identifier.name, member)).collect();
+
+        // Add the owner field to the beginning of the members list.
+        // Note that type checking ensures that the owner field exists.
+        members.push(member_map.shift_remove(&sym::owner).unwrap());
+
+        // Add the remaining fields to the members list.
+        members.extend(member_map.into_iter().map(|(_, member)| member));
+
         // Construct and append the record variables.
-        for var in record.members.iter() {
+        for var in members.iter() {
             let mode = match var.mode {
                 Mode::Constant => "constant",
                 Mode::Public => "public",
@@ -169,20 +193,12 @@ impl<'a> CodeGenerator<'a> {
             let register_string = format!("r{}", self.next_register);
             self.next_register += 1;
 
-            let type_string = match input {
-                functions::Input::Internal(input) => {
-                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-                    let visibility = match (self.is_transition_function, input.mode) {
-                        (true, Mode::None) => Mode::Private,
-                        _ => input.mode,
-                    };
-                    self.visit_type_with_visibility(&input.type_, visibility)
-                }
-                functions::Input::External(input) => {
-                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-                    format!("{}.aleo/{}.record", input.program_name, input.record)
-                }
+            self.variable_mapping.insert(&input.identifier.name, register_string.clone());
+            let visibility = match (self.is_transition_function, input.mode) {
+                (true, Mode::None) => Mode::Private,
+                _ => input.mode,
             };
+            let type_string = self.visit_type_with_visibility(&input.type_, visibility);
 
             writeln!(function_string, "    input {register_string} as {type_string};",)
                 .expect("failed to write to string");
@@ -223,22 +239,14 @@ impl<'a> CodeGenerator<'a> {
                     let register_string = format!("r{}", self.next_register);
                     self.next_register += 1;
 
-                    // TODO: Dedup code.
-                    let type_string = match input {
-                        functions::Input::Internal(input) => {
-                            self.variable_mapping.insert(&input.identifier.name, register_string.clone());
+                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
 
-                            let visibility = match (self.is_transition_function, input.mode) {
-                                (true, Mode::None) => Mode::Public,
-                                _ => input.mode,
-                            };
-                            self.visit_type_with_visibility(&input.type_, visibility)
-                        }
-                        functions::Input::External(input) => {
-                            self.variable_mapping.insert(&input.program_name.name, register_string.clone());
-                            format!("{}.aleo/{}.record", input.program_name, input.record)
-                        }
+                    let visibility = match (self.is_transition_function, input.mode) {
+                        (true, Mode::None) => Mode::Public,
+                        _ => input.mode,
                     };
+
+                    let type_string = self.visit_type_with_visibility(&input.type_, visibility);
 
                     writeln!(function_string, "    input {register_string} as {type_string};",)
                         .expect("failed to write to string");

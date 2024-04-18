@@ -22,14 +22,13 @@ outputs:
               identifier: "{\"id\":\"4\",\"name\":\"f\",\"span\":\"{\\\"lo\\\":52,\\\"hi\\\":53}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 59
-                      hi: 61
-                    id: 5
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 59
+                    hi: 61
+                  id: 5
               output_type:
                 Integer: U8
               block:
@@ -69,14 +68,13 @@ outputs:
               identifier: "{\"id\":\"12\",\"name\":\"g\",\"span\":\"{\\\"lo\\\":141,\\\"hi\\\":142}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 148
-                      hi: 150
-                    id: 13
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 148
+                    hi: 150
+                  id: 13
               output_type:
                 Integer: U8
               block:

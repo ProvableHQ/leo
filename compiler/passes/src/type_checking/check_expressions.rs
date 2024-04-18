@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Location, TypeChecker};
+use crate::{Location, TypeChecker, VariableSymbol};
 
 use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
@@ -206,11 +206,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         match self.visit_expression(&access.inner, &None) {
                             Some(Type::Composite(struct_)) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self
-                                    .symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .cloned();
+                                let struct_ = self.lookup_struct(struct_.program, struct_.id.name);
                                 if let Some(struct_) = struct_ {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -613,7 +609,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                     // Check function argument types.
                     func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_()));
+                        self.visit_expression(argument, &Some(expected.type_().clone()));
                     });
 
                     // Add the call to the call graph.
@@ -651,9 +647,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ =
-            self.symbol_table.borrow().lookup_struct(Location::new(self.program_name, input.name.name)).cloned();
-        if let Some(struct_) = struct_ {
+        if let Some(struct_) = self.lookup_struct(self.program_name, input.name.name) {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());
 
@@ -698,12 +692,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
+        let var_: VariableSymbol;
         if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, input.name)) {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            var_ = var.clone();
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
-            None
+            return None;
         }
+        Some(self.assert_and_return_type(var_.type_.clone(), expected, input.span()))
     }
 
     fn visit_literal(&mut self, input: &'a Literal, expected: &Self::AdditionalInput) -> Self::Output {
@@ -771,14 +767,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check that the locator points to a valid resource in the ST.
+        let loc_: VariableSymbol;
         if let Some(var) =
             self.symbol_table.borrow().lookup_variable(Location::new(Some(input.program.name.name), input.name))
         {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            loc_ = var.clone();
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
-            None
+            return None;
         }
+        Some(self.assert_and_return_type(loc_.type_.clone(), expected, input.span()))
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {

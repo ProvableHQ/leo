@@ -16,33 +16,30 @@ outputs:
               variant: Transition
               identifier: "{\"id\":\"2\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":37,\\\"hi\\\":40}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
-                    mode: None
-                    type_: Signature
-                    span:
-                      lo: 41
-                      hi: 42
-                    id: 4
-                - Internal:
-                    identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":55,\\\"hi\\\":56}\"}"
-                    mode: None
-                    type_: Address
-                    span:
-                      lo: 55
-                      hi: 56
-                    id: 6
-                - Internal:
-                    identifier: "{\"id\":\"7\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":67,\\\"hi\\\":68}\"}"
-                    mode: None
-                    type_:
-                      Composite:
-                        id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
-                        program: test
-                    span:
-                      lo: 67
-                      hi: 68
-                    id: 9
+                - identifier: "{\"id\":\"3\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+                  mode: None
+                  type_: Signature
+                  span:
+                    lo: 41
+                    hi: 42
+                  id: 4
+                - identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":55,\\\"hi\\\":56}\"}"
+                  mode: None
+                  type_: Address
+                  span:
+                    lo: 55
+                    hi: 56
+                  id: 6
+                - identifier: "{\"id\":\"7\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":67,\\\"hi\\\":68}\"}"
+                  mode: None
+                  type_:
+                    Composite:
+                      id: "{\"id\":\"8\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":75}\"}"
+                      program: test
+                  span:
+                    lo: 67
+                    hi: 68
+                  id: 9
               output: []
               output_type: Unit
               block:
@@ -114,24 +111,22 @@ outputs:
               variant: Transition
               identifier: "{\"id\":\"31\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":214,\\\"hi\\\":217}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"32\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":218,\\\"hi\\\":219}\"}"
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 218
-                      hi: 219
-                    id: 33
+                - identifier: "{\"id\":\"32\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":218,\\\"hi\\\":219}\"}"
+                  mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 218
+                    hi: 219
+                  id: 33
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 228
-                      hi: 230
-                    id: 34
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 228
+                    hi: 230
+                  id: 34
               output_type:
                 Integer: U8
               block:
@@ -186,33 +181,30 @@ outputs:
               variant: Transition
               identifier: "{\"id\":\"44\",\"name\":\"bax\",\"span\":\"{\\\"lo\\\":317,\\\"hi\\\":320}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"45\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":321,\\\"hi\\\":322}\"}"
-                    mode: None
-                    type_: Signature
-                    span:
-                      lo: 321
-                      hi: 322
-                    id: 46
-                - Internal:
-                    identifier: "{\"id\":\"47\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":335,\\\"hi\\\":336}\"}"
-                    mode: None
-                    type_: Address
-                    span:
-                      lo: 335
-                      hi: 336
-                    id: 48
-                - Internal:
-                    identifier: "{\"id\":\"49\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":348}\"}"
-                    mode: None
-                    type_:
-                      Composite:
-                        id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
-                        program: test
-                    span:
-                      lo: 347
-                      hi: 348
-                    id: 51
+                - identifier: "{\"id\":\"45\",\"name\":\"s\",\"span\":\"{\\\"lo\\\":321,\\\"hi\\\":322}\"}"
+                  mode: None
+                  type_: Signature
+                  span:
+                    lo: 321
+                    hi: 322
+                  id: 46
+                - identifier: "{\"id\":\"47\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":335,\\\"hi\\\":336}\"}"
+                  mode: None
+                  type_: Address
+                  span:
+                    lo: 335
+                    hi: 336
+                  id: 48
+                - identifier: "{\"id\":\"49\",\"name\":\"v\",\"span\":\"{\\\"lo\\\":347,\\\"hi\\\":348}\"}"
+                  mode: None
+                  type_:
+                    Composite:
+                      id: "{\"id\":\"50\",\"name\":\"value\",\"span\":\"{\\\"lo\\\":350,\\\"hi\\\":355}\"}"
+                      program: test
+                  span:
+                    lo: 347
+                    hi: 348
+                  id: 51
               output: []
               output_type: Unit
               block:

@@ -17,11 +17,10 @@ outputs:
               identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":35,\\\"hi\\\":39}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    id: 3
+                - mode: None
+                  type_:
+                    Integer: U8
+                  id: 3
               output_type:
                 Integer: U8
               block:

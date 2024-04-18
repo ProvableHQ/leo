@@ -16,24 +16,22 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
-                    mode: Constant
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 50
-                      hi: 51
-                    id: 4
+                - identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":50,\\\"hi\\\":51}\"}"
+                  mode: Constant
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 50
+                    hi: 51
+                  id: 4
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 60
-                      hi: 62
-                    id: 5
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 60
+                    hi: 62
+                  id: 5
               output_type:
                 Integer: U8
               block:

@@ -34,7 +34,7 @@ outputs:
                     lo: 103
                     hi: 113
                   id: 8
-              external: test
+              external: ~
               is_record: false
               span:
                 lo: 26

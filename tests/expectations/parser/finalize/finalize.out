@@ -17,13 +17,12 @@ outputs:
               identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":43}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 49
-                      hi: 53
-                    id: 3
+                - mode: None
+                  type_: Boolean
+                  span:
+                    lo: 49
+                    hi: 53
+                  id: 3
               output_type: Boolean
               block:
                 statements: []
@@ -56,13 +55,12 @@ outputs:
               identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":123,\\\"hi\\\":127}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 133
-                      hi: 137
-                    id: 10
+                - mode: None
+                  type_: Boolean
+                  span:
+                    lo: 133
+                    hi: 137
+                  id: 10
               output_type: Boolean
               block:
                 statements: []
@@ -73,39 +71,36 @@ outputs:
               finalize:
                 identifier: "{\"id\":\"12\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":160,\\\"hi\\\":164}\"}"
                 input:
-                  - Internal:
-                      identifier: "{\"id\":\"13\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
-                      mode: None
-                      type_:
-                        Composite:
-                          id: "{\"id\":\"14\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
-                          program: test
-                      span:
-                        lo: 165
-                        hi: 166
-                      id: 15
-                  - Internal:
-                      identifier: "{\"id\":\"16\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
-                      mode: None
-                      type_:
-                        Composite:
-                          id: "{\"id\":\"17\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
-                          program: test
-                      span:
-                        lo: 173
-                        hi: 174
-                      id: 18
+                  - identifier: "{\"id\":\"13\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":165,\\\"hi\\\":166}\"}"
+                    mode: None
+                    type_:
+                      Composite:
+                        id: "{\"id\":\"14\",\"name\":\"foo\",\"span\":\"{\\\"lo\\\":168,\\\"hi\\\":171}\"}"
+                        program: test
+                    span:
+                      lo: 165
+                      hi: 166
+                    id: 15
+                  - identifier: "{\"id\":\"16\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":173,\\\"hi\\\":174}\"}"
+                    mode: None
+                    type_:
+                      Composite:
+                        id: "{\"id\":\"17\",\"name\":\"bar\",\"span\":\"{\\\"lo\\\":176,\\\"hi\\\":179}\"}"
+                        program: test
+                    span:
+                      lo: 173
+                      hi: 174
+                    id: 18
                 output:
-                  - Internal:
-                      mode: None
-                      type_:
-                        Composite:
-                          id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
-                          program: test
-                      span:
-                        lo: 184
-                        hi: 187
-                      id: 20
+                  - mode: None
+                    type_:
+                      Composite:
+                        id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"
+                        program: test
+                    span:
+                      lo: 184
+                      hi: 187
+                    id: 20
                 output_type:
                   Composite:
                     id: "{\"id\":\"19\",\"name\":\"baz\",\"span\":\"{\\\"lo\\\":184,\\\"hi\\\":187}\"}"

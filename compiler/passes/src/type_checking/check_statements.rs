@@ -209,7 +209,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check that the type of the definition is defined.
         self.assert_type_is_valid(&input.type_, input.span);
 
-        // Check that the type of the definition is not a unit type, singleton tuple type, nested tuple type, or external struct type.
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
             Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
@@ -221,19 +221,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         if matches!(type_, Type::Tuple(_)) {
                             self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                         }
-                        if let Type::Composite(composite) = type_ {
-                            self.assert_internal_struct(composite, input.span);
-                        }
                     }
                 }
             },
             Type::Mapping(_) | Type::Err => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
-            // Make sure there are no instances of external structs created.
-            Type::Composite(composite) => {
-                self.assert_internal_struct(composite, input.span);
-            }
             // Otherwise, the type is valid.
             _ => (), // Do nothing
         }
@@ -450,7 +443,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
                     // Check function argument types.
                     finalize.input.iter().zip(arguments.iter()).for_each(|(expected, argument)| {
-                        self.visit_expression(argument, &Some(expected.type_()));
+                        self.visit_expression(argument, &Some(expected.type_().clone()));
                     });
                 }
             }

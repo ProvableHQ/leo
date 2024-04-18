@@ -17,14 +17,13 @@ outputs:
               identifier: "{\"id\":\"2\",\"name\":\"inf\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":42}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 48
-                      hi: 50
-                    id: 3
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 48
+                    hi: 50
+                  id: 3
               output_type:
                 Integer: U8
               block:
@@ -58,22 +57,20 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"9\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":92,\\\"hi\\\":96}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"10\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 97
-                      hi: 98
-                    id: 11
+                - identifier: "{\"id\":\"10\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":97,\\\"hi\\\":98}\"}"
+                  mode: None
+                  type_: Boolean
+                  span:
+                    lo: 97
+                    hi: 98
+                  id: 11
               output:
-                - Internal:
-                    mode: None
-                    type_: Boolean
-                    span:
-                      lo: 109
-                      hi: 113
-                    id: 12
+                - mode: None
+                  type_: Boolean
+                  span:
+                    lo: 109
+                    hi: 113
+                  id: 12
               output_type: Boolean
               block:
                 statements:

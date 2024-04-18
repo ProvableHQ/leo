@@ -28,7 +28,6 @@ use leo_ast::{
     MappingType,
     Mode,
     Node,
-    Output,
     Type,
     Variant,
 };
@@ -37,6 +36,7 @@ use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::{Network, Testnet3};
 
+use indexmap::IndexSet;
 use itertools::Itertools;
 use std::cell::RefCell;
 
@@ -67,6 +67,8 @@ pub struct TypeChecker<'a> {
     pub(crate) program_name: Option<Symbol>,
     /// Whether or not we are currently traversing a stub.
     pub(crate) is_stub: bool,
+    /// The set of used composites.
+    pub(crate) used_structs: IndexSet<Symbol>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -116,6 +118,7 @@ const MAGNITUDE_TYPES: [Type; 3] =
 impl<'a> TypeChecker<'a> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(symbol_table: SymbolTable, type_table: &'a TypeTable, handler: &'a Handler) -> Self {
+        // Initialize w/ only structs and non-external records.
         let struct_names = symbol_table.structs.keys().map(|loc| loc.name).collect();
         let function_names = symbol_table.functions.keys().map(|loc| loc.name).collect();
 
@@ -134,6 +137,7 @@ impl<'a> TypeChecker<'a> {
             is_return: false,
             program_name: None,
             is_stub: true,
+            used_structs: IndexSet::new(),
         }
     }
 
@@ -176,20 +180,9 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the two given types are not equal.
-    pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
+    pub(crate) fn check_eq_types(&mut self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat(t1, t2) => {
-                if let (Type::Composite(left), Type::Composite(right)) = (t1, t2) {
-                    if !self.check_duplicate_struct(left.id.name, left.program.unwrap(), right.program.unwrap()) {
-                        self.emit_err(TypeCheckerError::struct_definitions_dont_match(
-                            left.id.name.to_string(),
-                            left.program.unwrap().to_string(),
-                            right.program.unwrap().to_string(),
-                            span,
-                        ));
-                    }
-                    return;
-                }
+            (Some(t1), Some(t2)) if !Type::eq_flat_relax_composite(t1, t2) => {
                 self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {
@@ -201,7 +194,7 @@ impl<'a> TypeChecker<'a> {
 
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
-    pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if expected.is_some() {
             self.check_eq_types(&Some(actual.clone()), expected, span);
         }
@@ -209,8 +202,10 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
-    pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
-        self.check_type(|actual: &Type| actual.eq_flat(expected), expected.to_string(), actual, span)
+    pub(crate) fn assert_type(&mut self, actual: &Option<Type>, expected: &Type, span: Span) {
+        if let Some(actual) = actual {
+            self.check_eq_types(&Some(actual.clone()), &Some(expected.clone()), span);
+        }
     }
 
     /// Emits an error to the error handler if the given type is not an address.
@@ -403,7 +398,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the correct number of arguments are not provided.
     /// Emits an error if the arguments are not of the correct type.
     pub(crate) fn check_core_function_call(
-        &self,
+        &mut self,
         core_function: CoreFunction,
         arguments: &[(Option<Type>, Span)],
         function_span: Span,
@@ -1074,60 +1069,11 @@ impl<'a> TypeChecker<'a> {
         Type::Composite(current_struct)
     }
 
-    /// Determines if two struct definitions from different programs match or not.
-    pub(crate) fn check_duplicate_struct(&self, name: Symbol, program_1: Symbol, program_2: Symbol) -> bool {
-        // Make sure that both structs have been defined already.
-        let st = self.symbol_table.borrow();
-        let (struct_1, struct_2) = match (
-            st.lookup_struct(Location::new(Some(program_1), name)),
-            st.lookup_struct(Location::new(Some(program_2), name)),
-        ) {
-            (Some(struct_1), Some(struct_2)) => (struct_1, struct_2),
-            _ => return false,
-        };
-
-        // Make sure both structs have the same number of members
-        if struct_1.members.len() != struct_2.members.len() {
-            return false;
-        }
-
-        // Make sure that all members of the structs match.
-        for (member_1, member_2) in struct_1.members.iter().zip(struct_2.members.iter()) {
-            // Make sure that the member names match.
-            if member_1.identifier.name != member_2.identifier.name {
-                return false;
-            }
-
-            // Make sure that the member types match.
-            if member_1.type_.eq_flat(&member_2.type_) {
-                continue;
-            }
-
-            // Recursively check that the member types match in the case that the type is struct.
-            return if let (Type::Composite(internal_struct_1), Type::Composite(internal_struct_2)) =
-                (&member_1.type_, &member_2.type_)
-            {
-                self.check_duplicate_struct(
-                    internal_struct_1.id.name,
-                    internal_struct_1.program.unwrap(),
-                    internal_struct_2.program.unwrap(),
-                )
-            } else {
-                false
-            };
-        }
-        true
-    }
-
     /// Emits an error if the struct member is a record type.
-    pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
+    pub(crate) fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
             Type::Composite(struct_)
-                if self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .map_or(false, |struct_| struct_.is_record) =>
+                if self.lookup_struct(struct_.program, struct_.id.name).map_or(false, |struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
@@ -1141,7 +1087,7 @@ impl<'a> TypeChecker<'a> {
     }
 
     /// Emits an error if the type or its constituent types is not valid.
-    pub(crate) fn assert_type_is_valid(&self, type_: &Type, span: Span) -> bool {
+    pub(crate) fn assert_type_is_valid(&mut self, type_: &Type, span: Span) -> bool {
         let mut is_valid = true;
         match type_ {
             // String types are temporarily disabled.
@@ -1150,13 +1096,7 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
-            Type::Composite(struct_)
-                if self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .is_none() =>
-            {
+            Type::Composite(struct_) if self.lookup_struct(struct_.program, struct_.id.name).is_none() => {
                 is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
@@ -1188,11 +1128,7 @@ impl<'a> TypeChecker<'a> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self
-                            .symbol_table
-                            .borrow()
-                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                        {
+                        if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                             // Check that the type is not a record.
                             if struct_.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -1229,7 +1165,7 @@ impl<'a> TypeChecker<'a> {
         // Type check the function's parameters.
         function.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is defined.
-            self.assert_type_is_valid(&input_var.type_(), input_var.span());
+            self.assert_type_is_valid(input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
             if matches!(input_var.type_(), Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
@@ -1250,9 +1186,7 @@ impl<'a> TypeChecker<'a> {
 
             // If the function is not a transition function, then it cannot have a record as input
             if let Type::Composite(struct_) = input_var.type_() {
-                if let Some(val) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
-                {
+                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
                     if val.is_record && !matches!(function.variant, Variant::Transition) {
                         self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
                     }
@@ -1264,7 +1198,7 @@ impl<'a> TypeChecker<'a> {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     Location::new(None, input_var.identifier().name),
                     VariableSymbol {
-                        type_: input_var.type_(),
+                        type_: input_var.type_().clone(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
                     },
@@ -1276,46 +1210,35 @@ impl<'a> TypeChecker<'a> {
 
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().for_each(|output| {
-            match output {
-                Output::External(external) => {
-                    // If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    if !matches!(function.variant, Variant::Transition) {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
-                    }
-                    // Otherwise, do not type check external record function outputs.
-                    // TODO: Verify that this is not needed when the import system is updated.
-                }
-                Output::Internal(function_output) => {
-                    // Check that the type of output is defined.
-                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
-                        // If the function is not a transition function, then it cannot output a record.
-                        if let Type::Composite(struct_) = function_output.type_.clone() {
-                            if !matches!(function.variant, Variant::Transition)
-                                && self
-                                    .symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .unwrap()
-                                    .is_record
-                            {
-                                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
-                                    function_output.span,
-                                ));
-                            }
-                        }
-                    }
-                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&function_output.type_, Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    // Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    if function_output.mode == Mode::Constant {
-                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+        function.output.iter().for_each(|function_output| {
+            // If the function is not a transition function, then it cannot output a record.
+            // Note that an external output must always be a record.
+            if let Type::Composite(struct_) = function_output.type_.clone() {
+                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
+                    if val.is_record && !matches!(function.variant, Variant::Transition) {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
                 }
+            }
+            // Check that the type of output is defined.
+            if self.assert_type_is_valid(&function_output.type_, function_output.span) {
+                // If the function is not a transition function, then it cannot output a record.
+                if let Type::Composite(struct_) = function_output.type_.clone() {
+                    if !matches!(function.variant, Variant::Transition)
+                        && self.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record
+                    {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
+                    }
+                }
+            }
+            // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+            if matches!(&function_output.type_, Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+            }
+            // Check that the mode of the output is valid.
+            // For functions, only public and private outputs are allowed
+            if function_output.mode == Mode::Constant {
+                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
             }
         });
     }
@@ -1337,7 +1260,7 @@ impl<'a> TypeChecker<'a> {
 
         finalize.input.iter().for_each(|input_var| {
             // Check that the type of input parameter is defined.
-            if self.assert_type_is_valid(&input_var.type_(), input_var.span()) {
+            if self.assert_type_is_valid(input_var.type_(), input_var.span()) {
                 // Check that the input parameter is not a tuple.
                 if matches!(input_var.type_(), Type::Tuple(_)) {
                     self.emit_err(TypeCheckerError::finalize_cannot_take_tuple_as_input(input_var.span()))
@@ -1345,13 +1268,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the input parameter is not a record.
                 if let Type::Composite(struct_) = input_var.type_() {
                     // Note that this unwrap is safe, as the type is defined.
-                    if self
-                        .symbol_table
-                        .borrow()
-                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                        .unwrap()
-                        .is_record
-                    {
+                    if self.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
                         self.emit_err(TypeCheckerError::finalize_cannot_take_record_as_input(input_var.span()))
                     }
                 }
@@ -1364,7 +1281,7 @@ impl<'a> TypeChecker<'a> {
                     if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                         Location::new(None, input_var.identifier().name),
                         VariableSymbol {
-                            type_: input_var.type_(),
+                            type_: input_var.type_().clone(),
                             span: input_var.identifier().span(),
                             declaration: VariableType::Input(input_var.mode()),
                         },
@@ -1387,7 +1304,7 @@ impl<'a> TypeChecker<'a> {
         // Note that checking that each of the component types are defined is sufficient to guarantee that the `output_type` is defined.
         finalize.output.iter().for_each(|output_type| {
             // Check that the type of output is defined.
-            if self.assert_type_is_valid(&output_type.type_(), output_type.span()) {
+            if self.assert_type_is_valid(&output_type.type_().clone(), output_type.span()) {
                 // Check that the output is not a tuple. This is necessary to forbid nested tuples.
                 if matches!(&output_type.type_(), Type::Tuple(_)) {
                     self.emit_err(TypeCheckerError::nested_tuple_type(output_type.span()))
@@ -1395,13 +1312,7 @@ impl<'a> TypeChecker<'a> {
                 // Check that the output is not a record.
                 if let Type::Composite(struct_) = output_type.type_() {
                     // Note that this unwrap is safe, as the type is defined.
-                    if self
-                        .symbol_table
-                        .borrow()
-                        .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                        .unwrap()
-                        .is_record
-                    {
+                    if self.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record {
                         self.emit_err(TypeCheckerError::finalize_cannot_output_record(output_type.span()))
                     }
                 }
@@ -1417,17 +1328,15 @@ impl<'a> TypeChecker<'a> {
         self.assert_type_is_valid(&finalize.output_type, finalize.span);
     }
 
-    /// Emits an error if the type corresponds to an external struct.
-    pub(crate) fn assert_internal_struct(&self, composite: &CompositeType, span: Span) {
-        let st = self.symbol_table.borrow();
-        match st.lookup_struct(Location::new(composite.program, composite.id.name)) {
-            None => self.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
-            Some(composite_def) => {
-                if !composite_def.is_record && composite_def.external.unwrap() != self.program_name.unwrap() {
-                    self.emit_err(TypeCheckerError::cannot_define_external_struct(composite.id, span))
-                }
-            }
+    /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
+    pub(crate) fn lookup_struct(&mut self, program: Option<Symbol>, name: Symbol) -> Option<Composite> {
+        let struct_ =
+            self.symbol_table.borrow().lookup_struct(Location::new(program, name), self.program_name).cloned();
+        // Record the usage.
+        if let Some(s) = &struct_ {
+            self.used_structs.insert(s.identifier.name);
         }
+        struct_
     }
 }
 

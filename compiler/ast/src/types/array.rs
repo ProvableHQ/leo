@@ -53,7 +53,7 @@ impl ArrayType {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(array_type: &ConsoleArrayType<N>, program: Option<Symbol>) -> Self {
         Self {
             element_type: Box::new(Type::from_snarkvm(array_type.next_element_type(), program)),
             length: NonNegativeNumber::from(array_type.length().to_string().replace("u32", "")),

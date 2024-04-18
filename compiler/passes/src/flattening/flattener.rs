@@ -47,6 +47,7 @@ use leo_ast::{
     Type,
     UnitExpression,
 };
+use leo_span::Symbol;
 
 pub struct Flattener<'a> {
     /// The symbol table associated with the program.
@@ -64,6 +65,8 @@ pub struct Flattener<'a> {
     /// Note that returns are inserted in the order they are encountered during a pre-order traversal of the AST.
     /// Note that type checking guarantees that there is at most one return in a basic block.
     pub(crate) returns: Vec<(Option<Expression>, ReturnStatement)>,
+    /// The program name.
+    pub(crate) program: Option<Symbol>,
 }
 
 impl<'a> Flattener<'a> {
@@ -73,7 +76,15 @@ impl<'a> Flattener<'a> {
         node_builder: &'a NodeBuilder,
         assigner: &'a Assigner,
     ) -> Self {
-        Self { symbol_table, type_table, node_builder, assigner, condition_stack: Vec::new(), returns: Vec::new() }
+        Self {
+            symbol_table,
+            type_table,
+            node_builder,
+            assigner,
+            condition_stack: Vec::new(),
+            returns: Vec::new(),
+            program: None,
+        }
     }
 
     /// Clears the state associated with `ReturnStatements`, returning the ones that were previously stored.

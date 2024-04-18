@@ -28,7 +28,7 @@ use std::cell::RefCell;
 
 use leo_ast::{normalize_json_value, remove_key_from_json, Composite, Function};
 use leo_errors::{AstError, Result};
-use leo_span::Span;
+use leo_span::{Span, Symbol};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -59,18 +59,19 @@ pub struct SymbolTable {
 impl SymbolTable {
     /// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    pub fn check_shadowing(&self, location: &Location, span: Span) -> Result<()> {
+    pub fn check_shadowing(&self, location: &Location, is_struct: bool, span: Span) -> Result<()> {
         if self.functions.contains_key(location) {
             return Err(AstError::shadowed_function(location.name, span).into());
-        } else if let Some(existing) = self.structs.get(location) {
-            return match existing.is_record {
-                true => Err(AstError::shadowed_record(location.name, span).into()),
-                false => Err(AstError::shadowed_struct(location.name, span).into()),
-            };
+        } else if self.structs.get(location).is_some() && !(location.program.is_none() && is_struct) {
+            // The second half of the conditional makes sure that structs are only caught for shadowing local records during ST creation, not for redefinition of external structs.
+            return Err(AstError::shadowed_record(location.name, span).into());
+        } else if self.structs.get(&Location::new(None, location.name)).is_some() && !is_struct {
+            // Struct redefinition is allowed. If there are more than one occurrences, the error will be caught in the creator pass.
+            return Err(AstError::shadowed_struct(location.name, span).into());
         } else if self.variables.contains_key(location) {
             return Err(AstError::shadowed_variable(location.name, span).into());
         }
-        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, span) } else { Ok(()) }
+        if let Some(parent) = self.parent.as_ref() { parent.check_shadowing(location, is_struct, span) } else { Ok(()) }
     }
 
     /// Returns the current scope index.
@@ -84,7 +85,7 @@ impl SymbolTable {
     /// Inserts a function into the symbol table.
     pub fn insert_fn(&mut self, location: Location, insert: &Function) -> Result<()> {
         let id = self.scope_index();
-        self.check_shadowing(&location, insert.span)?;
+        self.check_shadowing(&location, false, insert.span)?;
         self.functions.insert(location, Self::new_function_symbol(id, insert));
         self.scopes.push(Default::default());
         Ok(())
@@ -92,18 +93,45 @@ impl SymbolTable {
 
     /// Inserts a struct into the symbol table.
     pub fn insert_struct(&mut self, location: Location, insert: &Composite) -> Result<()> {
-        match self.check_shadowing(&location, insert.span) {
-            Ok(_) => {
-                self.structs.insert(location, insert.clone());
-                Ok(())
+        // Check shadowing.
+        self.check_shadowing(&location, !insert.is_record, insert.span)?;
+
+        if insert.is_record {
+            // Insert the record into the symbol table.
+            self.structs.insert(location, insert.clone());
+        } else {
+            if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
+                // Allow redefinition of external structs so long as the definitions match.
+                if !self.check_eq_struct(insert, struct_) {
+                    return Err(AstError::redefining_external_struct(location.name, insert.span).into());
+                }
             }
-            Err(e) => Err(e),
+            // Insert with program location set to `None` to reflect that in snarkVM structs are not attached to programs (unlike records).
+            self.structs.insert(Location::new(None, location.name), insert.clone());
         }
+
+        Ok(())
+    }
+
+    /// Checks if two structs are equal.
+    fn check_eq_struct(&self, new: &Composite, old: &Composite) -> bool {
+        if new.is_record || old.is_record {
+            return false;
+        }
+        if new.members.len() != old.members.len() {
+            return false;
+        }
+        for (member1, member2) in new.members.iter().zip(old.members.iter()) {
+            if member1.name() != member2.name() || !member1.type_.eq_flat_relax_composite(&member2.type_) {
+                return false;
+            }
+        }
+        true
     }
 
     /// Inserts a variable into the symbol table.
     pub fn insert_variable(&mut self, location: Location, insert: VariableSymbol) -> Result<()> {
-        self.check_shadowing(&location, insert.span)?;
+        self.check_shadowing(&location, false, insert.span)?;
         self.variables.insert(location, insert);
         Ok(())
     }
@@ -131,14 +159,15 @@ impl SymbolTable {
     }
 
     /// Attempts to lookup a struct in the symbol table.
-    pub fn lookup_struct(&self, location: Location) -> Option<&Composite> {
+    pub fn lookup_struct(&self, location: Location, main_program: Option<Symbol>) -> Option<&Composite> {
         if let Some(struct_) = self.structs.get(&location) {
-            Some(struct_)
-        } else if let Some(parent) = self.parent.as_ref() {
-            parent.lookup_struct(location)
-        } else {
-            None
+            return Some(struct_);
+        } else if location.program == main_program {
+            if let Some(struct_) = self.structs.get(&Location::new(None, location.name)) {
+                return Some(struct_);
+            }
         }
+        if let Some(parent) = self.parent.as_ref() { parent.lookup_struct(location, main_program) } else { None }
     }
 
     /// Attempts to lookup a variable in the symbol table.

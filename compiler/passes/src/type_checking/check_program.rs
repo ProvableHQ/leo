@@ -201,34 +201,35 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             check_has_field(sym::owner, Type::Address);
         }
 
-        for Member { mode, identifier, type_, span, .. } in input.members.iter() {
-            // Check that the member type is not a tuple.
-            if matches!(type_, Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
-                    if input.is_record { "record" } else { "struct" },
-                    identifier.span,
-                ));
-            }
-            // Ensure that there are no record members.
-            self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
-
-            // If the member is a struct, add it to the struct dependency graph.
-            // Note that we have already checked that each member is defined and valid.
-            if let Type::Composite(struct_member_type) = type_ {
-                // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
-                self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
-            } else if let Type::Array(array_type) = type_ {
-                // Get the base element type.
-                let base_element_type = array_type.base_element_type();
-                // If the base element type is a struct, then add it to the struct dependency graph.
-                if let Type::Identifier(member_type) = base_element_type {
-                    self.struct_graph.add_edge(input.identifier.name, member_type.name);
+        if !(input.is_record && self.is_stub) {
+            for Member { mode, identifier, type_, span, .. } in input.members.iter() {
+                // Check that the member type is not a tuple.
+                if matches!(type_, Type::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                        if input.is_record { "record" } else { "struct" },
+                        identifier.span,
+                    ));
                 }
-            }
+                // Ensure that there are no record members.
+                self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+                // If the member is a struct, add it to the struct dependency graph.
+                // Note that we have already checked that each member is defined and valid.
+                if let Type::Composite(struct_member_type) = type_ {
+                    // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
+                    self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
+                } else if let Type::Array(array_type) = type_ {
+                    // Get the base element type.
+                    let base_element_type = array_type.base_element_type();
+                    // If the base element type is a struct, then add it to the struct dependency graph.
+                    if let Type::Composite(member_type) = base_element_type {
+                        self.struct_graph.add_edge(input.identifier.name, member_type.id.name);
+                    }
+                }
 
-            // If the input is a struct, then check that the member does not have a mode.
-            if !input.is_record && !matches!(mode, Mode::None) {
-                self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                // If the input is a struct, then check that the member does not have a mode.
+                if !input.is_record && !matches!(mode, Mode::None) {
+                    self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                }
             }
         }
     }
@@ -240,9 +241,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         match input.key_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
@@ -259,9 +258,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         match input.value_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }

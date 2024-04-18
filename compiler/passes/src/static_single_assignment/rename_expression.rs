@@ -254,7 +254,7 @@ impl ExpressionConsumer for StaticSingleAssigner<'_> {
         // Lookup the struct definition.
         // Note that type checking guarantees that the correct struct definition exists.
         let struct_definition: &Composite =
-            self.symbol_table.lookup_struct(Location::new(self.program, input.name.name)).unwrap();
+            self.symbol_table.lookup_struct(Location::new(self.program, input.name.name), self.program).unwrap();
 
         // Initialize the list of reordered members.
         let mut reordered_members = Vec::with_capacity(members.len());

@@ -223,10 +223,13 @@ impl ParserContext<'_> {
         self.expect(&Token::LeftCurly)?;
         let (members, end) = self.parse_struct_members()?;
 
+        // Only provide a program name for records.
+        let external = if is_record { self.program_name } else { None };
+
         Ok((struct_name.name, Composite {
             identifier: struct_name,
             members,
-            external: self.program_name,
+            external,
             is_record,
             span: start + end,
             id: self.node_builder.next_id(),
@@ -282,84 +285,16 @@ impl ParserContext<'_> {
         let name = self.expect_identifier()?;
         self.expect(&Token::Colon)?;
 
-        if self.peek_is_external() {
-            let external = self.expect_identifier()?;
-            let mut span = name.span + external.span;
+        let type_ = self.parse_type()?.0;
 
-            // Parse `.leo/` or `.aleo/`.
-            self.eat(&Token::Dot);
-            self.eat_any(&[Token::Leo, Token::Aleo]);
-            self.eat(&Token::Div);
-
-            // Parse record name.
-            let record = self.expect_identifier()?;
-
-            // Parse `.record`.
-            self.eat(&Token::Dot);
-            self.eat(&Token::Record);
-            span = span + self.prev_token.span;
-
-            Ok(functions::Input::External(External {
-                identifier: name,
-                program_name: external,
-                record,
-                span,
-                id: self.node_builder.next_id(),
-            }))
-        } else {
-            let type_ = self.parse_type()?.0;
-
-            Ok(functions::Input::Internal(FunctionInput {
-                identifier: name,
-                mode,
-                type_,
-                span: name.span,
-                id: self.node_builder.next_id(),
-            }))
-        }
-    }
-
-    /// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
-    fn parse_function_output(&mut self) -> Result<FunctionOutput> {
-        // TODO: Could this span be made more accurate?
-        let mode = self.parse_mode()?;
-        let (type_, span) = self.parse_type()?;
-        Ok(FunctionOutput { mode, type_, span, id: self.node_builder.next_id() })
+        Ok(functions::Input { identifier: name, mode, type_, span: name.span, id: self.node_builder.next_id() })
     }
 
     /// Returns a [`Output`] AST node if the next tokens represent a function output.
     fn parse_output(&mut self) -> Result<Output> {
-        if self.peek_is_external() {
-            let external = self.expect_identifier()?;
-            let mut span = external.span;
-
-            // Parse `.leo/` or `.aleo/`.
-            self.eat(&Token::Dot);
-            self.eat_any(&[Token::Leo, Token::Aleo]);
-            self.eat(&Token::Div);
-
-            // Parse record name.
-            let record = self.expect_identifier()?;
-
-            // Parse `.record`.
-            self.eat(&Token::Dot);
-            self.eat(&Token::Record);
-            span = span + self.prev_token.span;
-
-            Ok(Output::External(External {
-                identifier: Identifier::new(Symbol::intern("dummy"), self.node_builder.next_id()),
-                program_name: external,
-                record,
-                span,
-                id: self.node_builder.next_id(),
-            }))
-        } else {
-            Ok(Output::Internal(self.parse_function_output()?))
-        }
-    }
-
-    pub fn peek_is_external(&self) -> bool {
-        matches!((&self.token.token, self.look_ahead(1, |t| &t.token)), (Token::Identifier(_), Token::Dot))
+        let mode = self.parse_mode()?;
+        let (type_, span) = self.parse_type()?;
+        Ok(Output { mode, type_, span, id: self.node_builder.next_id() })
     }
 
     /// Returns an [`Annotation`] AST node if the next tokens represent an annotation.

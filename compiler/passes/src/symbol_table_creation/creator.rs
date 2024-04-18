@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexSet;
 use leo_ast::*;
-use leo_errors::emitter::Handler;
+use leo_errors::{emitter::Handler, AstError, LeoError};
 use leo_span::Symbol;
 
 use crate::{Location, SymbolTable, VariableSymbol, VariableType};
@@ -32,11 +33,13 @@ pub struct SymbolTableCreator<'a> {
     program_name: Option<Symbol>,
     /// Whether or not traversing stub.
     is_stub: bool,
+    /// The set of local structs that have been successfully visited.
+    structs: IndexSet<Symbol>,
 }
 
 impl<'a> SymbolTableCreator<'a> {
     pub fn new(handler: &'a Handler) -> Self {
-        Self { symbol_table: Default::default(), handler, program_name: None, is_stub: false }
+        Self { symbol_table: Default::default(), handler, program_name: None, is_stub: false, structs: IndexSet::new() }
     }
 }
 
@@ -65,7 +68,11 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     }
 
     fn visit_struct(&mut self, input: &'a Composite) {
-        if let Err(err) = self.symbol_table.insert_struct(Location::new(self.program_name, input.name()), input) {
+        // Allow up to one local redefinition for each external struct.
+        if !input.is_record && !self.structs.insert(input.name()) {
+            return self.handler.emit_err::<LeoError>(AstError::shadowed_struct(input.name(), input.span).into());
+        }
+        if let Err(err) = self.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
             self.handler.emit_err(err);
         }
     }
@@ -115,7 +122,7 @@ impl<'a> ProgramVisitor<'a> for SymbolTableCreator<'a> {
     }
 
     fn visit_struct_stub(&mut self, input: &'a Composite) {
-        if let Err(err) = self.symbol_table.insert_struct(Location::new(self.program_name, input.name()), input) {
+        if let Err(err) = self.symbol_table.insert_struct(Location::new(input.external, input.name()), input) {
             self.handler.emit_err(err);
         }
     }

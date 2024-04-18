@@ -28,7 +28,6 @@ use leo_ast::{
     ExpressionStatement,
     IterationStatement,
     Mode,
-    Output,
     ReturnStatement,
     Statement,
 };
@@ -103,38 +102,28 @@ impl<'a> CodeGenerator<'a> {
                     .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
-                        match output {
-                            Output::Internal(output) => {
-                                let visibility = if self.is_transition_function {
-                                    match self.in_finalize {
-                                        // If in finalize block, the default visibility is public.
-                                        true => match output.mode {
-                                            Mode::None => Mode::Public,
-                                            mode => mode,
-                                        },
-                                        // If not in finalize block, the default visibility is private.
-                                        false => match output.mode {
-                                            Mode::None => Mode::Private,
-                                            mode => mode,
-                                        },
-                                    }
-                                } else {
-                                    // Only program functions have visibilities associated with their outputs.
-                                    Mode::None
-                                };
-                                format!(
-                                    "    output {} as {};\n",
-                                    operand,
-                                    self.visit_type_with_visibility(&output.type_, visibility)
-                                )
+                        let visibility = if self.is_transition_function {
+                            match self.in_finalize {
+                                // If in finalize block, the default visibility is public.
+                                true => match output.mode {
+                                    Mode::None => Mode::Public,
+                                    mode => mode,
+                                },
+                                // If not in finalize block, the default visibility is private.
+                                false => match output.mode {
+                                    Mode::None => Mode::Private,
+                                    mode => mode,
+                                },
                             }
-                            Output::External(output) => {
-                                format!(
-                                    "    output {} as {}.aleo/{}.record;\n",
-                                    operand, output.program_name, output.record,
-                                )
-                            }
-                        }
+                        } else {
+                            // Only program functions have visibilities associated with their outputs.
+                            Mode::None
+                        };
+                        format!(
+                            "    output {} as {};\n",
+                            operand,
+                            self.visit_type_with_visibility(&output.type_, visibility)
+                        )
                     })
                     .join("");
 

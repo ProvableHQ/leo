@@ -87,9 +87,9 @@ impl Composite {
                         mode: if input.owner().is_public() { Mode::Public } else { Mode::Private },
                         identifier: Identifier::from(id),
                         type_: match entry {
-                            Public(t) => Type::from_snarkvm(t, external_program),
-                            Private(t) => Type::from_snarkvm(t, external_program),
-                            Constant(t) => Type::from_snarkvm(t, external_program),
+                            Public(t) => Type::from_snarkvm(t, None),
+                            Private(t) => Type::from_snarkvm(t, None),
+                            Constant(t) => Type::from_snarkvm(t, None),
                         },
                         span: Default::default(),
                         id: Default::default(),
@@ -104,7 +104,7 @@ impl Composite {
         }
     }
 
-    pub fn from_snarkvm<N: Network>(input: &StructType<N>, program: Symbol) -> Self {
+    pub fn from_snarkvm<N: Network>(input: &StructType<N>) -> Self {
         Self {
             identifier: Identifier::from(input.name()),
             members: input
@@ -113,12 +113,12 @@ impl Composite {
                 .map(|(id, type_)| Member {
                     mode: Mode::None,
                     identifier: Identifier::from(id),
-                    type_: Type::from_snarkvm(type_, program),
+                    type_: Type::from_snarkvm(type_, None),
                     span: Default::default(),
                     id: Default::default(),
                 })
                 .collect(),
-            external: Some(program),
+            external: None,
             is_record: false,
             span: Default::default(),
             id: Default::default(),

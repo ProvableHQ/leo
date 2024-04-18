@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_ast::CompositeType;
 use leo_span::Symbol;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -28,6 +29,12 @@ impl Location {
     // Create new Location instance.
     pub fn new(program: Option<Symbol>, name: Symbol) -> Location {
         Location { program, name }
+    }
+}
+
+impl From<&CompositeType> for Location {
+    fn from(composite: &CompositeType) -> Location {
+        Location::new(composite.program, composite.id.name)
     }
 }
 

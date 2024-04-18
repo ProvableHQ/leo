@@ -83,7 +83,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                 };
 
                 // Note that type checking guarantees that both expressions have the same same type. This is a sanity check.
-                assert!(first_type.eq_flat(&second_type));
+                assert!(first_type.eq_flat_relax_composite(&second_type));
 
                 match &first_type {
                     Type::Array(first_type) => self.ternary_array(first_type, &input.condition, &first, &second),
@@ -91,7 +91,7 @@ impl ExpressionReconstructor for Flattener<'_> {
                         // Get the struct definitions.
                         let first_type = self
                             .symbol_table
-                            .lookup_struct(Location::new(first_type.program, first_type.id.name))
+                            .lookup_struct(Location::new(self.program, first_type.id.name), self.program)
                             .unwrap();
                         self.ternary_struct(first_type, &input.condition, &first, &second)
                     }

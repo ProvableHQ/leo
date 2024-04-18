@@ -16,33 +16,30 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"2\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 41
-                      hi: 42
-                    id: 4
-                - Internal:
-                    identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
-                    mode: Public
-                    type_:
-                      Integer: I32
-                    span:
-                      lo: 56
-                      hi: 57
-                    id: 6
+                - identifier: "{\"id\":\"3\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":41,\\\"hi\\\":42}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 41
+                    hi: 42
+                  id: 4
+                - identifier: "{\"id\":\"5\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":56,\\\"hi\\\":57}\"}"
+                  mode: Public
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 56
+                    hi: 57
+                  id: 6
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 67
-                      hi: 69
-                    id: 7
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 67
+                    hi: 69
+                  id: 7
               output_type:
                 Integer: U8
               block:
@@ -76,33 +73,30 @@ outputs:
               variant: Standard
               identifier: "{\"id\":\"12\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":116,\\\"hi\\\":117}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"13\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":125,\\\"hi\\\":126}\"}"
-                    mode: Public
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 125
-                      hi: 126
-                    id: 14
-                - Internal:
-                    identifier: "{\"id\":\"15\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":133,\\\"hi\\\":134}\"}"
-                    mode: None
-                    type_:
-                      Integer: I32
-                    span:
-                      lo: 133
-                      hi: 134
-                    id: 16
+                - identifier: "{\"id\":\"13\",\"name\":\"x\",\"span\":\"{\\\"lo\\\":125,\\\"hi\\\":126}\"}"
+                  mode: Public
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 125
+                    hi: 126
+                  id: 14
+                - identifier: "{\"id\":\"15\",\"name\":\"y\",\"span\":\"{\\\"lo\\\":133,\\\"hi\\\":134}\"}"
+                  mode: None
+                  type_:
+                    Integer: I32
+                  span:
+                    lo: 133
+                    hi: 134
+                  id: 16
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Integer: U8
-                    span:
-                      lo: 144
-                      hi: 146
-                    id: 17
+                - mode: None
+                  type_:
+                    Integer: U8
+                  span:
+                    lo: 144
+                    hi: 146
+                  id: 17
               output_type:
                 Integer: U8
               block:

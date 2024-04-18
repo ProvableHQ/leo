@@ -146,10 +146,10 @@ create_messages!(
         help: None,
     }
 
-    @backtraced
+    @formatted
     redefining_external_struct {
         args: (struct_: impl Display),
-        msg: format!("There are two mismatched definitions of struct `{struct_}`."),
-        help: Some("Duplicate definitions of structs are required to use external structs, but each field's name and type must match exactly.".to_string()),
+        msg: format!("There are two definitions of struct `{struct_}` that do not match."),
+        help: Some("Check the import files to see if there are any struct definitions of the same name.".to_string()),
     }
 );

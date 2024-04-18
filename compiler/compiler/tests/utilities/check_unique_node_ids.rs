@@ -280,34 +280,14 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
         self.visit_identifier(identifier, &Default::default());
         // Check the inputs.
         for in_ in input {
-            match in_ {
-                Input::Internal(FunctionInput { identifier, type_, id, .. }) => {
-                    self.visit_identifier(identifier, &Default::default());
-                    self.check_ty(type_);
-                    self.check(*id);
-                }
-                Input::External(External { identifier, program_name, record, id, .. }) => {
-                    self.visit_identifier(identifier, &Default::default());
-                    self.visit_identifier(program_name, &Default::default());
-                    self.visit_identifier(record, &Default::default());
-                    self.check(*id);
-                }
-            }
+            self.visit_identifier(in_.identifier(), &Default::default());
+            self.check_ty(&in_.type_);
+            self.check(in_.id);
         }
         // Check the outputs.
         for out in output {
-            match out {
-                Output::Internal(FunctionOutput { type_, id, .. }) => {
-                    self.check_ty(type_);
-                    self.check(*id);
-                }
-                Output::External(External { identifier, program_name, record, id, .. }) => {
-                    self.visit_identifier(identifier, &Default::default());
-                    self.visit_identifier(program_name, &Default::default());
-                    self.visit_identifier(record, &Default::default());
-                    self.check(*id);
-                }
-            }
+            self.check_ty(&out.type_);
+            self.check(out.id);
         }
         // Check the function body.
         self.visit_block(block);
@@ -317,34 +297,14 @@ impl<'a> ProgramVisitor<'a> for CheckUniqueNodeIds<'a> {
             self.visit_identifier(identifier, &Default::default());
             // Check the inputs.
             for in_ in input {
-                match in_ {
-                    Input::Internal(FunctionInput { identifier, type_, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.check_ty(type_);
-                        self.check(*id);
-                    }
-                    Input::External(External { identifier, program_name, record, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.visit_identifier(program_name, &Default::default());
-                        self.visit_identifier(record, &Default::default());
-                        self.check(*id);
-                    }
-                }
+                self.visit_identifier(in_.identifier(), &Default::default());
+                self.check_ty(&in_.type_);
+                self.check(in_.id);
             }
             // Check the outputs.
             for out in output {
-                match out {
-                    Output::Internal(FunctionOutput { type_, id, .. }) => {
-                        self.check_ty(type_);
-                        self.check(*id);
-                    }
-                    Output::External(External { identifier, program_name, record, id, .. }) => {
-                        self.visit_identifier(identifier, &Default::default());
-                        self.visit_identifier(program_name, &Default::default());
-                        self.visit_identifier(record, &Default::default());
-                        self.check(*id);
-                    }
-                }
+                self.check_ty(&out.type_);
+                self.check(out.id);
             }
             // Check the function body.
             self.visit_block(block);
