@@ -182,7 +182,7 @@ impl<'a> TypeChecker<'a> {
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&mut self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) if !Type::eq_flat_relax_struct(t1, t2) => {
+            (Some(t1), Some(t2)) if !Type::eq_flat_relax_composite(t1, t2) => {
                 self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {

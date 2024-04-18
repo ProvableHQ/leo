@@ -312,7 +312,14 @@ create_messages!(
         msg: format!("Cannot declare external struct."),
         help: None,
     }
-
+    
+    @formatted
+    external_type_cannot_be_used_inside_function {
+        args: (program: impl Display, file_type: impl Display),
+        msg: format!("External types cannot be used inside function (only as input/output types) -- found exported type from '{program}.{file_type}'."),
+        help: None,
+    }
+    
     /// Enforce that cannot use import in program scope
     @formatted
     cannot_import_inside_program_body {

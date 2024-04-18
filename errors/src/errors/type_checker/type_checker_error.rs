@@ -761,7 +761,13 @@ create_messages!(
         msg: format!("Cannot define external struct `{struct_}`"),
         help: Some("Copy the external definition of the struct into the current program, and then define without the `.aleo` extension.".to_string()),
     }
-
+    
+    @formatted
+    struct_definitions_dont_match {
+        args: (struct_: impl Display, program_1: impl Display, program_2: impl Display),
+        msg: format!("The definition for `{struct_}` in program `{program_1}.aleo` does not match the definition in program `{program_2}.aleo`"),
+        help: Some("Check that the struct definition in the current program matches the definition in the imported program.".to_string()),
+    }
 
     @formatted
     cannot_modify_external_mapping {

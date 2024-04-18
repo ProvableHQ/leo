@@ -107,7 +107,7 @@ impl<N: Node> DiGraph<N> {
         Ok(finished)
     }
 
-    /// Keeps a subset of nodes, and removes the rest from the graph.
+    /// Retains a subset of the nodes, and removes all edges in which the source or destination is not in the subset.
     pub fn retain_nodes(&mut self, nodes: &IndexSet<N>) {
         // Remove the nodes from the set of nodes.
         self.nodes.retain(|node| nodes.contains(node));

@@ -98,7 +98,12 @@ impl Type {
         }
     }
 
-    pub fn eq_flat_relax_struct(&self, other: &Self) -> bool {
+    ///
+    /// Returns `true` if the self `Type` is equal to the other `Type` in all aspects besides composite program of origin. 
+    ///
+    /// Flattens array syntax: `[[u8; 1]; 2] == [u8; (2, 1)] == true`
+    ///
+    pub fn eq_flat_relax_composite(&self, other: &Self) -> bool {
         match (self, other) {
             (Type::Address, Type::Address)
             | (Type::Boolean, Type::Boolean)
@@ -109,18 +114,18 @@ impl Type {
             | (Type::String, Type::String)
             | (Type::Unit, Type::Unit) => true,
             (Type::Array(left), Type::Array(right)) => {
-                left.element_type().eq_flat_relax_struct(right.element_type()) && left.length() == right.length()
+                left.element_type().eq_flat_relax_composite(right.element_type()) && left.length() == right.length()
             }
             (Type::Identifier(left), Type::Identifier(right)) => left.matches(right),
             (Type::Integer(left), Type::Integer(right)) => left.eq(right),
             (Type::Mapping(left), Type::Mapping(right)) => {
-                left.key.eq_flat_relax_struct(&right.key) && left.value.eq_flat(&right.value)
+                left.key.eq_flat_relax_composite(&right.key) && left.value.eq_flat(&right.value)
             }
             (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
                 .elements()
                 .iter()
                 .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| left_type.eq_flat_relax_struct(right_type)),
+                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
             (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
             _ => false,
         }
