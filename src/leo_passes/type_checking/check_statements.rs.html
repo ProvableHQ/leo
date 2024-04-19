@@ -452,6 +452,22 @@
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
 <a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -522,21 +538,33 @@
             }
         };
 
-        <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
-            <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(Location::new(<span class="prelude-val">None</span>, var_name.name))
+        <span class="comment">// Lookup the variable in the symbol table and retrieve its type.
+        </span><span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, var_name.name))
         {
-            <span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
+            <span class="comment">// If the variable exists, then check that it is not a constant.
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
                 VariableType::Const =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) =&gt; {
                     <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                <span class="kw">_ </span>=&gt; {}
+                VariableType::Mut | VariableType::Input(<span class="kw">_</span>) =&gt; {}
+            }
+
+            <span class="comment">// If the variable exists and its in a finalize, then check that it is in the current scope.
+            </span><span class="kw">if </span><span class="self">self</span>.is_finalize
+                &amp;&amp; <span class="self">self</span>.is_conditional
+                &amp;&amp; <span class="self">self
+                    </span>.symbol_table
+                    .borrow()
+                    .lookup_variable_in_current_scope(Location::new(<span class="prelude-val">None</span>, var_name.name))
+                    .is_none()
+            {
+                <span class="self">self</span>.emit_err(TypeCheckerError::finalize_cannot_assign_outside_conditional(var_name, var.span));
             }
 
             <span class="prelude-val">Some</span>(var.type_.clone())
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, var_name.name, var_name.span));
-
             <span class="prelude-val">None
         </span>};
 
@@ -568,6 +596,8 @@
         </span><span class="kw">let </span>previous_has_return = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_return, then_block_has_return);
         <span class="comment">// Set the `has_finalize` flag for the then-block.
         </span><span class="kw">let </span>previous_has_finalize = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.has_finalize, then_block_has_finalize);
+        <span class="comment">// Set the `is_conditional` flag.
+        </span><span class="kw">let </span>previous_is_conditional = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.is_conditional, <span class="bool-val">true</span>);
 
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.then);
 
@@ -601,6 +631,8 @@
         </span><span class="self">self</span>.has_return = previous_has_return || (then_block_has_return &amp;&amp; otherwise_block_has_return);
         <span class="comment">// Restore the previous `has_finalize` flag.
         </span><span class="self">self</span>.has_finalize = previous_has_finalize || (then_block_has_finalize &amp;&amp; otherwise_block_has_finalize);
+        <span class="comment">// Restore the previous `is_conditional` flag.
+        </span><span class="self">self</span>.is_conditional = previous_is_conditional;
     }
 
     <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) {

@@ -264,6 +264,20 @@
 <a href="#262" id="262">262</a>
 <a href="#263" id="263">263</a>
 <a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -486,8 +500,22 @@
         (Block { span: block.span, statements, id: <span class="self">self</span>.node_builder.next_id() }, Default::default())
     }
 
-    <span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
-        <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+    <span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// Conditional statements can only exist in finalize blocks.
+        </span><span class="kw">if </span>!<span class="self">self</span>.is_finalize {
+            <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+        } <span class="kw">else </span>{
+            (
+                Statement::Conditional(ConditionalStatement {
+                    condition: <span class="self">self</span>.reconstruct_expression(input.condition).<span class="number">0</span>,
+                    then: <span class="self">self</span>.reconstruct_block(input.then).<span class="number">0</span>,
+                    otherwise: input.otherwise.map(|n| Box::new(<span class="self">self</span>.reconstruct_statement(<span class="kw-2">*</span>n).<span class="number">0</span>)),
+                    span: input.span,
+                    id: input.id,
+                }),
+                Default::default(),
+            )
+        }
     }
 
     <span class="kw">fn </span>reconstruct_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: ConsoleStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {

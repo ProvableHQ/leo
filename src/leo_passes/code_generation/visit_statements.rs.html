@@ -240,6 +240,53 @@
 <a href="#238" id="238">238</a>
 <a href="#239" id="239">239</a>
 <a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -462,13 +509,60 @@
     }
 
     <span class="kw">fn </span>visit_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConditionalStatement) -&gt; String {
-        <span class="comment">// TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
-        </span><span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+        <span class="kw">if </span>!<span class="self">self</span>.in_finalize {
+            <span class="macro">unreachable!</span>(<span class="string">"`ConditionalStatement`s should not be in the AST at this phase of compilation."</span>)
+        } <span class="kw">else </span>{
+            <span class="comment">// Construct a label for the end of the `then` block.
+            </span><span class="kw">let </span>end_then_label = <span class="macro">format!</span>(<span class="string">"end_then_{}_{}"</span>, <span class="self">self</span>.conditional_depth, <span class="self">self</span>.next_label);
+            <span class="self">self</span>.next_label += <span class="number">1</span>;
+            <span class="comment">// Construct a label for the end of the `otherwise` block if it exists.
+            </span><span class="kw">let </span>(has_otherwise, end_otherwise_label) = {
+                <span class="kw">match </span>_input.otherwise.is_some() {
+                    <span class="bool-val">true </span>=&gt; {
+                        <span class="comment">// Construct a label for the end of the `otherwise` block.
+                        </span><span class="kw">let </span>end_otherwise_label =
+                            { <span class="macro">format!</span>(<span class="string">"end_otherwise_{}_{}"</span>, <span class="self">self</span>.conditional_depth, <span class="self">self</span>.next_label) };
+                        <span class="self">self</span>.next_label += <span class="number">1</span>;
+                        (<span class="bool-val">true</span>, end_otherwise_label)
+                    }
+                    <span class="bool-val">false </span>=&gt; (<span class="bool-val">false</span>, String::new()),
+                }
+            };
+
+            <span class="comment">// Increment the conditional depth.
+            </span><span class="self">self</span>.conditional_depth += <span class="number">1</span>;
+
+            <span class="comment">// Create a `branch` instruction.
+            </span><span class="kw">let </span>(condition, <span class="kw-2">mut </span>instructions) = <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>_input.condition);
+            instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    branch.eq {condition} false to {end_then_label};\n"</span>));
+
+            <span class="comment">// Visit the `then` block.
+            </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>_input.then));
+            <span class="comment">// If the `otherwise` block is present, add a branch instruction to jump to the end of the `otherwise` block.
+            </span><span class="kw">if </span>has_otherwise {
+                instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    branch.eq true true to {end_otherwise_label};\n"</span>));
+            }
+
+            <span class="comment">// Add a label for the end of the `then` block.
+            </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    position {};\n"</span>, end_then_label));
+
+            <span class="comment">// Visit the `otherwise` block.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(else_block) = <span class="kw-2">&amp;</span>_input.otherwise {
+                <span class="comment">// Visit the `otherwise` block.
+                </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="self">self</span>.visit_statement(else_block));
+                <span class="comment">// Add a label for the end of the `otherwise` block.
+                </span>instructions.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"    position {end_otherwise_label};\n"</span>));
+            }
+
+            <span class="comment">// Decrement the conditional depth.
+            </span><span class="self">self</span>.conditional_depth -= <span class="number">1</span>;
+
+            instructions
+        }
     }
 
     <span class="kw">fn </span>visit_iteration(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>IterationStatement) -&gt; String {
-        <span class="comment">// TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
-        </span><span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
+        <span class="macro">unreachable!</span>(<span class="string">"`IterationStatement`s should not be in the AST at this phase of compilation."</span>);
     }
 
     <span class="kw">fn </span>visit_console(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConsoleStatement) -&gt; String {

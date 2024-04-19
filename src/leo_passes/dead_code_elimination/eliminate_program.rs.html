@@ -63,6 +63,12 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -98,8 +104,14 @@
             </span><span class="self">self</span>.used_variables.clear();
             <span class="self">self</span>.is_necessary = <span class="bool-val">false</span>;
 
+            <span class="comment">// Set the `is_finalize` flag.
+            </span><span class="self">self</span>.is_finalize = <span class="bool-val">true</span>;
+
             <span class="comment">// Traverse the finalize block.
             </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(finalize.block).<span class="number">0</span>;
+
+            <span class="comment">// Reset the `is_finalize` flag.
+            </span><span class="self">self</span>.is_finalize = <span class="bool-val">false</span>;
 
             Finalize {
                 identifier: finalize.identifier,

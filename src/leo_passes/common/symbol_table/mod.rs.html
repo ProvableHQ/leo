@@ -297,6 +297,11 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -478,6 +483,11 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
+    }
+
+    <span class="doccomment">/// Attempts to lookup a variable in the current scope.
+    </span><span class="kw">pub fn </span>lookup_variable_in_current_scope(<span class="kw-2">&amp;</span><span class="self">self</span>, location: Location) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>VariableSymbol&gt; {
+        <span class="self">self</span>.variables.get(<span class="kw-2">&amp;</span>location)
     }
 
     <span class="doccomment">/// Returns the scope associated with `index`, if it exists in the symbol table.

@@ -36,6 +36,8 @@
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -64,12 +66,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_variables: IndexSet&lt;Symbol&gt;,
     <span class="doccomment">/// Whether or not the variables are necessary.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_necessary: bool,
+    <span class="doccomment">/// Whether or not we are currently traversing a finalize block.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_finalize: bool,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; DeadCodeEliminator&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Initializes a new `DeadCodeEliminator`.
     </span><span class="kw">pub fn </span>new(node_builder: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>NodeBuilder) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ node_builder, used_variables: Default::default(), is_necessary: <span class="bool-val">false </span>}
+        <span class="self">Self </span>{ node_builder, used_variables: Default::default(), is_necessary: <span class="bool-val">false</span>, is_finalize: <span class="bool-val">false </span>}
     }
 }
 </code></pre></div></section></main></body></html>

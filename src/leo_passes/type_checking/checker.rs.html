@@ -1345,6 +1345,9 @@
 <a href="#1343" id="1343">1343</a>
 <a href="#1344" id="1344">1344</a>
 <a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1416,6 +1419,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_stub: bool,
     <span class="doccomment">/// The set of used composites.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) used_structs: IndexSet&lt;Symbol&gt;,
+    <span class="doccomment">/// Whether or not we are currently traversing a conditional statement.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) is_conditional: bool,
 }
 
 <span class="kw">const </span>ADDRESS_TYPE: Type = Type::Address;
@@ -1485,6 +1490,7 @@
             program_name: <span class="prelude-val">None</span>,
             is_stub: <span class="bool-val">true</span>,
             used_structs: IndexSet::new(),
+            is_conditional: <span class="bool-val">false</span>,
         }
     }
 
