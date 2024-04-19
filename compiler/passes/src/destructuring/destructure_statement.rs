@@ -220,8 +220,22 @@ impl StatementReconstructor for Destructurer<'_> {
         (Block { span: block.span, statements, id: self.node_builder.next_id() }, Default::default())
     }
 
-    fn reconstruct_conditional(&mut self, _: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+    fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
+        // Conditional statements can only exist in finalize blocks.
+        if !self.is_finalize {
+            unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+        } else {
+            (
+                Statement::Conditional(ConditionalStatement {
+                    condition: self.reconstruct_expression(input.condition).0,
+                    then: self.reconstruct_block(input.then).0,
+                    otherwise: input.otherwise.map(|n| Box::new(self.reconstruct_statement(*n).0)),
+                    span: input.span,
+                    id: input.id,
+                }),
+                Default::default(),
+            )
+        }
     }
 
     fn reconstruct_console(&mut self, _: ConsoleStatement) -> (Statement, Self::AdditionalOutput) {

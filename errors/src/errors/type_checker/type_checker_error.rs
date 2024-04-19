@@ -775,4 +775,11 @@ create_messages!(
         msg: format!("Cannot use operation `{operation}` on external mapping."),
         help: Some("The only valid operations on external mappings are get, and get_or_use.".to_string()),
     }
+
+    @formatted
+    finalize_cannot_assign_outside_conditional {
+        args: (variable: impl Display),
+        msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in a finalize block."),
+        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in finalize blocks.".to_string()),
+    }
 );

@@ -68,21 +68,33 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) =
-            self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
+        // Lookup the variable in the symbol table and retrieve its type.
+        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, var_name.name))
         {
+            // If the variable exists, then check that it is not a constant.
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                _ => {}
+                VariableType::Mut | VariableType::Input(_) => {}
+            }
+
+            // If the variable exists and its in a finalize, then check that it is in the current scope.
+            if self.is_finalize
+                && self.is_conditional
+                && self
+                    .symbol_table
+                    .borrow()
+                    .lookup_variable_in_current_scope(Location::new(None, var_name.name))
+                    .is_none()
+            {
+                self.emit_err(TypeCheckerError::finalize_cannot_assign_outside_conditional(var_name, var.span));
             }
 
             Some(var.type_.clone())
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-
             None
         };
 
@@ -114,6 +126,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         let previous_has_return = core::mem::replace(&mut self.has_return, then_block_has_return);
         // Set the `has_finalize` flag for the then-block.
         let previous_has_finalize = core::mem::replace(&mut self.has_finalize, then_block_has_finalize);
+        // Set the `is_conditional` flag.
+        let previous_is_conditional = core::mem::replace(&mut self.is_conditional, true);
 
         self.visit_block(&input.then);
 
@@ -147,6 +161,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         self.has_return = previous_has_return || (then_block_has_return && otherwise_block_has_return);
         // Restore the previous `has_finalize` flag.
         self.has_finalize = previous_has_finalize || (then_block_has_finalize && otherwise_block_has_finalize);
+        // Restore the previous `is_conditional` flag.
+        self.is_conditional = previous_is_conditional;
     }
 
     fn visit_console(&mut self, _: &'a ConsoleStatement) {
