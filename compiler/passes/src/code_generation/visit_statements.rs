@@ -224,20 +224,24 @@ impl<'a> CodeGenerator<'a> {
             unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             // Construct a label for the end of the `then` block.
-            let end_then_label = format!("end_then_{}", self.next_label);
+            let end_then_label = format!("end_then_{}_{}", self.conditional_depth, self.next_label);
             self.next_label += 1;
             // Construct a label for the end of the `otherwise` block if it exists.
             let (has_otherwise, end_otherwise_label) = {
                 match _input.otherwise.is_some() {
                     true => {
                         // Construct a label for the end of the `otherwise` block.
-                        let end_otherwise_label = { format!("end_otherwise_{}", self.next_label) };
+                        let end_otherwise_label =
+                            { format!("end_otherwise_{}_{}", self.conditional_depth, self.next_label) };
                         self.next_label += 1;
                         (true, end_otherwise_label)
                     }
                     false => (false, String::new()),
                 }
             };
+
+            // Increment the conditional depth.
+            self.conditional_depth += 1;
 
             // Create a `branch` instruction.
             let (condition, mut instructions) = self.visit_expression(&_input.condition);
@@ -260,6 +264,9 @@ impl<'a> CodeGenerator<'a> {
                 // Add a label for the end of the `otherwise` block.
                 instructions.push_str(&format!("    position {end_otherwise_label};\n"));
             }
+
+            // Decrement the conditional depth.
+            self.conditional_depth -= 1;
 
             instructions
         }

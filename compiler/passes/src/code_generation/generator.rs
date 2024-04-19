@@ -55,6 +55,8 @@ pub struct CodeGenerator<'a> {
     pub(crate) program_id: Option<ProgramId>,
     /// A counter to track the next available label.
     pub(crate) next_label: u64,
+    /// The depth of the current conditional block.
+    pub(crate) conditional_depth: u64,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -83,6 +85,7 @@ impl<'a> CodeGenerator<'a> {
             program,
             program_id: None,
             next_label: 0u64,
+            conditional_depth: 0u64,
         }
     }
 }
