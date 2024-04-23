@@ -240,6 +240,22 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
                         }
                     },
+                    // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
+                    Expression::Identifier(identifier) if identifier.name == sym::network => match access.name.name {
+                        sym::id => {
+                            // Check that the operation is not invoked in a `finalize` block.
+                            if self.scope_state.variant == Some(Variant::AsyncFunction) {
+                                self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
+                                    "network.id",
+                                    access.name.span(),
+                                ))
+                            }
+                            return Some(Type::Integer(IntegerType::U32));
+                        }
+                        _ => {
+                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
+                        }
+                    },
                     _ => {
                         // Check that the type of `inner` in `inner.name` is a struct.
                         match self.visit_expression(&access.inner, &None) {

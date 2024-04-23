@@ -143,6 +143,7 @@ pub enum Token {
     Block,
     Eof,
     Leo,
+    Network,
 }
 
 /// Represents all valid Leo keyword tokens.
@@ -237,6 +238,7 @@ impl Token {
             Token::Let => sym::Let,
             Token::Leo => sym::leo,
             Token::Mapping => sym::mapping,
+            Token::Network => sym::network,
             Token::Private => sym::private,
             Token::Program => sym::program,
             Token::Public => sym::public,
@@ -374,6 +376,7 @@ impl fmt::Display for Token {
             Block => write!(f, "block"),
             Leo => write!(f, "leo"),
             Eof => write!(f, "<eof>"),
+            Network => write!(f, "network"),
         }
     }
 }
