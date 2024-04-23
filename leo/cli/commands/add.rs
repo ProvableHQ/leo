@@ -22,14 +22,17 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct Add {
-    #[clap(name = "NAME", help = "The dependency name")]
+    #[clap(name = "NAME", help = "The dependency name. Ex: `credits.aleo` or `credits`.")]
     pub(crate) name: String,
 
-    #[clap(short = 'l', long, help = "Optional path to local dependency")]
+    #[clap(short = 'l', long, help = "Path to local dependency")]
     pub(crate) local: Option<PathBuf>,
 
-    #[clap(short = 'n', long, help = "Optional name of the network to use", default_value = "testnet3")]
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet3")]
     pub(crate) network: String,
+
+    #[clap(short = 'c', long, help = "Clear all previous dependencies.", default_value = "false")]
+    pub(crate) clear: bool,
 }
 
 impl Command for Add {
@@ -53,32 +56,61 @@ impl Command for Add {
         let manifest: Manifest = serde_json::from_str(&program_data)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
 
-        // Allow both `credits.aleo` and `credits` syntax
-        let name = match self.name {
-            name if name.ends_with(".aleo") => name,
-            name => format!("{}.aleo", name),
+        // Make sure the program name is valid.
+        // Allow both `credits.aleo` and `credits` syntax.
+        let name: String = match &self.name {
+            name if name.ends_with(".aleo") && is_valid_program_name(&name[0..self.name.len() - 5]) => name.clone(),
+            name if is_valid_program_name(name) => format!("{name}.aleo"),
+            name => return Err(PackageError::invalid_file_name_dependency(name).into()),
         };
 
         // Add dependency section to manifest if it doesn't exist
-        let mut dependencies = match manifest.dependencies() {
-            Some(ref dependencies) => dependencies
+        let mut dependencies = match (self.clear, manifest.dependencies()) {
+            (false, Some(ref dependencies)) => dependencies
                 .iter()
                 .filter_map(|dependency| {
+                    // Overwrite old dependencies of the same name.
                     if dependency.name() == &name {
-                        println!("{} already exists as a dependency. Overwriting.", name);
+                        let msg = match (dependency.path(), dependency.network()) {
+                            (Some(local_path), _) => {
+                                format!("local dependency at path `{}`", local_path.to_str().unwrap().replace('\"', ""))
+                            }
+                            (_, Some(network)) => {
+                                format!("network dependency from `{}`", network)
+                            }
+                            _ => "git dependency".to_string(),
+                        };
+                        tracing::warn!("⚠️  Program `{name}` already exists as a {msg}. Overwriting.");
+                        None
+                    } else if self.local.is_some() && &self.local == dependency.path() {
+                        // Overwrite old dependencies at the same local path.
+                        tracing::warn!(
+                            "⚠️  Path `{}` already exists as the location for local dependency `{}`. Overwriting.",
+                            self.local.clone().unwrap().to_str().unwrap().replace('\"', ""),
+                            dependency.name()
+                        );
                         None
                     } else {
                         Some(dependency.clone())
                     }
                 })
                 .collect(),
-            None => Vec::new(),
+            _ => Vec::new(),
         };
 
         // Add new dependency to manifest
         dependencies.push(match self.local {
-            Some(local_path) => Dependency::new(name, Location::Local, None, Some(local_path)),
-            None => Dependency::new(name, Location::Network, Some(Network::from(&self.network)), None),
+            Some(local_path) => {
+                tracing::info!(
+                    "✅ Added local dependency to program `{name}` at path `{}`.",
+                    local_path.to_str().unwrap().replace('\"', "")
+                );
+                Dependency::new(name, Location::Local, None, Some(local_path))
+            }
+            None => {
+                tracing::info!("✅ Added network dependency to program `{name}` from network `{}`.", self.network);
+                Dependency::new(name, Location::Network, Some(Network::from(&self.network)), None)
+            }
         });
 
         // Update manifest
@@ -95,4 +127,9 @@ impl Command for Add {
 
         Ok(())
     }
+}
+
+/// Returns `true` if the String is a valid Aleo program name.
+pub fn is_valid_program_name(name: &str) -> bool {
+    name.chars().all(|c| matches!(c, '0'..='9' | 'a'..='z' | '_'))
 }

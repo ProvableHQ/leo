@@ -371,16 +371,9 @@ create_messages!(
     }
 
     @backtraced
-    missing_on_chain_program_name {
-        args: (),
-        msg: "The name of the program to execute on-chain is missing.".to_string(),
-        help: Some("Either set `--local` to execute the local program on chain, or set `--program <PROGRAM>`.".to_string()),
-    }
-
-    @backtraced
-    conflicting_on_chain_program_name {
-        args: (first: impl Display, second: impl Display),
-        msg: format!("Conflicting program names given to execute on chain: `{first}` and `{second}`."),
-        help: Some("Either set `--local` to execute the local program on chain, or set `--program <PROGRAM>`.".to_string()),
+    invalid_file_name_dependency {
+        args: (name: impl Display),
+        msg: format!("The dependency program name `{name}` is invalid."),
+        help: Some("Aleo program names must only contain lower case letters, numbers and underscores.".to_string()),
     }
 );

@@ -193,10 +193,6 @@ fn compile_leo_file(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
 ) -> Result<()> {
-    // Construct the Leo file name with extension `foo.leo`.
-    let file_name =
-        file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
-
     // Construct program name from the program_id found in `package.json`.
     let program_name = program_id.name().to_string();
 

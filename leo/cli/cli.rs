@@ -33,10 +33,10 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(long, global = true, help = "Optional path to Leo program root folder")]
+    #[clap(long, global = true, help = "Path to Leo program root folder")]
     path: Option<PathBuf>,
 
-    #[clap(long, global = true, help = "Optional path to aleo program registry.")]
+    #[clap(long, global = true, help = "Path to aleo program registry.")]
     pub home: Option<PathBuf>,
 }
 
@@ -401,6 +401,7 @@ function external_nested_function:
                     name: "nested_example_layer_0".to_string(),
                     local: None,
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(project_directory.clone()),
@@ -494,6 +495,7 @@ program child.aleo {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -508,6 +510,7 @@ program child.aleo {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -522,6 +525,7 @@ program child.aleo {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(parent_directory.clone()),
@@ -645,6 +649,7 @@ program outer.aleo {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -659,6 +664,7 @@ program outer.aleo {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -812,6 +818,7 @@ program outer_2.aleo {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -826,6 +833,7 @@ program outer_2.aleo {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
