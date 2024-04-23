@@ -75,7 +75,7 @@ outputs:
                           - Identifier: "{\"id\":\"16\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":178,\\\"hi\\\":179}\"}"
                           - Literal:
                               Address:
-                                - hello
+                                - hello.aleo
                                 - span:
                                     lo: 181
                                     hi: 186
@@ -88,7 +88,7 @@ outputs:
                       expression:
                         Literal:
                           Address:
-                            - foo
+                            - foo.aleo
                             - span:
                                 lo: 209
                                 hi: 212

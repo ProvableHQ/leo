@@ -443,7 +443,7 @@ impl ParserContext<'_> {
     fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
         // Parse `/`.
         self.expect(&Token::Div)?;
-        
+
         // Parse name.
         let name = self.expect_identifier()?;
 

@@ -11,21 +11,21 @@ outputs:
         - 0
   - Literal:
       Address:
-        - hello
+        - hello.aleo
         - span:
             lo: 0
             hi: 5
         - 1
   - Literal:
       Address:
-        - fooooo
+        - fooooo.aleo
         - span:
             lo: 0
             hi: 6
         - 1
   - Literal:
       Address:
-        - bar
+        - bar.aleo
         - span:
             lo: 0
             hi: 3
