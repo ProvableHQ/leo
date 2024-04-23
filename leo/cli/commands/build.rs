@@ -206,7 +206,7 @@ fn compile_leo_file(
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::new(
-        program_name,
+        program_name.clone(),
         program_id.network().to_string(),
         handler,
         file_path.clone(),
@@ -224,6 +224,6 @@ fn compile_leo_file(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    tracing::info!("✅ Compiled '{}' into Aleo instructions", file_name);
+    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(())
 }
