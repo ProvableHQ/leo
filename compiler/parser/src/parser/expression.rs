@@ -514,18 +514,26 @@ impl ParserContext<'_> {
                         if !matches!(expr, Expression::Identifier(_)) {
                             self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
                         }
-                        
-                        expr = Expression::Literal(Literal::Address(format!("{}.aleo", expr.to_string()), expr.span(), self.node_builder.next_id()))
+
+                        expr = Expression::Literal(Literal::Address(
+                            format!("{}.aleo", expr),
+                            expr.span(),
+                            self.node_builder.next_id(),
+                        ))
                     }
                 } else {
                     // Parse instances of `self.address`.
                     if let Expression::Identifier(id) = expr {
-                        if id.name == sym::SelfLower && self.token.token == Token::Address  {
+                        if id.name == sym::SelfLower && self.token.token == Token::Address {
                             let span = self.expect(&Token::Address)?;
                             // Convert `self.address` to the current program name.
-                            // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed. 
-                            return Ok(Expression::Literal(Literal::Address(format!("{}.aleo", self.program_name.unwrap()), expr.span() + span, self.node_builder.next_id())));
-                        } 
+                            // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed.
+                            return Ok(Expression::Literal(Literal::Address(
+                                format!("{}.aleo", self.program_name.unwrap()),
+                                expr.span() + span,
+                                self.node_builder.next_id(),
+                            )));
+                        }
                     }
 
                     // Parse identifier name.
