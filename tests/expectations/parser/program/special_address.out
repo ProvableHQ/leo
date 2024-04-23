@@ -1,0 +1,110 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - imports: {}
+    stubs: {}
+    program_scopes:
+      test:
+        program_id: "{\"name\":\"test\",\"network\":\"\\\"{\\\\\\\"id\\\\\\\":\\\\\\\"1\\\\\\\",\\\\\\\"name\\\\\\\":\\\\\\\"aleo\\\\\\\",\\\\\\\"span\\\\\\\":\\\\\\\"{\\\\\\\\\\\\\\\"lo\\\\\\\\\\\\\\\":0,\\\\\\\\\\\\\\\"hi\\\\\\\\\\\\\\\":0}\\\\\\\"}\\\"\"}"
+        consts: []
+        structs: []
+        mappings:
+          - - Yo
+            - identifier: "{\"id\":\"2\",\"name\":\"Yo\",\"span\":\"{\\\"lo\\\":34,\\\"hi\\\":36}\"}"
+              key_type: Address
+              value_type:
+                Integer: U32
+              span:
+                lo: 26
+                hi: 53
+              id: 3
+        functions:
+          - - main
+            - annotations: []
+              variant: Transition
+              identifier: "{\"id\":\"4\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":74}\"}"
+              input:
+                - Internal:
+                    identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":75,\\\"hi\\\":76}\"}"
+                    mode: None
+                    type_: Address
+                    span:
+                      lo: 75
+                      hi: 76
+                    id: 6
+              output: []
+              output_type: Unit
+              block:
+                statements:
+                  - Assert:
+                      variant:
+                        AssertEq:
+                          - Identifier: "{\"id\":\"7\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":107,\\\"hi\\\":108}\"}"
+                          - Access:
+                              Member:
+                                inner:
+                                  Identifier: "{\"id\":\"8\",\"name\":\"self\",\"span\":\"{\\\"lo\\\":110,\\\"hi\\\":114}\"}"
+                                name: "{\"id\":\"9\",\"name\":\"caller\",\"span\":\"{\\\"lo\\\":115,\\\"hi\\\":121}\"}"
+                                span:
+                                  lo: 110
+                                  hi: 121
+                                id: 10
+                      span:
+                        lo: 97
+                        hi: 106
+                      id: 11
+                  - Assert:
+                      variant:
+                        AssertEq:
+                          - Identifier: "{\"id\":\"12\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":142,\\\"hi\\\":143}\"}"
+                          - Literal:
+                              Address:
+                                - test.aleo
+                                - span:
+                                    lo: 145
+                                    hi: 157
+                                - 14
+                      span:
+                        lo: 132
+                        hi: 141
+                      id: 15
+                  - Assert:
+                      variant:
+                        AssertEq:
+                          - Identifier: "{\"id\":\"16\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":178,\\\"hi\\\":179}\"}"
+                          - Literal:
+                              Address:
+                                - hello
+                                - span:
+                                    lo: 181
+                                    hi: 186
+                                - 18
+                      span:
+                        lo: 168
+                        hi: 177
+                      id: 19
+                  - Return:
+                      expression:
+                        Literal:
+                          Address:
+                            - foo
+                            - span:
+                                lo: 209
+                                hi: 212
+                            - 21
+                      span:
+                        lo: 202
+                        hi: 218
+                      id: 22
+                span:
+                  lo: 87
+                  hi: 224
+                id: 23
+              span:
+                lo: 59
+                hi: 224
+              id: 24
+        span:
+          lo: 2
+          hi: 226
