@@ -273,7 +273,9 @@ impl StatementReconstructor for Flattener<'_> {
         let guard = self.construct_guard();
 
         match input.expression {
-            Expression::Unit(_) | Expression::Identifier(_) | Expression::Access(_) => self.returns.push((guard, input)),
+            Expression::Unit(_) | Expression::Identifier(_) | Expression::Access(_) => {
+                self.returns.push((guard, input))
+            }
             _ => unreachable!("SSA guarantees that the expression is always an identifier or unit expression."),
         };
 

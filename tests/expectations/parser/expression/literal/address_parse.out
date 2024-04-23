@@ -9,3 +9,24 @@ outputs:
             lo: 0
             hi: 63
         - 0
+  - Literal:
+      Address:
+        - hello
+        - span:
+            lo: 0
+            hi: 5
+        - 1
+  - Literal:
+      Address:
+        - fooooo
+        - span:
+            lo: 0
+            hi: 6
+        - 1
+  - Literal:
+      Address:
+        - bar
+        - span:
+            lo: 0
+            hi: 3
+        - 1

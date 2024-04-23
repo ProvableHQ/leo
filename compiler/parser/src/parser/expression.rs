@@ -441,9 +441,6 @@ impl ParserContext<'_> {
 
     // Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
     fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
-        // Eat an external function call.
-        self.eat(&Token::Div); // todo: Make `/` a more general token.
-
         // Parse name.
         let name = self.expect_identifier()?;
 
