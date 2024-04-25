@@ -14,19 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::PathBuf;
 use super::*;
 use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
 use snarkvm::cli::helpers::dotenv_private_key;
+use std::path::PathBuf;
 
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
 pub struct Deploy {
-    #[clap(
-    long,
-    help = "Endpoint to retrieve network state from.",
-    default_value = "http://api.explorer.aleo.org/v1"
-    )]
+    #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
     pub endpoint: String,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
@@ -34,7 +30,11 @@ pub struct Deploy {
     pub(crate) no_build: bool,
     #[clap(long, help = "Disables recursive deployment of dependencies", default_value = "false")]
     pub(crate) non_recursive: bool,
-    #[clap(long, help = "Custom wait gap between consecutive deployments. This is to help prevent a program from trying to be included in an earlier block than its dependency program.", default_value = "12")]
+    #[clap(
+        long,
+        help = "Custom wait gap between consecutive deployments. This is to help prevent a program from trying to be included in an earlier block than its dependency program.",
+        default_value = "12"
+    )]
     pub(crate) wait_gap: u64,
 }
 
@@ -56,43 +56,44 @@ impl Command for Deploy {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the program name.
         let project_name = context.open_manifest()?.program_id().to_string();
-        
+
         // Get the private key.
         let mut private_key = self.fee_options.private_key;
         if private_key.is_none() {
             private_key =
                 Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
         }
-        
+
         let mut all_paths: Vec<(String, PathBuf)> = Vec::new();
-        
+
         // Extract post-ordered list of local dependencies' paths from `leo.lock`.
         if !self.non_recursive {
             all_paths = context.local_dependency_paths()?;
         }
-        
+
         // Add the parent program to be deployed last.
         all_paths.push((project_name, context.dir()?.join("build")));
-        
+
         for (index, (name, path)) in all_paths.iter().enumerate() {
             // Set the deploy arguments.
-            let mut deploy_args = vec!["snarkos".to_string(),
-                                       "--private-key".to_string(),
-                                       private_key.as_ref().unwrap().clone(),
-                                       "--query".to_string(),
-                                       self.endpoint.clone(),
-                                       "--priority-fee".to_string(),
-                                       self.fee_options.priority_fee.to_string(),
-                                       "--path".to_string(),
-                                       path.to_str().unwrap().parse().unwrap(),
-                                       "--broadcast".to_string(),
-                                       format!("{}/{}/transaction/broadcast", self.endpoint, self.fee_options.network).to_string(),
-                                       name.clone(),
+            let mut deploy_args = vec![
+                "snarkos".to_string(),
+                "--private-key".to_string(),
+                private_key.as_ref().unwrap().clone(),
+                "--query".to_string(),
+                self.endpoint.clone(),
+                "--priority-fee".to_string(),
+                self.fee_options.priority_fee.to_string(),
+                "--path".to_string(),
+                path.to_str().unwrap().parse().unwrap(),
+                "--broadcast".to_string(),
+                format!("{}/{}/transaction/broadcast", self.endpoint, self.fee_options.network).to_string(),
+                name.clone(),
             ];
 
             // Use record as payment option if it is provided.
             if let Some(record) = self.fee_options.record.clone() {
-               deploy_args.push("--record".to_string());
+                deploy_args.push("--record".to_string());
                 deploy_args.push(record);
             };
 
@@ -100,14 +101,14 @@ impl Command for Deploy {
 
             // Deploy program.
             Developer::Deploy(deploy).parse().map_err(CliError::failed_to_execute_deploy)?;
-        
+
             // Sleep for `wait_gap` seconds.
             // This helps avoid parents from being serialized before children.
             if index < all_paths.len() - 1 {
                 std::thread::sleep(std::time::Duration::from_secs(self.wait_gap));
             }
         }
-        
+
         Ok(())
     }
 }

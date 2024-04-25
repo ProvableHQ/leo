@@ -122,11 +122,7 @@ pub trait Command {
 /// require Build command output as their input.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[clap(
-        long,
-        help = "Endpoint to retrieve network state from.",
-        default_value = "http://api.explorer.aleo.org/v1"
-    )]
+    #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
     pub endpoint: String,
     #[clap(long, help = "Does not recursively compile dependencies.")]
     pub non_recursive: bool,
@@ -176,6 +172,10 @@ pub struct FeeOptions {
     pub(crate) network: String,
     #[clap(long, help = "Private key to authorize fee expenditure.")]
     pub(crate) private_key: Option<String>,
-    #[clap(short, help = "Record to pay for fee privately. If one is not specified, a public fee will be taken.", long)]
+    #[clap(
+        short,
+        help = "Record to pay for fee privately. If one is not specified, a public fee will be taken.",
+        long
+    )]
     record: Option<String>,
 }
