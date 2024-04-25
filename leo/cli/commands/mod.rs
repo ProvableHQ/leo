@@ -124,7 +124,7 @@ pub trait Command {
 pub struct BuildOptions {
     #[clap(
         long,
-        help = "Endpoint to retrieve on-chain dependencies from.",
+        help = "Endpoint to retrieve network state from.",
         default_value = "http://api.explorer.aleo.org/v1"
     )]
     pub endpoint: String,
@@ -164,4 +164,18 @@ pub struct BuildOptions {
     pub conditional_block_max_depth: usize,
     #[clap(long, help = "Disable type checking of nested conditional branches in finalize scope.")]
     pub disable_conditional_branch_type_checking: bool,
+}
+
+/// On Chain Execution Options to set preferences for keys, fees and networks.
+/// Used by Execute and Deploy commands.
+#[derive(Parser, Clone, Debug, Default)]
+pub struct FeeOptions {
+    #[clap(long, help = "Priority fee in microcredits. Defaults to 1000000.", default_value = "1000000")]
+    pub(crate) priority_fee: String,
+    #[clap(long, help = "Network to broadcast to. Defaults to testnet3.", default_value = "testnet3")]
+    pub(crate) network: String,
+    #[clap(long, help = "Private key to authorize fee expenditure.")]
+    pub(crate) private_key: Option<String>,
+    #[clap(short, help = "Record to pay for fee privately. If one is not specified, a public fee will be taken.", long)]
+    record: Option<String>,
 }

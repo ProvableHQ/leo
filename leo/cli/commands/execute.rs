@@ -16,28 +16,27 @@
 
 use super::*;
 use clap::Parser;
-// use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
+use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
 use snarkvm::{cli::Execute as SnarkVMExecute, prelude::Parser as SnarkVMParser};
+use snarkvm::cli::helpers::dotenv_private_key;
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
 pub struct Execute {
     #[clap(name = "NAME", help = "The name of the function to execute.", default_value = "main")]
     name: String,
-    #[clap(name = "INPUTS", help = "The inputs to the program. If none are provided, the input file is used.")]
+    #[clap(name = "INPUTS", help = "The inputs to the program.")]
     inputs: Vec<String>,
     #[clap(long, help = "Execute the transition on chain", default_value = "false")]
     broadcast: bool,
-    #[clap(long, help = "Custom priority fee in microcredits", default_value = "1000000")]
-    priority_fee: String,
-    #[clap(long, help = "Custom network", default_value = "testnet3")]
-    network: String,
-    #[clap(long, help = "Custom private key")]
-    private_key: Option<String>,
-    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
-    file: Option<String>,
+    #[clap(short, long, help = "Execute a different program from the one in the current working directory.")]
+    external: Option<String>,
+    #[clap(flatten)]
+    fee_options: FeeOptions,
     #[clap(flatten)]
     compiler_options: BuildOptions,
+    #[arg(short, long, help = "The inputs to the program, from a file. Overrides the INPUTS argument.")]
+    file: Option<String>,
 }
 
 impl Command for Execute {
@@ -49,50 +48,65 @@ impl Command for Execute {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
+        // No need to build if we are executing an external program.
+        if self.external.is_some() {
+            return Ok(());
+        }
         (Build { options: self.compiler_options.clone() }).execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // If the `broadcast` flag is set, then broadcast the transaction.
         if self.broadcast {
-            // // Get the program name
-            // let project_name = context.open_manifest()?.program_id().to_string();
-            //
-            // // Get the private key
-            // let mut private_key = self.private_key;
-            // if private_key.is_none() {
-            //     private_key =
-            //         Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
-            // }
-            //
-            // // Execute program
-            // Developer::Execute(
-            //     SnarkOSExecute::try_parse_from(
-            //         [
-            //             vec![
-            //                 "snarkos",
-            //                 "--private-key",
-            //                 private_key.as_ref().unwrap(),
-            //                 "--query",
-            //                 self.compiler_options.endpoint.as_str(),
-            //                 "--priority-fee",
-            //                 self.priority_fee.as_str(),
-            //                 "--broadcast",
-            //                 format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.network)
-            //                     .as_str(),
-            //                 project_name.as_str(),
-            //                 &self.name,
-            //             ],
-            //             self.inputs.iter().map(|input| input.as_str()).collect(),
-            //         ]
-            //         .concat(),
-            //     )
-            //     .unwrap(),
-            // )
-            // .parse()
-            // .map_err(CliError::failed_to_execute_deploy)?;
+            // Get the program name. Override local project if external name provided.
+            let program_name = match self.external {
+                Some(name) => name,
+                None => context.open_manifest()?.program_id().to_string(),
+            };
 
-            return Err(PackageError::unimplemented_command("leo execute --broadcast").into());
+            // Get the private key.
+            let private_key = match self.fee_options.private_key {
+                Some(private_key) => private_key,
+                None => dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string(),
+            };
+
+            // Set deploy arguments.
+            let mut fee_args = vec!["snarkos".to_string(),
+               "--private-key".to_string(),
+               private_key.clone(),
+               "--query".to_string(),
+               self.compiler_options.endpoint.clone(),
+               "--priority-fee".to_string(),
+               self.fee_options.priority_fee.to_string(),
+               "--broadcast".to_string(),
+               format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network).to_string(),
+            ];
+
+            // Use record as payment option if it is provided.
+            if let Some(record) = self.fee_options.record.clone() {
+                fee_args.push("--record".to_string());
+                fee_args.push(record);
+            };
+            
+            // Execute program.
+            Developer::Execute(
+                SnarkOSExecute::try_parse_from(
+                    [
+                        // The arguments for determining fee.
+                        fee_args,
+                        // The program ID and function name.
+                        vec![program_name, self.name],
+                        // The function inputs.
+                        self.inputs,
+                    ]
+                    .concat(),
+                )
+                .unwrap(),
+            )
+            .parse()
+            .map_err(CliError::failed_to_execute_deploy)?;
+
+            return Ok(());
         }
 
         // If input values are provided, then run the program with those inputs.
@@ -137,7 +151,7 @@ impl Command for Execute {
         arguments.push(String::from("--endpoint"));
         arguments.push(self.compiler_options.endpoint.clone());
 
-        // Open the Leo build/ directory
+        // Open the Leo build/ directory.
         let path = context.dir()?;
         let build_directory = BuildDirectory::open(&path)?;
 
@@ -145,7 +159,7 @@ impl Command for Execute {
         std::env::set_current_dir(&build_directory)
             .map_err(|err| PackageError::failed_to_set_cwd(build_directory.display(), err))?;
 
-        // Unset the Leo panic hook
+        // Unset the Leo panic hook.
         let _ = std::panic::take_hook();
 
         // Call the `execute` command.
