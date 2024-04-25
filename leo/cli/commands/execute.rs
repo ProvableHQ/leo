@@ -17,8 +17,10 @@
 use super::*;
 use clap::Parser;
 use snarkos_cli::commands::{Developer, Execute as SnarkOSExecute};
-use snarkvm::{cli::Execute as SnarkVMExecute, prelude::Parser as SnarkVMParser};
-use snarkvm::cli::helpers::dotenv_private_key;
+use snarkvm::{
+    cli::{helpers::dotenv_private_key, Execute as SnarkVMExecute},
+    prelude::Parser as SnarkVMParser,
+};
 
 /// Build, Prove and Run Leo program with inputs
 #[derive(Parser, Debug)]
@@ -71,15 +73,17 @@ impl Command for Execute {
             };
 
             // Set deploy arguments.
-            let mut fee_args = vec!["snarkos".to_string(),
-               "--private-key".to_string(),
-               private_key.clone(),
-               "--query".to_string(),
-               self.compiler_options.endpoint.clone(),
-               "--priority-fee".to_string(),
-               self.fee_options.priority_fee.to_string(),
-               "--broadcast".to_string(),
-               format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network).to_string(),
+            let mut fee_args = vec![
+                "snarkos".to_string(),
+                "--private-key".to_string(),
+                private_key.clone(),
+                "--query".to_string(),
+                self.compiler_options.endpoint.clone(),
+                "--priority-fee".to_string(),
+                self.fee_options.priority_fee.to_string(),
+                "--broadcast".to_string(),
+                format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network)
+                    .to_string(),
             ];
 
             // Use record as payment option if it is provided.
@@ -87,7 +91,7 @@ impl Command for Execute {
                 fee_args.push("--record".to_string());
                 fee_args.push(record);
             };
-            
+
             // Execute program.
             Developer::Execute(
                 SnarkOSExecute::try_parse_from(
