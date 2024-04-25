@@ -26,6 +26,9 @@ version = "=1.11.0"
 path = "../../utils/retriever"
 version = "1.11.0"
 
+[dependencies.snarkos-cli]
+workspace = true
+
 [dependencies.snarkvm]
 workspace = true
 

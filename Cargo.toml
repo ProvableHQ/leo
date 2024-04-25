@@ -43,6 +43,10 @@ members = [
   "utils/retriever"
 ]
 
+[workspace.dependencies.snarkos-cli]
+git = "https://github.com/AleoHQ/snarkos"
+rev = "d69e417"
+
 [workspace.dependencies.snarkvm]
 version = "0.16.19"
 
@@ -146,6 +150,9 @@ version = "1.0"
 
 [dependencies.serial_test]
 version = "3.1.0"
+
+[dependencies.snarkos-cli]
+workspace = true
 
 [dependencies.snarkvm]
 workspace = true
