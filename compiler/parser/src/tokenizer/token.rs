@@ -181,6 +181,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Inline,
     Token::Let,
     Token::Mapping,
+    Token::Network,
     Token::Private,
     Token::Program,
     Token::Public,

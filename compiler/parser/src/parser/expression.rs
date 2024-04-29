@@ -510,7 +510,7 @@ impl ParserContext<'_> {
                     if self.token.token == Token::Div {
                         expr = self.parse_external_resource(expr, self.prev_token.span)?;
                     } else {
-                        // Parse as address literal, e.g. `let next: address = hello.aleo;`.
+                        // Parse as address literal, e.g. `hello.aleo`.
                         if !matches!(expr, Expression::Identifier(_)) {
                             self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
                         }
