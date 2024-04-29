@@ -526,7 +526,7 @@ impl ParserContext<'_> {
                     if let Expression::Identifier(id) = expr {
                         if id.name == sym::SelfLower && self.token.token == Token::Address {
                             let span = self.expect(&Token::Address)?;
-                            // Convert `self.address` to the current program name.
+                            // Convert `self.address` to the current program name. TODO: Move this conversion to canonicalization pass when the new pass is added.
                             // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed.
                             return Ok(Expression::Literal(Literal::Address(
                                 format!("{}.aleo", self.program_name.unwrap()),
