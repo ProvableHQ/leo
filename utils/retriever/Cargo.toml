@@ -54,7 +54,7 @@ features = [ "derive" ]
 version = "1.0"
 
 [dependencies.serial_test]
-version = "3.1.0"
+version = "3.1.1"
 
 [dependencies.sha2]
 version = "0.10.8"
