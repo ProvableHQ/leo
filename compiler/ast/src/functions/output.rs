@@ -14,81 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{External, Mode, Node, NodeID, Type};
+use crate::{Mode, Node, NodeID, Type};
 use leo_span::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Output {
-    Internal(FunctionOutput),
-    External(External),
-}
-
-impl Output {
-    pub fn type_(&self) -> Type {
-        match self {
-            Output::Internal(output) => output.type_.clone(),
-            Output::External(output) => output.type_(),
-        }
-    }
-
-    pub fn mode(&self) -> Mode {
-        match self {
-            Output::Internal(output) => output.mode,
-            Output::External(_) => Mode::None,
-        }
-    }
-}
-
-impl fmt::Display for Output {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use Output::*;
-        match self {
-            Internal(output) => output.fmt(f),
-            External(output) => output.fmt(f),
-        }
-    }
-}
-
-impl Node for Output {
-    fn span(&self) -> Span {
-        use Output::*;
-        match self {
-            Internal(output) => output.span(),
-            External(output) => output.span(),
-        }
-    }
-
-    fn set_span(&mut self, span: Span) {
-        use Output::*;
-        match self {
-            Internal(output) => output.set_span(span),
-            External(output) => output.set_span(span),
-        }
-    }
-
-    fn id(&self) -> NodeID {
-        use Output::*;
-        match self {
-            Internal(output) => output.id(),
-            External(output) => output.id(),
-        }
-    }
-
-    fn set_id(&mut self, id: NodeID) {
-        use Output::*;
-        match self {
-            Internal(output) => output.set_id(id),
-            External(output) => output.set_id(id),
-        }
-    }
-}
-
 /// A function output.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct FunctionOutput {
+pub struct Output {
     /// The mode of the function output.
     pub mode: Mode,
     /// The type of the function output.
@@ -99,10 +33,20 @@ pub struct FunctionOutput {
     pub id: NodeID,
 }
 
-impl fmt::Display for FunctionOutput {
+impl Output {
+    pub fn type_(&self) -> &Type {
+        &self.type_
+    }
+
+    pub fn mode(&self) -> Mode {
+        self.mode
+    }
+}
+
+impl fmt::Display for Output {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {}", self.mode, self.type_)
     }
 }
 
-crate::simple_node_impl!(FunctionOutput);
+crate::simple_node_impl!(Output);

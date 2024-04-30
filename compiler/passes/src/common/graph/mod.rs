@@ -41,7 +41,7 @@ pub enum DiGraphError<N: Node> {
 }
 
 /// A directed graph.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DiGraph<N: Node> {
     /// The set of nodes in the graph.
     nodes: IndexSet<N>,
@@ -105,6 +105,17 @@ impl<N: Node> DiGraph<N> {
         }
         // No cycle was found. Return the set of nodes in topological order.
         Ok(finished)
+    }
+
+    /// Retains a subset of the nodes, and removes all edges in which the source or destination is not in the subset.
+    pub fn retain_nodes(&mut self, nodes: &IndexSet<N>) {
+        // Remove the nodes from the set of nodes.
+        self.nodes.retain(|node| nodes.contains(node));
+        self.edges.retain(|node, _| nodes.contains(node));
+        // Remove the edges that reference the nodes.
+        for (_, children) in self.edges.iter_mut() {
+            children.retain(|child| nodes.contains(child));
+        }
     }
 
     // Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
@@ -213,5 +224,34 @@ mod test {
         let graph = DiGraph::<u32>::new(IndexSet::from([1, 2, 3, 4, 5]));
 
         check_post_order(&graph, &[1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_retain_nodes() {
+        let mut graph = DiGraph::<u32>::new(IndexSet::new());
+
+        graph.add_edge(1, 2);
+        graph.add_edge(1, 3);
+        graph.add_edge(1, 5);
+        graph.add_edge(2, 3);
+        graph.add_edge(2, 4);
+        graph.add_edge(2, 5);
+        graph.add_edge(3, 4);
+        graph.add_edge(4, 5);
+
+        let mut nodes = IndexSet::new();
+        nodes.insert(1);
+        nodes.insert(2);
+        nodes.insert(3);
+
+        graph.retain_nodes(&nodes);
+
+        let mut expected = DiGraph::<u32>::new(IndexSet::new());
+        expected.add_edge(1, 2);
+        expected.add_edge(1, 3);
+        expected.add_edge(2, 3);
+        expected.edges.insert(3, IndexSet::new());
+
+        assert_eq!(graph, expected);
     }
 }

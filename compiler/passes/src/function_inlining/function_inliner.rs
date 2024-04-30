@@ -32,6 +32,8 @@ pub struct FunctionInliner<'a> {
     pub(crate) reconstructed_functions: Vec<(Symbol, Function)>,
     /// The main program.
     pub(crate) program: Option<Symbol>,
+    /// Whether or not we are currently traversing a finalize block.
+    pub(crate) is_finalize: bool,
 }
 
 impl<'a> FunctionInliner<'a> {
@@ -49,6 +51,7 @@ impl<'a> FunctionInliner<'a> {
             reconstructed_functions: Default::default(),
             type_table,
             program: None,
+            is_finalize: false,
         }
     }
 }

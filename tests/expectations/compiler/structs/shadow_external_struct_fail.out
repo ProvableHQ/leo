@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372015]: There are two definitions of struct `Bar` that do not match.\n    --> compiler-test:9:5\n     |\n   9 |     struct Bar {\n  10 |         baz: [Baz; 2],\n  11 |         bog: u32,\n  12 |     }\n     |     ^\n     |\n     = Check the import files to see if there are any struct definitions of the same name.\n"

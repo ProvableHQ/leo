@@ -28,7 +28,6 @@ use leo_ast::{
     ExpressionStatement,
     IterationStatement,
     Mode,
-    Output,
     ReturnStatement,
     Statement,
     Type,
@@ -99,47 +98,27 @@ impl<'a> CodeGenerator<'a> {
                     .iter()
                     .zip_eq(output)
                     .map(|(operand, output)| {
-                        match output {
-                            Output::Internal(output) => {
-                                let visibility = if self.is_transition_function {
-                                    match self.in_finalize {
-                                        // If in finalize block, the default visibility is public.
-                                        true => match output.mode {
-                                            Mode::None => Mode::Public,
-                                            mode => mode,
-                                        },
-                                        // If not in finalize block, the default visibility is private.
-                                        false => match output.mode {
-                                            Mode::None => Mode::Private,
-                                            mode => mode,
-                                        },
-                                    }
-                                } else {
-                                    // Only program functions have visibilities associated with their outputs.
-                                    Mode::None
-                                };
-                                if let Type::Future(_) = output.type_ {
-                                    future_output = format!(
-                                        "    output {} as {}.aleo/{}.future;\n",
-                                        operand,
-                                        self.program_id.unwrap().name,
-                                        self.current_function.unwrap().identifier,
-                                    );
-                                    String::new()
-                                } else {
-                                    format!(
-                                        "    output {} as {};\n",
-                                        operand,
-                                        self.visit_type_with_visibility(&output.type_, visibility)
-                                    )
-                                }
-                            }
-                            Output::External(output) => {
-                                format!(
-                                    "    output {} as {}.aleo/{}.record;\n",
-                                    operand, output.program_name, output.record,
-                                )
-                            }
+                        // Transitions outputs with no mode are private.
+                        // Note that this unwrap is safe because we set the variant before traversing the function.
+                        let visibility = match (self.variant.unwrap().is_transition(), output.mode) {
+                            (true, Mode::None) => Mode::Private,
+                            (_, mode) => mode,
+                        };
+
+                        if let Type::Future(_) = output.type_ {
+                            future_output = format!(
+                                "    output {} as {}.aleo/{}.future;\n",
+                                operand,
+                                self.program_id.unwrap().name,
+                                self.current_function.unwrap().identifier,
+                            );
+                            String::new()
+                        } else {
+                            format!(
+                                "    output {} as {};\n",
+                                operand,
+                                self.visit_type_with_visibility(&output.type_, visibility)
+                            )
                         }
                     })
                     .join("");
@@ -199,12 +178,60 @@ impl<'a> CodeGenerator<'a> {
     }
 
     fn visit_conditional(&mut self, _input: &'a ConditionalStatement) -> String {
-        // TODO: Once SSA is made optional, create a Leo error informing the user to enable the SSA pass.
-        unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+        // Note that this unwrap is safe because we set the variant before traversing the function.
+        if !self.variant.unwrap().is_async_function() {
+            unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
+        } else {
+            // Construct a label for the end of the `then` block.
+            let end_then_label = format!("end_then_{}_{}", self.conditional_depth, self.next_label);
+            self.next_label += 1;
+            // Construct a label for the end of the `otherwise` block if it exists.
+            let (has_otherwise, end_otherwise_label) = {
+                match _input.otherwise.is_some() {
+                    true => {
+                        // Construct a label for the end of the `otherwise` block.
+                        let end_otherwise_label =
+                            { format!("end_otherwise_{}_{}", self.conditional_depth, self.next_label) };
+                        self.next_label += 1;
+                        (true, end_otherwise_label)
+                    }
+                    false => (false, String::new()),
+                }
+            };
+
+            // Increment the conditional depth.
+            self.conditional_depth += 1;
+
+            // Create a `branch` instruction.
+            let (condition, mut instructions) = self.visit_expression(&_input.condition);
+            instructions.push_str(&format!("    branch.eq {condition} false to {end_then_label};\n"));
+
+            // Visit the `then` block.
+            instructions.push_str(&self.visit_block(&_input.then));
+            // If the `otherwise` block is present, add a branch instruction to jump to the end of the `otherwise` block.
+            if has_otherwise {
+                instructions.push_str(&format!("    branch.eq true true to {end_otherwise_label};\n"));
+            }
+
+            // Add a label for the end of the `then` block.
+            instructions.push_str(&format!("    position {};\n", end_then_label));
+
+            // Visit the `otherwise` block.
+            if let Some(else_block) = &_input.otherwise {
+                // Visit the `otherwise` block.
+                instructions.push_str(&self.visit_statement(else_block));
+                // Add a label for the end of the `otherwise` block.
+                instructions.push_str(&format!("    position {end_otherwise_label};\n"));
+            }
+
+            // Decrement the conditional depth.
+            self.conditional_depth -= 1;
+
+            instructions
+        }
     }
 
     fn visit_iteration(&mut self, _input: &'a IterationStatement) -> String {
-        // TODO: Once loop unrolling is made optional, create a Leo error informing the user to enable the loop unrolling pass..
         unreachable!("`IterationStatement`s should not be in the AST at this phase of compilation.");
     }
 

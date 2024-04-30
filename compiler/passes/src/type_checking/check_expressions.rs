@@ -14,21 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::TypeChecker;
+use crate::{TypeChecker, VariableSymbol};
 
-use leo_ast::{
-    Variant::{AsyncFunction, AsyncTransition},
-    *,
-};
+use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span, Symbol};
 
-use itertools::Itertools;
-use leo_ast::{
-    CoreFunction::FutureAwait,
-    Type::{Future, Tuple},
-};
 use snarkvm::console::network::{MainnetV0, Network};
+
+use itertools::Itertools;
 use std::str::FromStr;
 
 fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<Type>) -> Option<Type> {
@@ -126,7 +120,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Await futures here so that can use the argument variable names to lookup.
-                    if core_instruction == FutureAwait {
+                    if core_instruction == CoreFunction::FutureAwait {
                         if access.arguments.len() != 1 {
                             self.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
                             return Some(Type::Unit);
@@ -169,7 +163,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 return Some(actual);
                             }
                         }
-                        Future(_) => {
+                        Type::Future(_) => {
                             // Get the fully inferred type.
                             if let Some(Type::Future(inferred_f)) = self.type_table.get(&access.tuple.id()) {
                                 // Make sure in range.
@@ -245,11 +239,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         match self.visit_expression(&access.inner, &None) {
                             Some(Type::Composite(struct_)) => {
                                 // Retrieve the struct definition associated with `identifier`.
-                                let struct_ = self
-                                    .symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .cloned();
+                                let struct_ = self.lookup_struct(struct_.program, struct_.id.name);
                                 if let Some(struct_) = struct_ {
                                     // Check that `access.name` is a member of the struct.
                                     match struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -635,8 +625,8 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         self.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
                     // Async functions return a single future.
-                    let mut ret = if func.variant == AsyncFunction {
-                        // Type check after know the input types.
+                    let mut ret = if func.variant == Variant::AsyncFunction {
+                        // Type check after resolving the input types.
                         if let Some(Type::Future(_)) = expected {
                             Type::Future(FutureType::new(
                                 Vec::new(),
@@ -647,25 +637,29 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             self.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
                         }
-                    } else if func.variant == AsyncTransition {
+                    } else if func.variant == Variant::AsyncTransition {
                         // Fully infer future type.
-                        let future_type = Type::Future(FutureType::new(
-                            // Assumes that external function stubs have been processed.
-                            self.finalize_input_types
-                                .get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name))))
-                                .unwrap()
-                                .clone(),
-                            Some(Location::new(input.program, ident.name)),
-                            true,
-                        ));
+                        let future_type = match self.async_function_input_types.get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name)))) {
+                            Some(inputs) => {
+                                Type::Future(FutureType::new(
+                                    inputs.clone(), Some(Location::new(input.program, ident.name)), true
+                                ))
+                            },
+                            None => {
+                                self.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
+                                return Some(Type::Future(FutureType::new(
+                                    Vec::new(), Some(Location::new(input.program, ident.name)), false
+                                )))
+                            }
+                        };
                         let fully_inferred_type = match func.output_type {
-                            Tuple(tup) => Tuple(TupleType::new(
+                            Type::Tuple(tup) => Type::Tuple(TupleType::new(
                                 tup.elements()
                                     .iter()
-                                    .map(|t| if matches!(t, Future(_)) { future_type.clone() } else { t.clone() })
+                                    .map(|t| if matches!(t, Type::Future(_)) { future_type.clone() } else { t.clone() })
                                     .collect::<Vec<Type>>(),
                             )),
-                            Future(_) => future_type,
+                            Type::Future(_) => future_type,
                             _ => panic!("Invalid output type for async transition."),
                         };
                         self.assert_and_return_type(fully_inferred_type, expected, input.span())
@@ -686,9 +680,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     self.scope_state.is_call = true;
                     let (mut input_futures, mut inferred_finalize_inputs) = (Vec::new(), Vec::new());
                     func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        let ty = self.visit_expression(argument, &Some(expected.type_()));
+                        let ty = self.visit_expression(argument, &Some(expected.type_().clone()));
                         // Extract information about futures that are being consumed.
-                        if func.variant == AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
+                        if func.variant == Variant::AsyncFunction && matches!(expected.type_(), Type::Future(_)) {
                             match argument {
                                 Expression::Identifier(_)
                                 | Expression::Call(_)
@@ -733,14 +727,14 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     }
 
                     // Propagate futures from async functions and transitions.
-                    if func.variant.is_async() {
+                    if func.variant.is_async_function() {
                         // Cannot have async calls in a conditional block.
                         if self.scope_state.is_conditional {
                             self.emit_err(TypeCheckerError::async_call_in_conditional(input.span));
                         }
 
                         // Can only call async functions and external async transitions from an async transition body.
-                        if self.scope_state.variant != Some(AsyncTransition) {
+                        if self.scope_state.variant != Some(Variant::AsyncTransition) {
                             self.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(
                                 input.span,
                             ));
@@ -775,8 +769,9 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                                 Location::new(self.scope_state.program_name, ident.name),
                             )
                             .unwrap();
+                            drop(st);
                             // Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
-                            self.finalize_input_types.insert(
+                            self.async_function_input_types.insert(
                                 Location::new(self.scope_state.program_name, ident.name),
                                 inferred_finalize_inputs.clone(),
                             );
@@ -794,9 +789,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                             // Type check in case the expected type is known.
                             self.assert_and_return_type(ret.clone(), expected, input.span());
                         }
-                        // Set call location so that definition statement knows where future comes from.
-                        self.scope_state.call_location = Some(Location::new(input.program, ident.name));
                     }
+
+                    // Set call location so that definition statement knows where future comes from.
+                    self.scope_state.call_location = Some(Location::new(input.program, ident.name));
 
                     Some(ret)
                 } else {
@@ -821,11 +817,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_struct_init(&mut self, input: &'a StructExpression, additional: &Self::AdditionalInput) -> Self::Output {
-        let struct_ = self
-            .symbol_table
-            .borrow()
-            .lookup_struct(Location::new(self.scope_state.program_name, input.name.name))
-            .cloned();
+        let struct_ = self.lookup_struct(self.scope_state.program_name, input.name.name).clone();
         if let Some(struct_) = struct_ {
             // Check struct type name.
             let ret = self.check_expected_struct(&struct_, additional, input.name.span());
@@ -871,9 +863,10 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
     }
 
     fn visit_identifier(&mut self, input: &'a Identifier, expected: &Self::AdditionalInput) -> Self::Output {
-        if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, input.name)) {
+        let var = self.symbol_table.borrow().lookup_variable(Location::new(None, input.name)).cloned();
+        if let Some(var) = &var {
             if matches!(var.type_, Type::Future(_)) && matches!(expected, Some(Type::Future(_))) {
-                if self.scope_state.variant == Some(AsyncTransition) && self.scope_state.is_call {
+                if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.is_call {
                     // Consume future.
                     match self.scope_state.futures.remove(&input.name) {
                         Some(future) => {
@@ -961,14 +954,16 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
     fn visit_locator(&mut self, input: &'a LocatorExpression, expected: &Self::AdditionalInput) -> Self::Output {
         // Check that the locator points to a valid resource in the ST.
+        let loc_: VariableSymbol;
         if let Some(var) =
             self.symbol_table.borrow().lookup_variable(Location::new(Some(input.program.name.name), input.name))
         {
-            Some(self.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            loc_ = var.clone();
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", input.name, input.span()));
-            None
+            return None;
         }
+        Some(self.assert_and_return_type(loc_.type_.clone(), expected, input.span()))
     }
 
     fn visit_ternary(&mut self, input: &'a TernaryExpression, expected: &Self::AdditionalInput) -> Self::Output {

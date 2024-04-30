@@ -132,7 +132,7 @@ default-features = false
 version = "0.6.4"
 
 [dependencies.reqwest]
-version = "0.12.2"
+version = "0.12.4"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
@@ -147,7 +147,7 @@ features = [ "derive" ]
 version = "1.0"
 
 [dependencies.serial_test]
-version = "3.0.0"
+version = "3.1.0"
 
 [dependencies.snarkvm]
 workspace = true
@@ -167,7 +167,7 @@ version = "0.3.18"
 features = [ "fmt" ]
 
 [dependencies.zip]
-version = "^0.6"
+version = "^1.1"
 
 [dependencies.crossterm]
 version = "0.27.0"

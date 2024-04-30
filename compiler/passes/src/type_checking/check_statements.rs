@@ -70,15 +70,28 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
         };
 
-        let var_type = if let Some(var) =
-            self.symbol_table.borrow_mut().lookup_variable(Location::new(None, var_name.name))
+        // Lookup the variable in the symbol table and retrieve its type.
+        let var_type = if let Some(var) = self.symbol_table.borrow().lookup_variable(Location::new(None, var_name.name))
         {
+            // If the variable exists, then check that it is not a constant.
             match &var.declaration {
                 VariableType::Const => self.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) => {
                     self.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                _ => {}
+                VariableType::Mut | VariableType::Input(_) => {}
+            }
+
+            // If the variable exists and its in an async function, then check that it is in the current scope.
+            if self.scope_state.is_async
+                && self.scope_state.is_conditional
+                && self
+                    .symbol_table
+                    .borrow()
+                    .lookup_variable_in_current_scope(Location::new(None, var_name.name))
+                    .is_none()
+            {
+                self.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
             }
             // Prohibit reassignment of futures.
             if let Type::Future(_) = var.type_ {
@@ -88,7 +101,6 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             Some(var.type_.clone())
         } else {
             self.emit_err(TypeCheckerError::unknown_sym("variable", var_name.name, var_name.span));
-
             None
         };
 
@@ -115,7 +127,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Set the `has_return` flag for the then-block.
         let previous_has_return = core::mem::replace(&mut self.scope_state.has_return, then_block_has_return);
-        // Set the `is_conditional` flag for the conditional block.
+        // Set the `is_conditional` flag.
         let previous_is_conditional = core::mem::replace(&mut self.scope_state.is_conditional, true);
 
         // Create scope for checking awaits in `then` branch of conditional.
@@ -224,7 +236,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
         // Check that the type of the definition is defined.
         self.assert_type_is_valid(&input.type_, input.span);
 
-        // Check that the type of the definition is not a unit type, singleton tuple type, nested tuple type, or external struct type.
+        // Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         match &input.type_ {
             // If the type is an empty tuple, return an error.
             Type::Unit => self.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
@@ -236,19 +248,12 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
                         if matches!(type_, Type::Tuple(_)) {
                             self.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                         }
-                        if let Type::Composite(composite) = type_ {
-                            self.assert_internal_struct(composite, input.span);
-                        }
                     }
                 }
             },
             Type::Mapping(_) | Type::Err => unreachable!(
                 "Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             ),
-            // Make sure there are no instances of external structs created.
-            Type::Composite(composite) => {
-                self.assert_internal_struct(composite, input.span);
-            }
             // Otherwise, the type is valid.
             _ => (), // Do nothing
         }
@@ -395,7 +400,7 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
 
         // Fully type the expected return value.
         if self.scope_state.variant == Some(Variant::AsyncTransition) && self.scope_state.has_called_finalize {
-            let inferred_future_type = match self.finalize_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
+            let inferred_future_type = match self.async_function_input_types.get(&func.unwrap().finalize.clone().unwrap()) {
                 Some(types) => Future(FutureType::new(
                     types.clone(),
                     Some(Location::new(self.scope_state.program_name, parent)),

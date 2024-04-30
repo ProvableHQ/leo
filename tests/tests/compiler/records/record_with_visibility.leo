@@ -10,10 +10,10 @@ program test.aleo {
         // The token owner.
         private owner: address,
         // A constant value.
-        constant flag: bool,
+        flag: bool,
     }
 
-    transition main(a: u8, b:u8) -> u8 {
-        return a + b;
+    transition main(a: u64, b:u64) -> Token {
+        return Token { amount: a + b, owner: self.caller, flag: true};
     }
 }

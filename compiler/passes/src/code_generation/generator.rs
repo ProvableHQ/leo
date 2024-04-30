@@ -16,7 +16,7 @@
 
 use crate::{CallGraph, StructGraph, SymbolTable, TypeTable};
 
-use leo_ast::{Function, Program, ProgramId};
+use leo_ast::{Function, Program, ProgramId, Variant};
 use leo_span::Symbol;
 
 use indexmap::IndexMap;
@@ -42,16 +42,18 @@ pub struct CodeGenerator<'a> {
     pub(crate) composite_mapping: IndexMap<&'a Symbol, (bool, String)>,
     /// Mapping of global identifiers to their associated names.
     pub(crate) global_mapping: IndexMap<&'a Symbol, String>,
-    /// Are we traversing a transition function?
-    pub(crate) is_transition_function: bool,
-    /// Are we traversing a finalize block?
-    pub(crate) in_finalize: bool,
+    /// The variant of the function we are currently traversing.
+    pub(crate) variant: Option<Variant>,
     /// A reference to program. This is needed to look up external programs.
     pub(crate) program: &'a Program,
     /// The program ID of the current program.
     pub(crate) program_id: Option<ProgramId>,
     /// A reference to the finalize caller.
     pub(crate) finalize_caller: Option<Symbol>,
+    /// A counter to track the next available label.
+    pub(crate) next_label: u64,
+    /// The depth of the current conditional block.
+    pub(crate) conditional_depth: u64,
 }
 
 impl<'a> CodeGenerator<'a> {
@@ -74,11 +76,12 @@ impl<'a> CodeGenerator<'a> {
             variable_mapping: IndexMap::new(),
             composite_mapping: IndexMap::new(),
             global_mapping: IndexMap::new(),
-            is_transition_function: false,
-            in_finalize: false,
+            variant: None,
             program,
             program_id: None,
             finalize_caller: None,
+            next_label: 0u64,
+            conditional_depth: 0u64,
         }
     }
 }
