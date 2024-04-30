@@ -26,13 +26,13 @@ pub struct DeadCodeEliminator<'a> {
     pub(crate) used_variables: IndexSet<Symbol>,
     /// Whether or not the variables are necessary.
     pub(crate) is_necessary: bool,
-    /// Whether or not we are currently traversing a finalize block.
-    pub(crate) is_finalize: bool,
+    /// Whether or not we are currently traversing an async function.
+    pub(crate) is_async: bool,
 }
 
 impl<'a> DeadCodeEliminator<'a> {
     /// Initializes a new `DeadCodeEliminator`.
     pub fn new(node_builder: &'a NodeBuilder) -> Self {
-        Self { node_builder, used_variables: Default::default(), is_necessary: false, is_finalize: false }
+        Self { node_builder, used_variables: Default::default(), is_necessary: false, is_async: false }
     }
 }

@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CodeGenerator, Location};
+use crate::CodeGenerator;
 
-use leo_ast::{Mode, Type};
+use leo_ast::{Location, Mode, Type};
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_type(input: &Type) -> String {

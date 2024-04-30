@@ -139,6 +139,13 @@ impl Type {
                 .zip_eq(right.elements().iter())
                 .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
             (Type::Composite(left), Type::Composite(right)) => left.id.name == right.id.name,
+            // Don't type check when type hasn't been explicitly defined.
+            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
+            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
+                .inputs()
+                .iter()
+                .zip_eq(right.inputs().iter())
+                .all(|(left_type, right_type)| left_type.eq_flat_relax_composite(right_type)),
             _ => false,
         }
     }

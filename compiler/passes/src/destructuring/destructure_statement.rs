@@ -222,7 +222,7 @@ impl StatementReconstructor for Destructurer<'_> {
 
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         // Conditional statements can only exist in finalize blocks.
-        if !self.is_finalize {
+        if !self.is_async {
             unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (

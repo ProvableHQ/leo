@@ -55,7 +55,9 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
             program
                 .closures()
                 .iter()
-                .map(|(id, closure)| (Identifier::from(id).name, FunctionStub::from_closure(closure)))
+                .map(|(id, closure)| {
+                    (Identifier::from(id).name, FunctionStub::from_closure(closure, program_id.name.name))
+                })
                 .collect_vec(),
             program
                 .functions()

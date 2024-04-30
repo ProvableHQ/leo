@@ -118,7 +118,7 @@ impl StatementReconstructor for DeadCodeEliminator<'_> {
 
     /// Flattening removes conditional statements from the program.
     fn reconstruct_conditional(&mut self, input: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
-        if !self.is_finalize {
+        if !self.is_async {
             unreachable!("`ConditionalStatement`s should not be in the AST at this phase of compilation.")
         } else {
             (

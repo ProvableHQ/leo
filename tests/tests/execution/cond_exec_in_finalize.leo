@@ -16,11 +16,11 @@ cases:
 
 program cond_exec_in_finalize.aleo {
 
-  transition a(a: u64, b: u64) {
-    return then finalize(a, b);
+  async transition a(a: u64, b: u64) -> Future {
+    return finish(a, b);
   }
 
-  finalize a(a: u64, b: u64) {
+  async function finish(a: u64, b: u64) {
     if (b == 0u64) {
       assert_eq(b, 0u64);
     } else {

@@ -1313,7 +1313,8 @@ impl<'a> TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
             }
             // If the function is not an async transition, then it cannot have a future as output.
-            if self.scope_state.variant != Some(Variant::AsyncTransition) && matches!(function_output.type_, Type::Future(_))
+            if self.scope_state.variant != Some(Variant::AsyncTransition)
+                && matches!(function_output.type_, Type::Future(_))
             {
                 self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }

@@ -17,34 +17,33 @@ outputs:
               identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":42,\\\"hi\\\":46}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Future:
-                        inputs:
-                          - Integer: U32
-                          - Integer: U32
-                          - Future:
-                              inputs: []
-                              location: ~
-                              is_explicit: true
-                          - Future:
-                              inputs:
-                                - Integer: U32
-                                - Future:
-                                    inputs:
-                                      - Integer: U32
-                                      - Integer: U32
-                                    location: ~
-                                    is_explicit: true
-                              location: ~
-                              is_explicit: true
-                        location: ~
-                        is_explicit: true
-                    span:
-                      lo: 52
-                      hi: 124
-                    id: 3
+                - mode: None
+                  type_:
+                    Future:
+                      inputs:
+                        - Integer: U32
+                        - Integer: U32
+                        - Future:
+                            inputs: []
+                            location: ~
+                            is_explicit: true
+                        - Future:
+                            inputs:
+                              - Integer: U32
+                              - Future:
+                                  inputs:
+                                    - Integer: U32
+                                    - Integer: U32
+                                  location: ~
+                                  is_explicit: true
+                            location: ~
+                            is_explicit: true
+                      location: ~
+                      is_explicit: true
+                  span:
+                    lo: 52
+                    hi: 124
+                  id: 3
               output_type:
                 Future:
                   inputs:
@@ -200,55 +199,51 @@ outputs:
               variant: AsyncFunction
               identifier: "{\"id\":\"26\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":426,\\\"hi\\\":439}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"27\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":440,\\\"hi\\\":441}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 440
-                      hi: 441
-                    id: 28
-                - Internal:
-                    identifier: "{\"id\":\"29\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":448,\\\"hi\\\":449}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 448
-                      hi: 449
-                    id: 30
-                - Internal:
-                    identifier: "{\"id\":\"31\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":456,\\\"hi\\\":458}\"}"
-                    mode: None
-                    type_:
-                      Future:
-                        inputs: []
-                        location: ~
-                        is_explicit: true
-                    span:
-                      lo: 456
-                      hi: 458
-                    id: 32
-                - Internal:
-                    identifier: "{\"id\":\"33\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":474,\\\"hi\\\":476}\"}"
-                    mode: None
-                    type_:
-                      Future:
-                        inputs:
-                          - Integer: U32
-                          - Future:
-                              inputs:
-                                - Integer: U32
-                                - Integer: U32
-                              location: ~
-                              is_explicit: true
-                        location: ~
-                        is_explicit: true
-                    span:
-                      lo: 474
-                      hi: 476
-                    id: 34
+                - identifier: "{\"id\":\"27\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":440,\\\"hi\\\":441}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 440
+                    hi: 441
+                  id: 28
+                - identifier: "{\"id\":\"29\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":448,\\\"hi\\\":449}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 448
+                    hi: 449
+                  id: 30
+                - identifier: "{\"id\":\"31\",\"name\":\"f0\",\"span\":\"{\\\"lo\\\":456,\\\"hi\\\":458}\"}"
+                  mode: None
+                  type_:
+                    Future:
+                      inputs: []
+                      location: ~
+                      is_explicit: true
+                  span:
+                    lo: 456
+                    hi: 458
+                  id: 32
+                - identifier: "{\"id\":\"33\",\"name\":\"f1\",\"span\":\"{\\\"lo\\\":474,\\\"hi\\\":476}\"}"
+                  mode: None
+                  type_:
+                    Future:
+                      inputs:
+                        - Integer: U32
+                        - Future:
+                            inputs:
+                              - Integer: U32
+                              - Integer: U32
+                            location: ~
+                            is_explicit: true
+                      location: ~
+                      is_explicit: true
+                  span:
+                    lo: 474
+                    hi: 476
+                  id: 34
               output: []
               output_type: Unit
               block:

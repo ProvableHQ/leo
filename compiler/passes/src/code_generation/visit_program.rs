@@ -227,8 +227,7 @@ impl<'a> CodeGenerator<'a> {
                 self.variable_mapping.insert(&input.identifier.name, register_string.clone());
                 // Note that this unwrap is safe because we set the variant at the beginning of the function.
                 let visibility = match (self.variant.unwrap(), input.mode) {
-                    (Variant::AsyncTransition, Mode::None) |
-                    (Variant::Transition, Mode::None) => Mode::Private,
+                    (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) => Mode::Private,
                     (Variant::AsyncFunction, Mode::None) => Mode::Public,
                     _ => input.mode,
                 };

@@ -16,15 +16,10 @@
 
 use crate::{DiGraphError, TypeChecker};
 
-use leo_ast::{
-    Input::{External, Internal},
-    Type::Future,
-    *,
-};
+use leo_ast::{Type, *};
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
-use leo_ast::Variant::{AsyncFunction, AsyncTransition};
 use snarkvm::console::network::{MainnetV0, Network};
 use std::collections::HashSet;
 
@@ -89,24 +84,21 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Create future stubs.
         if input.variant == Variant::AsyncFunction {
-            let finalize_input_map = &mut self.finalize_input_types;
+            let finalize_input_map = &mut self.async_function_input_types;
             let resolved_inputs: Vec<Type> = input
                 .input
                 .iter()
-                .map(|input_mode| {
-                    match input_mode {
-                        Internal(function_input) => match &function_input.type_ {
-                            Future(f) => {
-                                // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                                Future(FutureType::new(
-                                    finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
-                                    f.location.clone(),
-                                    true,
-                                ))
-                            }
-                            _ => function_input.clone().type_,
-                        },
-                        External(_) => unreachable!("External inputs are not allowed in finalize outputs of stubs."),
+                .map(|input| {
+                    match &input.type_ {
+                        Type::Future(f) => {
+                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            Type::Future(FutureType::new(
+                                finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
+                                f.location.clone(),
+                                true,
+                            ))
+                        }
+                        _ => input.clone().type_,
                     }
                 })
                 .collect();
@@ -221,7 +213,7 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
             check_has_field(sym::owner, Type::Address);
         }
 
-        if !(input.is_record && self.is_stub) {
+        if !(input.is_record && self.scope_state.is_stub) {
             for Member { mode, identifier, type_, span, .. } in input.members.iter() {
                 // Check that the member type is not a tuple.
                 if matches!(type_, Type::Tuple(_)) {
@@ -336,15 +328,8 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 function
                     .input
                     .iter()
-                    .filter_map(|input| match input {
-                        Internal(parameter) => {
-                            if let Future(_) = parameter.type_.clone() {
-                                Some(parameter.identifier.name)
-                            } else {
-                                None
-                            }
-                        }
-                        External(_) => None,
+                    .filter_map(|input| {
+                        if let Type::Future(_) = input.type_.clone() { Some(input.identifier.name) } else { None }
                     })
                     .collect(),
             );
@@ -364,12 +349,12 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         self.exit_scope(function_index);
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.variant == Some(AsyncTransition) && !self.scope_state.has_called_finalize {
+        if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
         // Check that all futures were awaited exactly once.
-        if self.scope_state.variant == Some(AsyncFunction) {
+        if self.scope_state.variant == Some(Variant::AsyncFunction) {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
                 self.emit_err(TypeCheckerError::future_awaits_missing(

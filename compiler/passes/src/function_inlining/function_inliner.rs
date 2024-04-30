@@ -32,8 +32,8 @@ pub struct FunctionInliner<'a> {
     pub(crate) reconstructed_functions: Vec<(Symbol, Function)>,
     /// The main program.
     pub(crate) program: Option<Symbol>,
-    /// Whether or not we are currently traversing a finalize block.
-    pub(crate) is_finalize: bool,
+    /// Whether or not we are currently traversing an async function block.
+    pub(crate) is_async: bool,
 }
 
 impl<'a> FunctionInliner<'a> {
@@ -51,7 +51,7 @@ impl<'a> FunctionInliner<'a> {
             reconstructed_functions: Default::default(),
             type_table,
             program: None,
-            is_finalize: false,
+            is_async: false,
         }
     }
 }

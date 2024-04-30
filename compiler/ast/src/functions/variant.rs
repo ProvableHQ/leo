@@ -46,4 +46,9 @@ impl Variant {
     pub fn is_function(self) -> bool {
         matches!(self, Variant::AsyncFunction | Variant::Function)
     }
+
+    /// Returns true if the variant is an async function.
+    pub fn is_async_function(self) -> bool {
+        matches!(self, Variant::AsyncFunction)
+    }
 }

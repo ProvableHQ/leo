@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372110]: A `transition` cannot return a future.\n    --> compiler-test:5:35\n     |\n   5 |   transition a(a: u64, b: u64) -> Future {\n     |                                   ^^^^^^\n     |\n     = Use an `async transition` instead.\nError [ETYC0372111]: The async function `finish` does not exist.\n    --> compiler-test:6:12\n     |\n   6 |     return finish(a, b);\n     |            ^^^^^^^^^^^^\n     |\n     = Ensure that `finish` is defined as an async function in the current program.\nError [ETYC0372088]: An async transition must call an async function.\n    --> compiler-test:9:3\n     |\n   9 |   async transition finish(a: u64, b: u64) {\n  10 |     if (b == 0u64) {\n  11 |       assert_eq(b, 0u64);\n  12 |     } else {\n  13 |       assert_eq(a / b, 1u64);\n  14 |     }\n  15 |   }\n     |   ^\n     |\n     = Example: `async transition foo() -> Future { let a: Future = bar(); return await_futures(a); }`\n"

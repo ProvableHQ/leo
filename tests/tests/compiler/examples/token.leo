@@ -23,7 +23,7 @@ program token.aleo {
         return finalize_mint_public(receiver, amount);
     }
 
-    async function finalize_mint_public(public receiver: address, public amount: u64) {
+    async function finalize_mint_public(receiver: address, amount: u64) {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `mint_public` is reverted.
@@ -45,7 +45,7 @@ program token.aleo {
         return finalize_transfer_public(self.caller, receiver, amount);
     }
 
-    async function finalize_transfer_public(public sender: address, public receiver: address, public amount: u64) {
+    async function finalize_transfer_public(sender: address, receiver: address, amount: u64) {
         // Decrements `account[sender]` by `amount`.
         // If `account[sender]` does not exist, it will be created.
         // If `account[sender] - amount` underflows, `transfer_public` is reverted.
@@ -100,7 +100,7 @@ program token.aleo {
         return (remaining, finalize_transfer_private_to_public(receiver, amount));
     }
 
-    async function finalize_transfer_private_to_public(public receiver: address, public amount: u64) {
+    async function finalize_transfer_private_to_public(receiver: address, amount: u64) {
         // Increments `account[receiver]` by `amount`.
         // If `account[receiver]` does not exist, it will be created.
         // If `account[receiver] + amount` overflows, `transfer_private_to_public` is reverted.

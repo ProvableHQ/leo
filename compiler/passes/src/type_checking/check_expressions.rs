@@ -639,17 +639,22 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                         }
                     } else if func.variant == Variant::AsyncTransition {
                         // Fully infer future type.
-                        let future_type = match self.async_function_input_types.get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name)))) {
-                            Some(inputs) => {
-                                Type::Future(FutureType::new(
-                                    inputs.clone(), Some(Location::new(input.program, ident.name)), true
-                                ))
-                            },
+                        let future_type = match self
+                            .async_function_input_types
+                            .get(&Location::new(input.program, Symbol::intern(&format!("finalize/{}", ident.name))))
+                        {
+                            Some(inputs) => Type::Future(FutureType::new(
+                                inputs.clone(),
+                                Some(Location::new(input.program, ident.name)),
+                                true,
+                            )),
                             None => {
                                 self.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
                                 return Some(Type::Future(FutureType::new(
-                                    Vec::new(), Some(Location::new(input.program, ident.name)), false
-                                )))
+                                    Vec::new(),
+                                    Some(Location::new(input.program, ident.name)),
+                                    false,
+                                )));
                             }
                         };
                         let fully_inferred_type = match func.output_type {

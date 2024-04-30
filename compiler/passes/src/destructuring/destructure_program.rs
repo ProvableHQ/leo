@@ -16,7 +16,7 @@
 
 use crate::Destructurer;
 
-use leo_ast::{Finalize, Function, ProgramReconstructor, StatementReconstructor};
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
 impl ProgramReconstructor for Destructurer<'_> {
     fn reconstruct_function(&mut self, input: Function) -> Function {
@@ -27,24 +27,15 @@ impl ProgramReconstructor for Destructurer<'_> {
             input: input.input,
             output: input.output,
             output_type: input.output_type,
-            block: self.reconstruct_block(input.block).0,
-            finalize: input.finalize.map(|finalize| {
-                // Set the `is_finalize` flag before reconstructing the finalize block.
-                self.is_finalize = true;
-                // Reconstruct the finalize block.
-                let finalize = Finalize {
-                    identifier: finalize.identifier,
-                    input: finalize.input,
-                    output: finalize.output,
-                    output_type: finalize.output_type,
-                    block: self.reconstruct_block(finalize.block).0,
-                    span: finalize.span,
-                    id: finalize.id,
-                };
-                // Reset the `is_finalize` flag.
-                self.is_finalize = false;
-                finalize
-            }),
+            block: {
+                // Set the `is_async` flag before reconstructing the block.
+                self.is_async = input.variant.is_async_function();
+                // Reconstruct the block.
+                let block = self.reconstruct_block(input.block).0;
+                // Reset the `is_async` flag.
+                self.is_async = false;
+                block
+            },
             span: input.span,
             id: input.id,
         }
