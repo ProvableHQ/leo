@@ -37,8 +37,8 @@ pub struct Package<N: Network> {
 
 impl<N: Network> Package<N> {
     pub fn new(package_name: &str) -> Result<Self> {
-        // Check that the package name is valid.
-        if !Self::is_package_name_valid(package_name) {
+        // Check that the package name is a valid Aleo program name.
+        if !Self::is_program_name_valid(package_name) {
             return Err(PackageError::invalid_package_name(package_name).into());
         }
 
@@ -51,35 +51,35 @@ impl<N: Network> Package<N> {
         })
     }
 
-    /// Returns `true` if the package name is valid.
+    /// Returns `true` if the program name is valid.
     ///
-    /// Package names can only contain ASCII alphanumeric characters and underscores.
-    pub fn is_package_name_valid(package_name: &str) -> bool {
-        // Check that the package name is nonempty.
-        if package_name.is_empty() {
-            tracing::error!("Project names must be nonempty");
+    /// Program names can only contain ASCII alphanumeric characters and underscores.
+    pub fn is_program_name_valid(program_name: &str) -> bool {
+        // Check that the program name is nonempty.
+        if program_name.is_empty() {
+            tracing::error!("Program names must be nonempty");
             return false;
         }
 
-        let first = package_name.chars().next().unwrap();
+        let first = program_name.chars().next().unwrap();
 
         // Check that the first character is not an underscore.
         if first == '_' {
-            tracing::error!("Project names cannot begin with an underscore");
+            tracing::error!("Program names cannot begin with an underscore");
             return false;
         }
 
         // Check that the first character is not a number.
         if first.is_numeric() {
-            tracing::error!("Project names cannot begin with a number");
+            tracing::error!("Program names cannot begin with a number");
             return false;
         }
 
-        // Iterate and check that the package name is valid.
-        for current in package_name.chars() {
-            // Check that the package name contains only ASCII alphanumeric or underscores.
+        // Iterate and check that the program name is valid.
+        for current in program_name.chars() {
+            // Check that the program name contains only ASCII alphanumeric or underscores.
             if !current.is_ascii_alphanumeric() && current != '_' {
-                tracing::error!("Project names must can only contain ASCII alphanumeric characters and underscores.");
+                tracing::error!("Program names must can only contain ASCII alphanumeric characters and underscores.");
                 return false;
             }
         }
@@ -89,8 +89,8 @@ impl<N: Network> Package<N> {
 
     /// Returns `true` if a package is can be initialized at a given path.
     pub fn can_initialize(package_name: &str, path: &Path) -> bool {
-        // Check that the package name is valid.
-        if !Self::is_package_name_valid(package_name) {
+        // Check that the package name is a valid Aleo program name.
+        if !Self::is_program_name_valid(package_name) {
             return false;
         }
 
@@ -112,8 +112,8 @@ impl<N: Network> Package<N> {
 
     /// Returns `true` if a package is initialized at the given path
     pub fn is_initialized(package_name: &str, path: &Path) -> bool {
-        // Check that the package name is valid.
-        if !Self::is_package_name_valid(package_name) {
+        // Check that the package name is a valid Aleo program name.
+        if !Self::is_program_name_valid(package_name) {
             return false;
         }
 
@@ -173,25 +173,25 @@ mod tests {
 
     #[test]
     fn test_is_package_name_valid() {
-        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo"));
-        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo_bar"));
-        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo1"));
-        assert!(Package::<CurrentNetwork>::is_package_name_valid("foo_bar___baz_"));
+        assert!(Package::<CurrentNetwork>::is_program_name_valid("foo"));
+        assert!(Package::<CurrentNetwork>::is_program_name_valid("foo_bar"));
+        assert!(Package::<CurrentNetwork>::is_program_name_valid("foo1"));
+        assert!(Package::<CurrentNetwork>::is_program_name_valid("foo_bar___baz_"));
 
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-bar"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-bar-baz"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo-1"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid(""));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-foo"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("-foo-"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("_foo"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo--bar"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo---bar"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo--bar--baz"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo---bar---baz"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo*bar"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("foo,bar"));
-        assert!(!Package::<CurrentNetwork>::is_package_name_valid("1-foo"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo-bar"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo-bar-baz"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo-1"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid(""));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("-"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("-foo"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("-foo-"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("_foo"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo--bar"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo---bar"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo--bar--baz"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo---bar---baz"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo*bar"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("foo,bar"));
+        assert!(!Package::<CurrentNetwork>::is_program_name_valid("1-foo"));
     }
 }

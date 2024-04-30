@@ -376,4 +376,11 @@ create_messages!(
         msg: format!("The dependency program name `{name}` is invalid."),
         help: Some("Aleo program names must only contain lower case letters, numbers and underscores.".to_string()),
     }
+    
+    @backtraced
+    dependency_not_found {
+        args: (name: impl Display),
+        msg: format!("The dependency program `{name}` was not found among the manifest's dependencies."),
+        help: None,
+    }
 );
