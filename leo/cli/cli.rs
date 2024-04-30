@@ -48,11 +48,6 @@ enum Commands {
         #[clap(subcommand)]
         command: Account,
     },
-    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
-    Add {
-        #[clap(flatten)]
-        command: Add,
-    },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
         #[clap(flatten)]
@@ -78,11 +73,20 @@ enum Commands {
         #[clap(flatten)]
         command: Deploy,
     },
-
     #[clap(about = "Compile the current package as a program")]
     Build {
         #[clap(flatten)]
         command: Build,
+    },
+    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
+    },
+    #[clap(about = "Remove a dependency from the current package.")]
+    Remove {
+        #[clap(flatten)]
+        command: Remove,
     },
     #[clap(about = "Clean the output directory")]
     Clean {
@@ -145,6 +149,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
         Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
+        Commands::Remove { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
     }
 }
