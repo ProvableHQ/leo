@@ -376,7 +376,7 @@ create_messages!(
         msg: format!("The dependency program name `{name}` is invalid."),
         help: Some("Aleo program names must only contain lower case letters, numbers and underscores.".to_string()),
     }
-    
+
     @backtraced
     dependency_not_found {
         args: (name: impl Display),

@@ -18,7 +18,7 @@ use super::*;
 use leo_retriever::{Dependency, Location, Manifest, Network};
 use std::path::PathBuf;
 
-/// Clean outputs folder command
+/// Add a new on-chain or local dependency to the current package.
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct Add {
@@ -50,7 +50,7 @@ impl Command for Add {
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
 
-        // Deserialize the manifest
+        // Deserialize the manifest.
         let program_data: String = std::fs::read_to_string(path.join("program.json"))
             .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
         let manifest: Manifest = serde_json::from_str(&program_data)
@@ -59,12 +59,16 @@ impl Command for Add {
         // Make sure the program name is valid.
         // Allow both `credits.aleo` and `credits` syntax.
         let name: String = match &self.name {
-            name if name.ends_with(".aleo") && Package::<CurrentNetwork>::is_program_name_valid(&name[0..self.name.len() - 5]) => name.clone(),
+            name if name.ends_with(".aleo")
+                && Package::<CurrentNetwork>::is_program_name_valid(&name[0..self.name.len() - 5]) =>
+            {
+                name.clone()
+            }
             name if Package::<CurrentNetwork>::is_program_name_valid(name) => format!("{name}.aleo"),
             name => return Err(PackageError::invalid_file_name_dependency(name).into()),
         };
 
-        // Add dependency section to manifest if it doesn't exist
+        // Add dependency section to manifest if it doesn't exist.
         let mut dependencies = match (self.clear, manifest.dependencies()) {
             (false, Some(ref dependencies)) => dependencies
                 .iter()
@@ -98,7 +102,7 @@ impl Command for Add {
             _ => Vec::new(),
         };
 
-        // Add new dependency to manifest
+        // Add new dependency to the manifest.
         dependencies.push(match self.local {
             Some(local_path) => {
                 tracing::info!(
@@ -113,7 +117,7 @@ impl Command for Add {
             }
         });
 
-        // Update manifest
+        // Update the manifest file.
         let new_manifest = Manifest::new(
             manifest.program(),
             manifest.version(),

@@ -22,7 +22,11 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct Remove {
-    #[clap(name = "NAME", help = "The dependency name. Ex: `credits.aleo` or `credits`.", required_unless_present = "all")]
+    #[clap(
+        name = "NAME",
+        help = "The dependency name. Ex: `credits.aleo` or `credits`.",
+        required_unless_present = "all"
+    )]
     pub(crate) name: Option<String>,
 
     #[clap(short = 'l', long, help = "Path to local dependency")]
@@ -49,23 +53,28 @@ impl Command for Remove {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        
+
         // TODO: Dedup with Add Command. Requires merging utils/retriever/program_context with leo/package as both involve modifying the manifest.
         // Deserialize the manifest.
         let program_data: String = std::fs::read_to_string(path.join("program.json"))
             .map_err(|err| PackageError::failed_to_read_file(path.to_str().unwrap(), err))?;
         let manifest: Manifest = serde_json::from_str(&program_data)
             .map_err(|err| PackageError::failed_to_deserialize_manifest_file(path.to_str().unwrap(), err))?;
-        
+
         let dependencies: Vec<Dependency> = if !self.all {
             // Make sure the program name is valid.
             // Allow both `credits.aleo` and `credits` syntax.
             let name: String = match &self.name {
-                Some(name) if name.ends_with(".aleo") && Package::<CurrentNetwork>::is_program_name_valid(&name[0..name.len() - 5]) => name.clone(),
+                Some(name)
+                    if name.ends_with(".aleo")
+                        && Package::<CurrentNetwork>::is_program_name_valid(&name[0..name.len() - 5]) =>
+                {
+                    name.clone()
+                }
                 Some(name) if Package::<CurrentNetwork>::is_program_name_valid(name) => format!("{name}.aleo"),
                 name => return Err(PackageError::invalid_file_name_dependency(name.clone().unwrap()).into()),
             };
-            
+
             let mut found_match = false;
             let dep = match manifest.dependencies() {
                 Some(ref dependencies) => dependencies
@@ -74,8 +83,14 @@ impl Command for Remove {
                         if dependency.name() == &name {
                             found_match = true;
                             let msg = match (dependency.path(), dependency.network()) {
-                                (Some(local_path), _) => format!("local dependency to `{}` from path `{}`", name, local_path.to_str().unwrap().replace('\"', "")),
-                                (_, Some(network)) => format!("network dependency to `{}` from network `{}`", name, network),
+                                (Some(local_path), _) => format!(
+                                    "local dependency to `{}` from path `{}`",
+                                    name,
+                                    local_path.to_str().unwrap().replace('\"', "")
+                                ),
+                                (_, Some(network)) => {
+                                    format!("network dependency to `{}` from network `{}`", name, network)
+                                }
                                 _ => format!("git dependency to `{name}`"),
                             };
                             tracing::warn!("✅ Successfully removed the {msg}.");
@@ -87,17 +102,17 @@ impl Command for Remove {
                     .collect(),
                 _ => Vec::new(),
             };
-            
+
             // Throw error if no match is found.
             if !found_match {
                 return Err(PackageError::dependency_not_found(name).into());
             }
-            
+
             dep
         } else {
             Vec::new()
         };
-        
+
         // Update the manifest file.
         let new_manifest = Manifest::new(
             manifest.program(),
@@ -113,4 +128,3 @@ impl Command for Remove {
         Ok(())
     }
 }
-
