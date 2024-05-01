@@ -91,11 +91,13 @@ pub struct MigrationPath {
 }
 
 impl MigrationPath {
-    /// The supported migration paths.
+    /// The supported migration paths:
+    /// - 1.11.0 -> 1.13.0
+    /// - 1.12.0 -> 1.13.0
     const SUPPORTED: [Self; 2] = [
-        /// 1.11.0 -> 1.13.0
+        // 1.11.0 -> 1.13.0
         Self { old: Version::new(1, 11, 0), new: Version::new(1, 13, 0) },
-        /// 1.12.0 -> 1.13.0
+        // 1.12.0 -> 1.13.0
         Self { old: Version::new(1, 12, 0), new: Version::new(1, 13, 0) },
     ];
 
