@@ -1634,6 +1634,7 @@ dependencies = [
  "rpassword",
  "rusty-hook",
  "self_update 0.39.0",
+ "semver",
  "serde",
  "serde_json",
  "serial_test",

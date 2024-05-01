@@ -35,6 +35,9 @@ pub use example::Example;
 pub mod execute;
 pub use execute::Execute;
 
+pub mod migrate;
+pub use migrate::Migrate;
+
 pub mod new;
 pub use new::New;
 

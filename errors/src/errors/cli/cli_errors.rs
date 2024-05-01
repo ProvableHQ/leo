@@ -215,4 +215,19 @@ create_messages!(
         msg: format!("Failed to read private key from environment.\nIO Error: {error}"),
         help: Some("Pass in private key using `--private-key <PRIVATE-KEY>` or create a .env file with your private key information. See examples for formatting information.".to_string()),
     }
+
+    @backtraced
+    invalid_version {
+        args: (string: impl Display),
+        msg: format!("Invalid SemVer version: {string}"),
+        help: Some("Please provide a valid SemVer version.".to_string()),
+    }
+
+    @backtraced
+    unsupported_migration_path {
+        args: (old: impl Display, new: impl Display),
+        msg: format!("Unsupported migration path from version {old} to version {new}"),
+        help: Some("Please provide a supported migration path.".to_string()),
+    }
+
 );

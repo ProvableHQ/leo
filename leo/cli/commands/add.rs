@@ -18,7 +18,7 @@ use super::*;
 use leo_retriever::{Dependency, Location, Manifest, Network};
 use std::path::PathBuf;
 
-/// Clean outputs folder command
+/// Adds a dependency to the Leo program.
 #[derive(Parser, Debug)]
 #[clap(name = "leo", author = "The Aleo Team <hello@aleo.org>", version)]
 pub struct Add {
