@@ -26,16 +26,16 @@ pub struct Deploy {
     pub endpoint: String,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
-    #[clap(long, help = "Disables building of the project before deployment", default_value = "false")]
+    #[clap(long, help = "Disables building of the project before deployment.", default_value = "false")]
     pub(crate) no_build: bool,
-    #[clap(long, help = "Disables recursive deployment of dependencies", default_value = "false")]
-    pub(crate) non_recursive: bool,
+    #[clap(long, help = "Enables recursive deployment of dependencies.", default_value = "false")]
+    pub(crate) recursive: bool,
     #[clap(
         long,
-        help = "Custom wait gap between consecutive deployments. This is to help prevent a program from trying to be included in an earlier block than its dependency program.",
+        help = "Time in seconds to wait between consecutive deployments. This is to help prevent a program from trying to be included in an earlier block than its dependency program.",
         default_value = "12"
     )]
-    pub(crate) wait_gap: u64,
+    pub(crate) wait: u64,
 }
 
 impl Command for Deploy {
@@ -67,7 +67,11 @@ impl Command for Deploy {
         let mut all_paths: Vec<(String, PathBuf)> = Vec::new();
 
         // Extract post-ordered list of local dependencies' paths from `leo.lock`.
-        if !self.non_recursive {
+        if self.recursive {
+            // Cannot combine with private fee.
+            if self.fee_options.record.is_some() {
+                return Err(CliError::recursive_deploy_with_record().into());
+            }
             all_paths = context.local_dependency_paths()?;
         }
 
@@ -105,7 +109,7 @@ impl Command for Deploy {
             // Sleep for `wait_gap` seconds.
             // This helps avoid parents from being serialized before children.
             if index < all_paths.len() - 1 {
-                std::thread::sleep(std::time::Duration::from_secs(self.wait_gap));
+                std::thread::sleep(std::time::Duration::from_secs(self.wait));
             }
         }
 

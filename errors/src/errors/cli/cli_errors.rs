@@ -215,4 +215,11 @@ create_messages!(
         msg: format!("Failed to read private key from environment.\nIO Error: {error}"),
         help: Some("Pass in private key using `--private-key <PRIVATE-KEY>` or create a .env file with your private key information. See examples for formatting information.".to_string()),
     }
+
+    @backtraced
+    recursive_deploy_with_record {
+        args: (),
+        msg: "Cannot combine recursive deploy with private fee.".to_string(),
+        help: None,
+    }
 );
