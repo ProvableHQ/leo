@@ -230,4 +230,11 @@ create_messages!(
         help: Some("Please provide a supported migration path.".to_string()),
     }
 
+    @backtraced
+    failed_to_read_stdin {
+        args: (error: impl Display),
+        msg: format!("Failed to read from stdin.\nIO Error: {error}"),
+        help: None,
+    }
+
 );

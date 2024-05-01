@@ -178,6 +178,9 @@ version = "7.3.1"
 [dependencies.semver]
 version = "1.0.22"
 
+[dependencies.walkdir]
+version = "2.5.0"
+
 [target."cfg(windows)".dependencies.ansi_term]
 version = "0.12.1"
 

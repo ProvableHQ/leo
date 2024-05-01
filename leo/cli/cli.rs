@@ -53,32 +53,6 @@ enum Commands {
         #[clap(flatten)]
         command: Add,
     },
-    #[clap(about = "Create a new Leo package in a new directory")]
-    New {
-        #[clap(flatten)]
-        command: New,
-    },
-    #[clap(about = "Create a new Leo example package in a new directory")]
-    Example {
-        #[clap(subcommand)]
-        command: Example,
-    },
-    #[clap(about = "Run a program with input variables")]
-    Run {
-        #[clap(flatten)]
-        command: Run,
-    },
-    #[clap(about = "Execute a program with input variables")]
-    Execute {
-        #[clap(flatten)]
-        command: Execute,
-    },
-    #[clap(about = "Deploy a program")]
-    Deploy {
-        #[clap(flatten)]
-        command: Deploy,
-    },
-
     #[clap(about = "Compile the current package as a program")]
     Build {
         #[clap(flatten)]
@@ -88,6 +62,36 @@ enum Commands {
     Clean {
         #[clap(flatten)]
         command: Clean,
+    },
+    #[clap(about = "Deploy a program")]
+    Deploy {
+        #[clap(flatten)]
+        command: Deploy,
+    },
+    #[clap(about = "Create a new Leo example package in a new directory")]
+    Example {
+        #[clap(subcommand)]
+        command: Example,
+    },
+    #[clap(about = "Execute a program with input variables")]
+    Execute {
+        #[clap(flatten)]
+        command: Execute,
+    },
+    #[clap(about = "Migrate an old Leo project to a new version")]
+    Migrate {
+        #[clap(flatten)]
+        command: Migrate,
+    },
+    #[clap(about = "Create a new Leo package in a new directory")]
+    New {
+        #[clap(flatten)]
+        command: New,
+    },
+    #[clap(about = "Run a program with input variables")]
+    Run {
+        #[clap(flatten)]
+        command: Run,
     },
     #[clap(about = "Update the Leo CLI")]
     Update {
@@ -121,9 +125,8 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
     let context = handle_error(Context::new(cli.path, cli.home));
 
     match cli.command {
-        Commands::Add { command } => command.try_execute(context),
         Commands::Account { command } => command.try_execute(context),
-        Commands::New { command } => command.try_execute(context),
+        Commands::Add { command } => command.try_execute(context),
         Commands::Build { command } => {
             // Enter tracing span
             let span = command.log_span();
@@ -140,11 +143,14 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
             command.try_execute(context)
         }
+
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),
-        Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
+        Commands::Migrate { command } => command.try_execute(context),
+        Commands::New { command } => command.try_execute(context),
+        Commands::Run { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
     }
 }
