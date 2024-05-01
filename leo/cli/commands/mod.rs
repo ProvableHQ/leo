@@ -166,7 +166,7 @@ pub struct BuildOptions {
 /// Used by Execute and Deploy commands.
 #[derive(Parser, Clone, Debug, Default)]
 pub struct FeeOptions {
-    #[clap(long, help = "Priority fee in microcredits. Defaults to 1000000.", default_value = "1000000")]
+    #[clap(long, help = "Priority fee in microcredits. Defaults to 0.", default_value = "0")]
     pub(crate) priority_fee: String,
     #[clap(long, help = "Network to broadcast to. Defaults to testnet3.", default_value = "testnet3")]
     pub(crate) network: String,

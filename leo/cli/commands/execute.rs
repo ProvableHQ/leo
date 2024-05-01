@@ -29,10 +29,12 @@ pub struct Execute {
     name: String,
     #[clap(name = "INPUTS", help = "The inputs to the program.")]
     inputs: Vec<String>,
-    #[clap(long, help = "Execute the transition on chain", default_value = "false")]
+    #[clap(short, long, help = "Execute the transition on-chain.", default_value = "false")]
     broadcast: bool,
-    #[clap(short, long, help = "Execute a different program from the one in the current working directory.")]
-    external: Option<String>,
+    #[clap(short, long, help = "Execute the local program on-chain.", default_value = "false")]
+    local: bool,
+    #[clap(short, long, help = "The program to execute on-chain.")]
+    program: Option<String>,
     #[clap(flatten)]
     fee_options: FeeOptions,
     #[clap(flatten)]
@@ -51,7 +53,7 @@ impl Command for Execute {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         // No need to build if we are executing an external program.
-        if self.external.is_some() {
+        if self.program.is_some() {
             return Ok(());
         }
         (Build { options: self.compiler_options.clone() }).execute(context)
@@ -60,10 +62,20 @@ impl Command for Execute {
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // If the `broadcast` flag is set, then broadcast the transaction.
         if self.broadcast {
-            // Get the program name. Override local project if external name provided.
-            let program_name = match self.external {
-                Some(name) => name,
-                None => context.open_manifest()?.program_id().to_string(),
+            // Get the program name.
+            let program_name = match (self.program, self.local) {
+                (Some(name), true) => {
+                    let local = context.open_manifest()?.program_id().to_string();
+                    // Throw error if local name doesn't match the specified name.
+                    if name == local {
+                        local
+                    } else {
+                        return Err(PackageError::conflicting_on_chain_program_name(local, name).into());
+                    }
+                }
+                (Some(name), false) => name,
+                (None, true) => context.open_manifest()?.program_id().to_string(),
+                (None, false) => return Err(PackageError::missing_on_chain_program_name().into()),
             };
 
             // Get the private key.
