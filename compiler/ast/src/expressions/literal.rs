@@ -22,7 +22,7 @@ use super::*;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Literal {
     // todo: deserialize values here
-    /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9`.
+    /// An address literal, e.g., `aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8s7pyjh9` or `hello.aleo`.
     Address(String, #[serde(with = "leo_span::span_json")] Span, NodeID),
     /// A boolean literal, either `true` or `false`.
     Boolean(bool, #[serde(with = "leo_span::span_json")] Span, NodeID),
