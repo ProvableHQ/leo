@@ -14,20 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod cli;
-pub use cli::*;
+use super::*;
 
-mod commands;
-pub use commands::*;
+use clap::Parser;
 
-mod helpers;
-pub use helpers::*;
+/// Query the committee.
+#[derive(Parser, Debug)]
+pub struct Committee {}
 
-mod query_commands;
-pub use query_commands::*;
+impl Command for Committee {
+    type Input = ();
+    type Output = String;
 
-pub(crate) type CurrentNetwork = snarkvm::prelude::MainnetV0;
-pub(crate) const SNARKVM_COMMAND: &str = "snarkvm";
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Leo")
+    }
 
-#[cfg(test)]
-mod tests;
+    fn prelude(&self, _context: Context) -> Result<Self::Input> {
+        Ok(())
+    }
+
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+        Ok("/committee/latest".to_string())
+    }
+}
