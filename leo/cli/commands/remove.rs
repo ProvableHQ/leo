@@ -67,11 +67,11 @@ impl Command for Remove {
             let name: String = match &self.name {
                 Some(name)
                     if name.ends_with(".aleo")
-                        && Package::<CurrentNetwork>::is_program_name_valid(&name[0..name.len() - 5]) =>
+                        && Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..name.len() - 5]) =>
                 {
                     name.clone()
                 }
-                Some(name) if Package::<CurrentNetwork>::is_program_name_valid(name) => format!("{name}.aleo"),
+                Some(name) if Package::<CurrentNetwork>::is_aleo_name_valid(name) => format!("{name}.aleo"),
                 name => return Err(PackageError::invalid_file_name_dependency(name.clone().unwrap()).into()),
             };
 

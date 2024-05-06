@@ -17,6 +17,7 @@
 use super::*;
 
 use clap::Parser;
+use leo_package::package::Package;
 
 /// Query transaction information.
 #[derive(Parser, Debug)]
@@ -54,7 +55,7 @@ impl Command for Transaction {
             is_valid_transition_id(&transition)?;
             format!("find/transactionID/{transition}")
         } else if let Some(program) = self.from_program {
-            // TODO: Validate program name.
+            Package::<CurrentNetwork>::is_aleo_name_valid(&program);
             format!("find/transactionID/deployment/{program}")
         } else if let Some(id) = self.id {
             is_valid_transaction_id(&id)?;
