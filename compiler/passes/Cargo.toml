@@ -47,7 +47,7 @@ version = "1.9"
 version = "0.12.1"
 
 [dependencies.num-traits]
-version = "0.2.18"
+version = "0.2.19"
 
 [dependencies.serde]
 version = "1.0"
