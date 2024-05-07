@@ -165,7 +165,7 @@ version = "0.3.18"
 features = [ "fmt" ]
 
 [dependencies.zip]
-version = "^1.1"
+version = "^1.2"
 
 [dependencies.crossterm]
 version = "0.27.0"
