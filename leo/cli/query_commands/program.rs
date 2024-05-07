@@ -49,15 +49,17 @@ impl Command for Program {
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
-        Package::<CurrentNetwork>::is_aleo_name_valid(&self.name);
+        // Check that the program name is valid.
+        let program = check_valid_program_name(self.name);
         // Build custom url to fetch from based on the flags and user's input.
         let url = if let Some(mapping_info) = self.mapping_value {
+            // Check that the mapping name is valid.
             Package::<CurrentNetwork>::is_aleo_name_valid(&mapping_info[0]);
-            format!("program/{}/mapping/{}/{}", self.name, mapping_info[0], mapping_info[1])
+            format!("program/{}/mapping/{}/{}", program, mapping_info[0], mapping_info[1])
         } else if self.mappings {
-            format!("program/{}/mappings", self.name)
+            format!("program/{}/mappings", program)
         } else {
-            format!("program/{}", self.name)
+            format!("program/{}", program)
         };
 
         Ok(url)

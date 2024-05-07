@@ -40,6 +40,7 @@ pub use transaction::Transaction;
 use crate::cli::helpers::context::*;
 use leo_errors::{LeoError, Result, UtilError};
 
+use leo_package::package::Package;
 use tracing::span::Span;
 
 // A valid hash is 61 characters long, with preface "ab1" and all characters lowercase or numbers.
@@ -101,5 +102,16 @@ pub fn is_valid_field(field: &str) -> Result<String, LeoError> {
         Ok(field.to_string())
     } else {
         Err(UtilError::invalid_field(field).into())
+    }
+}
+
+// Checks if the string is a valid program name in Aleo.
+pub fn check_valid_program_name(name: String) -> String {
+    if name.ends_with(".aleo") {
+        Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..name.len() - 5]);
+        name
+    } else {
+        Package::<CurrentNetwork>::is_aleo_name_valid(&name);
+        format!("{}.aleo", name)
     }
 }

@@ -78,9 +78,9 @@ impl Command for Query {
             .call()
             .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
         if response.status() == 200 {
-            tracing::info!("✅ Successfully retrieved data from '{url}'.");
+            tracing::info!("✅ Successfully retrieved data from '{url}'.\n");
             // Unescape the newlines.
-            println!("{}", response.into_string().unwrap().replace("\\n", "\n"));
+            println!("{}\n", response.into_string().unwrap().replace("\\n", "\n"));
             Ok(())
         } else {
             Err(UtilError::network_error(url, response.status(), Default::default()).into())
