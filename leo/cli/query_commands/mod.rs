@@ -26,9 +26,15 @@ pub mod state_root;
 pub use state_root::StateRoot;
 
 pub mod committee;
-pub mod transaction;
 pub use committee::Committee;
 
+mod mempool;
+pub use mempool::Mempool;
+
+pub mod peers;
+pub use peers::Peers;
+
+pub mod transaction;
 pub use transaction::Transaction;
 
 use crate::cli::helpers::context::*;

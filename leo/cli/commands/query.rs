@@ -54,6 +54,22 @@ impl Command for Query {
             QueryCommands::Program { command } => command.apply(context, ())?,
             QueryCommands::Stateroot { command } => command.apply(context, ())?,
             QueryCommands::Committee { command } => command.apply(context, ())?,
+            QueryCommands::Mempool { command } => {
+                if self.endpoint == "http://api.explorer.aleo.org/v1" {
+                    tracing::warn!(
+                        "⚠️  `leo query mempool` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                    );
+                }
+                command.apply(context, ())?
+            }
+            QueryCommands::Peers { command } => {
+                if self.endpoint == "http://api.explorer.aleo.org/v1" {
+                    tracing::warn!(
+                        "⚠️  `leo query peers` is only valid when using a custom endpoint. Specify one using `--endpoint`."
+                    );
+                }
+                command.apply(context, ())?
+            }
         };
 
         // Make GET request to retrieve on-chain state.
@@ -98,5 +114,15 @@ enum QueryCommands {
     Committee {
         #[clap(flatten)]
         command: Committee,
+    },
+    #[clap(about = "Query transactions and transmissions from the memory pool")]
+    Mempool {
+        #[clap(flatten)]
+        command: Mempool,
+    },
+    #[clap(about = "Query peer information")]
+    Peers {
+        #[clap(flatten)]
+        command: Peers,
     },
 }
