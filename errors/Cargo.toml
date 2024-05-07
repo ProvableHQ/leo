@@ -45,4 +45,4 @@ version = "1.0.200"
 features = [ "derive", "rc" ]
 
 [dependencies.thiserror]
-version = "1.0.59"
+version = "1.0.60"
