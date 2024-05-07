@@ -1693,7 +1693,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "walkdir",
- "zip 1.1.4",
+ "zip 1.2.1",
 ]
 
 [[package]]
@@ -4785,9 +4785,9 @@ dependencies = [
 
 [[package]]
 name = "zip"
-version = "1.1.4"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cc23c04387f4da0374be4533ad1208cbb091d5c11d070dfef13676ad6497164"
+checksum = "006d078b7b6fc587bb25e022ad39e7086f44e5c4fef6076964ea601533241beb"
 dependencies = [
  "aes",
  "arbitrary",
@@ -4803,9 +4803,11 @@ dependencies = [
  "lzma-rs",
  "num_enum",
  "pbkdf2",
+ "rand",
  "sha1",
  "thiserror",
  "time",
+ "zeroize",
  "zopfli",
  "zstd",
 ]
