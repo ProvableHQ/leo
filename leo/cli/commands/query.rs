@@ -75,6 +75,7 @@ impl Command for Query {
         // Make GET request to retrieve on-chain state.
         let url = format!("{}/{}/{}", self.endpoint, self.network, output);
         let response = ureq::get(&url.clone())
+            .set(&format!("X-Aleo-Leo-{}", env!("CARGO_PKG_VERSION")), "true")
             .call()
             .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
         if response.status() == 200 {
