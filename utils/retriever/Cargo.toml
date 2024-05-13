@@ -1,6 +1,6 @@
 [package]
 name = "leo-retriever"
-version = "1.11.0"
+version = "1.12.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "A retriever for the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,23 +19,23 @@ edition = "2021"
 rust-version = "1.69"
 
 [dependencies.leo-ast]
-version = "1.11.0"
+version = "1.12.0"
 path = "../../compiler/ast"
 
 [dependencies.leo-disassembler]
-version = "1.11.0"
+version = "1.12.0"
 path = "../disassembler"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-passes]
-version = "1.11.0"
+version = "1.12.0"
 path = "../../compiler/passes"
 
 [dependencies.leo-span]
-version = "1.11.0"
+version = "1.12.0"
 path = "../../compiler/span"
 
 [dependencies.aleo-std]
