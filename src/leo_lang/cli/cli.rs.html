@@ -836,22 +836,6 @@
 <a href="#834" id="834">834</a>
 <a href="#835" id="835">835</a>
 <a href="#836" id="836">836</a>
-<a href="#837" id="837">837</a>
-<a href="#838" id="838">838</a>
-<a href="#839" id="839">839</a>
-<a href="#840" id="840">840</a>
-<a href="#841" id="841">841</a>
-<a href="#842" id="842">842</a>
-<a href="#843" id="843">843</a>
-<a href="#844" id="844">844</a>
-<a href="#845" id="845">845</a>
-<a href="#846" id="846">846</a>
-<a href="#847" id="847">847</a>
-<a href="#848" id="848">848</a>
-<a href="#849" id="849">849</a>
-<a href="#850" id="850">850</a>
-<a href="#851" id="851">851</a>
-<a href="#852" id="852">852</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -870,7 +854,6 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::cli::{commands::<span class="kw-2">*</span>, context::<span class="kw-2">*</span>, helpers::<span class="kw-2">*</span>};
 <span class="kw">use </span>clap::Parser;
-<span class="kw">use </span>colored::Colorize;
 <span class="kw">use </span>leo_errors::Result;
 <span class="kw">use </span>std::{path::PathBuf, process::exit};
 
@@ -978,22 +961,7 @@
         Commands::Add { command } =&gt; command.try_execute(context),
         Commands::Account { command } =&gt; command.try_execute(context),
         Commands::New { command } =&gt; command.try_execute(context),
-        Commands::Build { command } =&gt; {
-            <span class="comment">// Enter tracing span
-            </span><span class="kw">let </span>span = command.log_span();
-            <span class="kw">let </span>span = span.enter();
-
-            <span class="comment">// Leo build is deprecated in version 1.9.0
-            </span><span class="macro">tracing::info!</span>(
-                <span class="string">"⚠️  Attention - This command is deprecated. Use the {} command.\n"</span>,
-                <span class="string">"'run'"</span>.to_string().bold()
-            );
-
-            <span class="comment">// Drop tracing span
-            </span>drop(span);
-
-            command.try_execute(context)
-        }
+        Commands::Build { command } =&gt; command.try_execute(context),
         Commands::Clean { command } =&gt; command.try_execute(context),
         Commands::Deploy { command } =&gt; command.try_execute(context),
         Commands::Example { command } =&gt; command.try_execute(context),
