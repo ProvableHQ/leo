@@ -199,6 +199,7 @@ impl<'a> CodeGenerator<'a> {
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.variable_mapping.insert(&sym::block, "block".to_string());
+        self.variable_mapping.insert(&sym::network, "network".to_string());
         self.current_function = Some(function);
 
         // Construct the header of the function.

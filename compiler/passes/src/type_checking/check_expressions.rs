@@ -196,22 +196,12 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Expression::Identifier(identifier) if identifier.name == sym::SelfLower => match access.name.name {
                         sym::caller => {
                             // Check that the operation is not invoked in a `finalize` block.
-                            if self.scope_state.variant == Some(Variant::AsyncFunction) {
-                                self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
-                                    "self.caller",
-                                    access.name.span(),
-                                ))
-                            }
+                            self.check_access_allowed("self.caller", false, access.name.span());
                             return Some(Type::Address);
                         }
                         sym::signer => {
                             // Check that operation is not invoked in a `finalize` block.
-                            if self.scope_state.variant == Some(Variant::AsyncFunction) {
-                                self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(
-                                    "self.signer",
-                                    access.name.span(),
-                                ))
-                            }
+                            self.check_access_allowed("self.signer", false, access.name.span());
                             return Some(Type::Address);
                         }
                         _ => {
@@ -222,13 +212,19 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                     Expression::Identifier(identifier) if identifier.name == sym::block => match access.name.name {
                         sym::height => {
                             // Check that the operation is invoked in a `finalize` block.
-                            if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                                self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                                    "block.height",
-                                    access.name.span(),
-                                ))
-                            }
+                            self.check_access_allowed("block.height", true, access.name.span());
                             return Some(Type::Integer(IntegerType::U32));
+                        }
+                        _ => {
+                            self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));
+                        }
+                    },
+                    // If the access expression is of the form `network.<name>`, then check that the <name> is valid.
+                    Expression::Identifier(identifier) if identifier.name == sym::network => match access.name.name {
+                        sym::id => {
+                            // Check that the operation is not invoked outside a `finalize` block.
+                            self.check_access_allowed("network.id", true, access.name.span());
+                            return Some(Type::Integer(IntegerType::U16));
                         }
                         _ => {
                             self.emit_err(TypeCheckerError::invalid_block_access(access.name.span()));

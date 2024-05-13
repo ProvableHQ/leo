@@ -441,8 +441,8 @@ impl ParserContext<'_> {
 
     // Parses an external function call `credits.aleo/transfer()` or locator `token.aleo/accounts`.
     fn parse_external_resource(&mut self, expr: Expression, network_span: Span) -> Result<Expression> {
-        // Eat an external function call.
-        self.eat(&Token::Div); // todo: Make `/` a more general token.
+        // Parse `/`.
+        self.expect(&Token::Div)?;
 
         // Parse name.
         let name = self.expect_identifier()?;
@@ -507,8 +507,35 @@ impl ParserContext<'_> {
                 } else if self.eat(&Token::Leo) {
                     return Err(ParserError::only_aleo_external_calls(expr.span()).into());
                 } else if self.eat(&Token::Aleo) {
-                    expr = self.parse_external_resource(expr, self.prev_token.span)?;
+                    if self.token.token == Token::Div {
+                        expr = self.parse_external_resource(expr, self.prev_token.span)?;
+                    } else {
+                        // Parse as address literal, e.g. `hello.aleo`.
+                        if !matches!(expr, Expression::Identifier(_)) {
+                            self.emit_err(ParserError::unexpected(expr.to_string(), "an identifier", expr.span()))
+                        }
+
+                        expr = Expression::Literal(Literal::Address(
+                            format!("{}.aleo", expr),
+                            expr.span(),
+                            self.node_builder.next_id(),
+                        ))
+                    }
                 } else {
+                    // Parse instances of `self.address`.
+                    if let Expression::Identifier(id) = expr {
+                        if id.name == sym::SelfLower && self.token.token == Token::Address {
+                            let span = self.expect(&Token::Address)?;
+                            // Convert `self.address` to the current program name. TODO: Move this conversion to canonicalization pass when the new pass is added.
+                            // Note that the unwrap is safe as in order to get to this stage of parsing a program name must have already been parsed.
+                            return Ok(Expression::Literal(Literal::Address(
+                                format!("{}.aleo", self.program_name.unwrap()),
+                                expr.span() + span,
+                                self.node_builder.next_id(),
+                            )));
+                        }
+                    }
+
                     // Parse identifier name.
                     let name = self.expect_identifier()?;
 
@@ -768,6 +795,9 @@ impl ParserContext<'_> {
             }
             Token::Future => {
                 Expression::Identifier(Identifier { name: sym::Future, span, id: self.node_builder.next_id() })
+            }
+            Token::Network => {
+                Expression::Identifier(Identifier { name: sym::network, span, id: self.node_builder.next_id() })
             }
             t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
                 name: t.keyword_to_symbol().unwrap(),

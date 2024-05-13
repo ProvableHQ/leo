@@ -272,6 +272,8 @@ symbols! {
     stub,
     block,
     height,
+    network,
+    id,
 }
 
 /// An interned string.

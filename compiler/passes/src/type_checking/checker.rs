@@ -936,10 +936,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::get", function_span))
-                }
+                self.check_access_allowed("Mapping::get", true, function_span);
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
@@ -952,12 +949,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingGetOrUse => {
                 // Check that the operation is invoked in a `finalize` block.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        "Mapping::get_or",
-                        function_span,
-                    ))
-                }
+                self.check_access_allowed("Mapping::get_or", true, function_span);
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
@@ -972,10 +964,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingSet => {
                 // Check that the operation is invoked in a `finalize` block.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                    self.handler
-                        .emit_err(TypeCheckerError::invalid_operation_outside_finalize("Mapping::set", function_span))
-                }
+                self.check_access_allowed("Mapping::set", true, function_span);
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
@@ -994,12 +983,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingRemove => {
                 // Check that the operation is invoked in a `finalize` block.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        "Mapping::remove",
-                        function_span,
-                    ))
-                }
+                self.check_access_allowed("Mapping::remove", true, function_span);
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Cannot modify external mappings.
@@ -1017,12 +1001,7 @@ impl<'a> TypeChecker<'a> {
             }
             CoreFunction::MappingContains => {
                 // Check that the operation is invoked in a `finalize` block.
-                if self.scope_state.variant != Some(Variant::AsyncFunction) {
-                    self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(
-                        "Mapping::contains",
-                        function_span,
-                    ))
-                }
+                self.check_access_allowed("Mapping::contains", true, function_span);
                 // Check that the first argument is a mapping.
                 if let Some(mapping_type) = self.assert_mapping_type(&arguments[0].0, arguments[0].1) {
                     // Check that the second argument matches the key type of the mapping.
@@ -1396,6 +1375,16 @@ impl<'a> TypeChecker<'a> {
             })
         {
             self.handler.emit_err(err);
+        }
+    }
+
+    // Checks if the access operation is valid inside the current function variant.
+    pub(crate) fn check_access_allowed(&mut self, name: &str, finalize_op: bool, span: Span) {
+        // Check that the function context matches.
+        if self.scope_state.variant == Some(Variant::AsyncFunction) && !finalize_op {
+            self.handler.emit_err(TypeCheckerError::invalid_operation_inside_finalize(name, span))
+        } else if self.scope_state.variant != Some(Variant::AsyncFunction) && finalize_op {
+            self.handler.emit_err(TypeCheckerError::invalid_operation_outside_finalize(name, span))
         }
     }
 }
