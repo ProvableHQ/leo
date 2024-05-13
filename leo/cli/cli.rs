@@ -36,7 +36,7 @@ pub struct CLI {
     #[clap(long, global = true, help = "Path to Leo program root folder")]
     path: Option<PathBuf>,
 
-    #[clap(long, global = true, help = "Path to aleo program registry.")]
+    #[clap(long, global = true, help = "Path to aleo program registry")]
     pub home: Option<PathBuf>,
 }
 
@@ -72,6 +72,11 @@ enum Commands {
     Deploy {
         #[clap(flatten)]
         command: Deploy,
+    },
+    #[clap(about = "Query live data from the Aleo network")]
+    Query {
+        #[clap(flatten)]
+        command: Query,
     },
     #[clap(about = "Compile the current package as a program")]
     Build {
@@ -144,6 +149,7 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
             command.try_execute(context)
         }
+        Commands::Query { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),

@@ -60,11 +60,11 @@ impl Command for Add {
         // Allow both `credits.aleo` and `credits` syntax.
         let name: String = match &self.name {
             name if name.ends_with(".aleo")
-                && Package::<CurrentNetwork>::is_program_name_valid(&name[0..self.name.len() - 5]) =>
+                && Package::<CurrentNetwork>::is_aleo_name_valid(&name[0..self.name.len() - 5]) =>
             {
                 name.clone()
             }
-            name if Package::<CurrentNetwork>::is_program_name_valid(name) => format!("{name}.aleo"),
+            name if Package::<CurrentNetwork>::is_aleo_name_valid(name) => format!("{name}.aleo"),
             name => return Err(PackageError::invalid_file_name_dependency(name).into()),
         };
 
