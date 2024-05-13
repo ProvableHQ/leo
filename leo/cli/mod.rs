@@ -23,9 +23,6 @@ pub use commands::*;
 mod helpers;
 pub use helpers::*;
 
-mod query_commands;
-pub use query_commands::*;
-
 pub(crate) type CurrentNetwork = snarkvm::prelude::MainnetV0;
 pub(crate) const SNARKVM_COMMAND: &str = "snarkvm";
 

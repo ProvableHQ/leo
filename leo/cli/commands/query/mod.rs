@@ -16,6 +16,30 @@
 
 use super::*;
 
+mod block;
+use block::Block;
+
+mod program;
+use program::Program;
+
+mod state_root;
+use state_root::StateRoot;
+
+mod committee;
+use committee::Committee;
+
+mod mempool;
+use mempool::Mempool;
+
+mod peers;
+use peers::Peers;
+
+mod transaction;
+use transaction::Transaction;
+
+mod utils;
+use utils::*;
+
 use leo_errors::UtilError;
 
 ///  Query live data from the Aleo network.
