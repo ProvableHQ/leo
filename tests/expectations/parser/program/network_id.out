@@ -16,14 +16,13 @@ outputs:
               variant: Function
               identifier: "{\"id\":\"2\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":34,\\\"hi\\\":38}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"3\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
-                    mode: None
-                    type_: Address
-                    span:
-                      lo: 39
-                      hi: 40
-                    id: 4
+                - identifier: "{\"id\":\"3\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":39,\\\"hi\\\":40}\"}"
+                  mode: None
+                  type_: Address
+                  span:
+                    lo: 39
+                    hi: 40
+                  id: 4
               output: []
               output_type: Unit
               block:

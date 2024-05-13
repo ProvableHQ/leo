@@ -83,7 +83,8 @@ impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
             }
 
             // If the variable exists and its in an async function, then check that it is in the current scope.
-            if self.scope_state.is_async
+            // Note that this unwrap is safe because the scope state is initalized before traversing the function.
+            if self.scope_state.variant.unwrap().is_async_function()
                 && self.scope_state.is_conditional
                 && self
                     .symbol_table

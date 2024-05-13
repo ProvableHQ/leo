@@ -8,26 +8,26 @@ program test.aleo {
     mapping values: u8 => u8;
     
     async transition mint_public(public receiver: address, public amount: u64) -> Future {
-        return then finalize(receiver, amount);
+        return finalize_mint_public(receiver, amount);
     }
     
-    finalize mint_public (public receiver: address, public amount: u64) {
+    async function finalize_mint_public(public receiver: address, public amount: u64) {
         increment(account, receiver, amount);
     }
     
-    transition public_adder(public a: u8, public b: u8) {
-        return then finalize(a, b);
+    async transition public_adder(public a: u8, public b: u8) -> Future {
+        return finalize_public_adder(a, b);
     }
 
-    finalize public_adder(a: u8, b: u8) -> public u8 {
+    async function finalize_public_adder(a: u8, b: u8) -> public u8 {
         return a + b;
     }
     
-    transition finalize_no_params() {
-        return then finalize();
+    async transition finalize_no_params() -> Future {
+        return finalize_no_params();
     }
     
-    finalize finalize_no_params() {
+    async function finalize_no_params() {
         increment(values, 0u8, 1u8);
         increment(account, self.caller, 1u64);
     }

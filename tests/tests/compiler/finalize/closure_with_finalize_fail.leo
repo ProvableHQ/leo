@@ -4,8 +4,8 @@ expectation: Fail
 */
 
 program test.aleo {    
-    function foo(a: u8, b: u8) -> u8 {
-        return a + b then finalize(a, b);
+    function foo(a: u8, b: u8) -> Future {
+        return finalize_bar(a, b);
     }
     
     function bar(a: u8, b: u8) -> u8 {

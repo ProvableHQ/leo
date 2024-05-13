@@ -41,8 +41,6 @@ pub struct ScopeState {
     pub(crate) is_call: bool,
     /// Location of most recent external call that produced a future.
     pub(crate) call_location: Option<Location>,
-    /// Whether currently traversing an async function.
-    pub(crate) is_async: bool,
 }
 
 impl ScopeState {
@@ -60,7 +58,6 @@ impl ScopeState {
             is_conditional: false,
             is_call: false,
             call_location: None,
-            is_async: false,
         }
     }
 
