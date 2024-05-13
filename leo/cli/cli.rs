@@ -16,7 +16,6 @@
 
 use crate::cli::{commands::*, context::*, helpers::*};
 use clap::Parser;
-use colored::Colorize;
 use leo_errors::Result;
 use std::{path::PathBuf, process::exit};
 
