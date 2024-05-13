@@ -53,7 +53,7 @@ impl<N: Network> Package<N> {
 
     /// Returns `true` if it is a valid Aleo name.
     ///
-    /// Ale names can only contain ASCII alphanumeric characters and underscores.
+    /// Aleo names can only contain ASCII alphanumeric characters and underscores.
     pub fn is_aleo_name_valid(name: &str) -> bool {
         // Check that the name is nonempty.
         if name.is_empty() {
