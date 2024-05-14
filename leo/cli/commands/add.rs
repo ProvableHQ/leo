@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_retriever::{Dependency, Location, Manifest, Network};
+use leo_retriever::{Dependency, Location, Manifest, NetworkName};
 use std::path::PathBuf;
 
 /// Add a new on-chain or local dependency to the current package.
@@ -28,7 +28,7 @@ pub struct Add {
     #[clap(short = 'l', long, help = "Path to local dependency")]
     pub(crate) local: Option<PathBuf>,
 
-    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "testnet3")]
+    #[clap(short = 'n', long, help = "Name of the network to use", default_value = "mainnet")]
     pub(crate) network: String,
 
     #[clap(short = 'c', long, help = "Clear all previous dependencies.", default_value = "false")]
@@ -113,7 +113,7 @@ impl Command for Add {
             }
             None => {
                 tracing::info!("✅ Added network dependency to program `{name}` from network `{}`.", self.network);
-                Dependency::new(name, Location::Network, Some(Network::from(&self.network)), None)
+                Dependency::new(name, Location::Network, Some(NetworkName::from(&self.network)), None)
             }
         });
 

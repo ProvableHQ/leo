@@ -26,6 +26,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+type CurrentNetwork = snarkvm::prelude::MainnetV0;
+
 #[derive(Debug, Parser)]
 #[clap(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
 struct Opt {
@@ -48,7 +50,7 @@ fn main() -> Result<(), String> {
 
         Handler::with(|h| {
             let node_builder = NodeBuilder::default();
-            let ast = leo_parser::parse_ast(h, &node_builder, &code.src, code.start_pos)?;
+            let ast = leo_parser::parse_ast::<CurrentNetwork>(h, &node_builder, &code.src, code.start_pos)?;
             let json = Ast::to_json_string(&ast)?;
             println!("{json}");
             Ok(json)

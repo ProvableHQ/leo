@@ -2,7 +2,7 @@ name: Code Coverage
 on:
   push:
     branches:
-      - testnet3
+      - mainnet
     paths-ignore:
       - 'docs/**'
       - 'documentation/**'

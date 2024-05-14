@@ -23,10 +23,14 @@ pub use program_context::*;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aleo_std::aleo_dir;
     use leo_span::{symbol::create_session_if_not_set_then, Symbol};
+
+    use aleo_std::aleo_dir;
+
     use serial_test::serial;
     use std::path::PathBuf;
+
+    type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
     #[test]
     #[ignore]
@@ -38,9 +42,13 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let home_dir = PathBuf::from(HOME_DIRECTORY);
-            let mut retriever =
-                Retriever::new(Symbol::intern("nested"), &build_dir, &home_dir, "http://0.0.0.0:3030".to_string())
-                    .expect("Failed to build retriever");
+            let mut retriever = Retriever::<CurrentNetwork>::new(
+                Symbol::intern("nested"),
+                &build_dir,
+                &home_dir,
+                "http://0.0.0.0:3030".to_string(),
+            )
+            .expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("nested")).expect("failed to prepare local");
             retriever.process_local(Symbol::intern("nested"), true).expect("failed to process local");
@@ -57,9 +65,13 @@ mod tests {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
 
             println!("aleo_dir: {:?}", aleo_dir());
-            let mut retriever =
-                Retriever::new(Symbol::intern("nested"), &build_dir, &aleo_dir(), "http://0.0.0.0:3030".to_string())
-                    .expect("Failed to build retriever");
+            let mut retriever = Retriever::<CurrentNetwork>::new(
+                Symbol::intern("nested"),
+                &build_dir,
+                &aleo_dir(),
+                "http://0.0.0.0:3030".to_string(),
+            )
+            .expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("nested")).expect("failed to prepare local");
             retriever.process_local(Symbol::intern("nested"), true).expect("failed to process local");
@@ -76,9 +88,13 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let home_dir = PathBuf::from(HOME_DIRECTORY);
-            let mut retriever =
-                Retriever::new(Symbol::intern("simple"), &build_dir, &home_dir, "http://0.0.0.0:3030".to_string())
-                    .expect("Failed to build retriever");
+            let mut retriever = Retriever::<CurrentNetwork>::new(
+                Symbol::intern("simple"),
+                &build_dir,
+                &home_dir,
+                "http://0.0.0.0:3030".to_string(),
+            )
+            .expect("Failed to build retriever");
             retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("simple")).expect("failed to prepare local");
             retriever.process_local(Symbol::intern("simple"), true).expect("failed to process local");
@@ -95,9 +111,13 @@ mod tests {
         create_session_if_not_set_then(|_| {
             let build_dir = PathBuf::from(BUILD_DIRECTORY);
             let home_dir = PathBuf::from(HOME_DIRECTORY);
-            let mut retriever =
-                Retriever::new(Symbol::intern("local_test"), &build_dir, &home_dir, "http://0.0.0.0:3030".to_string())
-                    .expect("Failed to build retriever");
+            let mut retriever = Retriever::<CurrentNetwork>::new(
+                Symbol::intern("local_test"),
+                &build_dir,
+                &home_dir,
+                "http://0.0.0.0:3030".to_string(),
+            )
+            .expect("Failed to build retriever");
             let _deps = retriever.retrieve().expect("failed to retrieve");
             retriever.prepare_local(Symbol::intern("nested")).expect("failed to prepare local");
             // retriever.process_local(Symbol::intern("nested")).expect("failed to process local");

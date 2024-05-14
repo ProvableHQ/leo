@@ -214,7 +214,7 @@ fn print_keys(private_key: PrivateKey<CurrentNetwork>, discreet: bool) -> Result
 
 // Write the network and private key to the .env file in project directory.
 fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> Result<()> {
-    let data = format!("NETWORK=testnet3\nPRIVATE_KEY={private_key}\n");
+    let data = format!("NETWORK=mainnet\nPRIVATE_KEY={private_key}\n");
     let program_dir = ctx.dir()?;
     Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());

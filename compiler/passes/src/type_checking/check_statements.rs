@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::*;
 use crate::{ConditionalTreeNode, TypeChecker, VariableSymbol, VariableType};
-use itertools::Itertools;
 
 use leo_ast::{
     Type::{Future, Tuple},
@@ -23,7 +23,9 @@ use leo_ast::{
 };
 use leo_errors::TypeCheckerError;
 
-impl<'a> StatementVisitor<'a> for TypeChecker<'a> {
+use itertools::Itertools;
+
+impl<'a, N: Network> StatementVisitor<'a> for TypeChecker<'a, N> {
     fn visit_statement(&mut self, input: &'a Statement) {
         // No statements can follow a return statement.
         if self.scope_state.has_return {

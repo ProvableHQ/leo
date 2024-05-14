@@ -31,6 +31,8 @@ use serde::Serialize;
 use serde_yaml::Value;
 use tokenizer::Token;
 
+type CurrentNetwork = snarkvm::prelude::MainnetV0;
+
 // TODO: Enable parser warnings for passing tests
 
 struct TokenNamespace;
@@ -49,7 +51,7 @@ impl Namespace for TokenNamespace {
     }
 }
 
-fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
+fn not_fully_consumed(tokens: &mut ParserContext<CurrentNetwork>) -> Result<(), String> {
     if !tokens.has_next() {
         return Ok(());
     }
@@ -64,7 +66,7 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
 
 fn with_handler<T>(
     tokens: Vec<SpannedToken>,
-    logic: impl FnOnce(&mut ParserContext<'_>) -> Result<T, LeoError>,
+    logic: impl FnOnce(&mut ParserContext<'_, CurrentNetwork>) -> Result<T, LeoError>,
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
     let node_builder = NodeBuilder::default();

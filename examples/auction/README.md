@@ -44,8 +44,8 @@ When executing programs as different parties, be sure to set the `PRIVATE_KEY` f
 See `./run.sh` for an example of how to run the program as different parties.
 
 
-The [Aleo SDK](https://github.com/AleoHQ/leo/tree/testnet3) provides an interface for generating new accounts.
-To generate a new account, navigate to [aleo.tools](https://aleo.tools).
+The [Aleo SDK](https://github.com/AleoHQ/leo/tree/mainnet) provides an interface for generating new accounts.
+To generate a new account, navigate to [provable.tools](https://provable.tools).
 
 
 ### Providing inputs via the command line.

@@ -18,29 +18,29 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 // Retrievable networks for an external program
-#[derive(Debug, Clone, std::cmp::Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum Network {
-    #[serde(rename = "testnet3")]
-    Testnet3,
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub enum NetworkName {
+    #[serde(rename = "testnet")]
+    TestnetV0,
     #[serde(rename = "mainnet")]
-    Mainnet,
+    MainnetV0,
 }
 
-impl From<&String> for Network {
+impl From<&String> for NetworkName {
     fn from(network: &String) -> Self {
         match network.to_ascii_lowercase().as_str() {
-            "testnet3" => Network::Testnet3,
-            "mainnet" => Network::Mainnet,
+            "testnet" => NetworkName::TestnetV0,
+            "mainnet" => NetworkName::MainnetV0,
             _ => panic!("Invalid network"),
         }
     }
 }
 
-impl fmt::Display for Network {
+impl fmt::Display for NetworkName {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Network::Testnet3 => write!(f, "testnet3"),
-            Network::Mainnet => write!(f, "mainnet"),
+            NetworkName::TestnetV0 => write!(f, "testnet"),
+            NetworkName::MainnetV0 => write!(f, "mainnet"),
         }
     }
 }

@@ -23,18 +23,13 @@ use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::Sour
 use leo_retriever::Retriever;
 use leo_span::Symbol;
 
-use snarkvm::{
-    package::Package,
-    prelude::{MainnetV0, ProgramID},
-};
+use snarkvm::{package::Package, prelude::ProgramID};
 
 use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-type CurrentNetwork = MainnetV0;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -109,8 +104,9 @@ impl Command for Build {
 
         // Retrieve all local dependencies in post order
         let main_sym = Symbol::intern(&program_id.name().to_string());
-        let mut retriever = Retriever::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
-            .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        let mut retriever =
+            Retriever::<CurrentNetwork>::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
+                .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
         let mut local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
@@ -142,7 +138,7 @@ impl Command for Build {
                 for file_path in local_source_files {
                     compile_leo_file(
                         file_path,
-                        &ProgramID::<MainnetV0>::try_from(format!("{}.aleo", dependency))
+                        &ProgramID::<CurrentNetwork>::try_from(format!("{}.aleo", dependency))
                             .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
                         &local_outputs_directory,
                         &local_build_directory,
@@ -186,7 +182,7 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    program_id: &ProgramID<MainnetV0>,
+    program_id: &ProgramID<CurrentNetwork>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
@@ -201,7 +197,7 @@ fn compile_leo_file(
     aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::new(
+    let mut compiler = Compiler::<CurrentNetwork>::new(
         program_name.clone(),
         program_id.network().to_string(),
         handler,
