@@ -34,10 +34,17 @@ pub use parser::*;
 use leo_ast::{Ast, NodeBuilder};
 use leo_errors::{emitter::Handler, Result};
 
+use snarkvm::prelude::Network;
+
 #[cfg(test)]
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast(handler: &Handler, node_builder: &NodeBuilder, source: &str, start_pos: BytePos) -> Result<Ast> {
-    Ok(Ast::new(parser::parse(handler, node_builder, source, start_pos)?))
+pub fn parse_ast<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Ast> {
+    Ok(Ast::new(parse::<N>(handler, node_builder, source, start_pos)?))
 }

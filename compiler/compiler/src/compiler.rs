@@ -17,6 +17,9 @@
 //! The compiler for Leo programs.
 //!
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
+
+use crate::CompilerOptions;
+
 pub use leo_ast::Ast;
 use leo_ast::{NodeBuilder, Program, Stub};
 use leo_errors::{emitter::Handler, CompilerError, Result};
@@ -24,15 +27,15 @@ pub use leo_passes::SymbolTable;
 use leo_passes::*;
 use leo_span::{source_map::FileName, symbol::with_session_globals, Symbol};
 
+use snarkvm::prelude::Network;
+
+use indexmap::{IndexMap, IndexSet};
 use sha2::{Digest, Sha256};
 use std::{fs, path::PathBuf};
 
-use crate::CompilerOptions;
-use indexmap::{IndexMap, IndexSet};
-
 /// The primary entry point of the Leo compiler.
 #[derive(Clone)]
-pub struct Compiler<'a> {
+pub struct Compiler<'a, N: Network> {
     /// The handler is used for error and warning emissions.
     handler: &'a Handler,
     /// The path to the main leo file.
@@ -55,9 +58,11 @@ pub struct Compiler<'a> {
     type_table: TypeTable,
     /// The stubs for imported programs. Produced by `Retriever` module.
     import_stubs: IndexMap<Symbol, Stub>,
+    // Allows the compiler to be generic over the network.
+    phantom: std::marker::PhantomData<N>,
 }
 
-impl<'a> Compiler<'a> {
+impl<'a, N: Network> Compiler<'a, N> {
     /// Returns a new Leo compiler.
     pub fn new(
         program_name: String,
@@ -83,6 +88,7 @@ impl<'a> Compiler<'a> {
             assigner,
             import_stubs,
             type_table,
+            phantom: Default::default(),
         }
     }
 
@@ -106,7 +112,7 @@ impl<'a> Compiler<'a> {
         let prg_sf = with_session_globals(|s| s.source_map.new_source(program_string, name));
 
         // Use the parser to construct the abstract syntax tree (ast).
-        self.ast = leo_parser::parse_ast(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
+        self.ast = leo_parser::parse_ast::<N>(self.handler, &self.node_builder, &prg_sf.src, prg_sf.start_pos)?;
 
         // If the program is imported, then check that the name of its program scope matches the file name.
         // Note that parsing enforces that there is exactly one program scope in a file.
@@ -149,7 +155,7 @@ impl<'a> Compiler<'a> {
 
     /// Runs the type checker pass.
     pub fn type_checker_pass(&'a self, symbol_table: SymbolTable) -> Result<(SymbolTable, StructGraph, CallGraph)> {
-        let (symbol_table, struct_graph, call_graph) = TypeChecker::do_pass((
+        let (symbol_table, struct_graph, call_graph) = TypeChecker::<N>::do_pass((
             &self.ast,
             self.handler,
             symbol_table,

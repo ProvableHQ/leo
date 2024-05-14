@@ -20,11 +20,13 @@ use leo_ast::*;
 use leo_errors::{emitter::Handler, ParserError, ParserWarning, Result};
 use leo_span::{Span, Symbol};
 
-use std::{fmt::Display, mem};
+use snarkvm::prelude::Network;
+
+use std::{fmt::Display, marker::PhantomData, mem};
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-pub(crate) struct ParserContext<'a> {
+pub(crate) struct ParserContext<'a, N: Network> {
     /// Handler used to side-channel emit errors from the parser.
     pub(crate) handler: &'a Handler,
     /// Counter used to generate unique node ids.
@@ -41,12 +43,14 @@ pub(crate) struct ParserContext<'a> {
     pub(crate) disallow_struct_construction: bool,
     /// The name of the program being parsed.
     pub(crate) program_name: Option<Symbol>,
+    // Allows the parser to be generic over the network.
+    phantom: PhantomData<N>,
 }
 
 /// Dummy span used to appease borrow checker.
 const DUMMY_EOF: SpannedToken = SpannedToken { token: Token::Eof, span: Span::dummy() };
 
-impl<'a> ParserContext<'a> {
+impl<'a, N: Network> ParserContext<'a, N> {
     /// Returns a new [`ParserContext`] type given a vector of tokens.
     pub fn new(handler: &'a Handler, node_builder: &'a NodeBuilder, mut tokens: Vec<SpannedToken>) -> Self {
         // Strip out comments.
@@ -63,6 +67,7 @@ impl<'a> ParserContext<'a> {
             token,
             tokens,
             program_name: None,
+            phantom: Default::default(),
         };
         p.bump();
         p

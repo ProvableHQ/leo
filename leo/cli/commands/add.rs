@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_retriever::{Dependency, Location, Manifest, Network};
+use leo_retriever::{Dependency, Location, Manifest, NetworkName};
 use std::path::PathBuf;
 
 /// Clean outputs folder command
@@ -78,7 +78,7 @@ impl Command for Add {
         // Add new dependency to manifest
         dependencies.push(match self.local {
             Some(local_path) => Dependency::new(name, Location::Local, None, Some(local_path)),
-            None => Dependency::new(name, Location::Network, Some(Network::from(&self.network)), None),
+            None => Dependency::new(name, Location::Network, Some(NetworkName::from(&self.network)), None),
         });
 
         // Update manifest

@@ -109,8 +109,9 @@ impl Command for Build {
 
         // Retrieve all local dependencies in post order
         let main_sym = Symbol::intern(&program_id.name().to_string());
-        let mut retriever = Retriever::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
-            .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
+        let mut retriever =
+            Retriever::<CurrentNetwork>::new(main_sym, &package_path, &home_path, self.options.endpoint.clone())
+                .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
         let mut local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))?;
 
@@ -186,7 +187,7 @@ impl Command for Build {
 #[allow(clippy::too_many_arguments)]
 fn compile_leo_file(
     file_path: PathBuf,
-    program_id: &ProgramID<MainnetV0>,
+    program_id: &ProgramID<CurrentNetwork>,
     outputs: &Path,
     build: &Path,
     handler: &Handler,
@@ -205,7 +206,7 @@ fn compile_leo_file(
     aleo_file_path.push(format!("main.{}", program_id.network()));
 
     // Create a new instance of the Leo compiler.
-    let mut compiler = Compiler::new(
+    let mut compiler = Compiler::<CurrentNetwork>::new(
         program_name,
         program_id.network().to_string(),
         handler,

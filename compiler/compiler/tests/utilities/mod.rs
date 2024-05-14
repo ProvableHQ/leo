@@ -156,7 +156,7 @@ pub fn new_compiler(
     main_file_path: PathBuf,
     compiler_options: Option<CompilerOptions>,
     import_stubs: IndexMap<Symbol, Stub>,
-) -> Compiler<'_> {
+) -> Compiler<'_, CurrentNetwork> {
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
@@ -178,7 +178,7 @@ pub fn parse_program<'a>(
     cwd: Option<PathBuf>,
     compiler_options: Option<CompilerOptions>,
     import_stubs: IndexMap<Symbol, Stub>,
-) -> Result<Compiler<'a>, LeoError> {
+) -> Result<Compiler<'a, CurrentNetwork>, LeoError> {
     let mut compiler = new_compiler(
         program_name,
         handler,
@@ -255,7 +255,7 @@ pub fn temp_dir() -> PathBuf {
     tempfile::tempdir().expect("Failed to open temporary directory").into_path()
 }
 
-pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a>) -> Result<String, LeoError> {
+pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> Result<String, LeoError> {
     parsed.add_import_stubs()?;
 
     let st = parsed.symbol_table_pass()?;

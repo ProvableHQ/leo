@@ -14,23 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod network;
-
-use indexmap::IndexSet;
-pub use network::*;
-use sha2::{Digest, Sha256};
-use std::path::{Path, PathBuf};
 pub mod location;
 pub use location::Location;
-pub mod manifest;
-pub use manifest::*;
+
 pub mod dependency;
 pub use dependency::*;
-use leo_ast::Stub;
-use leo_span::Symbol;
 
 pub mod lock_file_entry;
 pub use lock_file_entry::*;
+
+pub mod manifest;
+pub use manifest::*;
+
+pub mod network_name;
+pub use network_name::*;
+
+use leo_ast::Stub;
+use leo_span::Symbol;
+
+use indexmap::IndexSet;
+use sha2::{Digest, Sha256};
+use std::path::{Path, PathBuf};
+
 use std::fmt::Write;
 
 #[derive(Clone, Debug)]
@@ -38,7 +43,7 @@ pub struct ProgramContext {
     name: Symbol,
     full_name: String,
     location: Location,
-    network: Option<Network>,
+    network: Option<NetworkName>,
     path: Option<PathBuf>,
     full_path: Option<PathBuf>,
     compiled_file_path: Option<PathBuf>,
@@ -76,7 +81,7 @@ impl ProgramContext {
     }
 
     // Method to extract 'network', panics if `None`. Only safe to access if location is 'Network'
-    pub fn network(&self) -> &Network {
+    pub fn network(&self) -> &NetworkName {
         self.network.as_ref().expect("ProgramContext network is None")
     }
 
@@ -172,7 +177,7 @@ impl From<Dependency> for ProgramContext {
             name: Symbol::from(&dependency),
             full_name: dependency.name().clone(),
             location: dependency.location().clone(),
-            network: dependency.network().clone(),
+            network: *dependency.network(),
             path: dependency.path().clone(),
             full_path: None,
             compiled_file_path: None,
