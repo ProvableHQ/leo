@@ -418,6 +418,48 @@
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
 <a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -438,7 +480,7 @@
 
 <span class="kw">use </span>leo_errors::{ParserError, <span class="prelude-ty">Result</span>};
 
-<span class="kw">impl </span>ParserContext&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl</span>&lt;N: Network&gt; ParserContext&lt;<span class="lifetime">'_</span>, N&gt; {
     <span class="doccomment">/// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     </span><span class="kw">pub fn </span>parse_program(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Program&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>imports = IndexMap::new();
@@ -535,7 +577,7 @@
 
         <span class="comment">// Parse the body of the program scope.
         </span><span class="kw">let </span><span class="kw-2">mut </span>consts: Vec&lt;(Symbol, ConstDeclaration)&gt; = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>functions: Vec&lt;(Symbol, Function)&gt; = Vec::new();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>transitions, <span class="kw-2">mut </span>functions) = (Vec::new(), Vec::new());
         <span class="kw">let </span><span class="kw-2">mut </span>structs: Vec&lt;(Symbol, Composite)&gt; = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>mappings: Vec&lt;(Symbol, Mapping)&gt; = Vec::new();
 
@@ -553,9 +595,15 @@
                     <span class="kw">let </span>(id, mapping) = <span class="self">self</span>.parse_mapping()<span class="question-mark">?</span>;
                     mappings.push((id, mapping));
                 }
-                Token::At | Token::Function | Token::Transition | Token::Inline =&gt; {
+                Token::At | Token::Async | Token::Function | Token::Transition | Token::Inline =&gt; {
                     <span class="kw">let </span>(id, function) = <span class="self">self</span>.parse_function()<span class="question-mark">?</span>;
-                    functions.push((id, function));
+
+                    <span class="comment">// Partition into transitions and functions so that don't have to sort later.
+                    </span><span class="kw">if </span>function.variant.is_transition() {
+                        transitions.push((id, function));
+                    } <span class="kw">else </span>{
+                        functions.push((id, function));
+                    }
                 }
                 Token::RightCurly =&gt; <span class="kw">break</span>,
                 <span class="kw">_ </span>=&gt; {
@@ -576,7 +624,14 @@
         <span class="comment">// Parse `}`.
         </span><span class="kw">let </span>end = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::RightCurly)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(ProgramScope { program_id, consts, functions, structs, mappings, span: start + end })
+        <span class="prelude-val">Ok</span>(ProgramScope {
+            program_id,
+            consts,
+            functions: [transitions, functions].concat(),
+            structs,
+            mappings,
+            span: start + end,
+        })
     }
 
     <span class="doccomment">/// Returns a [`Vec&lt;Member&gt;`] AST node if the next tokens represent a struct member.
@@ -643,13 +698,10 @@
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::LeftCurly)<span class="question-mark">?</span>;
         <span class="kw">let </span>(members, end) = <span class="self">self</span>.parse_struct_members()<span class="question-mark">?</span>;
 
-        <span class="comment">// Only provide a program name for records.
-        </span><span class="kw">let </span>external = <span class="kw">if </span>is_record { <span class="self">self</span>.program_name } <span class="kw">else </span>{ <span class="prelude-val">None </span>};
-
         <span class="prelude-val">Ok</span>((struct_name.name, Composite {
             identifier: struct_name,
             members,
-            external,
+            external: <span class="self">self</span>.program_name,
             is_record,
             span: start + end,
             id: <span class="self">self</span>.node_builder.next_id(),
@@ -705,16 +757,84 @@
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
         <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Colon)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="kw">if </span><span class="self">self</span>.peek_is_external() {
+            <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>span = name.span + external.span;
 
-        <span class="prelude-val">Ok</span>(functions::Input { identifier: name, mode, type_, span: name.span, id: <span class="self">self</span>.node_builder.next_id() })
+            <span class="comment">// Parse `.leo/` or `.aleo/`.
+            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
+            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
+            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
+
+            <span class="comment">// Parse record name.
+            </span><span class="kw">let </span>record = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+
+            <span class="comment">// Parse `.record`.
+            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
+            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Record);
+            span = span + <span class="self">self</span>.prev_token.span;
+
+            <span class="prelude-val">Ok</span>(functions::Input::External(External {
+                identifier: name,
+                program_name: external,
+                record,
+                span,
+                id: <span class="self">self</span>.node_builder.next_id(),
+            }))
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>type_ = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>.<span class="number">0</span>;
+
+            <span class="prelude-val">Ok</span>(functions::Input::Internal(FunctionInput {
+                identifier: name,
+                mode,
+                type_,
+                span: name.span,
+                id: <span class="self">self</span>.node_builder.next_id(),
+            }))
+        }
+    }
+
+    <span class="doccomment">/// Returns a [`FunctionOutput`] AST node if the next tokens represent a function output.
+    </span><span class="kw">fn </span>parse_function_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;FunctionOutput&gt; {
+        <span class="comment">// TODO: Could this span be made more accurate?
+        </span><span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
+        <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(FunctionOutput { mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
     }
 
     <span class="doccomment">/// Returns a [`Output`] AST node if the next tokens represent a function output.
     </span><span class="kw">fn </span>parse_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Output&gt; {
-        <span class="kw">let </span>mode = <span class="self">self</span>.parse_mode()<span class="question-mark">?</span>;
-        <span class="kw">let </span>(type_, span) = <span class="self">self</span>.parse_type()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(Output { mode, type_, span, id: <span class="self">self</span>.node_builder.next_id() })
+        <span class="kw">if </span><span class="self">self</span>.peek_is_external() {
+            <span class="kw">let </span>external = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>span = external.span;
+
+            <span class="comment">// Parse `.leo/` or `.aleo/`.
+            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
+            <span class="self">self</span>.eat_any(<span class="kw-2">&amp;</span>[Token::Leo, Token::Aleo]);
+            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Div);
+
+            <span class="comment">// Parse record name.
+            </span><span class="kw">let </span>record = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
+
+            <span class="comment">// Parse `.record`.
+            </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Dot);
+            <span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Record);
+            span = span + <span class="self">self</span>.prev_token.span;
+
+            <span class="prelude-val">Ok</span>(Output::External(External {
+                identifier: Identifier::new(Symbol::intern(<span class="string">"dummy"</span>), <span class="self">self</span>.node_builder.next_id()),
+                program_name: external,
+                record,
+                span,
+                id: <span class="self">self</span>.node_builder.next_id(),
+            }))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(Output::Internal(<span class="self">self</span>.parse_function_output()<span class="question-mark">?</span>))
+        }
+    }
+
+    <span class="kw">pub fn </span>peek_is_external(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.token.token, <span class="self">self</span>.look_ahead(<span class="number">1</span>, |t| <span class="kw-2">&amp;</span>t.token)), (Token::Identifier(<span class="kw">_</span>), Token::Dot))
     }
 
     <span class="doccomment">/// Returns an [`Annotation`] AST node if the next tokens represent an annotation.
@@ -746,11 +866,19 @@
         <span class="kw">while </span><span class="self">self</span>.look_ahead(<span class="number">0</span>, |t| <span class="kw-2">&amp;</span>t.token) == <span class="kw-2">&amp;</span>Token::At {
             annotations.push(<span class="self">self</span>.parse_annotation()<span class="question-mark">?</span>)
         }
+        <span class="comment">// Parse a potential async signifier.
+        </span><span class="kw">let </span>(is_async, start_async) =
+            <span class="kw">if </span><span class="self">self</span>.token.token == Token::Async { (<span class="bool-val">true</span>, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Async)<span class="question-mark">?</span>) } <span class="kw">else </span>{ (<span class="bool-val">false</span>, Span::dummy()) };
         <span class="comment">// Parse `&lt;variant&gt; IDENT`, where `&lt;variant&gt;` is `function`, `transition`, or `inline`.
-        </span><span class="kw">let </span>(variant, start) = <span class="kw">match </span><span class="self">self</span>.token.token {
+        </span><span class="kw">let </span>(variant, start) = <span class="kw">match </span><span class="self">self</span>.token.token.clone() {
             Token::Inline =&gt; (Variant::Inline, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Inline)<span class="question-mark">?</span>),
-            Token::Function =&gt; (Variant::Standard, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>),
-            Token::Transition =&gt; (Variant::Transition, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>),
+            Token::Function =&gt; {
+                (<span class="kw">if </span>is_async { Variant::AsyncFunction } <span class="kw">else </span>{ Variant::Function }, <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Function)<span class="question-mark">?</span>)
+            }
+            Token::Transition =&gt; (
+                <span class="kw">if </span>is_async { Variant::AsyncTransition } <span class="kw">else </span>{ Variant::Transition },
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Transition)<span class="question-mark">?</span>,
+            ),
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">"'function', 'transition', or 'inline'"</span>)<span class="question-mark">?</span>,
         };
         <span class="kw">let </span>name = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
@@ -782,55 +910,11 @@
             <span class="kw">_ </span>=&gt; <span class="self">self</span>.unexpected(<span class="string">"block or semicolon"</span>)<span class="question-mark">?</span>,
         };
 
-        <span class="comment">// Parse the `finalize` block if it exists.
-        </span><span class="kw">let </span>finalize = <span class="kw">match </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Finalize) {
-            <span class="bool-val">false </span>=&gt; <span class="prelude-val">None</span>,
-            <span class="bool-val">true </span>=&gt; {
-                <span class="comment">// Get starting span.
-                </span><span class="kw">let </span>start = <span class="self">self</span>.prev_token.span;
+        <span class="kw">let </span>span = <span class="kw">if </span>start_async == Span::dummy() { start + block.span } <span class="kw">else </span>{ start_async + block.span };
 
-                <span class="comment">// Parse the identifier.
-                </span><span class="kw">let </span>identifier = <span class="self">self</span>.expect_identifier()<span class="question-mark">?</span>;
-
-                <span class="comment">// Parse parameters.
-                </span><span class="kw">let </span>(input, ..) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_input().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
-
-                <span class="comment">// Parse return type.
-                </span><span class="kw">let </span>output = <span class="kw">match </span><span class="self">self</span>.eat(<span class="kw-2">&amp;</span>Token::Arrow) {
-                    <span class="bool-val">false </span>=&gt; <span class="macro">vec!</span>[],
-                    <span class="bool-val">true </span>=&gt; {
-                        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">true</span>;
-                        <span class="kw">let </span>output = <span class="kw">match </span><span class="self">self</span>.peek_is_left_par() {
-                            <span class="bool-val">true </span>=&gt; <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_output().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>.<span class="number">0</span>,
-                            <span class="bool-val">false </span>=&gt; <span class="macro">vec!</span>[<span class="self">self</span>.parse_output()<span class="question-mark">?</span>],
-                        };
-                        <span class="self">self</span>.disallow_struct_construction = <span class="bool-val">false</span>;
-                        output
-                    }
-                };
-
-                <span class="comment">// Parse the finalize body.
-                </span><span class="kw">let </span>block = <span class="self">self</span>.parse_block()<span class="question-mark">?</span>;
-                <span class="kw">let </span>span = start + block.span;
-
-                <span class="prelude-val">Some</span>(Finalize::new(identifier, input, output, block, span, <span class="self">self</span>.node_builder.next_id()))
-            }
-        };
-
-        <span class="kw">let </span>span = start + block.span;
         <span class="prelude-val">Ok</span>((
             name.name,
-            Function::new(
-                annotations,
-                variant,
-                name,
-                inputs,
-                output,
-                block,
-                finalize,
-                span,
-                <span class="self">self</span>.node_builder.next_id(),
-            ),
+            Function::new(annotations, variant, name, inputs, output, block, span, <span class="self">self</span>.node_builder.next_id()),
         ))
     }
 }

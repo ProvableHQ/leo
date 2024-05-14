@@ -373,6 +373,33 @@
 <a href="#371" id="371">371</a>
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -745,5 +772,32 @@
         help: <span class="prelude-val">None</span>,
     }
 
+    @backtraced
+    invalid_file_name_dependency {
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The dependency program name `{name}` is invalid."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Aleo program names must only contain lower case letters, numbers and underscores."</span>.to_string()),
+    }
+
+    @backtraced
+    dependency_not_found {
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The dependency program `{name}` was not found among the manifest's dependencies."</span>),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    conflicting_on_chain_program_name {
+        args: (first: <span class="kw">impl </span>Display, second: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Conflicting program names given to execute on chain: `{first}` and `{second}`."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Either set `--local` to execute the local program on chain, or set `--program &lt;PROGRAM&gt;`."</span>.to_string()),
+    }
+
+    @backtraced
+    missing_on_chain_program_name {
+        args: (),
+        msg: <span class="string">"The name of the program to execute on-chain is missing."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Either set `--local` to execute the local program on chain, or set `--program &lt;PROGRAM&gt;`."</span>.to_string()),
+    }
 );
 </code></pre></div></section></main></body></html>

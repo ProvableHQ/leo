@@ -256,14 +256,6 @@
 <a href="#254" id="254">254</a>
 <a href="#255" id="255">255</a>
 <a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -481,11 +473,6 @@
 
     <span class="kw">fn </span>visit_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ReturnStatement) {
         <span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>input.expression, <span class="kw-2">&amp;</span>Default::default());
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(arguments) = <span class="kw-2">&amp;</span>input.finalize_arguments {
-            arguments.iter().for_each(|argument| {
-                <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span>Default::default());
-            })
-        }
     }
 }
 
@@ -519,9 +506,6 @@
 
     <span class="kw">fn </span>visit_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Function) {
         <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>input.block);
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span>input.finalize {
-            <span class="self">self</span>.visit_block(<span class="kw-2">&amp;</span>finalize.block);
-        }
     }
 
     <span class="kw">fn </span>visit_function_stub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>FunctionStub) {}

@@ -105,6 +105,19 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -122,25 +135,27 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-<span class="comment">//use snarkos_cli::commands::{Deploy as SnarkOSDeploy, Developer};
+<span class="kw">use </span>snarkos_cli::commands::{Deploy <span class="kw">as </span>SnarkOSDeploy, Developer};
+<span class="kw">use </span>snarkvm::cli::helpers::dotenv_private_key;
+<span class="kw">use </span>std::path::PathBuf;
 
-</span><span class="doccomment">/// Deploys an Aleo program.
+<span class="doccomment">/// Deploys an Aleo program.
 </span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>Deploy {
-    <span class="attr">#[clap(long, help = <span class="string">"Custom priority fee in microcredits"</span>, default_value = <span class="string">"1000000"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) priority_fee: String,
-    <span class="attr">#[clap(long, help = <span class="string">"Custom query endpoint"</span>, default_value = <span class="string">"http://api.explorer.aleo.org/v1"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) endpoint: String,
-    <span class="attr">#[clap(long, help = <span class="string">"Custom network"</span>, default_value = <span class="string">"testnet3"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) network: String,
-    <span class="attr">#[clap(long, help = <span class="string">"Custom private key"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) private_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
-    <span class="attr">#[clap(long, help = <span class="string">"Disables building of the project before deployment"</span>, default_value = <span class="string">"false"</span>)]
+    <span class="attr">#[clap(long, help = <span class="string">"Endpoint to retrieve network state from."</span>, default_value = <span class="string">"http://api.explorer.aleo.org/v1"</span>)]
+    </span><span class="kw">pub </span>endpoint: String,
+    <span class="attr">#[clap(flatten)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) fee_options: FeeOptions,
+    <span class="attr">#[clap(long, help = <span class="string">"Disables building of the project before deployment."</span>, default_value = <span class="string">"false"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) no_build: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Disables recursive deployment of dependencies"</span>, default_value = <span class="string">"false"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) non_recursive: bool,
-    <span class="attr">#[clap(long, help = <span class="string">"Custom wait gap between consecutive deployments"</span>, default_value = <span class="string">"12"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait_gap: u64,
+    <span class="attr">#[clap(long, help = <span class="string">"Enables recursive deployment of dependencies."</span>, default_value = <span class="string">"false"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) recursive: bool,
+    <span class="attr">#[clap(
+        long,
+        help = <span class="string">"Time in seconds to wait between consecutive deployments. This is to help prevent a program from trying to be included in an earlier block than its dependency program."</span>,
+        default_value = <span class="string">"12"
+    </span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait: u64,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Deploy {
@@ -158,56 +173,67 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>apply(<span class="self">self</span>, _context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="comment">// // Get the program name
-        // let project_name = context.open_manifest()?.program_id().to_string();
-        //
-        // // Get the private key
-        // let mut private_key = self.private_key;
-        // if private_key.is_none() {
-        //     private_key =
-        //         Some(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)?.to_string());
-        // }
-        //
-        // let mut all_paths: Vec&lt;(String, PathBuf)&gt; = Vec::new();
-        //
-        // // Extract post-ordered list of local dependencies' paths from `leo.lock`
-        // if !self.non_recursive {
-        //     all_paths = context.local_dependency_paths()?;
-        // }
-        //
-        // // Add the parent program to be deployed last
-        // all_paths.push((project_name, context.dir()?.join("build")));
-        //
-        // for (index, (name, path)) in all_paths.iter().enumerate() {
-        //     // Set deploy arguments
-        //     let deploy = SnarkOSDeploy::try_parse_from([
-        //         "snarkos",
-        //         "--private-key",
-        //         private_key.as_ref().unwrap(),
-        //         "--query",
-        //         self.endpoint.as_str(),
-        //         "--priority-fee",
-        //         self.priority_fee.as_str(),
-        //         "--path",
-        //         path.to_str().unwrap(),
-        //         "--broadcast",
-        //         format!("{}/{}/transaction/broadcast", self.endpoint, self.network).as_str(),
-        //         &amp;name,
-        //     ])
-        //     .unwrap();
-        //
-        //     // Deploy program
-        //     Developer::Deploy(deploy).parse().map_err(CliError::failed_to_execute_deploy)?;
-        //
-        //     // Sleep for `wait_gap` seconds.
-        //     // This helps avoid parents from being serialized before children.
-        //     if index &lt; all_paths.len() - 1 {
-        //         std::thread::sleep(std::time::Duration::from_secs(self.wait_gap));
-        //     }
-        // }
+    <span class="kw">fn </span>apply(<span class="self">self</span>, context: Context, <span class="kw">_</span>: <span class="self">Self</span>::Input) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="comment">// Get the program name.
+        </span><span class="kw">let </span>project_name = context.open_manifest()<span class="question-mark">?</span>.program_id().to_string();
 
-        </span><span class="prelude-val">Err</span>(PackageError::unimplemented_command(<span class="string">"leo deploy"</span>).into())
+        <span class="comment">// Get the private key.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>private_key = <span class="self">self</span>.fee_options.private_key;
+        <span class="kw">if </span>private_key.is_none() {
+            private_key =
+                <span class="prelude-val">Some</span>(dotenv_private_key().map_err(CliError::failed_to_read_environment_private_key)<span class="question-mark">?</span>.to_string());
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>all_paths: Vec&lt;(String, PathBuf)&gt; = Vec::new();
+
+        <span class="comment">// Extract post-ordered list of local dependencies' paths from `leo.lock`.
+        </span><span class="kw">if </span><span class="self">self</span>.recursive {
+            <span class="comment">// Cannot combine with private fee.
+            </span><span class="kw">if </span><span class="self">self</span>.fee_options.record.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(CliError::recursive_deploy_with_record().into());
+            }
+            all_paths = context.local_dependency_paths()<span class="question-mark">?</span>;
+        }
+
+        <span class="comment">// Add the parent program to be deployed last.
+        </span>all_paths.push((project_name, context.dir()<span class="question-mark">?</span>.join(<span class="string">"build"</span>)));
+
+        <span class="kw">for </span>(index, (name, path)) <span class="kw">in </span>all_paths.iter().enumerate() {
+            <span class="comment">// Set the deploy arguments.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>deploy_args = <span class="macro">vec!</span>[
+                <span class="string">"snarkos"</span>.to_string(),
+                <span class="string">"--private-key"</span>.to_string(),
+                private_key.as_ref().unwrap().clone(),
+                <span class="string">"--query"</span>.to_string(),
+                <span class="self">self</span>.endpoint.clone(),
+                <span class="string">"--priority-fee"</span>.to_string(),
+                <span class="self">self</span>.fee_options.priority_fee.to_string(),
+                <span class="string">"--path"</span>.to_string(),
+                path.to_str().unwrap().parse().unwrap(),
+                <span class="string">"--broadcast"</span>.to_string(),
+                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.endpoint, <span class="self">self</span>.fee_options.network).to_string(),
+                name.clone(),
+            ];
+
+            <span class="comment">// Use record as payment option if it is provided.
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(record) = <span class="self">self</span>.fee_options.record.clone() {
+                deploy_args.push(<span class="string">"--record"</span>.to_string());
+                deploy_args.push(record);
+            };
+
+            <span class="kw">let </span>deploy = SnarkOSDeploy::try_parse_from(deploy_args).unwrap();
+
+            <span class="comment">// Deploy program.
+            </span>Developer::Deploy(deploy).parse().map_err(CliError::failed_to_execute_deploy)<span class="question-mark">?</span>;
+
+            <span class="comment">// Sleep for `wait_gap` seconds.
+            // This helps avoid parents from being serialized before children.
+            </span><span class="kw">if </span>index &lt; all_paths.len() - <span class="number">1 </span>{
+                std::thread::sleep(std::time::Duration::from_secs(<span class="self">self</span>.wait));
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div></section></main></body></html>

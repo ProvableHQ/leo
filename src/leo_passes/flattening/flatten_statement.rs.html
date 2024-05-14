@@ -282,6 +282,8 @@
 <a href="#280" id="280">280</a>
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -557,7 +559,9 @@
         </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
 
         <span class="kw">match </span>input.expression {
-            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) =&gt; <span class="self">self</span>.returns.push((guard, input)),
+            Expression::Unit(<span class="kw">_</span>) | Expression::Identifier(<span class="kw">_</span>) | Expression::Access(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.returns.push((guard, input))
+            }
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the expression is always an identifier or unit expression."</span>),
         };
 

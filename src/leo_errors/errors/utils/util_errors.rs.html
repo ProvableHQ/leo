@@ -154,6 +154,48 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -270,7 +312,7 @@
     missing_network_error {
         args: (dependency: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Dependency {dependency} is missing a network specification"</span>),
-        help: <span class="prelude-val">Some</span>(<span class="string">"Add a network specification to the dependency in the `program.json` file. Example: `network: \"testnet3\"`"</span>.to_string()),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Add a network specification to the dependency in the `program.json` file. Example: `network: \"mainnet\"`"</span>.to_string()),
     }
 
     @formatted
@@ -296,8 +338,8 @@
 
     @formatted
     failed_to_retrieve_from_endpoint {
-        args: (endpoint: <span class="kw">impl </span>Display, error: <span class="kw">impl </span>ErrorArg),
-        msg: <span class="macro">format!</span>(<span class="string">"Failed to retrieve from endpoint `{endpoint}`. Error: {error}"</span>),
+        args: (error: <span class="kw">impl </span>ErrorArg),
+        msg: <span class="macro">format!</span>(<span class="string">"{error}"</span>),
         help: <span class="prelude-val">None</span>,
     }
 
@@ -306,6 +348,48 @@
         args: (path: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Compiled file at `{path}` does not exist, cannot compile parent."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"If you were using the `--non-recursive` flag, remove it and try again."</span>.to_string()),
+    }
+
+    @backtraced
+    invalid_input_id_len {
+        args: (input: <span class="kw">impl </span>Display, expected_type: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid input: {input}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Type `{expected_type}` must contain exactly 61 lowercase characters or numbers."</span>)),
+    }
+
+    @backtraced
+    invalid_input_id {
+        args: (input: <span class="kw">impl </span>Display, expected_type: <span class="kw">impl </span>Display, expected_preface: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid input: {input}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Type `{expected_type}` must start with \"{expected_preface}\"."</span>)),
+    }
+
+    @backtraced
+    invalid_numerical_input {
+        args: (input: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid numerical input: {input}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Input must be a valid u32."</span>.to_string()),
+    }
+
+    @backtraced
+    invalid_range {
+        args: (),
+        msg: <span class="string">"The range must be less than or equal to 50 blocks."</span>.to_string(),
+        help: <span class="prelude-val">None</span>,
+    }
+
+    @backtraced
+    invalid_height_or_hash {
+        args: (input: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid input: {input}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Input must be a valid height or hash. Valid hashes are 61 characters long, composed of only numbers and lower case letters, and be prefaced with \"ab1\"."</span>.to_string()),
+    }
+
+    @backtraced
+    invalid_field {
+        args: (field: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Invalid field: {field}."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Field element must be numerical string with optional \"field\" suffix."</span>.to_string()),
     }
 );
 </code></pre></div></section></main></body></html>

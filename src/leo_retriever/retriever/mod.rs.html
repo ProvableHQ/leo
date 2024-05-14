@@ -517,6 +517,20 @@
 <a href="#515" id="515">515</a>
 <a href="#516" id="516">516</a>
 <a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -533,31 +547,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span>indexmap::{IndexMap, IndexSet};
+</span><span class="kw">use crate</span>::{Dependency, Location, LockFileEntry, Manifest, NetworkName, ProgramContext};
+
 <span class="kw">use </span>leo_ast::Stub;
 <span class="kw">use </span>leo_disassembler::disassemble_from_str;
 <span class="kw">use </span>leo_errors::UtilError;
 <span class="kw">use </span>leo_passes::{common::DiGraph, DiGraphError};
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use crate</span>::{Dependency, Location, LockFileEntry, Manifest, Network, ProgramContext};
+<span class="kw">use </span>snarkvm::prelude::Network;
+
+<span class="kw">use </span>indexmap::{IndexMap, IndexSet};
 <span class="kw">use </span>std::{
     fs,
     fs::File,
     io::Read,
+    marker::PhantomData,
     path::{Path, PathBuf},
 };
 
 <span class="comment">// Retriever is responsible for retrieving external programs
-</span><span class="kw">pub struct </span>Retriever {
+</span><span class="kw">pub struct </span>Retriever&lt;N: Network&gt; {
     name: Symbol,
     contexts: IndexMap&lt;Symbol, ProgramContext&gt;,
     project_path: PathBuf,
     registry_path: PathBuf,
     endpoint: String,
+    phantom: PhantomData&lt;N&gt;,
 }
 
-<span class="kw">impl </span>Retriever {
+<span class="kw">impl</span>&lt;N: Network&gt; Retriever&lt;N&gt; {
     <span class="comment">// Initialize a new Retriever.
     </span><span class="kw">pub fn </span>new(name: Symbol, path: <span class="kw-2">&amp;</span>PathBuf, home: <span class="kw-2">&amp;</span>Path, endpoint: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, UtilError&gt; {
         <span class="comment">// Starting point is all of the dependencies specified in the main `program.json` file
@@ -573,6 +592,7 @@
             project_path: path.clone(),
             registry_path: home.join(<span class="string">"registry"</span>),
             endpoint: endpoint.clone(),
+            phantom: Default::default(),
         })
     }
 
@@ -602,11 +622,10 @@
                 <span class="comment">// Split into cases based on network dependency or local dependency
                 </span><span class="kw">let </span>nested_dependencies = <span class="kw">match </span>cur_context.location() {
                     Location::Network =&gt; {
-                        <span class="kw">let </span>(stub, nested_dependencies) = retrieve_from_network(
+                        <span class="kw">let </span>(stub, nested_dependencies) = retrieve_from_network::&lt;N&gt;(
                             <span class="kw-2">&amp;</span><span class="self">self</span>.project_path,
                             <span class="kw-2">&amp;</span><span class="self">self</span>.registry_path,
                             cur_context.full_name(),
-                            cur_context.network(),
                             <span class="kw-2">&amp;</span><span class="self">self</span>.endpoint,
                         )<span class="question-mark">?</span>;
 
@@ -823,7 +842,7 @@
             })<span class="question-mark">?</span>;
 
             <span class="comment">// Cache the disassembled stub
-            </span><span class="kw">let </span>stub: Stub = disassemble_from_str(<span class="kw-2">&amp;</span>content)<span class="question-mark">?</span>;
+            </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(<span class="kw-2">&amp;</span>content)<span class="question-mark">?</span>;
             <span class="kw">if </span>cur_context.add_stub(stub.clone()) {
                 <span class="prelude-val">Err</span>(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))<span class="question-mark">?</span>;
             }
@@ -937,15 +956,21 @@
 }
 
 <span class="comment">// Retrieve from network
-</span><span class="kw">fn </span>retrieve_from_network(
+</span><span class="kw">fn </span>retrieve_from_network&lt;N: Network&gt;(
     project_path: <span class="kw-2">&amp;</span>Path,
     home_path: <span class="kw-2">&amp;</span>Path,
     name: <span class="kw-2">&amp;</span>String,
-    network: <span class="kw-2">&amp;</span>Network,
     endpoint: <span class="kw-2">&amp;</span>String,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(Stub, Vec&lt;Dependency&gt;), UtilError&gt; {
+    <span class="comment">// Get the network being used.
+    </span><span class="kw">let </span>network = <span class="kw">match </span>N::ID {
+        snarkvm::console::network::MainnetV0::ID =&gt; NetworkName::MainnetV0,
+        snarkvm::console::network::TestnetV0::ID =&gt; NetworkName::TestnetV0,
+        <span class="kw">_ </span>=&gt; NetworkName::MainnetV0,
+    };
+
     <span class="comment">// Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
-    </span><span class="kw">let </span>move_to_path = home_path.join(<span class="macro">format!</span>(<span class="string">"{network}"</span>));
+    </span><span class="kw">let </span>move_to_path = home_path.join(network.to_string());
     <span class="kw">let </span>path = move_to_path.join(name.clone());
     <span class="kw">let </span><span class="kw-2">mut </span>file_str: String;
     <span class="kw">if </span>!path.exists() {
@@ -958,11 +983,14 @@
             )
         })<span class="question-mark">?</span>;
 
+        <span class="comment">// Construct the endpoint for the network.
+        </span><span class="kw">let </span>endpoint = <span class="macro">format!</span>(<span class="string">"{endpoint}/{network}"</span>);
+
         <span class="comment">// Fetch from network
-        </span><span class="macro">println!</span>(<span class="string">"Retrieving {} from {:?}."</span>, name, network.clone());
-        file_str = fetch_from_network(endpoint, name, network.clone())<span class="question-mark">?</span>;
+        </span><span class="macro">println!</span>(<span class="string">"Retrieving {name} from {endpoint}."</span>);
+        file_str = fetch_from_network(<span class="kw-2">&amp;</span>endpoint, name)<span class="question-mark">?</span>;
         file_str = file_str.replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>).replace(<span class="string">'\"'</span>, <span class="string">""</span>);
-        <span class="macro">println!</span>(<span class="string">"Successfully retrieved {} from {:?}!"</span>, name, network);
+        <span class="macro">println!</span>(<span class="string">"Successfully retrieved {} from {:?}!"</span>, name, endpoint);
 
         <span class="comment">// Write file to cache
         </span>std::fs::write(path.clone(), file_str.clone().replace(<span class="string">"\\n"</span>, <span class="string">"\n"</span>)).map_err(|err| {
@@ -1003,7 +1031,7 @@
     })<span class="question-mark">?</span>;
 
     <span class="comment">// Disassemble into Stub
-    </span><span class="kw">let </span>stub: Stub = disassemble_from_str(<span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
+    </span><span class="kw">let </span>stub: Stub = disassemble_from_str::&lt;N&gt;(<span class="kw-2">&amp;</span>file_str)<span class="question-mark">?</span>;
 
     <span class="comment">// Create entry for leo.lock
     </span><span class="prelude-val">Ok</span>((
@@ -1015,7 +1043,7 @@
                 Dependency::new(
                     id.name.name.to_string() + <span class="string">"." </span>+ id.network.name.to_string().as_str(),
                     Location::Network,
-                    <span class="prelude-val">Some</span>(network.clone()),
+                    <span class="prelude-val">Some</span>(network),
                     <span class="prelude-val">None</span>,
                 )
             })
@@ -1023,11 +1051,11 @@
     ))
 }
 
-<span class="kw">fn </span>fetch_from_network(endpoint: <span class="kw-2">&amp;</span>String, program: <span class="kw-2">&amp;</span>String, network: Network) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
-    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/{}/program/{}"</span>, endpoint, network.clone(), program);
+<span class="kw">fn </span>fetch_from_network(endpoint: <span class="kw-2">&amp;</span>String, program: <span class="kw-2">&amp;</span>String) -&gt; <span class="prelude-ty">Result</span>&lt;String, UtilError&gt; {
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">"{}/program/{}"</span>, endpoint, program);
     <span class="kw">let </span>response = ureq::get(<span class="kw-2">&amp;</span>url.clone())
         .call()
-        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))<span class="question-mark">?</span>;
+        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))<span class="question-mark">?</span>;
     <span class="kw">if </span>response.status() == <span class="number">200 </span>{
         <span class="prelude-val">Ok</span>(response.into_string().unwrap())
     } <span class="kw">else </span>{

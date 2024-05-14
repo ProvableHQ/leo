@@ -206,7 +206,6 @@
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
 <a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -302,9 +301,9 @@
     else
     false
     field
-    finalize
     for
     function
+    Future
     group
     i128
     i64
@@ -327,7 +326,6 @@
     string
     struct
     test
-    then
     transition
     true
     u128
@@ -379,7 +377,7 @@
 
             <span class="macro">assert_eq!</span>(
                 output,
-                <span class="string">r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const else false field finalize for function group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar self signature string struct test then transition true u128 u64 u32 u16 u8 console ! != &amp;&amp; ( ) * ** + , - -&gt; =&gt; _ . .. / : ; &lt; &lt;= = == &gt; &gt;= [ ] { { } } || ? @ // test
+                <span class="string">r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" test_ident 12345 address as assert assert_eq assert_neq async bool const else false field for function Future group i128 i64 i32 i16 i8 if in inline input let mut private program public return scalar self signature string struct test transition true u128 u64 u32 u16 u8 console ! != &amp;&amp; ( ) * ** + , - -&gt; =&gt; _ . .. / : ; &lt; &lt;= = == &gt; &gt;= [ ] { { } } || ? @ // test
  /* test */ // "#
             </span>);
         });

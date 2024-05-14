@@ -395,24 +395,6 @@
 <a href="#393" id="393">393</a>
 <a href="#394" id="394">394</a>
 <a href="#395" id="395">395</a>
-<a href="#396" id="396">396</a>
-<a href="#397" id="397">397</a>
-<a href="#398" id="398">398</a>
-<a href="#399" id="399">399</a>
-<a href="#400" id="400">400</a>
-<a href="#401" id="401">401</a>
-<a href="#402" id="402">402</a>
-<a href="#403" id="403">403</a>
-<a href="#404" id="404">404</a>
-<a href="#405" id="405">405</a>
-<a href="#406" id="406">406</a>
-<a href="#407" id="407">407</a>
-<a href="#408" id="408">408</a>
-<a href="#409" id="409">409</a>
-<a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -802,26 +784,8 @@
         <span class="comment">// Consume the return expression.
         </span><span class="kw">let </span>(expression, <span class="kw-2">mut </span>statements) = <span class="self">self</span>.consume_expression(input.expression);
 
-        <span class="comment">// Consume the finalize arguments if they exist.
-        // Process the arguments, accumulating any statements produced.
-        </span><span class="kw">let </span>finalize_args = input.finalize_arguments.map(|arguments| {
-            arguments
-                .into_iter()
-                .map(|argument| {
-                    <span class="kw">let </span>(argument, stmts) = <span class="self">self</span>.consume_expression(argument);
-                    statements.extend(stmts);
-                    argument
-                })
-                .collect()
-        });
-
         <span class="comment">// Add the simplified return statement to the list of produced statements.
-        </span>statements.push(Statement::Return(ReturnStatement {
-            expression,
-            finalize_arguments: finalize_args,
-            span: input.span,
-            id: input.id,
-        }));
+        </span>statements.push(Statement::Return(ReturnStatement { expression, span: input.span, id: input.id }));
 
         statements
     }

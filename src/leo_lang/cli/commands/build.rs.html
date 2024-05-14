@@ -221,10 +221,6 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -250,10 +246,7 @@
 <span class="kw">use </span>leo_retriever::Retriever;
 <span class="kw">use </span>leo_span::Symbol;
 
-<span class="kw">use </span>snarkvm::{
-    package::Package,
-    prelude::{ProgramID, Testnet3},
-};
+<span class="kw">use </span>snarkvm::{package::Package, prelude::ProgramID};
 
 <span class="kw">use </span>indexmap::IndexMap;
 <span class="kw">use </span>std::{
@@ -261,12 +254,14 @@
     path::{Path, PathBuf},
 };
 
-<span class="kw">type </span>CurrentNetwork = Testnet3;
-
 <span class="kw">impl </span>From&lt;BuildOptions&gt; <span class="kw">for </span>CompilerOptions {
     <span class="kw">fn </span>from(options: BuildOptions) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>out_options = <span class="self">Self </span>{
-            build: leo_compiler::BuildOptions { dce_enabled: options.enable_dce },
+            build: leo_compiler::BuildOptions {
+                dce_enabled: options.enable_dce,
+                conditional_block_max_depth: options.conditional_block_max_depth,
+                disable_conditional_branch_type_checking: options.disable_conditional_branch_type_checking,
+            },
             output: OutputOptions {
                 symbol_table_spans_enabled: options.enable_symbol_table_spans,
                 initial_symbol_table: options.enable_initial_symbol_table_snapshot,
@@ -332,8 +327,9 @@
 
         <span class="comment">// Retrieve all local dependencies in post order
         </span><span class="kw">let </span>main_sym = Symbol::intern(<span class="kw-2">&amp;</span>program_id.name().to_string());
-        <span class="kw">let </span><span class="kw-2">mut </span>retriever = Retriever::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, <span class="self">self</span>.options.endpoint.clone())
-            .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>retriever =
+            Retriever::&lt;CurrentNetwork&gt;::new(main_sym, <span class="kw-2">&amp;</span>package_path, <span class="kw-2">&amp;</span>home_path, <span class="self">self</span>.options.endpoint.clone())
+                .map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>local_dependencies =
             retriever.retrieve().map_err(|err| UtilError::failed_to_retrieve_dependencies(err, Default::default()))<span class="question-mark">?</span>;
 
@@ -365,7 +361,7 @@
                 </span><span class="kw">for </span>file_path <span class="kw">in </span>local_source_files {
                     compile_leo_file(
                         file_path,
-                        <span class="kw-2">&amp;</span>ProgramID::&lt;Testnet3&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
+                        <span class="kw-2">&amp;</span>ProgramID::&lt;CurrentNetwork&gt;::try_from(<span class="macro">format!</span>(<span class="string">"{}.aleo"</span>, dependency))
                             .map_err(|<span class="kw">_</span>| UtilError::snarkvm_error_building_program_id(Default::default()))<span class="question-mark">?</span>,
                         <span class="kw-2">&amp;</span>local_outputs_directory,
                         <span class="kw-2">&amp;</span>local_build_directory,
@@ -409,17 +405,13 @@
 </span><span class="attr">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">fn </span>compile_leo_file(
     file_path: PathBuf,
-    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;Testnet3&gt;,
+    program_id: <span class="kw-2">&amp;</span>ProgramID&lt;CurrentNetwork&gt;,
     outputs: <span class="kw-2">&amp;</span>Path,
     build: <span class="kw-2">&amp;</span>Path,
     handler: <span class="kw-2">&amp;</span>Handler,
     options: BuildOptions,
     stubs: IndexMap&lt;Symbol, Stub&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="comment">// Construct the Leo file name with extension `foo.leo`.
-    </span><span class="kw">let </span>file_name =
-        file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)<span class="question-mark">?</span>;
-
     <span class="comment">// Construct program name from the program_id found in `package.json`.
     </span><span class="kw">let </span>program_name = program_id.name().to_string();
 
@@ -428,8 +420,8 @@
     aleo_file_path.push(<span class="macro">format!</span>(<span class="string">"main.{}"</span>, program_id.network()));
 
     <span class="comment">// Create a new instance of the Leo compiler.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::new(
-        program_name,
+    </span><span class="kw">let </span><span class="kw-2">mut </span>compiler = Compiler::&lt;CurrentNetwork&gt;::new(
+        program_name.clone(),
         program_id.network().to_string(),
         handler,
         file_path.clone(),
@@ -447,7 +439,7 @@
         </span>.write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)<span class="question-mark">?</span>;
 
-    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{}' into Aleo instructions"</span>, file_name);
+    <span class="macro">tracing::info!</span>(<span class="string">"✅ Compiled '{program_name}.aleo' into Aleo instructions"</span>);
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

@@ -157,6 +157,10 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -299,6 +303,9 @@
     <span class="doccomment">/// Represents an Parser Error in a Leo Error.
     </span><span class="attr">#[error(transparent)]
     </span>ParserWarning(<span class="attr">#[from] </span>ParserWarning),
+    <span class="doccomment">/// Represents a Type Checker Error in a Leo Error.
+    </span><span class="attr">#[error(transparent)]
+    </span>TypeCheckerWarning(<span class="attr">#[from] </span>TypeCheckerWarning),
 }
 
 <span class="kw">impl </span>LeoWarning {
@@ -308,6 +315,7 @@
 
         <span class="kw">match </span><span class="self">self </span>{
             ParserWarning(warning) =&gt; warning.warning_code(),
+            TypeCheckerWarning(warning) =&gt; warning.warning_code(),
         }
     }
 }

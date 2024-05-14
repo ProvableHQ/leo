@@ -490,18 +490,6 @@
 <a href="#488" id="488">488</a>
 <a href="#489" id="489">489</a>
 <a href="#490" id="490">490</a>
-<a href="#491" id="491">491</a>
-<a href="#492" id="492">492</a>
-<a href="#493" id="493">493</a>
-<a href="#494" id="494">494</a>
-<a href="#495" id="495">495</a>
-<a href="#496" id="496">496</a>
-<a href="#497" id="497">497</a>
-<a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
-<a href="#501" id="501">501</a>
-<a href="#502" id="502">502</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -645,7 +633,7 @@
     <span class="kw">fn </span>reconstruct_call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: CallExpression) -&gt; (Expression, <span class="self">Self</span>::AdditionalOutput) {
         (
             Expression::Call(CallExpression {
-                function: Box::new(<span class="self">self</span>.reconstruct_expression(<span class="kw-2">*</span>input.function).<span class="number">0</span>),
+                function: input.function,
                 arguments: input.arguments.into_iter().map(|arg| <span class="self">self</span>.reconstruct_expression(arg).<span class="number">0</span>).collect(),
                 program: input.program,
                 span: input.span,
@@ -906,9 +894,6 @@
         (
             Statement::Return(ReturnStatement {
                 expression: <span class="self">self</span>.reconstruct_expression(input.expression).<span class="number">0</span>,
-                finalize_arguments: input.finalize_arguments.map(|arguments| {
-                    arguments.into_iter().map(|argument| <span class="self">self</span>.reconstruct_expression(argument).<span class="number">0</span>).collect()
-                }),
                 span: input.span,
                 id: input.id,
             }),
@@ -974,15 +959,6 @@
             output: input.output,
             output_type: input.output_type,
             block: <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>,
-            finalize: input.finalize.map(|finalize| Finalize {
-                identifier: finalize.identifier,
-                input: finalize.input,
-                output: finalize.output,
-                output_type: finalize.output_type,
-                block: <span class="self">self</span>.reconstruct_block(finalize.block).<span class="number">0</span>,
-                span: finalize.span,
-                id: finalize.id,
-            }),
             span: input.span,
             id: input.id,
         }

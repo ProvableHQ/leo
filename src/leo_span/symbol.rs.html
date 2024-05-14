@@ -452,6 +452,9 @@
 <a href="#450" id="450">450</a>
 <a href="#451" id="451">451</a>
 <a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -656,6 +659,7 @@
     to_x_coordinate,
     to_y_coordinate,
     verify,
+    Await: <span class="string">"await"</span>,
 
     <span class="comment">// types
     </span>address,
@@ -667,6 +671,8 @@
     i32,
     i64,
     i128,
+    Future,
+    Fn,
     record,
     scalar,
     signature,
@@ -693,7 +699,6 @@
     constant,
     decrement,
     Else: <span class="string">"else"</span>,
-    finalize,
     For: <span class="string">"for"</span>,
     function,
     If: <span class="string">"if"</span>,
@@ -712,7 +717,6 @@
     SelfUpper: <span class="string">"Self"</span>,
     signer,
     Star: <span class="string">"*"</span>,
-    then,
     transition,
     Type: <span class="string">"type"</span>,
 
@@ -725,6 +729,8 @@
     stub,
     block,
     height,
+    network,
+    id,
 }
 
 <span class="doccomment">/// An interned string.

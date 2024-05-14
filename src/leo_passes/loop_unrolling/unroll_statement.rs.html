@@ -220,7 +220,7 @@
 <span class="kw">use </span>leo_errors::loop_unroller::LoopUnrollerError;
 <span class="kw">use </span>leo_span::{Span, Symbol};
 
-<span class="kw">use crate</span>::{unroller::Unroller, Location, VariableSymbol, VariableType};
+<span class="kw">use crate</span>::{unroller::Unroller, VariableSymbol, VariableType};
 
 <span class="kw">impl </span>StatementReconstructor <span class="kw">for </span>Unroller&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">fn </span>reconstruct_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Block) -&gt; (Block, <span class="self">Self</span>::AdditionalOutput) {

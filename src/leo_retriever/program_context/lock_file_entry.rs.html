@@ -68,14 +68,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use crate</span>::{Location, Network, ProgramContext};
+</span><span class="kw">use crate</span>::{Location, NetworkName, ProgramContext};
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>std::path::PathBuf;
 
 <span class="attr">#[derive(Debug, Clone, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>LockFileEntry {
     name: String,
-    network: <span class="prelude-ty">Option</span>&lt;Network&gt;,
+    network: <span class="prelude-ty">Option</span>&lt;NetworkName&gt;,
     location: Location,
     path: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
     checksum: String,
@@ -96,7 +96,7 @@
     <span class="kw">fn </span>from(context: <span class="kw-2">&amp;</span>ProgramContext) -&gt; <span class="self">Self </span>{
         LockFileEntry {
             name: context.full_name().to_string(),
-            network: context.network.clone(), <span class="comment">// Direct access as per instruction
+            network: context.network, <span class="comment">// Direct access as per instruction
             </span>location: context.location().clone(),
             path: context.full_path.clone(), <span class="comment">// Direct access as per instruction
             </span>checksum: context.checksum().to_string(),

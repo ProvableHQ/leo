@@ -334,6 +334,72 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -351,12 +417,16 @@
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
 </span><span class="kw">use crate</span>::{
-    finalize_stub::<span class="kw-2">*</span>,
     Annotation,
     CompositeType,
+    External,
     Function,
+    FunctionInput,
+    FunctionOutput,
+    FutureType,
     Identifier,
     Input,
+    Location,
     Mode,
     Node,
     NodeID,
@@ -372,7 +442,10 @@
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>serde::{Deserialize, Serialize};
 <span class="kw">use </span>snarkvm::{
-    console::program::RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    console::program::{
+        FinalizeType::{Future <span class="kw">as </span>FutureFinalizeType, Plaintext <span class="kw">as </span>PlaintextFinalizeType},
+        RegisterType::{ExternalRecord, Future, Plaintext, Record},
+    },
     prelude::{Network, ValueType},
     synthesizer::program::{ClosureCore, CommandTrait, FunctionCore, InstructionTrait},
 };
@@ -393,8 +466,6 @@
     </span><span class="kw">pub </span>output: Vec&lt;Output&gt;,
     <span class="doccomment">/// The function's output type.
     </span><span class="kw">pub </span>output_type: Type,
-    <span class="doccomment">/// An optional finalize stub
-    </span><span class="kw">pub </span>finalize_stub: <span class="prelude-ty">Option</span>&lt;FinalizeStub&gt;,
     <span class="doccomment">/// The entire span of the function definition.
     </span><span class="kw">pub </span>span: Span,
     <span class="doccomment">/// The ID of the node.
@@ -414,21 +485,27 @@
     </span><span class="attr">#[allow(clippy::too_many_arguments)]
     </span><span class="kw">pub fn </span>new(
         annotations: Vec&lt;Annotation&gt;,
+        _is_async: bool,
         variant: Variant,
         identifier: Identifier,
         input: Vec&lt;Input&gt;,
         output: Vec&lt;Output&gt;,
-        finalize_stub: <span class="prelude-ty">Option</span>&lt;FinalizeStub&gt;,
         span: Span,
         id: NodeID,
     ) -&gt; <span class="self">Self </span>{
-        <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
-            <span class="number">0 </span>=&gt; Type::Unit,
-            <span class="number">1 </span>=&gt; output[<span class="number">0</span>].type_.clone(),
-            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
+        <span class="comment">// Determine the output type of the function
+        </span><span class="kw">let </span>get_output_type = |output: <span class="kw-2">&amp;</span>Output| <span class="kw">match </span><span class="kw-2">&amp;</span>output {
+            Output::Internal(output) =&gt; output.type_.clone(),
+            Output::External(output) =&gt; output.type_(),
         };
 
-        FunctionStub { annotations, variant, identifier, input, output, output_type, finalize_stub, span, id }
+        <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
+            <span class="number">0 </span>=&gt; Type::Unit,
+            <span class="number">1 </span>=&gt; get_output_type(<span class="kw-2">&amp;</span>output[<span class="number">0</span>]),
+            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
+        };
+
+        FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
     }
 
     <span class="doccomment">/// Returns function name.
@@ -447,8 +524,8 @@
     </span><span class="kw">fn </span>format(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self</span>.variant {
             Variant::Inline =&gt; <span class="macro">write!</span>(f, <span class="string">"inline "</span>)<span class="question-mark">?</span>,
-            Variant::Standard =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
-            Variant::Transition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
+            Variant::Function | Variant::AsyncFunction =&gt; <span class="macro">write!</span>(f, <span class="string">"function "</span>)<span class="question-mark">?</span>,
+            Variant::Transition | Variant::AsyncTransition =&gt; <span class="macro">write!</span>(f, <span class="string">"transition "</span>)<span class="question-mark">?</span>,
         }
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.identifier)<span class="question-mark">?</span>;
 
@@ -460,12 +537,7 @@
         };
         <span class="macro">write!</span>(f, <span class="string">"({parameters}) -&gt; {returns}"</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(finalize) = <span class="kw-2">&amp;</span><span class="self">self</span>.finalize_stub {
-            <span class="kw">let </span>parameters = finalize.input.iter().map(|x| x.to_string()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;().join(<span class="string">","</span>);
-            <span class="macro">write!</span>(f, <span class="string">" finalize ({parameters})"</span>)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Ok</span>(())
-        }
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Converts from snarkvm function type to leo FunctionStub, while also carrying the parent program name.
@@ -477,46 +549,58 @@
             .outputs()
             .iter()
             .map(|output| <span class="kw">match </span>output.value_type() {
-                ValueType::Constant(val) =&gt; <span class="macro">vec!</span>[Output {
+                ValueType::Constant(val) =&gt; Output::Internal(FunctionOutput {
                     mode: Mode::Constant,
-                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                }],
-                ValueType::Public(val) =&gt; <span class="macro">vec!</span>[Output {
+                }),
+                ValueType::Public(val) =&gt; Output::Internal(FunctionOutput {
                     mode: Mode::Public,
-                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                }],
-                ValueType::Private(val) =&gt; <span class="macro">vec!</span>[Output {
+                }),
+                ValueType::Private(val) =&gt; Output::Internal(FunctionOutput {
                     mode: Mode::Private,
-                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                }],
-                ValueType::Record(id) =&gt; <span class="macro">vec!</span>[Output {
+                }),
+                ValueType::Record(id) =&gt; Output::Internal(FunctionOutput {
                     mode: Mode::None,
                     type_: Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
                     span: Default::default(),
                     id: Default::default(),
-                }],
-                ValueType::ExternalRecord(loc) =&gt; {
-                    <span class="macro">vec!</span>[Output {
-                        mode: Mode::None,
-                        span: Default::default(),
-                        id: Default::default(),
-                        type_: Composite(CompositeType {
-                            id: Identifier::from(loc.resource()),
-                            program: <span class="prelude-val">Some</span>(ProgramId::from(loc.program_id()).name.name),
-                        }),
-                    }]
+                }),
+                ValueType::ExternalRecord(loc) =&gt; Output::External(External {
+                    identifier: Identifier::new(Symbol::intern(<span class="string">"dummy"</span>), Default::default()),
+                    program_name: ProgramId::from(loc.program_id()).name,
+                    record: Identifier::from(loc.resource()),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
+                ValueType::Future(<span class="kw">_</span>) =&gt; Output::Internal(FunctionOutput {
+                    mode: Mode::Public,
+                    type_: Type::Future(FutureType::new(
+                        Vec::new(),
+                        <span class="prelude-val">Some</span>(Location::new(<span class="prelude-val">Some</span>(program), Identifier::from(function.name()).name)),
+                        <span class="bool-val">false</span>,
+                    )),
+                    span: Default::default(),
+                    id: Default::default(),
+                }),
+            })
+            .collect_vec();
+        <span class="kw">let </span>output_vec = outputs
+            .iter()
+            .map(|output| <span class="kw">match </span>output {
+                Output::Internal(output) =&gt; output.type_.clone(),
+                Output::External(output) =&gt; {
+                    Type::Composite(CompositeType { id: output.record, program: <span class="prelude-val">Some</span>(output.program_name.name) })
                 }
-                ValueType::Future(<span class="kw">_</span>) =&gt; Vec::new(), <span class="comment">// Don't include futures in the output signature
-            </span>})
-            .collect_vec()
-            .concat();
-        <span class="kw">let </span>output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
+            })
+            .collect_vec();
         <span class="kw">let </span>output_type = <span class="kw">match </span>output_vec.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
             <span class="number">1 </span>=&gt; output_vec[<span class="number">0</span>].clone(),
@@ -525,82 +609,132 @@
 
         <span class="self">Self </span>{
             annotations: Vec::new(),
-            variant: Variant::Transition,
+            variant: <span class="kw">match </span>function.finalize_logic().is_some() {
+                <span class="bool-val">true </span>=&gt; Variant::AsyncTransition,
+                <span class="bool-val">false </span>=&gt; Variant::Transition,
+            },
             identifier: Identifier::from(function.name()),
             input: function
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"a{}"</span>, index + <span class="number">1</span>)), Default::default());
+                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default());
                     <span class="kw">match </span>input.value_type() {
-                        ValueType::Constant(val) =&gt; Input {
+                        ValueType::Constant(val) =&gt; Input::Internal(FunctionInput {
                             identifier: arg_name,
                             mode: Mode::Constant,
-                            type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
-                        },
-                        ValueType::Public(val) =&gt; Input {
+                        }),
+                        ValueType::Public(val) =&gt; Input::Internal(FunctionInput {
                             identifier: arg_name,
                             mode: Mode::Public,
-                            type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
-                        },
-                        ValueType::Private(val) =&gt; Input {
+                        }),
+                        ValueType::Private(val) =&gt; Input::Internal(FunctionInput {
                             identifier: arg_name,
                             mode: Mode::Private,
-                            type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
-                        },
-                        ValueType::Record(id) =&gt; Input {
+                        }),
+                        ValueType::Record(id) =&gt; Input::Internal(FunctionInput {
                             identifier: arg_name,
                             mode: Mode::None,
                             type_: Composite(CompositeType { id: Identifier::from(id), program: <span class="prelude-val">Some</span>(program) }),
                             span: Default::default(),
                             id: Default::default(),
-                        },
-                        ValueType::ExternalRecord(loc) =&gt; Input {
-                            identifier: arg_name,
-                            mode: Mode::None,
+                        }),
+                        ValueType::ExternalRecord(loc) =&gt; Input::External(External {
+                            identifier: Identifier::new(Symbol::intern(<span class="string">"dummy"</span>), Default::default()),
+                            program_name: ProgramId::from(loc.program_id()).name,
+                            record: Identifier::from(loc.resource()),
                             span: Default::default(),
                             id: Default::default(),
-                            type_: Composite(CompositeType {
-                                id: Identifier::from(loc.name()),
-                                program: <span class="prelude-val">Some</span>(ProgramId::from(loc.program_id()).name.name),
-                            }),
-                        },
+                        }),
                         ValueType::Future(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Functions do not contain futures as inputs"</span>),
                     }
                 })
                 .collect_vec(),
             output: outputs,
             output_type,
-            finalize_stub: function.finalize_logic().map(|f| FinalizeStub::from_snarkvm(f)),
             span: Default::default(),
             id: Default::default(),
         }
     }
 
-    <span class="kw">pub fn </span>from_closure&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;&gt;(closure: <span class="kw-2">&amp;</span>ClosureCore&lt;N, Instruction&gt;) -&gt; <span class="self">Self </span>{
+    <span class="kw">pub fn </span>from_finalize&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;, Command: CommandTrait&lt;N&gt;&gt;(
+        function: <span class="kw-2">&amp;</span>FunctionCore&lt;N, Instruction, Command&gt;,
+        key_name: Symbol,
+        _program: Symbol,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            annotations: Vec::new(),
+            variant: Variant::AsyncFunction,
+            identifier: Identifier::new(key_name, Default::default()),
+            input: function
+                .finalize_logic()
+                .unwrap()
+                .inputs()
+                .iter()
+                .enumerate()
+                .map(|(index, input)| {
+                    Input::Internal(FunctionInput {
+                        identifier: Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default()),
+                        mode: Mode::None,
+                        type_: <span class="kw">match </span>input.finalize_type() {
+                            PlaintextFinalizeType(val) =&gt; Type::from_snarkvm(val, key_name),
+                            FutureFinalizeType(val) =&gt; Type::Future(FutureType::new(
+                                Vec::new(),
+                                <span class="prelude-val">Some</span>(Location::new(
+                                    <span class="prelude-val">Some</span>(Identifier::from(val.program_id().name()).name),
+                                    Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, val.resource())),
+                                )),
+                                <span class="bool-val">false</span>,
+                            )),
+                        },
+                        span: Default::default(),
+                        id: Default::default(),
+                    })
+                })
+                .collect_vec(),
+            output: Vec::new(),
+            output_type: Type::Unit,
+            span: Default::default(),
+            id: <span class="number">0</span>,
+        }
+    }
+
+    <span class="kw">pub fn </span>from_closure&lt;N: Network, Instruction: InstructionTrait&lt;N&gt;&gt;(
+        closure: <span class="kw-2">&amp;</span>ClosureCore&lt;N, Instruction&gt;,
+        program: Symbol,
+    ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>outputs = closure
             .outputs()
             .iter()
             .map(|output| <span class="kw">match </span>output.register_type() {
-                Plaintext(val) =&gt; Output {
+                Plaintext(val) =&gt; Output::Internal(FunctionOutput {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                    type_: Type::from_snarkvm(val, program),
                     span: Default::default(),
                     id: Default::default(),
-                },
+                }),
                 Record(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not return records"</span>),
                 ExternalRecord(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not return external records"</span>),
                 Future(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not return futures"</span>),
             })
             .collect_vec();
-        <span class="kw">let </span>output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
+        <span class="kw">let </span>output_vec = outputs
+            .iter()
+            .map(|output| <span class="kw">match </span>output {
+                Output::Internal(output) =&gt; output.type_.clone(),
+                Output::External(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not return external records"</span>),
+            })
+            .collect_vec();
         <span class="kw">let </span>output_type = <span class="kw">match </span>output_vec.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
             <span class="number">1 </span>=&gt; output_vec[<span class="number">0</span>].clone(),
@@ -608,22 +742,22 @@
         };
         <span class="self">Self </span>{
             annotations: Vec::new(),
-            variant: Variant::Standard,
+            variant: Variant::Function,
             identifier: Identifier::from(closure.name()),
             input: closure
                 .inputs()
                 .iter()
                 .enumerate()
                 .map(|(index, input)| {
-                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"a{}"</span>, index + <span class="number">1</span>)), Default::default());
+                    <span class="kw">let </span>arg_name = Identifier::new(Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"arg{}"</span>, index + <span class="number">1</span>)), Default::default());
                     <span class="kw">match </span>input.register_type() {
-                        Plaintext(val) =&gt; Input {
+                        Plaintext(val) =&gt; Input::Internal(FunctionInput {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::from_snarkvm(val, <span class="prelude-val">None</span>),
+                            type_: Type::from_snarkvm(val, program),
                             span: Default::default(),
                             id: Default::default(),
-                        },
+                        }),
                         Record(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not contain records as inputs"</span>),
                         ExternalRecord(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not contain external records as inputs"</span>),
                         Future(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">"Closures do not contain futures as inputs"</span>),
@@ -634,7 +768,6 @@
             output_type,
             span: Default::default(),
             id: Default::default(),
-            finalize_stub: <span class="prelude-val">None</span>,
         }
     }
 }
@@ -648,7 +781,6 @@
             input: function.input,
             output: function.output,
             output_type: function.output_type,
-            finalize_stub: function.finalize.map(FinalizeStub::from),
             span: function.span,
             id: function.id,
         }

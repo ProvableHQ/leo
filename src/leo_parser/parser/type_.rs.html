@@ -136,6 +136,26 @@
 <a href="#134" id="134">134</a>
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -160,6 +180,7 @@
     Token::Address,
     Token::Bool,
     Token::Field,
+    Token::Future,
     Token::Group,
     Token::Scalar,
     Token::Signature,
@@ -176,7 +197,7 @@
     Token::U128,
 ];
 
-<span class="kw">impl </span>ParserContext&lt;<span class="lifetime">'_</span>&gt; {
+<span class="kw">impl</span>&lt;N: Network&gt; ParserContext&lt;<span class="lifetime">'_</span>, N&gt; {
     <span class="doccomment">/// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>token_to_int_type(token: <span class="kw-2">&amp;</span>Token) -&gt; <span class="prelude-ty">Option</span>&lt;IntegerType&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span>token {
@@ -266,6 +287,25 @@
                 <span class="comment">// Otherwise, parse it into a `Tuple` type.
                 // Note: This is the only place where `Tuple` type is constructed in the parser.
                 </span><span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>((Type::Tuple(TupleType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect())), span)),
+            }
+        } <span class="kw">else if </span><span class="self">self</span>.token.token == Token::Future {
+            <span class="comment">// Parse the `Future` token.
+            </span><span class="kw">let </span>span = <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Future)<span class="question-mark">?</span>;
+            <span class="comment">// Parse the explicit future type, e.g. `Future&lt;Fn(u32, u32)&gt;`, `Future&lt;Fn(u32, Future&lt;Fn(u32, u32, u64)&gt;)&gt;` etc.
+            </span><span class="kw">if </span><span class="self">self</span>.token.token == Token::Lt {
+                <span class="comment">// Expect the sequence `&lt;`, `Fn`.
+                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Lt)<span class="question-mark">?</span>;
+                <span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Fn)<span class="question-mark">?</span>;
+                <span class="comment">// Parse the parenthesis list of function arguments.
+                </span><span class="kw">let </span>(types, <span class="kw">_</span>, full_span) = <span class="self">self</span>.parse_paren_comma_list(|p| p.parse_type().map(<span class="prelude-val">Some</span>))<span class="question-mark">?</span>;
+                <span class="comment">// Expect the closing `&gt;`.
+                </span><span class="self">self</span>.expect(<span class="kw-2">&amp;</span>Token::Gt)<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>((
+                    Type::Future(FutureType::new(types.into_iter().map(|t| t.<span class="number">0</span>).collect(), <span class="prelude-val">None</span>, <span class="bool-val">true</span>)),
+                    span + full_span,
+                ))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">Ok</span>((Type::Future(Default::default()), span))
             }
         } <span class="kw">else </span>{
             <span class="self">self</span>.parse_primitive_type()

@@ -463,6 +463,7 @@
 <a href="#461" id="461">461</a>
 <a href="#462" id="462">462</a>
 <a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -849,6 +850,7 @@
                     <span class="string">"assert" </span>=&gt; Token::Assert,
                     <span class="string">"assert_eq" </span>=&gt; Token::AssertEq,
                     <span class="string">"assert_neq" </span>=&gt; Token::AssertNeq,
+                    <span class="string">"async" </span>=&gt; Token::Async,
                     <span class="string">"block" </span>=&gt; Token::Block,
                     <span class="string">"bool" </span>=&gt; Token::Bool,
                     <span class="string">"console" </span>=&gt; Token::Console,
@@ -857,9 +859,10 @@
                     <span class="string">"else" </span>=&gt; Token::Else,
                     <span class="string">"false" </span>=&gt; Token::False,
                     <span class="string">"field" </span>=&gt; Token::Field,
-                    <span class="string">"finalize" </span>=&gt; Token::Finalize,
+                    <span class="string">"Fn" </span>=&gt; Token::Fn,
                     <span class="string">"for" </span>=&gt; Token::For,
                     <span class="string">"function" </span>=&gt; Token::Function,
+                    <span class="string">"Future" </span>=&gt; Token::Future,
                     <span class="string">"group" </span>=&gt; Token::Group,
                     <span class="string">"i8" </span>=&gt; Token::I8,
                     <span class="string">"i16" </span>=&gt; Token::I16,
@@ -883,7 +886,6 @@
                     <span class="string">"self" </span>=&gt; Token::SelfLower,
                     <span class="string">"string" </span>=&gt; Token::String,
                     <span class="string">"struct" </span>=&gt; Token::Struct,
-                    <span class="string">"then" </span>=&gt; Token::Then,
                     <span class="string">"transition" </span>=&gt; Token::Transition,
                     <span class="string">"true" </span>=&gt; Token::True,
                     <span class="string">"u8" </span>=&gt; Token::U8,
