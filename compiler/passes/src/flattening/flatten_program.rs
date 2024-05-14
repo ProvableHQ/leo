@@ -41,25 +41,33 @@ impl ProgramReconstructor for Flattener<'_> {
 
     /// Flattens a function's body
     fn reconstruct_function(&mut self, function: Function) -> Function {
-        // Flatten the function body.
-        let mut block = self.reconstruct_block(function.block).0;
+        // If the function is an async function, then return it as is.
+        // Note that async functions are not flattened since it uses `branch` instructions to produce correct code in for conditional execution.
+        if function.variant.is_async_function() {
+            return function;
+        }
+        // Otherwise, flatten the function body.
+        else {
+            // Flatten the function body.
+            let mut block = self.reconstruct_block(function.block).0;
 
-        // Get all of the guards and return expression.
-        let returns = self.clear_early_returns();
+            // Get all of the guards and return expression.
+            let returns = self.clear_early_returns();
 
-        // Fold the return statements into the block.
-        self.fold_returns(&mut block, returns);
+            // Fold the return statements into the block.
+            self.fold_returns(&mut block, returns);
 
-        Function {
-            annotations: function.annotations,
-            variant: function.variant,
-            identifier: function.identifier,
-            input: function.input,
-            output: function.output,
-            output_type: function.output_type,
-            block,
-            span: function.span,
-            id: function.id,
+            Function {
+                annotations: function.annotations,
+                variant: function.variant,
+                identifier: function.identifier,
+                input: function.input,
+                output: function.output,
+                output_type: function.output_type,
+                block,
+                span: function.span,
+                id: function.id,
+            }
         }
     }
 }

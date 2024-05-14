@@ -23,6 +23,7 @@ impl ProgramReconstructor for DeadCodeEliminator<'_> {
         // Reset the state of the dead code eliminator.
         self.used_variables.clear();
         self.is_necessary = false;
+        self.is_async = input.variant.is_async_function();
 
         // Traverse the function body.
         let block = self.reconstruct_block(input.block).0;

@@ -9,11 +9,11 @@ outputs:
           initial_ast: 27c7103cf4aef0e2bb8a1abb044f3aa3a02b6d58c08a0f2cca78d13f7b061665
           unrolled_ast: 27c7103cf4aef0e2bb8a1abb044f3aa3a02b6d58c08a0f2cca78d13f7b061665
           ssa_ast: 5d2d844bb95e6a45dffd4786aa55c2483f7cda49617cb74671e9687c1cb75a74
-          flattened_ast: df415243c990cb8a30c4e863f60fcfebbcbd3ddd8d698db902fe44c3726b9da5
-          destructured_ast: 011a8cb6f4a57de5947f443b7e7641f1151fb80f0ec1e973795d06162a046283
-          inlined_ast: 9a9ca324838b653871e9309e62cb3d0d3258479f732296d798d21017d4cb3391
-          dce_ast: 9a9ca324838b653871e9309e62cb3d0d3258479f732296d798d21017d4cb3391
-          bytecode: c874534d8f0d3fbd6314e9c33907a596cf23f1f6d070776423b0316f40251d44
+          flattened_ast: 8cb0fae560bad8dba170c24763ed47e1d9a211a03b3f63a7a8c8777c8b83b931
+          destructured_ast: 55c8f0065d1d91bf3d99c0ac656fdd00ddd6e196767dd083cbd2e4c188afa737
+          inlined_ast: b5b1c94a03bd528b6a5dd3273304476903401287a79e90b3edb7cbae5114fa89
+          dce_ast: b5b1c94a03bd528b6a5dd3273304476903401287a79e90b3edb7cbae5114fa89
+          bytecode: 4c9b370477c0b08af171a80b375e88adaa53684d7419d52effb5504bbc5e9b59
           errors: ""
           warnings: ""
       execute:
@@ -39,7 +39,7 @@ outputs:
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
             proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq0rxwjqlxmc8acm0xaxeewz905709n3wjz45gmdpv6q0yy2pqhzj0dj7zaq2x32veqxg2aqveccuyqqys9vejps3830l50n6znqk47m7tf00xv4qnpg9vpz4l45rqs7n2hdyxutqjjd6w3j3le0p64u5dpjq2jhfant7td2w0wrr0r5v762k8lujm2r3rq283jfkl0aqrnfuhhklhxpe5zrhvcndj95p8drpw7fsqggqfk9e40l7nw600kel4p36ggaapgjpzpqlanwuuwlj3mas52p6qefk7xkacgcldxka9saqf4wwgqu9e87lv9jy68fzr65nujqdlxkds23l30nqejxfh0d6ycvvmgfzutps9ggafhelp0vc7zude43yjsrnx3348l4wzgu4nncayjlc88sw60h02lkn79ak8hszv4gqejvdlam4v5ylx5wsde7y5af0jrwkn2qp6st8j0ns5hafgh6mex29dt7ah26clzzmgm6ack4wvq64905ja9xuzsex6rf3uvahk89wzhlzx5eqwq7894l2l0f7vkmglk8d85987qttja0ug87594vxrkaadd008ary7fw94xyzga40cea6rlqqksq6qk52l549ze48pwenug4pg8g9lrfe3xqsl6dezyxa2a7vtnk83rhhw4uv9h4q4cas9v9r2meqkxmgspwe2r4gxyhn8zu2rraz9xspvj2skkarq30rv58zdqa6a6fftucu8l6788afecfl5r22dta56xfm6ze432hcxupq54sqpsug3dh2a6jqdkpw75pn7kdf60yfj0nru6w920cp808jxch6v3rj04rej26rvyqk5uz90k5kdlrg4c6hdxje2qtueffyw4mjr93yyuq8qjccstrq4qaad77dv42yl3wf5d0pqgceeurf4dtrzey0dt6jtz0tmynmvyzhcqycrcks09wslyy699lufkjcwknxju3t88vh9vffj0xmr5fzsh6cr72mjhwsrelh8lt023xeg0x9zvwn63pgz2es37p5dzlc3kut8sqp2tfy5vpazc58c5u25wg69aqa9vgjxkk94uwugx2n80jhwjqpugpxx9huu297v629hdjchld26c394rydn9t4rckf8ka63q3reelczq9uqdrgjh4azp353rx5x3matwx550cu9kgtwd7jnf76gl67nppkqfqvqqqqqqqqqqqwt6l5ch7kf7lrjfkpz83v2yw4mek6f6www8lwjucqpev25xf2x63tztw2x2mmqpp022yy8faa5csqqz5chxf3fde47ngzntjzhche0lv9ya3ywfagh8qxs490phu0n8pu0pz966d627zse28nap87cn65cpqy370fjf7z03rtrwshkz3fdu3hmknkdcx2sw72yv7elklj780n4qrq3lx7dmmuez3pj84zhhdhvuk9j9cpzxu74hfjkym23dkqya4cqkrtf5xhl06kpnqs6lfahpxjtysyqqwxuqrc
           verified: true
-          status: rejected
+          status: accepted
           errors: ""
           warnings: ""
         - execution:
