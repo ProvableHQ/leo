@@ -26,12 +26,11 @@ mod tests {
     use leo_span::{symbol::create_session_if_not_set_then, Symbol};
 
     use aleo_std::aleo_dir;
-    use snarkvm::prelude::MainnetV0;
 
     use serial_test::serial;
     use std::path::PathBuf;
 
-    type CurrentNetwork = MainnetV0;
+    type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
     #[test]
     #[ignore]

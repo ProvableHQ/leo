@@ -97,10 +97,10 @@ pub fn disassemble_from_str<N: Network>(program: &str) -> Result<Stub, UtilError
 mod tests {
     use super::*;
     use leo_span::symbol::create_session_if_not_set_then;
-    use snarkvm::{prelude::MainnetV0, synthesizer::program::Program};
+    use snarkvm::synthesizer::program::Program;
     use std::fs;
 
-    type CurrentNetwork = MainnetV0;
+    type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
     #[test]
     #[ignore]

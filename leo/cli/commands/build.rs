@@ -23,18 +23,13 @@ use leo_package::{build::BuildDirectory, outputs::OutputsDirectory, source::Sour
 use leo_retriever::Retriever;
 use leo_span::Symbol;
 
-use snarkvm::{
-    package::Package,
-    prelude::{MainnetV0, ProgramID},
-};
+use snarkvm::{package::Package, prelude::ProgramID};
 
 use indexmap::IndexMap;
 use std::{
     io::Write,
     path::{Path, PathBuf},
 };
-
-type CurrentNetwork = MainnetV0;
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -143,7 +138,7 @@ impl Command for Build {
                 for file_path in local_source_files {
                     compile_leo_file(
                         file_path,
-                        &ProgramID::<MainnetV0>::try_from(format!("{}.aleo", dependency))
+                        &ProgramID::<CurrentNetwork>::try_from(format!("{}.aleo", dependency))
                             .map_err(|_| UtilError::snarkvm_error_building_program_id(Default::default()))?,
                         &local_outputs_directory,
                         &local_build_directory,

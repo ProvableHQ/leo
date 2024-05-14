@@ -20,15 +20,13 @@ use leo_ast::{Ast, NodeBuilder};
 use leo_errors::emitter::Handler;
 use leo_span::symbol::create_session_if_not_set_then;
 
-use snarkvm::prelude::MainnetV0;
-
 use clap::Parser;
 use std::{
     fs,
     path::{Path, PathBuf},
 };
 
-type CurrentNetwork = MainnetV0;
+type CurrentNetwork = snarkvm::prelude::MainnetV0;
 
 #[derive(Debug, Parser)]
 #[clap(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]
