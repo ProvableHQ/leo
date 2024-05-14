@@ -998,7 +998,7 @@ impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
 
                     Some(Type::Tuple(expected_types.clone()))
                 } else {
-                    // Tuples must be explicitly typed in testnet3.
+                    // Tuples must be explicitly typed.
                     self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
 
                     None

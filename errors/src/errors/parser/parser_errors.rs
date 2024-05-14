@@ -211,7 +211,7 @@ create_messages!(
     invalid_associated_access {
         args: (name: impl Display),
         msg: format!("Invalid associated access call to struct {name}."),
-        help: Some("Double colon `::` syntax is only supported for core functions in Leo for testnet3.".to_string()),
+        help: Some("Double colon `::` syntax is only supported for core functions in Leo for mainnet.".to_string()),
     }
 
     @formatted

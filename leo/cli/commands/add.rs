@@ -28,7 +28,7 @@ pub struct Add {
     #[clap(short = 'l', long, help = "Optional path to local dependency")]
     pub(crate) local: Option<PathBuf>,
 
-    #[clap(short = 'n', long, help = "Optional name of the network to use", default_value = "testnet3")]
+    #[clap(short = 'n', long, help = "Optional name of the network to use", default_value = "mainnet")]
     pub(crate) network: String,
 }
 
