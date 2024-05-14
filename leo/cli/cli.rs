@@ -33,10 +33,10 @@ pub struct CLI {
     #[clap(subcommand)]
     command: Commands,
 
-    #[clap(long, global = true, help = "Optional path to Leo program root folder")]
+    #[clap(long, global = true, help = "Path to Leo program root folder")]
     path: Option<PathBuf>,
 
-    #[clap(long, global = true, help = "Optional path to aleo program registry.")]
+    #[clap(long, global = true, help = "Path to aleo program registry")]
     pub home: Option<PathBuf>,
 }
 
@@ -47,11 +47,6 @@ enum Commands {
     Account {
         #[clap(subcommand)]
         command: Account,
-    },
-    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
-    Add {
-        #[clap(flatten)]
-        command: Add,
     },
     #[clap(about = "Create a new Leo package in a new directory")]
     New {
@@ -78,11 +73,25 @@ enum Commands {
         #[clap(flatten)]
         command: Deploy,
     },
-
+    #[clap(about = "Query live data from the Aleo network")]
+    Query {
+        #[clap(flatten)]
+        command: Query,
+    },
     #[clap(about = "Compile the current package as a program")]
     Build {
         #[clap(flatten)]
         command: Build,
+    },
+    #[clap(about = "Add a new on-chain or local dependency to the current package.")]
+    Add {
+        #[clap(flatten)]
+        command: Add,
+    },
+    #[clap(about = "Remove a dependency from the current package.")]
+    Remove {
+        #[clap(flatten)]
+        command: Remove,
     },
     #[clap(about = "Clean the output directory")]
     Clean {
@@ -140,11 +149,13 @@ pub fn run_with_args(cli: CLI) -> Result<()> {
 
             command.try_execute(context)
         }
+        Commands::Query { command } => command.try_execute(context),
         Commands::Clean { command } => command.try_execute(context),
         Commands::Deploy { command } => command.try_execute(context),
         Commands::Example { command } => command.try_execute(context),
         Commands::Run { command } => command.try_execute(context),
         Commands::Execute { command } => command.try_execute(context),
+        Commands::Remove { command } => command.try_execute(context),
         Commands::Update { command } => command.try_execute(context),
     }
 }
@@ -401,6 +412,7 @@ function external_nested_function:
                     name: "nested_example_layer_0".to_string(),
                     local: None,
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(project_directory.clone()),
@@ -494,6 +506,7 @@ program child.aleo {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -508,6 +521,7 @@ program child.aleo {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(grandparent_directory.clone()),
@@ -522,6 +536,7 @@ program child.aleo {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(parent_directory.clone()),
@@ -645,6 +660,7 @@ program outer.aleo {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -659,6 +675,7 @@ program outer.aleo {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -812,6 +829,7 @@ program outer_2.aleo {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),
@@ -826,6 +844,7 @@ program outer_2.aleo {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
                     network: "testnet3".to_string(),
+                    clear: false,
                 },
             },
             path: Some(outer_directory.clone()),

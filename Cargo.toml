@@ -64,6 +64,9 @@ default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
 noconfig = [ ]
 
+[dependencies]
+ureq = "2.9.7"
+
 [dependencies.leo-ast]
 path = "./compiler/ast"
 version = "=1.11.0"
