@@ -20,7 +20,7 @@ use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError};
 use leo_span::{sym, Span, Symbol};
 
-use snarkvm::console::network::{MainnetV0, Network};
+use snarkvm::console::network::Network;
 
 use itertools::Itertools;
 use std::str::FromStr;
@@ -39,7 +39,7 @@ fn return_incorrect_type(t1: Option<Type>, t2: Option<Type>, expected: &Option<T
     }
 }
 
-impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
+impl<'a, N: Network> ExpressionVisitor<'a> for TypeChecker<'a, N> {
     type AdditionalInput = Option<Type>;
     type Output = Option<Type>;
 
@@ -303,27 +303,24 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
                 self.emit_err(TypeCheckerError::array_empty(input.span()));
                 None
             }
-            // Check that the element types match.
-            1..=MainnetV0::MAX_ARRAY_ELEMENTS => {
-                let mut element_types = element_types.into_iter();
-                // Note that this unwrap is safe because we already checked that the array is not empty.
-                element_types.next().unwrap().map(|first_type| {
-                    // Check that all elements have the same type.
-                    for (element_type, element) in element_types.zip_eq(input.elements.iter().skip(1)) {
-                        self.assert_type(&element_type, &first_type, element.span());
-                    }
-                    // Return the array type.
-                    Type::Array(ArrayType::new(first_type, NonNegativeNumber::from(input.elements.len())))
-                })
-            }
-            // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.
             num_elements => {
-                self.emit_err(TypeCheckerError::array_too_large(
-                    num_elements,
-                    MainnetV0::MAX_ARRAY_ELEMENTS,
-                    input.span(),
-                ));
-                None
+                if num_elements <= N::MAX_ARRAY_ELEMENTS {
+                    // Check that the element types match.
+                    let mut element_types = element_types.into_iter();
+                    // Note that this unwrap is safe because we already checked that the array is not empty.
+                    element_types.next().unwrap().map(|first_type| {
+                        // Check that all elements have the same type.
+                        for (element_type, element) in element_types.zip_eq(input.elements.iter().skip(1)) {
+                            self.assert_type(&element_type, &first_type, element.span());
+                        }
+                        // Return the array type.
+                        Type::Array(ArrayType::new(first_type, NonNegativeNumber::from(input.elements.len())))
+                    })
+                } else {
+                    // The array cannot have more than `MAX_ARRAY_ELEMENTS` elements.
+                    self.emit_err(TypeCheckerError::array_too_large(num_elements, N::MAX_ARRAY_ELEMENTS, input.span()));
+                    None
+                }
             }
         };
 
@@ -1001,7 +998,7 @@ impl<'a> ExpressionVisitor<'a> for TypeChecker<'a> {
 
                     Some(Type::Tuple(expected_types.clone()))
                 } else {
-                    // Tuples must be explicitly typed in testnet3.
+                    // Tuples must be explicitly typed.
                     self.emit_err(TypeCheckerError::invalid_tuple(input.span()));
 
                     None

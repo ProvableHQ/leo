@@ -18,7 +18,7 @@ fi
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
 " > .env
 
@@ -52,7 +52,7 @@ leo run mint_public aleo13ssze66adjjkt795z9u5wpq8h6kn0y2657726h4h3e3wfnez4vqsm30
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkpFo72g7N9iFt3JzzeG8CqsS5doAiXyFvNCgk2oHvjRCzF
 " > .env
 
@@ -86,7 +86,7 @@ leo run mint_private aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqyshd
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
 " > .env
 
@@ -120,7 +120,7 @@ leo run transfer_public aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4calsrrqdaqy
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkpFo72g7N9iFt3JzzeG8CqsS5doAiXyFvNCgk2oHvjRCzF
 " > .env
 
@@ -158,7 +158,7 @@ leo run transfer_private "{
 
 # Swap in the private key of Alice.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
 " > .env
 
@@ -193,7 +193,7 @@ leo run transfer_public_to_private aleo17vy26rpdhqx4598y5gp7nvaa9rk7tnvl6ufhvvf4
 
 # Swap in the private key of Bob.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkpFo72g7N9iFt3JzzeG8CqsS5doAiXyFvNCgk2oHvjRCzF
 " > .env
 
@@ -234,6 +234,6 @@ leo run transfer_private_to_public "{
 # Swap in the private key of Alice.
 # This is done to ensure that program.json is the same after every execution of ./run.sh.
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkp1w8PTxrRgGfAtfKUSq43iQyVbdQHfhGbiNPEg2LVSEXR
 " > .env

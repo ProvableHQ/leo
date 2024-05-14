@@ -28,6 +28,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+type CurrentNetwork = snarkvm::prelude::MainnetV0;
+
 /// An enum to represent the stage of the Compiler we are benchmarking.
 enum BenchMode {
     /// Benchmarks parsing.
@@ -81,7 +83,7 @@ struct Sample {
 }
 
 /// A helper function to help create a Leo Compiler struct.
-fn new_compiler(handler: &Handler) -> Compiler<'_> {
+fn new_compiler(handler: &Handler) -> Compiler<'_, CurrentNetwork> {
     Compiler::new(
         String::from("test"),
         String::from("aleo"),
@@ -142,7 +144,7 @@ impl Sample {
     }
 
     /// Benchmarks `logic(compiler)` where `compiler` is provided.
-    fn bencher(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler) -> Duration) {
+    fn bencher(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler<CurrentNetwork>) -> Duration) {
         c.bench_function(&format!("{mode} {}", self.name), |b| {
             // Iter custom is used so we can use custom timings around the compiler stages.
             // This way we can only time the necessary stage.
@@ -156,7 +158,12 @@ impl Sample {
 
     /// Benchmarks `logic(compiler)` where `compiler` is provided.
     /// Parsing has already been done.
-    fn bencher_after_parse(&self, c: &mut Criterion, mode: &str, mut logic: impl FnMut(Compiler) -> Duration) {
+    fn bencher_after_parse(
+        &self,
+        c: &mut Criterion,
+        mode: &str,
+        mut logic: impl FnMut(Compiler<CurrentNetwork>) -> Duration,
+    ) {
         self.bencher(c, mode, |mut compiler| {
             let (input, name) = self.data();
             compiler.parse_program_from_string(input, name).expect("Failed to parse program");

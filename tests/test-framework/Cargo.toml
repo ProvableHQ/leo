@@ -61,3 +61,6 @@ path = "../../compiler/span"
 
 [dev-dependencies.criterion]
 version = "0.5"
+
+[dev-dependencies.snarkvm]
+workspace = true

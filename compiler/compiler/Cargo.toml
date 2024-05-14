@@ -41,6 +41,9 @@ version = "=1.12.0"
 [dependencies.sha2]
 version = "0.10"
 
+[dependencies.snarkvm]
+workspace = true
+
 [dependencies.indexmap]
 version = "1.9"
 features = [ ]

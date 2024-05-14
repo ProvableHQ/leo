@@ -17,7 +17,7 @@ echo "
 "
 
 echo "
-NETWORK=testnet3
+NETWORK=mainnet
 PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
 " > .env
 
@@ -67,7 +67,7 @@ echo "
 "
 (
   echo "
-  NETWORK=testnet3
+  NETWORK=mainnet
   PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
   " > .env
 
@@ -115,7 +115,7 @@ echo "
 "
 (
   echo "
-  NETWORK=testnet3
+  NETWORK=mainnet
   PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
   " > .env
 
@@ -151,7 +151,7 @@ echo "
 (
 
   echo "
-  NETWORK=testnet3
+  NETWORK=mainnet
   PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
   " > .env
 
@@ -186,7 +186,7 @@ echo "
 "
 (
   echo "
-  NETWORK=testnet3
+  NETWORK=mainnet
   PRIVATE_KEY=APrivateKey1zkpGKaJY47BXb6knSqmT3JZnBUEGBDFAWz2nMVSsjwYpJmm
   " > .env
 
@@ -222,7 +222,7 @@ echo "
 (
 
   echo "
-  NETWORK=testnet3
+  NETWORK=mainnet
   PRIVATE_KEY=APrivateKey1zkp86FNGdKxjgAdgQZ967bqBanjuHkAaoRe19RK24ZCGsHH
   " > .env
 

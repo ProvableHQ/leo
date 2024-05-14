@@ -20,12 +20,13 @@ use leo_ast::{Type, *};
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
-use snarkvm::console::network::{MainnetV0, Network};
+use snarkvm::console::network::Network;
+
 use std::collections::HashSet;
 
 // TODO: Cleanup logic for tuples.
 
-impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
+impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
     fn visit_program(&mut self, input: &'a Program) {
         // Typecheck the program's stubs.
         input.stubs.iter().for_each(|(symbol, stub)| {
@@ -43,82 +44,6 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // Typecheck the program scopes.
         input.program_scopes.values().for_each(|scope| self.visit_program_scope(scope));
-    }
-
-    fn visit_stub(&mut self, input: &'a Stub) {
-        // Set the current program name.
-        self.scope_state.program_name = Some(input.stub_id.name.name);
-
-        // Cannot have constant declarations in stubs.
-        if !input.consts.is_empty() {
-            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
-        }
-
-        // Typecheck the program's structs.
-        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
-
-        // Typecheck the program's functions.
-        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
-    }
-
-    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
-        // Must not be an inline function
-        if input.variant == Variant::Inline {
-            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
-        }
-
-        // Lookup function metadata in the symbol table.
-        // Note that this unwrap is safe since function metadata is stored in a prior pass.
-        let function_index = self
-            .symbol_table
-            .borrow()
-            .lookup_fn_symbol(Location::new(self.scope_state.program_name, input.identifier.name))
-            .unwrap()
-            .id;
-
-        // Enter the function's scope.
-        self.enter_scope(function_index);
-
-        // Create a new child scope for the function's parameters and body.
-        let scope_index = self.create_child_scope();
-
-        // Create future stubs.
-        if input.variant == Variant::AsyncFunction {
-            let finalize_input_map = &mut self.async_function_input_types;
-            let resolved_inputs: Vec<Type> = input
-                .input
-                .iter()
-                .map(|input| {
-                    match &input.type_ {
-                        Type::Future(f) => {
-                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                            Type::Future(FutureType::new(
-                                finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
-                                f.location.clone(),
-                                true,
-                            ))
-                        }
-                        _ => input.clone().type_,
-                    }
-                })
-                .collect();
-
-            finalize_input_map
-                .insert(Location::new(self.scope_state.program_name, input.identifier.name), resolved_inputs);
-        }
-
-        // Query helper function to type check function parameters and outputs.
-        self.check_function_signature(&Function::from(input.clone()));
-
-        // Exit the scope for the function's parameters and body.
-        self.exit_scope(scope_index);
-
-        // Exit the function's scope.
-        self.exit_scope(function_index);
-    }
-
-    fn visit_struct_stub(&mut self, input: &'a Composite) {
-        self.visit_struct(input);
     }
 
     fn visit_program_scope(&mut self, input: &'a ProgramScope) {
@@ -144,9 +69,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         }
 
         // Check that the number of mappings does not exceed the maximum.
-        if mapping_count > MainnetV0::MAX_MAPPINGS {
+        if mapping_count > N::MAX_MAPPINGS {
             self.emit_err(TypeCheckerError::too_many_mappings(
-                MainnetV0::MAX_MAPPINGS,
+                N::MAX_MAPPINGS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -167,9 +92,9 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
 
         // TODO: Need similar checks for structs (all in separate PR)
         // Check that the number of transitions does not exceed the maximum.
-        if transition_count > MainnetV0::MAX_FUNCTIONS {
+        if transition_count > N::MAX_FUNCTIONS {
             self.emit_err(TypeCheckerError::too_many_transitions(
-                MainnetV0::MAX_FUNCTIONS,
+                N::MAX_FUNCTIONS,
                 input.program_id.name.span + input.program_id.network.span,
             ));
         }
@@ -178,6 +103,22 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
         else if transition_count == 0 {
             self.emit_err(TypeCheckerError::no_transitions(input.program_id.name.span + input.program_id.network.span));
         }
+    }
+
+    fn visit_stub(&mut self, input: &'a Stub) {
+        // Set the current program name.
+        self.scope_state.program_name = Some(input.stub_id.name.name);
+
+        // Cannot have constant declarations in stubs.
+        if !input.consts.is_empty() {
+            self.emit_err(TypeCheckerError::stubs_cannot_have_const_declarations(input.consts.first().unwrap().1.span));
+        }
+
+        // Typecheck the program's structs.
+        input.structs.iter().for_each(|(_, function)| self.visit_struct_stub(function));
+
+        // Typecheck the program's functions.
+        input.functions.iter().for_each(|(_, function)| self.visit_function_stub(function));
     }
 
     fn visit_struct(&mut self, input: &'a Composite) {
@@ -405,5 +346,65 @@ impl<'a> ProgramVisitor<'a> for TypeChecker<'a> {
                 }
             }
         }
+    }
+
+    fn visit_function_stub(&mut self, input: &'a FunctionStub) {
+        // Must not be an inline function
+        if input.variant == Variant::Inline {
+            self.emit_err(TypeCheckerError::stub_functions_must_not_be_inlines(input.span));
+        }
+
+        // Lookup function metadata in the symbol table.
+        // Note that this unwrap is safe since function metadata is stored in a prior pass.
+        let function_index = self
+            .symbol_table
+            .borrow()
+            .lookup_fn_symbol(Location::new(self.scope_state.program_name, input.identifier.name))
+            .unwrap()
+            .id;
+
+        // Enter the function's scope.
+        self.enter_scope(function_index);
+
+        // Create a new child scope for the function's parameters and body.
+        let scope_index = self.create_child_scope();
+
+        // Create future stubs.
+        if input.variant == Variant::AsyncFunction {
+            let finalize_input_map = &mut self.async_function_input_types;
+            let resolved_inputs: Vec<Type> = input
+                .input
+                .iter()
+                .map(|input| {
+                    match &input.type_ {
+                        Type::Future(f) => {
+                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            Type::Future(FutureType::new(
+                                finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
+                                f.location.clone(),
+                                true,
+                            ))
+                        }
+                        _ => input.clone().type_,
+                    }
+                })
+                .collect();
+
+            finalize_input_map
+                .insert(Location::new(self.scope_state.program_name, input.identifier.name), resolved_inputs);
+        }
+
+        // Query helper function to type check function parameters and outputs.
+        self.check_function_signature(&Function::from(input.clone()));
+
+        // Exit the scope for the function's parameters and body.
+        self.exit_scope(scope_index);
+
+        // Exit the function's scope.
+        self.exit_scope(function_index);
+    }
+
+    fn visit_struct_stub(&mut self, input: &'a Composite) {
+        self.visit_struct(input);
     }
 }

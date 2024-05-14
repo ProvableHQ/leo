@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate asts
         run: |
-          # This currently has to be on testnet3 to work:
+          # This currently has to be on mainnet to work:
           cd compiler/parser
           cargo -q install --path . --example parser
           # To ensure full file tests,

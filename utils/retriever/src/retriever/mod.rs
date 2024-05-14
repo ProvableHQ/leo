@@ -14,31 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use indexmap::{IndexMap, IndexSet};
+use crate::{Dependency, Location, LockFileEntry, Manifest, NetworkName, ProgramContext};
+
 use leo_ast::Stub;
 use leo_disassembler::disassemble_from_str;
 use leo_errors::UtilError;
 use leo_passes::{common::DiGraph, DiGraphError};
 use leo_span::Symbol;
 
-use crate::{Dependency, Location, LockFileEntry, Manifest, Network, ProgramContext};
+use snarkvm::prelude::Network;
+
+use indexmap::{IndexMap, IndexSet};
 use std::{
     fs,
     fs::File,
     io::Read,
+    marker::PhantomData,
     path::{Path, PathBuf},
 };
 
 // Retriever is responsible for retrieving external programs
-pub struct Retriever {
+pub struct Retriever<N: Network> {
     name: Symbol,
     contexts: IndexMap<Symbol, ProgramContext>,
     project_path: PathBuf,
     registry_path: PathBuf,
     endpoint: String,
+    phantom: PhantomData<N>,
 }
 
-impl Retriever {
+impl<N: Network> Retriever<N> {
     // Initialize a new Retriever.
     pub fn new(name: Symbol, path: &PathBuf, home: &Path, endpoint: String) -> Result<Self, UtilError> {
         // Starting point is all of the dependencies specified in the main `program.json` file
@@ -54,6 +59,7 @@ impl Retriever {
             project_path: path.clone(),
             registry_path: home.join("registry"),
             endpoint: endpoint.clone(),
+            phantom: Default::default(),
         })
     }
 
@@ -83,11 +89,10 @@ impl Retriever {
                 // Split into cases based on network dependency or local dependency
                 let nested_dependencies = match cur_context.location() {
                     Location::Network => {
-                        let (stub, nested_dependencies) = retrieve_from_network(
+                        let (stub, nested_dependencies) = retrieve_from_network::<N>(
                             &self.project_path,
                             &self.registry_path,
                             cur_context.full_name(),
-                            cur_context.network(),
                             &self.endpoint,
                         )?;
 
@@ -304,7 +309,7 @@ impl Retriever {
             })?;
 
             // Cache the disassembled stub
-            let stub: Stub = disassemble_from_str(&content)?;
+            let stub: Stub = disassemble_from_str::<N>(&content)?;
             if cur_context.add_stub(stub.clone()) {
                 Err(UtilError::duplicate_dependency_name_error(stub.stub_id.name.name, Default::default()))?;
             }
@@ -418,15 +423,21 @@ fn retrieve_local(name: &String, path: &PathBuf) -> Result<Vec<Dependency>, Util
 }
 
 // Retrieve from network
-fn retrieve_from_network(
+fn retrieve_from_network<N: Network>(
     project_path: &Path,
     home_path: &Path,
     name: &String,
-    network: &Network,
     endpoint: &String,
 ) -> Result<(Stub, Vec<Dependency>), UtilError> {
+    // Get the network being used.
+    let network = match N::ID {
+        snarkvm::console::network::MainnetV0::ID => NetworkName::MainnetV0,
+        snarkvm::console::network::TestnetV0::ID => NetworkName::TestnetV0,
+        _ => NetworkName::MainnetV0,
+    };
+
     // Check if the file is already cached in `~/.aleo/registry/{network}/{program}`
-    let move_to_path = home_path.join(format!("{network}"));
+    let move_to_path = home_path.join(network.to_string());
     let path = move_to_path.join(name.clone());
     let mut file_str: String;
     if !path.exists() {
@@ -439,11 +450,14 @@ fn retrieve_from_network(
             )
         })?;
 
+        // Construct the endpoint for the network.
+        let endpoint = format!("{endpoint}/{network}");
+
         // Fetch from network
-        println!("Retrieving {} from {:?}.", name, network.clone());
-        file_str = fetch_from_network(endpoint, name, network.clone())?;
+        println!("Retrieving {name} from {endpoint}.");
+        file_str = fetch_from_network(&endpoint, name)?;
         file_str = file_str.replace("\\n", "\n").replace('\"', "");
-        println!("Successfully retrieved {} from {:?}!", name, network);
+        println!("Successfully retrieved {} from {:?}!", name, endpoint);
 
         // Write file to cache
         std::fs::write(path.clone(), file_str.clone().replace("\\n", "\n")).map_err(|err| {
@@ -484,7 +498,7 @@ fn retrieve_from_network(
     })?;
 
     // Disassemble into Stub
-    let stub: Stub = disassemble_from_str(&file_str)?;
+    let stub: Stub = disassemble_from_str::<N>(&file_str)?;
 
     // Create entry for leo.lock
     Ok((
@@ -496,7 +510,7 @@ fn retrieve_from_network(
                 Dependency::new(
                     id.name.name.to_string() + "." + id.network.name.to_string().as_str(),
                     Location::Network,
-                    Some(network.clone()),
+                    Some(network),
                     None,
                 )
             })
@@ -504,11 +518,11 @@ fn retrieve_from_network(
     ))
 }
 
-fn fetch_from_network(endpoint: &String, program: &String, network: Network) -> Result<String, UtilError> {
-    let url = format!("{}/{}/program/{}", endpoint, network.clone(), program);
+fn fetch_from_network(endpoint: &String, program: &String) -> Result<String, UtilError> {
+    let url = format!("{}/program/{}", endpoint, program);
     let response = ureq::get(&url.clone())
         .call()
-        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;
+        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
     if response.status() == 200 {
         Ok(response.into_string().unwrap())
     } else {

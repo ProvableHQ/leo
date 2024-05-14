@@ -18,7 +18,7 @@ use super::*;
 use leo_errors::{ParserError, Result};
 
 use leo_span::sym;
-use snarkvm::console::{account::Address, network::MainnetV0};
+use snarkvm::console::{account::Address, network::Network};
 
 const INT_TYPES: &[Token] = &[
     Token::I8,
@@ -36,7 +36,7 @@ const INT_TYPES: &[Token] = &[
     Token::Scalar,
 ];
 
-impl ParserContext<'_> {
+impl<N: Network> ParserContext<'_, N> {
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes struct init expressions.
     pub(crate) fn parse_expression(&mut self) -> Result<Expression> {
@@ -769,7 +769,7 @@ impl ParserContext<'_> {
             Token::True => Expression::Literal(Literal::Boolean(true, span, self.node_builder.next_id())),
             Token::False => Expression::Literal(Literal::Boolean(false, span, self.node_builder.next_id())),
             Token::AddressLit(address_string) => {
-                if address_string.parse::<Address<MainnetV0>>().is_err() {
+                if address_string.parse::<Address<N>>().is_err() {
                     self.emit_err(ParserError::invalid_address_lit(&address_string, span));
                 }
                 Expression::Literal(Literal::Address(address_string, span, self.node_builder.next_id()))

@@ -24,32 +24,17 @@ use crate::{
     VariableType,
 };
 
-use leo_ast::{
-    Composite,
-    CompositeType,
-    CoreConstant,
-    CoreFunction,
-    Expression,
-    Function,
-    Identifier,
-    IntegerType,
-    Location,
-    MappingType,
-    Mode,
-    Node,
-    Type,
-    Variant,
-};
+use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
-use snarkvm::console::network::{MainnetV0, Network};
+use snarkvm::console::network::Network;
 
 use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use std::cell::RefCell;
+use std::{cell::RefCell, marker::PhantomData};
 
-pub struct TypeChecker<'a> {
+pub struct TypeChecker<'a, N: Network> {
     /// The symbol table for the program.
     pub(crate) symbol_table: RefCell<SymbolTable>,
     /// A mapping from node IDs to their types.
@@ -68,6 +53,8 @@ pub struct TypeChecker<'a> {
     pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
     /// The set of used composites.
     pub(crate) used_structs: IndexSet<Symbol>,
+    // Allows the type checker to be generic over the network.
+    phantom: PhantomData<N>,
 }
 
 const ADDRESS_TYPE: Type = Type::Address;
@@ -114,7 +101,7 @@ const UNSIGNED_INT_TYPES: [Type; 5] = [
 const MAGNITUDE_TYPES: [Type; 3] =
     [Type::Integer(IntegerType::U8), Type::Integer(IntegerType::U16), Type::Integer(IntegerType::U32)];
 
-impl<'a> TypeChecker<'a> {
+impl<'a, N: Network> TypeChecker<'a, N> {
     /// Returns a new type checker given a symbol table and error handler.
     pub fn new(
         symbol_table: SymbolTable,
@@ -137,6 +124,7 @@ impl<'a> TypeChecker<'a> {
             await_checker: AwaitChecker::new(max_depth, !disabled),
             async_function_input_types: IndexMap::new(),
             used_structs: IndexSet::new(),
+            phantom: Default::default(),
         }
     }
 
@@ -1100,9 +1088,10 @@ impl<'a> TypeChecker<'a> {
                 // Check that the array length is valid.
                 match array_type.length() {
                     0 => self.emit_err(TypeCheckerError::array_empty(span)),
-                    1..=MainnetV0::MAX_ARRAY_ELEMENTS => {}
                     length => {
-                        self.emit_err(TypeCheckerError::array_too_large(length, MainnetV0::MAX_ARRAY_ELEMENTS, span))
+                        if length > N::MAX_ARRAY_ELEMENTS {
+                            self.emit_err(TypeCheckerError::array_too_large(length, N::MAX_ARRAY_ELEMENTS, span))
+                        }
                     }
                 }
                 // Check that the array element type is valid.

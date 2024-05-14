@@ -14,14 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+mod await_checker;
+
 pub mod check_expressions;
 
 pub mod check_program;
 
 pub mod check_statements;
 
-mod await_checker;
 pub mod checker;
+
 mod scope_state;
 
 pub use checker::*;
@@ -31,12 +33,14 @@ use crate::{CallGraph, Pass, StructGraph, SymbolTable, TypeTable};
 use leo_ast::{Ast, ProgramVisitor};
 use leo_errors::{emitter::Handler, Result};
 
-impl<'a> Pass for TypeChecker<'a> {
+use snarkvm::prelude::Network;
+
+impl<'a, N: Network> Pass for TypeChecker<'a, N> {
     type Input = (&'a Ast, &'a Handler, SymbolTable, &'a TypeTable, usize, bool);
     type Output = Result<(SymbolTable, StructGraph, CallGraph)>;
 
     fn do_pass((ast, handler, st, tt, max_depth, await_checking): Self::Input) -> Self::Output {
-        let mut visitor = TypeChecker::new(st, tt, handler, max_depth, await_checking);
+        let mut visitor = TypeChecker::<N>::new(st, tt, handler, max_depth, await_checking);
         visitor.visit_program(ast.as_repr());
         handler.last_err().map_err(|e| *e)?;
 

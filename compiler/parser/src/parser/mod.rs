@@ -23,10 +23,11 @@ use crate::{tokenizer::*, Token};
 
 use leo_ast::*;
 use leo_errors::{emitter::Handler, Result};
-use leo_span::Span;
+use leo_span::{span::BytePos, Span};
+
+use snarkvm::prelude::Network;
 
 use indexmap::IndexMap;
-use leo_span::span::BytePos;
 use std::unreachable;
 
 mod context;
@@ -38,8 +39,13 @@ mod statement;
 pub(super) mod type_;
 
 /// Creates a new program from a given file path and source code text.
-pub fn parse(handler: &Handler, node_builder: &NodeBuilder, source: &str, start_pos: BytePos) -> Result<Program> {
-    let mut tokens = ParserContext::new(handler, node_builder, crate::tokenize(source, start_pos)?);
+pub fn parse<N: Network>(
+    handler: &Handler,
+    node_builder: &NodeBuilder,
+    source: &str,
+    start_pos: BytePos,
+) -> Result<Program> {
+    let mut tokens = ParserContext::<N>::new(handler, node_builder, crate::tokenize(source, start_pos)?);
 
     tokens.parse_program()
 }

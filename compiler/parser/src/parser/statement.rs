@@ -36,7 +36,7 @@ const ASSIGN_TOKENS: &[Token] = &[
     Token::BitXorAssign,
 ];
 
-impl ParserContext<'_> {
+impl<N: Network> ParserContext<'_, N> {
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     pub(crate) fn parse_statement(&mut self) -> Result<Statement> {
         match &self.token.token {

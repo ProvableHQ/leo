@@ -114,7 +114,7 @@ create_messages!(
     missing_network_error {
         args: (dependency: impl Display),
         msg: format!("Dependency {dependency} is missing a network specification"),
-        help: Some("Add a network specification to the dependency in the `program.json` file. Example: `network: \"testnet3\"`".to_string()),
+        help: Some("Add a network specification to the dependency in the `program.json` file. Example: `network: \"mainnet\"`".to_string()),
     }
 
     @formatted
@@ -140,8 +140,8 @@ create_messages!(
 
     @formatted
     failed_to_retrieve_from_endpoint {
-        args: (endpoint: impl Display, error: impl ErrorArg),
-        msg: format!("Failed to retrieve from endpoint `{endpoint}`. Error: {error}"),
+        args: (error: impl ErrorArg),
+        msg: format!("{error}"),
         help: None,
     }
 
@@ -150,5 +150,47 @@ create_messages!(
         args: (path: impl Display),
         msg: format!("Compiled file at `{path}` does not exist, cannot compile parent."),
         help: Some("If you were using the `--non-recursive` flag, remove it and try again.".to_string()),
+    }
+
+    @backtraced
+    invalid_input_id_len {
+        args: (input: impl Display, expected_type: impl Display),
+        msg: format!("Invalid input: {input}."),
+        help: Some(format!("Type `{expected_type}` must contain exactly 61 lowercase characters or numbers.")),
+    }
+
+    @backtraced
+    invalid_input_id {
+        args: (input: impl Display, expected_type: impl Display, expected_preface: impl Display),
+        msg: format!("Invalid input: {input}."),
+        help: Some(format!("Type `{expected_type}` must start with \"{expected_preface}\".")),
+    }
+
+    @backtraced
+    invalid_numerical_input {
+        args: (input: impl Display),
+        msg: format!("Invalid numerical input: {input}."),
+        help: Some("Input must be a valid u32.".to_string()),
+    }
+
+    @backtraced
+    invalid_range {
+        args: (),
+        msg: "The range must be less than or equal to 50 blocks.".to_string(),
+        help: None,
+    }
+
+    @backtraced
+    invalid_height_or_hash {
+        args: (input: impl Display),
+        msg: format!("Invalid input: {input}."),
+        help: Some("Input must be a valid height or hash. Valid hashes are 61 characters long, composed of only numbers and lower case letters, and be prefaced with \"ab1\".".to_string()),
+    }
+
+    @backtraced
+    invalid_field {
+        args: (field: impl Display),
+        msg: format!("Invalid field: {field}."),
+        help: Some("Field element must be numerical string with optional \"field\" suffix.".to_string()),
     }
 );
