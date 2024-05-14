@@ -189,10 +189,6 @@ fn compile_leo_file(
     options: BuildOptions,
     stubs: IndexMap<Symbol, Stub>,
 ) -> Result<()> {
-    // Construct the Leo file name with extension `foo.leo`.
-    let file_name =
-        file_path.file_name().and_then(|name| name.to_str()).ok_or_else(PackageError::failed_to_get_file_name)?;
-
     // Construct program name from the program_id found in `package.json`.
     let program_name = program_id.name().to_string();
 
@@ -202,7 +198,7 @@ fn compile_leo_file(
 
     // Create a new instance of the Leo compiler.
     let mut compiler = Compiler::<CurrentNetwork>::new(
-        program_name,
+        program_name.clone(),
         program_id.network().to_string(),
         handler,
         file_path.clone(),
@@ -220,6 +216,6 @@ fn compile_leo_file(
         .write_all(instructions.as_bytes())
         .map_err(CliError::failed_to_load_instructions)?;
 
-    tracing::info!("✅ Compiled '{}' into Aleo instructions", file_name);
+    tracing::info!("✅ Compiled '{program_name}.aleo' into Aleo instructions");
     Ok(())
 }

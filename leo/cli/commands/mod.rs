@@ -35,11 +35,17 @@ pub use example::Example;
 pub mod execute;
 pub use execute::Execute;
 
+pub mod query;
+pub use query::Query;
+
 pub mod new;
 pub use new::New;
 
 // pub mod node;
 // pub use node::Node;
+
+pub mod remove;
+pub use remove::Remove;
 
 pub mod run;
 pub use run::Run;

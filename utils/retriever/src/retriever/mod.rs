@@ -522,7 +522,7 @@ fn fetch_from_network(endpoint: &String, program: &String) -> Result<String, Uti
     let url = format!("{}/program/{}", endpoint, program);
     let response = ureq::get(&url.clone())
         .call()
-        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(url.clone(), err, Default::default()))?;
+        .map_err(|err| UtilError::failed_to_retrieve_from_endpoint(err, Default::default()))?;
     if response.status() == 200 {
         Ok(response.into_string().unwrap())
     } else {

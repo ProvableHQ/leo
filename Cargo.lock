@@ -1972,6 +1972,7 @@ dependencies = [
  "toml 0.8.12",
  "tracing",
  "tracing-subscriber",
+ "ureq",
  "walkdir",
  "zip",
 ]
