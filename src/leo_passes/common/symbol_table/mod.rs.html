@@ -288,6 +288,40 @@
 <a href="#286" id="286">286</a>
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -346,18 +380,19 @@
 <span class="kw">impl </span>SymbolTable {
     <span class="doccomment">/// Recursively checks if the symbol table contains an entry for the given symbol.
     /// Leo does not allow any variable shadowing or overlap between different symbols.
-    </span><span class="kw">pub fn </span>check_shadowing(<span class="kw-2">&amp;</span><span class="self">self</span>, location: <span class="kw-2">&amp;</span>Location, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub fn </span>check_shadowing(<span class="kw-2">&amp;</span><span class="self">self</span>, location: <span class="kw-2">&amp;</span>Location, is_struct: bool, span: Span) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.functions.contains_key(location) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_function(location.name, span).into());
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(existing) = <span class="self">self</span>.structs.get(location) {
-            <span class="kw">return match </span>existing.is_record {
-                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_record(location.name, span).into()),
-                <span class="bool-val">false </span>=&gt; <span class="prelude-val">Err</span>(AstError::shadowed_struct(location.name, span).into()),
-            };
+        } <span class="kw">else if </span><span class="self">self</span>.structs.get(location).is_some() &amp;&amp; !(location.program.is_none() &amp;&amp; is_struct) {
+            <span class="comment">// The second half of the conditional makes sure that structs are only caught for shadowing local records during ST creation, not for redefinition of external structs.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_record(location.name, span).into());
+        } <span class="kw">else if </span><span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">None</span>, location.name)).is_some() &amp;&amp; !is_struct {
+            <span class="comment">// Struct redefinition is allowed. If there are more than one occurrences, the error will be caught in the creator pass.
+            </span><span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_struct(location.name, span).into());
         } <span class="kw">else if </span><span class="self">self</span>.variables.contains_key(location) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::shadowed_variable(location.name, span).into());
         }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() { parent.check_shadowing(location, span) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(()) }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() { parent.check_shadowing(location, is_struct, span) } <span class="kw">else </span>{ <span class="prelude-val">Ok</span>(()) }
     }
 
     <span class="doccomment">/// Returns the current scope index.
@@ -371,7 +406,7 @@
     <span class="doccomment">/// Inserts a function into the symbol table.
     </span><span class="kw">pub fn </span>insert_fn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: <span class="kw-2">&amp;</span>Function) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>id = <span class="self">self</span>.scope_index();
-        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, insert.span)<span class="question-mark">?</span>;
+        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.functions.insert(location, <span class="self">Self</span>::new_function_symbol(id, insert));
         <span class="self">self</span>.scopes.push(Default::default());
         <span class="prelude-val">Ok</span>(())
@@ -379,14 +414,41 @@
 
     <span class="doccomment">/// Inserts a struct into the symbol table.
     </span><span class="kw">pub fn </span>insert_struct(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: <span class="kw-2">&amp;</span>Composite) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="kw">match </span><span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, insert.span) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.structs.insert(location, insert.clone());
-                <span class="prelude-val">Ok</span>(())
+        <span class="comment">// Check shadowing.
+        </span><span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, !insert.is_record, insert.span)<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>insert.is_record {
+            <span class="comment">// Insert the record into the symbol table.
+            </span><span class="self">self</span>.structs.insert(location, insert.clone());
+        } <span class="kw">else </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">None</span>, location.name)) {
+                <span class="comment">// Allow redefinition of external structs so long as the definitions match.
+                </span><span class="kw">if </span>!<span class="self">self</span>.check_eq_struct(insert, struct_) {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(AstError::redefining_external_struct(location.name, insert.span).into());
+                }
             }
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
+            <span class="comment">// Insert with program location set to `None` to reflect that in snarkVM structs are not attached to programs (unlike records).
+            </span><span class="self">self</span>.structs.insert(Location::new(<span class="prelude-val">None</span>, location.name), insert.clone());
         }
+
+        <span class="prelude-val">Ok</span>(())
     }
+
+    <span class="doccomment">/// Checks if two structs are equal.
+    </span><span class="kw">fn </span>check_eq_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, new: <span class="kw-2">&amp;</span>Composite, old: <span class="kw-2">&amp;</span>Composite) -&gt; bool {
+        <span class="kw">if </span>new.is_record || old.is_record {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+        <span class="kw">if </span>new.members.len() != old.members.len() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+        <span class="kw">for </span>(member1, member2) <span class="kw">in </span>new.members.iter().zip(old.members.iter()) {
+            <span class="kw">if </span>member1.name() != member2.name() || !member1.type_.eq_flat_relax_composite(<span class="kw-2">&amp;</span>member2.type_) {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+        }
+        <span class="bool-val">true
+    </span>}
 
     <span class="doccomment">/// Attach a finalize to a function.
     </span><span class="kw">pub fn </span>attach_finalize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, caller: Location, callee: Location) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
@@ -402,7 +464,7 @@
 
     <span class="doccomment">/// Inserts a variable into the symbol table.
     </span><span class="kw">pub fn </span>insert_variable(<span class="kw-2">&amp;mut </span><span class="self">self</span>, location: Location, insert: VariableSymbol) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, insert.span)<span class="question-mark">?</span>;
+        <span class="self">self</span>.check_shadowing(<span class="kw-2">&amp;</span>location, <span class="bool-val">false</span>, insert.span)<span class="question-mark">?</span>;
         <span class="self">self</span>.variables.insert(location, insert);
         <span class="prelude-val">Ok</span>(())
     }
@@ -442,14 +504,15 @@
     }
 
     <span class="doccomment">/// Attempts to lookup a struct in the symbol table.
-    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, location: Location) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Composite&gt; {
+    </span><span class="kw">pub fn </span>lookup_struct(<span class="kw-2">&amp;</span><span class="self">self</span>, location: Location, main_program: <span class="prelude-ty">Option</span>&lt;Symbol&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Composite&gt; {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>location) {
-            <span class="prelude-val">Some</span>(struct_)
-        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() {
-            parent.lookup_struct(location)
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+            <span class="kw">return </span><span class="prelude-val">Some</span>(struct_);
+        } <span class="kw">else if </span>location.program == main_program {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.structs.get(<span class="kw-2">&amp;</span>Location::new(<span class="prelude-val">None</span>, location.name)) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(struct_);
+            }
+        }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(parent) = <span class="self">self</span>.parent.as_ref() { parent.lookup_struct(location, main_program) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
     }
 
     <span class="doccomment">/// Attempts to lookup a variable in the symbol table.
@@ -461,6 +524,11 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
+    }
+
+    <span class="doccomment">/// Attempts to lookup a variable in the current scope.
+    </span><span class="kw">pub fn </span>lookup_variable_in_current_scope(<span class="kw-2">&amp;</span><span class="self">self</span>, location: Location) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>VariableSymbol&gt; {
+        <span class="self">self</span>.variables.get(<span class="kw-2">&amp;</span>location)
     }
 
     <span class="doccomment">/// Returns the scope associated with `index`, if it exists in the symbol table.

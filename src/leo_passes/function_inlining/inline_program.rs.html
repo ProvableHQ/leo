@@ -63,6 +63,28 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -81,7 +103,7 @@
 
 </span><span class="kw">use </span><span class="kw">crate</span>::FunctionInliner;
 
-<span class="kw">use </span>leo_ast::{Function, ProgramReconstructor, ProgramScope};
+<span class="kw">use </span>leo_ast::{Function, ProgramReconstructor, ProgramScope, StatementReconstructor};
 <span class="kw">use </span>leo_span::Symbol;
 
 <span class="kw">use </span>indexmap::IndexMap;
@@ -123,6 +145,28 @@
             functions,
             consts: input.consts,
             span: input.span,
+        }
+    }
+
+    <span class="kw">fn </span>reconstruct_function(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: Function) -&gt; Function {
+        Function {
+            annotations: input.annotations,
+            variant: input.variant,
+            identifier: input.identifier,
+            input: input.input,
+            output: input.output,
+            output_type: input.output_type,
+            block: {
+                <span class="comment">// Set the `is_async` flag before reconstructing the block.
+                </span><span class="self">self</span>.is_async = input.variant.is_async_function();
+                <span class="comment">// Reconstruct the block.
+                </span><span class="kw">let </span>block = <span class="self">self</span>.reconstruct_block(input.block).<span class="number">0</span>;
+                <span class="comment">// Reset the `is_async` flag.
+                </span><span class="self">self</span>.is_async = <span class="bool-val">false</span>;
+                block
+            },
+            span: input.span,
+            id: input.id,
         }
     }
 }

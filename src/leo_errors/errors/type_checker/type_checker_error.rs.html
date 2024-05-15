@@ -861,6 +861,27 @@
 <a href="#859" id="859">859</a>
 <a href="#860" id="860">860</a>
 <a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -1169,7 +1190,7 @@
     }
 
     @formatted
-    finalize_input_mode_must_be_public {
+    async_function_input_must_be_public {
         args: (),
         msg: <span class="macro">format!</span>(<span class="string">"An input to an async function must be public."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely."</span>.to_string()),
@@ -1703,7 +1724,7 @@
     }
 
     @formatted
-    finalize_function_cannot_return_value {
+    async_function_cannot_return_value {
         args: (),
         msg: <span class="string">"An async function is not allowed to return a value."</span>.to_string(),
         help: <span class="prelude-val">Some</span>(<span class="string">"Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written."</span>.to_string()),
@@ -1720,6 +1741,27 @@
         args: (operation: <span class="kw">impl </span>Display),
         msg: <span class="macro">format!</span>(<span class="string">"Cannot use operation `{operation}` on external mapping."</span>),
         help: <span class="prelude-val">Some</span>(<span class="string">"The only valid operations on external mappings are contains, get, and get_or_use."</span>.to_string()),
+    }
+
+    @formatted
+    async_cannot_assign_outside_conditional {
+        args: (variable: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="string">"This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions."</span>.to_string()),
+    }
+
+    @formatted
+    only_async_transition_can_return_future {
+        args: (),
+        msg: <span class="string">"A `transition` cannot return a future."</span>.to_string(),
+        help: <span class="prelude-val">Some</span>(<span class="string">"Use an `async transition` instead."</span>.to_string()),
+    }
+
+    @formatted
+    async_function_not_found {
+        args: (name: <span class="kw">impl </span>Display),
+        msg: <span class="macro">format!</span>(<span class="string">"The async function `{name}` does not exist."</span>),
+        help: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">"Ensure that `{name}` is defined as an async function in the current program."</span>)),
     }
 );
 </code></pre></div></section></main></body></html>

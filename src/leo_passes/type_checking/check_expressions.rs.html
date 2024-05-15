@@ -1085,21 +1085,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::TypeChecker;
+</span><span class="kw">use crate</span>::{TypeChecker, VariableSymbol};
 
-<span class="kw">use </span>leo_ast::{
-    Variant::{AsyncFunction, AsyncTransition},
-    <span class="kw-2">*</span>,
-};
+<span class="kw">use </span>leo_ast::<span class="kw-2">*</span>;
 <span class="kw">use </span>leo_errors::{emitter::Handler, TypeCheckerError};
 <span class="kw">use </span>leo_span::{sym, Span, Symbol};
 
-<span class="kw">use </span>itertools::Itertools;
-<span class="kw">use </span>leo_ast::{
-    CoreFunction::FutureAwait,
-    Type::{Future, Tuple},
-};
 <span class="kw">use </span>snarkvm::console::network::Network;
+
+<span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::str::FromStr;
 
 <span class="kw">fn </span>return_incorrect_type(t1: <span class="prelude-ty">Option</span>&lt;Type&gt;, t2: <span class="prelude-ty">Option</span>&lt;Type&gt;, expected: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;Type&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Type&gt; {
@@ -1197,7 +1191,7 @@
                     }
 
                     <span class="comment">// Await futures here so that can use the argument variable names to lookup.
-                    </span><span class="kw">if </span>core_instruction == FutureAwait {
+                    </span><span class="kw">if </span>core_instruction == CoreFunction::FutureAwait {
                         <span class="kw">if </span>access.arguments.len() != <span class="number">1 </span>{
                             <span class="self">self</span>.emit_err(TypeCheckerError::can_only_await_one_future_at_a_time(access.span));
                             <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Unit);
@@ -1240,7 +1234,7 @@
                                 </span><span class="kw">return </span><span class="prelude-val">Some</span>(actual);
                             }
                         }
-                        Future(<span class="kw">_</span>) =&gt; {
+                        Type::Future(<span class="kw">_</span>) =&gt; {
                             <span class="comment">// Get the fully inferred type.
                             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Future(inferred_f)) = <span class="self">self</span>.type_table.get(<span class="kw-2">&amp;</span>access.tuple.id()) {
                                 <span class="comment">// Make sure in range.
@@ -1312,11 +1306,7 @@
                         </span><span class="kw">match </span><span class="self">self</span>.visit_expression(<span class="kw-2">&amp;</span>access.inner, <span class="kw-2">&amp;</span><span class="prelude-val">None</span>) {
                             <span class="prelude-val">Some</span>(Type::Composite(struct_)) =&gt; {
                                 <span class="comment">// Retrieve the struct definition associated with `identifier`.
-                                </span><span class="kw">let </span>struct_ = <span class="self">self
-                                    </span>.symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .cloned();
+                                </span><span class="kw">let </span>struct_ = <span class="self">self</span>.lookup_struct(struct_.program, struct_.id.name);
                                 <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
                                     <span class="comment">// Check that `access.name` is a member of the struct.
                                     </span><span class="kw">match </span>struct_.members.iter().find(|member| member.name() == access.name.name) {
@@ -1699,8 +1689,8 @@
                         <span class="self">self</span>.emit_err(TypeCheckerError::cannot_call_external_inline_function(input.span));
                     }
                     <span class="comment">// Async functions return a single future.
-                    </span><span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="kw">if </span>func.variant == AsyncFunction {
-                        <span class="comment">// Type check after know the input types.
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="kw">if </span>func.variant == Variant::AsyncFunction {
+                        <span class="comment">// Type check after resolving the input types.
                         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(Type::Future(<span class="kw">_</span>)) = expected {
                             Type::Future(FutureType::new(
                                 Vec::new(),
@@ -1711,25 +1701,34 @@
                             <span class="self">self</span>.emit_err(TypeCheckerError::return_type_of_finalize_function_is_future(input.span));
                             Type::Unit
                         }
-                    } <span class="kw">else if </span>func.variant == AsyncTransition {
+                    } <span class="kw">else if </span>func.variant == Variant::AsyncTransition {
                         <span class="comment">// Fully infer future type.
-                        </span><span class="kw">let </span>future_type = Type::Future(FutureType::new(
-                            <span class="comment">// Assumes that external function stubs have been processed.
-                            </span><span class="self">self</span>.finalize_input_types
-                                .get(<span class="kw-2">&amp;</span>Location::new(input.program, Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, ident.name))))
-                                .unwrap()
-                                .clone(),
-                            <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)),
-                            <span class="bool-val">true</span>,
-                        ));
+                        </span><span class="kw">let </span>future_type = <span class="kw">match </span><span class="self">self
+                            </span>.async_function_input_types
+                            .get(<span class="kw-2">&amp;</span>Location::new(input.program, Symbol::intern(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"finalize/{}"</span>, ident.name))))
+                        {
+                            <span class="prelude-val">Some</span>(inputs) =&gt; Type::Future(FutureType::new(
+                                inputs.clone(),
+                                <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)),
+                                <span class="bool-val">true</span>,
+                            )),
+                            <span class="prelude-val">None </span>=&gt; {
+                                <span class="self">self</span>.emit_err(TypeCheckerError::async_function_not_found(ident.name, input.span));
+                                <span class="kw">return </span><span class="prelude-val">Some</span>(Type::Future(FutureType::new(
+                                    Vec::new(),
+                                    <span class="prelude-val">Some</span>(Location::new(input.program, ident.name)),
+                                    <span class="bool-val">false</span>,
+                                )));
+                            }
+                        };
                         <span class="kw">let </span>fully_inferred_type = <span class="kw">match </span>func.output_type {
-                            Tuple(tup) =&gt; Tuple(TupleType::new(
+                            Type::Tuple(tup) =&gt; Type::Tuple(TupleType::new(
                                 tup.elements()
                                     .iter()
-                                    .map(|t| <span class="kw">if </span><span class="macro">matches!</span>(t, Future(<span class="kw">_</span>)) { future_type.clone() } <span class="kw">else </span>{ t.clone() })
+                                    .map(|t| <span class="kw">if </span><span class="macro">matches!</span>(t, Type::Future(<span class="kw">_</span>)) { future_type.clone() } <span class="kw">else </span>{ t.clone() })
                                     .collect::&lt;Vec&lt;Type&gt;&gt;(),
                             )),
-                            Future(<span class="kw">_</span>) =&gt; future_type,
+                            Type::Future(<span class="kw">_</span>) =&gt; future_type,
                             <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"Invalid output type for async transition."</span>),
                         };
                         <span class="self">self</span>.assert_and_return_type(fully_inferred_type, expected, input.span())
@@ -1750,9 +1749,9 @@
                     </span><span class="self">self</span>.scope_state.is_call = <span class="bool-val">true</span>;
                     <span class="kw">let </span>(<span class="kw-2">mut </span>input_futures, <span class="kw-2">mut </span>inferred_finalize_inputs) = (Vec::new(), Vec::new());
                     func.input.iter().zip(input.arguments.iter()).for_each(|(expected, argument)| {
-                        <span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_()));
+                        <span class="kw">let </span>ty = <span class="self">self</span>.visit_expression(argument, <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(expected.type_().clone()));
                         <span class="comment">// Extract information about futures that are being consumed.
-                        </span><span class="kw">if </span>func.variant == AsyncFunction &amp;&amp; <span class="macro">matches!</span>(expected.type_(), Type::Future(<span class="kw">_</span>)) {
+                        </span><span class="kw">if </span>func.variant == Variant::AsyncFunction &amp;&amp; <span class="macro">matches!</span>(expected.type_(), Type::Future(<span class="kw">_</span>)) {
                             <span class="kw">match </span>argument {
                                 Expression::Identifier(<span class="kw">_</span>)
                                 | Expression::Call(<span class="kw">_</span>)
@@ -1797,14 +1796,14 @@
                     }
 
                     <span class="comment">// Propagate futures from async functions and transitions.
-                    </span><span class="kw">if </span>func.variant.is_async() {
+                    </span><span class="kw">if </span>func.variant.is_async_function() {
                         <span class="comment">// Cannot have async calls in a conditional block.
                         </span><span class="kw">if </span><span class="self">self</span>.scope_state.is_conditional {
                             <span class="self">self</span>.emit_err(TypeCheckerError::async_call_in_conditional(input.span));
                         }
 
                         <span class="comment">// Can only call async functions and external async transitions from an async transition body.
-                        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(AsyncTransition) {
+                        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant != <span class="prelude-val">Some</span>(Variant::AsyncTransition) {
                             <span class="self">self</span>.emit_err(TypeCheckerError::async_call_can_only_be_done_from_async_transition(
                                 input.span,
                             ));
@@ -1839,8 +1838,9 @@
                                 Location::new(<span class="self">self</span>.scope_state.program_name, ident.name),
                             )
                             .unwrap();
+                            drop(st);
                             <span class="comment">// Create expectation for finalize inputs that will be checked when checking corresponding finalize function signature.
-                            </span><span class="self">self</span>.finalize_input_types.insert(
+                            </span><span class="self">self</span>.async_function_input_types.insert(
                                 Location::new(<span class="self">self</span>.scope_state.program_name, ident.name),
                                 inferred_finalize_inputs.clone(),
                             );
@@ -1858,9 +1858,10 @@
                             <span class="comment">// Type check in case the expected type is known.
                             </span><span class="self">self</span>.assert_and_return_type(ret.clone(), expected, input.span());
                         }
-                        <span class="comment">// Set call location so that definition statement knows where future comes from.
-                        </span><span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(Location::new(input.program, ident.name));
                     }
+
+                    <span class="comment">// Set call location so that definition statement knows where future comes from.
+                    </span><span class="self">self</span>.scope_state.call_location = <span class="prelude-val">Some</span>(Location::new(input.program, ident.name));
 
                     <span class="prelude-val">Some</span>(ret)
                 } <span class="kw">else </span>{
@@ -1885,11 +1886,7 @@
     }
 
     <span class="kw">fn </span>visit_struct_init(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>StructExpression, additional: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">let </span>struct_ = <span class="self">self
-            </span>.symbol_table
-            .borrow()
-            .lookup_struct(Location::new(<span class="self">self</span>.scope_state.program_name, input.name.name))
-            .cloned();
+        <span class="kw">let </span>struct_ = <span class="self">self</span>.lookup_struct(<span class="self">self</span>.scope_state.program_name, input.name.name).clone();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = struct_ {
             <span class="comment">// Check struct type name.
             </span><span class="kw">let </span>ret = <span class="self">self</span>.check_expected_struct(<span class="kw-2">&amp;</span>struct_, additional, input.name.span());
@@ -1935,9 +1932,10 @@
     }
 
     <span class="kw">fn </span>visit_identifier(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Identifier, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, input.name)) {
+        <span class="kw">let </span>var = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, input.name)).cloned();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="kw-2">&amp;</span>var {
             <span class="kw">if </span><span class="macro">matches!</span>(var.type_, Type::Future(<span class="kw">_</span>)) &amp;&amp; <span class="macro">matches!</span>(expected, <span class="prelude-val">Some</span>(Type::Future(<span class="kw">_</span>))) {
-                <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.is_call {
+                <span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.is_call {
                     <span class="comment">// Consume future.
                     </span><span class="kw">match </span><span class="self">self</span>.scope_state.futures.remove(<span class="kw-2">&amp;</span>input.name) {
                         <span class="prelude-val">Some</span>(future) =&gt; {
@@ -2025,14 +2023,16 @@
 
     <span class="kw">fn </span>visit_locator(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>LocatorExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {
         <span class="comment">// Check that the locator points to a valid resource in the ST.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
+        </span><span class="kw">let </span>loc_: VariableSymbol;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
             <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">Some</span>(input.program.name.name), input.name))
         {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(var.type_.clone(), expected, input.span()))
+            loc_ = var.clone();
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, input.name, input.span()));
-            <span class="prelude-val">None
-        </span>}
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.assert_and_return_type(loc_.type_.clone(), expected, input.span()))
     }
 
     <span class="kw">fn </span>visit_ternary(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>TernaryExpression, expected: <span class="kw-2">&amp;</span><span class="self">Self</span>::AdditionalInput) -&gt; <span class="self">Self</span>::Output {

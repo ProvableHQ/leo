@@ -150,15 +150,6 @@
 <a href="#148" id="148">148</a>
 <a href="#149" id="149">149</a>
 <a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -183,9 +174,6 @@
 
 <span class="kw">pub mod </span>variant;
 <span class="kw">pub use </span>variant::<span class="kw-2">*</span>;
-
-<span class="kw">pub mod </span>external;
-<span class="kw">pub use </span>external::<span class="kw-2">*</span>;
 
 <span class="kw">pub mod </span>input;
 <span class="kw">pub use </span>input::<span class="kw-2">*</span>;
@@ -246,16 +234,10 @@
         span: Span,
         id: NodeID,
     ) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Determine the output type of the function
-        </span><span class="kw">let </span>get_output_type = |output: <span class="kw-2">&amp;</span>Output| <span class="kw">match </span><span class="kw-2">&amp;</span>output {
-            Output::Internal(output) =&gt; output.type_.clone(),
-            Output::External(output) =&gt; output.type_(),
-        };
-
         <span class="kw">let </span>output_type = <span class="kw">match </span>output.len() {
             <span class="number">0 </span>=&gt; Type::Unit,
-            <span class="number">1 </span>=&gt; get_output_type(<span class="kw-2">&amp;</span>output[<span class="number">0</span>]),
-            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
+            <span class="number">1 </span>=&gt; output[<span class="number">0</span>].type_.clone(),
+            <span class="kw">_ </span>=&gt; Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
         Function { annotations, variant, identifier, input, output, output_type, block, span, id }

@@ -410,23 +410,6 @@
 <a href="#408" id="408">408</a>
 <a href="#409" id="409">409</a>
 <a href="#410" id="410">410</a>
-<a href="#411" id="411">411</a>
-<a href="#412" id="412">412</a>
-<a href="#413" id="413">413</a>
-<a href="#414" id="414">414</a>
-<a href="#415" id="415">415</a>
-<a href="#416" id="416">416</a>
-<a href="#417" id="417">417</a>
-<a href="#418" id="418">418</a>
-<a href="#419" id="419">419</a>
-<a href="#420" id="420">420</a>
-<a href="#421" id="421">421</a>
-<a href="#422" id="422">422</a>
-<a href="#423" id="423">423</a>
-<a href="#424" id="424">424</a>
-<a href="#425" id="425">425</a>
-<a href="#426" id="426">426</a>
-<a href="#427" id="427">427</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -445,16 +428,12 @@
 
 </span><span class="kw">use crate</span>::{DiGraphError, TypeChecker};
 
-<span class="kw">use </span>leo_ast::{
-    Input::{External, Internal},
-    Type::Future,
-    <span class="kw-2">*</span>,
-};
+<span class="kw">use </span>leo_ast::{Type, <span class="kw-2">*</span>};
 <span class="kw">use </span>leo_errors::{TypeCheckerError, TypeCheckerWarning};
 <span class="kw">use </span>leo_span::sym;
 
-<span class="kw">use </span>leo_ast::Variant::{AsyncFunction, AsyncTransition};
 <span class="kw">use </span>snarkvm::console::network::Network;
+
 <span class="kw">use </span>std::collections::HashSet;
 
 <span class="comment">// TODO: Cleanup logic for tuples.
@@ -587,34 +566,35 @@
             check_has_field(sym::owner, Type::Address);
         }
 
-        <span class="kw">for </span>Member { mode, identifier, type_, span, .. } <span class="kw">in </span>input.members.iter() {
-            <span class="comment">// Check that the member type is not a tuple.
-            </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
-                    <span class="kw">if </span>input.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>},
-                    identifier.span,
-                ));
-            }
-            <span class="comment">// Ensure that there are no record members.
-            </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
-
-            <span class="comment">// If the member is a struct, add it to the struct dependency graph.
-            // Note that we have already checked that each member is defined and valid.
-            </span><span class="kw">if let </span>Type::Composite(struct_member_type) = type_ {
-                <span class="comment">// Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
-                </span><span class="self">self</span>.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
-            } <span class="kw">else if let </span>Type::Array(array_type) = type_ {
-                <span class="comment">// Get the base element type.
-                </span><span class="kw">let </span>base_element_type = array_type.base_element_type();
-                <span class="comment">// If the base element type is a struct, then add it to the struct dependency graph.
-                </span><span class="kw">if let </span>Type::Identifier(member_type) = base_element_type {
-                    <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.name);
+        <span class="kw">if </span>!(input.is_record &amp;&amp; <span class="self">self</span>.scope_state.is_stub) {
+            <span class="kw">for </span>Member { mode, identifier, type_, span, .. } <span class="kw">in </span>input.members.iter() {
+                <span class="comment">// Check that the member type is not a tuple.
+                </span><span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                        <span class="kw">if </span>input.is_record { <span class="string">"record" </span>} <span class="kw">else </span>{ <span class="string">"struct" </span>},
+                        identifier.span,
+                    ));
                 }
-            }
+                <span class="comment">// Ensure that there are no record members.
+                </span><span class="self">self</span>.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+                <span class="comment">// If the member is a struct, add it to the struct dependency graph.
+                // Note that we have already checked that each member is defined and valid.
+                </span><span class="kw">if let </span>Type::Composite(struct_member_type) = type_ {
+                    <span class="comment">// Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
+                    </span><span class="self">self</span>.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
+                } <span class="kw">else if let </span>Type::Array(array_type) = type_ {
+                    <span class="comment">// Get the base element type.
+                    </span><span class="kw">let </span>base_element_type = array_type.base_element_type();
+                    <span class="comment">// If the base element type is a struct, then add it to the struct dependency graph.
+                    </span><span class="kw">if let </span>Type::Composite(member_type) = base_element_type {
+                        <span class="self">self</span>.struct_graph.add_edge(input.identifier.name, member_type.id.name);
+                    }
+                }
 
-            <span class="comment">// If the input is a struct, then check that the member does not have a mode.
-            </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="macro">matches!</span>(mode, Mode::None) {
-                <span class="self">self</span>.emit_err(TypeCheckerError::struct_cannot_have_member_mode(<span class="kw-2">*</span>span));
+                <span class="comment">// If the input is a struct, then check that the member does not have a mode.
+                </span><span class="kw">if </span>!input.is_record &amp;&amp; !<span class="macro">matches!</span>(mode, Mode::None) {
+                    <span class="self">self</span>.emit_err(TypeCheckerError::struct_cannot_have_member_mode(<span class="kw-2">*</span>span));
+                }
             }
         }
     }
@@ -626,9 +606,7 @@
         </span><span class="kw">match </span>input.key_type.clone() {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) =
-                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
                     <span class="kw">if </span>struct_.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"key"</span>, <span class="string">"record"</span>, input.span));
                     }
@@ -645,9 +623,7 @@
         </span><span class="kw">match </span>input.value_type.clone() {
             Type::Tuple(<span class="kw">_</span>) =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"tuple"</span>, input.span)),
             Type::Composite(struct_type) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) =
-                    <span class="self">self</span>.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(struct_) = <span class="self">self</span>.lookup_struct(struct_type.program, struct_type.id.name) {
                     <span class="kw">if </span>struct_.is_record {
                         <span class="self">self</span>.emit_err(TypeCheckerError::invalid_mapping_type(<span class="string">"value"</span>, <span class="string">"record"</span>, input.span));
                     }
@@ -705,15 +681,8 @@
                 function
                     .input
                     .iter()
-                    .filter_map(|input| <span class="kw">match </span>input {
-                        Internal(parameter) =&gt; {
-                            <span class="kw">if let </span>Future(<span class="kw">_</span>) = parameter.type_.clone() {
-                                <span class="prelude-val">Some</span>(parameter.identifier.name)
-                            } <span class="kw">else </span>{
-                                <span class="prelude-val">None
-                            </span>}
-                        }
-                        External(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                    .filter_map(|input| {
+                        <span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = input.type_.clone() { <span class="prelude-val">Some</span>(input.identifier.name) } <span class="kw">else </span>{ <span class="prelude-val">None </span>}
                     })
                     .collect(),
             );
@@ -733,12 +702,12 @@
         </span><span class="self">self</span>.exit_scope(function_index);
 
         <span class="comment">// Make sure that async transitions call finalize.
-        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(AsyncTransition) &amp;&amp; !<span class="self">self</span>.scope_state.has_called_finalize {
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; !<span class="self">self</span>.scope_state.has_called_finalize {
             <span class="self">self</span>.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
         <span class="comment">// Check that all futures were awaited exactly once.
-        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(AsyncFunction) {
+        </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncFunction) {
             <span class="comment">// Throw error if not all futures awaits even appear once.
             </span><span class="kw">if </span>!<span class="self">self</span>.await_checker.static_to_await.is_empty() {
                 <span class="self">self</span>.emit_err(TypeCheckerError::future_awaits_missing(
@@ -814,24 +783,21 @@
 
         <span class="comment">// Create future stubs.
         </span><span class="kw">if </span>input.variant == Variant::AsyncFunction {
-            <span class="kw">let </span>finalize_input_map = <span class="kw-2">&amp;mut </span><span class="self">self</span>.finalize_input_types;
+            <span class="kw">let </span>finalize_input_map = <span class="kw-2">&amp;mut </span><span class="self">self</span>.async_function_input_types;
             <span class="kw">let </span>resolved_inputs: Vec&lt;Type&gt; = input
                 .input
                 .iter()
-                .map(|input_mode| {
-                    <span class="kw">match </span>input_mode {
-                        Internal(function_input) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>function_input.type_ {
-                            Future(f) =&gt; {
-                                <span class="comment">// Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                                </span>Future(FutureType::new(
-                                    finalize_input_map.get(<span class="kw-2">&amp;</span>f.location.clone().unwrap()).unwrap().clone(),
-                                    f.location.clone(),
-                                    <span class="bool-val">true</span>,
-                                ))
-                            }
-                            <span class="kw">_ </span>=&gt; function_input.clone().type_,
-                        },
-                        External(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(<span class="string">"External inputs are not allowed in finalize outputs of stubs."</span>),
+                .map(|input| {
+                    <span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
+                        Type::Future(f) =&gt; {
+                            <span class="comment">// Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            </span>Type::Future(FutureType::new(
+                                finalize_input_map.get(<span class="kw-2">&amp;</span>f.location.clone().unwrap()).unwrap().clone(),
+                                f.location.clone(),
+                                <span class="bool-val">true</span>,
+                            ))
+                        }
+                        <span class="kw">_ </span>=&gt; input.clone().type_,
                     }
                 })
                 .collect();

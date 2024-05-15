@@ -284,6 +284,38 @@
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
 <a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -346,6 +378,11 @@
     /// which is equivalent to the logical formula `(condition1 /\ condition2) ==&gt; foo`.
     </span><span class="kw">fn </span>reconstruct_assert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: AssertStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::new();
+
+        <span class="comment">// If we are traversing an async function, then we can return the assert as it.
+        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+            <span class="kw">return </span>(Statement::Assert(input), statements);
+        }
 
         <span class="comment">// Flatten the arguments of the assert statement.
         </span><span class="kw">let </span>assert = AssertStatement {
@@ -508,6 +545,29 @@
     </span><span class="kw">fn </span>reconstruct_conditional(<span class="kw-2">&amp;mut </span><span class="self">self</span>, conditional: ConditionalStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
         <span class="kw">let </span><span class="kw-2">mut </span>statements = Vec::with_capacity(conditional.then.statements.len());
 
+        <span class="comment">// If we are traversing an async function, reconstruct the if and else blocks, but do not flatten them.
+        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+            <span class="kw">let </span>then_block = <span class="self">self</span>.reconstruct_block(conditional.then).<span class="number">0</span>;
+            <span class="kw">let </span>otherwise_block = <span class="kw">match </span>conditional.otherwise {
+                <span class="prelude-val">Some</span>(statement) =&gt; <span class="kw">match </span><span class="kw-2">*</span>statement {
+                    Statement::Block(block) =&gt; <span class="self">self</span>.reconstruct_block(block).<span class="number">0</span>,
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"SSA guarantees that the `otherwise` is always a `Block`"</span>),
+                },
+                <span class="prelude-val">None </span>=&gt; Block { span: Default::default(), statements: Vec::new(), id: <span class="self">self</span>.node_builder.next_id() },
+            };
+
+            <span class="kw">return </span>(
+                Statement::Conditional(ConditionalStatement {
+                    condition: conditional.condition,
+                    then: then_block,
+                    otherwise: <span class="prelude-val">Some</span>(Box::new(Statement::Block(otherwise_block))),
+                    span: conditional.span,
+                    id: conditional.id,
+                }),
+                statements,
+            );
+        }
+
         <span class="comment">// Add condition to the condition stack.
         </span><span class="self">self</span>.condition_stack.push(conditional.condition.clone());
 
@@ -555,6 +615,10 @@
     <span class="doccomment">/// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     </span><span class="kw">fn </span>reconstruct_return(<span class="kw-2">&amp;mut </span><span class="self">self</span>, input: ReturnStatement) -&gt; (Statement, <span class="self">Self</span>::AdditionalOutput) {
+        <span class="comment">// If we are traversing an async function, return as is.
+        </span><span class="kw">if </span><span class="self">self</span>.is_async {
+            <span class="kw">return </span>(Statement::Return(input), Default::default());
+        }
         <span class="comment">// Construct the associated guard.
         </span><span class="kw">let </span>guard = <span class="self">self</span>.construct_guard();
 

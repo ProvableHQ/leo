@@ -217,6 +217,46 @@
 <a href="#215" id="215">215</a>
 <a href="#216" id="216">216</a>
 <a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -260,7 +300,7 @@
 }
 
 <span class="doccomment">/// A directed graph.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>DiGraph&lt;N: Node&gt; {
     <span class="doccomment">/// The set of nodes in the graph.
     </span>nodes: IndexSet&lt;N&gt;,
@@ -324,6 +364,17 @@
         }
         <span class="comment">// No cycle was found. Return the set of nodes in topological order.
         </span><span class="prelude-val">Ok</span>(finished)
+    }
+
+    <span class="doccomment">/// Retains a subset of the nodes, and removes all edges in which the source or destination is not in the subset.
+    </span><span class="kw">pub fn </span>retain_nodes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, nodes: <span class="kw-2">&amp;</span>IndexSet&lt;N&gt;) {
+        <span class="comment">// Remove the nodes from the set of nodes.
+        </span><span class="self">self</span>.nodes.retain(|node| nodes.contains(node));
+        <span class="self">self</span>.edges.retain(|node, <span class="kw">_</span>| nodes.contains(node));
+        <span class="comment">// Remove the edges that reference the nodes.
+        </span><span class="kw">for </span>(<span class="kw">_</span>, children) <span class="kw">in </span><span class="self">self</span>.edges.iter_mut() {
+            children.retain(|child| nodes.contains(child));
+        }
     }
 
     <span class="comment">// Detects if there is a cycle in the graph starting from the given node, via a recursive depth-first search.
@@ -432,6 +483,35 @@
         <span class="kw">let </span>graph = DiGraph::&lt;u32&gt;::new(IndexSet::from([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]));
 
         check_post_order(<span class="kw-2">&amp;</span>graph, <span class="kw-2">&amp;</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_retain_nodes() {
+        <span class="kw">let </span><span class="kw-2">mut </span>graph = DiGraph::&lt;u32&gt;::new(IndexSet::new());
+
+        graph.add_edge(<span class="number">1</span>, <span class="number">2</span>);
+        graph.add_edge(<span class="number">1</span>, <span class="number">3</span>);
+        graph.add_edge(<span class="number">1</span>, <span class="number">5</span>);
+        graph.add_edge(<span class="number">2</span>, <span class="number">3</span>);
+        graph.add_edge(<span class="number">2</span>, <span class="number">4</span>);
+        graph.add_edge(<span class="number">2</span>, <span class="number">5</span>);
+        graph.add_edge(<span class="number">3</span>, <span class="number">4</span>);
+        graph.add_edge(<span class="number">4</span>, <span class="number">5</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>nodes = IndexSet::new();
+        nodes.insert(<span class="number">1</span>);
+        nodes.insert(<span class="number">2</span>);
+        nodes.insert(<span class="number">3</span>);
+
+        graph.retain_nodes(<span class="kw-2">&amp;</span>nodes);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>expected = DiGraph::&lt;u32&gt;::new(IndexSet::new());
+        expected.add_edge(<span class="number">1</span>, <span class="number">2</span>);
+        expected.add_edge(<span class="number">1</span>, <span class="number">3</span>);
+        expected.add_edge(<span class="number">2</span>, <span class="number">3</span>);
+        expected.edges.insert(<span class="number">3</span>, IndexSet::new());
+
+        <span class="macro">assert_eq!</span>(graph, expected);
     }
 }
 </code></pre></div></section></main></body></html>

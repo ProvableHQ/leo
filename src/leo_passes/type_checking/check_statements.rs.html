@@ -450,6 +450,14 @@
 <a href="#448" id="448">448</a>
 <a href="#449" id="449">449</a>
 <a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -524,15 +532,29 @@
             }
         };
 
-        <span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) =
-            <span class="self">self</span>.symbol_table.borrow_mut().lookup_variable(Location::new(<span class="prelude-val">None</span>, var_name.name))
+        <span class="comment">// Lookup the variable in the symbol table and retrieve its type.
+        </span><span class="kw">let </span>var_type = <span class="kw">if let </span><span class="prelude-val">Some</span>(var) = <span class="self">self</span>.symbol_table.borrow().lookup_variable(Location::new(<span class="prelude-val">None</span>, var_name.name))
         {
-            <span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
+            <span class="comment">// If the variable exists, then check that it is not a constant.
+            </span><span class="kw">match </span><span class="kw-2">&amp;</span>var.declaration {
                 VariableType::Const =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_var(var_name, var.span)),
                 VariableType::Input(Mode::Constant) =&gt; {
                     <span class="self">self</span>.emit_err(TypeCheckerError::cannot_assign_to_const_input(var_name, var.span))
                 }
-                <span class="kw">_ </span>=&gt; {}
+                VariableType::Mut | VariableType::Input(<span class="kw">_</span>) =&gt; {}
+            }
+
+            <span class="comment">// If the variable exists and its in an async function, then check that it is in the current scope.
+            // Note that this unwrap is safe because the scope state is initalized before traversing the function.
+            </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant.unwrap().is_async_function()
+                &amp;&amp; <span class="self">self</span>.scope_state.is_conditional
+                &amp;&amp; <span class="self">self
+                    </span>.symbol_table
+                    .borrow()
+                    .lookup_variable_in_current_scope(Location::new(<span class="prelude-val">None</span>, var_name.name))
+                    .is_none()
+            {
+                <span class="self">self</span>.emit_err(TypeCheckerError::async_cannot_assign_outside_conditional(var_name, var.span));
             }
             <span class="comment">// Prohibit reassignment of futures.
             </span><span class="kw">if let </span>Type::Future(<span class="kw">_</span>) = var.type_ {
@@ -542,7 +564,6 @@
             <span class="prelude-val">Some</span>(var.type_.clone())
         } <span class="kw">else </span>{
             <span class="self">self</span>.emit_err(TypeCheckerError::unknown_sym(<span class="string">"variable"</span>, var_name.name, var_name.span));
-
             <span class="prelude-val">None
         </span>};
 
@@ -569,7 +590,7 @@
 
         <span class="comment">// Set the `has_return` flag for the then-block.
         </span><span class="kw">let </span>previous_has_return = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.has_return, then_block_has_return);
-        <span class="comment">// Set the `is_conditional` flag for the conditional block.
+        <span class="comment">// Set the `is_conditional` flag.
         </span><span class="kw">let </span>previous_is_conditional = core::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.scope_state.is_conditional, <span class="bool-val">true</span>);
 
         <span class="comment">// Create scope for checking awaits in `then` branch of conditional.
@@ -678,7 +699,7 @@
         <span class="comment">// Check that the type of the definition is defined.
         </span><span class="self">self</span>.assert_type_is_valid(<span class="kw-2">&amp;</span>input.type_, input.span);
 
-        <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, nested tuple type, or external struct type.
+        <span class="comment">// Check that the type of the definition is not a unit type, singleton tuple type, or nested tuple type.
         </span><span class="kw">match </span><span class="kw-2">&amp;</span>input.type_ {
             <span class="comment">// If the type is an empty tuple, return an error.
             </span>Type::Unit =&gt; <span class="self">self</span>.emit_err(TypeCheckerError::lhs_must_be_identifier_or_tuple(input.span)),
@@ -690,19 +711,12 @@
                         <span class="kw">if </span><span class="macro">matches!</span>(type_, Type::Tuple(<span class="kw">_</span>)) {
                             <span class="self">self</span>.emit_err(TypeCheckerError::nested_tuple_type(input.span))
                         }
-                        <span class="kw">if let </span>Type::Composite(composite) = type_ {
-                            <span class="self">self</span>.assert_internal_struct(composite, input.span);
-                        }
                     }
                 }
             },
             Type::Mapping(<span class="kw">_</span>) | Type::Err =&gt; <span class="macro">unreachable!</span>(
                 <span class="string">"Parsing guarantees that `mapping` and `err` types are not present at this location in the AST."
             </span>),
-            <span class="comment">// Make sure there are no instances of external structs created.
-            </span>Type::Composite(composite) =&gt; {
-                <span class="self">self</span>.assert_internal_struct(composite, input.span);
-            }
             <span class="comment">// Otherwise, the type is valid.
             </span><span class="kw">_ </span>=&gt; (), <span class="comment">// Do nothing
         </span>}
@@ -849,16 +863,18 @@
 
         <span class="comment">// Fully type the expected return value.
         </span><span class="kw">if </span><span class="self">self</span>.scope_state.variant == <span class="prelude-val">Some</span>(Variant::AsyncTransition) &amp;&amp; <span class="self">self</span>.scope_state.has_called_finalize {
-            <span class="kw">let </span>inferred_future_type = <span class="kw">match </span><span class="self">self</span>.finalize_input_types.get(<span class="kw-2">&amp;</span>func.unwrap().finalize.clone().unwrap()) {
-                <span class="prelude-val">Some</span>(types) =&gt; Future(FutureType::new(
-                    types.clone(),
-                    <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name, parent)),
-                    <span class="bool-val">true</span>,
-                )),
-                <span class="prelude-val">None </span>=&gt; {
-                    <span class="kw">return </span><span class="self">self</span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
-                }
-            };
+            <span class="kw">let </span>inferred_future_type =
+                <span class="kw">match </span><span class="self">self</span>.async_function_input_types.get(<span class="kw-2">&amp;</span>func.unwrap().finalize.clone().unwrap()) {
+                    <span class="prelude-val">Some</span>(types) =&gt; Future(FutureType::new(
+                        types.clone(),
+                        <span class="prelude-val">Some</span>(Location::new(<span class="self">self</span>.scope_state.program_name, parent)),
+                        <span class="bool-val">true</span>,
+                    )),
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="kw">return </span><span class="self">self
+                            </span>.emit_err(TypeCheckerError::async_transition_missing_future_to_return(input.span()));
+                    }
+                };
             <span class="comment">// Need to modify return type since the function signature is just default future, but the actual return type is the fully inferred future of the finalize input type.
             </span><span class="kw">let </span>inferred = <span class="kw">match </span>return_type.clone() {
                 <span class="prelude-val">Some</span>(Future(<span class="kw">_</span>)) =&gt; <span class="prelude-val">Some</span>(inferred_future_type),
