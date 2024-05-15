@@ -64,6 +64,6 @@ impl<N: Network> Env<N> {
         // Initialize a new development private key.
         let private_key = PrivateKey::<N>::new(rng)?;
 
-        Ok(format!("NETWORK=mainnet\nPRIVATE_KEY={private_key}\n"))
+        Ok(format!("NETWORK=testnet\nPRIVATE_KEY={private_key}\n"))
     }
 }

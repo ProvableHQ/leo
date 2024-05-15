@@ -26,7 +26,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-type CurrentNetwork = snarkvm::prelude::MainnetV0;
+type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
 #[derive(Debug, Parser)]
 #[clap(name = "leo parser", about = "Parse Leo AST and store it as a JSON")]

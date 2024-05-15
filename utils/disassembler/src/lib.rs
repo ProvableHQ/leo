@@ -100,7 +100,7 @@ mod tests {
     use snarkvm::synthesizer::program::Program;
     use std::fs;
 
-    type CurrentNetwork = snarkvm::prelude::MainnetV0;
+    type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
     #[test]
     #[ignore]
@@ -123,7 +123,7 @@ mod tests {
     fn array_test() {
         create_session_if_not_set_then(|_| {
             let program_from_file =
-                fs::read_to_string("../tmp/.aleo/registry/mainnet/zk_bitwise_stack_v0_0_2.aleo").unwrap();
+                fs::read_to_string("../tmp/.aleo/registry/testnet/zk_bitwise_stack_v0_0_2.aleo").unwrap();
             let _program = disassemble_from_str::<CurrentNetwork>(&program_from_file).unwrap();
         });
     }

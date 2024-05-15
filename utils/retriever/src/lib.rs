@@ -30,7 +30,7 @@ mod tests {
     use serial_test::serial;
     use std::path::PathBuf;
 
-    type CurrentNetwork = snarkvm::prelude::MainnetV0;
+    type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
     #[test]
     #[ignore]

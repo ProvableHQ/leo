@@ -185,7 +185,7 @@ mod tests {
         });
 
         // TODO: Clear tmp directory
-        // let registry = temp_dir.join(".aleo").join("registry").join("mainnet");
+        // let registry = temp_dir.join(".aleo").join("registry").join("testnet");
         // std::fs::remove_dir_all(registry).unwrap();
         // std::fs::remove_dir_all(project_directory).unwrap();
     }
@@ -395,7 +395,7 @@ function external_nested_function:
                 command: Add {
                     name: "nested_example_layer_0".to_string(),
                     local: None,
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -408,7 +408,7 @@ function external_nested_function:
         });
 
         // Add custom `.aleo` directory
-        let registry = temp_dir.join(".aleo").join("registry").join("mainnet");
+        let registry = temp_dir.join(".aleo").join("registry").join("testnet");
         std::fs::create_dir_all(&registry).unwrap();
         std::fs::write(registry.join("nested_example_layer_0.aleo"), nested_example_layer_0).unwrap();
         std::fs::write(registry.join("nested_example_layer_1.aleo"), nested_example_layer_1).unwrap();
@@ -489,7 +489,7 @@ program child.aleo {
                 command: Add {
                     name: "parent".to_string(),
                     local: Some(parent_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -504,7 +504,7 @@ program child.aleo {
                 command: Add {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -519,7 +519,7 @@ program child.aleo {
                 command: Add {
                     name: "child".to_string(),
                     local: Some(child_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -643,7 +643,7 @@ program outer.aleo {
                 command: Add {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -658,7 +658,7 @@ program outer.aleo {
                 command: Add {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -812,7 +812,7 @@ program outer_2.aleo {
                 command: Add {
                     name: "inner_1".to_string(),
                     local: Some(inner_1_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },
@@ -827,7 +827,7 @@ program outer_2.aleo {
                 command: Add {
                     name: "inner_2".to_string(),
                     local: Some(inner_2_directory.clone()),
-                    network: "mainnet".to_string(),
+                    network: "testnet".to_string(),
                     clear: false,
                 },
             },

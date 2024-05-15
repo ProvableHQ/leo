@@ -37,7 +37,7 @@ echo "
 "
 # Swap in the private key and address of the first bidder to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkpG9Af9z5Ha4ejVyMCqVFXRKknSm8L1ELEwcc4htk9YhVK
 " > .env
 
@@ -59,7 +59,7 @@ leo run place_bid aleo1yzlta2q5h8t0fqe0v6dyh9mtv4aggd53fgzr068jvplqhvqsnvzq7pj2k
 
 # Swap in the private key and address of the second bidder to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkpAFshdsj2EqQzXh5zHceDapFWVCwR6wMCJFfkLYRKupug
 " > .env
 
@@ -81,7 +81,7 @@ leo run place_bid aleo1esqchvevwn7n5p84e735w4dtwt2hdtu4dpguwgwy94tsxm2p7qpqmlrta
 
 # Swap in the private key and address of the auctioneer to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp5wvamYgK3WCAdpBQxZqQX8XnuN2u11Y6QprZTriVwZVc
 " > .env
 

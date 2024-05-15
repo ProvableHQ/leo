@@ -17,5 +17,6 @@
 pub use super::*;
 
 pub mod context;
+pub mod env;
 pub mod logger;
 pub mod updater;

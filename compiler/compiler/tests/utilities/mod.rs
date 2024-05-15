@@ -45,7 +45,7 @@ use std::{
     rc::Rc,
 };
 
-pub type CurrentNetwork = MainnetV0;
+pub type CurrentNetwork = TestnetV0;
 #[allow(unused)]
 pub type CurrentAleo = snarkvm::circuit::AleoV0;
 

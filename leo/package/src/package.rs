@@ -169,7 +169,7 @@ impl<N: Network> Package<N> {
 mod tests {
     use super::*;
 
-    type CurrentNetwork = snarkvm::prelude::MainnetV0;
+    type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
     #[test]
     fn test_is_package_name_valid() {

@@ -18,14 +18,15 @@ use super::*;
 use leo_errors::UtilError;
 use leo_package::root::Env;
 use snarkvm::{
-    cli::dotenv_private_key,
     console::program::{Signature, ToFields, Value},
     prelude::{Address, PrivateKey, ViewKey},
 };
 
+use crate::cli::env::dotenv_private_key;
 use crossterm::ExecutableCommand;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
+use snarkvm::prelude::anyhow;
 use std::{
     io::{self, Read, Write},
     path::PathBuf,
@@ -214,7 +215,7 @@ fn print_keys(private_key: PrivateKey<CurrentNetwork>, discreet: bool) -> Result
 
 // Write the network and private key to the .env file in project directory.
 fn write_to_env_file(private_key: PrivateKey<CurrentNetwork>, ctx: &Context) -> Result<()> {
-    let data = format!("NETWORK=mainnet\nPRIVATE_KEY={private_key}\n");
+    let data = format!("NETWORK=testnet\nPRIVATE_KEY={private_key}\n");
     let program_dir = ctx.dir()?;
     Env::<CurrentNetwork>::from(data).write_to(&program_dir)?;
     tracing::info!("✅ Private Key written to {}", program_dir.join(".env").display());

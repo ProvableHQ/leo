@@ -31,7 +31,7 @@ use serde::Serialize;
 use serde_yaml::Value;
 use tokenizer::Token;
 
-type CurrentNetwork = snarkvm::prelude::MainnetV0;
+type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
 // TODO: Enable parser warnings for passing tests
 

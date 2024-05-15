@@ -18,7 +18,7 @@ fi
 
 # Swap in the private key and address of the bank to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD
 " > .env
 
@@ -67,7 +67,7 @@ leo run issue aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg 10
 
 # Swap in the private key and address of the user to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc
 " > .env
 
@@ -161,7 +161,7 @@ echo "
 
 # Swap in the private key and address of the bank to .env.
 echo "
-NETWORK=mainnet
+NETWORK=testnet
 PRIVATE_KEY=APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD
 " > .env
 

@@ -28,7 +28,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-type CurrentNetwork = snarkvm::prelude::MainnetV0;
+type CurrentNetwork = snarkvm::prelude::TestnetV0;
 
 /// An enum to represent the stage of the Compiler we are benchmarking.
 enum BenchMode {
