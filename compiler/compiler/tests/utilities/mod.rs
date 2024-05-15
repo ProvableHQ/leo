@@ -281,8 +281,6 @@ pub fn compile_and_process<'a>(parsed: &'a mut Compiler<'a, CurrentNetwork>) -> 
     // Compile Leo program to bytecode.
     let bytecode = parsed.code_generation_pass(&st, &struct_graph, &call_graph)?;
 
-    println!("Bytecode: {bytecode}");
-
     Ok(bytecode)
 }
 

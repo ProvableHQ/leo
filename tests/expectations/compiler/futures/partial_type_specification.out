@@ -22,11 +22,11 @@ outputs:
           initial_ast: bcfa98eafaf355e7313773fa4340b88d2530e3d2b279252fc1117327de42d77a
           unrolled_ast: 01a9f5e11f5749b408619a513bf7f9eececfd83f9f87c883fcd8db53440babab
           ssa_ast: b6da9c41019a2af6cd137e29fe7b5041cc13a45d574b920101a69f7093c58980
-          flattened_ast: f245e96aeaad10851bf4ec416c7dea9315e6fb4a270124fceaf1e8049a5cc691
-          destructured_ast: b6e4f7239bbe832727944d357e2c059c6305f7b7eebc122761b313645f747ed5
-          inlined_ast: cb3e38acfd6c330de5eec63279e2c69db0e4ff91b49d4bc4cbfb2276364985be
-          dce_ast: 62f1a74cc6b63ebf65dab1142f770730704c530be96344f4df9210beecfa72ef
-          bytecode: 06118b170bd8fcf39f203c974615c368081e6bceae6dbe0d6aaa125d76bd9ac2
+          flattened_ast: 7bddc7f16b5ef5baef1fc50ac2f45767844d05fc0de797d267c77306bc586dc5
+          destructured_ast: df2c950dd52d4094ef1f2d364aa6dd57020f7ca431ead915353c2c33482ee05d
+          inlined_ast: 7dd0bb6eee84d038c01e43a8c7fdfd38ec3cbb269bf4990078a49e5202fe177e
+          dce_ast: 4378a2b09abc850959d98704efb7ec28bd6ad7962cc4ec761e26e57400cec8a0
+          bytecode: 10ad760ad5a7c1882aca46c034e78125cc5cb06a57163ca694a3cb568be4fff9
           errors: ""
           warnings: "Warning [WTYC0372000]: Not all paths through the function await all futures. 2/4 paths contain at least one future that is never awaited.\n    --> compiler-test:17:5\n     |\n  17 |     async function finalize_main(f: Future, f2: Future, a: u32) {\n  18 |         // f.await();\n  19 |         if a == 1u32 {\n  20 |             Future::await(f);\n  21 |             f2.await();\n  22 |         }\n  23 | \n  24 |         if a == 2u32 {\n  25 |             //f2.await();\n  26 |             Mapping::set(ayo, 1u32, 1u32);\n  27 |         }\n  28 | \n  29 |         let total: u32 = f.0 + f2.0;\n  30 |         Mapping::set(ayo, 1u32, total);\n  31 |     }\n     |     ^\n     |\n     = Ex: `f.await()` to await a future. Remove this warning by including the `--disable-conditional-branch-type-checking` flag."
         - initial_symbol_table: 04f7d3a44d791763aec79b596224c653e682ab928bc0cba71a1cd6282198e885
