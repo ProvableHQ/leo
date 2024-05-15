@@ -24,896 +24,896 @@ outputs:
           warnings: ""
         - execution:
             transitions:
-              - id: au1pdjmatzkyj6y7437jc8ahpktaj65a42zanduptfeh785uyv4r58sp47ylx
+              - id: au192c0a4td3ju6gkhue598vnt5dkf38epq4zcxkr087gu08lmtwupsxcuy0x
                 program: test.aleo
                 function: bool_casts
                 inputs:
                   - type: private
-                    id: 870016774093892566989587177732251914788858518678520797611120314436577816329field
-                    value: ciphertext1qyqfnj5fw2m7duu00u3y64epmqxxepus29hcajc7vulqzmdpwkvq7pqxxskd3
+                    id: 2967746959290957797418059492418646488252196095964769567023381179128198171197field
+                    value: ciphertext1qyq0h55yl46w2yl2u872r0pzfsfy7zzn9t2le745ahpyt2xcaytevqqz3dv3d
                 outputs:
                   - type: private
-                    id: 6066899140271856032410076659910454381934190391779428926461158119701923221375field
-                    value: ciphertext1qgq83gnerxdzsa6qgchglyx8jkelx5lln72sp7qz96gs4y42tffxkqpsr3kketaj0u93498gd35hcps0hqpg0zltye95u3nj3ta9wjp3zq0rlj4r
+                    id: 2391403714235875490897214091893401116064622751500037901816386776516597411733field
+                    value: ciphertext1qgqgzn3h08fey6dghf6lejhxx8kg8z0yucwlg252p39vnasyvues7qycgwyxqhv4fwe794rn8h45s0exdharp5at32utp79z6pd8wna5pgt7x7te
                   - type: private
-                    id: 7460491606535268891885065043483177306496780154684236722927008504007889592202field
-                    value: ciphertext1qyq2lucjh97eyreukj345duz6gty840shjjecc5v5p7j4n477tej5pqcz8xrt
+                    id: 6068897582877438590838334206615892891019292261593805838724714480965255103603field
+                    value: ciphertext1qyqvxa86ehurz0ze8cy66s0fzyrsguksntrtkthq5l7j360zar5d2yq2lzsjf
                   - type: private
-                    id: 5549169777689693660134684108664074164241304694090852019792122524105406064667field
-                    value: ciphertext1qgqr6d5xcz0ahusq7nln5zwt9u2arlrlcmrrup8aew0zhp4hl0d5wrs59e0y4n38c2pkk5xrs7jcuww4g3mu7t7h08a8aqru6fz7wmgzpq97c2xw
+                    id: 5582407752230998707316271800872292090234186902117951339535914903058912001763field
+                    value: ciphertext1qgqzy3kanpclp6v5jns6cvjew6yy87m9max7m7vmexezv7xxnfmuwrj3gxpdrf5zr7rsfvf4g7ukmal43w6n3pus97jjgjqjcrg7xzmzzgxnc2v6
                   - type: private
-                    id: 4755056734328200308086663954189076441623605067600629612850965846037541539946field
-                    value: ciphertext1qgqfppa7tc8exvgh9fx5lh9yr0sxe8mf8xrl8de2xuam8kgttvr02r8g40t2vpxreetxlvekwl9xgn2q9nh04yyxj9x54y5s6pzqnplrqcnqfud5
+                    id: 1905062933219633420660485719107742063104376034047049705375172045273538098677field
+                    value: ciphertext1qgqvwv7sf759aqgdgk4cncapfhggymj4vq7s4gs0auyzwhhzmxfpkrutmqshaqcvquataxf96dzsttjqp0vwl62rgm5xp3znvgvma9h0pqwjref4
                   - type: private
-                    id: 3490173327394421394124477563145959904188194368742648433612238049402368868910field
-                    value: ciphertext1qyqgs2mkgtezcrk6lquxa8qhyghwa5xdkm8ff5k28c0v93lqzay2xzc3d6yfc
+                    id: 3412566252878146645417494173600851742411983763466339619050566831547987839761field
+                    value: ciphertext1qyq0wgsdwjylvfy5zxs9xvvnsvzcsf528kelq0wlpmgqt284h8yewyspye40k
                   - type: private
-                    id: 6946117926751028312976289715738207327190503310041458078930754262905940644558field
-                    value: ciphertext1qyqyedpgtlpnjd5thdwyq0a6034ejckh5ntk0ekjaurewyrueqew6rc0dl0ke
+                    id: 1114349416671535734887546867067664265892671547483542821758973392161292139651field
+                    value: ciphertext1qyqyvu0m525gzce0lwp3qu38k9yu88mts0qw48wzv6ym0c35jtz3yps6xq6ax
                   - type: private
-                    id: 3441429726594339702263689481047055897835445345492257557876787217287173710969field
-                    value: ciphertext1qyqytvmnyh560mgjfjsr0hww6qv2trncnu2ayduu7u9l09z7l0hpqpgjhvqry
+                    id: 4573612977400453167280692690292882868218065417207497998669883469309901158846field
+                    value: ciphertext1qyqzylun8jhr7zt9kuez7msazfvhtrqgwy7vlmrj59cujhe23fczyrgslpz3n
                   - type: private
-                    id: 280079209440076645529437882521050067578947167276378506615522438079717292111field
-                    value: ciphertext1qyqf3ym9yr3wmy7c3pxxa53j26w74jquf3va427xnnv3jj89el9mxpccwslxg
+                    id: 5658995846638648038605799418527332082599894582879992736905238616323886428738field
+                    value: ciphertext1qyq9kg8kj2f088zcrd9x55usakyxejlnp9u5xupzjr34gcz82h692rs0saq54
                   - type: private
-                    id: 1906524189726321490460662216033732059386561433998251473096399160237342746334field
-                    value: ciphertext1qyq0l3x84m29wvqhf4kr60n56u0xfwvgk0q2wu3d9a99q2hcsue0zyqpyadqe
+                    id: 6220407905676012889727113913881630295857862860341750358683966301369184681129field
+                    value: ciphertext1qyqr6ffj2txwfmrvtywyzuevuh7evy9xr25tu83jfknk7zfs68lr6zg9zheqz
                   - type: private
-                    id: 134083201205275413073708953217566877696859064663169990367635478808958980485field
-                    value: ciphertext1qyqwq8jjwmq0pw3x90dsdtp8f03nsyy027ev3lzlu4ju0uk4z8w06zqz9flek
+                    id: 484175264806284156295688272830599782761036921842479930954924282997634317522field
+                    value: ciphertext1qyqg60709u423m04963zvjxntaddn653ne3d6ta7d54css7gnadfcrgqqj3n6
                   - type: private
-                    id: 1804393919553980470264243202079035255638388624833010696045149134002133719549field
-                    value: ciphertext1qyqfd06cpvwdkvcjkng7v78l70656jhmcm25lt5edcaxa9q295s8xpgwxc97f
+                    id: 660928764397159899102168590107368706434656564196539186832805756454371791904field
+                    value: ciphertext1qyqdzp485fxf4kf8yet3lt4lzfcxnv3dmh928c6mf54tyyurqlhrjyqax0p7x
                   - type: private
-                    id: 3122118165538965370490560865530676352291631890185376913445507000205185911096field
-                    value: ciphertext1qyqdp9dszrecxjq6pnzkccme3amdqf7ntltquphaexzsq3pjup40crgnf54fn
+                    id: 5155152515418208157447727432120143996858249681579215039606768811105916043346field
+                    value: ciphertext1qyqfhwhyxfsjx4uzgq38v94u65ha6cjp5mzrqtw0e84r53fe9lhngpq9t4ffd
                   - type: private
-                    id: 2515823940533929835502115686675220386289510377817736253911402825852642014313field
-                    value: ciphertext1qyqwx60rjfadxjt6fz4x7z4rh2xcqzda04tusv0es6pdzzf0qhmjupgx0ufj2
+                    id: 881840167117722069834941848828568736427258691812139829589743751661478686027field
+                    value: ciphertext1qyqp7x9c2xd2yy2nxsu4p8r3n464j2am4gvgyuszzrfmq0fgda9zupgk6d244
                   - type: private
-                    id: 3313260730296526504849043396952409709987036149944507493466816079495003273940field
-                    value: ciphertext1qyqvhvxsf8xkwf2sgj3ps8rguscvs8pvqkaq6pgcc6kxmhyzz9h3yqgrrkypm
+                    id: 7217880333562202144460547371672608946785081675193703322445290345918794783510field
+                    value: ciphertext1qyq84y56v48dw6lqfc55jj2n59eszytg2s8ppllxrqhdfusgfx4quygdzy0j8
                   - type: private
-                    id: 7741217156657972909179591220760068895014030385803694682922424004135012079029field
-                    value: ciphertext1qgqdke4x4ylghej4u22jdq840t7rsm060h8qrt5qumeeyvrp6vu5uq68vp37d60m7ll4930udg8vs05h0fjjypg90rtq273klzzxxx5zqqrxmn73
+                    id: 1656690163923269998766423483269367403783750671305977246673308546314072732725field
+                    value: ciphertext1qgq0qrn8s6aj4u2wjgryl60hmhxdzj5hspfy8wy86qr6lvecqg4qkplnx2f5qyh04twzq0jx59r4rpqe6079jk9au8fegdy8rtc98m7eqv5m3ygl
                 tpk: 906433344579261973508777231637773866000484277665367023052132639556805226879group
                 tcm: 2264499059417807378317457265350757942309879957297618468563459672052295853755field
                 scm: 4569314311653967067922687724584747565737211018283927489233858658622702128025field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqfazmvlfh4y3zjskjf5dssvp7e67uq23t6gmm64dmy4mz2uffgeatkgy8gjd7zt3edwsf0s84mswupqyd0rmtgxqe9rn4hyjhxa5vnknyjrn4fmjhdl302ajuy5dtuk6tylkw3j9hgxp9cy5m79y9726jsaqysqd7jwt6ax9vrwkmkfr5m87j7v0cgatdprjjvjjkk9kzugragd8qcwxamm0wffn735d329nqww7qlhwrhcajpd4saa4h8run0cxlsus0e2w9lx5tujda8c6q2sr74qctzfnpgk3cnk95uch08rj384ruppq4rg97r02fk0a74hsjwvq04csgdr8sm7tntrqtufrestjwfyayrqz9cujarwn46yk07ykd2v4eqrcfcvcnjjekj36rttaklf9qhdzrsywsyj5dzdh4am879wweaf4wja9yx8qaxz9x7rtjf3wwrx86hsqnfgf7pc0ulc08y02zyzs4xh7eh4pus9r5gl99js27wedux5tfgl7avdkvfqd0te9fy06dn3g9vcqyrfd5xcrdrxrpteg7httynzweq09grckguv0x40ntazqdjfyj7r7t23vr657xw3qfqx9a4nsc2qvqjtq8w6mgnh4jcmlr6x46df24vq9qm80aknhgmdrl6vqhgruvjaqwuex8pjd4v2qwxs6x0p9gfjguqgepnsymhr9ncu62wza7j77amzl209mpuhstw6vjv58j6kw0s9ypagpqxe9zda0vumvf0ffx4tdg5zjvpje2anznpxeg226k954qzszhjvagm09zgycyl62yj6xl4rl8mhwxfq0gthj4wyhyfmvf50hf9pupd67wdfu6fjjmc9ku6jkquq7sxwxwszzr5mzuvwacvkx2mjr2sumzu9ly6g2u9ujumfwd2d8fe7qgw6tdk06z03kvuhkwh5cu0nug0vywkfr2zjlzhfgmcg8z4xdru2htgxjmyxdatp2j4tnpf0vpwzszxh0k8skpcmvhldahmlrlvtk7uqckxxkq3wyf7w8uf3l0nnp7ujpg2xcr7m9fnfc9ez65z43dp68pj9vl3xk965pc7rsg5xdcaupa8qu63v4gt70kgxx64zrvykx7s6y6xjtya0jwjcan8xy8z5m4lgvhprd30p9u7jmz7v576xqxgexe40sd5x5hk95cvlrrhsqeprdt4nhqsqvqqqqqqqqqqqpq0h4jmc0gzyp85emgfkn6xnd67yzy9hdekmm7w3u23nf6yc5uw96t4zxh5d9ppnrjvdclnkh42sqq9y2ckyqxwwkpz6phxzlhzv3h36md7dp4kddehkf2she0zhxg0qx5kg3fkpta8grmsjm7ecv4kh8qpq8r7kgee9ct5n8p6clhxeuly47fvzet987rwm9z7emfq955ukynqnvr6wkx45n7vvu686l073k386ncejsntfgv3x08454xmju0scmyw05j5n38q75uwcchl3v6lun3aqqqq7pzd05
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqxu6njrrt2z6nk7384rthmd4a77w4l36u3l67c98rvfxls8yjnqlutrmqm9ru5ej0nc2txmqfsxfypqyd0rmtgxqe9rn4hyjhxa5vnknyjrn4fmjhdl302ajuy5dtuk6tylkw3j9hgxp9cy5m79y9726jsaq98ulqrkg87j46nf8pm20ycqrjp6pzz3kqwuqwue35v92dkf33j5ygczc65xkyjrthp8gcf40ka9uqhd8ayrxk9t5yp5ct669c63z2wpy74jq62um89hx0u3u5zd8jxvnljeuhj43wtgus7smxepqzjsxqqzx3wg30dprls0rd4m0n263y8rkupk6kq3vf0n7lqunusq066unggcln2pkd95q449gqx0z77y3fcpetp4zra4cd4u6wpph6w8znehe6df7ymlt2x55m9nuv8mrmra55umkq0adchnmc46w9s4mrhzm2uqxxye4arfrm66wyzgtacetvrzzs6qx2vv5y9gjng7dn8q5et45m4qg5nsz37l0z2eh5w9kla8ywwhq9wyvm2gtc8pax5hvkgwks8r3js8krrrzqysmym5djvdy2csxpn3069shvqsa4sznvsjgud53864yqxdlfvd7t2sedmvfa3tvegjmjyunnnuteahn92nmwvthr62a4l93drawx79k4gvy0834shssthdsqq0zfpzr0vhtwdpzfauc323evyy8xrv0ukz0an9ckfqdenfnv8e5qfw5fmg96xzmpj8df55kqudgx8rrgrpvwxzswxy3xmvwuxvjx42r2msxudyrzpgvk2haddyx9y9tydneqnu7fxy9sj8tuyk7cwshczzpaq37tkd024s32n68s0sss6wmchc7agc729c3nj2f2nrp83xlrqly03gkt7jlk64arq2pheeyqh30gq7d9gcurzhya97z8jdaq87xqxwyqp5txkjynpyr8uspapzhpjvekms94l6ztdxcxk2444hglf8sgu0gn7lwktkrzrjysky27kpzalun5td72w037rjuexrg30wdct2qsr6nmm6yjju97gpetf44cc0wqy8m60tr2vksve4f7qgyqaya0uzp2xgruwngte9y7fu5lhzpg6dtgze5ef8ul939a257f9x7nvvcxqls4f24mycztv8zfd9hjjr4akdmafv8rj7cerzxqjxyzjy4nrhegrqvqqqqqqqqqqq58jj37caavp34824lsadgkkhh8mzvvxqx5zm5u6egwfd2yum6urq807qjdpyx5p5w3pfynjdsd4sqqyew0nkeev520efrx2jy0r589rxz385asa3fn7t6cscwyfxj7kkkpsx9yugr5vzvchdemhmh5ssjqpq866nd23rpdpu0zvhjnxundpe96kumhmj4y3l4ffwwdhpg42qscslm20lsmuzskq3aklgarp554mvp9w0qfspappg5e74d68mdwwu3wgr09cl5j5vfkkw3fc45lzl5tksyqqy0ynyv
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1e2lvn8lyvdkrsmnh9n86m7dwp760scqg635tstpeur5gyhy7gvqsmfvmzr
+              - id: au1dddyevz30zmklhzksfwrl7j4guf3gw0dghf2t5mtj094nua75s9sgczln2
                 program: test.aleo
                 function: field_casts
                 inputs:
                   - type: private
-                    id: 5981445344148260893713194765226641639096587295577990468989108696280268892730field
-                    value: ciphertext1qgqxurxpqtfq3tyylkspfh2hkm5qa09vcg4j0y9g7y40kld0zg3c6p93g5x6eesyckuexzqxvcx908pg2jwaewg3cp0schrf508h2pfyzyltdmzn
+                    id: 968854684669319697321344672442809656799427516205417152199066528310145320490field
+                    value: ciphertext1qgqr5jc8g205dmdhsj4vwwnu2nn25xt53j99qct5aay7d3jatuczcpdj8tsyukz7yjup8fxvxxyd7ywmkvl5zkhqpghvhzd2tv8kmn2spuqvzc25
                 outputs:
                   - type: private
-                    id: 3943544279621641681524163288725940346327525476679984631829019426281337359824field
-                    value: ciphertext1qgq89rfmyx4f5wukkr2cxu4m456g48d2lk0gjtrvjqszmtzyyjhy6pu7psczfjc50gcgnvr3wury2jmj4a47faj2kjxshq78ux4ty82fqgkalecx
+                    id: 7608504159931275213198284577963029504038742658518030091049405665061128049986field
+                    value: ciphertext1qgq25vvga0n37l05jwa824897z0ppa6rrvxvvv48vsplqgesdsvt2rw7kyyw6824a0ky0t026gku9gqeq2d2qjap6rgum4uv6ctr8zg8qsuazjtz
                   - type: private
-                    id: 33204948549039293853092789201420684955886919464834288245593081009280019823field
-                    value: ciphertext1qyqggcmlfhs7ecdcq7ysp6anuty8qn0zu6pwenwdjkgyzpeys3727rqxxqexv
+                    id: 2956168670769361041828982985945123055414015956432174300374815245826546703320field
+                    value: ciphertext1qyqpaart0krdyu39muvrfvhqgelpfqtkwt8mt3ve4p540xauzv8kwysp6h7s4
                   - type: private
-                    id: 4652756083941535979304094107332103022701113462127774559265528185668044474798field
-                    value: ciphertext1qgqxwapxv0z2w4ev7lqmd4mdvd584v589r96quhheaxhsccff4e5vrsuacqxcakerax34ccrfjgkv96vd8v9w2wzx874gz8mxrz6nrwlqqtqcp93
+                    id: 7479996634218535481103591709313753205557219911700788883960521824879270416885field
+                    value: ciphertext1qgqffhhhv8act2k7dh2twucavtv4pq097mwtsj3xxj5nv9ylq3g8wpm5jhak2crfqmdrl33f23q7vfsyj6xl78m8yaagqcdas49u2vefzygcztcg
                   - type: private
-                    id: 6212312664382001039091746971001285212136858262227970304969541906416008601478field
-                    value: ciphertext1qgqdh49p2lzly39d5559rrgm5dedlguesg9zx3xu0nayzsx6t7smgzzjrvjmph0vkxp674kau0dgqhtf57atvww4mzc6f02dhut9c8u8pyp2zwys
+                    id: 7311504974054446778179410098513981799770387424724012235850279321571434485332field
+                    value: ciphertext1qgq0rzyyrdl4p87kn2jawdnpnudcnt9049sqthk2vyejmmc7k9g8wzjtdt7j3d7gndzkca5x8g5tu2ec3sm0cupchtrf8pu0gh6vmce0zydyxpkk
                   - type: private
-                    id: 1369218465153273735704692249110525698782664870825284832925974662651641417429field
-                    value: ciphertext1qyq8h88jsntrqtcnc62sdx5fv2a8flnfl7e9jx4exnv69jh9zgu2xpg4qtked
+                    id: 625229075237448701436513683643079464952097094499715653591388235780944684421field
+                    value: ciphertext1qyqd3yys79lcvupe4ark8k3t9l34zzy73zh579ua6gy36axfwreckqsguwfqh
                   - type: private
-                    id: 3092581865090362292109705763637066495291070478269680186394918060743206100138field
-                    value: ciphertext1qyqyc26c28wfq29ne9as9cnastgyq407vhqnd52k0sam3zn2dyhaxzs0psnjr
+                    id: 6397212694599252815989709065409168340100640072914986564935376693222069033267field
+                    value: ciphertext1qyqxnfsqzuj5y6fq32hffg02yuatydxjp02c6txqgd5q3mspwudc5rskq8ct5
                   - type: private
-                    id: 8118275841128970634149176799223195499977840593595934284224602111569408380426field
-                    value: ciphertext1qyq288y2mksengal2flxv7m3dd4l6hag977rnhmcehucd0q4c8yhcrsv59e3p
+                    id: 1934335063932521224333328466054800439299576581715859203034065078168270500854field
+                    value: ciphertext1qyqzq5jhjf66p28twkgsp0xazcpj7saecu8na69ahg5dcm57p0l76rc4uau4a
                   - type: private
-                    id: 5314245789486328185284769127846302553615509668646773982377035390142676186608field
-                    value: ciphertext1qyq87jredz7e7tuvr55zmn23yctk4kq4v2yk7e3c4xkm8kc7hh4nzzg7uk833
+                    id: 6483075936970726187162777726598421548826364470683242231491764046737767677827field
+                    value: ciphertext1qyq9cw9j0wy6yyn82rzfvd7c8dpvr9qxre8w4zyv6x0ztyjccvrkgygjtmj3g
                   - type: private
-                    id: 7486579185284339464983006597246615211228061545851604997156757422467512135286field
-                    value: ciphertext1qyqr4pppqaxhw8xdpkzzqnjku253ugmp05zefkljvqt9hqtakwfuuzcam5ran
+                    id: 5966333981529495930978850977445118599690283438821626199464489309096009907868field
+                    value: ciphertext1qyq83ec3t4kduy2fx0dd0eqjhtwkwzmqxyqrr024883pyh4hzuruqyqwf7qm4
                   - type: private
-                    id: 6836128880597221767889394096879760146087417364517655786578558023294937633607field
-                    value: ciphertext1qyqwxrkd532qh4q9vfts82zgv54mvq72sckksjvaxwvffhfpxt2xgpgpfqm25
+                    id: 7598359810477347675381966916875704727049830204129752277215331018860693613142field
+                    value: ciphertext1qyqwnrwu23vhrskdu7jxfzpr2gj6puf93rfn9jj8r0wdlujd3l047pqqem9gw
                   - type: private
-                    id: 5407643970856044341956226360035997141323328959277063466705833769721636717680field
-                    value: ciphertext1qyqtw2j995h3vk7ltl55m249v2kxdtvysg0rsupyjrz9pkhg9zszgqg0ndyv7
+                    id: 4634909908362133742316781405453445661412310742763046532849707275759415560934field
+                    value: ciphertext1qyqte5g5lfzuepvakkpvarc3xq296vqedwdg2l3dc2cjeqnv59k66zcfg929k
                   - type: private
-                    id: 1278836571659287721980066490210160475955893733249777822612203221867966967611field
-                    value: ciphertext1qyq96rhvvy9crwgt6e7fjmm8crtj4qymcqcc7ker6s7nefd7mz87kpgjdaye9
+                    id: 3055013574724829467112174533382167965158655275737359756969845716460088790455field
+                    value: ciphertext1qyqxrd9vqs5hptz43g528anvch92qdemlka89r5z8g20n775wylhgps09e6mg
                   - type: private
-                    id: 1298110717272057074612096620471465666579215477637906454268214696775470421999field
-                    value: ciphertext1qyqyljvkl84l0g2eutyyvk94n90rrc6a8gar2d05k22ayng24yysjyqn74m30
+                    id: 1695046236569174040283299150108344581656998815293467186627778463995672602182field
+                    value: ciphertext1qyqvespr240tzq88fkh2a4pmkl93laz8vzjlntscz93wfsu4hfhfgys6cky3h
                   - type: private
-                    id: 1013198150797569737124371149125906491387781134211914066164777519054127399322field
-                    value: ciphertext1qyq9pu8t4vf29yr8clw237ep0zmqcf47vkwk4zxu6fsgq3xktzq6xzqc6560f
+                    id: 7000687651660577949392471411552383532589243239791467379975281311234960608071field
+                    value: ciphertext1qyqfp9mh0e4qs3x94m7d85tqkkqxyj60sczrra6qd3lfqdk50meqvysvst9jq
                   - type: private
-                    id: 1425122481726284500363874192192162400733899899116356180012797533302432984576field
-                    value: ciphertext1qgqzt0dqny0w42jr73f7ntp5md2fxp3j2rchs5wxcdn007kd2xqluzq2waff09vgqats67sfz52g8aqj7dfetxy74uth7rhc6sezr4gdqvlxr2ys
+                    id: 1121964269672613910965601232028233765198707391912704253743861536312294434882field
+                    value: ciphertext1qgqxfq23aryv7ctds0lr3zpx564gxe2hpz5c4flxefrhec3ttmy06zzkv3ghdczlnka0jcjf5tdctv2xaz0xy5kv2k7jyakxuy96dntmpqxu98qa
                 tpk: 2550351171199825141307168298436995254113236187336635901030120127729181116095group
                 tcm: 1962713337121511233859493724486249959409358786003297687093583850112598831286field
                 scm: 7285945146914500847843381531505865098592518188959918184623739529801419129573field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq8a3krggwgvxtq5lxtsry9y7jfwpuy5rkexgdlzsreqf4035ajmttq7a9adn9afzcl3hrrejhr86yqqxyvac5d20sspufnm52zlcwcnx9sf3r5fmwrr45hsnrvgdgadtc452qeue696wnjjmqmywel5yfs6qfpueksrlh8wdyesaezytap5m8yya29tv4uzwnppghztmdrmmq7d26n0rc9a3nrmea7ma5rv8ak7qqvrsx8cp3ftwn5ff0xkfwxuavw5klwe92rkqx7zdzc6hwqyzhqdnpxqetje000eg0zhx4vraxl2jqqtypn4qc94jenz6rxc89mqtst3deh05axu3mf99alqxzaeplqjh82zkks0a3wmpqgu7m7cmz6twpgzgg0r27z05037m2r0jhnepkgd4e0x3qqn9jz8ehx262lww0wd84l7ryjdzmqlnkppte8qglx8yq9qredyprvra5z0pujlndr7c5tmyhcvmvd2t9hglysmuwt9yvh2my39tesghx3295qj3hftttmyleqrq03cldgu5a324hp6lwc8089sl9tcgsw4n97relfe5r0tcrufj4ceerpp7vnq7cr0efmgqdrc9eyqzqy5u7nc6zu0pw6z94uxhq9vf03gw68drejez7hf6u0e5l6g6ahzpqv5dr03kr532nr0aufvj9mtvsqzx6a25hjyk6jskwguzz2r3jg7e6a5uf5354y3rc626ldqzeucsqm3834skw6ru5388y76ud7su8zzyggw4tdjkcvyx4qcy5u3nqyypc52425p9dsjnxdykucx5j0tdwlh2n4s5jjsx9mjmtxrnkj54znqvwcgcta2zjvxqpc8sw6qha2m06t3j29glaxae2lu78kkdlxwqw3pnsc6060mfex0nsxmsnvde4fw7muhmdp5zcvu8wzz0pkeka8ljgq685et55yyhl8mcznz3cxugpus98zjp67e5737jrefg5sus67j5p8qtdgn23rugm632xkaqsh7qz9lc85t2340pe0klxelt5e6tcn2pu3m470vxphd2pq093g0h9uugwwk00rw4kfhpz6cq66m28nqgjgq4e64a5fzsgemsnjhvuz2mzkhtng7973rwvn9eqtzumlzd4ledjqxuqkn0j8gxnmq6ajxzl2j6tasn0h2zdcdj6vy96rzr96g7kv0ecwqvqqqqqqqqqqqhy8v6qt24z6sualp6rlgmwe0rwsr9syv4fc67ar6kqp5swrxy6xhqv4gzpvpnx3ptc73lcsrv7jsqq0jc7hkla3cvzds8zz8w6kpc7g7ua64femmr22kmc3qlf9rxp7sypqfry0qqn0vw4vyah9yxalkxqpqxew9vszy7z8gtrjx67tg95xrntml8sjtysrf4flhukzps9w693p90f5g0ma22sur2e3ae6yu70rqrjcdtxjqzerh86933nv9ykxk43h376pf5769ywnrrfhxw6f7gdpsqqqe2jktk
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqdsv322qnv8seknhzl02df80sj47h8k7zs4m4qtv6usvxg6qkv83t3fn9saersp4yqfhn9d37vtxqpqxyvac5d20sspufnm52zlcwcnx9sf3r5fmwrr45hsnrvgdgadtc452qeue696wnjjmqmywel5yfs6qw2mg8lp8g4vqh9n06xepyxr88k0k83z24cgdp8cxtz5x0rcxwjyrq3frlvp90hy3pxs2kmfxysx2qy98je0uj2hdpg93q90pf5dah3y2qqkw4309gcysxfxyv6agavgmycdl3k2guc3vh5krav8pk0uhuqenzlfm3ypxysy3g2l5wylz4x66e9h7wxjphanfrcsg3vjy0rsw63w95phzscxzayxf5h5ytjym7gq9zm67pqadvuhrz62mwj4r7ywd0zcaemvl3dc8c3lg79fthnrml5thf5gd5em24ms3r5dars64resyy4d2vahsm0msn6cswym0c587hgvwfw5l9f2g226j2kl84saxec5hchkncdfpqf6w46wnw4wf4eqqt3zlyg0ga35h85a0d9zkjgy4258s7vlls66lax7u3c5dxva4mmfww23ffs0hr35ks5jcuhr0fp8qqp2vjmtd26ast73xeksggd8cxhxchvkqumy4n2j9qk7w8f9aj6ggfyeseq9tcunye3welntudh9tvq4frakm4ppummh73x28vt65y7adfumx2tvm5pdd6m3mrny6ff0qy392lsp40440cfjygmht75q3rzrcy6pamxnevcuxdp4syzzjtw5zy7up3ysqqatazpszj9h9cygmgz95sa29863lu8nshjs0h9hw6ep5wlptr53yu0ewzwqryfc5luzw6mp2w5rpjk6976e438k89g0alqhqgq2hpa678nlj7t0a9ha3um3u8vqh9gt6lg267q47vu8ehx7rqdm0a85g0ke032z5yqs5rm2gylpj4ym40cysw8elay3afx64wmcvg2ar9s5y95kz9lt0g7x99mqggf6rpzfyv9gwmvu562g953qmwkkp4dytw0e953a2c0hl38q8zadtz8a9fqzhv8l0qs583cvqu8ffyhp27qj0tg5zvrmyjnxkradthh3em4kjxa6f9j47hljtdk9cjncxhsuh66s2j2lgun92n4msgtvn58dtddyh8c638rh4sfkv85zj85dwcgqvqqqqqqqqqqqjxmwmftk2hesgnaf73vk697v3rht4r3zsczd3ucwwj476v56lsx5y7p5z7x24fyhx72uqyr3yf0qyq2asjtcga686urvg7jn932w4pd62v5wsl9kc3zx2ss7yryq26yr63qstwctzkepl0yvhhgg8z293cqq845a6ae0dvlt3p7flxlfgnwt5rnvw6hav9fd2g52tfcu5vkpl6shqck47gzzdv5jtqqt59k08q55khkns2uqu8l7qk8lq7afrd8658rn79swc4dg8gluana6y6g2rftsqqqzkjq67
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1874zhy45rrq3r4vcu7zjeux2ua3k29z4r7mavwjc3n782wxwx59qj6qw00
+              - id: au150n20u97ysaerfuazvfr28wjtqwqf70r3thrn29w9eq8e448zufqap5lde
                 program: test.aleo
                 function: group_casts
                 inputs:
                   - type: private
-                    id: 2819482541924640552986549637429952459424279665250486415733597041030067045727field
-                    value: ciphertext1qgqzzahds0zqvh8ge0t7p9s3y7nege7r88p57t9gmjaxeqmzzutsvrqagxlhldmh0edvu8ufz340ryufnlsyn36l6yrg0868kpqqagalp5l07xjs
+                    id: 6644332104790556042480271338026959766037587213221099022847023331130911093154field
+                    value: ciphertext1qgqv6turma6p0kduqjt0umznz32glyjgg7gta4tx3nxy3djxmuvczq0nffa04zw7z3z2fe0400ru63f66uqlqm45zvve7e6kpg4hhp38pg9rgs5z
                 outputs:
                   - type: private
-                    id: 2654057230055763332160807176309040643737778790240658834054940631385500249862field
-                    value: ciphertext1qgqyaem30vys39tqrz7rmphs3hu3yj87ua0d669n4heqf8rvqqn6uzarums74dvlc94y8g8w5syg2e769mes2wv2p839k0pf0p6u83jdpyecjeup
+                    id: 2537325462390050950308871732939849353983720676064828607176503814939076888742field
+                    value: ciphertext1qgqfayae0dvxdqrqpvkc4c50dc2cuqg8nyt3swnjf0whs4lhxaq25rsr08tsrgsxlpnzp72fqnt00vj8j6wdue2rdxz3u3l4q4fwywk8qv23kf6g
                   - type: private
-                    id: 5415544052609952684697621397857664497669166110587839189391003104605977845253field
-                    value: ciphertext1qyqy9df4su68cj9gwp4528zmr8xedqxu9g6nxyfdeud6l020rj34kqqfjrq99
+                    id: 8375663727068180355780359475624081423805116210475012648931084575520269586350field
+                    value: ciphertext1qyqg5n9h9rzmj2a0ranugx8pzramhxwm97rzq4ue3gnlm76hx5wqvpc36ztqx
                   - type: private
-                    id: 1491968823696949495251916706469307333530188041438809130305003254719218791049field
-                    value: ciphertext1qgqy026wf8khtvynt5gjnmhf7l978y8mh5lrww3ea02xp2an3eth7qhdwx2f55j7v862mz9wy7gzy9p52zpl3l3etae8d2j3m22daha4pgmjwvdw
+                    id: 5063884318478449247501409889852204240805326265879750085369621656466114242006field
+                    value: ciphertext1qgqp3l22wt2hh98xdwtek63nm083a2aedn0e6t243mpwkrce39azszlm3uhvm5xwka8k4f3s28etancsqpg2tmaldl2uj7dz7edyhj47qqp787s2
                   - type: private
-                    id: 473062546835194479238100525320449693716943321419564306679362290696843828345field
-                    value: ciphertext1qgqp67kcup5jan8kygknnz4hcynf2ysp9jceq7m6ma33n6w53rd8gpthnd75rfcvrgfyhjz8cd36fn7d4nvg5ycpkh45z0afjsyextl4pq5c70q9
+                    id: 6782929200371818089789928279812666563758190543562439639420838537689609847541field
+                    value: ciphertext1qgqp82jckn0ta9tfcfj7xdf2f07n8c3zletga7awyehtc8s2kanezpag4na90kpeqxx629jvr8s638k9xq9cuhsguu5tcp2emv4yqh2dzqutvtne
                   - type: private
-                    id: 3503875534512440145619758999916704161900313360069206644776929583047152011520field
-                    value: ciphertext1qyq8c5s8aqx7ch8v09fsqrqcqxnmpmnmsm4uq0ujfez8gd2fldu35zgdtrt3c
+                    id: 6783656505761559416475041088725373760726217474070978137299232841129410138635field
+                    value: ciphertext1qyqt0svx0j7qtz2txm2q6uvsluwuuwvfyg6s7e6n9a48re63l2egkygfj0wjn
                   - type: private
-                    id: 8157329910400576218278441252611590265865959781209660641603123878810872195150field
-                    value: ciphertext1qyqwpcyy2f0gasd2uv83yk9vzn5zytl7k8kjcmsftmj79x6pue37upsk6fc74
+                    id: 2062438969328760279910895940333623141926561875396361985633269772822160481400field
+                    value: ciphertext1qyqfqjuea5gqna3r8p6ms09z7re9cl2uq64593kwx22h4qncwzw27ps8xjv00
                   - type: private
-                    id: 8117907514453397322815980288874819297411030562812635377936445479544464340479field
-                    value: ciphertext1qyqvm3keh4k49a9lu7u7mqgwamwe28nxqncywtml3m5cywzy4yqngps5kmgra
+                    id: 1030656883946441669692518201749544946827313699649430020626319168078624046792field
+                    value: ciphertext1qyq8j0fg6pz39s4wk0z7cu8vah56lnmjns8wg9kzv3tch58jpdqpcrs5plgg5
                   - type: private
-                    id: 3814930702880972787894568867434994378299034092123535769644802175782295341547field
-                    value: ciphertext1qyqtk9l37jzmfk45zrfu0hpgzd358qgwrv7ezm249kxgj728ky25zzqlptfjq
+                    id: 5061506877823338930975716333556138531644153720012712800666454776187273660249field
+                    value: ciphertext1qyqyzhfr32ny8wejm4ktj2t2tjkpjn999emhk9pqxfezvwquep2akzgls6ujy
                   - type: private
-                    id: 2709645912599527654996705361319127110758437502328268382975590916241690724207field
-                    value: ciphertext1qyq9836y4wfhak3jyckz42m5w2xna64y9ap4r9sc5tvmhn0ax3dgkqc6uwmce
+                    id: 4871412350829716920300710701118792920941070360111495831595958283035537629994field
+                    value: ciphertext1qyq0hajjszrp3x07gwugtph36huxczv8wvwvku2qd0d5cheg4zvysqswn2a3c
                   - type: private
-                    id: 3325729211813380371387249402274641889953391548800195335800680875520365431930field
-                    value: ciphertext1qyqqzp393c6ucq0gchj3zqsm0nmu43c6xhcr6xnxx6asmqjs2m86uzc8fhh0z
+                    id: 1275835914787470178852842850717902262458631400221050507563485276816578036959field
+                    value: ciphertext1qyq8wzvc39lhd2cxpncdm6e8r6uuxmnfq7jv4lmjtc2ry4amywaukzc5unvle
                   - type: private
-                    id: 7429485314167087972646813593709033560321040848635352407016557651805533227774field
-                    value: ciphertext1qyq9j6gdqy5cuqkyf05jqqkgur2elhfl3lvk07cwg3637t3xktgn6zgk2fwkv
+                    id: 2215136297216370085178305287184419832966651844180336728525260577647961824787field
+                    value: ciphertext1qyqrw4z0xzjhdku3e5f96y372208g0u6ycmn85my7lptyak58ffmwpsujk22k
                   - type: private
-                    id: 6340426257747004662396387132386662657125496869710719087422122399187450099857field
-                    value: ciphertext1qyq28rd354sugqpmkdxyzejqh7szna4xdjpmvwk9va30zpvk9c3rwygz5hdzs
+                    id: 463388147753097908218118320863069430783904005877900564045946735913443834351field
+                    value: ciphertext1qyq25vlc830pfx3ht7dmn7mcch3249swg9m8vwze9z5qdedx6ledyyqh6q2hq
                   - type: private
-                    id: 1108771119155060599386075586309311726771669595311892427335439723637866447443field
-                    value: ciphertext1qyqfczr04zcjj8knc24y5h5ghyk2p9u8fwmlqt8g7k0la8uyn2mngrgzhspfp
+                    id: 6821438705972488260971072904296093624334102439540163148115453027131288280478field
+                    value: ciphertext1qyqdhahj400xxn0kz6hggka5ysjhfpulzu6ht54afd4wtkd0ct6lyqs6uvfk3
                   - type: private
-                    id: 2312624013788745804495547517523420242086950924510096558489226805962415556667field
-                    value: ciphertext1qyqprunrxj573ghvzwjs00xk2yru882ay6qlf46af9hj7utdttaxuysnfp62x
+                    id: 925327228087352612912570481527986719378009478141757626072268948827718262845field
+                    value: ciphertext1qyq0uq73dfhwaes8ezhcwrpx27vtm00ze0al47a545lmvkknpccrupqv553rp
                   - type: private
-                    id: 1134975390716470911623426468550249054433195542366099454425585363102304712097field
-                    value: ciphertext1qgqvqukv4crvp5th2rnjkztwj0n06ffh94wfj82nug6nxja5kx825qedexlmz5j6a3xdxhlnk7wz98yu344v8alnn03hc2et2ecrkyerpqfl6x62
+                    id: 3445178737810062424579354130410963357115225221189457715509409952442902033828field
+                    value: ciphertext1qgq94stpfz2whrpckh58kccz59u2cl35skmts95svlcefn955uqq7qvjvucshw5g4ydqgw75pz9557pnn6n4slnha36v80xk45a8c2xvpy6ud7jq
                 tpk: 650922985462010707545977385057512302448238286404058307316901467883627152637group
                 tcm: 4628398837813525347939773291706646833175736705607665755048856365676631734303field
                 scm: 3698088535638755070524759138314559892615353686717771374839632114887630763878field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq02aj3gujnn9zvqq5de5jumf62s008fekvr00qxg7mh659ujnyhc6k66atzcs3he5lx5q2h93pu45qq98a0nf4vca7fcjsazffd6zduruzqsan3js45p6dyfvj6r8ju5mewwxaewqzmqmx6622fnxre82hyq9kyqy37a2uuwtsqphfadz9pw7ecd8zg8nmwaewxst6a6dk87694yxvucpgrq6hyhcqlfvchftw2qqrc4asfecfnuey2545md7tyk2xkvx7uwx8krl5t4yr9m058yc42rzqnfs5vu6nmlnwr2qy4jevt9upgnwqvkfwus6fw2zwjsvdqrtauqslk8vjdgg3km73xtjarpe7707hed8f35a5jt3y7qydvfham4kgr8lum4ffyuzxlj93tn88dvrj7chqf6nq8n8xcv6h4rwhla2k2fyvqptq6mwvynjyuy5r05nsucn4s933kas8f3wnqdd0azujpj9shln3plrmcmze35ghq73jf023ldvlu5nu7k9z3z9rjllem5ymqv286qzu66vh940rev6tzxgexz6ru6m55fp5avmf57yq2zm89s774kt2y7n965xr46aar2za362er7dmj6qfx5jkgfk27qmtlea3c00flmdl38j4fsfdhqy069rystwphawe6jq2c9jmfapazf63ahh9mx0cxusplyvlwp9dz5vs7rhx34xjvh5v8xva5xp65s3rvpw26vtx8f5z25zmtpvkmvwxdxcm55sjk09nf5k4gd5hgg2cz37z6zrsz0vm2qgf2zh8csht0562j2xj8sm9j028dsexdgeyfv4vd2hutk26waf37l4apasy3u3lcq2qnx7m7awzer8jmglx8rvwkh8w74lnpkpkmvedz6mssq524f2h42znyuzrkkcuslpdvs9vx927jmwcrz6tme0u4ms6zwc9rgf2r9yzm9lc4wecjkph7m49gkyuusupp47zfd7xh3lu8qm7y5p6ekf58spr3hqml50mlaswk640pf6ulrhvwgjrlp3pyap97x20jpt6y0ks7sm5ax6kdsqw5pzltk92sj6q94k0gae673ncf25y60sups9v4ykslkq4784d7r7mj7rhku4gtnfj2dul4z3ez5ktrettexypznsplp2yhhcshde0pd52680fx34xs7mtz9yfvmn880hfzfd2e3grqvqqqqqqqqqqq2jykp8s9hz93gydj2zfn7lswk8r74ceyftwe6jezej60ta6n3xze099f43h7wnf6qaxhkqkjq32qqqt2erfmuh0y2qdrn5xcpkmytw5qfj6we44crt8y9wm4ka3vsmcnghmrj7m8vh68mzc4qfdjw3exsgpq8d7cw983rpnmvt8cz6mdtu7445wcp84yhzj30lg4z7nnya3rx6sn730lc6wxmsym0gk4x8cy25n9a78vh8mfwnrv84tjlzyk6xutj8xnn5szhqvnm29nphukk8ws5vnsyqqydqgc7
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqrq4mq52sfs3gqy0a2vz02pj3kmr3jztxedfy5zm65vfhmytk9y337v9mtt3ua9xnc8smc9mq7wucpq98a0nf4vca7fcjsazffd6zduruzqsan3js45p6dyfvj6r8ju5mewwxaewqzmqmx6622fnxre82hyq8jj3ste9wemtxd8jqnkjsjjuzztudngc8rxks02z0zw5mdtdwdmvkxl0p4ded9jt9y3nrrwku5exqzy9d8n73czcw74sh2l34l23pslm2504zsp04xxpmpf0852tc7ztmca46q9u8t4nnyvf528ngfeyup8klf5syvfcxs2pfqwstpjeapevverqvl9uxhpc5pmvr3encksjr2fa6hg03dx3ffxhmh2aqqr9gqqn5dmydsej9uz3mvz5s9dmhx2y7qqp28hfwnleed7zucdr0xj9x2c95zzqvejqqnrzt2hg4zkkt2s9manqt642z4j65qatu3lgyk84thzvgew5lt6hqlcyln2pexevxc57se80m7c5wkh0hvl8jnsv57rqz4dkczap6gqrefkgnwa3u8vt58yz6smks4fm3h6f5f5ljx7gjn38y68v3dlxhv7sy46dvz85hzn6qt2mdh3klhguryzhv5rdke4mhyjpgpl8wj5vzrg7zw2av8ygfu647cm0j7hkzwuypthznfdea3k5uqz98g3sd03x0k5ayd03dnlewxq8znleat92vkq5y9y7g0uh6ktgfp3qkmpu3ezy70y8avkclg23uywfj23ufy6ulhptkryl93qtqswy93vkj6zs3lj4ulj3x7s6f97rvkj83mvzwzmtszn4ffmd4tk0vup2sptlqcsxwxwjxf4v60ask73yaclzku5ms2fllgh79gzjsqrynqau60dvnatzvu8nl0exggprtxhzkvqceu474n8kxpddzhkgg8k4gsec2wrc579lj6ffgtzkezq2ctmuktfpm26aza2p54y4fnhnw2xy85vd5edasq0dkd4k00k3vn9n025j4mj7eqfp04467jvcxtxlrvszz5t0arq2ttdf0r5r6drrt93y255vjz9xa2fe8fjswc4a5aqtafpevv9fhp33wflqt5ewd6njhzhdjeu050y3nm3he6sa0vauv7a8vsgfamexttlvwdhpzhldyxllm7exvxtaa24alz8x92dcr4va47r9qyqvqqqqqqqqqqq99mu2dd6f35jywj7cjg2ah9kzz50zyf0kzum2rt9y2a3aujv4755gesr45yemauuu8xkpydgdthsqqvnp6yxhpzwd24u7wteej0862wn9929e59cwzn3fx8ds98ztzy56udm7wgxrvcf689m9es69afgxcpq8t5dg9l42025aevwtnaanpgxkz40mq4wvwzzfyzygzl72hrt32qxnhqp20kay2jajyafjdvapuh9fqepcae7sdh7jem7xxtd0yp2x6hty5h05hquaf8k0v88kfy4nt4syqqhv8trr
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1wg6nac0e4x0jh985478uw340l3q4ekn7ussl29z2ycnjgrgz459swqwmpc
+              - id: au1hfwcqqapj7v2jca6vch9whka2v6n2zsnhjr8vdxwf4wd8tphrsgsw7rd7z
                 program: test.aleo
                 function: i8_casts
                 inputs:
                   - type: private
-                    id: 2810412474065369776717088508600589916564911981132612456488763201792710768726field
-                    value: ciphertext1qyqdzqxaxcyvgkpdhk88gnvlyqke2kst75d4ug82shkdn9q98x9n6pql02vj9
+                    id: 4689085854828383679315319053327389099401075786594909350266330906697522624339field
+                    value: ciphertext1qyqz242ewgyf2crvdkfkrqkgwwycum8v40pxagnsmjjp5ruxue2s5pqdjd4vt
                 outputs:
                   - type: private
-                    id: 6921447681059187749224085929824320871499979369666800490136028418951988302913field
-                    value: ciphertext1qgqyrzyjdffx6m68zhm96kphjzcz9ldc4kjerg4u35qdku8f4qr8sy36juzyxjka450sr6uhcnqphr2l0sqttxluntzaphv2p5dre7ejpu63wz2s
+                    id: 5464845379465317403448380244481971931683006174608700249616694913660732972035field
+                    value: ciphertext1qgqqpqh74v58v2kgafr9fdx44qurv0d9uptu5fjglvq0yv8j9f2quyrghvs2e5pw9cyfy9rt2q7r7lmlewcspt2enghr609dr0rcsf4jpy5yx42d
                   - type: private
-                    id: 75827053679784959178879791812898204369113849966653229182978064418785624668field
-                    value: ciphertext1qyqtl9xvryu5h00xhqgl600q6drcgptdspnclf698uqe0udx60lxyzqaxl2p9
+                    id: 6947085387948895826458530678721426414229966352780476836951583126978251033857field
+                    value: ciphertext1qyqz9t9yfa9m4vr207qzug9zc5zwx530465gqaxkuhg4wk0549jv5pg966uvm
                   - type: private
-                    id: 1900628546550577555063180218488359463952337507496243964103922134710636641285field
-                    value: ciphertext1qgqvmy09vnac6jwl5xt936qan7jzjl4czwtr8824cr9eaky3qa93zz0e9pfp036yrnjdggtvv8gm6wfuk7w9eysnc4xkrtpqd0adqevjqv4zej62
+                    id: 426797597274497597243663161385544767229760325460759951375528456751105426359field
+                    value: ciphertext1qgqx4464wv2gtsay42aleqlnnx66d85pw60pqv6m5h797xw2hyn0zrrfgykl7j82jg409t0wskfefvcf00datkmeljrql2j4spva9dz5zgqh93y8
                   - type: private
-                    id: 3832902404425072322913863393299965162405944135933240292442425030958725081884field
-                    value: ciphertext1qgqffhm0zuxhsnu9gclszzmensz3kl35l2s94rs9gencdm8nfnpkyzudhshsk9trhvxs2gladxyglzqz793a3uxrnfjf9xms78392revpulf5zvp
+                    id: 3625772185509624202059569468809743493332174145779294968259436586157658862068field
+                    value: ciphertext1qgq0fel5j9a6sz07xlapny9076jm900hh08uqkd6mxrr3ggmr876gqjhjzee99pa9q98tr9mfucgtan7s9uq6srke7yj4xse4urx3e2xzqvvf6gd
                   - type: private
-                    id: 760728491390459857807258771922392046166500271097123546875691373966993383958field
-                    value: ciphertext1qyqvzseggflt6kf9jzu57ryvn69hl7ap78y3t5szh6y66tszev4yyqsqj26at
+                    id: 8251988077782950454999839536357423746508313824997681113223472484574996083217field
+                    value: ciphertext1qyqg80hlfcklhumc9wnexfmjq9g2h98xjxlsqqlarv2y8gxtc2q3kys87ywl6
                   - type: private
-                    id: 7813410997088167282375864893999799194214367810454408756719727662969007433287field
-                    value: ciphertext1qyqqmdgk82xpttxmqs9ny90luhzr3wk2a0cat03rt72dtwjc89n5zpskcewvs
+                    id: 2640891274775548496527732614742873391069491637328031388913184129491046476255field
+                    value: ciphertext1qyqyf3fnhmdsm0f0fs8gmuu766n335geurnhtzyer86sjel97p3fxzq3yp8y2
                   - type: private
-                    id: 8183625840928466611308508034792591509445202946560657194173840121654460967891field
-                    value: ciphertext1qyqyqgm6aqh5uj25fqll7xlyswqz3rn33wcmk2aw0wzxjtcgcakhupgnjycp3
+                    id: 3745750188890259760464518317912652211041866123865595164278142437707863269935field
+                    value: ciphertext1qyqdasyl86xs4pxq2wlrq8ktvla3vvya8vr80fyaqsxk67gj59yz6qg98qrx8
                   - type: private
-                    id: 2065309167820057839030241585436531267769187861957951083486520518805164059471field
-                    value: ciphertext1qyqpz7npwca560288hc0x9pf4kgh2zzhw59ts5duqrsca6j5nq73vzsrx8tkd
+                    id: 4553378130392946046465581271383278395085419661188571455828069296625305857850field
+                    value: ciphertext1qyq9jakhg3nx7pvx2tczkkc293qwfrteash5esesen6qv3p2yy2pqqgj40rms
                   - type: private
-                    id: 664651647276487319963103704422625120739686214239457061984462767909190005223field
-                    value: ciphertext1qyq0upn5635vsarmvpnw4yeqwhxxywsj6zfleg7js3jyxylsrvp2gqggjg3yw
+                    id: 5861826486851684019520588045913019687329970492446549904919418395639732463999field
+                    value: ciphertext1qyqg2yl40rj595qem257nt4nhw47zlj8xakuqhyc0n49dw882vhysqcy58kc6
                   - type: private
-                    id: 7306374385204035449144971861811684754798135427621282333714396746322115485023field
-                    value: ciphertext1qyq2asg7qjq83m40yz4txtql8rlmfzx0qg6q4r8elkcl83n8rug4zrsx6plg0
+                    id: 993891092318402078062062587055120248848052794441687590235166061086232913384field
+                    value: ciphertext1qyqxxu5ce890tjdax0f2szrcuqc8qdkkr0xx63juqm7d9agust6a5pcy8ge9a
                   - type: private
-                    id: 4446628164997988048968368519858450077133607601200314893669322408532212924845field
-                    value: ciphertext1qyq8j8kv45sc54w2ptz2s445ax64y4q08f2rgtpskl9wrv7vfx0zupq6fglsz
+                    id: 5052294367034443767878381659096260005702961052490671986058631644866386352471field
+                    value: ciphertext1qyqplkla3unqufnd7t0qa042z6a2djt6qve3k0nktpv9wuyagq7wgygyk7j8h
                   - type: private
-                    id: 6443216481185512891839680281726958103516808834920072084723152603752033980338field
-                    value: ciphertext1qyqpye7hcv8ky43d8nquvnraum820fy4epapnyjuc5t4luzdyd0ygyqyjkf90
+                    id: 3025390960792079503298151948890300731448229752015397036353364141352069454790field
+                    value: ciphertext1qyqdlp0zq0fjg3q5awtwn5wp3dls98x70963n6dz0zhd8dtzlw9jqpq8vsqw5
                   - type: private
-                    id: 1890613313643073738803103589814486555969964358424326007303816443607676108456field
-                    value: ciphertext1qyq9n5tm2wsggxr0eef5vcemx87dmv84g2elzepdyk8tg2f0k9qvvqqlcyvz7
+                    id: 7500545892207683938335580059496705733312771433629275908744629390050367761932field
+                    value: ciphertext1qyqxlj7uy44nw8kdkhadyahdanm886fxhlm6dek5kufvzep6xvpgqzsj6laat
                   - type: private
-                    id: 1972500770028659813417326005408894531117145913934233960393110929750166005473field
-                    value: ciphertext1qyqd9wue0gpzcs3akdwtwmmwpyjqguuqz055nece2yy7t6y7nhklzzc5a224p
+                    id: 7093819999594698584885605498375708838238619292075953424198232206608324465663field
+                    value: ciphertext1qyqq6akkrwp9ktzcg2t7lkezq9qzgafjzcpydggp5aar0al59390zygq6vjwp
                   - type: private
-                    id: 6291087284923531271583351409331108409262823453777287508942631067606063486142field
-                    value: ciphertext1qgq9y8j3j9tmcxx3mkndujk22r2llwjt2ydx82jgpcv523xp2xdkyz8xavxs8xc23t9gu5tafzg566ayrd2c9f3gs2e7ctjq6tf7ytmcpvuhhwpm
+                    id: 6675578792747360288155243760758232053402044850426297705033615759482097398441field
+                    value: ciphertext1qgqwvugkrctnvdu9g89jqyq525xe5rc5cmu5h7j0j2ph5kq0fc86spte8sqm7jvyjervgs3ucvdt8cthhqggw80avvhagaft87gvkuy7pggd0zwp
                 tpk: 1139704548151191570880169418502265377283388210496779360074263145796460177334group
                 tcm: 6290194188617246629168266904105493824865615295941371254809221772803500428651field
                 scm: 5585790301945265406593911304891168822882617717170712345962672662889808954729field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq9klrfqwjhr75dmga5gsemj5399zzr22dd8tfw9chwpcadcnt6amr5fxgl4wqca3kxz9enh69cgquqq8v24dh5qk2ue0zkxwztuhx9z9xp9w68vw74l4yl5dd3ynt8tzf0znf2ftmtxkqvlk0v84mfqukjgqrltdkxgfmqnl4pxpf6wtevgpmgllaesmsrgmlgs98wagmmjlztkg8mxl2g06k2pzzmv0086ecuqgqjqlgaquj98fplr5ddmfzsmwr65mfezvnpcdpgyk3gtjauatf95k6mh9c5jcgprktsj5hu422puj5qsrhdgkk5t2we220833nqmmtnd27yg9jxhg52zj4fmg7pvglmx988ef0cy6l73gr34w9xaagv4aaqqvp94g6pqhr3sjfcdtlc605sg935pdejszme5pzfz807wf6jfwkgpzg5nvcr9adtaqfh3y5tpnfjsrag79hh0t7sg3a7ayr63ug4aneurazqnqcvmg7u3wtgfuqwd48y637gdejnyz90zcdrmczdjrvdlqrk9y3les74a80cumnv07cl28ydnfynp3re2wjyl9jtal0fygazmq38fnyval4kw8fzaw9y8amj7sq08829n7v57uljjxyl80r79nfdwzgyaa6y6mzt43cla07kxcxtdvcptd6uqsg556xprdh5h7c86zuqk9ujy4858fks7t658080qssjhpv70z5ell4zatmwuuq2lgv4ryx597rdykekjqwmmaudm4kmpfhj6aajk07shyvefecxug270k20xrr27wzaz5gwsfwkud4y6hz3xpd28seeulfw8ljjq24rcqrcuzg2pkgvmjy3zh8rav4jlxurldydasm0tm54rxmukwav7zxv36egpz6qerm0jtw5as4ur7975gsjh9wzrwf0zfsyt3n802xlc0z60l0yavgqlm2afjy2jjfyqryl8ngf4v0naqdrduznkk6h0y24xz3a7lwupvr2gpeqcrcswzr5tuy0ktud6hltm93e5an4rx5xv5s9j7atqp46vpryp3my4x8sw49pdypkzphpyc9tr5cut2w9pjr5qnm3p6jyktlepl25m79uda4yckkh2uwa8sy3w4yjg754cruj524pqrs7nx6ag02qxqjtfrww6a93yguzs3jzafje95xa8eqz2cuznap6wk72mgcd46g3qvqqqqqqqqqqqldc6qwh2fhl3sd2873vtuc9krvu9u0xmtuez4seaz9484wy7w4aej2f23a2fauhts4ja0vgx5t0syq83wvn08tflyu9gr9m75ucef69wnz8vk2veru4jnjwj2dufsga8tq704k4mtgy9fk5jyr8axr0apvqqx7hg5rmanc2tqhxf60l85xy2vv45jg05s02us5fxgr0s0n0fqwsgyrg9kdymfyes2mrqfl4pdy8ncuhm93f60hxsfzqzq8pm74xlz0df5ggft0ajdvxc2tf9zr7aecdqyqq6yverd
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqtvyr2jpdmae8mdgkmd2kfsycgtw5fllq508xd496m4qrf72w69sfug2s6hu7cmd7ftk7pvtzz9u5qq8v24dh5qk2ue0zkxwztuhx9z9xp9w68vw74l4yl5dd3ynt8tzf0znf2ftmtxkqvlk0v84mfqukjgqrxpge9a8l8ffcr9ctse9rtynx7ptgn2gqrcgqr2c55lflyfsdvn8vz05zpvpy6k7966ztmnfg0yzq53kzlquxh2hy6mefnxhmgk5ntp5nx87ac2n532488cysk3d64gc00jullp938626rghctfx4482ypmu6cgd7weh9r7n45x66w4nqqq09ajn93dxze538832c204h7wgwzjnwtgvsjc5n25hk4e8phxxdgrn82m843vcts7a86legtd2q0js65drhn4jpy9l2fwxzx9dzy48x98len4quav2dss5ju26ey876wq8p43may4p40vt5djg4k2dn5086qp8whn8r4mhvcvtqda0psc5jd3qpnt28jrd8hyce3zzpnc4gqtqtenkyjz873rpqu7ecjp7u6jtgxxur6779ae9ljpv8psa6pjnxu08mkxak8zljt50hvgggda9ay8kq0pe4y4g23y3zpyt27f07m3cvd6rm85nx22mtyg5rrqz03yznzkvjpdzka43ny5qd4wexdktc6g0gqwle77yawzrmt27w4kq5qglywgjtscvafqgakayk5vv5pvuaceq8aklar3qt5sg5cthrh5c4qvvhgzefaz3ng8kaz82t0zs9sygcakrnyvkvk2hk43x57pcmlxdspeds4aqfuacv6qklwm00ccrfu82rqzznegwma47xujrm4p0ds79mawjcxlds8kehmnw3wyh3wtyx7e4vq793pcuyhn3l8fdrl8ej0sywqvm2455572lhtx9z7jdhmnv3ue4gywpf5h0hf0dnl0yjynwl74cqhuy5a2e786ax3qmwqh63y266d6s84ccwwas97xrc0vlvpyvj2lm4xfjchlpaew3cz02jxzlkshmujxp83hyrgnu7g94hfxmvat5wdwrjps2g4pnnvxnr0rjznqgtwp8j4qvc2lk5e6ra3rg0z39v3wn8wmk9qmwkmz50nqxmqj6leja8c694qt0wa9xfvj8fwskjd53wfclg30gwt05a8zezpdzy4vfgdy9n437s9qvqqqqqqqqqqpz8szu6g4hpg4jhj6n2falvwt6msndvfzxnucsd86f0xwvs8kzja362qjkcmcdl8kvww5s0dhveasqq2sd4vetzzz8h8s6hakhjn5uxqpk7gyrxzlz9358k4r8q0qsqdprlaj5mtfvmfxgh45jlcrzv77supq85p3pudd002hrvrjdsn5lnsmkuyfnzexhskhl7njkpsxne26musm5xetnyrt4nvlk54n02eljvuhfn46vl4ceqrexsdcxsc3kr3zrcdvnyhcns8etfzcgpztuuzdwclqyqqqa3n48
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1xmvgwsjuxk43ar0psg9kzc8dcm8fw5ex9fgmqqtszrzz6ks6lq8qukpe2y
+              - id: au13zyngd9zrzhr9a054c8g9fj7z4nece3405qjq7t8lp3gkdgdqsgq3wdu0y
                 program: test.aleo
                 function: i16_casts
                 inputs:
                   - type: private
-                    id: 3663792236147124273840132960841954002044224711468365765283243058162282587997field
-                    value: ciphertext1qyqtyewmvkkf3kfxksk9c0fxn50rmw462mv43k7wlacf8rthjptkvqc8k4rul
+                    id: 1398675722268711913716117776266255341833662003177565050879247105237381646315field
+                    value: ciphertext1qyq2rka9vyv5ha62vdk0wpamh9teqty9pf9xnmgnk9h5m0aphsze5qq0wl7c0
                 outputs:
                   - type: private
-                    id: 3470864829237848432871001381518056199584203252024040953151885367194974808315field
-                    value: ciphertext1qgqzj0jyj97g8wpevvvye92gd050jc2vev30ue2mkv4j2a477nrtjp5yzpntz4a990w3c7ypxxeeyl2z889yydfngepm596hl44hcgdzzq86nw2g
+                    id: 3246683195622801187440243366107344365036668712956465549762898443240182096915field
+                    value: ciphertext1qgq2x6cu3wemj557q8prrhy3sgczwg5kxnfuyljqld3p05hlu4z9szpdpek7pxt35ymuv0crhcpxaztmvaec7jjfw6lflmgv8qg3vz92pgw2a882
                   - type: private
-                    id: 3017516226594959911267339642846385151554699184619491202706681571568922486607field
-                    value: ciphertext1qyqzzq0mzgx7j8wmkptq505022737nvz78hsrx5nsj9lp58gfslhcyqsvv9vu
+                    id: 1162953308847987454683717824569998752254752083475626191908495185206525450171field
+                    value: ciphertext1qyqzth29phh2ddsca3dzvh20kur2le3xvdvyktfq6zxapfk5lqx4uysn73k4s
                   - type: private
-                    id: 7988220380738940341936532891656097670472487086229981602723480820811320400479field
-                    value: ciphertext1qgqgtt00k89uka96t7wlwcshsckgmr9wue3dfryxkrvlvrnwdldzur6p9h9250jajge8jgzwf3l2p3s3eajja8kvhlc05ll9uqc23vdzq5hlnpqw
+                    id: 3763310440652440070417200320859127938596756346100142622758224129381910035523field
+                    value: ciphertext1qgqplkc50pvnweaxdz4gd6hrlcrsdz3lkhu65unadj64mhneww5yzrexn2gh0fxaq5jnnsnvgqrwvskrkz07jy9259z8ya5t0csxsru7q5xuhgu0
                   - type: private
-                    id: 6394510775637615429625549732848152142331943385480508584282346290333318166425field
-                    value: ciphertext1qgqtnnyrrgxueelxu2fy45awpkxuwcc067a57zu3xl68qdysqehmur8mlv8p20kgallk8yzudrlzhxemdlqk4d89699ezc34k744mttgpy6e462e
+                    id: 4206462599346873235438089101225627604466205689739893358118398727012144419001field
+                    value: ciphertext1qgq263a5098xacjpxg5hj4q7zvqgjmhjeap3vkqhy26pemlc0e34qqt5880su6ymn6jfn6msej64x2gy8xv0qppjasufc8n9al3rk4x4qsawfm8e
                   - type: private
-                    id: 1401725443278274472113669581798269225129358552919887318798162583957427105467field
-                    value: ciphertext1qyq22nc44kmylm38cy7dfqe7fgaf8l0t857pus39wlhh58acl9n9xyqqu8gfs
+                    id: 3726151155863146832156986821349066198811899527976587549182438627948200394082field
+                    value: ciphertext1qyqpwm3fft6t2phxxhyc73z6kr0tdx8dwscux5s02aqrrqaf9yu5wqgxy3deu
                   - type: private
-                    id: 551243033452321307247984382300042133347926703022552223576271704267662764041field
-                    value: ciphertext1qyqxphckuvg6hvh7gzty5hggljsg2mwfpaqkfaud6rcqm5cy89ln7psvxfl7f
+                    id: 310595110317734584452117231349447300048010852704160706160011700156090396760field
+                    value: ciphertext1qyqtvueucrpmgll387hngqkj0lz94wjg9rspwuzgg8f2szydnvsnvqgj5sv8q
                   - type: private
-                    id: 244579133916010622967346377774955499013026351835197836564415043108657829787field
-                    value: ciphertext1qyq2kfa5rjsupnwyn7acemk80u2lvu5kx3v4hsk2ysgfu8xsww7r2pg0m254w
+                    id: 532156302972599721538883614755669692574812187832337245210683613993226945511field
+                    value: ciphertext1qyqtgr9t8xyrp3nng7xtfs3qyu3zta79jndpwq4ykla4gwy0mse6wpqdc6jgm
                   - type: private
-                    id: 1519430369334677360476109032832768982783769528474381739093243503414605620006field
-                    value: ciphertext1qyqrlqt30l06cy0avqzen2ahr8djwwqg7nr4wznjq6nz5vrxv45syysuuh6ne
+                    id: 937834925763467894794363378735207178789163575513210888356622545443072881428field
+                    value: ciphertext1qyq2ec80apxu03jeyaytqdlzmasl0ng5309j9kaqudv486ajmw9j2zgs26g8h
                   - type: private
-                    id: 7659802790784360402040007885250278187789419493907800589818164089813975704150field
-                    value: ciphertext1qyqzgcjw4hzkcpa3qh87qhdwrr73kx3ct6qm9hcn3977phhr0mqmyzgul8rje
+                    id: 5642870635211917041687460791333608413036076419051869038311389124270625934804field
+                    value: ciphertext1qyqy9nalats0sc76eht6v3h0pyn78hsqzuh0x00mrzfmqpy0333cqzc75353w
                   - type: private
-                    id: 3719487080985833886071484520887185312243142647159483695849276878029870026372field
-                    value: ciphertext1qyqq78rmqkm3vxs9ldrqy0rfcqg4j24hmv7ud5wws66y60kz65q6vqgm8c86w
+                    id: 2059830603258529182226836660796731740717553632411409856548123202137411261246field
+                    value: ciphertext1qyqzxq5gucvahk6t7xmusqaardjs806f2jefu8sw9lkw7hhfc8dfcqc2qpk73
                   - type: private
-                    id: 860099186560470323308857745102812721694600591476913217667471833818160514051field
-                    value: ciphertext1qyq9c0zhgxuqvdnneg7kkkfxu8dr2zg46w9au4asvn7mwjaw2ktszqcva2fn3
+                    id: 7884097206434324235565828373922446396642626859307577312086865138707289996516field
+                    value: ciphertext1qyqpknqaf62rsx4fqjzv55casgnednssqdne25ldkjp5z7nd69j96psqvz50c
                   - type: private
-                    id: 6899575871299445099651116199201740243004401041488413306035522842079985930654field
-                    value: ciphertext1qyqz7tl3dgrjm239w5ufayhl8pgkrjvcnt2q8a2c6pe69h0qmrmkvpqafyy6d
+                    id: 7569130071780232406256873164620803582316857667470847372173257259692706927770field
+                    value: ciphertext1qyq89ta7ay079xwz2054f9n58ss5n64xksscczlr7lj3rde9vl5hyqc69skn6
                   - type: private
-                    id: 1055308136803850596279379026873221393590540361278152318591038019590202157216field
-                    value: ciphertext1qyq8sllr96ae30hndec9uu4a4tk3tteax29dner48e3cqhj5laea7rq5c55vw
+                    id: 2709461286648727300055863941228156355761851187175301274212100932842330268095field
+                    value: ciphertext1qyqdygqwwrvp34c9uukcgapzvpvdj8xdrhtjk4rjmvjldee4sn3uwrq8umvrt
                   - type: private
-                    id: 1276936950911141197078542473599216040000968596740677322311768482282210221659field
-                    value: ciphertext1qyqxrtttszwj6p339cwmxcm3w0nvuufttfp7kur02mrcq245ge0uszq50ns7t
+                    id: 5189831693958143862702545441723541456092803173014238364203684708294818826423field
+                    value: ciphertext1qyq9e6jhndjlxwnhky23vh3un3wdd02tfy3ppgkse4n5zzs2nsmpjrsedxry2
                   - type: private
-                    id: 1776073395474386737119846240086761031365729772362063700095672805706029969277field
-                    value: ciphertext1qgqfqdsy4p6yytxqqddq23exrrmdustek8kyggxznalau549je2jwqyev5crq32alzckgepyd8mna4fd0qypd84nwum7e3qvhjlgcpp7zqshzsvm
+                    id: 8141761231234366819626158198449547944460254856574089949117682631331635824308field
+                    value: ciphertext1qgqqs6rg3smnd2yggn7qc34nr9yzas7raga9c42pggzua5jwax4gqrh66urd4x33e7t68l3x76dkxxl75mpeqn2xa4cxflhwkxvu54yzpcawe676
                 tpk: 6011471356305894952517606045895407986823166357991033430073793721361116771175group
                 tcm: 2032728662408077131407138486714325866552127036223275671734112570310268086246field
                 scm: 887068453279719489618178519494467351000648280242925105895660096151130892069field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqpnht4j76jc9ne5mh3t3jxtpfe9esg5vvny537jptlcz9t925d04sg5y8xmdvnnpw4r7n27w3907qqq9s7w3q5lsz2d5atfp3cjysmv8z26frmzculjsfswv89ekclqymhx7zwgvgyly3txrufr3jg5alnuqvmaq67gfxvfw6nafnnr8kf00g5sa408cjxec964mjcgx3ue2mp00ucam2j6rsyejxj9mfqlaxk5zq9jhfxqfxnpaqcsa3cppfyzvkup9nwnuarq36mkl528rrm2m0h80pne83f34e3jkfqge2ll8ysj2uqhaplg2w5yzpgqw0jsme86ey83w3t3m2ccvldmu9vnuhlta7zd2d0d75cmaxp5fa2wn0eu0nm3stsrcn0932azt83rw0k9044kcd08ncmyf8w2u5yj34n2uv3h5yk6j9up6wl57uem22tjnxdswm8stx6qp5krax8vxxvp0d3ekj8cvcj59f2e5xkqnqqaau86r4evyfrrsfj8agxy3pm6lmf0kghf70q3w9kfqd8um4v9ja802gapcrvh4faqvdyvq8yrd4n5pmxyqwduvqwwjqep9r4apexvj82n4tmuj43wrzesyqlwh9qmdm2e7j8cdlqwqlr6gph9medv0te320jfrupk2dlj62f3eqv9jzc8cunc4vnld4y3ell9h5q2c6tl0jdkg9kyd8v7cqq0mp02ayuq0qr9hq0zcm4nhr8ymdzhg9ymxf8j6jk8mt3u8ttl6vrz7tu3xj0jl5w86k8fztzu9n9rk8qgyh3895kgvx9su9trrjtj6r5ay7nnj6y9nn596dpvwdt8ycjquf8p4jmf80zvny4fe6ulr3teev3434avnh0ynn8dzlnkt0s9l7cy5eqjrlnxwrydfee08dt3nar7666464d8vf08jesv3cnrjmrna7e2pg9l6jt7k872uxngrsjn98tkndgsznq7f3784qwhy4tezf7esn76u9n5kecmskyu7dlee7wkqysqf2mt9txq8e7zd7pt99s2sxw4zdauyfn332h74xdkjeucfd07gvus25pjl2rcvwshkqrkqspexv9fpjtpd89y4n7gey6q97tqnc2wuqpxeyzmd78nssapfclqyqm4pfvzerq6tmzs2zjrgm5zqxr6xzgtx4g38p4uct6u507m773a9gnv98geds8qvqqqqqqqqqqqkdlhlkuns00mh8wxd32x7hs8nyw75zs025ns4apyhj7jkwx2ke66xgkapx05pp4z8zvk6d2k5aysyqvzfyjsv2gun33rck6s25l5ecvlykv3enj7cyqphqqqd5v2agnw2ann5rqxyf80unuzfqddre6m8yqqy8lra35vnzeclmdhqmc7q9c2e5jmk00mwxkm5mp77gpggxve46qvurgek0ctmljllzzvn2tprlu6tgz3elzkv7dwhs5n2e559fca47899eulrl3le7mmk6kxr5pj42tqqqq7n6gym
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqt78akplqvrl4m8fq9run6mnrxxlfm7ft7p7r2psyhym4htm8fajmg9xup2qm7rg4m8a7afuzum2cpq9s7w3q5lsz2d5atfp3cjysmv8z26frmzculjsfswv89ekclqymhx7zwgvgyly3txrufr3jg5alnuqvye0y0ecl7g2mmvmvwxlua45qu4x0fdf68vuurnq9ddgx7875p40r90t6lmm64ze88lv7zlfl4pqqvemvcpvzc5n8rtm03zcmqafpgqzdr2qfvnjsmejjey30rds9ej5vg2mxluwrsx4yz9nqnp84r2dcpt3qyfe3xt496jtnm2dqu8vargn5rf7y770xlecvljrtgm39a2czgzpkgctsh07ry8v9gxlpmdpwgp4yfzn4pnj0guynnhf60hyffmt6vqvc9w4tu9pssp5zm5d4uqrlaqeg2gk9rph6g2f63eaw3rsu5qxeydde0f2zpfe9kcm6lsalcg947376k6c39ph579hh0mrf7mm2f2el99gzl2e4qqmncuryfptx59qpdp2x2753wz5srz2exls4wsfqy57r0llseczafw87ft0r9f9grvj8x72z3z05rwg3g295x5qdg3yq80cddcju7595g55rdgwpdllvurgh9p3e7d9as09e9ywxq3v5r3nk63pqx5zvjnxr3ym5fr3mcw6cq0ysqafks249et9l9g5htksfnh62txd2mvqtql0t2aewzj8at6czt7tdng7xjvsjddym9huv5wnwp0uv2u74haxhcctjc2ea8zfv4kqdf6z0dqpl6cd9h3ghqzqn5snv2t42efhxuh6vdg077krqps0vkqe2qyxwz7cc3lsg46mdl90lmu44dxyg7q9sh4tuxf4fdun603yj39gulzcavm06jgr3qukd25exemglrenazalkt7lfrm3m4cxeu40gp5n9p685ztnvm95su9aaumqejy7luxrpqf0h86fnv0nv9axvqtyq0hwh8gzzuwrkkas7xnxyurz553ac0uuahepscceqclnmssgf8vqg0j2qlzprvjhlk3tk49847yq0sm6ukj6nrhkstl3kkpz0amf5fq3hz7n3l80x6vlgaqg233shdwmxkqyav84nrxyveask4x6u53f5sjyurt72a4mt4tc5kccunncep0wpkaeqcufknss4theug5mc02ag0qvqqqqqqqqqqq29wkmpq636dxn3stklp2pm7dpdfvkp6z80dyhsz6y6mznchu9mv25lptrty9tqkh5vdpwyd2yymsqqwsdkas8df8c02kglmr36ak6ntu6kqlrns7suae658tkslznn4zyjae4a28a9mukffkahhw0nqd9ypq8z9tjk5fv7hdjp2xlzaa8s3v8m8e56lm86urjz3mywsmtp83yrprdlsgl5jxr26p7k7q40y4g6z5yda5lz74lnl0s590dx5akztqfpvc6m786p87qr5merfmelscnftsyqq0vvasx
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1w0r9ngkjn2ay382f0nwzy2m4rq47q8twfhtzrpmyptdchpcwpvqq7v5wxu
+              - id: au1ce6xvnft63hj8k2f6geewlaj6rym07kl2r4rhuvxpp3dqw5ayqxs0sqvpf
                 program: test.aleo
                 function: i32_casts
                 inputs:
                   - type: private
-                    id: 5564054641508143480470169623576509766276847592597110168292227820749002306276field
-                    value: ciphertext1qyqdhgk8vj4pvgz7cq7v8r9p56c6xxv8qe4452rg906kddryqs5d5pqdrtywy
+                    id: 970000405242469628496963918642886679655948875521940410207252625753930847445field
+                    value: ciphertext1qyqzafv0y0aw77p3ypd408az6sypyja83mxzmnwa0psj3k5fs9alcqgzh9n4u
                 outputs:
                   - type: private
-                    id: 7081238244870174702927010445638299821745295649322144769152107427654045002111field
-                    value: ciphertext1qgqdz6v7hf7t72x3q3ela5xh75g3k6ynfl4xgwgwn75nvmrsqgjy5zdlq9zaf7dkkuaf3gkqvqshtyrx3wz7xvugynps67kj49rv9rg6qy7pt69v
+                    id: 2573060428862536298280004428715131818839820811125434638627569929550223286595field
+                    value: ciphertext1qgq095sclvkuvf6wwenfq902ytv9dcczvvmyu0zqfzxddkh74n0hxzxs0dmyeyzrjmx5dcj8as55k8hu8c7w4wec3rsuxvm7nfrf0dqspv79ntl6
                   - type: private
-                    id: 2454237858110734756298399416980916334790507728775099226349746243388422856652field
-                    value: ciphertext1qyq9usxecrrfvs6v8x3xz3chsnkzqyc8u3kdyp6vuf8xlyrledqcxzcrpjjkg
+                    id: 6351765152896339569891837835169682257370542347257921367949312174222911273729field
+                    value: ciphertext1qyqd6t5tvqlxpdsyv4gwrzq6rv3aqazte99ptmcm8rlp2pqvgg8wjpqzcc53s
                   - type: private
-                    id: 1945444710172197460197725372909488520677241472771257935035492305816972347163field
-                    value: ciphertext1qgqvpvezcgdxappx4emh4y2k8ffl96q6r4j8dre93pvy2ysgcnskxqntkjs26a8ucf3lhezn78y6ldcepm50xu3mjnh3564sn7dadzq9pvy3xwnp
+                    id: 5050081146211714172737144706406374837428993438295780558986605588125577073372field
+                    value: ciphertext1qgq0kekzfa6s8rsh2xf25tycrul8wa6463e4kfy57a240q28lr9dxzfp2pejqxhdqttc3gvkn68efj3qqgpman0ynumwazm58en9tjy5qs5v4xtq
                   - type: private
-                    id: 8292969822799925739326661577857976484938846172862371917916537203502028017881field
-                    value: ciphertext1qgqyyjzssr9xxvx9jtxqrrwv27qd60ruvv799ah0tq4uz6r484u0upp9sxlwtvpd4su5yfg6r08xmw3q8ljxk2ef50tv7qfenrgvncz6pgaf8fhz
+                    id: 3964161778177413429572128377228483392954977994632011792537278929374856815331field
+                    value: ciphertext1qgq0qs54d4ly2y3mmte0c7j8y32j4q5xl9xn5vj5xnn3hj6f6dlysz2mp3eku7q39d3x8u83535548q4fjuf5zlt6hq9wh8aqc2v2w2wpcnvqcdn
                   - type: private
-                    id: 6689924254827619020857725494147951886970728192627925764453895674024803880646field
-                    value: ciphertext1qyqwxzqd5hrkx07e6ynkdlz3xvh8wqs934k6u689c0qdqnz6dz77yzq5vvrm3
+                    id: 1053503043147250013847226667987952439106237956258323694650679443968726515118field
+                    value: ciphertext1qyqwk7af4z07w4zwpwgs2vdpzpkkrrpvn7aqv8l7znga2yfh9auykqcswnf50
                   - type: private
-                    id: 3234574209345927026039224567583584467455242231294183174775900956663665254601field
-                    value: ciphertext1qyqqefqrgh6q8sjvj7grq487t6ard6mukyx99698pya7zjfzcjpd2pg7vrr3d
+                    id: 2083217503052014041259934461400988718206178723534606121084897373525608478043field
+                    value: ciphertext1qyq0ug2lc55q682ruehgy8ycftpdg0yx2k8654pyzzcdluu6a642qzgtfuaus
                   - type: private
-                    id: 6074042418919166324791005927031565232400968463382576076273411151441640559650field
-                    value: ciphertext1qyq00gglufyhumnk3gtdhctepvm4wd3d8470x8k5ceu7lj7sg3lnuzqg2u6nu
+                    id: 5031421919914602571883091304511784311400026889149629390561909741157101149724field
+                    value: ciphertext1qyqvhjuac6tz565q8d5g7024mwhs34fwf5zuxfthw3vc5xeps3kyypqt778f8
                   - type: private
-                    id: 1381791298285716114668983561183454029928134326309209623337526810175249542156field
-                    value: ciphertext1qyqz7229ce67ws050aw0yxjqsl5zrguajxvmk7jlpmj29fkdaxzsxqq2n8985
+                    id: 159424055214084171695783044991834981595981129469428453026956890679340052246field
+                    value: ciphertext1qyqr4nve2ua3c60c25f63vx5vh5tvgyq8qyghu3g0r79ftwu22kccrcpguwft
                   - type: private
-                    id: 5465695748068918712941038412218441558712959209496930539551611252576076442155field
-                    value: ciphertext1qyqgyzch2jafmc7vnk5g78vgrzsw40gtngc8e285dte6jzry8ctxqqgut20sn
+                    id: 2518069487515235347648051087243890886864983609604891530137367040614932418562field
+                    value: ciphertext1qyqzqy7vl7vdhp2pxsa7zf4ax5tjd3nctqernj6qgmuazgdn3q3k2qc6crrhg
                   - type: private
-                    id: 1429055182268686405125183607446313955135081500884654663549266639006345990184field
-                    value: ciphertext1qyqr896rd3lf2gqdmghwvz5h490sqfa8m5fax8ej0qhay3srgcnysqqtk3ywg
+                    id: 1524426938162446103391573320989748260309140615311764134920053853011927027058field
+                    value: ciphertext1qyqzcah9jtmk73ta2q4fy5vdz89tgresd98tgspkud65j56y40fs6qc44v6ku
                   - type: private
-                    id: 1090259450592749446517305882289721579480042472012776795998652811956250485947field
-                    value: ciphertext1qyqf057tg05uef4fd4t60z8ykcr6u7gsgpxxgkv69zez9g0nyulmczq9fwzar
+                    id: 7947129023998582662617510901101519751559048681196580851004228283181836753343field
+                    value: ciphertext1qyqp7xtegejj2d5625crtt7j8cxj00up37nn7ygykwpvqfhypl3yjpg983dd0
                   - type: private
-                    id: 7876565962388111755926348142211586808067565906600360440941720991902803281692field
-                    value: ciphertext1qyqfzuen845u8ztdwq870t6hpea76jp03du9tgtz7ndny2nytwd4jzgpf3cz3
+                    id: 866119860976731847297732054856841878225670136481416944558095654160649567455field
+                    value: ciphertext1qyqxdx6rjsyn0y3svj58ce9ax5v5f3nfx4w6y66vlnu54jmk0pppxrqvyy0dw
                   - type: private
-                    id: 6471393073148937918572915949480078136010833147863592445387863829487822223209field
-                    value: ciphertext1qyqfmf3wxymxcszwh6yk8093tjapl9x0l9l4r8sn6ny05gxgmmmt6zgk8tm8e
+                    id: 5097746983741542729156004101207795037235471036518647989476041152527347566511field
+                    value: ciphertext1qyqyzpp3mzsz286yvft2e5x7hqtm05kx4ssghqclmrudulzpx7uryrsslctua
                   - type: private
-                    id: 1039389060646365166185691634680170202062396391407372349660846986847740393222field
-                    value: ciphertext1qyq8y4a639v3e7ptpndy5kdsr5uxaaqfktd6mk5ww4naywu2zghfgqcv644ac
+                    id: 6882403385711129526110573644769581567309031436639874000101908717425386258523field
+                    value: ciphertext1qyqycvtjnmpr5ry4vl987tzgl837aqk4fyhh8xm36htg8fqwlna25qg5tj6tn
                   - type: private
-                    id: 5381843536060137595239401407719694545802353102016776153697994280363486790847field
-                    value: ciphertext1qgqxpxuxhj69spzxpu6ys53qtypen3zyzwqyxn2lwlcnczh4fre6cpus7685t7wph5kvndqyzgt4hq8yspnazewh3xktsuntzkkyjqx8qckrdy70
+                    id: 6681039845788976595689898464252459125784448689422306356328886722781481584566field
+                    value: ciphertext1qgqfuavk3l88vddhuha3cl9f9hkmajs76p2ccghxv6q30a3wzdwkxy9ehgwhs5y0pf9xqqzggjlmd8upsjjzxmwxur8tzcah4qrk3a4vqvjgaz5e
                 tpk: 7373354765926798715529629905628543405684865250211498339787858958904918767958group
                 tcm: 7422675273129134664560399741463877389104868667127628667939760493671945421130field
                 scm: 5186454057117152865218799118028783967598048673286280331761394422188589346857field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqv6ym72wmg5pdqmgexegy3wtdjw0qr92f5mnghejey32s9rq0kn4a7edwv3rhfh4r6t5mwec4zjrqpq9h2l9a8nm3rss5elgqh5dlhug8hf7cvxjkhk0t8fy29lj58pjy8ydyt9793a9m0jvgtckks2kvegqglcq9p5qmf0qydu7es6rl29drtsl2mgwtey4scxkufvyhfe800yz5nrda9cjuh9me7aly9euj3twqufs6j37xhwncah0d0zln8yhcj3naqfwd06qktl0l3ypt88lw2q0w26w8hej84m532pjj93vec87yq43wlzw09anwmgqdetkchs2scwkkgskd53csxyzqr27mzks6mv47qa7n3lkeu00adu8mm2y25lcqsq5w9cpm8mnqtm6y8qwuvdg5m4lsn9nr2qu2ldas6l43gn923en9jmer4lfzp94mgtvwet7v2l9qxqrwlfs9dtz8ungjhn4v0kek6j26gyahtt5v6zf6za83u7rprrc2lt02skfsmmkg3ktvv9ymuxnt7lqznqt6v0ejga779ejx3tycppkqqy4v32pr9jr6eaem6f2rwgq937ylx4p7nc4ukvunulhs5v4uhyvqr49cj25ndtjtlr5h7986p40k79jgz02ugzv7m77a2mgg2s2ke7afcrc65v5970mncx7dsr40938cpk9z8etk4qy7zwxfktzpwfeuspw66gupu79kzes75jdhv9eauygyugus326nphs6fgfvn7de2yg0gc06aws67zrmuaq5ru6w7e4g0yzwtmtrrh5zzrrjee3lgv2uyvtcc2kq5mt76jhldcvh99wrvx483qwhra4ds3rasxrp8ecv4u06qx04ucaw89tprry6s890vfj0ax08qxs9nrqyp2agenq56svdh9q87ec0hmqy99nnsn6fw8jf7qfm6t3gd5q6g8sfndkqwhhqq4ymg64rs43mmgkaaaaqpcy25qjsw23kg0qqnnj7f28hg5xy624rgqjf8p5xuw35lw7czc63q8xylx9j5ywuycqfdycw4e79n58k6ph0udhfjc7vj2mkxlv5j3e4jt3j7vp5s34e9pewluhe3mv2ap8gp374gfxvugr4ew6q96qkupg3k8d72ruynqf6s82s082y354zrc00929q0xyklca6jqy308t3w4txyrfhend7tsgsfqvqqqqqqqqqqquuzevgdyys4pq2pyg0m9xxj7zj0vmzvn28vgvgyqawtttwvd80qmfgpdaty0w0nykkdl8yjkjg3syq0saxqayuye25uze7wnd66wjamgzxc793837et7vzppsnqjfmute5gtuh4yey5mhlmpvqykaf9dqgpq8yp8p3kwlp0aspdjtztuphljze97dzmrg2a8sjjjvedslwklswq266x4plynuc307krpxscr7484vhef3pmcupa438jwckqu6f9rhy35ql5395s764tpqtk9k78zm0qsqqqmug3ch
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqyxs6zd8my8tu3r6zqq3w82flg46wp382vdaz353rk3cm6kfly07u0wxup0x43xcwe4kkkdwdeszgpq9h2l9a8nm3rss5elgqh5dlhug8hf7cvxjkhk0t8fy29lj58pjy8ydyt9793a9m0jvgtckks2kvegq0enej6ge768te465drfpnyp3kcf0swze0t4nzauyfxjqs4l796m4tqxrhsz83ffm575sxejzhaksq92pm47dz5xjq4m3z3e4qtfd0dxd0vl3ydupkrxcdsxmzp6dxqdw3x07qkczl7a52rl3z526p4l9vqwzvhsax0zp4frg5cnh25ujd650ky7t858ljgjkng9tracqnmwntcmexw6t6ak88htmen2kruhazgrr73tx8f2hz5kw3m7kfyqnf85kaj4w4qmx298qwv0fneqxru6hmeelg28nezexfng2gcq3udm4cyqpmcn9ll4gpppgj0lgepwdlz024cfq9uvzfdhsw9hqpxe2lnvsa5zy72q2swn62nsvpa9jvfw2greq2vuygmf4chxe5390fanmehcwg6n9u9dwhjepap3cgwys3heeyhf54zy2ej0hfv3wjtx33e5pg85jqlv6d835c2n74qv75y8tv9498yrlahxngac5ehuqcys4nfhnh6navyx3vswf330wm6leup9a4rdcyqfwt8dytrekyr8w4secjv4nw8lgu3lt837t3dlwr64xf54hnqhy8va8la8vmmq4w2rg8kzclp5hewfdlm942t3q65zfulka6a2wk9cqut05hjq8qa2dcs52ulaqqzp57ww83fgazq9wwrvhnf73p7fsyqqnm9fnuckswy4sshw44kylejff4ewu9p4wf8fhn23vnvgcxmzfhq3xn494ttrwemna0t2nsqjwmltw4sdxj798xr9lxta86a7yr5slcxm50mwv2lwrtaqxgx27u49x0hkecrv2v7v9d06qfan49enq45xuguwa6f0xc4lk9283h2rxev8h329kxx00p8wg298j3czd5ps538vqt0w54glk6udf4thalkx9mgqedah0t7ugpw2vnt7pe6zth56w3aqdqwkqu78l224ufwa2h9e9v87d88t4ejxydds37hg0kk6ehgd843rm26t5ecv4cuygr9jan7mycj47cm25up9904rqfyqm3wytqwl4ssqvqqqqqqqqqqqxpdrv6v4he3vucdud8dyxgdlwy90tndul5x8le7yxtwp03tzj0ncgffdqk7m042v2xrfq6y9pcgsyqtda6xwd9x2fdgcwgrchfck5hnway6arssmzenff66yg3lgqz2yrjgpnljwuq6k4jmu2v9twqarmuqq8huptsxmy6pcj3s2cdch3wmw34t6ly03nhzz5063492dcfc3z8s7ksgjg70jutcpy9jnua2yt4nuwq39rv53yyvd2fv0dsnxmeeaxzcqvjk7ynh0w39rma2mhzz4h5gqyqqz5d3mc
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1phq8wztd7j403ej53xq4jkq2nrfxu45nqxkagpxsjj2744aqdq9qnsjch8
+              - id: au16vaz5y2xm2ulper48g7qn8g8t44v0hfaelg9jkdgs9j2eyz4jygqup38g7
                 program: test.aleo
                 function: i64_casts
                 inputs:
                   - type: private
-                    id: 5898508689548077103648945821908997248148993764267623437467159458775264200286field
-                    value: ciphertext1qyqvwmgh0jwt3adzcp2hfr49eusxg0jw9d5pcxxgl2z057k5hr87xpgljkr5m
+                    id: 764753870879149075685265232319348336859230814755925891599430645232098709402field
+                    value: ciphertext1qyqttxdufcgdsl90mwq5dx6z8c6dl4f6y2svkxyycsy5x5wde4ck5zqw9dsu3
                 outputs:
                   - type: private
-                    id: 3643230644685890721671300151492826315294625921273237977410594595366760552460field
-                    value: ciphertext1qgqwxanlnhyrfq6ywpqawgyqm08lwgqx8pyfmq3esy2z3salgwgccpdd6hlehuqty4dhw850c5xuak207l88qn53t5jpr0nryuzauuaqqq207fue
+                    id: 1694014068325867431563136461170752253906017140465416075915083821098675488727field
+                    value: ciphertext1qgq8447p7ud6jcuw7jgz8ggs936vmc9km2gs3a2zgl8x6xa2g30v5puujnp8fxyzq2ru44slt4d6p0u7g7yauvj2nrus9jyffs564x39qvpskqu3
                   - type: private
-                    id: 7741809861411354004057460425778017170076510836934296540686240351682152907465field
-                    value: ciphertext1qyqzp4gpmxkjev2fd5eyffd87g3k4p9rcrcf7nxm3k6tce6ytdu57qcs0t5ac
+                    id: 4763217255940137607579962440863111456701290682959568351547902394424590457673field
+                    value: ciphertext1qyq233r44qglpk66cst3j8ntm56png97dea444zt44390yvcxn3wzzgreevx5
                   - type: private
-                    id: 3723506335437510606055673968070727538772963420329918724806406488202709676380field
-                    value: ciphertext1qgqyhu7s69k3shus6lahdp0y2w4v6kux3we28tpmchaysr2f24702qq5nrdr97j78spvm7gsxwr0e46ucl7299tuyyvksyhjesv33jhrp5amt7wz
+                    id: 925794778126188541109148325189667110838862944411031525601875144777636364944field
+                    value: ciphertext1qgqw0rnkn2cln8f9z3lllarn5vpp2sme8fgcpzm2uzsmtc2wge3vyqy398xgfeh3r9rujxktxf6euq9j395s7wfa4gkjveqaskgla2llpc4aqywt
                   - type: private
-                    id: 996875501419174595548613880607925895161587857382857070567820641052565959594field
-                    value: ciphertext1qgqzr53yacwc56x9tdzeut2chhx694nu492q3nnhtgzgze8jf96ugzscup5ud4yr44zh302yxta5zy73y7vhxxunx5xy9rdqqcnc7zpcpsc46uwf
+                    id: 7488098145104322174647309297799269723816933664922604776848194821566834716388field
+                    value: ciphertext1qgqya8r756cr7txm7hjwhtlmaraz0zkjdmjhlemp6rrp4agat3pvgpgz5zc072l2tkrh0zr3lz67e3yc9mr457v3w8td9phe23anwpe0qy96v7xj
                   - type: private
-                    id: 1427320103935177668535665997472294949543105673515201519971836507998320439944field
-                    value: ciphertext1qyqzce236mymf3ncsqrwsgj5td9yhmlhc0zaxzerxe7e2dpdun78wqqwewdgg
+                    id: 4057896897115311837854638999277859891649140334413026707170627952629007537380field
+                    value: ciphertext1qyq0q5qlzuf3m6cz4psygtvs9jy0y262k9he6082ez2n56xh3nhq5qcyq2du9
                   - type: private
-                    id: 1075348601786851894017912536692670274177730988546172696096225483897685053979field
-                    value: ciphertext1qyqpp8cacu795fnp3yy8rxu3agr83wj7wqcqnv93c5pxl3g6xefeqygcvv2p5
+                    id: 4661909502552888468494182720710588131820033568233783464476072669097453665173field
+                    value: ciphertext1qyqr06vc4cwa7nfev4n0d7zantsayy6xte9x24xgvtlnuggc5qcpkyqttg677
                   - type: private
-                    id: 6593859277014290914828770532926825744535642276350830195889280095238071184255field
-                    value: ciphertext1qyq9arlmvz9ylpmqqpm5mqqv0ndaumxtkv667fnfre3rmxu92zu6yzq2pdv3x
+                    id: 7195993594822736001785759373885752555654884141552555850333015442508837420613field
+                    value: ciphertext1qyqr8kz4jese678r3zdcaxz5nz3jlucvlj8ux5r3xuknd0vm5gvtuzszqxa56
                   - type: private
-                    id: 2841907976274943579767554269083160013175746343434080256112067450873104443766field
-                    value: ciphertext1qyq9vdchf43z8ac8gh7rk3c0sf4d5p7wzmvwhzdydxjfrkwplm7yvrq3khmsz
+                    id: 5654172489317226072794132346482394709205987474534330891923096451588105236487field
+                    value: ciphertext1qyqdrr7p4dhx6xs02xktg0wlywerah2lntpefam7qtzwe3c0ph3axqqm4esat
                   - type: private
-                    id: 5952111698314159957133279203210257618819575727275545627909885193068649481976field
-                    value: ciphertext1qyqwzwcqudcgg5z8vppwd32ktffky2klzsnm2mc7s3lwrcmtl6lfkpqgwy69u
+                    id: 1783089437771401108205219538690124150828214191014614556554471882784694408376field
+                    value: ciphertext1qyqya37qufa38dk9qwy3ryxpknrmyek2s2nt4jfchw9sxgrrqhzckpsz77l3t
                   - type: private
-                    id: 6476003921080212210235253920578767351397591819902605017610582936226102599478field
-                    value: ciphertext1qyqf3ym2fjf662m7zdktdp4acr7cq3cdu6hz6qmtc2ufly3dhvfpyqg3cttdq
+                    id: 4582511519221555313452219763021800565299561865244763804113781797800462864529field
+                    value: ciphertext1qyqgy4m0zn3ucyqwnnd2h6lu3mwj65ej58dtdtdj8qeycp2c0vfvqzgd7t4m5
                   - type: private
-                    id: 5235342007939918729805826023385144456414383065089307987500847994847531549600field
-                    value: ciphertext1qyqdur6gtknkw4hncdtcyyptnaaa7hw5jaasmmr7zc03qx4d642uzzsehnenc
+                    id: 6316511103601885023024523343167140911069280140062105843576310421043177339808field
+                    value: ciphertext1qyq94k35ww0ny3ru995g6yvy9x7r6xlrvkwcw0ve8twfalz9qtw85ygcrtqcz
                   - type: private
-                    id: 6394100984582434103907040651398313657188703530981033895952939613248051531180field
-                    value: ciphertext1qyqdmq4pjf3mr58mrf5xnd8zjjj46hmuckmtfc3wg649sltchvrw7qsyn7w6k
+                    id: 3823577735974968398455529628664587600866582957408161488747122342616528270846field
+                    value: ciphertext1qyqvwns7sl2823q5dakcgh7a0rk5uzuf78x73fvvf0ard6cvtyf96qqsefayy
                   - type: private
-                    id: 8266248989966386518249331423288262815807617584907811771264816515397640601638field
-                    value: ciphertext1qyq2zetse04lz9nxc4umk2w963rjed27t8ujws9tfxzzfm9ucaw5jrgxr4h8w
+                    id: 2588904557069680343689306378271535495117562738782741778393501142059050134983field
+                    value: ciphertext1qyqxzjpvgnq9mplqdeznxpemk9kpk0tut8kn3vzt4ev730y76lfnuzq0ead44
                   - type: private
-                    id: 4142169623246372624773860854076652803253792942578194293455305603806353190228field
-                    value: ciphertext1qyqr8lunnfgmff9an2ypqfwygtmt7xp0c47u4v65s4y3mdjltrj5xyqeu8pl9
+                    id: 2491905257897939693870907241644784091257379843956017997692784296096056849188field
+                    value: ciphertext1qyqxvuu0e7red9t2sz6n957xlewksg9ze92dn8qp3uck2fvh2plvqzqqjmdpz
                   - type: private
-                    id: 4649003800912195513139517996608469982140743472509980322440402272216621083270field
-                    value: ciphertext1qgq8gpkm96f6ftsc4el38qz9tj9k4v9ale5ffdy0246npyqhln2ucqvx6f0uj492wtwqd8u9pw8gtmz8aym4yhp0884da6znhxk7rr0uqy6n88aq
+                    id: 2608702626004089766102298121410211586374494418932030348103570327065214133494field
+                    value: ciphertext1qgq9pvvmpr7635ctsnsyataj2zl4pe2v429e8mhnqgznck8f5kv76qqxvjhra6ysjuynnmrtu0y40h73hsw23nzp9yjvf5xay8aqx3swpq8rdrll
                 tpk: 3062540223143565309854534544792113332541638502144402289468069348224279701464group
                 tcm: 6439558035138985075559847746158879164275060324098089540339057790037657918331field
                 scm: 6911753727197775023644594748774975927964764685744568769822202921268068767970field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq2wy9qt4xk0d46d4d425f76n7ele6clckuctgks7t0wx348mdv5ccceaekqpps0mljdjm86eq35zypqxk66cuq57hjwtp59xjnuf87jcxrcm0umsru50d5aylqmkf356yxfy3y9wqmjhlklat8wv67cx7c3qgt2ppm6ajvj73u9qxhmeqtap8hkshkmf3ukgc26xev3g8t3uul7zdxwp6m480hvx0fd08a67jn2cq8x4xldte6x7dd323c03h78faqhaj48nt7jrnl86m5f7huguehs899keywgxpzh4wtpt2df0gy67vp29f83gj95ep4w8dpyd8md5ghdj8uq7rhfw43ecped2h94tq3pzajsjn402fp9zw3ckn8fuyv5q0cz3lxa396t87mg6hmljnu5erhdr4eghfdd0x0rne9kdlfrzc7qce97xep6c6jm5jfy6jlrhqvavpaqr5nc0jk8y2yzq7swr0qtlxxfzh5lxrkcakdaekpepzmtrqc49hlmf6r7ca2075ln22u6y7ag8mpeqp3z0444nsu24fl9mcavvgyg0at6q79p2tfkhx7j8ujhga8uzn77wre8etjprycmagwzp89m4tc4sql2g60tvvks0qqs2qxr32x3jjtwax05s53nk28qd8ghsr7hc6ptslv0mzpmy4zy7nq8zkewspg5nsqvkx7xq9rd5wtz20e38c0jzqnn04fkknp5a5lthwr6vh36c9pcspepk0jzeqq42q4n072xgq6dmxc43lrkcalgchypaf5jud3asjnzypfx53vcu0t884pzagpzfvl20pctlsrgqzx4ttncfpvkhl6uxp5qqryeje4hhd76w08k3820twks7tkgk48unag3gjvplame7j3ytjqadm9g4d54qysyw8js2w8wm7ysut48e0c7eapycrx5k2emefdpjqzfssqfzj09zv7rk5a50mkxg6yw0a5682z7m4dhmyq4ld832y5ysrs7evvcr2g3d0a28atxuz4pqlrhf27xhk9frtxp0nc6wd3zqvxczhmalfr2h6cly2nu47u3ew99yj7rp4k8ky8hu5v9pwank7jd5jfprhvtej9sjjgytkht45wlh3vmyl4sgxgf8yxhp42jpxf7qe99ees9824t7graudv9w2kvfygmjgvywjtu253dvhqchku4fhzj5w2nsgxqvqqqqqqqqqqpcvj9zuquqjg3l6jh3fa8q9hvk7203ven70hwlt2pya6a76u0ema4cpkyuu6fxzq27eq8sn0rd9tsyq9c3relcujw55mfgz0zq8agrrzcvsrlw6cmpha7eutf8d6e0qrkdq7c7sq3pm0p7wgepvc6tdn53gqqynj0javgldkz4ua8utray8j32wphlkxya40j8du8t02k9vr365sjxs7vx7hlvkaaelxnv7mv7nwgjlugvephfcanaw0mhv7wpx42y3ysw53lc26qtk6f55jllunxmw0qqqqhesu7e
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqvjhuj4de23av43y3mjeedz9c8y2lysd3ak827pdsv2gltx2ajusz0rynfm6tg46egkprhcyyjdcqqqxk66cuq57hjwtp59xjnuf87jcxrcm0umsru50d5aylqmkf356yxfy3y9wqmjhlklat8wv67cx7c3qv56wa9ccskk2sw8eg9sjywetl9s4c8zvdgs6mqns6yc7dxlc7cu74mazhzagaank37s6tz2u0ew6qzj7a9mx702len83knygkscv4p0zftdrl76wlv07wl0hhk56x5k4n9w5502llwam9mhq6w3kcmfq5q6z8uesslhxgk8ryadr7pdk78r4lxgmgq60sq7utfu9tsmutyy2zq0gffl2ruq2r7gxdz9ar8v48qrhyzwu48lwsm4n9nlp7mlmeqyf309ttk7vzd633287gesymjsu65lpkn8vaum6pwqdqka7q73mmlsxqrxm8nqgnwf0dq2zw0utlxecj2fl23vfe737swa5hy64vhfxs9el63lyx327cc8tx8360f4gzdfq9xcfyll3l8f69jja84lq6r437aexhx85zmmfd8pnj4a3za5yfjqkvurw78gempzlaka7dkgrlhpvqg4xyeaq2knu0rrf20ugs0w69ky2sfgjjs94kuy2gy6mvf5ks6lkz565zr4nas53aprrrcwc70v4qpy2mpag5cxnyd0cmennx6g92gje2tmzqmg74pa8zmg69zp7c7wypefw8qxmnfw466hgw2nddufzqfupa2cwzpegk8ha3v2zszwstqgp8aggw62q20xa9g7max8mupuhk52zlzjtn724upfs0luhg4lpslpu2ke9zfutleter88kpn893pwnn0wetc5jqfwd3kxsh6795zfa9qxm42e6he55wdn8g7nlftawntjjg9ggquywd7xs49ldmmnjj3d9sx3qwtw3tczfnyccnntwjpktl7hwxqqpnvaleeph9vfww6y4vnhqyrdkx0ppceskku56chwdrx03a26t9yjy42p006qj0mmlj308m27qvd3wu4ecxhg9035mhwyxadqhs4dqlq9xzae2guz09kq3m7vjc4q7fcl58zc396k0j8ugpr8yd9a3f0gn272746hhv2pzxc32pw9avs9et39kg63m2xl0d962ghj7l0w39eazpp5wy27aqnfgt3rnk0kgq3qvqqqqqqqqqqqjp8z284pgqpwfvcpyewt2dst5vtv0k9pqqakgu8lf6mmq827f00dnw4hc8w8kny5sr8w0f8vxknsqqfgganr8dhn55ppk9kwtauvf4pcyrctrlhkeswcjg3weudrmja8xxy6fnj270jqkkyek78uvse3nqqq99h8yf47vjxa38exsq2mjxq93kxwluq0c7hdj9r7n5ruxlut86sm4fcqlyedzymzs7e35xkluep8y65f00dxantx2tmrenm6s4dywkqtt0fewn92szafu4fuxfgym4xsqqq9znrg4
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1mvdvp4gdcsa80qd40eu6pmvhnthekxyve86c3hguw39sy3034g8qc22scc
+              - id: au1sw5cuagwse8vzl38rcmh266lczp944pqrjvzfplge0ghmm4g2qfqmrprmj
                 program: test.aleo
                 function: i128_casts
                 inputs:
                   - type: private
-                    id: 4590564321471459430214940869390598454817767191657057020956120095811539991939field
-                    value: ciphertext1qyqfj2weh980xx5e90h6x4hxawvwzl4yhka59wcumllemafha5mfkqqj0qzv0
+                    id: 5289858888941416344668753856568441055926751717681153108989935399501880106266field
+                    value: ciphertext1qyqzjhkfryz7s3vcvn66gw7j86cleqh7xppps6a5g20rhr5ugtuvgqse9ppl9
                 outputs:
                   - type: private
-                    id: 2656993574773197180534227313639530780652532620722240376703091961162451810338field
-                    value: ciphertext1qgqws4hpf42nmu6yh3kfc9fc7yunxj9vz6s7sytnjklk0dn0nn5qwyhenujljp54p89jetp3q8lgw6dul2e3wkjwd4dvpwpk32apnqssquh30lek
+                    id: 6127702821563104160544772434889590129610383398087201937215758705080461538099field
+                    value: ciphertext1qgqfcd8cz3p7jw22m4v569ycr7cwau8lkgmdjyxnzpmmw6qcqstsvzkqtjtrf4g0hpu6gzwka4g8z28tfzl2zxpxa9mg7hkf6v2esh0dpc8y7sqx
                   - type: private
-                    id: 2361579370683007859751923061877313783231727694069407203800795729308045778342field
-                    value: ciphertext1qyqxuv0eeqpsvvchundcrcpns78jj6jdgc36te8gqf5steer0j9qcqscjg6nm
+                    id: 3804613789918825937491456416384140358427936259986792382062627024115906076388field
+                    value: ciphertext1qyqt2jgyxnrygj5nnge2xd49ju0yeyfe3fa9u604usx2efxzmnfhgygzvallm
                   - type: private
-                    id: 2561960919595648970833663870699788451598315067784328812952247795222261238303field
-                    value: ciphertext1qgq85gmqq6n4qtnasj0q8axvf5e2c4zhjup8nyfaw79gfpemahx5urref5gvyv302gnnmjng8kklnq23nm590938xc8zduwf7yruumceqgjphfkm
+                    id: 3305518763801282703972161911564409934159405919839175763429709096281517886600field
+                    value: ciphertext1qgqt23ex7g0vl8q9fwc5cht7ew3dfzh7gvgdlr826da8f4079qy86p2lw26ht9cq9hwm5thzeq3m8xs9qqvdslyfft6a90lu9re9q5wszqc8nz72
                   - type: private
-                    id: 7661128173372936722530071905149933721778249740666449300834680981234259838928field
-                    value: ciphertext1qgqvh4fu5u8sa2mlu5nlzxpg6mu883hwu4rmztmg4m4vpsmczqmyuzn34dvpj0zrzmpx205r5k9ywse7u75s2z8udxyjcdqvleuz7pgmqs49a9e7
+                    id: 2963782102133942538142339644898737655000151558340944437278905173936001831645field
+                    value: ciphertext1qgq8jwd6dvjsu78xj78d4xyq9mugcrrmaxg40umc05q0p8sfcx3lgqewx2d0sny86z447q993ggu8fna0fd9jeurxp3csg6p3x6pks85qqahxzhp
                   - type: private
-                    id: 8339525959949448551827562009321573304665529269431697414333612787127380358181field
-                    value: ciphertext1qyqwpnx70qrw98an7rgpxumpsejn3z349g5fnn6drrh7ep5q3wm8vpgxqeyzc
+                    id: 6339798413362008131086139414384210130130196500309034161721010338829541091485field
+                    value: ciphertext1qyqz0t3cmp23rlym4sxrjgltn5rs87xnlkzkrd2eygumzmzlgpgfuyq6q7jed
                   - type: private
-                    id: 2910333652321360447047044297682726248242259460778130433396104288424982064152field
-                    value: ciphertext1qyqzm54ynd0ftf0ssyf4uy728lcw5lff2332ugc7m7809egfa6qtszgcttwkj
+                    id: 5609587135183089831427477410397741529112446849483239191491730554733895844137field
+                    value: ciphertext1qyq2s4pauqet9uvaqnhcju00kcyhpz92w5dmem0fc79kwpve96sd6zqq8s085
                   - type: private
-                    id: 6617757283698941103326965488804689116019773190477371033739492328309435948583field
-                    value: ciphertext1qyqr3cc4sn70xxrpk7c2adzpmkwm7vfthevslkevpx8ccg62xylvcrcyuha4v
+                    id: 2186503947668070631468622698791357014607576967967391287990113951269998640118field
+                    value: ciphertext1qyq28qvudjy23jn4gr2edyax2k2anqfszqwysqn3ytrtud65lpx2yzge0gean
                   - type: private
-                    id: 8269010957563644816467967792396957451258549022279522910263221620859061983237field
-                    value: ciphertext1qyqvq6mr5sn59jqp5kankw2txa365execxj2ccrewqewc9jzfhlu2zs2c8yc9
+                    id: 3059084892711074821545287264231062520708524959643046115321924436868343611381field
+                    value: ciphertext1qyqqx2mm0dshgpcn09hn6cqc3zsvk3zp46psklrh52rudmvk8q0qypsuucsjz
                   - type: private
-                    id: 1583499409342982895798021967636798930815520270443469303074931285563578642970field
-                    value: ciphertext1qyqwa3jz05e289n63s2ef8j9z5kftc6n9202n804j94zfnzglx9fxqgrfkguw
+                    id: 3168288750426331128935882358356964872454638816953256744473135887174143751277field
+                    value: ciphertext1qyqfwsm4wedwfay3sl05rsnndkq5nxdve8xujthad4u3wzr2y3e45yg9hsqzf
                   - type: private
-                    id: 2397440081376820600978253919141607247753843297932136364502133954413622094356field
-                    value: ciphertext1qyq8kqzk3cg9e2cx872aqwy552su340kcnrxdcyf3d7hg2fd466vzpsjsx9ls
+                    id: 4309130468189221746626155803995378636756307900856949952486365020536347844510field
+                    value: ciphertext1qyqw8cu62smer97e4dsvvresrt83f0pvrqfmnwgvs6jsne2ed9kmjqc49a54f
                   - type: private
-                    id: 5110824329351611744195528947579721126091954852894498244803081610007930024060field
-                    value: ciphertext1qyqqhal02wgnr7flhaasdv7a2gpdruwvk73873e79a064s0qhnn8xrce88qm6
+                    id: 3656421143922174539581244144195704877070175937095925392789317318718737103200field
+                    value: ciphertext1qyqphjgwesjt7hlk5xccxvzqtxaclnelt74qaxztnfd7f70lnvpdzrqh5tvm3
                   - type: private
-                    id: 5172815653277763354807527354684401713748888712818009109622580581545922078091field
-                    value: ciphertext1qyqq2vwn96n4nzrcj0k5pyfhchm6alc72cssc8vcjnx27h76qp46yrsmuy85g
+                    id: 4543045027229782867495640004886404323436154684658139377794974168394463846811field
+                    value: ciphertext1qyqxwhv68u4a8uhnft2u08vv54j399kcfxma58tzjd3a6yqldl97wzsa9chg4
                   - type: private
-                    id: 5077577478509011166601323412079376755885504159658525103697451291457925579968field
-                    value: ciphertext1qyqt9zvejl6878zyyspf85tr5j23gqxzagup5cfwkaxlne4m9ghh7rcqfet5n
+                    id: 1863827734075890654906343558409014104404262425924163297899110537896607475948field
+                    value: ciphertext1qyq8fx29qeunecghs5qr8at6mtwz8vsdem9pnyjjgv6fan83u7507yq8hedxl
                   - type: private
-                    id: 7582266745620768208381528071393388329830241833882026613950984474184678728672field
-                    value: ciphertext1qyq2wmfzas62txqds90wwcg83v3hzdwepnz2d7u9wty5e0l5c0086qca74spy
+                    id: 6666680812018262372743237209727230099086285493436053600733543077645887950267field
+                    value: ciphertext1qyqgtnnal2jlj6a6f2ta8nn0yjsypuywnya4t7vrejvk33uvjlcw6pq4pyz3q
                   - type: private
-                    id: 570714134693225563440602108103906857945910056995759650826169033353877368164field
-                    value: ciphertext1qgqxfyfd4j2a56lzf2x4jgkucd4plnura30kwu2lc70tc0sh9mvtxz0230mlhxuvysnxd4wanysg6rt30x95xll9zmmnd65d4knvqyu3qqselx36
+                    id: 5803556852464787619652303433556071529988626524619915345487442463977963490146field
+                    value: ciphertext1qgqznyjrys2duj2y8lt63pn8a6cvlwhdhah6p5ut0as6qtm27ejpkrcka433pu9zjpkqlenajvxv6grugw2gpjcjypj8s7f725ljn07wqstpuml4
                 tpk: 5435910493442898401058820440140952021892731365225504434988058404658584629598group
                 tcm: 5086818745614179111997137581797394763780923610805134574552028028763353151102field
                 scm: 4811112438974239795192698347263285991766014573746032917837488255897461173762field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq2rv5unxqatmmwplr4w0p6kdeeywq4dxtx0tftnal74z8uqxd546y4kr2nvurjey5rfh0e2er8unsqqyylps8h6gx6lzk47vwxhtnjy2dzns45k65cu66tsdpj85j3e2zwm5ea8cdsx4zne2xw0vvqkr9qfqv4zrf8un4mmcrs68wqentv445t757q6e64f28ndn2xazuuhqua8ag0p0q07duayyfmh9dudna84xqu33zs4tusta02gf7hxgqa3wx46fwc6j76srpur5ng7zj9kachtutr7yrljsz3lnxgyv8lf3k8sqgqgddx454fjgs7r2tn0aptt6m8zvulvffsaqle9gd3vfsx0yzxllh7dm9hq2jvt89rclgzyn9evmksqnqkxgnq4kzemud34jvmh5s3rjp4uztrfpgafq7jjvhgte05cy0h8y7a3dxtact95d0c5q5utxzks8dysvfr6ap07s8qpu09ymmvrm2cp5e24mdje9v9sd3d9un0fz8lc7px4c00h6p4rpwmmwhslkhl0qqkkltgtyescf5enj9wzywkrjg9mskr4p3znav0ww3fvkrfr8yqc3z9ymtmtp2784k2s8wfx2qccgq2pexcppmpgqm0uz7c9mj2dd684m2rk66y7s26ztu0jw94yqp4vvsfj3978xc5rtygnqcrlw3tkn5pchgkfejmhreks6wkcdam6t0l4du2y9v7py6nd66s249unmlqqyzr8kka6ut2m0w9r2dw5nrjxtywed8gqaz5fp4l3astpec9vxdhxqqac69lpqexryuct2c78utwv493ftrsk0vd3pvyvqhy8z8mkcqgzzxlgutdjk2epz8waltzs2yfye8ulfql2wmckqudcqfynyrd94jsuycqwd8z533fa32t5uax8km7uwx3aenvwr09dnk4a48zhmgkmqq92r88t9v4p587wvav7p002w8uley74zl2mwl47n5446fkv6vkpgyuk9fuwgrhp9c5fz5ja7cskqrm9qz7mgkqr8kf8w3fq7sq6kmf5zlaee20qkczwzrzd9p4h3ryw6s96fkkznfaxd7hsf7tf2852q9hp0wscef8l9rmspavnjzwg2vn4g2yamj22pzamwfwt7u4w0w2tynqzad9smrfxden0ayvmxdua774csa4z8u487nxy9jq9z293g2j8jsqqvqqqqqqqqqqq8r38gz935lg250ktd5k2zkxle3jh8vl0h7chch0lehf8xfyza52dcwumt05fnwrp8ttn2p42746qqqv4mwww728g6hhf2x3wkpw0sv4zuavsr9dwfuj6n0xu9jyye50z4rr0kddac94v9kz4q3rkwtjezcpq9kv3an52s6esjs226w5fa8ssx6pkcecz858lnmywdrgnm2z7mss3t5k3huhm8s6a4hl327ls56j2e2t952e37v3mrdup2yw8akswssccehv57m9xzcmjxgc2svqv492qqqq29gtew
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqw22e066t7m983t0jl77dx9m58wd38dzsepdcq7dwqdrurxygrrwy8chd37c4hhvpl4uxzkhut59upqyylps8h6gx6lzk47vwxhtnjy2dzns45k65cu66tsdpj85j3e2zwm5ea8cdsx4zne2xw0vvqkr9qfqgrchrwt02h5lzu93q97zmshcvgak4ehaqvetnnz62ljszpq8gc80mn7zfgvzqncp4rjeeq7vz3g6q6f7752fc5juwukf3r7p8haz879rc98z5yp8elurzm5qqs9tk3ex52jz3kyzshgp0lzdfy9369t2sqntxryjsn3hgyazq60u5a8rjvcvx8ew7cyxflq2u5eny989ferjqeagqkas9gwqnr5w8dv8p5dkrsqk85ck24pr66g9uu0syqhn4uay4zgef8apauxjrsv699up6d0mz88lykfzaq7g0l7j67zpjypcvnsr2pjjzgj3gpgqqzfkff6tmmv357h65nyhfuun39t2gvk0cxtmjjr33tzj4879r7ykmch23j9rcugq8jdatu82jx9e9nnq5e42r94dpkqzwuura9dfntuzvj3fecurgmukddt8wg40tnhqk2m87kxahn4zq428gv42akfx32a87qg8lkxuxqqm3ngh3fxng3mkwueuelg2cv47xx24h5pe2cadqwn45mvl4hkygq3crxqggu255m25q02222dkd4x5ym8324ac9s2eem24wpklwrfv8esypfpc4tpsx8uardk7tjl49f0fnxvyjsald783az0qaw57vsqq6nnymkwdux8gev05txd2j4lt9ngza8m2g22ahkuc5jlav2tvcxqcakmjnnm5h47dkk7w2850qawh4de7exmu6j82fkfmkxfrcgqf3szmv7wg2j4pegqcqwwrh47f8s04r2y2kfc97z4dltj93xxe3hunq8r8a734dalwm2mlkx9l39mnxuuyyzwygeafqmp5jny8krep3dq59h2ueq6fnh0tw9fqnpznauyyz57m6qtxu7u9s3v2ccj9pr7kxguzl977rgvfn3dprsat7yp79sr04fltvj0zdt65a3fs6673xwkl3rqfthvkg2rj7uryw30nsleaezlcretqrzndh9fpv3p3xxqv4k5wcppjupk06re8k6eepnnecjqewjfk0wvhn5veh4kq3vksej8d020ygvqvqqqqqqqqqqq08dkznnkznptqylmh59mugswegfgy88lwf37zxjkk8fw6xs5h9j0khqstdp4w0gw5afte9nrq2lsqqyrqzlw6gy7e6w2ynwwvq06ql30k6l4v7ltzzdwazs8pqayans0rnjl4cgvw8geck8jrqqj0x8u9spq80szjk57pdr3fu8hfvt2qkht00sltxvvy6dnw9ewrkrarfp4kssfcfdx4zuxv83plhl8wv07cf8x6arqdryr8wppactxva63dde0cguufgrv4duyht20pjq2vetnqzeqqqqruvjaj
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au13nsltd59gq3c546mutu4sycf09kveth8z98yaceaxkw76gumfvpq8wrv40
+              - id: au1f5xwe38uu940fa7z8wx62p3uf4cr7tuyhy7km969p3xljn33s5xqk58pwt
                 program: test.aleo
                 function: u8_casts
                 inputs:
                   - type: private
-                    id: 789021057264562630555303766085352399283388826000961167796881363579781181608field
-                    value: ciphertext1qyq8skvsf0uwxzxrx4xkx8us9ennw45c6kjfw32r2jpp03g4pxcw6yq3yqxaf
+                    id: 1406057097320339997213457274812048441301213767612069525873928012698966695459field
+                    value: ciphertext1qyqge6ldagg6apvq4yqywgrqppn7cmzwjwyewl6vu3cw4l9tfasxsyg3qdfdh
                 outputs:
                   - type: private
-                    id: 3180125003215680183474079034933690047706312684847688303021746680549232573526field
-                    value: ciphertext1qgq2l2fjdj6jl5c5a6ca6afvdn0j54eqdt7v99vtl28k4w3h9yj2qyndp2vh8rxgyzgyk5299fz9dn8x5750556aszym593tkh8lxfacqyj5c2gc
+                    id: 8322759325361301004979719071899663482085555168405457918366099597292429978425field
+                    value: ciphertext1qgqfy8zx8ve6w5dtlxveasr0d940hn93g9d5crnxu4us4gvc5a7mwyz49jq6qvn5c4t5fvknl45nxynlwesxpee5pj3payzgaygfcznqzy4dccjf
                   - type: private
-                    id: 8083835805950649449428242235051982565681028216556584807176760672389449427722field
-                    value: ciphertext1qyqzxkfexdjz6yt28huwr6hg6rl7knv3r3pk3mzyhhgue70sgxlucpcn3dn5g
+                    id: 1081655338095872315558599177737627171154065060971881578624745710021728045006field
+                    value: ciphertext1qyqzp8jg3jmch3na9xdtsa5xt2tnlexs3qtru9w489mym7tqaw4ksps8yk4vu
                   - type: private
-                    id: 6205509711548347663475033976805849985121509814969811363071068886710884508665field
-                    value: ciphertext1qgq9r6069m56mxkq8wvc0grk3le4qhcd0tx4jaljl62zzs9vjnjj6y9hgx4l0ea4yq0mycw735rynud7zgupvlemqg5usv0gfzwv57u9pcyaxnhh
+                    id: 4763988322360780876513327089149574485488320417227966249373595370512429035823field
+                    value: ciphertext1qgqf6gvcjrznuwj5tn263e6dm4rhdgamdt0gj7suar5v3t8dteg5zqp6aqjdmqk4zx7rm56snkc33fdzjmw4jsdsfstwdlgm22nhd8xyzy0u3kg5
                   - type: private
-                    id: 4112962026741890408783904208522097677376507914356955759904129480188960569436field
-                    value: ciphertext1qgqqcztu7fqcmktra9whrft8c4h0p28g3te0nk5kl65t3sf2q42fkz55g9uglm79pv8ysrtp8dfu37pmyecl89qvs68xesnx8thn7xrdpqymfvn0
+                    id: 4700421916667739767423697732696730538679198534601626057533189076576715085825field
+                    value: ciphertext1qgqz3txcpwdq4sd737cexxq5xkejcle0wyx2f3r8mvlzkrsug9ptcp4wtc5g4ak6362vwltq74cz63hgd7sryvz2kzxf8wce3sr56v5wzyad7tv2
                   - type: private
-                    id: 689876187640931760649066106432780113390889640660118147894675575162963107606field
-                    value: ciphertext1qyqwx0ctwc737ev99c49dseat5863js3d3sradjyqs6ad20f4l4jkqc57j6cz
+                    id: 2660491042543074832181734402293697322717552487165531756567419742054059719404field
+                    value: ciphertext1qyqphklsasdpnp5e5aneeua7f8hczxu42sahd6hzfgmrn0armlkn5qs4ukcgq
                   - type: private
-                    id: 908443742315925262001603872874114374998868025320517261783655889910759044330field
-                    value: ciphertext1qyq9z38sd53zh8070acnklyzfs3q08cmece3d8slrnfdj4wtj0d9xpsc7cufr
+                    id: 3127975744722074983453070665165843664840429365243022990749655081250042365338field
+                    value: ciphertext1qyqtvm8xz9vgpn6kr2ktfzs20dkehtw9luup8jr03x37ndd3vc4ejqgch6f8t
                   - type: private
-                    id: 3054211937038738256663927684515237080881484330849134319438850713654090189471field
-                    value: ciphertext1qyqtgnrgt24deugy2usxpufrkx04tvugtt7e4uwu9ng30jvq793tcpq99v09a
+                    id: 5225851018766159718895721539598999728569631168741715692781715175435343029541field
+                    value: ciphertext1qyqdguhduw3x0zlaxpl68aec80k8rrdccv2sfgcqxztv46gch8pzvqssvtgu8
                   - type: private
-                    id: 8309028134382841894383401381963421148401238636026076175142142912095620310995field
-                    value: ciphertext1qyqrmuyam4h69dsv5qcy553ludj027h98z8rrufdkccrjmnyydse6ygut0s3s
+                    id: 6900481098405395991093296890722863994398001760416531601390432841050033172868field
+                    value: ciphertext1qyqx4lsq7tlgav30q4qtnj356teg0yhcwg50eykw4sgf38vhhjneurgdv6rgz
                   - type: private
-                    id: 672527130895305448487653670717194615857770318395199267459208437049726539919field
-                    value: ciphertext1qyqd7eca9dxk7y33zc39ujdrukx5vtf2h3d2rhtslv2e7zyuwygevps3sdazk
+                    id: 506897073409047283730867825327991618648866182101799978281402824709912525469field
+                    value: ciphertext1qyqx0h5tsjy5uyzqt0etvsx59gn4td0kxsmcjpf7fewkf464v7du5qq225gqr
                   - type: private
-                    id: 780823013626899183786375063327729243532267618686398337641660781383506745261field
-                    value: ciphertext1qyqqgz34uhxm5pks6jy82085actzmnnjm8c3jrf53pdekc9n4j5n2pqfczchl
+                    id: 7055535979065529906082274183230754473261536142755689021492393531849243510026field
+                    value: ciphertext1qyqt6h9zmf0rv98tu4h7h4hr2q6994lxyusuhxxhs8qc457q04ct5ps77hnpg
                   - type: private
-                    id: 6118527794526179521316092245407362814069217486422362132119663487529926863972field
-                    value: ciphertext1qyqt74x54x988eahh906f8ukqkngqgryhp9n5tkylj5qwgfqk3mngygyac64w
+                    id: 575070917540179262527308388599630332562295909588191863260368477132880991331field
+                    value: ciphertext1qyqxg3nwnaf0dcwexpt95y6nxnl9nnjsndg02xvxnz68htev8sgtgqcwf3yuz
                   - type: private
-                    id: 8205819556871804335493519828420634610934511533230092099461926658743660295828field
-                    value: ciphertext1qyqwwwcq5yttslg4dpnj9uu0hy6fj4rgu79fenzh3uswyhhckushypqw4d05d
+                    id: 1253184888644059531198163910671562828919080633293668425772672817039641011719field
+                    value: ciphertext1qyqxqq2y2z5x9snkffyu2ep3g99ndm0t0c5ajmpm37yl0hpxhgy8gpqv9zhvs
                   - type: private
-                    id: 5653460517895984358784037763710250021005181126951532545272162631113317683313field
-                    value: ciphertext1qyqgd5wem0r8aa86n4qvtrwd8a2s262uewd3qwcl9w4l2gsc4h2xqrsehduwv
+                    id: 7824288060981363164387252699555434494552825596826609981048028174142824626601field
+                    value: ciphertext1qyq08m2tnh8dp8rcl3u2trnlrz60qh8sapfxuff5ek9r625d94r2zps4d9ch7
                   - type: private
-                    id: 3260668396972123497773468743861688213398876433988987112959405411963202452810field
-                    value: ciphertext1qyqyysaaxlx50jhw545jjsfqaea9pzepkkd9drlv2vtwv28z4s7cuzg8xh22n
+                    id: 4109003307822480265245308425424774084172709836457937044153031742187999070428field
+                    value: ciphertext1qyq2qngq9n894j5lw3p6qwu3ppppya4wmelcdlkqq6y3qmtxspm7sqg6rdg9n
                   - type: private
-                    id: 520786023315542256687836385553337585938452401106812146864240537842069709817field
-                    value: ciphertext1qgqpamvp6lf2m85etj4gjwmnmvytfashfezak53h47mq0a3ddjyxgzcqydt8cjkjw0cgn6p8ewpvhu29q9lmt25yf74vzg2rnwaufp6sqsmtreed
+                    id: 6141741517293173146003140870999916312024695786358904980480840465173292501117field
+                    value: ciphertext1qgqwh44hpsjs9vpkysacmag85yf03k9s5ja0fznpwk60tph9erntcyy2g3er87wyd8d64zwg82qnp0nxyr7664rah8s3knl2pxa2k9hlpytccqw0
                 tpk: 643686870404180098229427937491947542168124889090535372708515447451758419394group
                 tcm: 2083394289568148527092328391718229393023335274980224229636818517946841244838field
                 scm: 8215682264426718474714286878917885215639662092632760593728843673274159648877field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqtehzlgkkhlrpsxgw2mslk3z540cys9wwturpxsh08uccehl7r7xqrd2ma0nx7zep9cwf8rhl37hgpqyyg3gsnf0hmnc2uvlacafgsgwfjz2rtsq2azrsfpa2tgzk9qck3fdn00ku655k77apzhhy383grmqzcykt0p9dl86nnh4lrxsc58ke2p5e5zgnpgjycv7msjxnde5tuffhdv359ffecru2f66trz8sgkuqqtk6veq43gglr8ckuma78ktmfntx9ua8rn66r8985zla3gny0stujhf2c72jjhvwzaa80wd5trq5p60ve0d9szvf3y38mcedum0538npy8cympwgdpkf9qn6sfpw9ndhyrqklmcv2d2x28tnj74vz7amsp0rjf047p0k2f2lm44xcpxg0kvc72328wullh4ruarrvwkngg6p50tva46cqs9ckxam7aujptampq9cyuna7gx0hp43aegns40hwgc8szdfkdq2p4ht3hmrygn4s66vep6urvfk0zrsheqwdvx0m6zaqjqyxqu070d6r4aazfmk2lxp7udel679t0xndyn3fuk0ve99hd49ss68ph60l79rflmkxckmu6z3w2uqqntccqkrr8d32g2nn75vcf5yegaqdj7jnuhp53f2984wkttea5qjdfdjgknug607jgx073qms4mvq0p98acyj6eu7rvc636sk3pthglnukuklj2ex7q3as62cm3tt3ur3fr5gjku6pp59lt6hqym3tw3fhkdral0z2sz2x5dzw7e7jnz5wq3fgdsl07vrcw07j7rdyzzl4kw7sl4rzzwem7mmj720vhr0mu6kp3k0h5spyl8kjycvfvcnq7seevepr668qz05pmpf90eutt35nxasue9x7vkr0pj9p55d9v2qc0vd4uesnyrxjsfqta0km4t59hjnqps0hw4djn4gse4l6wz9706x7c8yh3g4vhpkwfelw36vmssj8uz4vupdw8lxkac6erg7v4qemsdgeec65dytfqqqrcz3yceh4n0tn04wvrujzstjh7radc43kqlm6543fnexq9kdxylx527ng25r3fdwc08yqs7nyfyezch5ykdsc9mhchgracuw5nx30ysldqp9ayq9wamnv74s8km6slzwll7sqy5z0vfx9zsnrdzt4gj9tmjjd00vuwfz05e2gscyqvqqqqqqqqqqq5wj7gc64x4twwlcy7x4vleafxd80gy3ja5l998r80esq8vt0g7nk3zpfv0cjng2qt0wzaarm3a8qyqth4avlza07trhpu2dam0lmg2fsx8ke3aqlcr6nfqu904rzsey9z8dlawnsuqw33dfqv2wnaltxpcpqxtrstxnuhwsyqqtz4mprzss3gd6pnsskeu7ytnljmmyxg29zzssnh7cl6gg6pkffp9qmt9u5ce9hmwyk48s65v9wm2nfgklhytxugc0tezzwz82tekswcy887lhsr56qqqqjpz390
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq953c7rumjmuzx82ge96juhtl5p8yva2r8w99gt8ey7a7lxz0qnrs6nx0qq4mvl8yzn7spd690kdcqqyyg3gsnf0hmnc2uvlacafgsgwfjz2rtsq2azrsfpa2tgzk9qck3fdn00ku655k77apzhhy383grmq8aqznfs3kmnxwq9du7he3snq4zsz9xyl9zpdutt70m8kjaywnmggrt5wxj76y0uctn4scznafsawqv5ajg0ewmtz6vnj5ed8q6rfx85wc5yxq20pt5ld0e7v7d3yp3kcpxuxd9cynrtnxrzrwmyhuprvuqjss2437vq2h0euklx5t3m3sywn7flrxkn4fr7k2y3gs2p0d6tjhqxg4dsc53pqnvgfmlf34wa9uqpp96a84vd3d9qwmz90p3gd48z40z4ekaf583csjp9jl8smvueqvctf62qu9d085znphy6rkq2p4vqycdfkeqslfh8tquf9qtajstes3q44uydzcr2kz0f8cp0eqplw5y7c9jh0dky5ygvyy5jl4xwhujuqw0cg55x9p2g9u84lt45n9fqn9c3kx8adtd4dpra47uhzqzx83zt6d5v9ayxkvrw332s94dyga0zjqkwtxn3y0a9rhq2psqhlfhmsvq467gwrm5u6lwwxyaqprzmaxeyz2yrdch2eh5xajzektx0qtwq6up7uxnm693a9e83002u9crpcwvf6vnhaan2eyy0tn5wflqenw395pyrucsgc0gnqdmhpcqaaxye89ds0j083k8p02wthm9ra7qmncnwq2g376naz0l6gqvlcrw8393arxk7lx02rhlc3x0fjfvh6ffq24cq0lzczwe95kz5fd2tx9chtfr7t6dhlfa0r9jxfzvxqvsfphs2hnpr0suuf0wpdsfrqn0elxc9jr5psyvj6ekjxtgz43p95jqg06c3kcvpwfxg96f239llux4d9qvlsafauxec0hytvv59d9m332ra2557uq587rplaqlh5cquvs33jqslnsntggjptmsm0hr2r34f4erzrax5r3vw4ayf5tesvuhh2asapjqu9uhw9ycycfvdfd9wlkjsypgflrwpuufje2lxv65us7fjl33wyjhpf43e4vz5taudlu7p3w5w4968ydqtcntzyr5gnednh5pg8quwhurv0whcw25hqvyf8uk9793dtj9d4qwqvqqqqqqqqqqp03manjdlfa3syt4ex7guszdmhw8269n3sss92hfaskfsu965q5da9sqf429qc2lvp868cu5hflgqqqpw9ha6pg4z64gl79guauq5w60uhdh0t4rrcrnsq3ehsq58keeuwmkqv479gcapyh65ur84hr2qdvpq9eavnzv32rdt0m5lhp9rgdw788mnm9wj7pw20v7kfdvu4yxjp4py6n20wqp2ls69f88v48dqp287aa9z8uy7wamhhhvntqkqgnjgcpcjutadv30pz3fn8z9jaldlerksqqq9lvelv
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1m42upahn42xnk9em2a9ucqyp8fjz9t9usfa37v5yy9u2dye93v8setpw6f
+              - id: au1kx5ckvzr4azxa2eyhq8yhcl2cewyqn0pc95gymre0xgda2me0qpqvwt7sw
                 program: test.aleo
                 function: u16_casts
                 inputs:
                   - type: private
-                    id: 7412040225061644109463745635091888175941522139010195970628522400737996068143field
-                    value: ciphertext1qyqf66tlvm4wqer6r0nxx6gadhlwn8w6v2qctyhgapcynfg03glnxrgrf3cqt
+                    id: 230168670831484740564394117384829943496091082904010919774831238612644496884field
+                    value: ciphertext1qyq09g5gz6098laj3tmztxr0cp9femrtsad7d9efrvu5q4jrrhqtkqs4m3360
                 outputs:
                   - type: private
-                    id: 6923355890433989902791246270566152159412931605568630148684674293939446042697field
-                    value: ciphertext1qgqzjkfjzt8wwa944wypklal5vtadylhvzt2rlht8ddh9zet9svagyr6zm7tyqz00v0hpdyxhmqzve08wanf04j4cc9t2m2enlnhr723pyjr8qqu
+                    id: 7130570535698003023867649237472725356036412969865863289246422886046833765375field
+                    value: ciphertext1qgqq9d2adh65usxfg8dqrgmd2dkm5a9txpufnhxxpmkglt9ntepd2q4as2tjlfjfuj79r4rnwu9hgrrgea9d4k6mwzrqa5gdwgudq2uzpqx70s3h
                   - type: private
-                    id: 4879782124152462381931432713176858569859391570388699218610824898759108948520field
-                    value: ciphertext1qyqyvkchhcmpvq6h05n02pdpuc7atxvejy8nut4sczr2mrxxfshv7pqvzs7kh
+                    id: 2754220542094643653445404224048209283139228638935974807602981844575025533400field
+                    value: ciphertext1qyqxzfh2datzxlqmju80uwp43czva83ak0mqmpa79sdnqe7axcrmqpsmt005u
                   - type: private
-                    id: 773498420198917982707498947018960677635135050271760821426562825719858612907field
-                    value: ciphertext1qgqv388pru6nw0mk5zltlrxyrjmaup9hnhddh6rk0ynff7mph6yduplfkvvqayanhyse7ttfrf6r0mr2h3ewt3w29cee8xq3ssl3waghqgfdx3rx
+                    id: 1705613286391773795970558434532531330314048937268494356792630942488988452916field
+                    value: ciphertext1qgqfcddx4w250h9j4h808cj9j3cpxhs9qpa7wanvn2l9jpp4wcwhxztha0tpqc3z8tfja608mpkwsg5h6pgwns26wttn8522wxnqcs3vpslrumte
                   - type: private
-                    id: 1731107148779290125999686199185610297077118971693946834531501041607296126967field
-                    value: ciphertext1qgq84sl5tl7lmjte2ea6cekfrnstdyrupf8zl9rk3jd5lwcqa2cv2py92yqqhfa5247dewwf74u3035jhwmhtfcnmy6gr26dc879txgcpvx7csm9
+                    id: 5620381830707109099547219966265358435139075960562826372528453152143503570068field
+                    value: ciphertext1qgqyecpcyp2y0u6lxf39z8p7v7vg380z22pnle0fh4t0lf6f300d5q836fw8rlf8dznlw4l02usxe9hsmwa0jd4p53295lztwcjw9m4ep5me3clc
                   - type: private
-                    id: 7861495301521059933980099458209258824875830948293496938347695254450162448675field
-                    value: ciphertext1qyqf8jeryqlg2mru2675ckssth2dqjdtf0u5ce0v0z20ywjee85a7qs6gprvv
+                    id: 4662935411150419672204476608624137820144512471006001959597559983631533979219field
+                    value: ciphertext1qyqxg9jc8ghdvul4yc98kvhlshrvu7wvvxn0f648hf0gdcmdq343cygj6x5us
                   - type: private
-                    id: 2509121626834826350954473559512285402006673533011152851823882713204755813793field
-                    value: ciphertext1qyqdcc8kaks9t85gd9qu9j289h0hzw7f5wfkcdtap48yych6fce62yq3xcxnj
+                    id: 7663704957041100027891219844704273846730868957988664391302250946632280008419field
+                    value: ciphertext1qyqgn3dxgfkm7pkjx5cwvu0duzazww6gv3052x3f2g2sgcvj8dap5rqryh7fc
                   - type: private
-                    id: 4394390631694437040129433683768322541783198775266227088952707449546302222880field
-                    value: ciphertext1qyqgdwmn5eke5kygm5qmlqh5uf24p2p8nhw65fswknx6u5kfqz6wzyqhy9tsp
+                    id: 7847686166972211829053015967486031829109753823512114919277028709458834420912field
+                    value: ciphertext1qyqdhlndm8t9dhxsr8f9722pm5zk9srhlm5h6kxsm6wawvuxkdjecyge04q2d
                   - type: private
-                    id: 1121931695605812109211414362149273452787816726248468459484619438742630884499field
-                    value: ciphertext1qyqr7t88c2c8057kh383puyesgygmqju9qxtawe0yqh2zj0jl9y9cqq7vgmgr
+                    id: 336218277115412084013999299066696537149200472722921445680581836353102806114field
+                    value: ciphertext1qyqwkuus2yam3w7ly3nd89slz2rzlajpzefx4fkvl8ydf7nshtucyrqe8ksdy
                   - type: private
-                    id: 8069688998299028136098184568733737173248763903808967859346397670340526057869field
-                    value: ciphertext1qyq2j6hgf676f56sjqvcqted0fa5scu8a2w5jddgvvt2vkxn0pau7ygez5044
+                    id: 5558943385182524107122712212359917081849425566624373903971488167306333373466field
+                    value: ciphertext1qyqzewkvlycge965702jcx34746way0g5rewslllu8uracgufuv5vyqxeqay3
                   - type: private
-                    id: 5957739219553860279316153056814978313006980259429562405392678315866864450174field
-                    value: ciphertext1qyq0vay0u5huwngxey4ukmc7vlc4gs63jnek7uwwk0wmgn8mc83nsrqrdmgge
+                    id: 1473565385999989098250265217191048299143207156236573163282924627740185215091field
+                    value: ciphertext1qyqym3jzxurun23adljt62cvmwg5484flmrmns4cctrcwsjn0aw7vzgz7syr8
                   - type: private
-                    id: 6195154671045013899614428138206992160709747393834659597829333351920995077553field
-                    value: ciphertext1qyqf3gdcmrev0gvs3ycegx02mcmpgudf0pgpsp6y6h3c30qa730mgrs72q40r
+                    id: 116787546636048611674399825681568011717212997672849428496959177715691029126field
+                    value: ciphertext1qyqr49v5056uh5s5492hzk0a2xmvdrx2eetsrjatp9nrpvsdu4y95psya6vt9
                   - type: private
-                    id: 7740925259259059141102353202491907453440651675995256036334775223068993469854field
-                    value: ciphertext1qyqgqazqnsp2kftw875thywhw9e5gdmx964f6xwrp8lqs8h24jh3vrcf45py9
+                    id: 2360439649245122535823708377568974072142662994197063525444972922096245554991field
+                    value: ciphertext1qyqz7sqtajmsjyaty3xhdywqswap3w3dkt30q54eurltsrlpt68lkrsufjfs5
                   - type: private
-                    id: 3459112347465739609935838438264640415774766548055872106765808110240652806283field
-                    value: ciphertext1qyq82s3g68k4geqj52wfa524p5faaeegtce3kz6w5gxuyp5a5dxeczgkg5w4j
+                    id: 6321661430448627692770743922913268830136302028540911129893360252068173594230field
+                    value: ciphertext1qyqq3g8ryvdu23llc7c7g2day8ujyprul6f7q75s5ad3f536t3tzjpgnzn0nt
                   - type: private
-                    id: 2321754123752293148875170061506502922081214935214397311018219056326584816139field
-                    value: ciphertext1qyqt5zypnxayz0w8ygkl25mwgcceajvxgaj76e64zcagwk2yez7n6yq40v7nd
+                    id: 7656757198889025920102578458001493170197095626984740437125798719783259878402field
+                    value: ciphertext1qyqf206277xs4rw02g68fc6elj5a35e6l5qsl94trw6yhn9dfjpnqzq7duae0
                   - type: private
-                    id: 1073208538266342857385993146079343372107651075988106730882150335723602117273field
-                    value: ciphertext1qgq2c5lyf0uta7ev4pgzdgamx2cguczuzd9jcff97ufp4njt2490uzc3sv9rwvwtlttc2dlcljkmcv9m4a567a6xfzyxxt088rvew6n3pgwg5qdp
+                    id: 1969225079919595055969764292173726764348105422371748083239895387227510986650field
+                    value: ciphertext1qgqggtr4mj4pmw5axalck3kdek0pvh9jvrqhzzllzqd6ejndm8035q287lhrap898mn3pgzfc8d4czqyuy3eul4w658ed8mp3dxalsq9qydkthmj
                 tpk: 7748276872396081850735446480871767451159984551246572555319606089109587394894group
                 tcm: 4419764021562073735180880419914246444056091637087589082417293518250279532923field
                 scm: 4046435527566510444344077037423959111805493965221485008408718895098868512062field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqx0vx2kw4mstj3fpvm8ygpshlpxdm8hy8jvjhl0gzdqd6vz9n80sucajy0uv7jacwpfzc45l6cslspqx2jap49xq4tka7k9g44ctadc38j3l0jqan2lk2vs0wtpfyppe7cnnma88p02e82rap578znyndvzqpn9relsw8jjx6dvny78pvlemr2w3jd6y6l50lk08tt9t42kjc75pw4p2r4f6hj6jc7s04mkgnyksqxxmj5wnqvuutqj7a0y58uqxhmjwmhnt0mcftver308m70c8l4maeglwnnph555v3mjgtdrfwm0cqql98gl2yh6gdx2llnmtwkvqgjw7pr0upahz0neda0cm0ae0s5xle75t7wz0cvmcaf693kekmrt3jczx3c79g2488xxzvp3kj4dty6thfa0elqdpssnuynct4h0eldyxazhmxmfr9ae4kw9vvj6ejtc7ffq9kxhew7v0nzr6vkcglut695utmkg5tcqjfheqt4e80fckumcw97nv3gkvr47c5qg5huzx6c75yddqpzmt3jn4fm5ew90z4skqgvrqdvfaxvnuv2mdwtldgd3ln9qrank5afaejmfhf8rfhxl2xml2pgfzqztzqu4c82x63lakj6n6a9pl97s9vdyc5x0zs85788wksgy0s5v3cyldz2rrc73uyd4fjly29m6xgqsmpg0lqgmtd83g6z9syyexc3fngf6c2wvuek6qful2ayxf2gzygvc0t09f4fcw27a4ef2r3pk0eqcv0ckj9rswr5frt5wgx4hnfm2pg38v69t6j6nqdf2ezpcw3gj8ssfnfctuk6wvnqtj9sx9wqtegyqpu8tvw37sdxygzj7ylwqwrlxqhmql7uvyc7wcmpzggdde2fj6ksynsz2fuhc0ue7ap9kg0rsa8tg8zzuk3u0elehazsqen5qegrqqs02fvkp64f9v2vrs0mec9jqv9sw9x6degrxr9epclakxcp3wn0g5pny2z6zazt6974r6sjl4fnls6eh4e8j45w0827hgrca2nfwjdtgpk48tnq3xjfdxd46vssfqufulyhfyc4a6vewqaer9ymt09jt40tqflgjf03qmfgw8p32xw58xu0a7hjvddzkwy7u88mn875wcchs66qqz7vsfk0frmf2an9vd9ts3r0p5eftzehejrw3vjfsa77n5yag6cdqvqqqqqqqqqqpv249gpyn8hur8pkkcl74lkz9qyq2szrgt8vkzynsya5qcn347750aemjsvts4x7xy3nzmh7d9trqyqy552cttwkh2nm3acdqgj4mrqspvk4j89m6uqcppjswkr9zr3x8rg9pgd76jvchj9fus94tm9hzugqqxz9ze72e2w9su3ew09mz0vul99pamxs9pp620z82d2tcqz2gqfsm0xma80mn373rdath6rs0mywsxku90hrq5x878esg503vpy93hf0tjddkgpgf572fzxffxnzy2pgsyqqrvn42u
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqyam34hyyhv0r39x3r4tc9kyzmrqd8lvw4v6nz3c8jgh2nw92uujsh3ptkjtpw6apcf7mnhuaw7svqqx2jap49xq4tka7k9g44ctadc38j3l0jqan2lk2vs0wtpfyppe7cnnma88p02e82rap578znyndvzqxp08p80tn4nyh44ef25u5keg6ngder079ex6n24rpswyye0trwwjx2v5ntvsrf2envlgreex4ahzqykuncmep897uyzh5c7sssssjcfuf4ctkdr05kz9knc6hx4df5zfqwvafkc8pht7zf0xjsg5a609gphwtny2lvm3g9wwzgdpwxs8n3dpzk2zyayrgjcztq9l5zfrdcjcyuef9wgscqq8eww97e6nyr4pccr6wzfkp7cs58cwh43m4uwn57v9wjnksj88tjtrf2wxupsp44aregc5yrtmwlyn62sveug6e4wgfkqpq6ltfmz0k5h47vth0c49q3kdar569z30nmerz6h8l6zc39swznfgwd4m3kac0wslq6p4f4we454qwuwt8wsdqmn56c7483fyy235grsqjz56c52tx0l078jkh5yh4jecf80t2x6679assvgeue5ayv4xq65z2djv2e5wcmt99d7ks4r4zkud4xkkpp9kd37u6v2egemh58zt8xzkfwr7ms0w05v97mvrh864sp2kxe382qdxug8ggfwma38xnqfhk220r7wvgdue0rdas2myhdrczj7ku08cf58ky6cmr9vjjsugzgkkspn0v3qhpv856eqgqvrstjvq3uaj8xwtutshfc52z2auys0ah5xnpm4a3khx8dm00ut2xpgn6epaa6lehqhk0xtlfs92vqjx7g4t7hase5dh7pwu3tjek75tml2dmqh7qn8gsu37p5edestz5n3m9fw5g0vhlurdy6ygczel0crdk0s8c94ppzvqa0uydjjy9d7mdpjkf0wllrxaerl4d3vr7sjazpzc9qvcq0qpzz63qwueayjyqqsmkd2dt0hj0e74tvp0xl2tyf2gjha5yuvrk7y2p9adw0k3qszqj455vlgyggx40xf7h3lgzky0nkzrt42m29p9hle9fw27hxsp83pdde8sstp78sjc8xfmw3qa9sp32fvv2rl6esl3sef0fgd7ynex6tuh4zdhf8xa462us4yzumut0wxkn3llc9x3c9qvqqqqqqqqqqp0t95h2f7sq0rdrv2kyvd8sy4qu60fmrznvhu5qrd500mcl5jspj3qpv705zrr2lp0mphj7a84ttsyqgdyxaq4urqtxx64kpu34nulqup8kuljvy6lnxmyh4fpmhmjcz4kz5ad4095shxty8xaye2799z7sqq9zt959ef53h6jazw9wax03fpr48vql3rcua437ugugwud9am5ssxqwl7e3vqczlrzv0clx4enlnjutr3vtnegefwx7q7p7t50wteyuftzwywcqemn8aumxhwpggrtjeqqqqmphz9g
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au13kyxn9qru0kudfpskwudqty0vukfytwtk3rdemftdaznzg8n5vps6z9dw6
+              - id: au12awm28n3uzh6qq88qywm6mdgwflpng39ux6ng0avy9gzga9quypsq2g2rg
                 program: test.aleo
                 function: u32_casts
                 inputs:
                   - type: private
-                    id: 1238568379061914436439082125843175767384033710537256790460748039921296138763field
-                    value: ciphertext1qyqpmfa3ulg82y00a005g5jaz9faznw2ze49m7tn80q0gmcw6dhlvzg7hhzhw
+                    id: 7236084546845065116693860870697859572503505445674576497934976563905002483344field
+                    value: ciphertext1qyqdr9xghl9trfxck8flppu84380exhsr3jz02rykaqcsql2043xjrqdah959
                 outputs:
                   - type: private
-                    id: 5725597129185767237492799115984123741654994756770232419465128300351414854971field
-                    value: ciphertext1qgqv2yt73n7wjs5r32qn4q2a2z52cj09kew0egyuyan9mjmzvykmcyrwlzza45r4tzfddta5ug79szg36fvyqwchav98kxev4gmm67tcqg3dee8s
+                    id: 7598798065599885895823998298610278107385274308469005951796474182391290037915field
+                    value: ciphertext1qgq0e4xcha73tcgyp9y8rhc6vn2aqupr3qkn5fa6k8vg9nkvxcljcztxyf4rw0r7gycys6wm5955f9cpxc6ax9ycg77u3jxrsmh97v86qs2sfvyn
                   - type: private
-                    id: 7333347907677522541484966326317806550067507219865374531832320754382315748044field
-                    value: ciphertext1qyqtznex5p2ak5jj50qt44vdmt3qhe4wcq53cj0fhvakvy5fpx5xcyqu7qc2r
+                    id: 2964067432477124355239570609143604356733720269312275467448413697518307030907field
+                    value: ciphertext1qyqrwxge0v787qky3ke285rd2y730wqggfe42w5mwlw2hh0d0lq9zpg2w2qlt
                   - type: private
-                    id: 146370749008111009296780866102529171059908355426558484700674545244554765982field
-                    value: ciphertext1qgq94fr3wchz0lnxrthlj85kp6jaqrqr8yznu7lxf6zg8ea5c32pcpejfmw5c64eusqscf69x2xw2smuqh34ca4ms9d85l653tclywnupy8my8kc
+                    id: 8283596836520120608078205532008271643288171688822995264721071485687545693331field
+                    value: ciphertext1qgqw9ejqtwkhhglqvcut3dv4mqpla5lmq5xrgtq8x2dpf9ncjznjkrxn6fvqnx55ksw87g84qvszq0nj6afnsxmzlafu7pjjp65phtglpg529cht
                   - type: private
-                    id: 6159760596703975460289974159009614167589065835860459980717366528160194142287field
-                    value: ciphertext1qgqr4e4rcya3mr485kgl89z4jpec6txsf5umhv8jcvga0t4a4hnzvqs53lu07wgpxzrv5xf32advz9uzz300y8wg4pc2tr5s8tqp63z0pyhsqxqq
+                    id: 5811742278707466642655569362697209423725689477002116813600977242806821684617field
+                    value: ciphertext1qgqzgdmggenhrgnwccnrtj539j875wu46j9288fyfktwr8unn29sgqadvf2s30t3wxy7l7ahs9lm0ykungkm08laxad9wj0pprrelgykpcpmyza3
                   - type: private
-                    id: 3335791211180361954968113262867967297705280247514352687188681295336769917971field
-                    value: ciphertext1qyqyu579axl7u3jz7jwz93zesympczhu6ytxnyv3z28tufnz0lrdypc40kpms
+                    id: 3760109481617208619304237954663144915868786576520131293747469857000089155525field
+                    value: ciphertext1qyqxxkk23yfwluqw0s38eutvk6n2v34cv54auqdemxdh2eveq5k6srcg4ga52
                   - type: private
-                    id: 4421547701331335179462087075250300725790721366387797869351541337756807941561field
-                    value: ciphertext1qyqx52q2zqt3zxujlhvnmjf8uqfghpwq66t9vkvj6san2jkscudfxygl86e0m
+                    id: 8141117540072491727575665777577684742112507511208054515933418809721416125117field
+                    value: ciphertext1qyq80jdsuqajag3jk08xrjxg4k2mmzunc05ds2nk79ary4ta9yr4vqg9mqapd
                   - type: private
-                    id: 3870775569820903895467175603165695972087440198324336317450501499884199871366field
-                    value: ciphertext1qyqvhxkf6mhes3908emwznwdv6cnzhajvf8jgm2menxl0mfp7p8q2rg9gr50c
+                    id: 1569591867677656998957385622528762165928642780310184244500532571679933155173field
+                    value: ciphertext1qyqx3y7cjet2sevvwxummaqwhn6lypcu00v0ngdpmzyxr33ktumdyqcj75ax3
                   - type: private
-                    id: 1953691054908856901467093809545374850243343085901826615905114163995259853456field
-                    value: ciphertext1qyqza6seh9rxrmjtnldcsjnd6fvfhc4rgvs24qwypm8wlzsc25c8czs94w3y7
+                    id: 7717236527539319508427101804482182851809828370138602965235606401469702540506field
+                    value: ciphertext1qyqfmgwt595cv707msxrx0xmkxhx9jwyjrzf0w2l3gvwuzwx2544wrch87kmj
                   - type: private
-                    id: 907343547587304692054032288279079125146159347118523363505065252642806270914field
-                    value: ciphertext1qyqvl636ecztk9820lkw4ya2fhyw4pw7qt9maya0t7g9523qqyjfvpgwtxlpz
+                    id: 1539471803791149856742071945686644340249428682704842103939031107806364945216field
+                    value: ciphertext1qyq2y7h6qsrunsgqvg5y2nrapqae97q0hx9fqk7vhzxwudc9k92lkrsk003ve
                   - type: private
-                    id: 2871441374575354535036533746850093328699441713426491315810837175536180012442field
-                    value: ciphertext1qyqwhph4l92220gkhfqsv84u9n69qa5nddeghalsa2lt9l3gktdmvrchcawuw
+                    id: 7784479352860827778826284545257256077173910894205502578063312054995967660788field
+                    value: ciphertext1qyqqamedzfxcuzrk8vtaxm2mkem3z8wqt4h58vlk3rc5r5cl85zljzgcfmu2z
                   - type: private
-                    id: 4382409144767996087651092594623294958175081711322939607670021051612641372191field
-                    value: ciphertext1qyqq0wsu24cyv3klsrpf5zls9k9lx3kpvn634jxqe9h4ytv7z6yt7rchppanq
+                    id: 4735753663647558340915679673244414506428855439959425116261819348900248516871field
+                    value: ciphertext1qyqq3cqhyrtg9pza9wcq8fdj6aqyg7qudhckehgpjr8txs4xtkjqsqq85gvga
                   - type: private
-                    id: 7884003594089142612726676313525880154580279813461295207249992773201315830902field
-                    value: ciphertext1qyqt39d2h5v5rnsmnmk5h7cemd5q7lcsetqfpqc3lcpu876s3h3acyq5a4phz
+                    id: 4195169584325601350371415022286935496633185884573077583055654737050353147323field
+                    value: ciphertext1qyq9ykl2054y8l7r3csujf4y7a62w9tsl2djcuwk9500yc6pw2nxjys9arurv
                   - type: private
-                    id: 8036995569371794740185387295251075684438743263754154903752476892092644573951field
-                    value: ciphertext1qyqpa9cnqgz3d5ka8e40x4hfsw0kmtsfyce9j5lzg23hm3zv6zr66pchg73du
+                    id: 4469912029286615326500339101524641782868067321736093639104491711221538161704field
+                    value: ciphertext1qyqvnj6xlnt2r54rtgraqnmxn95vve7arzvpxvkt2ky0jejfn9qrspcjfk6l0
                   - type: private
-                    id: 3819160305973673029500064531311552295171479549120826863307344700441678934703field
-                    value: ciphertext1qyqph8vfgscxccxtmynqedluh0zqy2yuvu4enhh8a87h74dcsf56yrqqxg9zn
+                    id: 962910814862685642683938849651918553647991122843910186100537569436275515771field
+                    value: ciphertext1qyq2cxm2g0dxl5jja9klg65g7qr4rvej80g0da0a5urrtdzj2f7lzzqrvepnp
                   - type: private
-                    id: 3609742459831301640085001330848718801515109406646465319529859424375789795662field
-                    value: ciphertext1qgqvy880gnuwrr37d7mcpf8zwh6jfrf2k5utqlsdnc3elz22nyc4creupurqqmyn5tfhj24ngytqn8p5x0nyr3xuc23uvzav2499wjauqcd20gj5
+                    id: 2338405727876186013715012010048216197704919840655573997610519016822489886780field
+                    value: ciphertext1qgqrf4uaf9apqznzlpf76gwqdc63tyuxdeym06gnvj55jnd3wu28wzph22ahtjd5kkng6w9q8j89ct3ndr8qg92xw29mle3q8yhe4ut7pgj3hldv
                 tpk: 4507852171669942629788145523597661211642858626903012456282471765291833061602group
                 tcm: 7032518385704779676687984897811170944738427055761636745517196254778557830150field
                 scm: 816986736494770916051049088585543038838455492345813021206037992651592692866field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq8mvef8ezk5lmswa577gudz394ja7rfs7rsy3sjh022h5wcmugwjjqksj2w4y43ra605w9s3g2vvspqyhzmj3u8eprklu8g7gw2jx7fr65vksvyta2esyggl6przw74tnuezam5lundrder3mwyse4ndw9dq82lh6xmkk5l2ftpnycvdf09enpvqjhwe8qrc58l2cxkmkl9nv9cx8lwudlc04jedlfmtwt8tclxuqxjne2ja8ekgz4ez3urujedrv3g2frhmsdly6zld9vd2v2znxedwaccp658xxkapc5jrjkxv02epypey8kn5mtrx57wvdnxkrgsxf3702g39s8rzvz9l2ggxst2zmhgdllhqg0hqeglj94hpljm2lf6klgqy9p8w0et25jpdyfxf7v652qpzfrmrjz8mwvrneymz9g6uaslf6ukd8faplh3tysn8xgc2mz2ptlsxrzm3jp5sx5z3e9xfavtj2z566a2fs9ztfeprumra2yhgvfntg3fluqtacpzcnrk6cjjkcpkp5t8qpfsxm9s3ul5zjl4n92htwjq6q6gu2kdl6yslwr9gnpkh8m8z25857xmvedeyfwzmly8pk294gk25qmklp4lxze6226g332uqt4a75wxmhfnegv2wnpp7zvc426v6w49rgpgv0p9fyz4zpffvyqvcur2cuqtkjky45g9g0fxjzhz0qljmgkxmmknjgr7646qee8gglfle3ulvqpfzzzn4reynrqg7cscxg8zca8gxa65y9qkmyhkcs87f6qum07spzcpeg5jemx20ueaxztujnf37395x3dgtffuwmlcqks9exychvlqhgff7n48xs57jj5sf5ppgjc5vs8ywl262p896quu994kycuewwqpss4zd4jchwwufrjpvd83hgmz5e2epdfah73hjsl5khvv8gu9vc8a5ru9jg6ez6scgrqght6f3lxpssn946steutn5752n2vx7q8gy8lcgs2gf6ll9dma2zjpe7wdnu7j5m9t5z87gpakjc3mm5n50xeyzqaph2fmjtel9xpu3np4q5cfstvl4n8fstcqn6yqwdf28kwdltkpu57kf90gf7ynskdkzj0jmwxezex696zj9znldmz4fktmrrpk3j3y5jxm2gtsq9ce3lmqunde4lv4nezs5q5ux93u8vea603l6ljtlqvqvqqqqqqqqqqqnh3qaepaxul5ghs7yhredmy3yxp80gxavaaxecc4r5wvtjkek8tqzl8d3t6larl6l4sql3ew0lcqqqd9w5menjln7lc5yu6yvqjxqy5y9e2vp0xpr4ewhmhqfde2e3vna38x4xnzzr0j272jf5a6q2q4uqqqxu8rvlja9j5vkd804c0clu4jr3we2ngklt4shevazxxla73k95qnsanjhl63cv8x7mgyr6lfzjun7zgnmep4hhtw0d37kxcl6lwufwdxgpd2h7xr7m0c24vph7pgwhzsqqq55rp5m
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq27jrjk5g84ujtzpr2mw88zg5a84lzxhxfkzs4zfu33phnslef0lnv06uz478vpurlre39vwkfszcpqyhzmj3u8eprklu8g7gw2jx7fr65vksvyta2esyggl6przw74tnuezam5lundrder3mwyse4ndw9dqzfdwvn5t5fsdkrdp5uh52x3vr6sf66wzdv0lv4uvq8fu00hr7ppj62d6spv5ga5xsjur6z0apqt5qnhe9adgpfurqw93t8pmur5zhp0wdc40afnycqdyeyezkaf3vqjmfaexcr6ef5a8ac0pa85yujs4up4wquzke7fsgg7lt6quc248qs47vslfha2x0l5j6jcjgxmda27ug63zmvtk557e7znl4n8ugsq0jqqzdxm8kh6j4vkhg6axxgza63n2qe6wn2fjvvjd9fy62fg8zzggfvgmm7yv3pq53avz4umkqvmnfqsppfvylxwxn8dnmp4t7g765elwvdvfpp7m5tw4sevur9jv6vzzq8qllzzagykgpqgfqzr0wt8myxkqtj8n3m2jvulvmsd05ccxc88q32p4e2atwfhe3aet3ull8kela0keq5799chmhfmxx4fpsxj2fqz6q9wz0j0qcmgfwp6jygq9gcrsv3ulxy733sc08xwv7kvp6jjzplwcy8apypw0873jxveg3dz54xrqsq2p28tuycs9gq52w60ej6jq3pvjs6ghkyhqvsfuefvf8hwzwcwqg49j53zcz9gv2s6xv2hurcpy9pux8fhlhyx392k9cpv7fntnpzsreme5verr3nhd605h47v9sd9exfz3l3k4ghxwn3qtd2mf757d0xp6z9ry3e2exgyv4r7zhcmfh92l2a6as68p5vx3anq8z8ra26sh9sqfms6ah06fqfe8sgdlhavfchpp9msvlegdtc9ttct2lp0gqpnysp3xdagup0mp05w0sqkmm9x2kkyyu3v5clxc474we27yu6374sz5yrlxn8k344a4wgkdwwczx4tf2vrmyjfacumvgql24n3cx9s98t2yq4thjamlsagkj2w649xpcczccz6jdsuke0hmjd5wrlhr8x3uspzpfvam8gu7vx6dl0caeu2r02kkqc0yccmt8gmtpqw3k33cgtht6qyh9q7yn8dw0k9l6u3xa9v2xj7akf763agsle2rsr8lftxctf27g3qvqqqqqqqqqqp2rqswj5kh03j3jnka79arlrs78u62hwcaj5wt04g7gykzudtjzcaj667zwuzxvhqsra7xjzja3dqyqqxvfjkpyvas20vg9p5mkprxzs6wcee7vtrq8wt7xzzqmfe92n6v5eqx2af5algg209kq7f9jp80vqqyp3y602ejys64fy037wqwn4m7svjwl7sglauy6d5grxnee6rrxqepwskumht5y0th2x3a48pa8kh83tpum7t5m9gl5dkewu6fmn6z6edltdva052luxl9tt8nreu95fsqqqesmnw4
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1c8dazy2xpgu5sj8z77va95aanhgnyngxa3zdlmpql8wsf7lljvzsxljpwv
+              - id: au1g3l4g6y38ddz2nxjxrzxpdfaql487trgrwv9a9g45hffz5lpp5ps5yf4a3
                 program: test.aleo
                 function: u64_casts
                 inputs:
                   - type: private
-                    id: 2749910612060477920956305134533026092446464241566553618012290189490922823752field
-                    value: ciphertext1qyqdl73tlpp7sy2cewysu8a2hgvnyna40vsjd0vy5x9y3usjlwtvyzglzqwyq
+                    id: 69210854914602681200056072062550603189254388675900646488456059358402735149field
+                    value: ciphertext1qyq8uuy5grhx563u5g9agtt0chgtct87ug6uxu8y3hejc2yguqguspc7jwfwf
                 outputs:
                   - type: private
-                    id: 405231966192092004552024677317619933148160437056680734630871086001042129057field
-                    value: ciphertext1qgqpu206tfql9dr3tlxhmyr7p0ff6e4tz7dwgvum37m2fhey9udhwqmqallvhwvwj872rwhvjq5u4d2tp7v65m484pprleq26zczrn3jqvx0ve6v
+                    id: 3560194225211485712191079614652726449617704334945111912405331029835672647366field
+                    value: ciphertext1qgq8vxgqpl2tp4h9yw8g70nnnrm562kymx8qznuy952v8r3923gnsq37a62sqzjuj90nd3ycgjj9grav439dywc0y9xaj0ap967hnmnwpgkwfqzm
                   - type: private
-                    id: 8368985839155241697952462425707149964617197198363053626268671361485589458456field
-                    value: ciphertext1qyq2cl72c7mzwzxahjnrfckackssh3aku20pyw5nh4td3hcsugtsursldf5ns
+                    id: 441789807783333886812402856936268516941556441432831145493133721468756755088field
+                    value: ciphertext1qyqz5ma9x57l3lff886e7g3tquet2rjshrv6qlygrdendms2r6mq5zqfn3u0r
                   - type: private
-                    id: 8124852196514089293627591635461317110988617490694585039731456230500800259285field
-                    value: ciphertext1qgqpa9aqehp7zt9ez4vjk0u39mgus4c6ma6zwrr552yh2e7qgd0czqt2e898zmrcaxdw5888ylx02qasqklmm3qugws6a38cy0rknft3pqx04v7z
+                    id: 7971948859041440170860674243802909928042986722910531389638817660795376810517field
+                    value: ciphertext1qgqxh5yhp4yc3vqcy3s738dmap0y4r7r69gnffggnx5hdslul7f4sygl8q89xnj8s6gs8mnx7nj943mdv59jxz29hzswh56f7336n0nrqg57rc95
                   - type: private
-                    id: 7098024816148014445496464270477143235338556784127115472974296225253042219358field
-                    value: ciphertext1qgqx2efpgpum4sk0yuzqzy632jcmxr5sax84n4mauw6kfdyjeu6rgq0k2talm6ktk3zmjvd2p7g2p2q0zsx6p452q9ldlet53sahkqd9qscfag9d
+                    id: 2936916357790092407523102445828901897729707197504075371922352862973048615633field
+                    value: ciphertext1qgqd6qree4qdv7lvlqa4vnvsrvcerd0exdz5lxpvrunvn5jqtj7vjqhc6rzg2ca5uum5ztczyhf7x9ym7fyfcwn9p7vmk542l440002lpuqeetpt
                   - type: private
-                    id: 3916321203726792004007551249271131421071546349412001013040030177635517684165field
-                    value: ciphertext1qyqttv8mgn4ctpauccv7r94fm4hl4aga64tnhe8dtm52hz0vjqescrgkxhhh8
+                    id: 85748811484416525618665487036303129564987805833961425183255583541685625095field
+                    value: ciphertext1qyq2v3atp3gsyj3z8rwfsn6wf88a22lfsa97cwnqe89uwg8amh4mczg8ejmhv
                   - type: private
-                    id: 5685174652799523181371348963828664790965194953717090927696859737181596905647field
-                    value: ciphertext1qyqzxhxsluy7fds6zz8shsnykvqtp8f55jr5895drezdmljzqlv32qsqcs2pa
+                    id: 4603054768791081332152694233460764041203201671524404248120159218347256463565field
+                    value: ciphertext1qyqv672em27sy2tdq5syt0rgq608l24jxcj8zsw9rtgkaz37285txzqpmjmdg
                   - type: private
-                    id: 7849187121593814215232470433185423454873915368998627865739452348252541702669field
-                    value: ciphertext1qyqwry6ngpnxf85hhsx0j4z3uxrxt0d00fanhymrn2s8xrgul569gyslajd0v
+                    id: 6570097592158556501104487694845868889121811672389108827905807053341047103034field
+                    value: ciphertext1qyqvgdj37q9wcqn2y7njuglr74593ahtps04cmyvethj9lanv8g8jqs70n44c
                   - type: private
-                    id: 1203330946876193775638723955754294448159572104787062021044808289680420242582field
-                    value: ciphertext1qyqg4gyn9jld95y5ms3agljl3l7v4dvt7s0jll57vqdxqfdyxs0guzcn90dqf
+                    id: 1044995182022441556797404307175556099119201867528705311945029663405291200910field
+                    value: ciphertext1qyqghy4ze3axs74z8y5k5xu3st07f60qtku2zluld8au5n5l63r35pgzfllns
                   - type: private
-                    id: 5800365010993353325708132730922367225673404607688980592937034002476926800164field
-                    value: ciphertext1qyqywmyv4yez0e80h36sm2nf9de4y3tqhsn922k2z0jzaqrunlhgqqgxvwh9a
+                    id: 3651689655766734882734992374364431080896235233904521904311820973650909210611field
+                    value: ciphertext1qyqgmku5cx2nhhawp8zgzyn37gspplakhwqm0946nf4tuk2jwa8v7yghjqe3j
                   - type: private
-                    id: 5058705812536443107343725723889978492354411982103919306308617268976729465507field
-                    value: ciphertext1qyqrqmzyrh9psvtyutxzdx7fy5a298k4c22kf6erwdg0kq77gse5krcprvv6m
+                    id: 7994073243477768997750233608032004585664908607977067024705023711694532064324field
+                    value: ciphertext1qyqwvcycxy0psl6wq7mp0rth9kkvthwkhdqwhn50cfv92pr3hcvrcyqhz04af
                   - type: private
-                    id: 6680264334233556177014673984057944437979691522707096634712512792655355036089field
-                    value: ciphertext1qyq9dzjqr5a5cl5zwc044c4cqmftrzcn66hd328wpn30p0rnp56dvzg2gnx8r
+                    id: 7353587939675031437239001994935847659183914685555298418743236222539281251482field
+                    value: ciphertext1qyqdkuzgl8lg4ex3dmcke0nt69ak2s4juhuuw5ypln7tfz9r06gfyysk0nqul
                   - type: private
-                    id: 1014831909774707143327842035880267241041508042002735582317264295222666455682field
-                    value: ciphertext1qyq2zxa2kxhmujjsw2wkw4egjhpg5309qsl4qgdshck8fu9g7xdkyrqvtqanf
+                    id: 5736884356680178076162826196722370419560243458640370304564325436071083789111field
+                    value: ciphertext1qyqfjxl6h0apu0aq02rxwu0rev48m76e255kh7sy638sr5cg9l43xpstp03a7
                   - type: private
-                    id: 4851981273418626462077028278920017816977060348451159779285166484003951364883field
-                    value: ciphertext1qyqghm55h0qc0wfwf2qjwejp2zwwze5p5gy5grhn9eqccz82s2wm5rc26c708
+                    id: 1717144635725831749078328279343827937915827185259124554346732179420410693114field
+                    value: ciphertext1qyqwv2c5xyjh3ncwr2vz6kj6746sqawenpy4nvngudcmhduc8rju6pqaj8ksr
                   - type: private
-                    id: 7273941439210784285335858007406891672614253386688421815611623024616708259204field
-                    value: ciphertext1qyq2ml5umdt8c620tq9deqhmvhzrlqazu642ktdky7q52zs2pjcxwpc0j67mw
+                    id: 7284431341274968702722957611851215353113271383956036509188273917912547446159field
+                    value: ciphertext1qyqrrzqturaymapkdmepkhfep90rxhf25a9pp7pvg9jrgx9n5fkukrc046rtm
                   - type: private
-                    id: 1734701257964636112106235464808140389823141882961699283600971220078974351773field
-                    value: ciphertext1qgq8grmm8r0tt3z9kwvgfv2jt2tw2z9rgll20fx5wcvady88u7rncra0krqwp27wrza6efuzzfytp3qc48a5gdyar6cr8vp7exeu0l0hpq2lydh9
+                    id: 5884643911363374320938526984035732326780040776617839460202703827273754804912field
+                    value: ciphertext1qgqwacacev5vg80ndrtyy58nf0q4ptcpegyu0nh7pqjkssejdeajzrnx7x8hssxgd0hhaks9h7lvcxqxjcpv0nzjmrm2hag45wdv7jd3q5m5h6r2
                 tpk: 833619835574924835793185181218334042827032578501794111691200274078686696146group
                 tcm: 4517935476563955649653955782200520268985680612617012586350145800182489652486field
                 scm: 3319230192068188695970721294646829278136374477769739107604337512329466482496field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq0xsselhhw6waurkrfhexdzkmdgcgumuczstk3789zqnrhcmmdmg3cnqay5uylc7cdnk2w5s6t4vcqq862ud722z0uqlnz5k7l5wmz3ex58w7r9u9zrnwgr03l007lzjdcr9j295p8fus6lykdz90g57ageqrf85w9vav0j9z543p27c7duuxsayzkyz99kdys6gy9gwrah4l3uzksy4hj0df34x2gze5f8t3hacqdepran4cg0zfth2zwpamxgp6mt4m9y8uhddsmhjr6sjre25lfwlm5ryam25vfz8nrtj3jfpmnhasq0gv4su7kzq953khjdyayrcjpdmjqh59fdu2al8exmvz7zkeft3mwhnnkzk9drrdd5zpwam693ahcqzs4c98wqsxfak3tachje407u6jp5gay6y2tz3w83jmntc2z2fxmcdpuv2sg42pykav4ws9k99zssxuflpuy7p2q0hksjq3u4pyk8q75fqyq06qc83ghxqc4hk5zmn34067d73rcxxse4uyyck39qqnyyqzj383vz0aevaymdp9nhm0xsvlluuey0m5x5lv8yyudcdshxn85nfvh04l8sp2x4h30pyl978dj9jqc252s9w5x4ykunscgh3jz8tmx6m22eewxgv7kch85zsnq737uy5np73a9zqa3ztp5uj0apxcdudsq0qtarzk6dknv8sexxgrrk3ppyav2rvsykjyllwvqvhg7wz2kmcxxek4ssckh3jujt7uleguuqds42el5z7kccy0thyzvlec4qa3hxr4g9luvqvxtjspxfc3rzuk3q4n5xaegfmyf95axhjaw36l26ucmqu02k43caphpevlyzyjy3p9n3nefa7p564kf9zra0gu3v7ucnhwqv4hsxdg07vldn3k4w29uu8kkjv8pgq5tkxlxnauwwgdm7386w6gssz9mwga4g8e4cqxjq2tjaerd3wfmyag9x5llu9a6fpz4s9jrpu9vvmfg469mnxsp6c4cfpk7hpa0v32nwn9nwf3dppdd42k0pcyrzp9e0rrdnc3z8hsu3nfvdv456mar5enj3jphwk399vt84w43rpe3pshvlc9sa0n5pxhzjnvwv2utayw5yrtx5twxuahxzfv2ukfkud3s8f0a2hw7jlvmn27x3gzq5aqr6xkghfeghk4pzdvfhr8u9sjm7eqqqvqqqqqqqqqqqa5yw0qsl5nkrsufy3s7nrnn2cshrlnfhquq363wg7d9rrjau5ry3xl47w78sadd524qfahmwe8ksqqr2aw4juklt3hc7qvf57achwns7c8zqffcaa6p4wj38empwpygwd5w32qmzargwccuzr70lrmms7vqqx2k4h8gkm9lfzerva0q2hxaa2eelsw809p939kcyemkdhvh3uyppcslxywunmx5kvwasc769tmr985lrwshvgleluprwyw7tzdk9xzdyzg4rvq2aua8p322xr3tevgzqyqqzlrved
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq828j8ddc65xvy9v4w66urz558paxxmey7gapqr9u6tgajwlnzr2lgq3du7x2dn0atzj6607jqmrypq862ud722z0uqlnz5k7l5wmz3ex58w7r9u9zrnwgr03l007lzjdcr9j295p8fus6lykdz90g57ageqxaeekweyev8t3vegndcdp5pc9xgmdjkusulxl5cyc2976adv0gdr9tq64sjrcr30va0n6q4mu2hjqyujcnpcfdatzptk3h2c9zr6zca5ac3axshfa0hz0srde0gvkl849pyv82amvsykafdzvn488kwdcq00h6rhxny8ewm7x2ldy88tw7v8sdz76jcfw7um9g3den4eejr7dyjw2sxj99lalngmeyl2jv9zsgrj6tfre0ypzaw57elzv9l2xnq2rrds0janrqs2newz2m4374d9797jyj8r6mmhy3lfewqd27zp9dqqna5yu54vuhzr5m09h9k88rmuq2vnrasxg3akwtqt36en27m0qqy43h6y9u0a0ud2kcjc540gexkqxmej74plsxl6zzwpakqsuhr3s2prjp4fk3js4eyfv2haz2ng8w2wvl7r3k9nldgp7qxan2ntuzygqut77thrn7uasnn25up08r85xggfccrrkuyr3c0q7huket9lpunj3nmmcvvvkksvd9rvzzjtch76vqsc34xp7rpw5j5qw2tpcmrvjhzxdhqsrpd2fs5jthj7rrhyav5qgymm89xslc4v3wry0zshlmw3csd4uwkgeq0vk2ftr9uhduj3hzxy0tuztmac5lrrpd7xmna5zjctw2mewvxuk6a26ns3zej93m05udqgxdqcehrqkeuk5l66lw8ek6wk9c44uwxyau6ms7g3uvd0snch5pzu739lg0u5ukjsh4tfp6j4vssa3sjd7f0pyqydla7jt2kjd5yssdtcevah8lewx09ldqlpgzhz9glamlnrffcpcss52h6ynw5dcj0crgh52yfynv29dh6afmr8wzewsc8f2hr6fj92whpkcp4qn7kctp2qs4zf04x54843d9ffnfentad6w6lsuzhwq4dghpeyy76r04z2d6qqz0lck9tj4520qwrj5m93m4az7ex4s0p8m39jvzg62kx8fdk9fqe2efjxc4szx6ndjl0n4trwuf3qfmvfjsgv435fpzms4dejju8agfqvqqqqqqqqqqqswllkt3hupwnjnzhh20eza6plwgyc4aefawlffkj386zctqh6r0qs6sx6kcjh0zzakzfqw6r2rdsqqwu9ksxv6qdj3de6a9lh0mycwka87afe7kgrg3yxqtnxdzk5vt83eetwkth9t7f6xq23nllt0awhyqqy2444h5zqdzmd3g7445cpx8cxj06d9n5752f7dqacmmryfkp5kqphuttpzjqlm7746tjgz7u587ju0agrylc5n0hpmq37zsuructt4hvdncu0thdz66jwh2mtsc0sjdsqqq93tcx4
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au1jdvthf8stuw8a5yz2cvq4dcwg7dkzcy0vvyu4l6rflwayu8h4qqqf4wmyt
+              - id: au13x35l0hgehw4xkch04zk7zzh5mtjkw2av7lfgksk7pz4e5vqvgpqlquh9r
                 program: test.aleo
                 function: u128_casts
                 inputs:
                   - type: private
-                    id: 4775555650528118924242390731170676578438456199985184880707106392944648436931field
-                    value: ciphertext1qyqzudfvlmvfd04uk7hrpdu6ur0c7w667aahrsvh3cv08us23a40xzgkqgd2n
+                    id: 6918859327660053486385030020941669244199673810346182265036004146112177156979field
+                    value: ciphertext1qyq8f67hy38nx0ht2s8dz0a430ws4p7fd4caassspcy8e2vaudd32zgtwl3a6
                 outputs:
                   - type: private
-                    id: 4179689696485228188109840116631974453537438037185294583675059972271318541752field
-                    value: ciphertext1qgqwv546g6n8s5fke7qk0al44a5h0js7rfh4kacpxm39uu5djcy2wpr5ypq2rl6ruc2u85w6cu7m4wjsegd7xlc2vrmkkzjq2qpke838qszmzgx7
+                    id: 2243160162306483524767918440765882639815851250769269640501971747757108039293field
+                    value: ciphertext1qgqpmjmpsfme4wtj2jkvs8quhm5t3hvsqwgndn9sf27xujf365cnxqla6q5p5ls9ge4w6t3flf3qnzz7nh3vjyxpr5urgmjj3e5au5lppv9njxxh
                   - type: private
-                    id: 4654248225819979071520352979931751753963981000337158140837215303635592039526field
-                    value: ciphertext1qyqqefq77932hwlmtwh9dypxngafyeeg2pkxvmcfemc8fuflm45zxyq669ugs
+                    id: 5497714318492411812839196601543543908737644708158751785032777598278750275258field
+                    value: ciphertext1qyqg2ze07e8qq27m32cxqrvh9jkr7aqmjeu5gn62v7fved69tfwxgzg5fuu9m
                   - type: private
-                    id: 6417704876620074501986501931957311136186301284048568466720600504766270699464field
-                    value: ciphertext1qgqghsssqq5ylpj5r7vdwqztagqk26vssek9vzhhsr6934pe76c5jz85jf5lktvwqleaurus4cffan0ju2zlplav3va4wrl0lz84m8hkpgxvy2a6
+                    id: 896959519227926151200807276680529979679555115914509258435128153636047380680field
+                    value: ciphertext1qgqwv7hs4fjuqxnxemnveezqvexrayyzr0eh6aezq74gr05yg2q3cyfuulggpzy7sfj2mdsruhknunwwnl45szp5pm68hggcdref7yg2pqjcugm8
                   - type: private
-                    id: 7787262610816155513849797721328140736428180653290119602588463932994520646071field
-                    value: ciphertext1qgq0q22yys77asl7zt350pcr3h33ljeez2xut8malx46sv3w9jt4wz473kl8admsp078nlg9h2jqq6pqa0293apl35ht02xw89jmkxqfzgnvext2
+                    id: 3391318897538673010788682969590505414179965893017583047529849040751003842987field
+                    value: ciphertext1qgq0ntsjr8cehpfy2jw6u3ag8rypd6u9u5jhzmtg7zyd5r2wu7syvydw7jv3udzkwyhgtzpf3zcemf0qzza0cenvmz3q9st4vltgwlwjps0wqcjd
                   - type: private
-                    id: 7522478204446451593422564014226709871313198713481304606256097406561715575923field
-                    value: ciphertext1qyqwvm4yjh5wlc5ffwc8kvwd3lasv93pyu097jdpexszfjl3rqun6rq5ul5j8
+                    id: 4692808172502171434056699912513427830931146174252912391836869356975926858184field
+                    value: ciphertext1qyqxaqz0qggjylh8vq2psupmr8yxn3963ed30l5kkg7u5llrrc247pg23vn9s
                   - type: private
-                    id: 6944567981308090524728686031919185004516103579463239116900262262639093586727field
-                    value: ciphertext1qyq0kl6avcsymt0ry2g4xwwxax28he7gr4h9tfn3sfjg8hmpze4tuzqfp38hr
+                    id: 3846754239985963926483388985262954636249074046062114432381994322052229783651field
+                    value: ciphertext1qyqzrpqcqycclcc5ysxv9sret6dxj4pczhhps7wy0se4z9nn93n5jqcv546mw
                   - type: private
-                    id: 5754835583751689779401607082855641514464094625075626562679447780690461912094field
-                    value: ciphertext1qyqfxe5es6nlcpd8ejlu5njwu3h68uevm0gfh9wpy3wtfsez9gze2rckmfh3t
+                    id: 1720292535526263454970654027460643030763339689187648480764548084746246006377field
+                    value: ciphertext1qyqffhm4z2dywene8rlutd8p4ll7kzr80sdl7nvppduwg3fus9dpvrg9ae57e
                   - type: private
-                    id: 6739490964141661673285851318704702622943939531466425472750356239296322179996field
-                    value: ciphertext1qyqz4ewes70l7ngjgfps4nwfmwpxy53c7nfmnszsnvklrz0t7f88grg4ceqdz
+                    id: 2594914215582124916904118787724303907438060474186852259532957143234609501832field
+                    value: ciphertext1qyqwcm2nucpwp8scp284v5cvrkqcnr3z0q38cpf30ddmyu08m0t8yyg9usj9w
                   - type: private
-                    id: 6734180694404603558838128612804179425523469653554552866569769012602862472929field
-                    value: ciphertext1qyqgk3js5s8yp4met0frmjhed8awxt26dzyhxgqcpcwatpzaypvykysreqq2m
+                    id: 1866954837056989144198345522574352048518693257484528414720625661576754471780field
+                    value: ciphertext1qyqv3jy3gw0y2rer3f5ff9t6vetper4j2cxxd9ju39gd0hdk89365ysl98p5g
                   - type: private
-                    id: 5882520639085290626254712217176976001984051496763262811714572631015964660235field
-                    value: ciphertext1qyqxckgk7u0jq30phhsd86pcphgzehkv4xv3cjmpvcu07mgk954vuqgkefg4j
+                    id: 2672886259607221216360104294457272414324077611059763442781820854001945472835field
+                    value: ciphertext1qyq078j3hgusas9jhvrrmc2cmj7tqr697tefaj6qev7kdgztlzd0kqcml32f3
                   - type: private
-                    id: 7291766681402960263568556863140123941811762501224294318713806905363720356790field
-                    value: ciphertext1qyq05gfaypvz62rq53epas4w98c32tfv0m3vcpvzh8gh896xvr99uqqvjwfqn
+                    id: 127385636905627025980390033650368866012041946181514933597487335035221145720field
+                    value: ciphertext1qyqy5atj8xhfl25nwn3ungqcfr05mmjwfkrxp7xg8pvafdw5rvw06qs3fd023
                   - type: private
-                    id: 5035258056689604058117579668963497972840077858767214454249923657688778541402field
-                    value: ciphertext1qyqvtk07hrtasyrk50vm32w2rzx8u3kwfr2x3ry2vq8j4xqw4vqh7qcp38t3j
+                    id: 7495327988857463525359810943615568454864501898209535395233657556733860804838field
+                    value: ciphertext1qyqp58a2373sspx6pwuj9pdfff58jmmuxvj4j7wl8x5cn54vpm9scrsk79sa8
                   - type: private
-                    id: 2482357052148130516971015732546616792304713889933914354193985479412832814763field
-                    value: ciphertext1qyqv2zepxen36derth9vppj2wjjf8zww49fyq3x28m9k09nnr32zyzg43mc3v
+                    id: 1289957056233414645851845909376932494439418147406357809711429316401890206689field
+                    value: ciphertext1qyqy499fnte60ncxwvrkq4cjkcdef9cfcxs2ztnaj0l2qyvkc4gvgrstf7z8m
                   - type: private
-                    id: 2343969025859447139180409549501121095802893053375404635629278000210968998141field
-                    value: ciphertext1qyq06cnr87mvygkvumu43a4cp4cfvz7sn0thm4430tcgcpu5tu8mqqsppaz9r
+                    id: 4589343989209892876581829611873062256036718172127236943157262109155228829768field
+                    value: ciphertext1qyq2uh65t8j2vfy79nnmj5yxj8ly0zfdaxpl49kll2xe4ks2sarc6qs07nae8
                   - type: private
-                    id: 1430584659843913867138564234012997961393734800958586631232870981880186081448field
-                    value: ciphertext1qgqf3g6tgd7plfeddk2mgwm5uk9xgayl550xswr59wykr8354rajqp9rx4sdnjjw6vswux09gyepwxn8n3gpg8vpdcl67ulnsm4zayuvpspmj444
+                    id: 5360910713077316470835024879176783500441586627179028519196635149163095192857field
+                    value: ciphertext1qgqyxq9r25zfh4hqajt0sxqt6m3l3hwudunlkxvs8j5d4023exw7cpydf0wt2l5rsek6f5kc54cxh0ehrwhsr9494srw3k2xayrxdx39quv9p8px
                 tpk: 3529690478287369466833246018450754894627897998333020372698576474613150428967group
                 tcm: 4126672860380618859667916608513630456689585549945822205275701207826869664017field
                 scm: 2360600870442711638834267026779742803143476339505054610622893443831124756587field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqp9eqe7dfl0lrxzghvv796vws4ecrylzxh4anxzwynjk8snev397tmphph0s4yqq4c7p27fau7zegpqx0432vvnc4w852wzxjnkggr9ull99tqtpmagc90le0l5j43kre89y6l26tx3p6escdvlvgmp9jxtqvqk69legs8np2g58jkmm4r99a6l0vat8wq9d6geudgsqpdtfn82ehf2naephjxuw0nl2pfkzp0nqq8d5t49epl6dxp9tzdpsnw22xpfpv3hfkres5u7772zr4cmk68xnnrz3l4er3s2mpvux0ypujzeqypk0k0sqzdyh6q4ch2w2l5avw6dlxwgxw89kekpvupf39ufkufdwswtjz0s5ygx6nptgza8twyntgsql0hvuqgeuhnnzn8gws8na37cwdlamdttwtj4gmxz20eyzm2aqywksm5x54hqgm5wr3dmd8f4mtps94ddzdxvr76jztrahyuxg0ljalh9mujvd6lk0qyhvug6pjfmdrrmuhu03dxma9ntn7z98r25fj22qgegtu2nzezq889d0g48lke957q688tljnmzfjgt460653hg90mvp39t834hkhnamtpwh5f7qs2euqwnl5d40mhud3a06dulrrmnf2euynxuaqj6gmrwyp9mqfwuzhhj8zw7jhe93a83u5wze20t3kj83sqkg4pdvcuget7jeww7qczwgtrl0jt0ev9w3f84mq7clhzx6d9yspxmc7z3afa3qg9tt82zhxjkscxpvkgexkcf3d2kvh8x9seh05sqr40kaduh8c57jcc0rxqdnzqyfapsqdfm3yfljkja2l4plxqg244qakmsk8uduw7u0m2yn0w9pv30vawzu26vh0m5vm3ykqk57x2ww5q27gj4pjhf5dpzzxytxwjed7seyln3ygltzxvj8rqkcjw5qgdp7cv4dvpqtpmc6zsmddeep6yht7rgwcarqjpyje8xwddl967hh7ggqyag3d24ew75sv8qdjd957635vfkpvjz7d7z7k9z4gnqz62rg0hvzskh6mk545axl5z24vrqq9lxm9a30vcf705czmywudualva2883qjkmh8gfxxrcrhqsft4f8h9xug4pf8x2hrguttyagvelft5k7jsq4xm8dkjj9q6nfuks0ls25cml7u527d2xpgaz448lnph6vasud2g9qvqqqqqqqqqqqxctkgxk7sdfrathqkg3gwyep43pl8z4ahq3hgws2t6g3deux8jesj2rxdmzdt7t836urdguymq7qyq8dezy7k6rs44rkna5klkz40uta3mz6r56td3huzf0awcxfqdnrwyjjtnlrdx4kl76upc763njvugqq88ej5lrany8a3p79qv3v6nq6w56hafj4x8mgeqhlnecumnseruqerxzagfde3dsrlpfc8hkrdj97znqcce04zgtr2gg4yads0j79ahzwmv0plcg5m3uny4jg5hp5yvlsqqqzm79ue
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq9qshzc45pekt5wu2znrssa95sf88upj5wjfss9cfz2ahxgf609tu8zvay34xhzdchmjz2gylc8ugqqx0432vvnc4w852wzxjnkggr9ull99tqtpmagc90le0l5j43kre89y6l26tx3p6escdvlvgmp9jxtqwehjmah622sc4jcsqr23rnl5r0a24zvlhapfrpfr8hmn649uy93ewztcux4wck9p9wgu5c6m8mj5q723myzdxcj6jgunc0r9jcgvn2pg8fqf628227rucr59jflzj3ekm090vhtl4mwxrjpy63ftv4nyvpq6sd2a7lhp2u6chk6zgrgzu4qucvh2jylq6anse4pks77h6mulakdfgaaeazpz46eq46vw60xv3czv8n0djlvca0uf4eefzlcpzpmsutc3g475wpwld0zydsf40h40mvg4ap5hvkq7rlclnmn70c7cp3qyj39ytlwl6fqm083d0wjky0qcuu87vqmecg0krug6z2rp9xxeghf908qx225c4upmhkprs454cruqzq5xpwe2z366mf6c57uy9meyhncfp828d3khen0fmqkxclgkcw9uu9s8w5d665lyar6j5vq4ppj6q5sp8vyl2s35u35erx6j5uvwr35l0r9dfscv0dh3ljjpuwa6f60mpkjshv2s5v2takt97r6zx6jrqqee075jjkq8v76hy2206dnelp55jrc0daxxu0n2lq3l6g9gczjg92n4trstqwqthz3nzjcxudt5fcu75u9x5axr6lkspyxruw00ef5p4tjqznygzspamhvefplackpqpa9z5jlnn88lrlxlxsxcm0m7k0q82a25nmzcn7yyjc2mwytqcfwqr8espy8nm733sn5rrz725ala4s3psn9qy5p30r6nmvdwqx67agfru4t42va6lnvl9xhu3fqe0qqcczx2s4l4heag9cpe2td86f2lfe0f9xcg4xmdkgmswqlhxl5xycyu9543u3udyjtayr66ykjvpnjfasgxavnjf0ynpx7ec5npqvzdg4grtvekhuz58a6u7tdx6rh4j77kzpmc34jfpa4xx782gg0hyk4exqzpgxrmpgx0wtnr9ckpq2te9rg4nd6a2vdqpfugx6stlt78z3x4gqeyzf2y5l2rj5ydy9uqt8flk6mu9a2yqznxk50j8jc30tu5tu3hs0qvqqqqqqqqqqpcwajgg5ysywqnf7ylu9c3uhrxffa2j78ta5sc949u9ks7s698rv8uzajgz45yd33whjs7ayvcwhqqq265t4rermfpzhxck6m0np67q99xzre382km6ydpu3rd08q5fufc2x5exdlpxrzveq9qplvjecnpgpq8eduyaznqgqcurztrf7dmgvudfzjtpreh5vxsvjc076ya8hcnzqw9kdh3rufuzx2drjl4938thf76psfrfdaelp38e7h8jq9pvwyu8vuvchasdeu36urucguxkp40y7sqqq7nshzp
           verified: true
           status: accepted
           errors: ""
           warnings: ""
         - execution:
             transitions:
-              - id: au128u5yndh75dhpxcve26fgfahqpnj0hq4vzmwpfye6vg7zu2c4ggqcdv64p
+              - id: au1sycnc72ufq2puzmdfha30q6zxcytmypy05x3jmjyxjw7gpl9uy8sufhvrc
                 program: test.aleo
                 function: scalar_casts
                 inputs:
                   - type: private
-                    id: 1262456696619943166364234082659947013206737023241139516234658278005927782517field
-                    value: ciphertext1qgq2ksc55ttt5yn0e9jz4j5jt2zlw3krf9l345nntdkk26t8j4rlgqzv9dxa6kk6gwahgukt2wngwtm92wh8f9389jwczcpfc3kwmd9dpsf49awn
+                    id: 295951682367611325483362060390173130731795887813111516178754910725561833575field
+                    value: ciphertext1qgqvwljmx3e3p0v38pzkaq0nul52yaqdz9kzmmkangltmj3zknv4jrp9kel3eca9cvkhcs78ef53dyd7ffhd4c0y05jatp2692e72hymqql33zap
                 outputs:
                   - type: private
-                    id: 5077598038302065504689220409318402281918592556833927249738138706740989745040field
-                    value: ciphertext1qgqz60ns80kafrfs2dt4yuzrpl7cgwyek8uyrrf7r8t42tj9r968kzv5434pauvg46efs20l9xc44d9hx8nhpzjf2mfn3pcfgm8qzzwzzys29kvn
+                    id: 2990507046295564284714966042977226409850054840745753959985099605378643738288field
+                    value: ciphertext1qgqv8s8gljweye3atd0pwe5v2ugjpeg7tpjx8dzf99vxcd26p3n8qzqrr5q38h7dxndp03yu433a0thy6f6vmx4g42s9ev0ypaygdgpxqs62e6dy
                   - type: private
-                    id: 5978225890353511391138342761494280977791633974324723380625901259009187107671field
-                    value: ciphertext1qyqp3gjagk99kvlwznfzqta943q23q4whrhw5q8dkudfu8ynzhm0krqwlypmq
+                    id: 7812664928676321159778822026337591957108588915254237521141289820242992082438field
+                    value: ciphertext1qyqpujra48czve3l7jlagxczcp608k85a4g0r7z444urssrqmlyckpc6w42nk
                   - type: private
-                    id: 2511355861261365380643749320945349214097655650870618287316600945761394696078field
-                    value: ciphertext1qgq07g0m95thkx4frqpw29f82s438uyfpznwp0mm6syqjyna3dzsuzru3lrlr9d9n9val45qspkyzruvtsgtv0ffpsfxe67230z9xau4pytz29fx
+                    id: 4353150784454271731051612939206048818968153110462860519063785128725417948704field
+                    value: ciphertext1qgqfaudwjva5p3pexlnvdga80m3x98ek9nmq56ax6elnl584ceyggzh3wttwzwk5prxnmtfny3l57p4xpajk2a82mtk5kcfjkhz3kkh5qqhcgm9v
                   - type: private
-                    id: 7170939312401893418237731374323396533519456931152068636939536528132681954274field
-                    value: ciphertext1qgq8asd4fzz4eu98c8mvqhg065wx3k7ca8hdvp625d9cp7f9m3d8jza9wmfc5nkhnc0k3eruhu5s7sjnkj6q0dk0hj7fu8hjpn779m7xqulep4qm
+                    id: 7827567102224304741326526755847401495198605893968186681562510393392231936156field
+                    value: ciphertext1qgqtmj04vfkgew98pcd8ra74y7ddg8pwfd2tn76jtcxzsjmdkcar7p2h9zdfsq6fmh62u6ymfgsdy5spdctlkhr30rlhcetns4h23y5up53ulch3
                   - type: private
-                    id: 4065578088254685344981997964588266298676249212110025605792372576850846131850field
-                    value: ciphertext1qyqfsamh566t8jrsnsmmvuymlgsfatyv9rmxqj6gc8cl6hg6xr3uxzq8m8pq2
+                    id: 2561108850623499429073141641753214960498695203955564387969789376993324830149field
+                    value: ciphertext1qyq9rr6n4tl8p2ulqapxwj4lv59p85wyar0mqawkzr3vgltlygytcpq0tvk5p
                   - type: private
-                    id: 7704457747653830719053666514333916984770458447874991441196122295997634947173field
-                    value: ciphertext1qyq0g4w0z73pwsxy0efcz9ltk8zxpez9q0hptwkcrrkxzl7t5z2g7zsez5jqd
+                    id: 2153525020952558161712743277056091444417755645890341991766913539335976443139field
+                    value: ciphertext1qyq9f33epgjve9u5aqffkup3kf0ugd3sg6cuykc0s9t4mray6nrezygk59s4q
                   - type: private
-                    id: 3858123906258014198420457135044955945178271094779217702339583012150687216443field
-                    value: ciphertext1qyqqk9ng5afwwmjanxq2pcq52jp2tn0k7yc755r9vzuq7yt8343y2yg4fud73
+                    id: 3389586138134930506263469030562045435891346688273386815633176279483288301061field
+                    value: ciphertext1qyq9snlwlrkjkfwyega8gtvypg7qaqucmme33xk2ad7g049723y02rgrd8ary
                   - type: private
-                    id: 4062319646586486723823213218555977968132622522018277952814859152487261751316field
-                    value: ciphertext1qyqdlqwnrupy5py8sanrk3xsakqkmnph33ugy07scgc8nfw6u0lawrsqvmq55
+                    id: 2690452406412177546140045979626445032841194484567002434232939407158205793305field
+                    value: ciphertext1qyqq7whglk8v77p62h222xj9uwrqyjhdkpu508wszeh873x069dj2zq057rm9
                   - type: private
-                    id: 2619004865580956400228217138756805041747028103296622655782018559502719231808field
-                    value: ciphertext1qyq9aqfrvncsthhzgcd6zfrd35vhg8vrarfus4j7p88hhk3x9vxxgpg9xys76
+                    id: 6358749305965678570850962553821390157780071450030109071050829558522727028768field
+                    value: ciphertext1qyq09eupl3lazeupqclx5yzs8jrstyxxkqpnt5g0p57t77l4mrmkxzqsw3z8d
                   - type: private
-                    id: 1235947146947512792728581652141672150493598158656596883972915007385566005928field
-                    value: ciphertext1qyqgf7shf5kcnlcg77j86q7cxgnnynfaxqc8nedgtqg8d9w9lwl3zrgv08f5e
+                    id: 5749250693493320845318036617944785338231512227040185602058253266106283061556field
+                    value: ciphertext1qyqgmgzg7v2wnnnwkaaez0z0qtvtn3wfp6caw5vucxd300vqvzwmkqcgxrj08
                   - type: private
-                    id: 5910041238510472670731397153758625926340358681612684244064406787672610278101field
-                    value: ciphertext1qyqgmydd7w0gqe46huyj80mn3s47qcnl66wnvvcs85a9xktvnu8wcqq7s08hx
+                    id: 1990667015115330990314697907727244697694113062629051090247859188290565269257field
+                    value: ciphertext1qyqvc7nh03ht6vmnujgfjyeup3e5hgpap2t683qf2vema6sm4w86qpqcc3vf8
                   - type: private
-                    id: 1476176029520115019650672302012973694101491708512734021359735152970321763739field
-                    value: ciphertext1qyqynkjqg3qhatz3vy269yyj3fxx6x4288tcfaty0u84rgw24a0mupcxxsyh3
+                    id: 2753422437906330968173257801946463811575032910320780435638979460651785706334field
+                    value: ciphertext1qyqxugzlauawkhyh5mfxxsmng5684udyxand6wz90cp5t0cteancjzgwh2nau
                   - type: private
-                    id: 7119475303519262929218966731872976584561767158010531452821935839610127422967field
-                    value: ciphertext1qyqru0shxkjy269vj9vuzn22e8sjjegnkcgjpvv7ja65kcsfw0enupcw2rwaq
+                    id: 6161844103195601669151500667805493837767274230728876436026317555725804488907field
+                    value: ciphertext1qyqq4ktlk92c9ks9mt5zgxl4twly0s38rqlehc6rvss74lftd6nv6rs2937vf
                   - type: private
-                    id: 738547097268602744497797157442423244975856926598236933692547729756340180407field
-                    value: ciphertext1qyq8f43v5l90ntx62f7fkc6dup2r0d76z45xatze28gf27v7q2rtspgfuy8u9
+                    id: 4208201342320661192760842187185562380845045904534739307609266899353893165183field
+                    value: ciphertext1qyqzkp2tlhlp3zqgwr8zrqr2dqx2yklzrpt03dwqepxn475shfhggpsvk4dd6
                   - type: private
-                    id: 5187642377522475191017750131056711086423490876986716427292498517626356208054field
-                    value: ciphertext1qgq8z622ccymsh2tck3gzadq7jepjxrcr45x5r48rq6q8s4xjapsqreysvqfexljs347zuegrd0sq5zmjxq07a9k9p0dqzdkg7ukz0a9zqvpkmcz
+                    id: 7789049807771068621431095257394832269923888906100790895072257834059888406886field
+                    value: ciphertext1qgq99amctzdj3hgv644pz9aaxfleqdhrd9levyg3ch9lru4xkh2scy2yzejskktmsxxn2pgdhrarc5vqrkj8t4ua5hvzvz46st3vqsprzy5prq0h
                 tpk: 3257015668343738736535303449664873162539441799935443947542867818230381380656group
                 tcm: 3806388447009666508810503662079573583591873194482251408619411905316523610865field
                 scm: 2790307546796927320047093378898305140995965952534339752988105312260973283415field
             global_state_root: sr1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gk0xu
-            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqq8fhunl544m2xv269a4nt8s307tk2ahjyp33hqe572kvm4mcfhy7u9rf9cpq76xlrkqzj6p5pxlcuqq9q2t2x04wvypzhtcgwcxudqxuupwwdayh2ymwaznycccfrmuntfjxvx75tkcaukk3s7g07lu9a97qw9623grf90tzlxgd53az5uzex09u2alezaj60gnm5c7ea50md2cv0ydqrq6ghsrh74ml5knswgyuqwjkd9dgkwfqr4u0pnattd6dpcdmr2ty2j2c574ld6qa858tmepht9eg4gmsnx5x7xj559hr3rg3yqwlx5tptshelsp94ts9wxuggrnsv9mqan6pd0wxwfzue98vr3u5gx6s7s4enyaffx0p2djaylrrrqp32mlfmss60aqu006wkmq4ltltqmcucqrdgt70y09z5evcdawcq5d0sn3r4tn30283lzys7u4fghqysj60g65cq0gewt75pllgmhrrhpr5h39892th9pl6pht4luvy2a0prwt5k747658ph4599mq7tgeqgtqxpwr35rqg9r0qtk4n2dhu7vqhtqtd0h6e4dvus7m2xzjjm3yf2vqnlxfjwzhzumzjt084sr96q8yllrpnnpd4pmx4gtf45p88zlfq8paak8tg4qphpvgc2th6jyad472wakpvdzd5fz5ufgfhppweupz0v32u3cjwekunw4cdzynjrcqqleg6csr3c46w980udsneswlcgvsv8p2f54ph3lx5e9cehxulm322taf3el8ale2f6mxjafl75hkpfe7cdgfwmqvnrtre6ngxa969xj3p08pkfdwfy9zfm96qchfte3qju3rd0tyev2ppjw6gf95r2raqsmvsnada9w565gmf2qds39ymnsd423tzfwtnfp95a9hayuuy5lezg6dhpw60gfs404d0ytclts44s9sxf6ch67u9ud0qyrn5h7nedyjqu2eca6hn2uqltz5anqgss2v5psvx9yekfzt8s8gqygrvlcsdt43fz6tys7cjz7mncsmt0nshpygp7ha3y6qmjekfgeekz9ac87esx5yc7syv6qe6hm60xnatmmzd3gqeddh55quw0qvw7rvtzeq5fcps6uw8ayr5eus56tepxu3s2ydghqp2jx9j5vrne2736jyrjzmagdgsf38hf8uzn9cmd6x8j8sz7u5wcfqvqqqqqqqqqqquywl9faatjv5p0x2mxepf37eyljd2xxv8dyk0ak7u755m9ehphyywt4ks9ff9ng2zk4am4qgnrdsyqzyyqpawzr3mjz7lmec3s867s2j3hm8njfclayhdggtmzdveutt2kgtvh80gg8pul2zr6pdm8fffupq8qyk7gcd70v0rxwxvhd88n07g8pk2ygzd92nltmjw89e99sdhaszldssqfwdxpejjvey8xykpmwqclsvpsangc8ydrmg5sdaztv2952un76d5hne2tgkhqzkfmjvs7vsqqq7fjxwa
+            proof: proof1qyqsqqqqqqqqqqqpqqqqqqqqqqqp04w6zrktf0wxx0qxuyn9ncy0jmeutcttkk9s3tpvrzm0rm3mv37xe4ccjnyphalzh8v3mzettpsqq9q2t2x04wvypzhtcgwcxudqxuupwwdayh2ymwaznycccfrmuntfjxvx75tkcaukk3s7g07lu9a97qffau3uvmezj5zzy78lx62uq56kxa04fgryd7u3czxspk4h2dgva75gvl5z4trxr52sahmmc357ruq5whyqhqp8mlnpftnkzzhhvaq097rymml80pq2wyfamg0ssujlda35wx6njzyk72xwygjxg73q6psqt5v09kjrdplaqej9qaug54e9tetk6xj6wphj97fnhr3qyawww8cjwv40yrfwp7zpn9sydfm839uqzr8v4h46cyygngsgzuujrrn7xzad8ael3kpdqaj35vkvcsqsut02pu6wlet6elp0n3z43xfzqpk7qrt57vu05hpek859fyyl0ks07gut5vp0lymcuxwtkguy7hswfs47x4p44f7dne4rmdm2sd9q9l82uqpfwwddrkzl8wzduv2hqqfwkwpc0cqvdrdk0t2wydq72l26uhp7ek9c5mfc76plz86nuskawadz3wqwqrq3cflmk49kam8uv3fp5wdq878exzjkqxclcenph5pctltdzkz96nyj2cnc35uk9cv2d69dwsvqgjrqqzf2whxf2upauvh67lhsttc59nfal7yd7p77mrsd4shyluqzfp5cpkar9fy7n947d5ckjyn78va6avgqjgxj62202k08une0upnydd97w6qxg0pguf3vn05ukewjfcz67tc2py5qjmdxfedwjfqaq545t4y6hj8atasxet8sphg2tz28asj7llsnpahtwnv2nn4l9nvqvn0ccuuzzqp2jy78epalt78jrwupy38u2uwd8wlkd7lw8vx63asfj3qlzfr5xwpf5e9s3de2eczx5tqped42p3veh3pk9matzhsmg5xra5tdyqeeaapp0pf2te6mce27t5gsaxtgnpdldxjs446u6st9kpxay6335fa8tuuqz65mh98hk6mqz2el948z92ylzdzmy7vs0cwwq77hh3rzhc8asqrrp7dt806xlwzh3t2388rgsvdzvxe9pdlk6lhq2fvtwxm0tehaa5xr2zr07u9fp2lr9w7q3gr60az47pyvpk8km3q0qvqqqqqqqqqqp8dlf47yjj6l5s2drj22p6tjq4nyuemk6f7keeuhcsagg7mjp2yze55383mh2uku9gwlgg78pgwsqqqrjtzp9j6v4w49ncsy87p0lkzq8mcy8230vw2xhc6kyxw6j7nchd7zq4u7jnrhw5ntdus2prf2apgqq8lu0vvzjqgxn9tumrv8k6psdqa3y3upycds2ef6yu6mvsfe5ans7pqlu9sqllkzrm76g0jshj4m3xu9gxhve8xhx3zmx3ntfnxqslhfefm8jc3ylas99036mcuustngqqqqvgjv96
           verified: true
           status: accepted
           errors: ""
