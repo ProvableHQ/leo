@@ -26,7 +26,6 @@ use crate::cli::env::dotenv_private_key;
 use crossterm::ExecutableCommand;
 use rand::SeedableRng;
 use rand_chacha::ChaChaRng;
-use snarkvm::prelude::anyhow;
 use std::{
     io::{self, Read, Write},
     path::PathBuf,
