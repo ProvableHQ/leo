@@ -313,7 +313,6 @@ create_messages!(
         help: None,
     }
 
-    /// Enforce that cannot use an external type to do anything except input/output of function
     @formatted
     external_type_cannot_be_used_inside_function {
         args: (program: impl Display, file_type: impl Display),

@@ -44,11 +44,8 @@ program test.aleo {
             0field,
             TokenInfo { id: 0u64 }
 	    );
-        if try_get_token.id == 0u64 {
-            try_get_token = TokenInfo { id: 10u64 };
-        } else {
-            return;
-        }
+        try_get_token = (try_get_token.id == 0u64) ? TokenInfo { id: 10u64 } : try_get_token;
+        return;
     }
 }
 

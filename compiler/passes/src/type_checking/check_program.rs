@@ -16,16 +16,12 @@
 
 use crate::{DiGraphError, TypeChecker};
 
-use leo_ast::{
-    Input::{External, Internal},
-    Type::Future,
-    *,
-};
+use leo_ast::{Type, *};
 use leo_errors::{TypeCheckerError, TypeCheckerWarning};
 use leo_span::sym;
 
-use leo_ast::Variant::{AsyncFunction, AsyncTransition};
 use snarkvm::console::network::Network;
+
 use std::collections::HashSet;
 
 // TODO: Cleanup logic for tuples.
@@ -158,34 +154,35 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
             check_has_field(sym::owner, Type::Address);
         }
 
-        for Member { mode, identifier, type_, span, .. } in input.members.iter() {
-            // Check that the member type is not a tuple.
-            if matches!(type_, Type::Tuple(_)) {
-                self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
-                    if input.is_record { "record" } else { "struct" },
-                    identifier.span,
-                ));
-            }
-            // Ensure that there are no record members.
-            self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
-
-            // If the member is a struct, add it to the struct dependency graph.
-            // Note that we have already checked that each member is defined and valid.
-            if let Type::Composite(struct_member_type) = type_ {
-                // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
-                self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
-            } else if let Type::Array(array_type) = type_ {
-                // Get the base element type.
-                let base_element_type = array_type.base_element_type();
-                // If the base element type is a struct, then add it to the struct dependency graph.
-                if let Type::Identifier(member_type) = base_element_type {
-                    self.struct_graph.add_edge(input.identifier.name, member_type.name);
+        if !(input.is_record && self.scope_state.is_stub) {
+            for Member { mode, identifier, type_, span, .. } in input.members.iter() {
+                // Check that the member type is not a tuple.
+                if matches!(type_, Type::Tuple(_)) {
+                    self.emit_err(TypeCheckerError::composite_data_type_cannot_contain_tuple(
+                        if input.is_record { "record" } else { "struct" },
+                        identifier.span,
+                    ));
                 }
-            }
+                // Ensure that there are no record members.
+                self.assert_member_is_not_record(identifier.span, input.identifier.name, type_);
+                // If the member is a struct, add it to the struct dependency graph.
+                // Note that we have already checked that each member is defined and valid.
+                if let Type::Composite(struct_member_type) = type_ {
+                    // Note that since there are no cycles in the program dependency graph, there are no cycles in the struct dependency graph caused by external structs.
+                    self.struct_graph.add_edge(input.identifier.name, struct_member_type.id.name);
+                } else if let Type::Array(array_type) = type_ {
+                    // Get the base element type.
+                    let base_element_type = array_type.base_element_type();
+                    // If the base element type is a struct, then add it to the struct dependency graph.
+                    if let Type::Composite(member_type) = base_element_type {
+                        self.struct_graph.add_edge(input.identifier.name, member_type.id.name);
+                    }
+                }
 
-            // If the input is a struct, then check that the member does not have a mode.
-            if !input.is_record && !matches!(mode, Mode::None) {
-                self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                // If the input is a struct, then check that the member does not have a mode.
+                if !input.is_record && !matches!(mode, Mode::None) {
+                    self.emit_err(TypeCheckerError::struct_cannot_have_member_mode(*span));
+                }
             }
         }
     }
@@ -197,9 +194,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         match input.key_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("key", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("key", "record", input.span));
                     }
@@ -216,9 +211,7 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         match input.value_type.clone() {
             Type::Tuple(_) => self.emit_err(TypeCheckerError::invalid_mapping_type("value", "tuple", input.span)),
             Type::Composite(struct_type) => {
-                if let Some(struct_) =
-                    self.symbol_table.borrow().lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                {
+                if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                     if struct_.is_record {
                         self.emit_err(TypeCheckerError::invalid_mapping_type("value", "record", input.span));
                     }
@@ -276,15 +269,8 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
                 function
                     .input
                     .iter()
-                    .filter_map(|input| match input {
-                        Internal(parameter) => {
-                            if let Future(_) = parameter.type_.clone() {
-                                Some(parameter.identifier.name)
-                            } else {
-                                None
-                            }
-                        }
-                        External(_) => None,
+                    .filter_map(|input| {
+                        if let Type::Future(_) = input.type_.clone() { Some(input.identifier.name) } else { None }
                     })
                     .collect(),
             );
@@ -304,12 +290,12 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
         self.exit_scope(function_index);
 
         // Make sure that async transitions call finalize.
-        if self.scope_state.variant == Some(AsyncTransition) && !self.scope_state.has_called_finalize {
+        if self.scope_state.variant == Some(Variant::AsyncTransition) && !self.scope_state.has_called_finalize {
             self.emit_err(TypeCheckerError::async_transition_must_call_async_function(function.span));
         }
 
         // Check that all futures were awaited exactly once.
-        if self.scope_state.variant == Some(AsyncFunction) {
+        if self.scope_state.variant == Some(Variant::AsyncFunction) {
             // Throw error if not all futures awaits even appear once.
             if !self.await_checker.static_to_await.is_empty() {
                 self.emit_err(TypeCheckerError::future_awaits_missing(
@@ -385,24 +371,21 @@ impl<'a, N: Network> ProgramVisitor<'a> for TypeChecker<'a, N> {
 
         // Create future stubs.
         if input.variant == Variant::AsyncFunction {
-            let finalize_input_map = &mut self.finalize_input_types;
+            let finalize_input_map = &mut self.async_function_input_types;
             let resolved_inputs: Vec<Type> = input
                 .input
                 .iter()
-                .map(|input_mode| {
-                    match input_mode {
-                        Internal(function_input) => match &function_input.type_ {
-                            Future(f) => {
-                                // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
-                                Future(FutureType::new(
-                                    finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
-                                    f.location.clone(),
-                                    true,
-                                ))
-                            }
-                            _ => function_input.clone().type_,
-                        },
-                        External(_) => unreachable!("External inputs are not allowed in finalize outputs of stubs."),
+                .map(|input| {
+                    match &input.type_ {
+                        Type::Future(f) => {
+                            // Since we traverse stubs in post-order, we can assume that the corresponding finalize stub has already been traversed.
+                            Type::Future(FutureType::new(
+                                finalize_input_map.get(&f.location.clone().unwrap()).unwrap().clone(),
+                                f.location.clone(),
+                                true,
+                            ))
+                        }
+                        _ => input.clone().type_,
                     }
                 })
                 .collect();

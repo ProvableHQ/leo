@@ -16,7 +16,7 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{Mode, Type};
+use leo_ast::{Location, Mode, Type};
 
 impl<'a> CodeGenerator<'a> {
     pub(crate) fn visit_type(input: &Type) -> String {
@@ -49,10 +49,19 @@ impl<'a> CodeGenerator<'a> {
 
     pub(crate) fn visit_type_with_visibility(&self, type_: &'a Type, visibility: Mode) -> String {
         match type_ {
-            // When the type is a record.
-            // Note that this unwrap is safe because all composite types have been added to the mapping.
-            Type::Composite(struct_) if self.composite_mapping.get(&struct_.id.name).unwrap().0 => {
-                format!("{}.record", struct_.id.name)
+            // When the type is a record
+            Type::Composite(struct_)
+                if self
+                    .symbol_table
+                    .lookup_struct(Location::from(struct_), self.program_id.map(|p| p.name.name))
+                    .unwrap()
+                    .is_record =>
+            {
+                if struct_.program == self.program_id.map(|p| p.name.name) || struct_.program.is_none() {
+                    format!("{}.record", struct_.id.name)
+                } else {
+                    format!("{}.aleo/{}.record", struct_.program.unwrap(), struct_.id.name)
+                }
             }
             _ => match visibility {
                 Mode::None => Self::visit_type(type_),

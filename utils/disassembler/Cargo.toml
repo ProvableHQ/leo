@@ -1,6 +1,6 @@
 [package]
 name = "leo-disassembler"
-version = "1.11.0"
+version = "1.12.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "A disassembler for the Leo programming language"
 homepage = "https://aleo.org"
@@ -26,12 +26,12 @@ workspace = true
 
 [dependencies.leo-ast]
 path = "../../compiler/ast"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-span]
 path = "../../compiler/span"
-version = "1.11.0"
+version = "1.12.0"
 
 [dependencies.leo-errors]
 path = "../../errors"
-version = "1.11.0"
+version = "1.12.0"

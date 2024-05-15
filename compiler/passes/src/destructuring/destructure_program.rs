@@ -16,6 +16,28 @@
 
 use crate::Destructurer;
 
-use leo_ast::ProgramReconstructor;
+use leo_ast::{Function, ProgramReconstructor, StatementReconstructor};
 
-impl ProgramReconstructor for Destructurer<'_> {}
+impl ProgramReconstructor for Destructurer<'_> {
+    fn reconstruct_function(&mut self, input: Function) -> Function {
+        Function {
+            annotations: input.annotations,
+            variant: input.variant,
+            identifier: input.identifier,
+            input: input.input,
+            output: input.output,
+            output_type: input.output_type,
+            block: {
+                // Set the `is_async` flag before reconstructing the block.
+                self.is_async = input.variant.is_async_function();
+                // Reconstruct the block.
+                let block = self.reconstruct_block(input.block).0;
+                // Reset the `is_async` flag.
+                self.is_async = false;
+                block
+            },
+            span: input.span,
+            id: input.id,
+        }
+    }
+}

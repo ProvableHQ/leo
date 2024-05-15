@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.11.0"
+version = "1.12.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -45,12 +45,12 @@ members = [
 
 [workspace.dependencies.snarkos-cli]
 git = "https://github.com/AleoHQ/snarkos"
-rev = "d69e417"
+rev = "6ac2fe5"
 
 [workspace.dependencies.snarkvm]
 #version = "0.16.19"
 git = "https://github.com/AleoHQ/snarkVM"
-rev = "da3d78a"
+rev = "3ebe60c"
 
 [lib]
 path = "leo/lib.rs"
@@ -69,31 +69,31 @@ ureq = "2.9.7"
 
 [dependencies.leo-ast]
 path = "./compiler/ast"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-compiler]
 path = "./compiler/compiler"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-errors]
 path = "./errors"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-package]
 path = "./leo/package"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-parser]
 path = "./compiler/parser"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-span]
 path = "./compiler/span"
-version = "=1.11.0"
+version = "=1.12.0"
 
 [dependencies.leo-retriever]
 path = "./utils/retriever"
-version = "1.11.0"
+version = "1.12.0"
 
 [dependencies.aleo-std]
 version = "0.1.24"
@@ -139,11 +139,11 @@ default-features = false
 version = "0.6.4"
 
 [dependencies.reqwest]
-version = "0.12.2"
+version = "0.12.4"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.39.0"
+version = "0.40.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]
@@ -154,7 +154,7 @@ features = [ "derive" ]
 version = "1.0"
 
 [dependencies.serial_test]
-version = "3.0.0"
+version = "3.1.1"
 
 [dependencies.snarkos-cli]
 workspace = true
@@ -177,7 +177,7 @@ version = "0.3.18"
 features = [ "fmt" ]
 
 [dependencies.zip]
-version = "^0.6"
+version = "^1.2"
 
 [dependencies.crossterm]
 version = "0.27.0"

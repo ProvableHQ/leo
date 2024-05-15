@@ -37,7 +37,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
             program
                 .structs()
                 .iter()
-                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s, program_id.name.name)))
+                .map(|(id, s)| (Identifier::from(id).name, Composite::from_snarkvm(s)))
                 .collect_vec(),
             program
                 .records()
@@ -49,7 +49,7 @@ pub fn disassemble<N: Network, Instruction: InstructionTrait<N>, Command: Comman
         mappings: program
             .mappings()
             .into_iter()
-            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m, program_id.name.name)))
+            .map(|(id, m)| (Identifier::from(id).name, Mapping::from_snarkvm(m)))
             .collect(),
         functions: [
             program

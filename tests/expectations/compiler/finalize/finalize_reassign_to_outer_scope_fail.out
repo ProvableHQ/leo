@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ETYC0372109]: Cannot re-assign to `try_get_token` from a conditional scope to an outer scope in an async function.\n    --> compiler-test:16:13\n     |\n  16 |         let try_get_token: TokenInfo = Mapping::get_or_use(\n     |             ^^^^^^^^^^^^^\n     |\n     = This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions.\n"

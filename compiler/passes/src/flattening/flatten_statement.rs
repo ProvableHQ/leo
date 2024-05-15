@@ -61,6 +61,11 @@ impl StatementReconstructor for Flattener<'_> {
     fn reconstruct_assert(&mut self, input: AssertStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::new();
 
+        // If we are traversing an async function, then we can return the assert as it.
+        if self.is_async {
+            return (Statement::Assert(input), statements);
+        }
+
         // Flatten the arguments of the assert statement.
         let assert = AssertStatement {
             span: input.span,
@@ -222,6 +227,29 @@ impl StatementReconstructor for Flattener<'_> {
     fn reconstruct_conditional(&mut self, conditional: ConditionalStatement) -> (Statement, Self::AdditionalOutput) {
         let mut statements = Vec::with_capacity(conditional.then.statements.len());
 
+        // If we are traversing an async function, reconstruct the if and else blocks, but do not flatten them.
+        if self.is_async {
+            let then_block = self.reconstruct_block(conditional.then).0;
+            let otherwise_block = match conditional.otherwise {
+                Some(statement) => match *statement {
+                    Statement::Block(block) => self.reconstruct_block(block).0,
+                    _ => unreachable!("SSA guarantees that the `otherwise` is always a `Block`"),
+                },
+                None => Block { span: Default::default(), statements: Vec::new(), id: self.node_builder.next_id() },
+            };
+
+            return (
+                Statement::Conditional(ConditionalStatement {
+                    condition: conditional.condition,
+                    then: then_block,
+                    otherwise: Some(Box::new(Statement::Block(otherwise_block))),
+                    span: conditional.span,
+                    id: conditional.id,
+                }),
+                statements,
+            );
+        }
+
         // Add condition to the condition stack.
         self.condition_stack.push(conditional.condition.clone());
 
@@ -269,6 +297,10 @@ impl StatementReconstructor for Flattener<'_> {
     /// Transforms a return statement into an empty block statement.
     /// Stores the arguments to the return statement, which are later folded into a single return statement at the end of the function.
     fn reconstruct_return(&mut self, input: ReturnStatement) -> (Statement, Self::AdditionalOutput) {
+        // If we are traversing an async function, return as is.
+        if self.is_async {
+            return (Statement::Return(input), Default::default());
+        }
         // Construct the associated guard.
         let guard = self.construct_guard();
 

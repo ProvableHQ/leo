@@ -17,10 +17,7 @@
 use crate::{
     Annotation,
     CompositeType,
-    External,
     Function,
-    FunctionInput,
-    FunctionOutput,
     FutureType,
     Identifier,
     Input,
@@ -36,7 +33,6 @@ use crate::{
 };
 use leo_span::{sym, Span, Symbol};
 
-use crate::Type::Composite;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use snarkvm::{
@@ -91,16 +87,10 @@ impl FunctionStub {
         span: Span,
         id: NodeID,
     ) -> Self {
-        // Determine the output type of the function
-        let get_output_type = |output: &Output| match &output {
-            Output::Internal(output) => output.type_.clone(),
-            Output::External(output) => output.type_(),
-        };
-
         let output_type = match output.len() {
             0 => Type::Unit,
-            1 => get_output_type(&output[0]),
-            _ => Type::Tuple(TupleType::new(output.iter().map(get_output_type).collect())),
+            1 => output[0].type_.clone(),
+            _ => Type::Tuple(TupleType::new(output.iter().map(|o| o.type_.clone()).collect())),
         };
 
         FunctionStub { annotations, variant, identifier, input, output, output_type, span, id }
@@ -147,58 +137,55 @@ impl FunctionStub {
             .outputs()
             .iter()
             .map(|output| match output.value_type() {
-                ValueType::Constant(val) => Output::Internal(FunctionOutput {
+                ValueType::Constant(val) => vec![Output {
                     mode: Mode::Constant,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, None),
                     span: Default::default(),
                     id: Default::default(),
-                }),
-                ValueType::Public(val) => Output::Internal(FunctionOutput {
+                }],
+                ValueType::Public(val) => vec![Output {
                     mode: Mode::Public,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, None),
                     span: Default::default(),
                     id: Default::default(),
-                }),
-                ValueType::Private(val) => Output::Internal(FunctionOutput {
+                }],
+                ValueType::Private(val) => vec![Output {
                     mode: Mode::Private,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, None),
                     span: Default::default(),
                     id: Default::default(),
-                }),
-                ValueType::Record(id) => Output::Internal(FunctionOutput {
+                }],
+                ValueType::Record(id) => vec![Output {
                     mode: Mode::None,
-                    type_: Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
+                    type_: Type::Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
                     span: Default::default(),
                     id: Default::default(),
-                }),
-                ValueType::ExternalRecord(loc) => Output::External(External {
-                    identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                    program_name: ProgramId::from(loc.program_id()).name,
-                    record: Identifier::from(loc.resource()),
+                }],
+                ValueType::ExternalRecord(loc) => {
+                    vec![Output {
+                        mode: Mode::None,
+                        span: Default::default(),
+                        id: Default::default(),
+                        type_: Type::Composite(CompositeType {
+                            id: Identifier::from(loc.resource()),
+                            program: Some(ProgramId::from(loc.program_id()).name.name),
+                        }),
+                    }]
+                }
+                ValueType::Future(_) => vec![Output {
+                    mode: Mode::None,
                     span: Default::default(),
                     id: Default::default(),
-                }),
-                ValueType::Future(_) => Output::Internal(FunctionOutput {
-                    mode: Mode::Public,
                     type_: Type::Future(FutureType::new(
                         Vec::new(),
                         Some(Location::new(Some(program), Identifier::from(function.name()).name)),
                         false,
                     )),
-                    span: Default::default(),
-                    id: Default::default(),
-                }),
+                }],
             })
-            .collect_vec();
-        let output_vec = outputs
-            .iter()
-            .map(|output| match output {
-                Output::Internal(output) => output.type_.clone(),
-                Output::External(output) => {
-                    Type::Composite(CompositeType { id: output.record, program: Some(output.program_name.name) })
-                }
-            })
-            .collect_vec();
+            .collect_vec()
+            .concat();
+        let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
         let output_type = match output_vec.len() {
             0 => Type::Unit,
             1 => output_vec[0].clone(),
@@ -219,41 +206,44 @@ impl FunctionStub {
                 .map(|(index, input)| {
                     let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.value_type() {
-                        ValueType::Constant(val) => Input::Internal(FunctionInput {
+                        ValueType::Constant(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Constant,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, None),
                             span: Default::default(),
                             id: Default::default(),
-                        }),
-                        ValueType::Public(val) => Input::Internal(FunctionInput {
+                        },
+                        ValueType::Public(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Public,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, None),
                             span: Default::default(),
                             id: Default::default(),
-                        }),
-                        ValueType::Private(val) => Input::Internal(FunctionInput {
+                        },
+                        ValueType::Private(val) => Input {
                             identifier: arg_name,
                             mode: Mode::Private,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, None),
                             span: Default::default(),
                             id: Default::default(),
-                        }),
-                        ValueType::Record(id) => Input::Internal(FunctionInput {
+                        },
+                        ValueType::Record(id) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
+                            type_: Type::Composite(CompositeType { id: Identifier::from(id), program: Some(program) }),
                             span: Default::default(),
                             id: Default::default(),
-                        }),
-                        ValueType::ExternalRecord(loc) => Input::External(External {
-                            identifier: Identifier::new(Symbol::intern("dummy"), Default::default()),
-                            program_name: ProgramId::from(loc.program_id()).name,
-                            record: Identifier::from(loc.resource()),
+                        },
+                        ValueType::ExternalRecord(loc) => Input {
+                            identifier: arg_name,
+                            mode: Mode::None,
                             span: Default::default(),
                             id: Default::default(),
-                        }),
+                            type_: Type::Composite(CompositeType {
+                                id: Identifier::from(loc.name()),
+                                program: Some(ProgramId::from(loc.program_id()).name.name),
+                            }),
+                        },
                         ValueType::Future(_) => panic!("Functions do not contain futures as inputs"),
                     }
                 })
@@ -280,24 +270,22 @@ impl FunctionStub {
                 .inputs()
                 .iter()
                 .enumerate()
-                .map(|(index, input)| {
-                    Input::Internal(FunctionInput {
-                        identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
-                        mode: Mode::None,
-                        type_: match input.finalize_type() {
-                            PlaintextFinalizeType(val) => Type::from_snarkvm(val, key_name),
-                            FutureFinalizeType(val) => Type::Future(FutureType::new(
-                                Vec::new(),
-                                Some(Location::new(
-                                    Some(Identifier::from(val.program_id().name()).name),
-                                    Symbol::intern(&format!("finalize/{}", val.resource())),
-                                )),
-                                false,
+                .map(|(index, input)| Input {
+                    identifier: Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default()),
+                    mode: Mode::None,
+                    type_: match input.finalize_type() {
+                        PlaintextFinalizeType(val) => Type::from_snarkvm(val, Some(key_name)),
+                        FutureFinalizeType(val) => Type::Future(FutureType::new(
+                            Vec::new(),
+                            Some(Location::new(
+                                Some(Identifier::from(val.program_id().name()).name),
+                                Symbol::intern(&format!("finalize/{}", val.resource())),
                             )),
-                        },
-                        span: Default::default(),
-                        id: Default::default(),
-                    })
+                            false,
+                        )),
+                    },
+                    span: Default::default(),
+                    id: Default::default(),
                 })
                 .collect_vec(),
             output: Vec::new(),
@@ -315,24 +303,18 @@ impl FunctionStub {
             .outputs()
             .iter()
             .map(|output| match output.register_type() {
-                Plaintext(val) => Output::Internal(FunctionOutput {
+                Plaintext(val) => Output {
                     mode: Mode::None,
-                    type_: Type::from_snarkvm(val, program),
+                    type_: Type::from_snarkvm(val, Some(program)),
                     span: Default::default(),
                     id: Default::default(),
-                }),
+                },
                 Record(_) => panic!("Closures do not return records"),
                 ExternalRecord(_) => panic!("Closures do not return external records"),
                 Future(_) => panic!("Closures do not return futures"),
             })
             .collect_vec();
-        let output_vec = outputs
-            .iter()
-            .map(|output| match output {
-                Output::Internal(output) => output.type_.clone(),
-                Output::External(_) => panic!("Closures do not return external records"),
-            })
-            .collect_vec();
+        let output_vec = outputs.iter().map(|output| output.type_.clone()).collect_vec();
         let output_type = match output_vec.len() {
             0 => Type::Unit,
             1 => output_vec[0].clone(),
@@ -349,13 +331,13 @@ impl FunctionStub {
                 .map(|(index, input)| {
                     let arg_name = Identifier::new(Symbol::intern(&format!("arg{}", index + 1)), Default::default());
                     match input.register_type() {
-                        Plaintext(val) => Input::Internal(FunctionInput {
+                        Plaintext(val) => Input {
                             identifier: arg_name,
                             mode: Mode::None,
-                            type_: Type::from_snarkvm(val, program),
+                            type_: Type::from_snarkvm(val, None),
                             span: Default::default(),
                             id: Default::default(),
-                        }),
+                        },
                         Record(_) => panic!("Closures do not contain records as inputs"),
                         ExternalRecord(_) => panic!("Closures do not contain external records as inputs"),
                         Future(_) => panic!("Closures do not contain futures as inputs"),

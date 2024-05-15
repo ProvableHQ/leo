@@ -306,7 +306,7 @@ create_messages!(
     }
 
     @formatted
-    finalize_input_mode_must_be_public {
+    async_function_input_must_be_public {
         args: (),
         msg: format!("An input to an async function must be public."),
         help: Some("Use a `public` modifier to the input variable declaration or remove the visibility modifier entirely.".to_string()),
@@ -840,7 +840,7 @@ create_messages!(
     }
 
     @formatted
-    finalize_function_cannot_return_value {
+    async_function_cannot_return_value {
         args: (),
         msg: "An async function is not allowed to return a value.".to_string(),
         help: Some("Remove an output type in the function signature, and remove the return statement from the function. Note that the future returned by async functions is automatically inferred, and must not be explicitly written.".to_string()),
@@ -857,5 +857,26 @@ create_messages!(
         args: (operation: impl Display),
         msg: format!("Cannot use operation `{operation}` on external mapping."),
         help: Some("The only valid operations on external mappings are contains, get, and get_or_use.".to_string()),
+    }
+
+    @formatted
+    async_cannot_assign_outside_conditional {
+        args: (variable: impl Display),
+        msg: format!("Cannot re-assign to `{variable}` from a conditional scope to an outer scope in an async function."),
+        help: Some("This is a fundamental restriction that can often be avoided by using a ternary operator `?` or re-declaring the variable in the current scope. In the future, ARC XXXX (https://github.com/AleoHQ/ARCs) will support more complex assignments in async functions.".to_string()),
+    }
+
+    @formatted
+    only_async_transition_can_return_future {
+        args: (),
+        msg: "A `transition` cannot return a future.".to_string(),
+        help: Some("Use an `async transition` instead.".to_string()),
+    }
+
+    @formatted
+    async_function_not_found {
+        args: (name: impl Display),
+        msg: format!("The async function `{name}` does not exist."),
+        help: Some(format!("Ensure that `{name}` is defined as an async function in the current program.")),
     }
 );

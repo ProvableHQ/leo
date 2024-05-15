@@ -32,7 +32,7 @@ Can you find any others?
 - record ownership
 - loops and bounded iteration
 - mappings
-- finalize
+- `async`/`await`
 
 ## Running the Program
 

@@ -3,16 +3,16 @@ namespace: Compile
 expectation: Pass
 outputs:
   - - compile:
-        - initial_symbol_table: 0f5d36005197cb2fccb650b60da08e392ad4e36923fd4feb47db3a6fbb7a11de
-          type_checked_symbol_table: 9276817b440938ef8b32982f5bbfa1161c9d01d5f02c8440c3dc0ddbc30ba758
-          unrolled_symbol_table: 9276817b440938ef8b32982f5bbfa1161c9d01d5f02c8440c3dc0ddbc30ba758
-          initial_ast: 7f77f0f67271103abfc5e145f4d9ea544a8ec6c149a737901b59dc56d8550796
-          unrolled_ast: 7f77f0f67271103abfc5e145f4d9ea544a8ec6c149a737901b59dc56d8550796
-          ssa_ast: 61746da9736c5a67075ac9156b32814000f540ede62c2fa89b3df8a8e05ee3a9
-          flattened_ast: 518adf533740bccb995b3f5f008e3b8977e5c4f1534485f96215bf59821c6eb7
-          destructured_ast: a00e82771e10a3f7e7da491141c259ef12d1cbd14095c6fb749dc449cfef031a
-          inlined_ast: a00e82771e10a3f7e7da491141c259ef12d1cbd14095c6fb749dc449cfef031a
-          dce_ast: 9f713e2625f323f9ee6c55241b9d7dbe78b696034e1c0f74d7f117cfa6196298
+        - initial_symbol_table: a32d8e2614c0c938f3045c99a5ae1a9435cd34da9c543bb2fd3b10e6128d9837
+          type_checked_symbol_table: 98151b61965a5ad83116770d19d69a429dbe167b4d4554ba1da8adddb45c6d11
+          unrolled_symbol_table: 98151b61965a5ad83116770d19d69a429dbe167b4d4554ba1da8adddb45c6d11
+          initial_ast: 74f217b6c5e7a8b192fcece47a44e6ddbbd142c8d4dff924008c8da0d7a22e31
+          unrolled_ast: 74f217b6c5e7a8b192fcece47a44e6ddbbd142c8d4dff924008c8da0d7a22e31
+          ssa_ast: d85e4a21c690f5e9d73b1bfa3d6672ad58a4bb7624c569a99272a181106a7430
+          flattened_ast: a37f2ca450c849ed171f9b7908a4e5bb559f2371bb49e5500661eb0ff745551e
+          destructured_ast: 5f7c8acffdd2627554eb310018e40328b508805d463fdda163ea02c4daefb778
+          inlined_ast: 5f7c8acffdd2627554eb310018e40328b508805d463fdda163ea02c4daefb778
+          dce_ast: 55c12a97d35053d29f6d4210233920eb364c474383173cfecb07a89baad7d9eb
           bytecode: 03845ec2f54d49f71640659603ead8f68ad067a15fda438e5e13524777d1559b
           errors: ""
           warnings: ""

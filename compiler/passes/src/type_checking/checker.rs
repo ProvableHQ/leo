@@ -14,39 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CallGraph, StructGraph, SymbolTable, TypeTable, VariableSymbol, VariableType};
-
-use leo_ast::{
-    Composite,
-    CompositeType,
-    CoreConstant,
-    CoreFunction,
-    Expression,
-    Function,
-    Identifier,
-    IntegerType,
-    Location,
-    MappingType,
-    Mode,
-    Node,
-    Output,
-    Type,
-    Variant,
+use crate::{
+    type_checking::{await_checker::AwaitChecker, scope_state::ScopeState},
+    CallGraph,
+    StructGraph,
+    SymbolTable,
+    TypeTable,
+    VariableSymbol,
+    VariableType,
 };
+
+use leo_ast::*;
 use leo_errors::{emitter::Handler, TypeCheckerError, TypeCheckerWarning};
 use leo_span::{Span, Symbol};
 
 use snarkvm::console::network::Network;
 
-use crate::type_checking::{await_checker::AwaitChecker, scope_state::ScopeState};
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use itertools::Itertools;
-use leo_ast::{
-    Input::Internal,
-    Mode::Public,
-    Type::{Future, Tuple},
-    Variant::AsyncTransition,
-};
 use std::{cell::RefCell, marker::PhantomData};
 
 pub struct TypeChecker<'a, N: Network> {
@@ -65,7 +50,9 @@ pub struct TypeChecker<'a, N: Network> {
     /// Struct to store the state relevant to checking all futures are awaited.
     pub(crate) await_checker: AwaitChecker,
     /// Mapping from async function name to the inferred input types.
-    pub(crate) finalize_input_types: IndexMap<Location, Vec<Type>>,
+    pub(crate) async_function_input_types: IndexMap<Location, Vec<Type>>,
+    /// The set of used composites.
+    pub(crate) used_structs: IndexSet<Symbol>,
     // Allows the type checker to be generic over the network.
     phantom: PhantomData<N>,
 }
@@ -135,7 +122,8 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             handler,
             scope_state: ScopeState::new(),
             await_checker: AwaitChecker::new(max_depth, !disabled),
-            finalize_input_types: IndexMap::new(),
+            async_function_input_types: IndexMap::new(),
+            used_structs: IndexSet::new(),
             phantom: Default::default(),
         }
     }
@@ -183,63 +171,16 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         }
     }
 
-    /// Determines if the two types have the same structure.
-    /// Needs access to the symbol table in order to compare nested future and struct types.
-    pub(crate) fn check_eq_type_structure(&self, actual: &Type, expected: &Type, span: Span) -> bool {
-        if actual.eq_flat(expected) {
-            return true;
-        }
-        // All of these types could return false for `eq_flat` if they have an external struct.
-        match (actual, expected) {
-            (Type::Array(left), Type::Array(right)) => {
-                self.check_eq_type_structure(left.element_type(), right.element_type(), span)
-                    && left.length() == right.length()
-            }
-            (Type::Integer(left), Type::Integer(right)) => left.eq(right),
-            (Type::Mapping(left), Type::Mapping(right)) => {
-                self.check_eq_type_structure(&left.key, &right.key, span)
-                    && self.check_eq_type_structure(&left.value, &right.value, span)
-            }
-            (Type::Tuple(left), Type::Tuple(right)) if left.length() == right.length() => left
-                .elements()
-                .iter()
-                .zip_eq(right.elements().iter())
-                .all(|(left_type, right_type)| self.check_eq_type_structure(left_type, right_type, span)),
-            (Type::Composite(left), Type::Composite(right)) => {
-                if left.id.name == right.id.name && left.program == right.program {
-                    true
-                }
-                // TODO: Can optimize by caching the successful matches.
-                else if !self.check_duplicate_struct(left.id.name, left.program.unwrap(), right.program.unwrap()) {
-                    self.emit_err(TypeCheckerError::struct_definitions_dont_match(
-                        left.id.name.to_string(),
-                        left.program.unwrap().to_string(),
-                        right.program.unwrap().to_string(),
-                        span,
-                    ));
-                    false
-                } else {
-                    true
-                }
-            }
-            // Don't type check when type hasn't been explicitly defined.
-            (Type::Future(left), Type::Future(right)) if !left.is_explicit || !right.is_explicit => true,
-            (Type::Future(left), Type::Future(right)) if left.inputs.len() == right.inputs.len() => left
-                .inputs()
-                .iter()
-                .zip_eq(right.inputs().iter())
-                .all(|(left_type, right_type)| self.check_eq_type_structure(left_type, right_type, span)),
-            _ => false,
-        }
-    }
-
     /// Emits an error if the two given types are not equal.
     pub(crate) fn check_eq_types(&self, t1: &Option<Type>, t2: &Option<Type>, span: Span) {
         match (t1, t2) {
-            (Some(t1), Some(t2)) => {
-                if !self.check_eq_type_structure(t1, t2, span) {
-                    self.emit_err(TypeCheckerError::expected_one_type_of(t1.to_string(), t2, span));
+            (Some(t1), Some(t2)) if !Type::eq_flat_relax_composite(t1, t2) => {
+                // If both types are futures, print them out.
+                if let (Type::Future(f1), Type::Future(f2)) = (t1, t2) {
+                    println!("Future 1: {:?}", f1);
+                    println!("Future 2: {:?}", f2);
                 }
+                self.emit_err(TypeCheckerError::type_should_be(t1, t2, span))
             }
             (Some(type_), None) | (None, Some(type_)) => {
                 self.emit_err(TypeCheckerError::type_should_be("no type", type_, span))
@@ -250,7 +191,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
 
     /// Use this method when you know the actual type.
     /// Emits an error to the handler if the `actual` type is not equal to the `expected` type.
-    pub(crate) fn assert_and_return_type(&self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
+    pub(crate) fn assert_and_return_type(&mut self, actual: Type, expected: &Option<Type>, span: Span) -> Type {
         if expected.is_some() {
             self.check_eq_types(&Some(actual.clone()), expected, span);
         }
@@ -258,8 +199,10 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     }
 
     /// Emits an error to the error handler if the `actual` type is not equal to the `expected` type.
-    pub(crate) fn assert_type(&self, actual: &Option<Type>, expected: &Type, span: Span) {
-        self.check_type(|actual: &Type| actual.eq_flat(expected), expected.to_string(), actual, span)
+    pub(crate) fn assert_type(&mut self, actual: &Option<Type>, expected: &Type, span: Span) {
+        if let Some(actual) = actual {
+            self.check_eq_types(&Some(actual.clone()), &Some(expected.clone()), span);
+        }
     }
 
     /// Emits an error to the error handler if the given type is not an address.
@@ -1098,60 +1041,11 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         Type::Composite(current_struct)
     }
 
-    /// Determines if two struct definitions from different programs match or not.
-    pub(crate) fn check_duplicate_struct(&self, name: Symbol, program_1: Symbol, program_2: Symbol) -> bool {
-        // Make sure that both structs have been defined already.
-        let st = self.symbol_table.borrow();
-        let (struct_1, struct_2) = match (
-            st.lookup_struct(Location::new(Some(program_1), name)),
-            st.lookup_struct(Location::new(Some(program_2), name)),
-        ) {
-            (Some(struct_1), Some(struct_2)) => (struct_1, struct_2),
-            _ => return false,
-        };
-
-        // Make sure both structs have the same number of members
-        if struct_1.members.len() != struct_2.members.len() {
-            return false;
-        }
-
-        // Make sure that all members of the structs match.
-        for (member_1, member_2) in struct_1.members.iter().zip(struct_2.members.iter()) {
-            // Make sure that the member names match.
-            if member_1.identifier.name != member_2.identifier.name {
-                return false;
-            }
-
-            // Make sure that the member types match.
-            if member_1.type_.eq_flat(&member_2.type_) {
-                continue;
-            }
-
-            // Recursively check that the member types match in the case that the type is struct.
-            return if let (Type::Composite(internal_struct_1), Type::Composite(internal_struct_2)) =
-                (&member_1.type_, &member_2.type_)
-            {
-                self.check_duplicate_struct(
-                    internal_struct_1.id.name,
-                    internal_struct_1.program.unwrap(),
-                    internal_struct_2.program.unwrap(),
-                )
-            } else {
-                false
-            };
-        }
-        true
-    }
-
     /// Emits an error if the struct member is a record type.
-    pub(crate) fn assert_member_is_not_record(&self, span: Span, parent: Symbol, type_: &Type) {
+    pub(crate) fn assert_member_is_not_record(&mut self, span: Span, parent: Symbol, type_: &Type) {
         match type_ {
             Type::Composite(struct_)
-                if self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .map_or(false, |struct_| struct_.is_record) =>
+                if self.lookup_struct(struct_.program, struct_.id.name).map_or(false, |struct_| struct_.is_record) =>
             {
                 self.emit_err(TypeCheckerError::struct_or_record_cannot_contain_record(parent, struct_.id.name, span))
             }
@@ -1165,7 +1059,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
     }
 
     /// Emits an error if the type or its constituent types is not valid.
-    pub(crate) fn assert_type_is_valid(&self, type_: &Type, span: Span) -> bool {
+    pub(crate) fn assert_type_is_valid(&mut self, type_: &Type, span: Span) -> bool {
         let mut is_valid = true;
         match type_ {
             // String types are temporarily disabled.
@@ -1174,13 +1068,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 self.emit_err(TypeCheckerError::strings_are_not_supported(span));
             }
             // Check that the named composite type has been defined.
-            Type::Composite(struct_)
-                if self
-                    .symbol_table
-                    .borrow()
-                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    .is_none() =>
-            {
+            Type::Composite(struct_) if self.lookup_struct(struct_.program, struct_.id.name).is_none() => {
                 is_valid = false;
                 self.emit_err(TypeCheckerError::undefined_type(struct_.id.name, span));
             }
@@ -1213,11 +1101,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     // Array elements cannot be records.
                     Type::Composite(struct_type) => {
                         // Look up the type.
-                        if let Some(struct_) = self
-                            .symbol_table
-                            .borrow()
-                            .lookup_struct(Location::new(struct_type.program, struct_type.id.name))
-                        {
+                        if let Some(struct_) = self.lookup_struct(struct_type.program, struct_type.id.name) {
                             // Check that the type is not a record.
                             if struct_.is_record {
                                 self.emit_err(TypeCheckerError::array_element_cannot_be_record(span));
@@ -1255,11 +1139,11 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         if self.scope_state.variant == Some(Variant::AsyncFunction) && !self.scope_state.is_stub {
             // Finalize functions are not allowed to return values.
             if !function.output.is_empty() {
-                self.emit_err(TypeCheckerError::finalize_function_cannot_return_value(function.span()));
+                self.emit_err(TypeCheckerError::async_function_cannot_return_value(function.span()));
             }
 
             // Check that the input types are consistent with when the function is invoked.
-            if let Some(inferred_input_types) = self.finalize_input_types.get(&self.scope_state.location()) {
+            if let Some(inferred_input_types) = self.async_function_input_types.get(&self.scope_state.location()) {
                 // Check same number of inputs as expected.
                 if inferred_input_types.len() != function.input.len() {
                     return self.emit_err(TypeCheckerError::async_function_input_length_mismatch(
@@ -1269,25 +1153,23 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                     ));
                 }
                 // Check that the input parameters match the inferred types from when the async function is invoked.
-                function.input.iter().zip_eq(inferred_input_types.iter()).for_each(|(t1, t2)| {
-                    if let Internal(fn_input) = t1 {
-                        // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
-                        if matches!(t2, Type::Future(_)) && matches!(fn_input.type_, Type::Future(_)) {
-                            // Insert to symbol table
-                            if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
-                                Location::new(None, fn_input.identifier.name),
-                                VariableSymbol {
-                                    type_: t2.clone(),
-                                    span: fn_input.identifier.span(),
-                                    declaration: VariableType::Input(Public),
-                                },
-                            ) {
-                                self.handler.emit_err(err);
-                            }
+                for (t1, t2) in function.input.iter().zip_eq(inferred_input_types.iter()) {
+                    // Allow partial type matching of futures since inferred are fully typed, whereas AST has default futures.
+                    if matches!(t2, Type::Future(_)) && matches!(t1.type_(), Type::Future(_)) {
+                        // Insert to symbol table
+                        if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
+                            Location::new(None, t1.identifier().name),
+                            VariableSymbol {
+                                type_: t2.clone(),
+                                span: t1.identifier.span(),
+                                declaration: VariableType::Input(Mode::Public),
+                            },
+                        ) {
+                            self.handler.emit_err(err);
                         }
-                        self.check_eq_types(&Some(t1.type_()), &Some(t2.clone()), t1.span())
                     }
-                });
+                    self.check_eq_types(&Some(t1.type_().clone()), &Some(t2.clone()), t1.span())
+                }
             } else {
                 self.emit_warning(TypeCheckerWarning::async_function_is_never_called_by_transition_function(
                     function.identifier.name,
@@ -1299,7 +1181,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         // Type check the function's parameters.
         function.input.iter().enumerate().for_each(|(_index, input_var)| {
             // Check that the type of input parameter is defined.
-            self.assert_type_is_valid(&input_var.type_(), input_var.span());
+            self.assert_type_is_valid(input_var.type_(), input_var.span());
             // Check that the type of the input parameter is not a tuple.
             if matches!(input_var.type_(), Type::Tuple(_)) {
                 self.emit_err(TypeCheckerError::function_cannot_take_tuple_as_input(input_var.span()))
@@ -1308,9 +1190,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
             else if let Type::Composite(struct_) = input_var.type_() {
                 // Throw error for undefined type.
                 if !function.variant.is_transition() {
-                    if let Some(elem) =
-                        self.symbol_table.borrow().lookup_struct(Location::new(struct_.program, struct_.id.name))
-                    {
+                    if let Some(elem) = self.lookup_struct(struct_.program, struct_.id.name) {
                         if elem.is_record {
                             self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()))
                         }
@@ -1320,29 +1200,30 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 }
             }
 
-            // Check that the finalize input parameter is not constant or private.
-            if self.scope_state.variant == Some(Variant::AsyncFunction)
-                && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
-                && (input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private)
-            {
-                self.emit_err(TypeCheckerError::finalize_input_mode_must_be_public(input_var.span()));
-            }
-
             // Note that this unwrap is safe since we assign to `self.variant` above.
             match self.scope_state.variant.unwrap() {
                 // If the function is a transition function, then check that the parameter mode is not a constant.
                 Variant::Transition | Variant::AsyncTransition if input_var.mode() == Mode::Constant => {
                     self.emit_err(TypeCheckerError::transition_function_inputs_cannot_be_const(input_var.span()))
                 }
-                // If the function is not a transition function, then check that the parameters do not have an associated mode.
+                // If the function is standard function or inline, then check that the parameters do not have an associated mode.
                 Variant::Function | Variant::Inline if input_var.mode() != Mode::None => {
                     self.emit_err(TypeCheckerError::regular_function_inputs_cannot_have_modes(input_var.span()))
                 }
-                // Async functions cannot have private inputs.
-                Variant::AsyncFunction if input_var.mode() == Mode::Private => {
-                    self.emit_err(TypeCheckerError::async_function_input_cannot_be_private(input_var.span()));
+                // If the function is an async function, then check that the input parameter is not constant or private.
+                Variant::AsyncFunction if input_var.mode() == Mode::Constant || input_var.mode() == Mode::Private => {
+                    self.emit_err(TypeCheckerError::async_function_input_must_be_public(input_var.span()));
                 }
                 _ => {} // Do nothing.
+            }
+
+            // If the function is not a transition function, then it cannot have a record as input
+            if let Type::Composite(struct_) = input_var.type_() {
+                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
+                    if val.is_record && !function.variant.is_transition() {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(input_var.span()));
+                    }
+                }
             }
 
             // Add function inputs to the symbol table. Futures have already been added.
@@ -1350,7 +1231,7 @@ impl<'a, N: Network> TypeChecker<'a, N> {
                 if let Err(err) = self.symbol_table.borrow_mut().insert_variable(
                     Location::new(None, input_var.identifier().name),
                     VariableSymbol {
-                        type_: input_var.type_(),
+                        type_: input_var.type_().clone(),
                         span: input_var.identifier().span(),
                         declaration: VariableType::Input(input_var.mode()),
                     },
@@ -1362,68 +1243,64 @@ impl<'a, N: Network> TypeChecker<'a, N> {
 
         // Type check the function's return type.
         // Note that checking that each of the component types are defined is sufficient to check that `output_type` is defined.
-        function.output.iter().enumerate().for_each(|(index, output)| {
-            match output {
-                Output::External(external) => {
-                    // If the function is not a transition function, then it cannot output a record.
-                    // Note that an external output must always be a record.
-                    if !function.variant.is_transition() {
-                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(external.span()));
+        function.output.iter().enumerate().for_each(|(index, function_output)| {
+            // If the function is not a transition function, then it cannot output a record.
+            // Note that an external output must always be a record.
+            if let Type::Composite(struct_) = function_output.type_.clone() {
+                if let Some(val) = self.lookup_struct(struct_.program, struct_.id.name) {
+                    if val.is_record && !function.variant.is_transition() {
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
                 }
-                Output::Internal(function_output) => {
-                    // Check that the type of output is defined.
-                    if self.assert_type_is_valid(&function_output.type_, function_output.span) {
-                        // If the function is not a transition function, then it cannot output a record.
-                        if let Type::Composite(struct_) = function_output.type_.clone() {
-                            if !function.variant.is_transition()
-                                && self
-                                    .symbol_table
-                                    .borrow()
-                                    .lookup_struct(Location::new(struct_.program, struct_.id.name))
-                                    .unwrap()
-                                    .is_record
-                            {
-                                self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(
-                                    function_output.span,
-                                ));
-                            }
-                        }
-                    }
-                    // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
-                    if matches!(&function_output.type_, Type::Tuple(_)) {
-                        self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
-                    }
-                    // Check that the mode of the output is valid.
-                    // For functions, only public and private outputs are allowed
-                    if function_output.mode == Mode::Constant {
-                        self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
-                    }
-                    // Async transitions must return exactly one future, and it must be in the last position.
-                    if self.scope_state.variant == Some(AsyncTransition)
-                        && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
-                            || (index == function.output.len() - 1
-                                && !matches!(function_output.type_, Type::Future(_))))
+            }
+            // Check that the type of output is defined.
+            if self.assert_type_is_valid(&function_output.type_, function_output.span) {
+                // If the function is not a transition function, then it cannot output a record.
+                if let Type::Composite(struct_) = function_output.type_.clone() {
+                    if !function.variant.is_transition()
+                        && self.lookup_struct(struct_.program, struct_.id.name).unwrap().is_record
                     {
-                        self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
+                        self.emit_err(TypeCheckerError::function_cannot_input_or_output_a_record(function_output.span));
                     }
                 }
+            }
+            // Check that the type of the output is not a tuple. This is necessary to forbid nested tuples.
+            if matches!(&function_output.type_, Type::Tuple(_)) {
+                self.emit_err(TypeCheckerError::nested_tuple_type(function_output.span))
+            }
+            // Check that the mode of the output is valid.
+            // For functions, only public and private outputs are allowed
+            if function_output.mode == Mode::Constant {
+                self.emit_err(TypeCheckerError::cannot_have_constant_output_mode(function_output.span));
+            }
+            // Async transitions must return exactly one future, and it must be in the last position.
+            if self.scope_state.variant == Some(Variant::AsyncTransition)
+                && ((index < function.output.len() - 1 && matches!(function_output.type_, Type::Future(_)))
+                    || (index == function.output.len() - 1 && !matches!(function_output.type_, Type::Future(_))))
+            {
+                self.emit_err(TypeCheckerError::async_transition_invalid_output(function_output.span));
+            }
+            // If the function is not an async transition, then it cannot have a future as output.
+            if self.scope_state.variant != Some(Variant::AsyncTransition)
+                && matches!(function_output.type_, Type::Future(_))
+            {
+                self.emit_err(TypeCheckerError::only_async_transition_can_return_future(function_output.span));
             }
         });
     }
 
-    /// Emits an error if the type corresponds to an external struct.
-    pub(crate) fn assert_internal_struct(&self, composite: &CompositeType, span: Span) {
-        let st = self.symbol_table.borrow();
-        match st.lookup_struct(Location::new(composite.program, composite.id.name)) {
-            None => self.emit_err(TypeCheckerError::undefined_type(composite.id, span)),
-            Some(composite_def) => {
-                if !composite_def.is_record && composite_def.external.unwrap() != self.scope_state.program_name.unwrap()
-                {
-                    self.emit_err(TypeCheckerError::cannot_define_external_struct(composite.id, span))
-                }
-            }
+    /// Wrapper around lookup_struct that additionally records all structs that are used in the program.
+    pub(crate) fn lookup_struct(&mut self, program: Option<Symbol>, name: Symbol) -> Option<Composite> {
+        let struct_ = self
+            .symbol_table
+            .borrow()
+            .lookup_struct(Location::new(program, name), self.scope_state.program_name)
+            .cloned();
+        // Record the usage.
+        if let Some(s) = &struct_ {
+            self.used_structs.insert(s.identifier.name);
         }
+        struct_
     }
 
     /// Type checks the awaiting of a future.
@@ -1460,12 +1337,12 @@ impl<'a, N: Network> TypeChecker<'a, N> {
         index: usize,
         span: Span,
     ) {
-        let ty: Type = if let Future(_) = type_ {
+        let ty: Type = if let Type::Future(_) = type_ {
             // Need to insert the fully inferred future type, or else will just be default future type.
             let ret = match inferred_type.unwrap() {
-                Future(future) => Future(future),
-                Tuple(tuple) => match tuple.elements().get(index) {
-                    Some(Future(future)) => Future(future.clone()),
+                Type::Future(future) => Type::Future(future),
+                Type::Tuple(tuple) => match tuple.elements().get(index) {
+                    Some(Type::Future(future)) => Type::Future(future.clone()),
                     _ => unreachable!("Parsing guarantees that the inferred type is a future."),
                 },
                 _ => {

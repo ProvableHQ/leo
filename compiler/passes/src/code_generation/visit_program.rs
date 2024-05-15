@@ -16,11 +16,11 @@
 
 use crate::CodeGenerator;
 
-use leo_ast::{functions, Composite, Function, Location, Mapping, Mode, Program, ProgramScope, Type, Variant};
+use leo_ast::{Composite, Function, Location, Mapping, Member, Mode, Program, ProgramScope, Type, Variant};
+use leo_span::{sym, Symbol};
 
 use indexmap::IndexMap;
 use itertools::Itertools;
-use leo_span::{sym, Symbol};
 use std::fmt::Write as _;
 
 impl<'a> CodeGenerator<'a> {
@@ -51,8 +51,21 @@ impl<'a> CodeGenerator<'a> {
         let order = self.struct_graph.post_order().unwrap();
 
         // Create a mapping of symbols to references of structs so can perform constant-time lookups.
-        let structs_map: IndexMap<Symbol, &Composite> =
-            program_scope.structs.iter().map(|(name, struct_)| (*name, struct_)).collect();
+        let structs_map: IndexMap<Symbol, &Composite> = self
+            .symbol_table
+            .structs
+            .iter()
+            .filter_map(|(name, struct_)| {
+                // Only include structs and local records.
+                if !(struct_.is_record
+                    && struct_.external.map(|program| program != self.program_id.unwrap().name.name).unwrap_or(false))
+                {
+                    Some((name.name, struct_))
+                } else {
+                    None
+                }
+            })
+            .collect();
 
         // Visit each `Struct` or `Record` in the post-ordering and produce an Aleo struct or record.
         program_string.push_str(
@@ -60,9 +73,9 @@ impl<'a> CodeGenerator<'a> {
                 .into_iter()
                 .map(|name| {
                     match structs_map.get(&name) {
-                        // If the struct is found, it is a local struct.
+                        // If the struct is found, it is a struct or external record.
                         Some(struct_) => self.visit_struct_or_record(struct_),
-                        // If the struct is not found, it is an imported struct.
+                        // If the struct is not found, it is an imported record.
                         None => String::new(),
                     }
                 })
@@ -85,18 +98,11 @@ impl<'a> CodeGenerator<'a> {
                 .iter()
                 .map(|(_, function)| {
                     if function.variant != Variant::AsyncFunction {
-                        // Set the `is_transition_function` flag.
-                        self.is_transition_function = function.variant.is_transition();
-
                         let mut function_string = self.visit_function(function);
-
-                        // Unset the `is_transition_function` flag.
-                        self.is_transition_function = false;
 
                         // Attach the associated finalize to async transitions.
                         if function.variant == Variant::AsyncTransition {
                             // Set state variables.
-                            self.is_transition_function = false;
                             self.finalize_caller = Some(function.identifier.name);
                             // Generate code for the associated finalize function.
                             let finalize = &self
@@ -155,8 +161,19 @@ impl<'a> CodeGenerator<'a> {
         self.composite_mapping.insert(&record.identifier.name, (true, output_string.clone()));
         writeln!(output_string, " {}:", record.identifier).expect("failed to write to string"); // todo: check if this is safe from name conflicts.
 
+        let mut members = Vec::with_capacity(record.members.len());
+        let mut member_map: IndexMap<Symbol, Member> =
+            record.members.clone().into_iter().map(|member| (member.identifier.name, member)).collect();
+
+        // Add the owner field to the beginning of the members list.
+        // Note that type checking ensures that the owner field exists.
+        members.push(member_map.shift_remove(&sym::owner).unwrap());
+
+        // Add the remaining fields to the members list.
+        members.extend(member_map.into_iter().map(|(_, member)| member));
+
         // Construct and append the record variables.
-        for var in record.members.iter() {
+        for var in members.iter() {
             let mode = match var.mode {
                 Mode::Constant => "constant",
                 Mode::Public => "public",
@@ -178,7 +195,7 @@ impl<'a> CodeGenerator<'a> {
         // Initialize the state of `self` with the appropriate values before visiting `function`.
         self.next_register = 0;
         self.variable_mapping = IndexMap::new();
-        self.in_finalize = function.variant == Variant::AsyncFunction;
+        self.variant = Some(function.variant);
         // TODO: Figure out a better way to initialize.
         self.variable_mapping.insert(&sym::SelfLower, "self".to_string());
         self.variable_mapping.insert(&sym::block, "block".to_string());
@@ -207,25 +224,20 @@ impl<'a> CodeGenerator<'a> {
             let register_string = format!("r{}", self.next_register);
             self.next_register += 1;
 
-            let type_string = match input {
-                functions::Input::Internal(input) => {
-                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-                    let visibility = match (self.is_transition_function, self.in_finalize, input.mode) {
-                        (true, _, Mode::None) => Mode::Private,
-                        (_, true, Mode::None) => Mode::Public,
-                        _ => input.mode,
-                    };
-                    // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
-                    if matches!(input.type_, Type::Future(_)) {
-                        let location = futures.remove(0);
-                        format!("{}.aleo/{}.future", location.program.unwrap(), location.name)
-                    } else {
-                        self.visit_type_with_visibility(&input.type_, visibility)
-                    }
-                }
-                functions::Input::External(input) => {
-                    self.variable_mapping.insert(&input.identifier.name, register_string.clone());
-                    format!("{}.aleo/{}.record", input.program_name, input.record)
+            let type_string = {
+                self.variable_mapping.insert(&input.identifier.name, register_string.clone());
+                // Note that this unwrap is safe because we set the variant at the beginning of the function.
+                let visibility = match (self.variant.unwrap(), input.mode) {
+                    (Variant::AsyncTransition, Mode::None) | (Variant::Transition, Mode::None) => Mode::Private,
+                    (Variant::AsyncFunction, Mode::None) => Mode::Public,
+                    _ => input.mode,
+                };
+                // Futures are displayed differently in the input section. `input r0 as foo.aleo/bar.future;`
+                if matches!(input.type_, Type::Future(_)) {
+                    let location = futures.remove(0);
+                    format!("{}.aleo/{}.future", location.program.unwrap(), location.name)
+                } else {
+                    self.visit_type_with_visibility(&input.type_, visibility)
                 }
             };
 

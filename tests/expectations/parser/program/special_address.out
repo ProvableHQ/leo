@@ -25,14 +25,13 @@ outputs:
               variant: Transition
               identifier: "{\"id\":\"4\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":70,\\\"hi\\\":74}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":75,\\\"hi\\\":76}\"}"
-                    mode: None
-                    type_: Address
-                    span:
-                      lo: 75
-                      hi: 76
-                    id: 6
+                - identifier: "{\"id\":\"5\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":75,\\\"hi\\\":76}\"}"
+                  mode: None
+                  type_: Address
+                  span:
+                    lo: 75
+                    hi: 76
+                  id: 6
               output: []
               output_type: Unit
               block:

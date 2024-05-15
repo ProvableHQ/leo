@@ -27,17 +27,16 @@ outputs:
               identifier: "{\"id\":\"4\",\"name\":\"main\",\"span\":\"{\\\"lo\\\":72,\\\"hi\\\":76}\"}"
               input: []
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Future:
-                        inputs: []
-                        location: ~
-                        is_explicit: false
-                    span:
-                      lo: 82
-                      hi: 88
-                    id: 5
+                - mode: None
+                  type_:
+                    Future:
+                      inputs: []
+                      location: ~
+                      is_explicit: false
+                  span:
+                    lo: 82
+                    hi: 88
+                  id: 5
               output_type:
                 Future:
                   inputs: []
@@ -104,36 +103,33 @@ outputs:
               variant: AsyncFunction
               identifier: "{\"id\":\"16\",\"name\":\"finalize_main\",\"span\":\"{\\\"lo\\\":186,\\\"hi\\\":199}\"}"
               input:
-                - Internal:
-                    identifier: "{\"id\":\"17\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":200,\\\"hi\\\":201}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 200
-                      hi: 201
-                    id: 18
-                - Internal:
-                    identifier: "{\"id\":\"19\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":207,\\\"hi\\\":208}\"}"
-                    mode: None
-                    type_:
-                      Integer: U32
-                    span:
-                      lo: 207
-                      hi: 208
-                    id: 20
+                - identifier: "{\"id\":\"17\",\"name\":\"a\",\"span\":\"{\\\"lo\\\":200,\\\"hi\\\":201}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 200
+                    hi: 201
+                  id: 18
+                - identifier: "{\"id\":\"19\",\"name\":\"b\",\"span\":\"{\\\"lo\\\":207,\\\"hi\\\":208}\"}"
+                  mode: None
+                  type_:
+                    Integer: U32
+                  span:
+                    lo: 207
+                    hi: 208
+                  id: 20
               output:
-                - Internal:
-                    mode: None
-                    type_:
-                      Future:
-                        inputs: []
-                        location: ~
-                        is_explicit: false
-                    span:
-                      lo: 217
-                      hi: 223
-                    id: 21
+                - mode: None
+                  type_:
+                    Future:
+                      inputs: []
+                      location: ~
+                      is_explicit: false
+                  span:
+                    lo: 217
+                    hi: 223
+                  id: 21
               output_type:
                 Future:
                   inputs: []
