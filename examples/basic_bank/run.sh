@@ -7,26 +7,26 @@ then
 fi
 
 # The private key and address of the bank.
-# Swap these into program.json, when running transactions as the first bidder.
-# "private_key": "APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD",
-# "address": "aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a"
+# Swap these into program.json, when running transactions as the bank.
+# NETWORK=mainnet
+# PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 
 # The private key and address of the user.
-# Swap these into program.json, when running transactions as the second bidder.
-# "private_key": "APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc"
-# "address": "aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg"
+# Swap these into program.json, when running transactions as the user.
+# NETWORK=mainnet
+# PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 
 # Swap in the private key and address of the bank to .env.
 echo "
 NETWORK=mainnet
-PRIVATE_KEY=APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD
+PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 " > .env
 
 # Have the bank issue 100 tokens to the user.
 echo "
 ###############################################################################
 ########                                                               ########
-########     STEP 1: Initialize 100 tokens for aleo1zeklp...v46ngg     ########
+########     STEP 1: Initialize 100 tokens for aleo1s3ws5...em2u4t     ########
 ########                                                               ########
 ########           -----------------------------------------           ########
 ########           |      ACTION     |        AMOUNT       |           ########
@@ -40,14 +40,14 @@ echo "
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      WALLET     | aleo1zeklp...v46ngg |           ########
+########           |      WALLET     | aleo1s3ws5...em2u4t |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |         100         |           ########
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      BANK       | aleo1zeklp...v46ngg |           ########
+########           |      BANK       | aleo1rhgdu...vzp9px |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |          0          |           ########
@@ -63,19 +63,20 @@ echo "
 ########                                                               ########
 ###############################################################################
 "
-leo run issue aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg 100u64 || exit
+leo run issue aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t 100u64 || exit
+
 
 # Swap in the private key and address of the user to .env.
 echo "
 NETWORK=mainnet
-PRIVATE_KEY=APrivateKey1zkp75cpr5NNQpVWc5mfsD9Uf2wg6XvHknf82iwB636q3rtc
+PRIVATE_KEY=APrivateKey1zkp2RWGDcde3efb89rjhME1VYA8QMxcxep5DShNBR6n8Yjh
 " > .env
 
 # Have the user deposit 50 tokens into the bank.
 echo "
 ###############################################################################
 ########                                                               ########
-########     STEP 2: aleo1zeklp...v46ngg deposits 50 tokens            ########
+########     STEP 2: aleo1s3ws5...em2u4t deposits 50 tokens            ########
 ########                                                               ########
 ########           -----------------------------------------           ########
 ########           |      ACTION     |        AMOUNT       |           ########
@@ -89,14 +90,14 @@ echo "
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      WALLET     | aleo1zeklp...v46ngg |           ########
+########           |      WALLET     | aleo1s3ws5...em2u4t |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |          50         |           ########
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      BANK       | aleo1zeklp...v46ngg |           ########
+########           |      BANK       | aleo1rhgdu...vzp9px |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |          50         |           ########
@@ -113,7 +114,7 @@ echo "
 ###############################################################################
 "
 leo run deposit "{
-    owner: aleo1zeklp6dd8e764spe74xez6f8w27dlua3w7hl4z2uln03re52egpsv46ngg.private,
+    owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
     amount: 100u64.private,
     _nonce: 4668394794828730542675887906815309351994017139223602571716627453741502624516group.public
 }"  50u64 || exit
@@ -135,14 +136,14 @@ echo "
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      WALLET     | aleo1zeklp...v46ngg |           ########
+########           |      WALLET     | aleo1s3ws5...em2u4t |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |          50         |           ########
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      BANK       | aleo1zeklp...v46ngg |           ########
+########           |      BANK       | aleo1rhgdu...vzp9px |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |         266         |           ########
@@ -162,14 +163,14 @@ echo "
 # Swap in the private key and address of the bank to .env.
 echo "
 NETWORK=mainnet
-PRIVATE_KEY=APrivateKey1zkpHtqVWT6fSHgUMNxsuVf7eaR6id2cj7TieKY1Z8CP5rCD
+PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
 " > .env
 
 # Have the bank withdraw all of the user's tokens with compound interest over 15 periods at 12.34%.
 echo "
 ###############################################################################
 ########                                                               ########
-########  STEP 4: Withdraw tokens of aleo1zeklp...v46ngg w/ interest   ########
+########  STEP 4: Withdraw tokens of aleo1s3ws5...em2u4t w/ interest   ########
 ########                                                               ########
 ########           -----------------------------------------           ########
 ########           |      ACTION     |        AMOUNT       |           ########
@@ -183,14 +184,14 @@ echo "
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      WALLET     | aleo1zeklp...v46ngg |           ########
+########           |      WALLET     | aleo1s3ws5...em2u4t |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |         316         |           ########
 ########           -----------------------------------------           ########
 ########                                                               ########
 ########           -----------------------------------------           ########
-########           |      BANK       | aleo1zeklp...v46ngg |           ########
+########           |      BANK       | aleo1rhgdu...vzp9px |           ########
 ########           -----------------------------------------           ########
 ########           -----------------------------------------           ########
 ########           |        Balance  |          0          |           ########
