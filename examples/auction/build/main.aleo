@@ -11,14 +11,14 @@ function place_bid:
     input r0 as address.private;
     input r1 as u64.private;
     assert.eq self.caller r0;
-    cast aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh r0 r1 false into r2 as Bid.record;
+    cast aleo1ashyu96tjwe63u0gtnnv8z5lhapdu4l5pjsl2kha7fv7hvz2eqxs5dz0rg r0 r1 false into r2 as Bid.record;
     output r2 as Bid.record;
 
 
 function resolve:
     input r0 as Bid.record;
     input r1 as Bid.record;
-    assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+    assert.eq self.caller aleo1ashyu96tjwe63u0gtnnv8z5lhapdu4l5pjsl2kha7fv7hvz2eqxs5dz0rg;
     gte r0.amount r1.amount into r2;
     ternary r2 r0.owner r1.owner into r3;
     ternary r2 r0.bidder r1.bidder into r4;
@@ -30,6 +30,6 @@ function resolve:
 
 function finish:
     input r0 as Bid.record;
-    assert.eq self.caller aleo1fxs9s0w97lmkwlcmgn0z3nuxufdee5yck9wqrs0umevp7qs0sg9q5xxxzh;
+    assert.eq self.caller aleo1ashyu96tjwe63u0gtnnv8z5lhapdu4l5pjsl2kha7fv7hvz2eqxs5dz0rg;
     cast r0.bidder r0.bidder r0.amount true into r1 as Bid.record;
     output r1 as Bid.record;

@@ -15,9 +15,9 @@ program basic_bank.aleo {
     // - `owner` : The address of the account to issue the token to.
     // - `amount`: The amount of tokens to issue.
     // Requires that the function caller is the bank.
-    // The bank's address is aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a.
+    // The bank's address is aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.
     transition issue(owner: address, amount: u64) -> Token {
-        assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return Token {
             owner: owner,
             amount: amount,
@@ -57,7 +57,7 @@ program basic_bank.aleo {
     // - `periods`  : The number of periods to compound the interest over.
     // Requires that the function caller is the bank.
     async transition withdraw(recipient: address, amount: u64, rate: u64, periods: u64) -> (Token, Future) {
-        assert_eq(self.caller, aleo1t0uer3jgtsgmx5tq6x6f9ecu8tr57rzzfnc2dgmcqldceal0ls9qf6st7a);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         let hash: field = BHP256::hash_to_field(recipient);
 
         let total: u64 = calculate_interest(amount, rate, periods);

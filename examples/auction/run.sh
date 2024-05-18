@@ -82,8 +82,8 @@ leo run place_bid aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4
 
 # Swap in the private key and address of the auctioneer to .env.
 echo "
-# NETWORK=mainnet
-# PRIVATE_KEY=APrivateKey1zkp2GUmKbVsuc1NSj28pa1WTQuZaK5f1DQJAT6vPcHyWokG
+NETWORK=mainnet
+PRIVATE_KEY=APrivateKey1zkp2GUmKbVsuc1NSj28pa1WTQuZaK5f1DQJAT6vPcHyWokG
 " > .env
 
 # Have the auctioneer select the winning bid.
@@ -118,7 +118,7 @@ leo run resolve "{
 echo "
 ###############################################################################
 ########                                                               ########
-########         STEP 3: The auctioneer completes the auction.         ########
+########         STEP 4: The auctioneer completes the auction.         ########
 ########                                                               ########
 ########                -------------------------------                ########
 ########                |  CLOSE  |    A    |  → B ←  |                ########
@@ -135,6 +135,13 @@ leo run finish "{
         is_winner: false.private,
         _nonce: 5952811863753971450641238938606857357746712138665944763541786901326522216736group.public
     }" || exit
+
+
+# Restore the .env file to its original state.
+echo "
+NETWORK=mainnet
+PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+" > .env
 
 
 

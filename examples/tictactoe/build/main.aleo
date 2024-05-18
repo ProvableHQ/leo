@@ -34,7 +34,7 @@ closure check_for_win:
     and r9 r10 into r11;
     or r6 r11 into r12;
     is.eq r0.r3.c1 r1 into r13;
-    is.eq r0.r3.c3 r1 into r14;
+    is.eq r0.r3.c2 r1 into r14;
     and r13 r14 into r15;
     is.eq r0.r3.c3 r1 into r16;
     and r15 r16 into r17;
@@ -46,7 +46,7 @@ closure check_for_win:
     and r21 r22 into r23;
     or r18 r23 into r24;
     is.eq r0.r1.c2 r1 into r25;
-    is.eq r0.r2.c3 r1 into r26;
+    is.eq r0.r2.c2 r1 into r26;
     and r25 r26 into r27;
     is.eq r0.r3.c2 r1 into r28;
     and r27 r28 into r29;

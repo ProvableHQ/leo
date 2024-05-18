@@ -97,8 +97,8 @@ leo run start_battleship '{
 }' '{
   owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
   incoming_fire_coordinate: 0u64.private,
-  player_1: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
-  player_2: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_1: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_2: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   prev_hit_or_miss: 0u64.private,
   _nonce: 4374626042494973146987320062571809401151262172766172816829659487584978644457group.public
 }' || exit
@@ -131,8 +131,8 @@ leo run play '{
 }' '{
   owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   incoming_fire_coordinate: 0u64.private,
-  player_1: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
-  player_2: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_1: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_2: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   prev_hit_or_miss: 0u64.private,
   _nonce: 3742551407126138397717446975757978589064777004441277005584760115236217735495group.public
 }' 1u64 || exit
@@ -166,8 +166,8 @@ leo run play '{
 }' '{
   owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
   incoming_fire_coordinate: 1u64.private,
-  player_1: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
-  player_2: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_1: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_2: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   prev_hit_or_miss: 0u64.private,
   _nonce: 5481529266389297320813092061136936339861329677911328036818179854958874588416group.public
 }' 2048u64 || exit
@@ -201,8 +201,8 @@ leo run play '{
 }' '{
   owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   incoming_fire_coordinate: 2048u64.private,
-  player_1: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
-  player_2: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_1: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_2: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   prev_hit_or_miss: 1u64.private,
   _nonce: 5851606198769770675504009323414373017067582072428989801313256693053765675198group.public
 }' 2u64 || exit
@@ -236,11 +236,18 @@ leo run play '{
 }' '{
   owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
   incoming_fire_coordinate: 2u64.private,
-  player_1: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
-  player_2: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_1: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+  player_2: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px.private,
   prev_hit_or_miss: 0u64.private,
   _nonce: 710336412388939616658264778971886770861024495941253598683184288448156545822group.public
 }' 4u64 || exit
 
 echo "
 ✅ Successfully executed Player 2's turn."
+
+
+# Restore the .env file to its original state
+echo "
+NETWORK=mainnet
+PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH
+" > .env
