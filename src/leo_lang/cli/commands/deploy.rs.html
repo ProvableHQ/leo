@@ -118,6 +118,7 @@
 <a href="#116" id="116">116</a>
 <a href="#117" id="117">117</a>
 <a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2023 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -142,8 +143,6 @@
 <span class="doccomment">/// Deploys an Aleo program.
 </span><span class="attr">#[derive(Parser, Debug)]
 </span><span class="kw">pub struct </span>Deploy {
-    <span class="attr">#[clap(long, help = <span class="string">"Endpoint to retrieve network state from."</span>, default_value = <span class="string">"http://api.explorer.aleo.org/v1"</span>)]
-    </span><span class="kw">pub </span>endpoint: String,
     <span class="attr">#[clap(flatten)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) fee_options: FeeOptions,
     <span class="attr">#[clap(long, help = <span class="string">"Disables building of the project before deployment."</span>, default_value = <span class="string">"false"</span>)]
@@ -156,6 +155,8 @@
         default_value = <span class="string">"12"
     </span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) wait: u64,
+    <span class="attr">#[clap(flatten)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) compiler_options: BuildOptions,
 }
 
 <span class="kw">impl </span>Command <span class="kw">for </span>Deploy {
@@ -168,7 +169,7 @@
 
     <span class="kw">fn </span>prelude(<span class="kw-2">&amp;</span><span class="self">self</span>, context: Context) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Input&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.no_build {
-            (Build { options: BuildOptions::default() }).execute(context)<span class="question-mark">?</span>;
+            (Build { options: <span class="self">self</span>.compiler_options.clone() }).execute(context)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -205,13 +206,14 @@
                 <span class="string">"--private-key"</span>.to_string(),
                 private_key.as_ref().unwrap().clone(),
                 <span class="string">"--query"</span>.to_string(),
-                <span class="self">self</span>.endpoint.clone(),
+                <span class="self">self</span>.compiler_options.endpoint.clone(),
                 <span class="string">"--priority-fee"</span>.to_string(),
                 <span class="self">self</span>.fee_options.priority_fee.to_string(),
                 <span class="string">"--path"</span>.to_string(),
                 path.to_str().unwrap().parse().unwrap(),
                 <span class="string">"--broadcast"</span>.to_string(),
-                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.endpoint, <span class="self">self</span>.fee_options.network).to_string(),
+                <span class="macro">format!</span>(<span class="string">"{}/{}/transaction/broadcast"</span>, <span class="self">self</span>.compiler_options.endpoint, <span class="self">self</span>.fee_options.network)
+                    .to_string(),
                 name.clone(),
             ];
 
