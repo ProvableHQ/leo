@@ -22,8 +22,6 @@ use std::path::PathBuf;
 /// Deploys an Aleo program.
 #[derive(Parser, Debug)]
 pub struct Deploy {
-    #[clap(long, help = "Endpoint to retrieve network state from.", default_value = "http://api.explorer.aleo.org/v1")]
-    pub endpoint: String,
     #[clap(flatten)]
     pub(crate) fee_options: FeeOptions,
     #[clap(long, help = "Disables building of the project before deployment.", default_value = "false")]
@@ -36,6 +34,8 @@ pub struct Deploy {
         default_value = "12"
     )]
     pub(crate) wait: u64,
+    #[clap(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Deploy {
@@ -48,7 +48,7 @@ impl Command for Deploy {
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
         if !self.no_build {
-            (Build { options: BuildOptions::default() }).execute(context)?;
+            (Build { options: self.compiler_options.clone() }).execute(context)?;
         }
         Ok(())
     }
@@ -85,13 +85,14 @@ impl Command for Deploy {
                 "--private-key".to_string(),
                 private_key.as_ref().unwrap().clone(),
                 "--query".to_string(),
-                self.endpoint.clone(),
+                self.compiler_options.endpoint.clone(),
                 "--priority-fee".to_string(),
                 self.fee_options.priority_fee.to_string(),
                 "--path".to_string(),
                 path.to_str().unwrap().parse().unwrap(),
                 "--broadcast".to_string(),
-                format!("{}/{}/transaction/broadcast", self.endpoint, self.fee_options.network).to_string(),
+                format!("{}/{}/transaction/broadcast", self.compiler_options.endpoint, self.fee_options.network)
+                    .to_string(),
                 name.clone(),
             ];
 

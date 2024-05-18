@@ -44,13 +44,13 @@ members = [
 ]
 
 [workspace.dependencies.snarkos-cli]
-git = "https://github.com/AleoHQ/snarkos"
-rev = "6ac2fe5"
+git = "https://github.com/AleoNet/snarkOS.git"
+rev = "01ea476"
 
 [workspace.dependencies.snarkvm]
 #version = "0.16.19"
-git = "https://github.com/AleoHQ/snarkVM"
-rev = "3ebe60c"
+git = "https://github.com/AleoNet/snarkVM.git"
+rev = "140ff26"
 
 [lib]
 path = "leo/lib.rs"
